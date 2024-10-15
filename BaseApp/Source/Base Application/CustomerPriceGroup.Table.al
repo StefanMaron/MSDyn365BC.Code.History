@@ -76,5 +76,13 @@ table 6 "Customer Price Group"
         {
         }
     }
+
+    procedure ToPriceSource(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := "Price Type"::Sale;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"Customer Price Group");
+        PriceSource.Validate("Source No.", Code);
+    end;
 }
 

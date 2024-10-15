@@ -382,7 +382,7 @@ page 353 "Item Availability Lines"
         "Qty. on Asm. Comp. Lines" := Item."Qty. on Asm. Component";
         "Qty. on Assembly Order" := Item."Qty. on Assembly Order";
         "Scheduled Receipt (Qty.)" := Item."Scheduled Receipt (Qty.)";
-        "Scheduled Issue (Qty.)" := Item."Scheduled Need (Qty.)";
+        "Scheduled Issue (Qty.)" := Item."Qty. on Component Lines";
         "Net Change" := Item."Net Change";
 
         OnAfterCalcAvailQuantities(Rec, Item);

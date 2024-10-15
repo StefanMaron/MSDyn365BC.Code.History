@@ -62,7 +62,7 @@ page 9130 "Contact Statistics FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCustVendBank;
+                        Rec.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", true);
                     end;
                 }
                 field("No. of Mailing Groups"; "No. of Mailing Groups")
@@ -80,7 +80,7 @@ page 9130 "Contact Statistics FactBox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        NoOfBusinessRelations := CountNoOfBusinessRelations;
+        NoOfBusinessRelations := Rec.CountNoOfBusinessRelations("Contact Business Relation Link To Table"::" ");
     end;
 
     var

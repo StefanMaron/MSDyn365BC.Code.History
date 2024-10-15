@@ -1,4 +1,4 @@
-﻿table 904 "Assemble-to-Order Link"
+table 904 "Assemble-to-Order Link"
 {
     Caption = 'Assemble-to-Order Link';
     Permissions = TableData "Assembly Header" = imd,
@@ -100,7 +100,7 @@
                 DeleteAsmFromSalesLine(NewSalesLine);
                 InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
                 InvtAdjmtEntryOrder.SetRange("Order No.", "Assembly Document No.");
-                if ("Assembly Document Type" = "Assembly Document Type"::Order) and not InvtAdjmtEntryOrder.IsEmpty then
+                if ("Assembly Document Type" = "Assembly Document Type"::Order) and not InvtAdjmtEntryOrder.IsEmpty() then
                     Insert;
                 exit;
             end;
@@ -195,7 +195,7 @@
         if WhseActivityLine.FindSet then
             repeat
                 TotalQtyToAsm += WhseActivityLine."Qty. to Handle";
-            until WhseActivityLine.Next = 0;
+            until WhseActivityLine.Next() = 0;
         if AsmExistsForInvtPickLine(InvtPickWhseActivityLine) then
             if GetAsmHeader then begin
                 Window.Open(GetWindowOpenTextInvtPick(InvtPickWhseActivityLine));
@@ -554,7 +554,7 @@
 
                     RemoveTrackingFromReservation(ReservEntry, Item."Item Tracking Code");
                 end;
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
         end;
     end;
 
@@ -587,7 +587,7 @@
         FromTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
-        GetAsmHeader;
+        GetAsmHeader();
 
         if TrackingSpecification.Find('-') then
             repeat
@@ -598,10 +598,10 @@
                 CreateReservEntry.SetQtyToHandleAndInvoice(
                   TrackingSpecification."Qty. to Handle (Base)", TrackingSpecification."Qty. to Invoice (Base)");
 
+                ReservEntry.CopyTrackingFromSpec(TrackingSpecification);
                 CreateReservEntry.CreateReservEntryFor(
                   DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
-                  AsmHeader."Qty. per Unit of Measure", 0, TrackingSpecification."Quantity (Base)",
-                  TrackingSpecification."Serial No.", TrackingSpecification."Lot No.");
+                  AsmHeader."Qty. per Unit of Measure", 0, TrackingSpecification."Quantity (Base)", ReservEntry);
 
                 FromTrackingSpecification.InitFromSalesLine(SalesLine);
                 FromTrackingSpecification."Qty. per Unit of Measure" := AsmHeader."Qty. per Unit of Measure";
@@ -612,8 +612,8 @@
 
                 CreateReservEntry.CreateEntry(
                     AsmHeader."Item No.", AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader.Description,
-                    AsmHeader."Due Date", AsmHeader."Due Date", 0, ReservEntry."Reservation Status"::Reservation);
-            until TrackingSpecification.Next = 0;
+                    AsmHeader."Due Date", AsmHeader."Due Date", 0, "Reservation Status"::Reservation);
+            until TrackingSpecification.Next() = 0;
         TrackingSpecification.DeleteAll();
     end;
 
@@ -650,7 +650,7 @@
                 AssemblyLineReserve.TransferAsmLineToAsmLine(FromAsmLine, ToAsmOrderLine, ToAsmOrderLine."Quantity (Base)");
                 AssemblyLineReserve.SetDeleteItemTracking(true);
                 AssemblyLineReserve.DeleteLine(FromAsmLine);
-            until FromAsmLine.Next = 0;
+            until FromAsmLine.Next() = 0;
 
         if CopyComments then begin
             FromAsmCommentLine.SetRange("Document Type", FromAsmHeader."Document Type");
@@ -661,7 +661,7 @@
                     ToAsmCommentLine."Document Type" := ToAsmCommentLine."Document Type"::"Assembly Order";
                     ToAsmCommentLine."Document No." := ToAsmOrderHeader."No.";
                     ToAsmCommentLine.Insert(true);
-                until FromAsmCommentLine.Next = 0;
+                until FromAsmCommentLine.Next() = 0;
         end;
     end;
 
@@ -746,7 +746,7 @@
 
                     UnitPrice += CompSalesLine."Unit Price" * AsmLine.Quantity;
                 end;
-            until AsmLine.Next = 0;
+            until AsmLine.Next() = 0;
 
         UnitPrice := Round(UnitPrice / AsmHeader.Quantity, Currency."Unit-Amount Rounding Precision");
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -774,7 +774,7 @@
         if AsmLine.Find('-') then
             repeat
                 UnitCost += AsmLine."Cost Amount";
-            until AsmLine.Next = 0;
+            until AsmLine.Next() = 0;
 
         SalesLine.Validate("Unit Cost (LCY)", Round(UnitCost / AsmHeader.Quantity, 0.00001));
         SalesLine.Modify(true);
@@ -854,7 +854,7 @@
 
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
-        if SalesLine.AsmToOrderExists(AsmHeader) and not AsmLine.IsEmpty then
+        if SalesLine.AsmToOrderExists(AsmHeader) and not AsmLine.IsEmpty() then
             exit(TransAvailAsmLinesToAsmLines(AsmHeader, TempAsmHeader, TempAsmLine, false));
         exit(TransAvailBOMCompToAsmLines(TempAsmHeader, TempAsmLine));
     end;
@@ -939,7 +939,7 @@
                 if ToAsmLine.UpdateAvailWarning then
                     ShowAsmWarning := true;
                 ToAsmLine.Insert();
-            until FromAsmLine.Next = 0;
+            until FromAsmLine.Next() = 0;
 
         exit(ShowAsmWarning);
     end;
@@ -962,7 +962,7 @@
                 if ToAsmLine.UpdateAvailWarning then
                     ShowAsmWarning := true;
                 ToAsmLine.Insert();
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
 
         exit(ShowAsmWarning);
     end;
@@ -983,7 +983,7 @@
                 if ToAsmLine.UpdateAvailWarning then
                     ShowAsmWarning := true;
                 ToAsmLine.Insert();
-            until FromPostedAsmLine.Next = 0;
+            until FromPostedAsmLine.Next() = 0;
 
         exit(ShowAsmWarning);
     end;
@@ -1257,7 +1257,7 @@
                             TempAssemblyHeader := AssemblyHeader;
                             TempAssemblyHeader.Insert();
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
         PAGE.Run(PAGE::"Assembly Orders", TempAssemblyHeader);
     end;
@@ -1271,7 +1271,7 @@
         if AssemblyLine.FindSet then
             repeat
                 AsmHeader.AutoReserveAsmLine(AssemblyLine);
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
     end;
 
     procedure SetHideConfirm(NewHideConfirm: Boolean)

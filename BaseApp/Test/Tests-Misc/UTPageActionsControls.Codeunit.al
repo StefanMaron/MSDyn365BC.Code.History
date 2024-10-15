@@ -3878,7 +3878,7 @@ codeunit 134341 "UT Page Actions & Controls"
         CreatePostCode(PostCode);
         PostCodes.OpenEdit;
         PostCodes.FILTER.SetFilter(City, PostCode.City);
-        TimeZone.FindSet;
+        TimeZone.FindSet();
         TimeZone.Next(TimeZone.Count);
         LibraryVariableStorage.Enqueue(TimeZone.ID);
         PostCodes.TimeZone.Lookup;
@@ -3999,22 +3999,6 @@ codeunit 134341 "UT Page Actions & Controls"
         VATStatementPreview.Close();
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure FinChargeTermsCodeIsNotVisibleInVendorTemplateCard()
-    var
-        VendorTemplateCard: TestPage "Vendor Template Card";
-    begin
-        // [SCENARIO 379954] Open page "Vendor Template Card" and check visibility of the variable "Fin. Charge Terms Code"
-        
-        // [WHEN] Opened page 1344 "Vendor Template Card"
-        VendorTemplateCard.OpenEdit();
-
-        // [THEN] Variable "Fin. Charge Terms Code" is not visible
-        Assert.IsFalse(VendorTemplateCard."Fin. Charge Terms Code".Visible(), '');
-        VendorTemplateCard.Close();
-    end;
-    
     [Test]
     [Scope('OnPrem')]
     procedure ProfileCustomizationListHaveFiltersAfterRunningFrimProfileList()
@@ -4308,6 +4292,7 @@ codeunit 134341 "UT Page Actions & Controls"
     local procedure MockThreeRecordsAndOpenSecondOnFilteredPage(RecVar: Variant; PageNo: Integer)
     var
         KeyValueMiddle: Variant;
+        KeyValueFirst: Variant;
         ActionOption: Option Set,Verify;
         Index: Integer;
     begin
@@ -4440,6 +4425,8 @@ codeunit 134341 "UT Page Actions & Controls"
         FieldRef.SetRange(KeyValueFirst, KeyValueLast);
 
         RecRef.SetTable(RecVar);
+
+        KeyValueFirst := FieldRef.Value;
     end;
 
     local procedure OpenPostedSalesShipment(var PostedSalesShipment: TestPage "Posted Sales Shipment"; SalesHeader: Record "Sales Header")

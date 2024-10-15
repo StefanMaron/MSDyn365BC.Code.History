@@ -138,6 +138,21 @@ codeunit 376 "Check Entry Set Recon.-No."
         BankAccReconLine."Check No." := '';
         BankAccReconLine.Validate("Statement Amount");
         BankAccReconLine.Modify();
+
+        DeletePaymentMatchDetails(BankAccReconLine);
     end;
+
+    local procedure DeletePaymentMatchDetails(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    var
+        PaymentMatchingDetails: Record "Payment Matching Details";
+    begin
+        PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliationLine."Statement Type");
+        PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
+        PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
+        PaymentMatchingDetails.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+        PaymentMatchingDetails.DeleteAll(true);
+    end;
+
+
 }
 

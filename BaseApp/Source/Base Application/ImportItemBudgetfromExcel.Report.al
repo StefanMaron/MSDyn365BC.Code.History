@@ -231,7 +231,7 @@ report 7131 "Import Item Budget from Excel"
         RecNo: Integer;
         EntryNo: Integer;
         ImportOption: Option "Replace entries","Add entries";
-        AnalysisArea: Option Sales,Purchase,Inventory;
+        AnalysisArea: Enum "Analysis Area Type";
         ValueType: Option "Sales Amount","COGS / Cost Amount",Quantity;
         ValueTypeHidden: Option "Sales Amount","COGS / Cost Amount",Quantity;
         GlSetupRead: Boolean;
@@ -266,7 +266,7 @@ report 7131 "Import Item Budget from Excel"
         CurrColumnDimValue: Code[20];
         TotalRecNo: Integer;
         HeaderRowNo: Integer;
-        SourceTypeFilter: Option " ",Customer,Vendor,Item;
+        SourceTypeFilter: Enum "Analysis Source Type";
         LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
         ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
     begin
@@ -427,10 +427,10 @@ report 7131 "Import Item Budget from Excel"
 
                                 ItemBudgetBuf.Init();
                                 ItemBudgetBuf."Item No." := ItemFilter;
-                                if SourceTypeFilter <> 0 then
+                                if SourceTypeFilter <> SourceTypeFilter::" " then
                                     ItemBudgetBuf."Source Type" := SourceTypeFilter
                                 else
-                                    ItemBudgetBuf."Source Type" := LineDimOption;
+                                    ItemBudgetBuf."Source Type" := "Analysis Source Type".FromInteger(LineDimOption);
                                 ItemBudgetBuf."Source No." := SourceNoFilter;
                                 ItemBudgetBuf."Location Code" := LocationFilter;
                                 ItemBudgetBuf."Global Dimension 1 Code" := GlobalDim1Filter;
@@ -452,12 +452,12 @@ report 7131 "Import Item Budget from Excel"
                             ExcelBuf.SetRange("Row No.");
                         end;
                 end;
-            until ExcelBuf.Next = 0;
+            until ExcelBuf.Next() = 0;
 
         Window.Close;
     end;
 
-    local procedure ExchangeFiltersWithDimValue(CurrLineDimValue: Code[20]; CurrColumnDimValue: Code[20]; LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3"; ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3"; var DateFilter: Text[30]; var ItemFilter: Code[20]; var LocationFilter: Code[10]; var GlobalDim1Filter: Code[20]; var GlobalDim2Filter: Code[20]; var BudgetDim1Filter: Code[20]; var BudgetDim2Filter: Code[20]; var BudgetDim3Filter: Code[20]; var SourceNoFilter: Code[20]; var SourceTypeFilter: Option " ",Customer,Vendor,Item)
+    local procedure ExchangeFiltersWithDimValue(CurrLineDimValue: Code[20]; CurrColumnDimValue: Code[20]; LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3"; ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3"; var DateFilter: Text[30]; var ItemFilter: Code[20]; var LocationFilter: Code[10]; var GlobalDim1Filter: Code[20]; var GlobalDim2Filter: Code[20]; var BudgetDim1Filter: Code[20]; var BudgetDim2Filter: Code[20]; var BudgetDim3Filter: Code[20]; var SourceNoFilter: Code[20]; var SourceTypeFilter: Enum "Analysis Source Type")
     begin
         case LineDimOption of
             LineDimOption::Item:
@@ -535,7 +535,7 @@ report 7131 "Import Item Budget from Excel"
         exit(ExcelBuf2."Cell Value as Text");
     end;
 
-    local procedure ConvertFiltersToValue(var DateFilter: Text[30]; var ItemFilter: Code[20]; var GlobalDim1Filter: Code[20]; var GlobalDim2Filter: Code[20]; var BudgetDim1Filter: Code[20]; var BudgetDim2Filter: Code[20]; var BudgetDim3Filter: Code[20]; var SourceNoFilter: Code[20]; SourceTypeFilter: Option " ",Customer,Vendor,Item)
+    local procedure ConvertFiltersToValue(var DateFilter: Text[30]; var ItemFilter: Code[20]; var GlobalDim1Filter: Code[20]; var GlobalDim2Filter: Code[20]; var BudgetDim1Filter: Code[20]; var BudgetDim2Filter: Code[20]; var BudgetDim3Filter: Code[20]; var SourceNoFilter: Code[20]; SourceTypeFilter: Enum "Analysis Source Type")
     var
         Item: Record Item;
         Calendar: Record Date;
@@ -655,7 +655,7 @@ report 7131 "Import Item Budget from Excel"
     procedure SetParameters(NewToItemBudgetName: Code[10]; NewAnalysisArea: Integer; NewValueType: Integer)
     begin
         ToItemBudgetName := NewToItemBudgetName;
-        AnalysisArea := NewAnalysisArea;
+        AnalysisArea := "Analysis Area Type".FromInteger(NewAnalysisArea);
         ValueTypeHidden := NewValueType;
     end;
 

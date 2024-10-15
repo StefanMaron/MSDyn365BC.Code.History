@@ -109,7 +109,7 @@ codeunit 140 "EC Sales List Suggest Lines"
         repeat
             ECSLVATReportLine."Total Value Of Supplies" := -Round(ECSLVATReportLine."Total Value Of Supplies", 1);
             ECSLVATReportLine.Modify(true);
-        until ECSLVATReportLine.Next = 0;
+        until ECSLVATReportLine.Next() = 0;
     end;
 
     local procedure DeleteZeroAmountLines()
@@ -127,7 +127,7 @@ codeunit 140 "EC Sales List Suggest Lines"
         repeat
             ECSLVATReportLineRelation.SetRange("ECSL Line No.", ECSLVATReportLine."Line No.");
             ECSLVATReportLineRelation.DeleteAll();
-        until ECSLVATReportLine.Next = 0;
+        until ECSLVATReportLine.Next() = 0;
 
         ECSLVATReportLine.DeleteAll();
     end;

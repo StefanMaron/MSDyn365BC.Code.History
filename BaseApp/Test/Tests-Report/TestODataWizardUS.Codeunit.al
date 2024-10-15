@@ -941,6 +941,47 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual(ODataExpectedName, ODataActualName, 'Object name conversion did not match the expected value.');
     end;
 
+    [Test]
+    [HandlerFunctions('SalesPriceFilterPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestWizardForPageWithFilter()
+    var
+        TenantWebService: Record "Tenant Web Service";
+        TenantWebServiceColumns: Record "Tenant Web Service Columns";
+        ODataSetupWizard: TestPage "OData Setup Wizard";
+        ServiceRootUrl: Text;
+        ServiceName: Text[240];
+        SelectText: Text;
+        FilterText: Text;
+    begin
+        // [SCENARIO] Create new endpoint for page with a filter.
+        TenantWebService.DeleteAll();
+
+        ServiceName := 'Page7002';
+
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
+        ODataSetupWizard.NextAction.Invoke(); // select action page, click through it as we are creating new.
+        ODataSetupWizard."Object ID".SetValue(PAGE::"Sales Prices");
+        ODataSetupWizard.ServiceNameEdit.SetValue(ServiceName);
+        ODataSetupWizard.NextAction.Invoke(); // select columns page should be open.
+        ODataSetupWizard.AddFiltersAction.Invoke(); // // Add sales type filter (via. SalesPriceFilterPageHandler).
+        ODataSetupWizard.PublishAction.Invoke();  // Finish Page
+        ODataSetupWizard.FinishAction.Invoke();
+
+        Assert.IsTrue(TenantWebService.Get(OBJECTTYPE::Page, ServiceName), 'Missing TenantWebService record');
+
+        TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
+        Assert.IsTrue(TenantWebServiceColumns.Find('-'), 'Missing TenantWebServiceColumns record on FindFirst');
+
+        ServiceRootUrl := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Page, PAGE::"Customer List", TenantWebService);
+        SelectText := '$select=SalesTypeFilter,SalesCodeFilterCtrl,ItemNoFilterCtrl,StartingDateFilter,CurrencyCodeFilterCtrl,FilterDescription,Sales_Type,Sales_Code,Item_No,Unit_of_Measure_Code,Minimum_Quantity,Unit_Price,Starting_Date,Ending_Date';
+        FilterText := '$filter=Sales_Type eq ''Customer''';
+
+        AssertODataUrls(ServiceRootUrl, ServiceName, SelectText, FilterText, FilterText, ObjectTypeVariable::Page);
+    end;
+
     [Scope('OnPrem')]
     procedure CreateCustomerListEndpoint(ServiceNameParam: Text[240]; FilterTextParam: Text; AddColumnsParam: Boolean; var TenantWebService: Record "Tenant Web Service")
     begin
@@ -1182,6 +1223,18 @@ codeunit 134767 "Test OData Wizard US"
         // [THEN] "City" = 'Moscow', "Post Code" = '123456', "County" = 'Moscowia',
         // [THEN] "Job Title" = 'Developer'
         VerifyNavContact(NavContact, ExchangeContact);
+    end;
+
+    [FilterPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesPriceFilterPageHandler(var SalesLineRecordRef: RecordRef): Boolean
+    var
+        SalesPrice: Record "Sales Price";
+    begin
+        SalesLineRecordRef.GetTable(SalesPrice);
+        SalesPrice.SetFilter("Sales Type", 'Customer');
+        SalesLineRecordRef.SetView(SalesPrice.GetView());
+        exit(true);
     end;
 }
 

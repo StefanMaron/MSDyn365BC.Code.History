@@ -899,7 +899,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         until TempItemJournalLine.Next = 0;
 
         TempItemJournalLine.SetRange("Entry Type");
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
 
         exit(TotalCost / TotalQuantity);
     end;
@@ -908,11 +908,11 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
 
         ItemLedgerEntry.SetCurrentKey("Entry No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
     end;
 
     local procedure ModifyPostRevaluation(ItemJnlBatch: Record "Item Journal Batch"; Factor: Decimal)

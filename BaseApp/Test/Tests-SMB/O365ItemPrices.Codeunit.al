@@ -1192,7 +1192,7 @@ codeunit 138019 "O365 Item Prices"
     begin
         with ExpectedSalesPrice do begin
             Assert.AreEqual(Count, ActualSalesPrice.Count, 'Wrong count before and after for Sales Prices');
-            FindSet;
+            FindSet();
             repeat
                 ActualSalesPrice.Get(
                   "Item No.",
@@ -1219,7 +1219,7 @@ codeunit 138019 "O365 Item Prices"
     begin
         with ExpectedSalesLnDisc do begin
             Assert.AreEqual(Count, ActualSalesLnDisc.Count, 'Wrong count before and after for Sales Prices');
-            FindSet;
+            FindSet();
             repeat
                 ActualSalesLnDisc.Get(
                   Type,
@@ -1346,8 +1346,8 @@ codeunit 138019 "O365 Item Prices"
             with SalesPrice do begin
                 Init;
                 "Item No." := ItemNo;
-                "Sales Type" := i;
-                if i = "Sales Type"::"All Customers" then
+                "Sales Type" := "Sales Price Type".FromInteger(i);
+                if i = "Sales Type"::"All Customers".AsInteger() then
                     "Sales Code" := ''
                 else
                     "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(100));
@@ -1405,7 +1405,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
         if SetToItemGroup then
             TempSalesPriceAndLineDiscBuff.SetRange(Type, TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group");
-        TempSalesPriceAndLineDiscBuff.FindSet;
+        TempSalesPriceAndLineDiscBuff.FindSet();
     end;
 
     local procedure GetSLDiscounts(var SalesLineDiscount: Record "Sales Line Discount"; SalesLineDiscountType: Enum "Sales Line Discount Type"; SalesLineDiscountCode: Code[20])
@@ -1419,7 +1419,7 @@ codeunit 138019 "O365 Item Prices"
               "Sales Type"::Customer,
               "Sales Type"::"Customer Disc. Group",
               "Sales Type"::"All Customers");
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -1432,7 +1432,7 @@ codeunit 138019 "O365 Item Prices"
     local procedure SetBufferOnlyToSPrices(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
         TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price");
-        TempSalesPriceAndLineDiscBuff.FindSet;
+        TempSalesPriceAndLineDiscBuff.FindSet();
     end;
 
     local procedure GetSPrices(var SalesPrice: Record "Sales Price"; ItemNo: Code[20])
@@ -1445,7 +1445,7 @@ codeunit 138019 "O365 Item Prices"
               "Sales Type"::Customer,
               "Sales Type"::"Customer Price Group",
               "Sales Type"::"All Customers");
-            FindSet;
+            FindSet();
         end;
     end;
 

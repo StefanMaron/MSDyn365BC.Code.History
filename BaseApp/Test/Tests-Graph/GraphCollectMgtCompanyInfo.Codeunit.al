@@ -523,7 +523,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         TempO365SocialNetwork.Validate(URL, LibraryUtility.GenerateGUID);
         TempO365SocialNetwork.Modify();
 
-        TempO365SocialNetwork.FindSet;
+        TempO365SocialNetwork.FindSet();
         GraphMgtCompanyInfo.GetSocialNetworksJSON(TempO365SocialNetwork, SocialLinksJSON);
         GraphMgtCompanyInfo.UpdateSocialNetworks(SocialLinksJSON);
 
@@ -558,7 +558,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         TempO365SocialNetwork.Delete();
 
         TempO365SocialNetwork.Reset();
-        TempO365SocialNetwork.FindSet;
+        TempO365SocialNetwork.FindSet();
         GraphMgtCompanyInfo.GetSocialNetworksJSON(TempO365SocialNetwork, SocialLinksJSON);
         GraphMgtCompanyInfo.UpdateSocialNetworks(SocialLinksJSON);
 
@@ -693,7 +693,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         O365SocialNetwork: Record "O365 Social Network";
     begin
         TempO365SocialNetwork.DeleteAll();
-        O365SocialNetwork.FindSet;
+        O365SocialNetwork.FindSet();
         repeat
             TempO365SocialNetwork.Init();
             TempO365SocialNetwork.Code := O365SocialNetwork.Code;

@@ -105,7 +105,6 @@ page 343 "Check Credit Limit"
         Heading: Text[250];
         SecondHeading: Text[250];
         NotificationId: Guid;
-        NewOrderAmountLCY: Decimal;
         OldOrderAmountLCY: Decimal;
         OrderAmountThisOrderLCY: Decimal;
         OrderAmountTotalLCY: Decimal;
@@ -113,10 +112,13 @@ page 343 "Check Credit Limit"
         ShippedRetRcdNotIndLCY: Decimal;
         OutstandingRetOrdersLCY: Decimal;
         RcdNotInvdRetOrdersLCY: Decimal;
-        DeltaAmount: Decimal;
         HideMessage: Boolean;
         HideMessageVisible: Boolean;
         ExtensionAmounts: List of [Decimal];
+
+    protected var
+        DeltaAmount: Decimal;
+        NewOrderAmountLCY: Decimal;
 
     [Scope('OnPrem')]
     procedure GenJnlLineShowWarning(GenJnlLine: Record "Gen. Journal Line"): Boolean
@@ -148,7 +150,6 @@ page 343 "Check Credit Limit"
         exit(Result);
     end;
 
-    [Scope('OnPrem')]
     procedure SalesHeaderShowWarning(SalesHeader: Record "Sales Header") Result: Boolean
     var
         OldSalesHeader: Record "Sales Header";
@@ -284,7 +285,7 @@ page 343 "Check Credit Limit"
                         CurrExchRate.ExchangeAmtFCYToLCY(
                           WorkDate, ServHeader."Currency Code",
                           ServLine."Amount Including VAT", ServHeader."Currency Factor"));
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
 
         if ServHeader."Document Type" <> ServHeader."Document Type"::Order then
             NewOrderAmountLCY := NewOrderAmountLCY + ServLineAmount(ServHeader."Document Type", ServHeader."No.", ServLine);

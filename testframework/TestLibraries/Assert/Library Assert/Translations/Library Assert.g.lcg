@@ -5,24 +5,6 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 442225071 - NamedType 2352494830" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assert.IsTrue failed. %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType IsTrueFailedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 1951989491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assert.IsFalse failed. %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType IsFalseFailedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 1167279939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Assert.AreNearlyEqual failed. Expected a difference no greater than <%1> between expected value <%2> and actual value <%3>. %4]]></Val>
@@ -41,31 +23,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType AreNotNearlyEqualFailedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 1995418520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 442225071 - NamedType 3943079121" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assert.Fail failed. %1]]></Val>
+      <Val><![CDATA[Expected error %1 actual %2]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType FailFailedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType AssertErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 3341925898" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 442225071 - NamedType 562635058" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Known failure: see VSTF Bug #%1.]]></Val>
+      <Val><![CDATA[The error has not been thrown.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType KnownFailureErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 2316275356" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assert.ExpectedError failed. Expected: %1. Actual: %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType ExpectedErrorFailedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType ErrorHasNotBeenThrownErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 2520604711" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -77,6 +50,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType ExpectedErrorCodeFailedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 442225071 - NamedType 2316275356" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Assert.ExpectedError failed. Expected: %1. Actual: %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType ExpectedErrorFailedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 1071010381" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Assert.ExpectedMessage failed. Expected: %1. Actual: %2.]]></Val>
@@ -86,58 +68,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType ExpectedMessageFailedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 3458570292" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 442225071 - NamedType 1995418520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Equality assertions only support Boolean, Option, Integer, BigInteger, Decimal, Code, Text, Date, DateFormula, Time, Duration, and DateTime values. Current value:%1.]]></Val>
+      <Val><![CDATA[Assert.Fail failed. %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType UnsupportedTypeErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType FailFailedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 1218333354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 442225071 - NamedType 1951989491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DB:RecordNotFound]]></Val>
+      <Val><![CDATA[Assert.IsFalse failed. %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordNotFoundTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType IsFalseFailedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 74906461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 442225071 - NamedType 2352494830" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DB:RecordExists]]></Val>
+      <Val><![CDATA[Assert.IsTrue failed. %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordAlreadyExistsTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType IsTrueFailedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 4149171024" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 442225071 - NamedType 3341925898" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DB:NothingInsideFilter]]></Val>
+      <Val><![CDATA[Known failure: see VSTF Bug #%1.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordNothingInsideFilterTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 3943079121" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected error %1 actual %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType AssertErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 670840788" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DB:PrimRecordNotFound]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType PrimRecordNotFoundTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType KnownFailureErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 442225071 - NamedType 525961915" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -149,13 +113,49 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType NoFilterTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 442225071 - NamedType 562635058" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 442225071 - NamedType 670840788" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The error has not been thrown.]]></Val>
+      <Val><![CDATA[DB:PrimRecordNotFound]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType ErrorHasNotBeenThrownErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType PrimRecordNotFoundTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 442225071 - NamedType 74906461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DB:RecordExists]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordAlreadyExistsTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 442225071 - NamedType 1218333354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DB:RecordNotFound]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordNotFoundTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 442225071 - NamedType 4149171024" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DB:NothingInsideFilter]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType RecordNothingInsideFilterTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 442225071 - NamedType 3458570292" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Equality assertions only support Boolean, Option, Integer, BigInteger, Decimal, Code, Text, Date, DateFormula, Time, Duration, and DateTime values. Current value:%1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library Assert - NamedType UnsupportedTypeErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

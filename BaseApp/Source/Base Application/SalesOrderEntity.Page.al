@@ -8,6 +8,9 @@ page 5495 "Sales Order Entity"
     ODataKeyFields = Id;
     PageType = API;
     SourceTable = "Sales Order Entity Buffer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

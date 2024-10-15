@@ -474,7 +474,7 @@ table 7354 Bin
                       BinContent."Max. Qty.", Cubage, Weight);
                     TotalCubage := TotalCubage + Cubage;
                     TotalWeight := TotalWeight + Weight;
-                until BinContent.Next = 0;
+                until BinContent.Next() = 0;
 
             if (not CheckWeight) and ("Maximum Cubage" > 0) and ("Maximum Cubage" - TotalCubage < 0) then
                 if not Confirm(Text005, false,
@@ -529,7 +529,7 @@ table 7354 Bin
         WhseActivLine.SetRange("Bin Code", Code);
         WhseActivLine.SetRange("Location Code", "Location Code");
         WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Movement);
-        if not WhseActivLine.IsEmpty then
+        if not WhseActivLine.IsEmpty() then
             Error(
               Text001,
               ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
@@ -537,7 +537,7 @@ table 7354 Bin
 
         WarehouseJnl.SetRange("Location Code", "Location Code");
         WarehouseJnl.SetRange("From Bin Code", Code);
-        if not WarehouseJnl.IsEmpty then
+        if not WarehouseJnl.IsEmpty() then
             Error(
               Text001,
               ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
@@ -546,7 +546,7 @@ table 7354 Bin
         WarehouseJnl.Reset();
         WarehouseJnl.SetRange("To Bin Code", Code);
         WarehouseJnl.SetRange("Location Code", "Location Code");
-        if not WarehouseJnl.IsEmpty then
+        if not WarehouseJnl.IsEmpty() then
             Error(
               Text001,
               ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
@@ -554,7 +554,7 @@ table 7354 Bin
 
         WhseRcptLine.SetRange("Bin Code", Code);
         WhseRcptLine.SetRange("Location Code", "Location Code");
-        if not WhseRcptLine.IsEmpty then
+        if not WhseRcptLine.IsEmpty() then
             Error(
               Text001,
               ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
@@ -562,7 +562,7 @@ table 7354 Bin
 
         WhseShptLine.SetRange("Bin Code", Code);
         WhseShptLine.SetRange("Location Code", "Location Code");
-        if not WhseShptLine.IsEmpty then
+        if not WhseShptLine.IsEmpty() then
             Error(
               Text001,
               ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",

@@ -1,7 +1,7 @@
 codeunit 9510 "Document Service Management"
 {
     // Provides functions for the storage of documents to online services such as O365 (Office 365).
-
+    Permissions = TableData "Document Service Cache" = rimd;
 
     trigger OnRun()
     begin
@@ -170,6 +170,7 @@ codeunit 9510 "Document Service Management"
     local procedure SetProperties(GetTokenFromCache: Boolean)
     var
         DocumentServiceRec: Record "Document Service";
+        DocumentServiceCache: Record "Document Service Cache";
         DocumentServiceHelper: DotNet NavDocumentServiceHelper;
         AccessToken: Text;
     begin
@@ -189,8 +190,18 @@ codeunit 9510 "Document Service Management"
                 DocumentService.Properties.SetProperty(FieldName(Password), Password);
                 DocumentService.Credentials := DocumentServiceHelper.ProvideCredentials;
             end else begin
+                if DocumentServiceCache.Get(SystemId) then begin
+                    if GetTokenFromCache then
+                        GetTokenFromCache := DocumentServiceCache."Use Cached Token";
+                end else
+                    CreateDocumentServiceCache(DocumentServiceCache, DocumentServiceRec, GetTokenFromCache);
+
                 GetAccessToken(Location, AccessToken, GetTokenFromCache);
                 DocumentService.Properties.SetProperty('Token', AccessToken);
+                if not DocumentServiceCache."Use Cached Token" then begin
+                    DocumentServiceCache."Use Cached Token" := true;
+                    DocumentServiceCache.Modify();
+                end;
             end;
 
             if not (DocumentServiceHelper.LastErrorMessage = '') then
@@ -241,7 +252,6 @@ codeunit 9510 "Document Service Management"
     local procedure GetAccessToken(Location: Text; var AccessToken: Text; GetTokenFromCache: Boolean)
     var
         OAuth2: Codeunit OAuth2;
-        EnvironmentInformation: Codeunit "Environment Information";
         PromptInteraction: Enum "Prompt Interaction";
         ClientId: Text;
         ClientSecret: Text;
@@ -250,12 +260,6 @@ codeunit 9510 "Document Service Management"
         AuthError: Text;
     begin
         ResourceURL := GetResourceUrl(Location);
-
-        if EnvironmentInformation.IsSaaSInfrastructure() then begin
-            OAuth2.AcquireOnBehalfOfToken('', ResourceURL, AccessToken);
-            exit;
-        end;
-
         ClientId := GetClientId();
         ClientSecret := GetClientSecret();
         RedirectURL := GetRedirectURL();
@@ -426,14 +430,68 @@ codeunit 9510 "Document Service Management"
         ClientSecret := GetClientSecretFromIsolatedStorage();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'OnOpenInExcel', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'OnOpenInExcel', '', false, false)]
     [NonDebuggable]
     local procedure OnTryAcquireAccessTokenOnOpenInExcel(Location: Text)
     var
+        DocumentServiceRec: Record "Document Service";
+        DocumentServiceCache: Record "Document Service Cache";
+        GetTokenFromCache: Boolean;
         Token: Text;
     begin
-        GetAccessToken(Location, Token, true);
+        if DocumentServiceCache.FindFirst() then
+            GetTokenFromCache := DocumentServiceCache."Use Cached Token"
+        else begin
+            DocumentServiceRec.FindFirst();
+            CreateDocumentServiceCache(DocumentServiceCache, DocumentServiceRec, true);
+            GetTokenFromCache := true;
+        end;
+
+        GetAccessToken(Location, Token, GetTokenFromCache);
         Session.SetDocumentServiceToken(Token);
+        if not DocumentServiceCache."Use Cached Token" then begin
+            DocumentServiceCache."Use Cached Token" := true;
+            DocumentServiceCache.Modify();
+        end;
+    end;
+
+    local procedure CreateDocumentServiceCache(var DocumentServiceCache: Record "Document Service Cache"; DocumentService: Record "Document Service"; UseCache: Boolean)
+    begin
+        DocumentServiceCache."Document Service Id" := DocumentService.SystemId;
+        DocumentServiceCache."Use Cached Token" := UseCache;
+        DocumentServiceCache.Insert();
+    end;
+
+
+    [EventSubscriber(ObjectType::Table, Database::"Document Service", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifyDocumentService(var Rec: Record "Document Service"; var xRec: Record "Document Service"; RunTrigger: Boolean)
+    var
+        DocumentServiceCache: Record "Document Service Cache";
+    begin
+        if DocumentServiceCache.Get(Rec.SystemId) then begin
+            if DocumentServiceCache."Use Cached Token" then begin
+                DocumentServiceCache."Use Cached Token" := false;
+                DocumentServiceCache.Modify();
+            end;
+        end else
+            CreateDocumentServiceCache(DocumentServiceCache, Rec, false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Document Service", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterInsertDocumentService(var Rec: Record "Document Service"; RunTrigger: Boolean)
+    var
+        DocumentServiceCache: Record "Document Service Cache";
+    begin
+        CreateDocumentServiceCache(DocumentServiceCache, Rec, false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Document Service", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnAfterDeleteDocumentService(var Rec: Record "Document Service"; RunTrigger: Boolean)
+    var
+        DocumentServiceCache: Record "Document Service Cache";
+    begin
+        if DocumentServiceCache.Get(Rec.SystemId) then
+            DocumentServiceCache.Delete();
     end;
 
     [IntegrationEvent(false, false)]

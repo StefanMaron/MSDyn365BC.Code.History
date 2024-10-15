@@ -1,4 +1,4 @@
-﻿codeunit 134309 "Workflow Trigger/Event Tests"
+codeunit 134309 "Workflow Trigger/Event Tests"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Approval Entry" = i;
@@ -1222,10 +1222,9 @@
         Assert.AreEqual('', GetLastErrorText, 'Empty error expected form Posting Preview');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     [Normal]
-    [Scope('OnPrem')]
-    procedure OnRunPreviewTestForOnItemChangeTest(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
+    local procedure OnRunPreviewTestForOnItemChangeTest(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         Item: Record Item;
         Item2: Record Item;
@@ -1248,8 +1247,8 @@
         VerifyArchivedWorkflowStepInstanceIsNOTCompleted(WorkflowStep);
 
         // Return for posting
-        Result := false;
-        Error('');
+        Result := FALSE;
+        ERROR('');
     end;
 
     [Test]

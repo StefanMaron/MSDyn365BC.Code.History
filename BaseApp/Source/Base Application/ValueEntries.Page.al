@@ -1,4 +1,4 @@
-﻿page 5802 "Value Entries"
+page 5802 "Value Entries"
 {
     AdditionalSearchTerms = 'costing,inventory cost,inventory valuation';
     ApplicationArea = Basic, Suite;

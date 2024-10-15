@@ -1427,7 +1427,7 @@ codeunit 134344 "Document Totals Pages"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesHeaderWithTwoLines(var SalesHeader: Record "Sales Header"; Type: Option; Qty1: Decimal; UnitPrice1: Decimal; Qty2: Decimal; UnitPrice2: Decimal)
+    local procedure CreateSalesHeaderWithTwoLines(var SalesHeader: Record "Sales Header"; Type: Enum "Sales Document Type"; Qty1: Decimal; UnitPrice1: Decimal; Qty2: Decimal; UnitPrice2: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1460,7 +1460,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseHeader.CalcFields(Amount);
     end;
 
-    local procedure CreatePurchaseHeaderWithTwoLines(var PurchaseHeader: Record "Purchase Header"; Type: Option; Qty1: Decimal; UnitPrice1: Decimal; Qty2: Decimal; UnitPrice2: Decimal)
+    local procedure CreatePurchaseHeaderWithTwoLines(var PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Document type"; Qty1: Decimal; UnitPrice1: Decimal; Qty2: Decimal; UnitPrice2: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

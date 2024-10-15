@@ -59,7 +59,7 @@ codeunit 131101 "Library - Workflow"
         if WorkflowTableRelation.Insert(true) then;
     end;
 
-    procedure CreateWorkflowStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; Type: Option; UserID: Code[50]; TemplateName: Code[10]; BatchName: Code[10]; ApproverType: Option; InformUser: Boolean)
+    procedure CreateWorkflowStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; Type: Option; UserID: Code[50]; TemplateName: Code[10]; BatchName: Code[10]; ApproverType: Enum "Workflow Approver Type"; InformUser: Boolean)
     begin
         WorkflowStepArgument.Init();
         WorkflowStepArgument.Type := Type;
@@ -112,7 +112,9 @@ codeunit 131101 "Library - Workflow"
         TempAccount: Record "Email Account" temporary;
         ConnectorMock: Codeunit "Connector Mock";
         EmailScenarioMock: Codeunit "Email Scenario Mock";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
     begin
+        LibraryLowerPermissions.AddPermissionSet('Email - Admin');
         ConnectorMock.Initialize();
         ConnectorMock.AddAccount(TempAccount);
         EmailScenarioMock.DeleteAllMappings();
@@ -397,7 +399,7 @@ codeunit 131101 "Library - Workflow"
           WorkflowStepArgument."Approver Limit Type"::"Direct Approver", '', '');
     end;
 
-    procedure UpdateWorkflowStepArgumentApproverLimitType(Argument: Guid; ApproverType: Option; ApproverLimitType: Option; WorkflowUserGroupCode: Code[20]; ApproverUserID: Code[50])
+    procedure UpdateWorkflowStepArgumentApproverLimitType(Argument: Guid; ApproverType: Enum "Workflow Approver Type"; ApproverLimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; ApproverUserID: Code[50])
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
@@ -516,7 +518,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowStepArgument.Modify(true);
     end;
 
-    procedure InsertApprovalArgument(WorkflowStepID: Integer; ApproverType: Option; ApproverLimitType: Option; WorkflowUserGroupCode: Text[20]; InformUser: Boolean)
+    procedure InsertApprovalArgument(WorkflowStepID: Integer; ApproverType: Enum "Workflow Approver Type"; ApproverLimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Text[20]; InformUser: Boolean)
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin

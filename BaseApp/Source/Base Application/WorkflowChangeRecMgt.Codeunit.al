@@ -77,7 +77,7 @@ codeunit 1531 "Workflow Change Rec Mgt."
         if WorkflowRecordChange.FindSet then
             repeat
                 ApplyNewValueFromChangeRecord(WorkflowRecordChange);
-            until WorkflowRecordChange.Next = 0
+            until WorkflowRecordChange.Next() = 0
         else
             Message(NoRecordChangesFoundMsg);
     end;

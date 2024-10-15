@@ -31,11 +31,11 @@ page 749 "Date Lookup"
         CopyFilter("Period Type", Date."Period Type");
         YearFilter := Date2DMY(Today, 3);
         Date.SetRange("Period Start", DMY2Date(1, 1, YearFilter), DMY2Date(30, 12, YearFilter));
-        Date.FindSet;
+        Date.FindSet();
         repeat
             TransferFields(Date);
             Insert;
-        until Date.Next = 0;
+        until Date.Next() = 0;
         FindFirst;
     end;
 

@@ -40,7 +40,7 @@ codeunit 428 "IC Mapping"
                                 ICDimensionValue.Modify();
                             end;
                         end;
-                    until ICDimensionValue.Next = 0;
+                    until ICDimensionValue.Next() = 0;
             end;
         end;
     end;
@@ -69,7 +69,7 @@ codeunit 428 "IC Mapping"
                                 DimensionValue.Modify();
                             end;
                         end;
-                    until DimensionValue.Next = 0;
+                    until DimensionValue.Next() = 0;
             end;
         end;
     end;

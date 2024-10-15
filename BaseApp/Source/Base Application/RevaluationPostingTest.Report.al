@@ -148,7 +148,7 @@ report 5812 "Revaluation Posting - Test"
                                 Continue := true;
                                 exit;
                             end;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()

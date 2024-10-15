@@ -407,6 +407,7 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.AreEqual(TransferLine.Quantity, TransferLine."Reserved Quantity Outbnd.", ReservedQtyErr);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ChangingCrossRefNoDoesNotChangeItemVendorLeadTimeDiffUnitsOfMeasure()
@@ -451,6 +452,7 @@ codeunit 137060 "SCM Inventory 7.0"
           LeadTimeFormula = ItemVendor."Lead Time Calculation",
           StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -497,6 +499,7 @@ codeunit 137060 "SCM Inventory 7.0"
           StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ChangingCrossRefNoDoesNotChangeItemVendorLeadTimeSameUnitOfMeasure()
@@ -537,48 +540,9 @@ codeunit 137060 "SCM Inventory 7.0"
           LeadTimeFormula = ItemVendor."Lead Time Calculation",
           StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
     end;
+#endif
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ChangingItemRefNoDoesNotChangeItemVendorLeadTimeSameUnitOfMeasure()
-    var
-        Item: Record Item;
-        ItemReference: Record "Item Reference";
-        Vendor: Record Vendor;
-        ItemVendor: Record "Item Vendor";
-        LeadTimeFormula: DateFormula;
-    begin
-        // [FEATURE] [Item Cross Reference]
-        // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Ref. No." in linked item reference when two item ref. with the same unit of measure
-        Initialize(true);
-
-        // [GIVEN] Item reference with unit of measure = "U" and Reference No. = "N1"
-        LibraryInventory.CreateItem(Item);
-        LibraryPurchase.CreateVendor(Vendor);
-        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-
-        // [GIVEN] Item reference with unit of measure = "U" and Reference No. = "N2"
-        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-
-        // [GIVEN] Set Lead Time Calculation in Item Vendor = "1D"
-        Evaluate(LeadTimeFormula, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-        UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
-
-        // [WHEN] In Item Reference change Reference No. from "N2" to "N3"
-        with ItemReference do
-            Rename("Item No.", '', "Unit of Measure", "Reference Type", "Reference Type No.", LibraryUtility.GenerateGUID);
-
-        ItemVendor.Get(Vendor."No.", Item."No.", '');
-
-        // [THEN] Item Vendor is updated: "Vendor Item No." = "N3", "Lead Time Calculation" = "1D"
-        Assert.AreEqual(
-          ItemReference."Reference No.", ItemVendor."Vendor Item No.",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
-        Assert.IsTrue(
-          LeadTimeFormula = ItemVendor."Lead Time Calculation",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
-    end;
-
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure TwoCrossReferencesWithDiffVendorsCreateTwoItemVendors()
@@ -607,6 +571,7 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
         Assert.IsTrue(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustExistErr);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -637,6 +602,7 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.IsTrue(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustExistErr);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ChangingVendorInItemCrossRefDeletesRelatedItemVendor()
@@ -667,6 +633,7 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
         Assert.IsFalse(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustNotExistErr);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -699,6 +666,7 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.IsFalse(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustNotExistErr);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ChangingUnitOfMeasureInCrosRefDoesNotChangeItemVendorLeadTime()
@@ -737,6 +705,7 @@ codeunit 137060 "SCM Inventory 7.0"
           LeadTimeFormula = ItemVendor."Lead Time Calculation",
           StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -777,6 +746,7 @@ codeunit 137060 "SCM Inventory 7.0"
           StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoCopiedFromCrossReference()
@@ -803,6 +773,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] "Vendor Item No." in purchase line is "N"
         PurchaseLine.TestField("Vendor Item No.", ItemCrossReference."Cross-Reference No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -831,6 +802,7 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoCopiedFromCrossReferenceMismatchingUoM()
@@ -864,6 +836,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] "Vendor Item No." in purchase line is "N"
         PurchaseLine.TestField("Vendor Item No.", ItemCrossReference."Cross-Reference No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -899,6 +872,7 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoPriorityCrossReferenceItemVendor()
@@ -928,6 +902,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] "Vendor Item No." in purchase line is "N2"
         PurchaseLine.TestField("Vendor Item No.", ItemCrossReference."Cross-Reference No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -959,6 +934,7 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoMismatchingCrossReferenceVendorItem()
@@ -992,6 +968,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] "Vendor Item No." in purchase line is "N1"
         PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1125,6 +1102,7 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", SKU."Vendor Item No.");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoUpdatedFromCrossRefWhenChangingUoM()
@@ -1161,6 +1139,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] Vendor item no. in purchase line = "N2"
         PurchaseLine.TestField("Vendor Item No.", ItemCrossReference[2]."Cross-Reference No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1199,6 +1178,7 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", ItemReference[2]."Reference No.");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoNotUpdatedWhenChangingUoMMismatchingCrossRef()
@@ -1233,6 +1213,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] Vendor item no. in purchase line is updated. New item vendor no. = "N1"
         PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1269,6 +1250,7 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoUpdatedFromItemWhenChangingUoMMismatchingCrossRef()
@@ -1308,6 +1290,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] Vendor item no. in purchase line is updated. New vendor item no. = "N1"
         PurchaseLine.TestField("Vendor Item No.", Item."Vendor Item No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1424,6 +1407,7 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", Item."Vendor Item No.");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoUpdatedFromItemVendorWhenChangingUoM()
@@ -1464,6 +1448,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] Vendor item no. in purchase line = "N1"
         PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1535,6 +1520,7 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.AreEqual(ItemTranslationDescription, RequisitionLine.Description, DescriptionErr);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure CrossReferenceClearedOnShippedSalesOrder()
@@ -1576,7 +1562,9 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] "Cross-Reference No." = "ICR"
         SalesLine.TestField("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
     end;
+#endif
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure CrossReferenceClearedOnReceivedPurchOrder()
@@ -1613,6 +1601,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] "Cross-Reference No." = "ICR"
         PurchaseLine.TestField("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
     end;
+#endif
 
     local procedure Initialize(Enable: Boolean)
     var
@@ -1727,6 +1716,7 @@ codeunit 137060 "SCM Inventory 7.0"
         exit(CreateItemTranslation(ItemNo, Vendor."Language Code"));
     end;
 
+#if not CLEAN16
     local procedure CreateItemCrossReference(var ItemCrossRef: Record "Item Cross Reference"; ItemNo: Code[20]; UoMCode: Code[10]; VendorNo: Code[20]; VariantCode: Code[10])
     begin
         CreateItemCrossReferenceWithType(ItemCrossRef, ItemNo, UoMCode, ItemCrossRef."Cross-Reference Type"::Vendor, VendorNo, VariantCode);
@@ -1744,6 +1734,7 @@ codeunit 137060 "SCM Inventory 7.0"
             Insert(true);
         end;
     end;
+#endif
 
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; UoMCode: Code[10]; VendorNo: Code[20]; VariantCode: Code[10])
     begin

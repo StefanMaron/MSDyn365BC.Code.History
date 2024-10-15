@@ -1,4 +1,4 @@
-﻿codeunit 9520 "Mail Management"
+codeunit 9520 "Mail Management"
 {
     EventSubscriberInstance = Manual;
 
@@ -81,6 +81,8 @@
         RecipientStringToList(TempEmailItem."Send BCC", BccList);
 
         Message.Create(ToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), true, CcList, BccList);
+        Email.AddRelation(Message, TempEmailItem."Source Table", TempEmailItem."Source System Id", Enum::"Email Relation Type"::"Primary Source");
+
         OnSendViaEmailModuleOnAfterCreateMessage(Message, TempEmailItem);
 
         TempEmailItem.GetAttachments(Attachments, AttachmentNames);
@@ -209,13 +211,6 @@
         TmpRecipients: Text;
         IsHandled: Boolean;
     begin
-        // this event is obsolete
-        IsHandled := false;
-        OnBeforeCheckValidEmailAddress(Recipients, IsHandled);
-        if IsHandled then
-            exit;
-
-        // please use this event
         IsHandled := false;
         OnBeforeCheckValidEmailAddresses(Recipients, IsHandled);
         if IsHandled then
@@ -421,10 +416,8 @@
     begin
         if FilteredName <> '' then
             TempPossibleEmailNameValueBuffer.SetFilter(Name, FilteredName);
-
         if not TempPossibleEmailNameValueBuffer.IsEmpty() then begin
             TempPossibleEmailNameValueBuffer.FindFirst();
-
             if TempPossibleEmailNameValueBuffer.Value <> '' then begin
                 TempEmailItem."From Address" := TempPossibleEmailNameValueBuffer.Value;
                 exit(true);
@@ -695,24 +688,18 @@
         exit(Result);
     end;
 
-    [EventSubscriber(ObjectType::Table, 77, 'OnAfterGetEmailBodyCustomer', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterGetEmailBodyCustomer', '', false, false)]
     local procedure HandleOnAfterGetEmailBodyCustomer(CustomerEmailAddress: Text[250]; ServerEmailBodyFilePath: Text[250])
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 77, 'OnAfterGetEmailBodyVendor', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnAfterGetEmailBodyVendor', '', false, false)]
     local procedure HandleOnAfterGetEmailBodyVendor(VendorEmailAddress: Text[250]; ServerEmailBodyFilePath: Text[250])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail"; var MailSent: Boolean; HideSMTPError: Boolean)
-    begin
-    end;
-
-    [Obsolete('Replaced by event OnBeforeCheckValidEmailAddresses', '15.3')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckValidEmailAddress(Recipients: Text; var IsHandled: Boolean)
     begin
     end;
 

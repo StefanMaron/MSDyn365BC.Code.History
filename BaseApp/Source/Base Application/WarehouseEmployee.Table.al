@@ -43,7 +43,7 @@ table 7301 "Warehouse Employee"
             begin
                 if ("ADCS User" <> xRec."ADCS User") and ("ADCS User" <> '') then begin
                     WarehouseEmployee.SetRange("ADCS User", "ADCS User");
-                    if not WarehouseEmployee.IsEmpty then
+                    if not WarehouseEmployee.IsEmpty() then
                         Error(Text001);
                 end;
             end;
@@ -97,7 +97,7 @@ table 7301 "Warehouse Employee"
         WhseEmployee.SetRange(Default, true);
         WhseEmployee.SetRange("User ID", "User ID");
         WhseEmployee.SetFilter("Location Code", '<>%1', "Location Code");
-        if not WhseEmployee.IsEmpty then
+        if not WhseEmployee.IsEmpty() then
             Error(Text000);
     end;
 

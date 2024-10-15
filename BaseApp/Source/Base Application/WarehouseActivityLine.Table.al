@@ -1,4 +1,4 @@
-﻿table 5767 "Warehouse Activity Line"
+table 5767 "Warehouse Activity Line"
 {
     Caption = 'Warehouse Activity Line';
     DrillDownPageID = "Warehouse Activity Lines";
@@ -449,7 +449,7 @@
                                    (Rec."Expiration Date" <> 0D) and ("Expiration Date" <> 0D)
                                 then
                                     Rec.FieldError("Expiration Date");
-                            until Next = 0;
+                            until Next() = 0;
                     end;
             end;
         }
@@ -470,6 +470,29 @@
             Caption = 'Lot No. Blocked';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnLookup()
+            var
+                LookUpBinContent: Boolean;
+            begin
+                LookUpBinContent := ("Activity Type" <= "Activity Type"::Movement) or ("Action Type" <> "Action Type"::Place);
+                LookUpTrackingSummary(Rec, LookUpBinContent, -1, "Item Tracking Type"::"Package No.");
+            end;
+
+            trigger OnValidate()
+            begin
+                if "Package No." <> '' then begin
+                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
+
+                    if "Activity Type" in ["Activity Type"::Pick, "Activity Type"::"Invt. Pick"] then
+                        CheckReservedItemTrkg("Item Tracking Type"::"Package No.", "Package No.");
+                end;
+            end;
         }
         field(7300; "Bin Code"; Code[20])
         {
@@ -757,7 +780,9 @@
         {
             MaintainSQLIndex = false;
         }
-        key(Key14; "Whse. Document No.", "Whse. Document Type", "Activity Type", "Whse. Document Line No.", "Action Type", "Unit of Measure Code", "Original Breakbulk", "Breakbulk No.", "Lot No.", "Serial No.", "Assemble to Order")
+#pragma warning disable AS0009
+        key(Key14; "Whse. Document No.", "Whse. Document Type", "Activity Type", "Whse. Document Line No.", "Action Type", "Unit of Measure Code", "Original Breakbulk", "Breakbulk No.", "Lot No.", "Serial No.", "Assemble to Order", "Package No.")
+#pragma warning restore AS0009
         {
             MaintainSIFTIndex = false;
             SumIndexFields = "Qty. Outstanding (Base)", "Qty. Outstanding";
@@ -767,7 +792,9 @@
             MaintainSIFTIndex = false;
             SumIndexFields = Quantity, "Qty. (Base)", "Qty. Outstanding", "Qty. Outstanding (Base)", Cubage, Weight;
         }
-        key(Key16; "Item No.", "Location Code", "Activity Type", "Bin Type Code", "Unit of Measure Code", "Variant Code", "Breakbulk No.", "Action Type", "Lot No.", "Serial No.", "Assemble to Order")
+#pragma warning disable AS0009
+        key(Key16; "Item No.", "Location Code", "Activity Type", "Bin Type Code", "Unit of Measure Code", "Variant Code", "Breakbulk No.", "Action Type", "Lot No.", "Serial No.", "Assemble to Order", "Package No.")
+#pragma warning restore AS0009
         {
             MaintainSIFTIndex = false;
             SumIndexFields = "Qty. Outstanding (Base)";
@@ -781,7 +808,9 @@
         key(Key18; "Location Code", "Activity Type")
         {
         }
-        key(Key19; "Source No.", "Source Line No.", "Source Subline No.", "Serial No.", "Lot No.")
+#pragma warning disable AS0009
+        key(Key19; "Source No.", "Source Line No.", "Source Subline No.", "Serial No.", "Lot No.", "Package No.")
+#pragma warning restore AS0009
         {
             MaintainSQLIndex = false;
         }
@@ -827,7 +856,7 @@
         Text013: Label 'All related Warehouse Activity Lines are deleted.';
         Text014: Label '%1 %2 has already been reserved for another document.';
         Text015: Label 'The total available quantity has already been applied.';
-        Text017: Label '%1 %2 is not available in inventory, it has already been reserved for another document, or the quantity available is lower than the quantity to handle specified on the line.';
+        InventoryNotAvailableErr: Label '%1 %2 is not available in inventory, it has already been reserved for another document, or the quantity available is lower than the quantity to handle specified on the line.', Comment = '%1 = CD No. Caption; %2 = CD No. Value';
         UseBaseQty: Boolean;
         Text018: Label '%1 already exists with %2 %3.', Comment = 'Warehouse Activity Line already exists with Serial No. XXX';
         Text019: Label 'The %1 bin code must be different from the %2 bin code on location %3.';
@@ -862,7 +891,7 @@
                     if not NotEnough then
                         if "Qty. to Handle" < "Qty. Outstanding" then
                             NotEnough := true;
-                until Next = 0;
+                until Next() = 0;
 
             if NotEnough then
                 Message(Text008);
@@ -880,7 +909,7 @@
                     Validate("Qty. to Handle", 0);
                     Modify;
                     OnAfterUpdateQtyToHandleWhseActivLine(WhseActivLine);
-                until Next = 0;
+                until Next() = 0;
         end;
         OnAfterDeleteQtyToHandle(WhseActivLine);
     end;
@@ -920,7 +949,7 @@
             if WhseActivLine2.Find('-') then
                 repeat
                     Confirmed := ConfirmWhseActivLinesDeletionRecreate(WhseActivLine2, WhseWkshLine);
-                until (WhseActivLine2.Next = 0) or Confirmed;
+                until (WhseActivLine2.Next() = 0) or Confirmed;
 
             OnDeleteRelatedWhseActivLinesOnBeforeConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine, CalledFromHeader, DeleteLineConfirmed);
             if DeleteLineConfirmed then
@@ -943,7 +972,7 @@
                     DeleteWhseActivLine2(WhseActivLine2, CalledFromHeader);
                     WhseActivLine2.DeleteBinContent(WhseActivLine2."Action Type"::Place);
                     UpdateRelatedItemTrkg(WhseActivLine2);
-                until WhseActivLine2.Next = 0;
+                until WhseActivLine2.Next() = 0;
 
             if (not CalledFromHeader) and ("Action Type" <> "Action Type"::" ") then
                 ShowDeletedMessage(WhseActivLine);
@@ -1639,7 +1668,7 @@
                             WhseItemTrkgLine.Delete
                         else
                             WhseItemTrkgLine.Modify();
-                until WhseItemTrkgLine.Next = 0;
+                until WhseItemTrkgLine.Next() = 0;
         end;
     end;
 
@@ -1693,12 +1722,14 @@
                 if TempTrackingSpecification."Serial No." <> '' then begin
                     WhseActivLine.Validate("Serial No.", TempTrackingSpecification."Serial No.");
                     WhseActivLine.Validate("Lot No.", TempTrackingSpecification."Lot No.");
+                    OnLookUpTrackingSummaryOnAfterAssignSerialNoTracking(WhseActivLine, TempTrackingSpecification);
                     WhseActivLine.Validate("Expiration Date", TempTrackingSpecification."Expiration Date");
                     WhseActivLine.Modify();
                 end;
             TrackingType::"Lot No.":
                 if TempTrackingSpecification."Lot No." <> '' then begin
                     WhseActivLine.Validate("Lot No.", TempTrackingSpecification."Lot No.");
+                    OnLookUpTrackingSummaryOnAfterAssignLotNoTracking(WhseActivLine, TempTrackingSpecification);
                     WhseActivLine.Validate("Expiration Date", TempTrackingSpecification."Expiration Date");
                     WhseActivLine.Modify();
                 end;
@@ -1774,7 +1805,7 @@
                                (ReservEntry2."Lot No." = '')
                             then
                                 AvailQtyFromOtherResvLines := AvailQtyFromOtherResvLines + Abs(ReservEntry2."Quantity (Base)");
-                        until ReservEntry.Next = 0;
+                        until ReservEntry.Next() = 0;
 
                     TempWhseActivLine := Rec;
                     TempWhseActivLine."Qty. Outstanding (Base)" *= -1;
@@ -1789,10 +1820,10 @@
                         WhseAvailMgt.CalcReservQtyOnPicksShips("Location Code", "Item No.", "Variant Code", TempWhseActivLine)) <
                        "Qty. to Handle (Base)"
                     then
-                        Error(Text017, FieldCaption("Lot No."), ItemTrkgCode);
+                        Error(InventoryNotAvailableErr, FieldCaption("Lot No."), ItemTrkgCode);
                 end;
             else
-                OnCheckReservedItemTrkgOnCkeckTypeElseCase(Rec, CheckType, ItemTrkgCode);
+                OnCheckReservedItemTrkgOnCheckTypeElseCase(Rec, CheckType, ItemTrkgCode);
         end;
 
         OnAfterCheckReservedItemTrkg(Rec, xRec, CurrFieldNo, 0, LineReservedQty);
@@ -2026,7 +2057,7 @@
             WarehouseActivityLine.SetRange("Variant Code", "Variant Code");
             WarehouseActivityLine.SetFilter("Line No.", '<>%1', "Line No.");
             WarehouseActivityLine.SetRange("Serial No.", "Serial No.");
-            if not WarehouseActivityLine.IsEmpty then
+            if not WarehouseActivityLine.IsEmpty() then
                 Error(Text018, TableCaption, FieldCaption("Serial No."), "Serial No.");
         end;
     end;
@@ -2172,7 +2203,7 @@
             Reset;
             SetRange("Activity Type", WhseActivLine."Activity Type");
             SetRange("No.", WhseActivLine."No.");
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 IsHandled := false;
                 OnBeforeShowDeletedMessage(WhseActivLine2, IsHandled);
                 if not IsHandled then
@@ -2190,7 +2221,7 @@
         WhseWorksheetLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type");
         WhseWorksheetLine.SetRange("Whse. Document No.", WarehouseActivityLine."Whse. Document No.");
         WhseWorksheetLine.SetRange("Whse. Document Line No.", WarehouseActivityLine."Whse. Document Line No.");
-        if not WhseWorksheetLine.IsEmpty then begin
+        if not WhseWorksheetLine.IsEmpty() then begin
             IsHandled := false;
             OnBeforeConfirmWhseActivLinesDeletionRecreate(WarehouseActivityLine, IsHandled);
             if not IsHandled then
@@ -2220,7 +2251,7 @@
                 WhseActivLine3.SetRange("Action Type", WhseActivLine."Action Type");
                 WhseActivLine3.SetFilter("Line No.", '<>%1', WhseActivLine."Line No.");
                 OnConfirmWhseActivLinesDeletionOutOfBalanceOnAfterWhseActivLine3SetFilters(WhseActivLine, WhseActivLine2, WhseActivLine3);
-                if not WhseActivLine3.IsEmpty then begin
+                if not WhseActivLine3.IsEmpty() then begin
                     IsHandled := false;
                     OnBeforeConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine2, IsHandled);
                     if not IsHandled then
@@ -2291,12 +2322,14 @@
         SetRange("Due Date", WhseActivityLine."Due Date");
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetSumLinesFilters().', '17.0')]
     [Scope('OnPrem')]
     procedure SetSumLinesFilter(WhseActivityLine: Record "Warehouse Activity Line")
     begin
         SetSumLinesFilters(WhseActivityLine);
     end;
+#endif
 
     procedure ClearSourceFilter()
     begin
@@ -2366,6 +2399,7 @@
         OnAfterSetTrackingFilterIfNotEmpty(Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
@@ -2374,6 +2408,7 @@
 
         OnAfterSetTrackingFilter(Rec);
     end;
+#endif
 
     procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
     begin
@@ -2548,7 +2583,7 @@
         TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
         LineNo: Integer;
     begin
-        NewWhseActivityLine.FindSet;
+        NewWhseActivityLine.FindSet();
         repeat
             LineNo += 10000;
             TempWarehouseActivityLine := NewWhseActivityLine;
@@ -2556,14 +2591,14 @@
             TempWarehouseActivityLine.Insert();
             if NewWhseActivityLine."Line No." = OldLineNo then
                 NewLineNo := LineNo;
-        until NewWhseActivityLine.Next = 0;
+        until NewWhseActivityLine.Next() = 0;
         NewWhseActivityLine.DeleteAll();
 
-        TempWarehouseActivityLine.FindSet;
+        TempWarehouseActivityLine.FindSet();
         repeat
             NewWhseActivityLine := TempWarehouseActivityLine;
             NewWhseActivityLine.Insert();
-        until TempWarehouseActivityLine.Next = 0;
+        until TempWarehouseActivityLine.Next() = 0;
     end;
 
     procedure TrackingFilterExists() IsTrackingFilterExist: Boolean
@@ -2641,10 +2676,12 @@
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilter(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterIfNotEmpty(var WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -2927,6 +2964,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLookUpTrackingSummaryOnAfterAssignSerialNoTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookUpTrackingSummaryOnAfterAssignLotNoTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBinCodeOnAfterGetBin(var WarehouseActivityLine: Record "Warehouse Activity Line"; Bin: Record Bin)
     begin
     end;
@@ -2971,6 +3018,12 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckReservedItemTrkgOnCheckTypeElseCase(var WarehouseActivityLine: Record "Warehouse Activity Line"; CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50])
+    begin
+    end;
+
+    [Obsolete('Replaced by OnCheckReservedItemTrkgOnCheckTypeElseCase().', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckReservedItemTrkgOnCkeckTypeElseCase(var WarehouseActivityLine: Record "Warehouse Activity Line"; CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50])
     begin

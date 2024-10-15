@@ -60,6 +60,18 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" - 1;
         BankAccReconLine.Validate("Statement Amount");
         ModifyBankAccReconLine(BankAccReconLine);
+        DeletePaymentMatchDetails(BankAccReconLine);
+    end;
+
+    local procedure DeletePaymentMatchDetails(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    var
+        PaymentMatchingDetails: Record "Payment Matching Details";
+    begin
+        PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliationLine."Statement Type");
+        PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
+        PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
+        PaymentMatchingDetails.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+        PaymentMatchingDetails.DeleteAll(true);
     end;
 
     local procedure ModifyBankAccReconLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -95,7 +107,7 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                 CheckLedgEntry."Statement No." := '';
                 CheckLedgEntry."Statement Line No." := 0;
                 CheckLedgEntry.Modify();
-            until CheckLedgEntry.Next = 0;
+            until CheckLedgEntry.Next() = 0;
     end;
 
     procedure RemoveReconNo(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; Test: Boolean)
@@ -129,7 +141,7 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                 CheckLedgEntry."Statement No." := '';
                 CheckLedgEntry."Statement Line No." := 0;
                 CheckLedgEntry.Modify();
-            until CheckLedgEntry.Next = 0;
+            until CheckLedgEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

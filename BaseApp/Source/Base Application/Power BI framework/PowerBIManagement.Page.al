@@ -29,15 +29,11 @@ page 6319 "Power BI Management"
 
                         if not IsNullGuid(TargetReportId) and (TargetReportUrl <> '') then begin
                             CurrPage.PowerBIManagement.InitializeReport(TargetReportUrl, TargetReportId,
-                              AzureADMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl,
-                                PowerBIServiceMgt.GetPowerBiResourceName, false), Url);
+                              AzureADMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(),
+                                PowerBIServiceMgt.GetPowerBiResourceName(), false), Url);
 
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
-                    end;
-
-                    trigger Pong()
-                    begin
                     end;
                 }
             }
@@ -79,7 +75,7 @@ page 6319 "Power BI Management"
 
                 trigger OnAction()
                 begin
-                    CurrPage.PowerBIManagement.ViewMode;
+                    CurrPage.PowerBIManagement.ViewMode();
                 end;
             }
             action(EditMode)
@@ -93,7 +89,7 @@ page 6319 "Power BI Management"
 
                 trigger OnAction()
                 begin
-                    CurrPage.PowerBIManagement.EditMode;
+                    CurrPage.PowerBIManagement.EditMode();
                 end;
             }
         }
@@ -101,15 +97,13 @@ page 6319 "Power BI Management"
 
     trigger OnInit()
     begin
-        if (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone) or
-           (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Tablet)
-        then
+        if ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Tablet] then
             IsInvalidClient := true;
     end;
 
     trigger OnOpenPage()
     begin
-        if PowerBIServiceMgt.IsUserReadyForPowerBI then
+        if PowerBIServiceMgt.IsUserReadyForPowerBI() then
             HasSelectedReport := true;
     end;
 

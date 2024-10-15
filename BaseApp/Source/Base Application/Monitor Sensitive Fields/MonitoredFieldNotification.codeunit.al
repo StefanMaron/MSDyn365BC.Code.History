@@ -1,8 +1,9 @@
 codeunit 1368 "Monitored Field Notification"
 {
     Access = Internal;
+    Permissions = TableData "Change Log Entry" = rm;
 
-    procedure SendEmailNotificationOfSensitiveFieldChange(RecRef: RecordRef; FieldNo: integer; OriginalValue: Text; NewValue: Text; var MonitorFieldNotification: Enum "Monitor Field Notification")
+    procedure SendEmailNotificationOfSensitiveFieldChange(RecRef: RecordRef; var ChangeLogEntry: Record "Change Log Entry"; var MonitorFieldNotification: Enum "Monitor Field Notification")
     var
         FieldMonitoringSetup: record "Field Monitoring Setup";
         UseNewEmailFeature: Boolean;
@@ -12,7 +13,7 @@ codeunit 1368 "Monitored Field Notification"
             exit;
         end;
 
-        if SendEmail(FieldMonitoringSetup, RecRef, FieldNo, OriginalValue, NewValue, UseNewEmailFeature) then begin
+        if SendEmail(FieldMonitoringSetup, RecRef, ChangeLogEntry, UseNewEmailFeature) then begin
             if UseNewEmailFeature then
                 MonitorFieldNotification := MonitorFieldNotification::"Email Enqueued"
             else
@@ -22,7 +23,7 @@ codeunit 1368 "Monitored Field Notification"
             MonitorFieldNotification := MonitorFieldNotification::"Sending Email Failed";
     end;
 
-    local procedure SendEmail(var FieldMonitoringSetup: record "Field Monitoring Setup"; RecRef: RecordRef; FieldNo: integer; OriginalValue: Text; NewValue: Text; UseNewEmailFeature: Boolean): Boolean
+    local procedure SendEmail(var FieldMonitoringSetup: record "Field Monitoring Setup"; RecRef: RecordRef; var ChangeLogEntry: Record "Change Log Entry"; UseNewEmailFeature: Boolean): Boolean
     var
         MailManagement: Codeunit "Mail Management";
         EmailMessage: Codeunit "Email Message";
@@ -30,12 +31,14 @@ codeunit 1368 "Monitored Field Notification"
     begin
         SendToList.Add(GetRecipient());
         if UseNewEmailFeature then begin
-            EmailMessage.Create(SendToList, GetEmailSubject(RecRef, FieldNo), GetEmailBody(RecRef, FieldNo, OriginalValue, NewValue), true);
+            EmailMessage.Create(SendToList, GetEmailSubject(RecRef, ChangeLogEntry."Field No."), GetEmailBody(RecRef, ChangeLogEntry."Field No.", ChangeLogEntry."Old Value", ChangeLogEntry."New Value"), true);
 
             Email.Enqueue(EmailMessage, FieldMonitoringSetup."Email Account Id", FieldMonitoringSetup."Email Connector");
+            ChangeLogEntry."Notification Message Id" := EmailMessage.GetId();
             exit(true);
         end else
-            if SMTPMail.CreateMessage(FromMsg, MailManagement.GetSenderEmailAddress(), SendToList, GetEmailSubject(RecRef, FieldNo), GetEmailBody(RecRef, FieldNo, OriginalValue, NewValue), true) then
+            if SMTPMail.CreateMessage(FromMsg, MailManagement.GetSenderEmailAddress(), SendToList, GetEmailSubject(RecRef, ChangeLogEntry."Field No."),
+                GetEmailBody(RecRef, ChangeLogEntry."Field No.", ChangeLogEntry."Old Value", ChangeLogEntry."New Value"), true) then
                 exit(SMTPMail.Send());
     end;
 
@@ -97,6 +100,29 @@ codeunit 1368 "Monitored Field Notification"
         FieldMonitoringSetup: Record "Field Monitoring Setup";
     begin
         exit((RecRef.Number = Database::"Field Monitoring Setup") and (FieldNo = FieldMonitoringSetup.FieldNo("Monitor Status")));
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::Email, 'OnAfterSendEmail', '', false, false)]
+    local procedure OnAfterSendEmail(MessageId: Guid; Status: Boolean)
+    begin
+        UpdateEmailStatus(MessageId, Status);
+    end;
+
+    procedure UpdateEmailStatus(MessageId: Guid; Status: Boolean)
+    var
+        ChangeLogEntry: Record "Change Log Entry";
+    begin
+        ChangeLogEntry.SetRange("Notification Message Id", MessageId);
+        ChangeLogEntry.SetRange("Field Log Entry Feature", ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields");
+        ChangeLogEntry.SetRange("Notification Status", ChangeLogEntry."Notification Status"::"Email Enqueued");
+        if ChangeLogEntry.FindFirst() then begin
+            if Status then
+                ChangeLogEntry."Notification Status" := ChangeLogEntry."Notification Status"::"Email Sent"
+            else
+                ChangeLogEntry."Notification Status" := ChangeLogEntry."Notification Status"::"Sending Email Failed";
+
+            ChangeLogEntry.Modify();
+        end;
     end;
 
     var

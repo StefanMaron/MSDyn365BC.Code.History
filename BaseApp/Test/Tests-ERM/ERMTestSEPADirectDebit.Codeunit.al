@@ -379,21 +379,19 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         DirectDebitCollection: Record "Direct Debit Collection";
         LastNo: Integer;
     begin
-        with DirectDebitCollection do begin
-            if FindLast then;
-            LastNo := "No.";
-            CreateNew('A', 'B', "Partner Type"::Company.AsInteger());
-            Assert.AreEqual(LastNo + 1, "No.", 'No. was not incremented correctly.');
-            TestField(Identifier, 'A');
-            TestField("To Bank Account No.", 'B');
-            TestField("Created by User", UserId);
-            TestField("Created Date-Time");
-            TestField(Status, Status::New);
-            TestField("Partner Type", "Partner Type"::Company);
+        if DirectDebitCollection.FindLast then;
+        LastNo := DirectDebitCollection."No.";
+        DirectDebitCollection.CreateRecord('A', 'B', "Partner Type"::Company);
+        Assert.AreEqual(LastNo + 1, DirectDebitCollection."No.", 'No. was not incremented correctly.');
+        DirectDebitCollection.TestField(Identifier, 'A');
+        DirectDebitCollection.TestField("To Bank Account No.", 'B');
+        DirectDebitCollection.TestField("Created by User", UserId);
+        DirectDebitCollection.TestField("Created Date-Time");
+        DirectDebitCollection.TestField(Status, DirectDebitCollection.Status::New);
+        DirectDebitCollection.TestField("Partner Type", "Partner Type"::Company);
 
-            SetStatus(Status::"File Created");
-            TestField(Status, Status::"File Created");
-        end;
+        DirectDebitCollection.SetStatus(DirectDebitCollection.Status::"File Created");
+        DirectDebitCollection.TestField(Status, DirectDebitCollection.Status::"File Created");
     end;
 
     [Test]
@@ -1614,7 +1612,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
 
         CreatePaymentMethod;
         SalesSetup.Get();
-        NoSeries.FindSet;
+        NoSeries.FindSet();
         if SalesSetup."Direct Debit Mandate Nos." = '' then begin
             SalesSetup."Direct Debit Mandate Nos." := NoSeries.Code;
             SalesSetup.Modify();
@@ -1686,12 +1684,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CustLedgEntry.CalcFields("Remaining Amount");
 
         if DirectDebitCollection."No." = 0 then
-            DirectDebitCollection.CreateNew('A', BankAccount."No.", Customer."Partner Type".AsInteger());
-        with DirectDebitCollectionEntry do begin
-            SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
-            CreateNew(DirectDebitCollection."No.", CustLedgEntry);
-            Modify;
-        end;
+            DirectDebitCollection.CreateRecord('A', BankAccount."No.", Customer."Partner Type");
+        DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
+        DirectDebitCollectionEntry.CreateNew(DirectDebitCollection."No.", CustLedgEntry);
+        DirectDebitCollectionEntry.Modify();
     end;
 
     local procedure CreateAdditionalCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; DirectDebitCollection: Record "Direct Debit Collection"; SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
@@ -1704,12 +1700,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.FindLast;
 
-        with DirectDebitCollectionEntry do begin
-            SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
-            CreateNew(DirectDebitCollection."No.", CustLedgEntry);
-            "Mandate ID" := SEPADirectDebitMandate.ID;
-            Modify;
-        end;
+        DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
+        DirectDebitCollectionEntry.CreateNew(DirectDebitCollection."No.", CustLedgEntry);
+        DirectDebitCollectionEntry."Mandate ID" := SEPADirectDebitMandate.ID;
+        DirectDebitCollectionEntry.Modify();
     end;
 
     local procedure PostCustInvJnl(var Customer: Record Customer; DirectDebitMandateID: Code[35]; CurrencyCode: Code[10])
@@ -2188,7 +2182,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         ExpectedDocNo: Code[20];
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJnlBatchName);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         ExpectedDocNo := IncStr(GenJournalLine."Document No.");
         GenJournalLine.Next;
         GenJournalLine.TestField("Document No.", ExpectedDocNo);

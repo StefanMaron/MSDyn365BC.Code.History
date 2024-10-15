@@ -92,7 +92,7 @@ page 8628 "Config. Selection"
                 "Vertical Sorting" := TempConfigSelection."Vertical Sorting";
                 Selected := TempConfigSelection.Selected;
                 Insert;
-            until TempConfigSelection.Next = 0;
+            until TempConfigSelection.Next() = 0;
     end;
 
     procedure Get(var TempConfigSelection: Record "Config. Selection" temporary): Integer
@@ -114,7 +114,7 @@ page 8628 "Config. Selection"
                 if Selected then
                     Counter += 1;
                 TempConfigSelection.Insert();
-            until Next = 0;
+            until Next() = 0;
 
         exit(Counter);
     end;

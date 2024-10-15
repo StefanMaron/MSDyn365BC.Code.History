@@ -1,4 +1,4 @@
-﻿enum 53 "Gen. Journal Recurring Method"
+enum 53 "Gen. Journal Recurring Method"
 {
     Extensible = true;
     AssignmentCompatibility = true;

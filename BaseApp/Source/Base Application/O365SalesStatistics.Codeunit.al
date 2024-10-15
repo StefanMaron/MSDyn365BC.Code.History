@@ -96,10 +96,9 @@ codeunit 2100 "O365 Sales Statistics"
 
         TempBusinessChartBuffer.Initialize;
         TempBusinessChartBuffer.SetXAxis(XCaption, TempBusinessChartBuffer."Data Type"::String);
-        TempBusinessChartBuffer.AddMeasure(
-          YCaption, 1, TempBusinessChartBuffer."Data Type"::Decimal, TempBusinessChartBuffer."Chart Type"::Column);
+        TempBusinessChartBuffer.AddDecimalMeasure(YCaption, 1, TempBusinessChartBuffer."Chart Type"::Column);
 
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         for I := 0 to TempNameValueBuffer.Count - 1 do begin
             TempBusinessChartBuffer.AddColumn(TempNameValueBuffer.Name);
             Evaluate(Amount, CopyStr(TempNameValueBuffer.Value, StrLen(GLSetup.GetCurrencySymbol) + 1));
@@ -185,7 +184,7 @@ codeunit 2100 "O365 Sales Statistics"
 
     procedure GetCustomersFromSalesInvoiceEntityAggregates(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate"; var ResultingCustomer: Record Customer): Boolean
     begin
-        if SalesInvoiceEntityAggregate.IsEmpty then
+        if SalesInvoiceEntityAggregate.IsEmpty() then
             exit(false);
 
         SalesInvoiceEntityAggregate.SetFilter("Sell-to Customer No.", '<>''''');
@@ -195,7 +194,7 @@ codeunit 2100 "O365 Sales Statistics"
         repeat
             if ResultingCustomer.Get(SalesInvoiceEntityAggregate."Sell-to Customer No.") then
                 ResultingCustomer.Mark(true);
-        until SalesInvoiceEntityAggregate.Next = 0;
+        until SalesInvoiceEntityAggregate.Next() = 0;
 
         exit(ResultingCustomer.MarkedOnly(true));
     end;

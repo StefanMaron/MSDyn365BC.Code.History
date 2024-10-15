@@ -97,7 +97,7 @@ table 99000752 "Shop Calendar Working Days"
             repeat
                 TempShopCalendar := ShopCalendar2;
                 TempShopCalendar.Insert();
-            until ShopCalendar2.Next = 0;
+            until ShopCalendar2.Next() = 0;
 
         TempShopCalendar := xRec;
         if TempShopCalendar.Delete then;

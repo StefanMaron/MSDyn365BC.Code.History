@@ -204,7 +204,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [GIVEN] 2 of 3 records are modified by the integration system user
         CRMConnectionSetup.FindFirst;
         CRMSystemuser.Get(CRMConnectionSetup.GetIntegrationUserID);
-        TestIntegrationTable.FindSet;
+        TestIntegrationTable.FindSet();
         TestIntegrationTable.ModifiedBy := CRMSystemuser.SystemUserId;
         TestIntegrationTable.Modify();
         TestIntegrationTable.Next;
@@ -564,7 +564,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         until IntegrationSynchJob.Next = 0;
 
         IntegrationSynchJob.SetFilter("Integration Table Mapping Name", IntegrationTableMapping.Name);
-        IntegrationSynchJob.FindSet;
+        IntegrationSynchJob.FindSet();
         if (IntegrationSynchJob.Inserted <> ExpectedInserted) and (IntegrationSynchJob.Modified <> ExpectedModified) then
             IntegrationSynchJob.Next;
         Assert.AreEqual(ExpectedInserted, IntegrationSynchJob.Inserted, 'Expected the log to reflect inserted row(s)');

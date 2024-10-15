@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 1389 "Template Feature Event Handler"
 {
     ObsoleteState = Pending;
@@ -398,3 +399,4 @@ codeunit 1389 "Template Feature Event Handler"
         ShowItemTemplList(IsHandled);
     end;
 }
+#endif

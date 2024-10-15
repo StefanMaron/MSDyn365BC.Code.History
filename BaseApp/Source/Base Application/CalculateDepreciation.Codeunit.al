@@ -42,6 +42,8 @@ codeunit 5610 "Calculate Depreciation"
             CalculateNormalDepr.Calculate(
               DeprAmount, NumberOfDays, FANo, DeprBookCode, UntilDate,
               EntryAmounts, DateFromProjection, DaysInPeriod);
+
+        OnAfterCalcDeprYearCalculateAdditionalDepr2ndYear(DeprAmount, FANo, DeprBookCode);
     end;
 
     local procedure CheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date)
@@ -80,6 +82,11 @@ codeunit 5610 "Calculate Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDeprYearCalculateAdditionalDepr2ndYear(var DeprAmount: Decimal; FANo: code[20]; DepreBookCode: code[10])
     begin
     end;
 }

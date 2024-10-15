@@ -114,14 +114,14 @@ table 348 Dimension
                 repeat
                     if DimVal.CheckIfDimValueUsed then
                         Error(Text000, GetCheckDimErr);
-                until DimVal.Next = 0;
+                until DimVal.Next() = 0;
             Error(Text001, GetCheckDimErr);
         end;
         if DimVal.FindSet then
             repeat
                 if DimVal.CheckIfDimValueUsed then
                     Error(Text002);
-            until DimVal.Next = 0;
+            until DimVal.Next() = 0;
 
         DefaultDim.SetRange("Dimension Code", Code);
         DefaultDim.DeleteAll(true);
@@ -335,7 +335,7 @@ table 348 Dimension
                        (DimChecked = GLBudgetName."Budget Dimension 4 Code")
                     then
                         UsedAsBudgetDim := true;
-                until GLBudgetName.Next = 0;
+                until GLBudgetName.Next() = 0;
         end;
 
         if CheckAllDim or CheckGlobalDim or CheckItemBudgetDim then begin
@@ -357,7 +357,7 @@ table 348 Dimension
                        (DimChecked = ItemBudgetName."Budget Dimension 3 Code")
                     then
                         UsedAsItemBudgetDim := true;
-                until ItemBudgetName.Next = 0;
+                until ItemBudgetName.Next() = 0;
         end;
 
         if CheckAllDim or CheckAnalysisViewDim then begin
@@ -381,7 +381,7 @@ table 348 Dimension
                        (DimChecked = AnalysisView."Dimension 4 Code")
                     then
                         UsedAsAnalysisViewDim := true;
-                until AnalysisView.Next = 0;
+                until AnalysisView.Next() = 0;
         end;
 
         if CheckAllDim or CheckItemAnalysisViewDim then begin
@@ -403,7 +403,7 @@ table 348 Dimension
                        (DimChecked = ItemAnalysisView."Dimension 3 Code")
                     then
                         UsedAsItemAnalysisViewDim := true;
-                until ItemAnalysisView.Next = 0;
+                until ItemAnalysisView.Next() = 0;
         end;
 
         if UsedAsGlobalDim or

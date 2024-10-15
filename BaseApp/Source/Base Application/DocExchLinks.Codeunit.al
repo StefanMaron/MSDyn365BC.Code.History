@@ -31,7 +31,7 @@ codeunit 1411 "Doc. Exch. Links"
     [Scope('OnPrem')]
     procedure CheckAndUpdateDocExchCrMemoStatus(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
-        NewStatus: Option;
+        NewStatus: Enum "Sales Document Exchange Status";
     begin
         with SalesCrMemoHeader do begin
             NewStatus := MapDocExchStatusToSalesCMStatus(
@@ -46,7 +46,7 @@ codeunit 1411 "Doc. Exch. Links"
     [Scope('OnPrem')]
     procedure CheckAndUpdateDocExchInvoiceStatus(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
-        NewStatus: Option;
+        NewStatus: Enum "Sales Document Exchange Status";
     begin
         with SalesInvoiceHeader do begin
             NewStatus := MapDocExchStatusToSalesInvStatus(
@@ -61,7 +61,7 @@ codeunit 1411 "Doc. Exch. Links"
     [Scope('OnPrem')]
     procedure CheckAndUpdateDocExchServiceInvoiceStatus(ServiceInvoiceHeader: Record "Service Invoice Header")
     var
-        NewStatus: Option;
+        NewStatus: Enum "Service Document Exchange Status";
     begin
         with ServiceInvoiceHeader do begin
             NewStatus := MapDocExchStatusToServiceInvStatus(
@@ -76,7 +76,7 @@ codeunit 1411 "Doc. Exch. Links"
     [Scope('OnPrem')]
     procedure CheckAndUpdateDocExchServiceCrMemoStatus(ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     var
-        NewStatus: Option;
+        NewStatus: Enum "Service Document Exchange Status";
     begin
         with ServiceCrMemoHeader do begin
             NewStatus := MapDocExchStatusToServiceCMStatus(
@@ -148,67 +148,59 @@ codeunit 1411 "Doc. Exch. Links"
         end;
     end;
 
-    local procedure MapDocExchStatusToSalesInvStatus(DocExchStatus: Text): Integer
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
+    local procedure MapDocExchStatusToSalesInvStatus(DocExchStatus: Text): Enum "Sales Document Exchange Status"
     begin
         case UpperCase(DocExchStatus) of
             'FAILED':
-                exit(SalesInvoiceHeader."Document Exchange Status"::"Delivery Failed");
+                exit("Sales Document Exchange Status"::"Delivery Failed");
             'SENT':
-                exit(SalesInvoiceHeader."Document Exchange Status"::"Delivered to Recipient");
+                exit("Sales Document Exchange Status"::"Delivered to Recipient");
             'PENDING_CONNECTION':
-                exit(SalesInvoiceHeader."Document Exchange Status"::"Pending Connection to Recipient");
+                exit("Sales Document Exchange Status"::"Pending Connection to Recipient");
             else
-                exit(SalesInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service");
+                exit("Sales Document Exchange Status"::"Sent to Document Exchange Service");
         end;
     end;
 
-    local procedure MapDocExchStatusToSalesCMStatus(DocExchStatus: Text): Integer
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    local procedure MapDocExchStatusToSalesCMStatus(DocExchStatus: Text): Enum "Sales Document Exchange Status"
     begin
         case UpperCase(DocExchStatus) of
             'FAILED':
-                exit(SalesCrMemoHeader."Document Exchange Status"::"Delivery Failed");
+                exit("Sales Document Exchange Status"::"Delivery Failed");
             'SENT':
-                exit(SalesCrMemoHeader."Document Exchange Status"::"Delivered to Recipient");
+                exit("Sales Document Exchange Status"::"Delivered to Recipient");
             'PENDING_CONNECTION':
-                exit(SalesCrMemoHeader."Document Exchange Status"::"Pending Connection to Recipient");
+                exit("Sales Document Exchange Status"::"Pending Connection to Recipient");
             else
-                exit(SalesCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service");
+                exit("Sales Document Exchange Status"::"Sent to Document Exchange Service");
         end;
     end;
 
-    local procedure MapDocExchStatusToServiceInvStatus(DocExchStatus: Text): Integer
-    var
-        ServiceInvoiceHeader: Record "Service Invoice Header";
+    local procedure MapDocExchStatusToServiceInvStatus(DocExchStatus: Text): Enum "Service Document Exchange Status"
     begin
         case UpperCase(DocExchStatus) of
             'FAILED':
-                exit(ServiceInvoiceHeader."Document Exchange Status"::"Delivery Failed");
+                exit("Service Document Exchange Status"::"Delivery Failed");
             'SENT':
-                exit(ServiceInvoiceHeader."Document Exchange Status"::"Delivered to Recipient");
+                exit("Service Document Exchange Status"::"Delivered to Recipient");
             'PENDING_CONNECTION':
-                exit(ServiceInvoiceHeader."Document Exchange Status"::"Pending Connection to Recipient");
+                exit("Service Document Exchange Status"::"Pending Connection to Recipient");
             else
-                exit(ServiceInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service");
+                exit("Service Document Exchange Status"::"Sent to Document Exchange Service");
         end;
     end;
 
-    local procedure MapDocExchStatusToServiceCMStatus(DocExchStatus: Text): Integer
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+    local procedure MapDocExchStatusToServiceCMStatus(DocExchStatus: Text): Enum "Service Document Exchange Status"
     begin
         case UpperCase(DocExchStatus) of
             'FAILED':
-                exit(ServiceCrMemoHeader."Document Exchange Status"::"Delivery Failed");
+                exit("Service Document Exchange Status"::"Delivery Failed");
             'SENT':
-                exit(ServiceCrMemoHeader."Document Exchange Status"::"Delivered to Recipient");
+                exit("Service Document Exchange Status"::"Delivered to Recipient");
             'PENDING_CONNECTION':
-                exit(ServiceCrMemoHeader."Document Exchange Status"::"Pending Connection to Recipient");
+                exit("Service Document Exchange Status"::"Pending Connection to Recipient");
             else
-                exit(ServiceCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service");
+                exit("Service Document Exchange Status"::"Sent to Document Exchange Service");
         end;
     end;
 }

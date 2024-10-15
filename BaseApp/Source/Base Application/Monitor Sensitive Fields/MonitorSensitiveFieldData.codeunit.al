@@ -25,15 +25,18 @@ codeunit 1367 "Monitor Sensitive Field Data"
 
             if IsMonitoredFieldActive then begin
                 if TempChangeLogSetupField.Notify then
-                    MonitoredFieldNotification.SendEmailNotificationOfSensitiveFieldChange(RecRef, FldRef.Number, ChangeLogEntry."Old Value", ChangeLogEntry."New Value", MonitorFieldNotification)
+                    MonitoredFieldNotification.SendEmailNotificationOfSensitiveFieldChange(RecRef, ChangeLogEntry, MonitorFieldNotification)
                 else
                     MonitorFieldNotification := MonitorFieldNotification::"Turned Off";
                 ChangeLogEntry."Notification Status" := MonitorFieldNotification;
             end;
 
-            Attributes.Add('tableCaption', RecRef.Caption);
-            Attributes.Add('fieldCaption', FldRef.Caption);
-            Session.LogMessage('0000CTE', StrSubstNo(SensitiveFieldValueHasChangedTxt, FldRef.Caption, RecRef.Caption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
+            Attributes.Add('TableCaption', RecRef.Caption);
+            Attributes.Add('TableNumber', Format(RecRef.Number));
+            Attributes.Add('FieldCaption', FldRef.Caption);
+            Attributes.Add('FieldNumber', Format(FldRef.Number));
+            Session.LogMessage('0000CTE', StrSubstNo(SensitiveFieldValueHasChangedTxt, FldRef.Caption, FldRef.Number, RecRef.Caption, RecRef.Number),
+                Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
             IncrementNotification(RecRef);
         end;
     end;
@@ -110,7 +113,7 @@ codeunit 1367 "Monitor Sensitive Field Data"
                 begin
                     ChangeLogEntry."Field Log Entry Feature" := ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields";
                     if FldRef.Number in [FieldMonitoringSetup.FieldNo("User Id"), FieldMonitoringSetup.FieldNo("Monitor Status")] then begin
-                        MonitoredFieldNotification.SendEmailNotificationOfSensitiveFieldChange(RecRef, FldRef.Number, ChangeLogEntry."Old Value", ChangeLogEntry."New Value", MonitorFieldNotification);
+                        MonitoredFieldNotification.SendEmailNotificationOfSensitiveFieldChange(RecRef, ChangeLogEntry, MonitorFieldNotification);
                         ChangeLogEntry."Notification Status" := MonitorFieldNotification;
                     end;
                 end;
@@ -143,8 +146,47 @@ codeunit 1367 "Monitor Sensitive Field Data"
             end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Change Log Setup (Field)", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterInsertMonitoredField(var Rec: Record "Change Log Setup (Field)"; RunTrigger: Boolean)
+    var
+        Attributes: Dictionary of [Text, Text];
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        if Rec."Monitor Sensitive Field" then begin
+            Attributes.Add('TableCaption', Rec."Table Caption");
+            Attributes.Add('TableNumber', Format(Rec."Table No."));
+            Attributes.Add('FieldCaption', Rec."Field Caption");
+            Attributes.Add('FieldNumber', Format(Rec."Field No."));
+            Session.LogMessage('0000EMW', StrSubstNo(SensitiveFieldVAddedTxt, Rec."Field Caption", Format(Rec."Field No."), Rec."Table Caption", Format(Rec."Table No.")),
+                Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
+        end
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Change Log Setup (Field)", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnAfterDeleteMonitoredField(var Rec: Record "Change Log Setup (Field)"; RunTrigger: Boolean)
+    var
+        Attributes: Dictionary of [Text, Text];
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        if Rec."Monitor Sensitive Field" then begin
+            Attributes.Add('TableCaption', Rec."Table Caption");
+            Attributes.Add('TableNumber', Format(Rec."Table No."));
+            Attributes.Add('FieldCaption', Rec."Field Caption");
+            Attributes.Add('FieldNumber', Format(Rec."Field No."));
+            Session.LogMessage('0000EMW', StrSubstNo(SensitiveFieldVRemovedTxt, Rec."Field Caption", Format(Rec."Field No."), Rec."Table Caption", Format(Rec."Table No.")),
+                Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
+        end
+    end;
+
     var
         MonitoredFieldNotification: Codeunit "Monitored Field Notification";
         NoAvailablePageMsg: Label 'There is not a page to open for this entry';
-        SensitiveFieldValueHasChangedTxt: Label 'Sensitive field value has changed: %1 in table %2 ', Locked = true;
+        SensitiveFieldValueHasChangedTxt: Label 'Sensitive field value has changed: %1 (%2) in table %3 (%4) ', Locked = true;
+        SensitiveFieldVAddedTxt: Label 'Sensitive field added to monitor: %1 (%2) in table %3 (%4)', Locked = true;
+        SensitiveFieldVRemovedTxt: Label 'Sensitive field removed from monitor: %1 (%2) in table %3 (%4)', Locked = true;
+
 }

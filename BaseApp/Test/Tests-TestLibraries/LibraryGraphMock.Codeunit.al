@@ -134,13 +134,13 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
         WebhookTestMetrics: Record "Webhook Test Metrics";
     begin
-        if ODataTestMetrics.IsEmpty then begin
+        if ODataTestMetrics.IsEmpty() then begin
             ODataTestMetrics.Init();
             ODataTestMetrics.Insert(true);
             Commit();
         end;
 
-        if WebhookTestMetrics.IsEmpty then begin
+        if WebhookTestMetrics.IsEmpty() then begin
             WebhookTestMetrics.Init();
             WebhookTestMetrics.Insert(true);
             Commit();

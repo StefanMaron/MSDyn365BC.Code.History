@@ -2122,7 +2122,7 @@ codeunit 136305 "Job Journal"
         Initialize;
 
         // [GIVEN] Job Journal Line with enabled auto calc fields for "Reserved Qty. (Base)" field
-        LibraryJob.CreateJobJournalLine(0, DummyJobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLine("Job Line Type"::" ", DummyJobTask, JobJournalLine);
         JobJournalLine.SetAutoCalcFields("Reserved Qty. (Base)");
         // [GIVEN] Linked "Reservation Entry" record with "Quantity (Base)" = 100
         MockReservationEntry(JobJournalLine);
@@ -2466,7 +2466,7 @@ codeunit 136305 "Job Journal"
 
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; ResourceNo: Code[20])
     begin
-        LibraryJob.CreateJobJournalLineForType(0, JobJournalLine.Type::Resource, JobTask, JobJournalLine);  // Use 0 for Resource.
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::" ", JobJournalLine.Type::Resource, JobTask, JobJournalLine);  // Use 0 for Resource.
         JobJournalLine.Validate("No.", ResourceNo);
         JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random value.
         JobJournalLine.Modify(true);
@@ -2501,7 +2501,7 @@ codeunit 136305 "Job Journal"
         end;
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Option; No: Code[20]; ConsumableType: Enum "Job Planning Line Type")
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; No: Code[20]; ConsumableType: Enum "Job Planning Line Type")
     begin
         LibraryJob.CreateJobPlanningLine(LineType, ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No);
@@ -2524,7 +2524,7 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.Modify(true);
     end;
 
-    local procedure CreateJobPlanningLineWithTypeText(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; JobTask: Record "Job Task")
+    local procedure CreateJobPlanningLineWithTypeText(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; JobTask: Record "Job Task")
     var
         StandardText: Record "Standard Text";
     begin
@@ -3051,7 +3051,7 @@ codeunit 136305 "Job Journal"
         Assert.AreEqual(ContactBusinessRelation."Contact No.", Job."Bill-to Contact No.", IncorrectFieldValueErr);
     end;
 
-    local procedure CreateJobPlanningLineAndModifyUnitPrice(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; Type: Option; No: Code[20]; UnitPrice: Decimal)
+    local procedure CreateJobPlanningLineAndModifyUnitPrice(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; Type: Enum "Job Planning Line Type"; No: Code[20]; UnitPrice: Decimal)
     begin
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, No, Type);
         JobPlanningLine.Validate("Unit Price", UnitPrice);
@@ -3143,7 +3143,7 @@ codeunit 136305 "Job Journal"
         UnitsofMeasure.OK.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1011, 'OnBeforeRunCheck', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Jnl.-Check Line", 'OnBeforeRunCheck', '', false, false)]
     local procedure OnBeforeRunCheck(var JobJnlLine: Record "Job Journal Line")
     begin
         // Verify auto calc field is reset

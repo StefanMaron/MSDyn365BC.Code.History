@@ -211,7 +211,7 @@ table 271 "Bank Account Ledger Entry"
         }
         field(70; "Check Ledger Entries"; Integer)
         {
-            CalcFormula = Count ("Check Ledger Entry" WHERE("Bank Account Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Count("Check Ledger Entry" WHERE("Bank Account Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Check Ledger Entries';
             FieldClass = FlowField;
         }

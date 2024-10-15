@@ -127,7 +127,7 @@ page 970 "Time Sheet Allocation"
                 DateDescription[i] := TimeSheetMgt.FormatDate(Calendar."Period Start", 0);
                 if TimeSheetDetail.Get(TimeSheetLine."Time Sheet No.", TimeSheetLine."Line No.", Calendar."Period Start") then
                     DateQuantity[i] := TimeSheetDetail.Quantity;
-            until Calendar.Next = 0;
+            until Calendar.Next() = 0;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

@@ -22,7 +22,7 @@ report 9000 "Add/Subtract Permission Set"
                                 IncludeExcludePermissionInPermission(Permission)
                             else
                                 IncludeExcludePermission(Permission);
-                        until Permission.Next = 0;
+                        until Permission.Next() = 0;
                 end else begin
                     TenantPermission.SetRange("App ID", "App ID");
                     TenantPermission.SetRange("Role ID", "Role ID");
@@ -32,7 +32,7 @@ report 9000 "Add/Subtract Permission Set"
                                 IncludeExcludeTenantPermissionInPermission(TenantPermission)
                             else
                                 IncludeExcludeTenantPermission(TenantPermission);
-                        until TenantPermission.Next = 0;
+                        until TenantPermission.Next() = 0;
                 end;
             end;
 
@@ -199,7 +199,7 @@ report 9000 "Add/Subtract Permission Set"
                                (DestinationTenantPermission."Execute Permission" = SourcePermission."Read Permission"::" ")
                             then
                                 DestinationTenantPermission.Delete();
-                        until DestinationTenantPermission.Next = 0;
+                        until DestinationTenantPermission.Next() = 0;
                 end;
         end;
     end;
@@ -276,7 +276,7 @@ report 9000 "Add/Subtract Permission Set"
                                (DestinationTenantPermission."Execute Permission" = SourceTenantPermission."Read Permission"::" ")
                             then
                                 DestinationTenantPermission.Delete();
-                        until DestinationTenantPermission.Next = 0;
+                        until DestinationTenantPermission.Next() = 0;
                 end;
         end;
     end;
@@ -341,7 +341,7 @@ report 9000 "Add/Subtract Permission Set"
                                (DestinationPermission."Execute Permission" = SourcePermission."Read Permission"::" ")
                             then
                                 DestinationPermission.Delete();
-                        until DestinationPermission.Next = 0;
+                        until DestinationPermission.Next() = 0;
                 end;
         end;
     end;
@@ -422,7 +422,7 @@ report 9000 "Add/Subtract Permission Set"
                                (DestinationPermission."Execute Permission" = SourceTenantPermission."Read Permission"::" ")
                             then
                                 DestinationPermission.Delete();
-                        until DestinationPermission.Next = 0;
+                        until DestinationPermission.Next() = 0;
                 end;
         end;
     end;

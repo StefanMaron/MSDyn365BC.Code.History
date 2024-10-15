@@ -62,7 +62,8 @@ codeunit 134387 "ERM Sales Documents III"
         ZeroQuantityInLineErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
         WrongReportInvokedErr: Label 'Wrong report invoked.';
         ConfirmDownloadPostedShipmentQst: Label 'You can also download the Sales - Shipment document now. Alternatively, you can access it from the Posted Sales Shipments window later.\\Do you want to download the Sales - Shipment document now?';
-        LinesNotUpdatedMsg: Label 'You have changed %1 on the sales header, but it has not been changed on the existing sales lines.', Comment = 'You have changed Order Date on the sales header, but it has not been changed on the existing sales lines.';
+        LinesNotUpdatedMsg: Label 'You have changed Language Code on the sales header, but it has not been changed on the existing sales lines.';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.';
         UpdateManuallyMsg: Label 'You must update the existing sales lines manually.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
@@ -2959,7 +2960,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryVariableStorage.Enqueue(OptionString::PostedInvoices);
 
         // [WHEN] Run "Get Document Lines to Reverse" function to copy lines from the posted invoice
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -4008,7 +4009,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         // A message is captured by MessageCaptureHandler
         Assert.ExpectedMessage(
-          StrSubstNo(LinesNotUpdatedMsg, SalesHeader.FieldCaption("Posting Date")),
+          StrSubstNo(LinesNotUpdatedDateMsg, SalesHeader.FieldCaption("Posting Date")),
           LibraryVariableStorage.DequeueText);
 
         LibraryVariableStorage.AssertEmpty;
@@ -4035,7 +4036,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.Validate("Posting Date", WorkDate + 1);
 
         // A message is captured by MessageCaptureHandler
-        MessageText := StrSubstNo(LinesNotUpdatedMsg, SalesHeader.FieldCaption("Posting Date"));
+        MessageText := StrSubstNo(LinesNotUpdatedDateMsg, SalesHeader.FieldCaption("Posting Date"));
         MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
         Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText);
 
@@ -4055,7 +4056,7 @@ codeunit 134387 "ERM Sales Documents III"
         Initialize;
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader.Validate("Language Code", LibraryERM.CreateLanguage);
+        SalesHeader.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
 
         MessageText := StrSubstNo(LinesNotUpdatedMsg, SalesHeader.FieldCaption("Language Code"));
         MessageText := StrSubstNo(SplitMessageTxt, MessageText, UpdateManuallyMsg);
@@ -4336,7 +4337,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryVariableStorage.Enqueue(OptionString::PostedInvoices);
 
         // [GIVEN] Run "Get Document Lines to Reverse" function to copy lines from the posted invoice
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::Item);
         SalesLine.TestField("Copied From Posted Doc.", true);
 
@@ -5770,7 +5771,7 @@ codeunit 134387 "ERM Sales Documents III"
     local procedure GetPostedDocLinesToReverse(var SalesHeader: Record "Sales Header"; OptionString: Option)
     begin
         LibraryVariableStorage.Enqueue(OptionString);
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
     end;
 
     local procedure GetReturnReceipt(SalesHeader: Record "Sales Header")
@@ -5981,7 +5982,7 @@ codeunit 134387 "ERM Sales Documents III"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetFilter(Amount, '>0');
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalGLAmount += GLEntry.Amount;
         until GLEntry.Next = 0;

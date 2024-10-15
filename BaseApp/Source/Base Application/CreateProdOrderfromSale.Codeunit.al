@@ -1,4 +1,4 @@
-﻿codeunit 99000792 "Create Prod. Order from Sale"
+codeunit 99000792 "Create Prod. Order from Sale"
 {
 
     trigger OnRun()
@@ -12,7 +12,15 @@
     protected var
         HideValidationDialog: Boolean;
 
+#if not CLEAN18
+    [Obsolete('Replaced by CreateProductionOrder().', '18.0')]
     procedure CreateProdOrder(SalesLine: Record "Sales Line"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Option ItemOrder,ProjectOrder)
+    begin
+        CreateProductionOrder(SalesLine, ProdOrderStatus, "Create Production Order Type".FromInteger(OrderType));
+    end;
+#endif
+
+    procedure CreateProductionOrder(SalesLine: Record "Sales Line"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Enum "Create Production Order Type")
     var
         ProdOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
@@ -48,6 +56,7 @@
             ProdOrder."Location Code" := SalesLine."Location Code";
             ProdOrder."Bin Code" := SalesLine."Bin Code";
             ProdOrder.Validate("Source No.", SalesLine."No.");
+            ProdOrder.Validate("Variant Code", SalesLine."Variant Code");
             ProdOrder.Validate(Description, SalesLine.Description);
             SalesLine.CalcFields("Reserved Qty. (Base)");
             ProdOrder.Quantity := SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)";

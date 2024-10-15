@@ -155,7 +155,7 @@ codeunit 137931 "SCM - Movement"
 
         // [GIVEN] Changed Qty. to Handle in the Lines, so that 16 PCS are handled
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindSet;
+        WhseWorksheetLine.FindSet();
         WhseWorksheetLine.Next;
         repeat
             WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine."Qty. to Handle" - Delta);

@@ -3527,7 +3527,7 @@ codeunit 136603 "ERM RS Package Operations"
         CRMConnectionSetup.RegisterConnection();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 8618, 'OnImportExcelFile', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Config. Excel Exchange", 'OnImportExcelFile', '', false, false)]
     local procedure OnImportExcelToBLOBHandler(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean)
     begin
         FileMgt.BLOBImportFromServerFile(TempBlob, FileNameForHandler);

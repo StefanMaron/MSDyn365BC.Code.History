@@ -123,7 +123,7 @@ table 5104 "Segment Interaction Language"
                         end;
                         SegLine.Modify();
                     end;
-                until SegLine.Next = 0;
+                until SegLine.Next() = 0;
         end else begin // UNIQUE Attachment
             SegLine.Get("Segment No.", "Segment Line No.");
             if SegLine."Attachment No." = "Attachment No." then begin
@@ -194,7 +194,7 @@ table 5104 "Segment Interaction Language"
                                     SegLine."Attachment No." := "Attachment No.";
                                     SegLine.Modify();
                                 end;
-                until SegLine.Next = 0;
+                until SegLine.Next() = 0;
         end else begin
             SegLine.Get("Segment No.", "Segment Line No.");
             SegLine."Language Code" := "Language Code";
@@ -227,7 +227,7 @@ table 5104 "Segment Interaction Language"
                     SegLine."Language Code" := SegHeader."Language Code (Default)";
                     SegLine."Attachment No." := SegHeader."Attachment No.";
                     SegLine.Modify();
-                until SegLine.Next = 0;
+                until SegLine.Next() = 0;
 
             SegLine.Reset();
             SegLine.SetRange("Segment No.", "Segment No.");
@@ -242,7 +242,7 @@ table 5104 "Segment Interaction Language"
                                 SegLine."Attachment No." := "Attachment No.";
                                 SegLine.Modify();
                             end;
-                until SegLine.Next = 0;
+                until SegLine.Next() = 0;
         end else begin
             SegLine.Get("Segment No.", "Segment Line No.");
             if SegLine."Language Code" = xRec."Language Code" then begin

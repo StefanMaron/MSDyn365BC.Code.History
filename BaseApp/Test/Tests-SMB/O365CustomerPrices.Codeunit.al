@@ -1856,8 +1856,8 @@ codeunit 138020 "O365 Customer Prices"
         for i := 0 to 3 do
             with SalesPrice do begin
                 Init;
-                "Sales Type" := i;
-                if i = "Sales Type"::"All Customers" then
+                "Sales Type" := "Sales Price Type".FromInteger(i);
+                if i = "Sales Type"::"All Customers".AsInteger() then
                     "Sales Code" := ''
                 else
                     "Sales Code" := CustomerNo;

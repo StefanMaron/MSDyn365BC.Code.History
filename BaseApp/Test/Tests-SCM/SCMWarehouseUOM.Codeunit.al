@@ -545,7 +545,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);  // Use FALSE for only Shipment.
 
         // Verify : Warehouse Entries for Location, Bin, Lot No., Quantity and Quantity (Base).
-        TempReservationEntry.FindSet;
+        TempReservationEntry.FindSet();
         VerifyWarehouseEntry(
           WarehouseEntry."Entry Type"::"Positive Adjmt.", Item."No.", Item."Purch. Unit of Measure", LocationWhite2.Code,
           LocationWhite2."Receipt Bin Code", TempReservationEntry."Lot No.", Quantity, Quantity);
@@ -594,7 +594,7 @@ codeunit 137150 "SCM Warehouse UOM"
           SalesLine, Item."No.", Item."Base Unit of Measure", LocationWhite2.Code, ItemUnitOfMeasure."Qty. per Unit of Measure" / 2, true);
 
         // Verify : Item Ledger Entries for Location, Lot No., Quantity and Remaining Quantity.
-        TempReservationEntry.FindSet;
+        TempReservationEntry.FindSet();
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Purchase, Item."No.", Item."Base Unit of Measure", LocationWhite2.Code,
           TempReservationEntry."Lot No.", ItemUnitOfMeasure."Qty. per Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure");
@@ -1992,7 +1992,8 @@ codeunit 137150 "SCM Warehouse UOM"
           SalesHeader, SalesLine, Item."No.", Item."Base Unit of Measure", LocationWhite3.Code, Quantity + Quantity2, false);  // Value required for test.
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         LibraryVariableStorage.Enqueue(ProductionOrderCreated);  // Enqueue for MessageHandler.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
         FindProductionOrderLine(ProdOrderLine, Item."No.");
         CreateAndPostOutputJournalLineWithItemTracking(ItemJournalLine, ProdOrderLine, Quantity);
         CreateAndPostOutputJournalLineWithItemTracking(ItemJournalLine, ProdOrderLine, Quantity2);
@@ -3941,7 +3942,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployeeLoc, Location.Code, true);
         LibraryInventory.UpdateInventoryPostingSetup(Location);
         Zone.SetRange("Location Code", Location.Code);
-        Zone.FindSet;
+        Zone.FindSet();
         repeat
             SetBinRankingForFirstBinAtZone(Zone);
         until Zone.Next = 0;
@@ -3990,7 +3991,7 @@ codeunit 137150 "SCM Warehouse UOM"
             SetRange("Item No.", Item."No.");
             SetFilter(Code, '<>' + Item."Base Unit of Measure");
             Ascending(false);
-            FindSet;
+            FindSet();
         end;
         with TempWarehouseEntry do begin
             if UseLots then
@@ -4030,7 +4031,7 @@ codeunit 137150 "SCM Warehouse UOM"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         with TempWarehouseEntry do begin
-            FindSet;
+            FindSet();
             repeat
                 CreatePurchaseLineWithUOMAndLotNo(
                   PurchaseLine, PurchaseHeader, "Item No.", "Unit of Measure Code", "Location Code",
@@ -4078,7 +4079,7 @@ codeunit 137150 "SCM Warehouse UOM"
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationWhite.Code, ToLocationCode, LocationIntransit.Code);
         with TempWarehouseEntry do begin
-            FindSet;
+            FindSet();
             repeat
                 ProcessTransferLineWithData(TempWarehouseEntry, TransferHeader, TransferLine);
                 case LotsAssignment of
@@ -4134,7 +4135,7 @@ codeunit 137150 "SCM Warehouse UOM"
     begin
         BinCodeFilter := '<>''''';
         with TempWarehouseEntry do begin
-            FindSet;
+            FindSet();
             repeat
                 BinCodeFilter += '&<>' + "Bin Code";
                 Result += Quantity * "Qty. per Unit of Measure";
@@ -4147,7 +4148,7 @@ codeunit 137150 "SCM Warehouse UOM"
         with RegisteredWhseActivityLine do begin
             SetRange("Action Type", "Action Type"::Place);
             SetFilter("Bin Code", BinCodeFilter);
-            FindSet;
+            FindSet();
             repeat
                 Result += Quantity * "Qty. per Unit of Measure";
             until Next = 0;
@@ -4161,7 +4162,7 @@ codeunit 137150 "SCM Warehouse UOM"
         Result := '<>''''';
         with ItemUnitOfMeasure do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 Result += '&<>' + Code;
             until Next = 0;
@@ -4194,7 +4195,7 @@ codeunit 137150 "SCM Warehouse UOM"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry2.Init();
             ReservationEntry2 := ReservationEntry;
@@ -4745,7 +4746,8 @@ codeunit 137150 "SCM Warehouse UOM"
         OrderType: Option ItemOrder,ProjectOrder;
     begin
         LibraryVariableStorage.Enqueue(ProductionOrderCreated); // Enqueue for MessageHandler.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ItemNo);
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
 
@@ -4878,7 +4880,7 @@ codeunit 137150 "SCM Warehouse UOM"
         FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
         with WarehouseActivityLine do begin
             SetRange("Action Type", "Action Type"::Place);
-            FindSet;
+            FindSet();
             repeat
                 TempWarehouseEntry.SetRange("Line No.", "Source Line No.");
                 TempWarehouseEntry.FindFirst;
@@ -5114,7 +5116,7 @@ codeunit 137150 "SCM Warehouse UOM"
         if BinCode = '' then
             exit;
         with Bin do begin
-            FindSet;
+            FindSet();
             repeat
                 if Code = BinCode then
                     if Next = 0 then
@@ -5461,7 +5463,7 @@ codeunit 137150 "SCM Warehouse UOM"
 
         FindBin(Bin, WarehouseActivityLine."Location Code", false, true, true);
 
-        Bin.FindSet;
+        Bin.FindSet();
         repeat
             WarehouseActivityLine.Validate("Zone Code", Bin."Zone Code");
             WarehouseActivityLine.Validate("Bin Code", Bin.Code);
@@ -5501,7 +5503,7 @@ codeunit 137150 "SCM Warehouse UOM"
     begin
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Zone Code", Bin."Zone Code");
             WarehouseActivityLine.Validate("Bin Code", Bin.Code);
@@ -5703,7 +5705,7 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity);
             if Partial then
@@ -5719,7 +5721,7 @@ codeunit 137150 "SCM Warehouse UOM"
     begin
         FindWarehouseActivityLine(
           WarehouseActivityLine, SourceDocumentType, SourceNo, WarehouseActivityLine."Activity Type"::Pick);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", Quantity);
             WarehouseActivityLine.Modify(true);
@@ -5837,7 +5839,7 @@ codeunit 137150 "SCM Warehouse UOM"
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
         PostedInvtPickLine.SetRange("Location Code", Bin."Location Code");
         PostedInvtPickLine.SetRange("Bin Code", Bin.Code);
-        PostedInvtPickLine.FindSet;
+        PostedInvtPickLine.FindSet();
         repeat
             PostedInvtPickLine.TestField("Item No.", ItemNo);
             PostedInvtPickLine.TestField("Expiration Date", WorkDate);  // Value required for test.
@@ -5880,7 +5882,7 @@ codeunit 137150 "SCM Warehouse UOM"
         FindRegisteredWhseActivityLine(
           RegisteredWhseActivityLine, RegisteredWhseActivityLine."Source Document"::"Sales Order", SourceNo,
           RegisteredWhseActivityLine."Activity Type"::Pick, ActionType);
-        RegisteredWhseActivityLine.FindSet;
+        RegisteredWhseActivityLine.FindSet();
         repeat
             RegisteredWhseActivityLine.TestField("Item No.", ItemNo);
             RegisteredWhseActivityLine.TestField(Quantity, 1);  // Value required for Serial No. Item Tracking.
@@ -5911,10 +5913,10 @@ codeunit 137150 "SCM Warehouse UOM"
         FindRegisteredWhseActivityLine(
           RegisteredWhseActivityLine, RegisteredWhseActivityLine."Source Document"::"Sales Order", SalesLine."Document No.",
           RegisteredWhseActivityLine."Activity Type"::Pick, RegisteredWhseActivityLine."Action Type"::Take);
-        RegisteredWhseActivityLine.FindSet;
+        RegisteredWhseActivityLine.FindSet();
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Positive Adjmt.");
         ItemLedgerEntry.SetRange("Item No.", SalesLine."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         if not SameExpirationDate then
             ItemLedgerEntry.Next;
         repeat
@@ -5985,7 +5987,7 @@ codeunit 137150 "SCM Warehouse UOM"
         FindWarehouseActivityLine(
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SourceNo,
           WarehouseActivityLine."Activity Type"::Pick);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField(Quantity, 1);  // Value required for Serial No. Item Tracking.

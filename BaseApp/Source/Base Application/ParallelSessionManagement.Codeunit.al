@@ -105,7 +105,7 @@ codeunit 490 "Parallel Session Management"
 
     local procedure WaitForFreeSessions(TimeOutInSeconds: Integer; NoOfRemainingSessions: Integer): Boolean
     begin
-        if TempInteger.IsEmpty then
+        if TempInteger.IsEmpty() then
             exit(true);
         if TimeOutInSeconds = 0 then
             TimeOutInSeconds := 3600;
@@ -136,7 +136,7 @@ codeunit 490 "Parallel Session Management"
                 TempParallelSessionEntry.Modify();
                 NoOfActiveSessions += 1;
                 NoOfPSEntries -= 1;
-            until (TempParallelSessionEntry.Next = 0) or (NoOfActiveSessions >= GetMaxNoOfSessions);
+            until (TempParallelSessionEntry.Next() = 0) or (NoOfActiveSessions >= GetMaxNoOfSessions);
     end;
 
     [Scope('OnPrem')]
@@ -175,7 +175,7 @@ codeunit 490 "Parallel Session Management"
                         TempParallelSessionEntry.Delete();
                     end;
                 end;
-            until TempInteger.Next = 0;
+            until TempInteger.Next() = 0;
         TempParallelSessionEntry.Reset();
     end;
 

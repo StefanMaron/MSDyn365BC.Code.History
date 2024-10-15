@@ -23,7 +23,7 @@ codeunit 7007 "Price Asset List"
     begin
         LocalTempPriceAsset.Copy(TempPriceAsset, true);
         LocalTempPriceAsset.Reset();
-        if LocalTempPriceAsset.IsEmpty then begin
+        if LocalTempPriceAsset.IsEmpty() then begin
             Level[2] := Level[1] - 1;
             exit;
         end;

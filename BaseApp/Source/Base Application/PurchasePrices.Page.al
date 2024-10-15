@@ -160,7 +160,7 @@ page 7012 "Purchase Prices"
                 trigger OnAction()
                 begin
                     CopyPricesToVendor;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }
@@ -266,7 +266,7 @@ page 7012 "Purchase Prices"
         FilterRecordRef.Open(TableNo);
         FilterFieldRef := FilterRecordRef.Field(1);
         FilterFieldRef.SetFilter(FilterTxt);
-        if FilterRecordRef.IsEmpty then
+        if FilterRecordRef.IsEmpty() then
             Error(NoDataWithinFilterErr, FilterRecordRef.Caption, FilterTxt);
     end;
 

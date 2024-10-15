@@ -217,7 +217,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         LibraryDimension.CreateDefaultDimensionWithNewDimValue(
           TempDefaultDim, DATABASE::"G/L Account", GLAcc."No.", TempDefaultDim."Value Posting"::"Code Mandatory");
 
-        TempDefaultDim.FindSet;
+        TempDefaultDim.FindSet();
         repeat
             DefaultDim := TempDefaultDim;
             DefaultDim.Insert(true);

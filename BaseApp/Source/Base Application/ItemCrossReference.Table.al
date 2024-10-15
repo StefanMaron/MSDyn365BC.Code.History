@@ -1,7 +1,17 @@
 table 5717 "Item Cross Reference"
 {
     Caption = 'Item Cross Reference';
+#if not CLEAN16
     LookupPageID = "Cross Reference List";
+#endif
+    ObsoleteReason = 'Replaced by ItemReference table as part of Item Reference feature.';
+#if not CLEAN18
+    ObsoleteState = Pending;
+    ObsoleteTag = '18.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -55,6 +65,7 @@ table 5717 "Item Cross Reference"
         {
             Caption = 'Discontinue Bar Code';
 
+#if not CLEAN16
             trigger OnValidate()
             begin
                 if "Discontinue Bar Code" and
@@ -62,6 +73,7 @@ table 5717 "Item Cross Reference"
                 then
                     Error(Text001, TableCaption);
             end;
+#endif
         }
         field(9; "Description 2"; Text[50])
         {
@@ -99,6 +111,7 @@ table 5717 "Item Cross Reference"
         }
     }
 
+#if not CLEAN16
     trigger OnDelete()
     begin
         if "Cross-Reference Type" = "Cross-Reference Type"::Vendor then
@@ -150,7 +163,7 @@ table 5717 "Item Cross Reference"
             ItemVend.SetRange("Item No.", "Item No.");
             ItemVend.SetRange("Vendor No.", "Cross-Reference Type No.");
             ItemVend.SetRange("Variant Code", "Variant Code");
-            if ItemVend.IsEmpty then begin
+            if ItemVend.IsEmpty() then begin
                 ItemVend."Item No." := "Item No.";
                 ItemVend."Vendor No." := "Cross-Reference Type No.";
                 ItemVend.Validate("Vendor No.");
@@ -255,5 +268,5 @@ table 5717 "Item Cross Reference"
     local procedure OnBeforeItemVendorDelete(ItemVendor: Record "Item Vendor"; ItemCrossReference: Record "Item Cross Reference")
     begin
     end;
+#endif
 }
-

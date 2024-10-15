@@ -339,7 +339,7 @@ codeunit 134011 "ERM Application Vendor"
             GLEntry.FindLast;
             TotalAmount := 0;
             DtldVendLedgEntry.SetRange("Transaction No.", TransactionNo);
-            DtldVendLedgEntry.FindSet;
+            DtldVendLedgEntry.FindSet();
             repeat
                 TotalAmount += DtldVendLedgEntry."Amount (LCY)";
             until DtldVendLedgEntry.Next = 0;
@@ -800,7 +800,7 @@ codeunit 134011 "ERM Application Vendor"
         GLRegister.FindLast;
         VendorLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         VendorLedgerEntry.SetRange("Applying Entry", false);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.CalcFields("Remaining Amount");
             VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
@@ -829,7 +829,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure VendorRealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
+    local procedure VendorRealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Enum "Detailed CV Ledger Entry Type")
     var
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -871,7 +871,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
+    local procedure VendorUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Enum "Detailed CV Ledger Entry Type")
     var
         Currency: Record Currency;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1425,7 +1425,7 @@ codeunit 134011 "ERM Application Vendor"
     begin
         VATPostingSetup.SetFilter("VAT %", VATFilter);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         repeat
             GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
             GLAccount.SetFilter("Gen. Bus. Posting Group", '<>''''');
@@ -1605,7 +1605,7 @@ codeunit 134011 "ERM Application Vendor"
         SourceCodeSetup.Get();
         GLEntry.SetRange("Source Code", SourceCodeSetup."Unapplied Purch. Entry Appln.");
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Document Type", GLEntry."Document Type"::Payment);
         until GLEntry.Next = 0;

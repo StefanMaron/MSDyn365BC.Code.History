@@ -244,10 +244,10 @@ report 11 "G/L - VAT Reconciliation"
                                             TempVATEntryTable.TransferFields(VATEntry);
                                             TempVATEntryTable.Insert();
                                         end;
-                                    until GLEntryVATEntryLink.Next = 0;
-                            until GLEntry.Next = 0;
+                                    until GLEntryVATEntryLink.Next() = 0;
+                            until GLEntry.Next() = 0;
 
-                            if TempVATEntryTable.IsEmpty then
+                            if TempVATEntryTable.IsEmpty() then
                                 CurrReport.Skip();
 
                             case "VAT Statement Line"."Amount Type" of

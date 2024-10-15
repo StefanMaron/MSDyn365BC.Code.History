@@ -468,10 +468,7 @@ codeunit 134768 "Test Posting Preview"
         asserterror GenJnlPostPreview.Preview(LibraryPostPrevHandler, RecVar);
         Assert.ExpectedError('');
         Assert.IsFalse(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive after preview');
-
-        Assert.ExpectedMessage(
-          'The transaction cannot be completed because it will cause inconsistencies in the Sales Invoice Header table.',
-          ErrorMessagesPage.Description.Value);
+        Assert.ExpectedMessage('Commit is prohibited in the current scope.', ErrorMessagesPage.Description.Value);
     end;
 }
 

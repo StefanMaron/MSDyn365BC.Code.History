@@ -62,8 +62,7 @@ codeunit 134301 "Workflow Notification Test"
         NotificationSetup.DeleteAll();
 
         // Execute
-        NotificationManagement.CreateDefaultNotificationSetup("Notification Entry Type"::"New Record");
-
+        NotificationManagement.CreateDefaultNotificationTypeSetup("Notification Entry Type"::"New Record");
         // Verify
         Assert.AreEqual(1, NotificationSetup.Count, 'Notification Setup was not created');
         NotificationSetup.FindFirst;
@@ -540,8 +539,7 @@ codeunit 134301 "Workflow Notification Test"
         // [SCENARIO] Create a notification entry based on an approval entry with Status = Open
         // [WHEN] An Approval entry (Status = Open) is passed into the notification engine
         // [THEN] A notification entry is created with the expected information
-        TestCustomerApprovalNotification(ApprovalEntry.Status::Open,
-          ApprovalEntry."Limit Type"::"Approval Limits");
+        TestCustomerApprovalNotification(ApprovalEntry.Status::Open, ApprovalEntry."Limit Type"::"Approval Limits");
     end;
 
     [Test]
@@ -950,7 +948,7 @@ codeunit 134301 "Workflow Notification Test"
         NotificationEntry."Recipient User ID" := UserId;
         NotificationEntry.Insert();
 
-        SentNotificationEntry.NewRecord(NotificationEntry, 'New text', NotificationSetup."Notification Method"::Email);
+        SentNotificationEntry.NewRecord(NotificationEntry, 'New text', NotificationSetup."Notification Method"::Email.AsInteger());
 
         SentNotificationEntry.TestField(ID, 101);
     end;
@@ -1680,12 +1678,12 @@ codeunit 134301 "Workflow Notification Test"
         MockNotificationEntry(NotificationEntry, NotificationEntry.Type::Approval, UniqueCode1);
         MockNotificationEntry(NotificationEntry, NotificationEntry.Type::Approval, UniqueCode2);
         NotificationEntry.Reset();
-        NotificationEntry.FindSet;
+        NotificationEntry.FindSet();
 
         // [WHEN] Stan uses Notification Management codeunit to insert Sent Notification Entry records and modify them without direct permissions to insert/modify them.
         LibraryLowerPermissions.SetO365Basic;
         NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
-          NotificationEntry, LibraryRandom.RandText(20), true, SentNotificationEntry."Notification Method"::Email);
+          NotificationEntry, LibraryRandom.RandText(20), true, SentNotificationEntry."Notification Method"::Email.AsInteger());
 
         // [THEN] Sent Notification Entry records are inserted.
         // [THEN] Second record is modified.
@@ -1704,7 +1702,7 @@ codeunit 134301 "Workflow Notification Test"
         // [SCENARIO 269111] GetNotificationSetupForUser returns setup for a certain user.
         Initialize;
 
-        NotificationManagement.CreateDefaultNotificationSetup("Notification Entry Type"::Approval);
+        NotificationManagement.CreateDefaultNotificationTypeSetup("Notification Entry Type"::Approval);
 
         LibraryDocumentApprovals.SetupUserWithApprover(UserSetup);
 
@@ -1718,8 +1716,7 @@ codeunit 134301 "Workflow Notification Test"
           "Notification Entry Type"::Approval,
           NotificationSetup."Notification Method"::Note);
 
-        NotificationSetup.GetNotificationSetupForUser(NotificationEntry.Type::Approval, UserSetup."Approver ID");
-
+        NotificationSetup.GetNotificationTypeSetupForUser(NotificationEntry.Type::Approval, UserSetup."Approver ID");
         VerifyNotificationSetup(NotificationSetup, UserSetup."Approver ID", NotificationSetup."Notification Method"::Note);
     end;
 
@@ -1734,14 +1731,14 @@ codeunit 134301 "Workflow Notification Test"
         // [SCENARIO 269111] GetNotificationSetupForUser returns setup for the current user if not found for a certain user.
         Initialize;
 
-        NotificationManagement.CreateDefaultNotificationSetup("Notification Entry Type"::Approval);
+        NotificationManagement.CreateDefaultNotificationTypeSetup("Notification Entry Type"::Approval);
 
         LibraryWorkflow.CreateNotificationSetup(
           NotificationSetup, UserId,
           "Notification Entry Type"::Approval,
           NotificationSetup."Notification Method"::Note);
 
-        NotificationSetup.GetNotificationSetupForUser(NotificationEntry.Type::Approval, LibraryUtility.GenerateGUID);
+        NotificationSetup.GetNotificationTypeSetupForUser(NotificationEntry.Type::Approval, LibraryUtility.GenerateGUID);
 
         VerifyNotificationSetup(NotificationSetup, UserId, NotificationSetup."Notification Method"::Note);
     end;
@@ -1758,14 +1755,14 @@ codeunit 134301 "Workflow Notification Test"
         // [SCENARIO 269111] GetNotificationSetupForUser returns setup for the current user.
         Initialize;
 
-        NotificationManagement.CreateDefaultNotificationSetup("Notification Entry Type"::Approval);
+        NotificationManagement.CreateDefaultNotificationTypeSetup("Notification Entry Type"::Approval);
 
         LibraryWorkflow.CreateNotificationSetup(
           NotificationSetup, UserId,
           "Notification Entry Type"::Approval,
           NotificationSetup."Notification Method"::Note);
 
-        NotificationSetup.GetNotificationSetupForUser(NotificationEntry.Type::Approval, UserId);
+        NotificationSetup.GetNotificationTypeSetupForUser(NotificationEntry.Type::Approval, UserId);
 
         VerifyNotificationSetup(NotificationSetup, UserId, NotificationSetup."Notification Method"::Note);
     end;
@@ -1781,9 +1778,9 @@ codeunit 134301 "Workflow Notification Test"
         // [SCENARIO 269111] GetNotificationSetupForUser return default setup when no setup found for the current user.
         Initialize;
 
-        NotificationManagement.CreateDefaultNotificationSetup("Notification Entry Type"::Approval);
+        NotificationManagement.CreateDefaultNotificationTypeSetup("Notification Entry Type"::Approval);
 
-        NotificationSetup.GetNotificationSetupForUser(NotificationEntry.Type::Approval, UserId);
+        NotificationSetup.GetNotificationTypeSetupForUser(NotificationEntry.Type::Approval, UserId);
 
         VerifyNotificationSetup(NotificationSetup, '', NotificationSetup."Notification Method"::Email);
     end;
@@ -1799,7 +1796,7 @@ codeunit 134301 "Workflow Notification Test"
         // [SCENARIO 269111] GetNotificationSetupForUser create and return default setup when no other setup found.
         Initialize;
 
-        NotificationSetup.GetNotificationSetupForUser(NotificationEntry.Type::Approval, UserId);
+        NotificationSetup.GetNotificationTypeSetupForUser(NotificationEntry.Type::Approval, UserId);
 
         VerifyNotificationSetup(NotificationSetup, '', NotificationSetup."Notification Method"::Email);
     end;
@@ -1950,13 +1947,13 @@ codeunit 134301 "Workflow Notification Test"
         Initialize;
 
         // [GIVEN] Created User Setup and Notification Setup for that User
-        NotificationManagement.CreateDefaultNotificationSetup("Notification Entry Type"::Approval);
+        NotificationManagement.CreateDefaultNotificationTypeSetup("Notification Entry Type"::Approval);
         LibraryDocumentApprovals.SetupUserWithApprover(UserSetup);
         LibraryWorkflow.CreateNotificationSetup(
           NotificationSetup, UserSetup."User ID",
           "Notification Entry Type"::Approval,
           NotificationSetup."Notification Method"::Email);
-        NotificationSetup.GetNotificationSetupForUser(NotificationEntry.Type::Approval, UserSetup."Approver ID");
+        NotificationSetup.GetNotificationTypeSetupForUser(NotificationEntry.Type::Approval, UserSetup."Approver ID");
 
         // [GIVEN] Select a Notification Setup record
         NotificationSetup.Get(UserSetup."User ID", "Notification Entry Type"::Approval);
@@ -2007,13 +2004,13 @@ codeunit 134301 "Workflow Notification Test"
         Initialize;
 
         // [GIVEN] Created User Setup and Notification Setup for that User
-        NotificationManagement.CreateDefaultNotificationSetup("Notification Entry Type"::Approval);
+        NotificationManagement.CreateDefaultNotificationTypeSetup("Notification Entry Type"::Approval);
         LibraryDocumentApprovals.SetupUserWithApprover(UserSetup);
         LibraryWorkflow.CreateNotificationSetup(
           NotificationSetup, UserSetup."User ID",
           "Notification Entry Type"::Approval,
           NotificationSetup."Notification Method"::Email);
-        NotificationSetup.GetNotificationSetupForUser(NotificationEntry.Type::Approval, UserSetup."Approver ID");
+        NotificationSetup.GetNotificationTypeSetupForUser(NotificationEntry.Type::Approval, UserSetup."Approver ID");
 
         // [GIVEN] Set a filter on a selected Notification Setup record
         NotificationSetup.SetRange("Notification Type", "Notification Entry Type"::Approval);
@@ -2142,9 +2139,9 @@ codeunit 134301 "Workflow Notification Test"
         ExpectedValues[1] := StrSubstNo(CreatedByUserTxt, User[1]."Full Name");
         ExpectedValues[2] := User[2]."Full Name";
         ExpectedValues[3] := Item."No.";
-        VerifyEmailBody(ExpectedValues,OnBeforeSendEmailTxt);
+        VerifyEmailBody(ExpectedValues, OnBeforeSendEmailTxt);
     end;
-    
+
     [Test]
     [Scope('OnPrem')]
     procedure NotificationEmailBodyIsNotEmptyEmailFeature()
@@ -2207,7 +2204,7 @@ codeunit 134301 "Workflow Notification Test"
         ExpectedValues[1] := StrSubstNo(CreatedByUserTxt, User[1]."Full Name");
         ExpectedValues[2] := User[2]."Full Name";
         ExpectedValues[3] := Item."No.";
-        VerifyEmailBody(ExpectedValues,OnBeforeSendEmailTxt);
+        VerifyEmailBody(ExpectedValues, OnBeforeSendEmailTxt);
     end;
 
     local procedure Initialize()
@@ -2301,7 +2298,7 @@ codeunit 134301 "Workflow Notification Test"
         VerifyNotificationEntry(RecRef, ExpectedValues, true);
     end;
 
-    local procedure TestSalesApprovalNotificationBase(Status: Enum "Approval Status"; LimitType: Option; var RecRef: RecordRef; var ExpectedValues: array[20] of Text)
+    local procedure TestSalesApprovalNotificationBase(Status: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type"; var RecRef: RecordRef; var ExpectedValues: array[20] of Text)
     var
         NotificationEntry: Record "Notification Entry";
         ApprovalCommentLine: Record "Approval Comment Line";
@@ -2335,7 +2332,7 @@ codeunit 134301 "Workflow Notification Test"
         ExpectedValues[10] := Format(SalesHeader.Amount);
     end;
 
-    local procedure TestSalesApprovalNotification(Status: Enum "Approval Status"; LimitType: Option)
+    local procedure TestSalesApprovalNotification(Status: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     var
         RecRef: RecordRef;
         ExpectedValues: array[20] of Text;
@@ -2392,7 +2389,7 @@ codeunit 134301 "Workflow Notification Test"
         VerifyNotificationEntry(RecRef, ExpectedValues, true);
     end;
 
-    local procedure TestCustomerApprovalNotification(Status: Enum "Approval Status"; LimitType: Option)
+    local procedure TestCustomerApprovalNotification(Status: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     var
         RecRef: RecordRef;
         ExpectedValues: array[20] of Text;
@@ -2407,7 +2404,7 @@ codeunit 134301 "Workflow Notification Test"
         VerifyNotificationEntry(RecRef, ExpectedValues, true);
     end;
 
-    local procedure TestCustomerApprovalNotificationBase(Status: Enum "Approval Status"; LimitType: Option; var RecRef: RecordRef; var ExpectedValues: array[20] of Text)
+    local procedure TestCustomerApprovalNotificationBase(Status: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type"; var RecRef: RecordRef; var ExpectedValues: array[20] of Text)
     var
         NotificationEntry: Record "Notification Entry";
         ApprovalCommentLine: Record "Approval Comment Line";
@@ -2435,7 +2432,7 @@ codeunit 134301 "Workflow Notification Test"
         ExpectedValues[6] := ApprovalEntry.FieldCaption("Due Date");
     end;
 
-    local procedure TestGenJnlLineApprovalNotification(Status: Enum "Approval Status"; LimitType: Option)
+    local procedure TestGenJnlLineApprovalNotification(Status: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     var
         RecRef: RecordRef;
         ExpectedValues: array[20] of Text;
@@ -2450,7 +2447,7 @@ codeunit 134301 "Workflow Notification Test"
         VerifyNotificationEntry(RecRef, ExpectedValues, true);
     end;
 
-    local procedure TestGenJnlLineApprovalNotificationBase(Status: Enum "Approval Status"; LimitType: Option; var RecRef: RecordRef; var ExpectedValues: array[20] of Text)
+    local procedure TestGenJnlLineApprovalNotificationBase(Status: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type"; var RecRef: RecordRef; var ExpectedValues: array[20] of Text)
     var
         NotificationEntry: Record "Notification Entry";
         ApprovalCommentLine: Record "Approval Comment Line";
@@ -2482,7 +2479,7 @@ codeunit 134301 "Workflow Notification Test"
         ExpectedValues[7] := Format(GenJournalLine.Amount);
     end;
 
-    local procedure TestGenJnlBatchApprovalNotification(Status: Enum "Approval Status"; LimitType: Option)
+    local procedure TestGenJnlBatchApprovalNotification(Status: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     var
         RecRef: RecordRef;
         ExpectedValues: array[20] of Text;
@@ -2497,7 +2494,7 @@ codeunit 134301 "Workflow Notification Test"
         VerifyNotificationEntry(RecRef, ExpectedValues, true);
     end;
 
-    local procedure TestGenJnlBatchApprovalNotificationBase(Status: Enum "Approval Status"; LimitType: Option; var RecRef: RecordRef; var ExpectedValues: array[20] of Text)
+    local procedure TestGenJnlBatchApprovalNotificationBase(Status: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type"; var RecRef: RecordRef; var ExpectedValues: array[20] of Text)
     var
         NotificationEntry: Record "Notification Entry";
         ApprovalCommentLine: Record "Approval Comment Line";
@@ -2532,7 +2529,7 @@ codeunit 134301 "Workflow Notification Test"
     local procedure CreateResponseArgumentForNotifications(var WorkflowStepArgument: Record "Workflow Step Argument")
     begin
         LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response,
-          UserId, '', '', 0, true);
+          UserId, '', '', "Workflow Approver Type"::"Salesperson/Purchaser", true);
     end;
 
     local procedure SetupArgumentForNotifications(var WorkflowStepInstance: Record "Workflow Step Instance"; var WorkflowStepArgument: Record "Workflow Step Argument")
@@ -2753,7 +2750,7 @@ codeunit 134301 "Workflow Notification Test"
         SetApprovalEntryData(ApprovalEntry);
     end;
 
-    local procedure CreateSalesApprovalEntry(var ApprovalEntry: Record "Approval Entry"; SalesHeader: Record "Sales Header"; ApprovalStatus: Enum "Approval Status"; LimitType: Option)
+    local procedure CreateSalesApprovalEntry(var ApprovalEntry: Record "Approval Entry"; SalesHeader: Record "Sales Header"; ApprovalStatus: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     begin
         SalesHeader.CalcFields(Amount);
         with ApprovalEntry do
@@ -2774,7 +2771,7 @@ codeunit 134301 "Workflow Notification Test"
         SetApprovalEntryData(ApprovalEntry);
     end;
 
-    local procedure CreateCustomerApprovalEntry(var ApprovalEntry: Record "Approval Entry"; Customer: Record Customer; StatusOption: Enum "Approval Status"; LimitType: Option)
+    local procedure CreateCustomerApprovalEntry(var ApprovalEntry: Record "Approval Entry"; Customer: Record Customer; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     begin
         with ApprovalEntry do
             LibraryDocumentApprovals.CreateApprovalEntryBasic(
@@ -2784,7 +2781,7 @@ codeunit 134301 "Workflow Notification Test"
         SetApprovalEntryData(ApprovalEntry);
     end;
 
-    local procedure CreateGenJournalLineApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalLine: Record "Gen. Journal Line"; StatusOption: Enum "Approval Status"; LimitType: Option)
+    local procedure CreateGenJournalLineApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalLine: Record "Gen. Journal Line"; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     begin
         with ApprovalEntry do
             LibraryDocumentApprovals.CreateApprovalEntryBasic(
@@ -2794,7 +2791,7 @@ codeunit 134301 "Workflow Notification Test"
         SetApprovalEntryData(ApprovalEntry);
     end;
 
-    local procedure CreateGenJournalBatchApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalBatch: Record "Gen. Journal Batch"; StatusOption: Enum "Approval Status"; LimitType: Option)
+    local procedure CreateGenJournalBatchApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalBatch: Record "Gen. Journal Batch"; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     begin
         with ApprovalEntry do
             LibraryDocumentApprovals.CreateApprovalEntryBasic(
@@ -2872,7 +2869,7 @@ codeunit 134301 "Workflow Notification Test"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateNotificationEntryWithSetup(var NotificationEntry: Record "Notification Entry"; SalesHeader: Record "Sales Header"; UserID: Code[50]; NotificationType: Enum "Notification Entry Type"; NotificationMethod: Option)
+    local procedure CreateNotificationEntryWithSetup(var NotificationEntry: Record "Notification Entry"; SalesHeader: Record "Sales Header"; UserID: Code[50]; NotificationType: Enum "Notification Entry Type"; NotificationMethod: Enum "Notification Method Type")
     var
         NotificationSetup: Record "Notification Setup";
     begin
@@ -3063,7 +3060,7 @@ codeunit 134301 "Workflow Notification Test"
         VerifyNotificationBodyText(NotificationEntry, ExpectedValues);
     end;
 
-    local procedure VerifyNotificationSetup(var NotificationSetup: Record "Notification Setup"; UserCode: Code[50]; NotificationMethod: Option)
+    local procedure VerifyNotificationSetup(var NotificationSetup: Record "Notification Setup"; UserCode: Code[50]; NotificationMethod: Enum "Notification Method Type")
     begin
         NotificationSetup.TestField("Notification Type", "Notification Entry Type"::Approval);
         NotificationSetup.TestField("Notification Method", NotificationMethod);
@@ -3119,7 +3116,7 @@ codeunit 134301 "Workflow Notification Test"
         Assert.AreNotEqual(0, StrPos(RecordLink.URL1, LinkFilter), URLFilterNotFoundErr);
     end;
 
-    local procedure CreateApprovalWorkflowForSalesDocWithRejectNotification(ApproverType: Option; ApproverLimitType: Option; WorkflowUserGroupCode: Code[20])
+    local procedure CreateApprovalWorkflowForSalesDocWithRejectNotification(ApproverType: Enum "Workflow Approver Type"; ApproverLimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20])
     var
         Workflow: Record Workflow;
         WorkflowStep: Record "Workflow Step";
@@ -3205,16 +3202,14 @@ codeunit 134301 "Workflow Notification Test"
         Reply := false;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9520, 'OnBeforeQualifyFromAddress', '', false, false)]
-    [Scope('OnPrem')]
-    procedure SubscriberOnBeforeQualifyFromAddress(var TempEmailItem: Record "Email Item" temporary)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeQualifyFromAddress', '', false, false)]
+    local procedure SubscriberOnBeforeQualifyFromAddress(var TempEmailItem: Record "Email Item" temporary)
     begin
         InsertDataTypeBuffer(TempEmailItem."From Address");
         InsertDataTypeBuffer(TempEmailItem."From Name");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", 'OnBeforeSendEmail', '', false, false)]
-    [Scope('OnPrem')]
     procedure SubscribeOnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; var IsFromPostedDoc: Boolean; var PostedDocNo: Code[20]; var HideDialog: Boolean; var ReportUsage: Integer)
     var
         DataTypeBuffer: Record "Data Type Buffer";

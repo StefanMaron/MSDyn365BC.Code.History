@@ -1374,7 +1374,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         CreateLimitedDimServiceLine(DimensionValueCombination, ServiceLine);
 
         // 2. Exercise: Post Service Order as Invoice.
@@ -1597,7 +1597,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::" ");
     end;
 
-    local procedure ShipInvWithHeaderDim(ValuePosting: Option)
+    local procedure ShipInvWithHeaderDim(ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         ServiceHeader: Record "Service Header";
         DefaultDimension: Record "Default Dimension";
@@ -2034,7 +2034,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DefaultDimension.ModifyAll("Value Posting", DefaultDimension."Value Posting"::" ");
     end;
 
-    local procedure ShipInvDimServiceLine(ValuePosting: Option)
+    local procedure ShipInvDimServiceLine(ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -2876,7 +2876,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code, ServiceItemLine."Line No.");
     end;
 
-    local procedure CreateServiceHeaderWithDim(var ServiceHeader: Record "Service Header"; var DefaultDimension: Record "Default Dimension"; ValuePosting: Option)
+    local procedure CreateServiceHeaderWithDim(var ServiceHeader: Record "Service Header"; var DefaultDimension: Record "Default Dimension"; ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         Customer: Record Customer;
         Dimension: Record Dimension;
@@ -2948,7 +2948,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateServiceOrder(ServiceLine, ServiceLine.Type::"G/L Account", GLAccount."No.", Customer."No.", false);
     end;
 
-    local procedure CreateServiceOrderGLDim(var ServiceHeader: Record "Service Header"; ValuePosting: Option)
+    local procedure CreateServiceOrderGLDim(var ServiceHeader: Record "Service Header"; ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         Item: Record Item;
         Customer: Record Customer;
@@ -3418,7 +3418,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Dimension Set ID", 0);
             ServiceLine.Modify(true);
@@ -3534,7 +3534,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure FindValueEntryDimSetID(ServiceShipmentLine: Record "Service Shipment Line"): Integer
@@ -3548,7 +3548,7 @@ codeunit 136118 "Service Posting - Dimensions"
         exit(ValueEntry."Dimension Set ID");
     end;
 
-    local procedure ModifyDefaultDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Option)
+    local procedure ModifyDefaultDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Enum "Default Dimension Value Posting Type")
     begin
         // Remove dimension value if value posting is No Code
         if ValuePosting = DefaultDimension."Value Posting"::"No Code" then
@@ -3602,7 +3602,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         FindServiceShipmentHeader(ServiceShipmentHeader, OrderNo);
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
         repeat
             FilterDefaultDimension(DefaultDimension, ServiceShipmentLine.Type, ServiceShipmentLine."No.");
             ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::" ");
@@ -3980,7 +3980,7 @@ codeunit 136118 "Service Posting - Dimensions"
         repeat
             FilterDefaultDimension(DefaultDimension, ServiceLine.Type, ServiceLine."No.");
             ServiceLedgerEntry.SetRange("Document Line No.", ServiceLine."Line No.");
-            ServiceLedgerEntry.FindSet;
+            ServiceLedgerEntry.FindSet();
             repeat
                 VerifyDimSetEntry(
                   ServiceLedgerEntry."Dimension Set ID", DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
@@ -4045,7 +4045,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceLine: Record "Service Line";
     begin
         StandardServiceLine.SetRange("Standard Service Code", StandardServiceCode);
-        StandardServiceLine.FindSet;
+        StandardServiceLine.FindSet();
         ServiceLine.SetRange("Document No.", OrderNo);
         repeat
             ServiceLine.SetRange("Line No.", StandardServiceLine."Line No.");
@@ -4201,7 +4201,7 @@ codeunit 136118 "Service Posting - Dimensions"
         with ServiceLedgerEntry do begin
             SetRange("Document Type", "Document Type"::Shipment);
             SetRange("Service Order No.", ServiceOrderNo);
-            FindSet;
+            FindSet();
             Assert.AreEqual(DimSetID, "Dimension Set ID", DimensionSetIDErr);
             Next;
             Assert.AreEqual(DimSetID, "Dimension Set ID", DimensionSetIDErr);

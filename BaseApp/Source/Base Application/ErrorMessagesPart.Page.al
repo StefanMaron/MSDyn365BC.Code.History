@@ -121,7 +121,7 @@ page 701 "Error Messages Part"
         ErrorMessage.SetRange("Record ID", recordID);
         ErrorMessage.CopyToTemp(TempErrorMessage);
         SetRecords(TempErrorMessage);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure GetStyleOfRecord(RecordVariant: Variant; var StyleExpression: Text)

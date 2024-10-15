@@ -354,7 +354,7 @@ page 9219 "Purch. Budget Overview Matrix"
     begin
         CurrentAnalysisArea := CurrentAnalysisArea::Purchase;
         ItemBudgetManagement.BudgetNameSelection(
-          CurrentAnalysisArea, CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
+          CurrentAnalysisArea.AsInteger(), CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
 
         GLSetup.Get();
@@ -367,7 +367,7 @@ page 9219 "Purch. Budget Overview Matrix"
         MatrixRecords: array[32] of Record "Dimension Code Buffer";
         ItemBudgetManagement: Codeunit "Item Budget Management";
         MatrixMgt: Codeunit "Matrix Management";
-        CurrentAnalysisArea: Option Sales,Purchase,Inventory;
+        CurrentAnalysisArea: Enum "Analysis Area Type";
         CurrentBudgetName: Code[10];
 
         ValueType: Option ,"Cost Amount",Quantity;
@@ -391,7 +391,7 @@ page 9219 "Purch. Budget Overview Matrix"
     protected var
         ItemBudgetName: Record "Item Budget Name";
         MATRIX_ColumnTempRec: Record "Dimension Code Buffer";
-        SourceTypeFilter: Option " ",Customer,Vendor,Item;
+        SourceTypeFilter: Enum "Analysis Source Type";
         LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
         ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
         SourceNoFilter: Text;
@@ -409,7 +409,7 @@ page 9219 "Purch. Budget Overview Matrix"
           ItemBudgetManagement.CalcAmount(
             ValueType, SetColFilter,
             ItemStatisticsBuffer, ItemBudgetName,
-            ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
+            ItemFilter, SourceTypeFilter.AsInteger(), SourceNoFilter, DateFilter,
             GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
             LineDimOption, Rec, ColumnDimOption, MATRIX_ColumnTempRec));
     end;
@@ -419,7 +419,7 @@ page 9219 "Purch. Budget Overview Matrix"
         ItemBudgetManagement.UpdateAmount(
           ValueType, SetColFilter,
           ItemStatisticsBuffer, ItemBudgetName,
-          ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
+          ItemFilter, SourceTypeFilter.AsInteger(), SourceNoFilter, DateFilter,
           GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
           LineDimOption, Rec, ColumnDimOption, MATRIX_ColumnTempRec, NewAmount);
     end;
@@ -429,7 +429,7 @@ page 9219 "Purch. Budget Overview Matrix"
         OnBeforeDrillDown(Rec, OnlyLines, ValueType);
         ItemBudgetManagement.BudgetDrillDown(
           ItemBudgetName,
-          ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
+          ItemFilter, SourceTypeFilter.AsInteger(), SourceNoFilter, DateFilter,
           GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
           LineDimOption, Rec,
           ColumnDimOption, MATRIX_ColumnTempRec,
@@ -456,7 +456,7 @@ page 9219 "Purch. Budget Overview Matrix"
         ValueType := _ValueType;
         PeriodType := _PeriodType;
         ItemBudgetManagement.BudgetNameSelection(
-          CurrentAnalysisArea, CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
+          CurrentAnalysisArea.AsInteger(), CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
         RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
     end;

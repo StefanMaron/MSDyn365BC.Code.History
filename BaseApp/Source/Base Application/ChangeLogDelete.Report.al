@@ -77,7 +77,7 @@ report 510 "Change Log - Delete"
         if not GuiAllowed then
             exit;
         Window.Close;
-        if not TempErrorMessage.IsEmpty then begin
+        if not TempErrorMessage.IsEmpty() then begin
             if ConfirmManagement.GetResponse(SomeEntriesNotDeletedQst, true) then
                 PAGE.RunModal(PAGE::"Error Messages", TempErrorMessage);
         end else
@@ -117,7 +117,7 @@ report 510 "Change Log - Delete"
                 Commit();
                 if not CODEUNIT.Run(CODEUNIT::"Change Log Entry - Delete", ChangeLogEntry) then
                     TempErrorMessage.LogLastError;
-            until ChangeLogEntry.Next = 0;
+            until ChangeLogEntry.Next() = 0;
     end;
 }
 

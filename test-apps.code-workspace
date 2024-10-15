@@ -19,6 +19,12 @@
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests"
+    },
+    {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
       "path": "./vatgroupmanagement/test/VAT Group Management Tests"
     },
     {
@@ -133,7 +139,13 @@
       "path": "./BaseApp/Source/Base Application/Test Framework"
     },
     {
+      "path": "./onprem permissions/test/OnPrem Permissions Tests"
+    },
+    {
       "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
+    },
+    {
+      "path": "./CompanyHub/Test/Company Hub Tests"
     },
     {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
