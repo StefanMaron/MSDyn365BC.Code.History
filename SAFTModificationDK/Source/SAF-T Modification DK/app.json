@@ -2,7 +2,7 @@
     "id":  "fed2a629-3c57-4250-b2b7-f3c7a9c53cd5",
     "name":  "SAF-T Modification DK",
     "publisher":  "Microsoft",
-    "version":  "22.14.64410.0",
+    "version":  "22.14.64503.0",
     "brief":  "SAF-T modification for Denmark.",
     "description":  "SAF-T app modification is used to export audit data that is specific for Denmark.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
