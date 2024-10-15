@@ -87,7 +87,7 @@ codeunit 99000768 "Production BOM-Copy"
                 ToProdBOMCompComment.Insert();
             until FromProdBOMCompComment.Next() = 0;
 
-        OnAfterCopyBOM(BOMHeaderNo, CurrentBOMHeader);
+        OnAfterCopyBOM(BOMHeaderNo, CurrentBOMHeader, FromVersionCode, ToVersionCode);
     end;
 
     procedure CopyFromVersion(var ProdBOMVersionList2: Record "Production BOM Version")
@@ -115,7 +115,7 @@ codeunit 99000768 "Production BOM-Copy"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyBOM(BOMHeaderNo: Code[20]; CurrentBOMHeader: Record "Production BOM Header")
+    local procedure OnAfterCopyBOM(BOMHeaderNo: Code[20]; CurrentBOMHeader: Record "Production BOM Header"; FromVersionCode: Code[20]; ToVersionCode: Code[20])
     begin
     end;
 

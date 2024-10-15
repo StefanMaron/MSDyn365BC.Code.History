@@ -3663,6 +3663,66 @@ codeunit 137158 "SCM Orders V"
         Assert.ExpectedErrorCode('TestField');
     end;
 
+    [Test]
+    procedure PurchaseOrderWithJobHavingNegativeAndPositiveLines()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Job] [Negative Line]
+        // [SCENARIO 411787] Inventory and warehouse integrity when posting purchase order with job having negative and positive lines.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with mandatory bin.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Item, job.
+        LibraryInventory.CreateItem(Item);
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Create purchase order at the location, add one line -
+        // [GIVEN] Line 1: quantity = 1, select bin code and job no.
+        // [GIVEN] Post the purchase as receipt.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, Item."No.", Qty, Location.Code, false);
+        UpdateBinCodeJobNoAndJobTaskNoOnPurchaseLine(PurchaseLine, JobTask, Bin.Code);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Reopen the purchase order, add two lines -
+        // [GIVEN] Line 2: quantity = -1, select bin code and job no.
+        // [GIVEN] Line 3: quantity = 1, select bin code and job no.
+        PurchaseHeader.Find();
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, Item."No.", -Qty, Location.Code, false);
+        UpdateBinCodeJobNoAndJobTaskNoOnPurchaseLine(PurchaseLine, JobTask, Bin.Code);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, Item."No.", Qty, Location.Code, false);
+        UpdateBinCodeJobNoAndJobTaskNoOnPurchaseLine(PurchaseLine, JobTask, Bin.Code);
+
+        // [WHEN] Post the purchase as receipt.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Six item entries have been posted in total (3 lines + 3 job consumptions), resulting in zero inventory.
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.CalcSums(Quantity);
+        Assert.RecordCount(ItemLedgerEntry, 6);
+        ItemLedgerEntry.TestField(Quantity, 0);
+
+        // [THEN] Six warehouse entries have been posted in total too, resulting in zero quantity in bin.
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        Assert.RecordCount(WarehouseEntry, 6);
+        WarehouseEntry.TestField("Qty. (Base)", 0);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";

@@ -65,7 +65,7 @@
         UpgradeWordTemplateTables();
         UpdatePriceSourceGroupInPriceListLines();
         UpdatePriceListLineStatus();
-        UpdateJobPlanningLinePlanningDueDate();
+        UpdateAllJobsResourcePrices();
     end;
 
     local procedure ClearTemporaryTables()
@@ -237,24 +237,6 @@
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddingIDToJobsUpgradeTag());
     end;
 
-    local procedure UpdateJobPlanningLinePlanningDueDate()
-    var
-        JobPlanningLine: Record "Job Planning Line";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobPlanningLinePlanningDueDateUpgradeTag()) then
-            exit;
-
-        if JobPlanningLine.FindSet() then
-            repeat
-                JobPlanningLine.UpdatePlannedDueDate();
-                JobPlanningLine.Modify();
-            until JobPlanningLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobPlanningLinePlanningDueDateUpgradeTag());
-    end;
-
     local procedure UpdatePriceSourceGroupInPriceListLines()
     var
         PriceListLine: Record "Price List Line";
@@ -325,6 +307,49 @@
             until PriceListLine.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSyncPriceListLineStatusUpgradeTag());
+    end;
+
+    local procedure UpdateAllJobsResourcePrices()
+    var
+        NewPriceListLine: Record "Price List Line";
+        PriceListLine: Record "Price List Line";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAllJobsResourcePriceUpgradeTag()) then
+            exit;
+
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+        PriceListLine.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        PriceListLine.SetFilter("Asset Type", '%1|%2', "Price Asset Type"::Resource, "Price Asset Type"::"Resource Group");
+        if EnvironmentInformation.IsSaaS() then
+            if PriceListLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                exit;
+        if PriceListLine.Findset() then
+            repeat
+                NewPriceListLine := PriceListLine;
+                case PriceListLine."Price Type" of
+                    "Price Type"::Sale:
+                        NewPriceListLine."Source Type" := "Price Source Type"::"All Customers";
+                    "Price Type"::Purchase:
+                        NewPriceListLine."Source Type" := "Price Source Type"::"All Vendors";
+                end;
+                InsertPriceListLine(NewPriceListLine);
+            until PriceListLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAllJobsResourcePriceUpgradeTag());
+    end;
+
+    local procedure InsertPriceListLine(var PriceListLine: Record "Price List Line")
+    var
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.InitLineNo(PriceListLine);
+        if not PriceListManagement.FindDuplicatePrice(PriceListLine) then
+            PriceListLine.Insert(true);
     end;
 
     local procedure CreateWorkflowWebhookWebServices()

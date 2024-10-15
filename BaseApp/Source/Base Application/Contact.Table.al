@@ -850,6 +850,9 @@
 
         ContBusRel.SetRange("Contact No.", "No.");
         ContBusRel.DeleteAll();
+
+        if not Find() then;
+
         case Type of
             Type::Company:
                 begin
@@ -3270,6 +3273,12 @@
         MarketingSetup.Get();
         MarketingSetup.TestField("Bus. Rel. Code for Employees");
         CreateLink(Page::"Employee Link", MarketingSetup."Bus. Rel. Code for Employees", ContBusRel."Link to Table"::Employee);
+    end;
+
+    procedure GetOrClear(ContactNo: Code[20])
+    begin
+        if not Rec.Get(ContactNo) then
+            Clear(Rec);
     end;
 
 #if not CLEAN18

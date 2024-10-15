@@ -633,7 +633,7 @@
             CalcApplnAmount();
         PostingDone := false;
 
-        OnAfterOnOpenPage(GenJnlLine);
+        OnAfterOnOpenPage(GenJnlLine, Rec, ApplyingCustLedgEntry);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -909,6 +909,8 @@
                     CalcApplnAmount();
                 end;
         end;
+
+        OnAfterSetApplyingCustLedgEntry(ApplyingCustLedgEntry, GenJnlLine, SalesHeader);
     end;
 
     procedure SetCustApplId(CurrentRec: Boolean)
@@ -928,7 +930,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetCustEntryApplID(Rec, CurrentRec, ApplyingAmount, ApplyingCustLedgEntry, GetAppliesToID(), IsHandled);
+        OnBeforeSetCustEntryApplID(Rec, CurrentRec, ApplyingAmount, ApplyingCustLedgEntry, GetAppliesToID(), IsHandled, GenJnlLine);
         if IsHandled then
             exit;
 
@@ -1036,6 +1038,7 @@
                                         AppliedAmount := Round("Amount to Apply", AmountRoundingPrecision)
                                     else
                                         AppliedAmount := Round("Remaining Amount", AmountRoundingPrecision);
+                                    OnCalcApplnAmountOnCalcTypeGenJnlLineOnApplnTypeToDocNoOnAfterSetAppliedAmount(Rec, ApplnDate, ApplnCurrencyCode, AppliedAmount);
 
                                     if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlCust(
                                          GenJnlLine, AppliedCustLedgEntry, 0, false) and
@@ -1356,7 +1359,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostDirectApplication(Rec, PreviewMode, IsHandled);
+        OnBeforePostDirectApplication(Rec, PreviewMode, IsHandled, ApplyingCustLedgEntry);
         if IsHandled then
             exit;
 
@@ -1504,7 +1507,12 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterOnOpenPage(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnAfterOnOpenPage(var GenJnlLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetApplyingCustLedgEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -1529,7 +1537,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostDirectApplication(var CustLedgerEntry: Record "Cust. Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforePostDirectApplication(var CustLedgerEntry: Record "Cust. Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary)
     begin
     end;
 
@@ -1539,12 +1547,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetCustEntryApplID(CustLedgerEntry: Record "Cust. Ledger Entry"; CurrentRec: Boolean; var ApplyingAmount: Decimal; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]; var IsHandled: Boolean)
+    local procedure OnBeforeSetCustEntryApplID(CustLedgerEntry: Record "Cust. Ledger Entry"; CurrentRec: Boolean; var ApplyingAmount: Decimal; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]; var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcApplnAmountOnCalcTypeGenJnlLineOnApplnTypeToDocNoOnBeforeSetAppliedAmount(var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcApplnAmountOnCalcTypeGenJnlLineOnApplnTypeToDocNoOnAfterSetAppliedAmount(var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10]; var AppliedAmount: Decimal)
     begin
     end;
 

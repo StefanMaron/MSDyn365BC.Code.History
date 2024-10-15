@@ -80,6 +80,7 @@
                 Window.Close;
                 if SalesHeader."No." <> '' then begin // Not the first time
                     FinalizeSalesInvHeader;
+                    OnReturnReceiptHeaderOnAfterFinalizeSalesInvHeader(SalesHeader, NoOfSalesInvErrors, PostInv);
                     if NoOfSalesInvErrors = 0 then
                         Message(Text010, NoOfSalesInv)
                     else
@@ -242,6 +243,8 @@
         Text1130009: Label 'The filter on %1 must be specified in the request form.';
 
     local procedure FinalizeSalesInvHeader()
+    var
+        ShouldPostInv: Boolean;
     begin
         OnBeforeFinalizeSalesInvHeader(SalesHeader);
 
@@ -253,7 +256,9 @@
             Clear(SalesCalcDisc);
             Clear(SalesPost);
             NoOfSalesInv := NoOfSalesInv + 1;
-            if PostInv then begin
+            ShouldPostInv := PostInv;
+            OnFinalizeSalesInvHeaderOnAfterCalcShouldPostInv(SalesHeader, NoOfSalesInv, ShouldPostInv);
+            if ShouldPostInv then begin
                 Clear(SalesPost);
                 if not SalesPost.Run(SalesHeader) then
                     NoOfSalesInvErrors := NoOfSalesInvErrors + 1;
@@ -318,7 +323,7 @@
           (SalesOrderHeader."Payment Method Code" <> SalesHeader."Payment Method Code") or
           (SalesOrderHeader."Activity Code" <> SalesHeader."Activity Code");
 
-        OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, ReturnReceiptLine);
+        OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, ReturnReceiptLine, "Return Receipt Header");
         exit(Finalize);
     end;
 
@@ -333,7 +338,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean; ReturnReceiptLine: Record "Return Receipt Line")
+    local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean; ReturnReceiptLine: Record "Return Receipt Line"; ReturnReceiptHeader: Record "Return Receipt Header")
     begin
     end;
 
@@ -349,6 +354,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesCrMemoHeaderModify(var SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeSalesInvHeaderOnAfterCalcShouldPostInv(var SalesHeader: Record "Sales Header"; var NoOfSalesInv: Integer; var ShouldPostInv: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReturnReceiptHeaderOnAfterFinalizeSalesInvHeader(var SalesHeader: Record "Sales Header"; var NoOfSalesCrMemoErrors: Integer; PostInv: Boolean)
     begin
     end;
 }

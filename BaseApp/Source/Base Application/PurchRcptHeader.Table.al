@@ -585,7 +585,14 @@
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if UserSetupMgt.GetPurchasesFilter <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
@@ -595,6 +602,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchRcptHeader: Record "Purch. Rcpt. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var IsHandled: Boolean)
     begin
     end;
 }

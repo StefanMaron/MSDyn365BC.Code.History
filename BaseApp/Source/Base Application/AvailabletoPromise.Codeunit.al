@@ -600,7 +600,13 @@
     local procedure UpdateSalesOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSalesOrderAvail(AvailabilityAtDate, Item, ChangedSalesLine, CurrentOrderPromisingLine, ReqShipDate, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLine do begin
             if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
                 repeat
@@ -771,6 +777,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcReservedReceipt(var Item: Record Item; var ReservedReceipt: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; ChangedSalesLine: Record "Sales Line"; CurrentOrderPromisingLine: Record "Order Promising Line"; ReqShipDate: Date; var IsHandled: Boolean)
     begin
     end;
 

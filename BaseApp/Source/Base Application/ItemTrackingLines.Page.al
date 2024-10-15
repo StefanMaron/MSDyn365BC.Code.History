@@ -955,7 +955,7 @@
             CurrPage.Update();
 
             IsHandled := false;
-            OnQueryClosePageOnBeforeConfirmClosePage(Rec, isHandled);
+            OnQueryClosePageOnBeforeConfirmClosePage(Rec, isHandled, CurrentRunMode);
             if IsHandled then
                 Exit(true);
 
@@ -1020,6 +1020,7 @@
         TempItemTrackLineModify: Record "Tracking Specification" temporary;
         TempItemTrackLineDelete: Record "Tracking Specification" temporary;
         TempItemTrackLineReserv: Record "Tracking Specification" temporary;
+        SourceTrackingSpecification: Record "Tracking Specification";
         ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection";
         CurrentRunMode: Enum "Item Tracking Run Mode";
         CurrentSignFactor: Integer;
@@ -1189,6 +1190,7 @@
     begin
         OnBeforeSetSourceSpec(TrackingSpecification, ReservEntry);
 
+        SourceTrackingSpecification := TrackingSpecification;
         GetItem(TrackingSpecification."Item No.");
         ForBinCode := TrackingSpecification."Bin Code";
         SetFilters(TrackingSpecification);
@@ -1881,10 +1883,10 @@
     var
         ReservEntry1: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
+        SavedOldTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservationMgt: Codeunit "Reservation Management";
         QtyToAdd: Decimal;
-        LostReservQty: Decimal;
         IdenticalArray: array[2] of Boolean;
         IsHandled: Boolean;
     begin
@@ -1921,11 +1923,7 @@
                     TempReservEntry.ClearTrackingFilter();
 
                     // Late Binding
-                    if ReservEngineMgt.RetrieveLostReservQty(LostReservQty) then begin
-                        TempItemTrackLineReserv := NewTrackingSpecification;
-                        TempItemTrackLineReserv."Quantity (Base)" := LostReservQty * CurrentSignFactor;
-                        TempItemTrackLineReserv.Insert();
-                    end;
+                    ProcessLateBinding(NewTrackingSpecification);
 
                     if OldTrackingSpecification."Quantity (Base)" = 0 then
                         exit(true);
@@ -1982,6 +1980,7 @@
                 end;
             ChangeType::Modify:
                 begin
+                    SavedOldTrackingSpecification := OldTrackingSpecification;
                     ReservEntry1.TransferFields(OldTrackingSpecification);
                     ReservEntry2.TransferFields(NewTrackingSpecification);
 
@@ -2006,11 +2005,7 @@
                         TempReservEntry.ClearTrackingFilter();
 
                         // Late Binding
-                        if ReservEngineMgt.RetrieveLostReservQty(LostReservQty) then begin
-                            TempItemTrackLineReserv := NewTrackingSpecification;
-                            TempItemTrackLineReserv."Quantity (Base)" := LostReservQty * CurrentSignFactor;
-                            TempItemTrackLineReserv.Insert();
-                        end;
+                        ProcessLateBinding(NewTrackingSpecification);
 
                         OldTrackingSpecification."Quantity (Base)" := QtyToAdd;
                         OldTrackingSpecification."Warranty Date" := NewTrackingSpecification."Warranty Date";
@@ -2038,7 +2033,7 @@
                         RegisterChange(
                             NewTrackingSpecification, NewTrackingSpecification, ChangeType::PartDelete, not IdenticalArray[2]);
                     end;
-                    OnRegisterChangeOnAfterModify(NewTrackingSpecification, OldTrackingSpecification, CurrentPageIsOpen);
+                    OnRegisterChangeOnAfterModify(NewTrackingSpecification, OldTrackingSpecification, CurrentPageIsOpen, SavedOldTrackingSpecification);
                     OK := true;
                 end;
             ChangeType::FullDelete,
@@ -2074,6 +2069,18 @@
                 end;
         end;
         SetQtyToHandleAndInvoice(NewTrackingSpecification);
+    end;
+
+    local procedure ProcessLateBinding(var NewTrackingSpecification: Record "Tracking Specification")
+    var
+        LostReservQty: Decimal;
+    begin
+        if ReservEngineMgt.RetrieveLostReservQty(LostReservQty) then begin
+            TempItemTrackLineReserv := NewTrackingSpecification;
+            TempItemTrackLineReserv."Quantity (Base)" := LostReservQty * CurrentSignFactor;
+            OnProcessLateBindingOnBeforeTempItemTrackLineReservInsert(TempItemTrackLineReserv, CurrentSignFactor);
+            TempItemTrackLineReserv.Insert();
+        end;
     end;
 
     local procedure ShouldAddQuantityAsBlank(OldTrackingSpecification: Record "Tracking Specification"; NewTrackingSpecification: Record "Tracking Specification"): Boolean
@@ -2324,6 +2331,8 @@
             if ItemLedgerEntry.Quantity > SourceQuantityArray[1] then
                 SourceQuantityArray[1] := ItemLedgerEntry.Quantity;
         end;
+
+        OnAfterCollectPostedOutputEntries(ItemLedgerEntry, TempTrackingSpecification);
     end;
 
     procedure ZeroLineExists() OK: Boolean
@@ -2359,6 +2368,7 @@
             Error(Text008);
 
         QtyToCreateInt := QtyToCreate;
+        OnAssignSerialNoOnAfterAssignQtyToCreateInt(Rec, QtyToCreateInt);
 
         Clear(EnterQuantityToCreate);
         EnterQuantityToCreate.SetFields(Rec."Item No.", Rec."Variant Code", QtyToCreate, false, false);
@@ -2398,7 +2408,7 @@
                 Error('');
             Rec.Insert();
 
-            OnAssignSerialNoBatchOnAfterInsert(Rec);
+            OnAssignSerialNoBatchOnAfterInsert(Rec, QtyToCreate);
 
             TempItemTrackLineInsert.TransferFields(Rec);
             TempItemTrackLineInsert.Insert();
@@ -2462,7 +2472,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeAssignNewSerialNo(Rec, IsHandled);
+        OnBeforeAssignNewSerialNo(Rec, IsHandled, SourceTrackingSpecification);
         if IsHandled then
             exit;
 
@@ -2534,7 +2544,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeAssignNewLotNo(Rec, IsHandled);
+        OnBeforeAssignNewLotNo(Rec, IsHandled, SourceTrackingSpecification);
         if IsHandled then
             exit;
 
@@ -2563,6 +2573,7 @@
             Error(Text008);
 
         QtyToCreateInt := QtyToCreate;
+        OnCreateCustomizedSNByPageOnAfterCalcQtyToCreate(Rec, QtyToCreate);
 
         Clear(EnterCustomizedSN);
         EnterCustomizedSN.SetFields(Rec."Item No.", Rec."Variant Code", QtyToCreate, false, false);
@@ -2603,6 +2614,7 @@
             if TestTempSpecificationExists() then
                 Error('');
             Rec.Insert();
+            OnCreateCustomizedSNBatchOnAfterRecInsert(Rec, QtyToCreate);
             TempItemTrackLineInsert.TransferFields(Rec);
             TempItemTrackLineInsert.Insert();
             ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
@@ -2672,7 +2684,7 @@
         repeat
             SetTrackingFilterFromSpec(TempTrackingSpecification);
             if Find('-') then begin
-                OnRegisterItemTrackingLinesOnAfterFind(Rec, TempTrackingSpecification);
+                OnRegisterItemTrackingLinesOnAfterFind(Rec, TempTrackingSpecification, IsCorrection);
                 if IsCorrection then begin
                     Rec."Quantity (Base)" += TempTrackingSpecification."Quantity (Base)";
                     Rec."Qty. to Handle (Base)" += TempTrackingSpecification."Qty. to Handle (Base)";
@@ -3230,6 +3242,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCollectPostedOutputEntries(ItemLedgerEntry: Record "Item Ledger Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterClearTrackingSpec(var OldTrkgSpec: Record "Tracking Specification")
     begin
     end;
@@ -3305,7 +3322,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignSerialNoBatchOnAfterInsert(var TrackingSpecification: Record "Tracking Specification")
+    local procedure OnAssignSerialNoBatchOnAfterInsert(var TrackingSpecification: Record "Tracking Specification"; QtyToCreate: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomizedSNBatchOnAfterRecInsert(var TrackingSpecification: Record "Tracking Specification"; QtyToCreate: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignSerialNoOnAfterAssignQtyToCreateInt(var TrackingSpecification: Record "Tracking Specification"; var QtyToCreate: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomizedSNByPageOnAfterCalcQtyToCreate(var TrackingSpecification: Record "Tracking Specification"; var QtyToCreate: Decimal)
     begin
     end;
 
@@ -3320,7 +3352,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssignNewSerialNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    local procedure OnBeforeAssignNewSerialNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; var SourceTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3330,7 +3362,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssignNewLotNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    local procedure OnBeforeAssignNewLotNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; var SourceTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3420,6 +3452,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnProcessLateBindingOnBeforeTempItemTrackLineReservInsert(var TempItemTrackLineReserv: Record "Tracking Specification"; CurrentSignFactor: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRegisterChangeOnAfterCreateReservEntry(var ReservEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification"; OldTrackingSpecification: Record "Tracking Specification")
     begin
     end;
@@ -3430,7 +3467,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRegisterChangeOnAfterModify(var NewTrackingSpecification: Record "Tracking Specification"; var OldTrackingSpecification: Record "Tracking Specification"; CurrentPageIsOpen: Boolean)
+    local procedure OnRegisterChangeOnAfterModify(var NewTrackingSpecification: Record "Tracking Specification"; var OldTrackingSpecification: Record "Tracking Specification"; CurrentPageIsOpen: Boolean; var SavedOldTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3495,7 +3532,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnQueryClosePageOnBeforeConfirmClosePage(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    local procedure OnQueryClosePageOnBeforeConfirmClosePage(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode")
     begin
     end;
 
@@ -3550,7 +3587,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRegisterItemTrackingLinesOnAfterFind(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    local procedure OnRegisterItemTrackingLinesOnAfterFind(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary; IsCorrection: Boolean)
     begin
     end;
 

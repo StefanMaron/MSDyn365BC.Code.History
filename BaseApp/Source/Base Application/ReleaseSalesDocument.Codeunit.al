@@ -31,6 +31,7 @@
         NotOnlyDropShipment: Boolean;
         PostingDate: Date;
         PrintPostedDocuments: Boolean;
+        ShouldSetStatusPrepayment: Boolean;
         IsHandled: Boolean;
     begin
         with SalesHeader do begin
@@ -38,7 +39,7 @@
                 exit;
 
             IsHandled := false;
-            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled);
+            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled, SkipCheckReleaseRestrictions);
             if IsHandled then
                 exit;
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
@@ -105,7 +106,9 @@
             if IsHandled then
                 exit;
 
-            if PrepaymentMgt.TestSalesPrepayment(SalesHeader) and ("Document Type" = "Document Type"::Order) then begin
+            ShouldSetStatusPrepayment := PrepaymentMgt.TestSalesPrepayment(SalesHeader) and ("Document Type" = "Document Type"::Order);
+            OnCodeOnAfterCalcShouldSetStatusPrepayment(SalesHeader, PreviewMode, ShouldSetStatusPrepayment);
+            if ShouldSetStatusPrepayment then begin
                 Status := Status::"Pending Prepayment";
                 Modify(true);
                 OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
@@ -208,6 +211,7 @@
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
                 if TestStatusIsNotPendingPrepayment then begin
                     Status := Status::"Pending Prepayment";
+                    OnPerformManualCheckAndReleaseOnBeforeSalesHeaderModify(SalesHeader, PreviewMode);
                     Modify;
                     Commit();
                 end;
@@ -334,7 +338,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; SkipCheckReleaseRestrictions: Boolean)
     begin
     end;
 
@@ -414,6 +418,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCalcShouldSetStatusPrepayment(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var ShouldSetStatusPrepayment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnCheckTracking(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
@@ -440,6 +449,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPerformManualReleaseOnBeforeTestSalesPrepayment(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPerformManualCheckAndReleaseOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
     begin
     end;
 

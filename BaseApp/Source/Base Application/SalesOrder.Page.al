@@ -1,4 +1,4 @@
-page 42 "Sales Order"
+﻿page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -2268,8 +2268,8 @@ page 42 "Sales Order"
         SetControlVisibility;
         UpdateShipToBillToGroupVisibility;
         WorkDescription := GetWorkDescription;
-        if BillToContact.Get("Bill-to Contact No.") then;
-        if SellToContact.Get("Sell-to Contact No.") then;
+        BillToContact.GetOrClear("Bill-to Contact No.");
+        SellToContact.GetOrClear("Sell-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -2419,6 +2419,7 @@ page 42 "Sales Order"
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsHandled: Boolean;
     begin
+        OnBeforePostSalesOrder(Rec, PostingCodeunitID, Navigate);
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
 
@@ -2624,6 +2625,11 @@ page 42 "Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShippingOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSalesOrder(var SalesHeader: Record "Sales Header"; PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     begin
     end;
 
