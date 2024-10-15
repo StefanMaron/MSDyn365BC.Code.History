@@ -556,12 +556,7 @@
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Config. Template Management", 'OnBeforeInsertRecordWithKeyFields', '', false, false)]
     local procedure OnBeforeInsertRecordWithKeyFieldsHandler(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
     begin
-        if RecRef.Number = Database::Item then begin
-            if ConfigTemplateHeader."Instance No. Series" = '' then
-                exit;
-
-            FillItemKeyFromInitSeries(RecRef, ConfigTemplateHeader)
-        end;
+        FillItemKeyFromInitSeries(RecRef, ConfigTemplateHeader)
     end;
 
     procedure FillItemKeyFromInitSeries(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
@@ -570,11 +565,16 @@
         NoSeriesManagement: Codeunit NoSeriesManagement;
         FldRef: FieldRef;
     begin
-        NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Item."No.", Item."No. Series");
-        FldRef := RecRef.Field(Item.FieldNo("No."));
-        FldRef.Value := Item."No.";
-        FldRef := RecRef.Field(Item.FieldNo("No. Series"));
-        FldRef.Value := Item."No. Series";
+        if RecRef.Number = Database::Item then begin
+            if ConfigTemplateHeader."Instance No. Series" = '' then
+                exit;
+
+            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Item."No.", Item."No. Series");
+            FldRef := RecRef.Field(Item.FieldNo("No."));
+            FldRef.Value := Item."No.";
+            FldRef := RecRef.Field(Item.FieldNo("No. Series"));
+            FldRef.Value := Item."No. Series";
+        end;
     end;
 
     [IntegrationEvent(false, false)]

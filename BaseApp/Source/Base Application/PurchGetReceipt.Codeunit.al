@@ -307,9 +307,12 @@ codeunit 74 "Purch.-Get Receipt"
            (PurchaseLine."Document Type" = PurchaseLine."Document Type"::Invoice)
         then begin
             PurchOrderLine.Get(PurchOrderLine."Document Type"::Order, PurchRcptLine."Order No.", PurchRcptLine."Order Line No.");
-            Fraction := PurchRcptLine."Qty. Rcd. Not Invoiced" / PurchOrderLine.Quantity;
-            FractionAmount := Fraction * PurchOrderLine."Prepmt. Amt. Inv.";
-            RoundingAmount += PurchaseLine."Prepmt Amt to Deduct" - FractionAmount;
+            if (PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced") <> 0 then begin
+                Fraction := (PurchRcptline.Quantity - PurchRcptLine."Quantity Invoiced") / (PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced");
+                FractionAmount := Fraction * (PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted");
+                RoundingAmount += PurchaseLine."Prepmt Amt to Deduct" - FractionAmount;
+            end else
+                RoundingAmount := 0;
         end;
     end;
 
