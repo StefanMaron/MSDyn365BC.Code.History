@@ -2365,7 +2365,7 @@
                 CalledFromMoveWksh:
                     begin
                         TotalAvailQtyBase :=
-                            QtyOnPickBins + QtyOnPutAwayBins - QtyAssignedToPick - Abs(ReservedQtyOnInventory) + QtyReservedOnPickShip + LineReservedQty;
+                            QtyOnPickBins + QtyOnPutAwayBins - QtyAssignedToPick;
                         if CalledFromWksh then
                             TotalAvailQtyBase := TotalAvailQtyBase - QtyAssignedPick - QtyOnPutAwayBins;
                         MovementFromShipZone(TotalAvailQtyBase, QtyOnOutboundBins + QtyBlocked);

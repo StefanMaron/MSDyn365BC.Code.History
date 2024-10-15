@@ -682,12 +682,8 @@
 
     procedure CalcAvailableQtyBase() AvailableQty: Decimal
     var
-        TempWhseActivLine: Record "Warehouse Activity Line" temporary;
         AvailQtyBase: Decimal;
         QtyAssgndOnWkshBase: Decimal;
-        QtyReservedOnPickShip: Decimal;
-        QtyReservedForCurrLine: Decimal;
-        QtyOnDedicatedBins: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -708,20 +704,7 @@
         end else begin
             QtyAssgndOnWkshBase := WhseAvailMgt.CalcQtyAssgndOnWksh(Rec, true, true);
 
-            if Location."Require Pick" then
-                QtyReservedOnPickShip :=
-                  WhseAvailMgt.CalcReservQtyOnPicksShips("Location Code", "Item No.", "Variant Code", TempWhseActivLine);
-
-            QtyReservedForCurrLine :=
-              Abs(
-                WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                  "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, TempWhseActivLine));
-
-            QtyOnDedicatedBins := WhseAvailMgt.CalcQtyOnDedicatedBins("Location Code", "Item No.", "Variant Code");
-
-            AvailQtyBase :=
-              WhseAvailMgt.CalcInvtAvailQty(Item, Location, "Variant Code", TempWhseActivLine) +
-              QtyReservedOnPickShip + QtyReservedForCurrLine - QtyOnDedicatedBins;
+            AvailQtyBase := WhseAvailMgt.CalcQtyAvailToTakeOnWhseWorksheetLine(Rec);
         end;
 
         AvailableQty := AvailQtyBase - QtyAssgndOnWkshBase + AssignedQtyOnReservedLines;

@@ -492,13 +492,15 @@ page 5935 "Service Credit Memo"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No.");
+                SubPageLink = "No." = FIELD("Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             systempart(Control1900383207; Links)

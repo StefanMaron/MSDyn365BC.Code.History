@@ -2,6 +2,9 @@
 {
     Caption = 'Auto Posting Errors';
     ProcessingOnly = true;
+    MaximumDatasetSize = 1000000;
+    ExecutionTimeout = '12:00:00';
+    MaximumDocumentCount = 500;
 
     dataset
     {

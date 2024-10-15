@@ -994,8 +994,8 @@ codeunit 134763 "Test Sales Post Preview"
         IsInitialized := true;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
@@ -1156,7 +1156,7 @@ codeunit 134763 "Test Sales Post Preview"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure ThrowErrorSalesHeaderOnBeforeDeleteEvent(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         RecordExportBuffer: Record "Record Export Buffer";

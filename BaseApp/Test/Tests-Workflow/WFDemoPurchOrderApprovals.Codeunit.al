@@ -14,6 +14,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         DocCannotBeReleasedErr: Label 'This document can only be released when the approval process is complete.';
         DocCannotBePostedErr: Label '%1 %2 must be approved and released before you can perform this action.', Comment = '%1 = PurchHeader."Document Type", %2 = PurchHeader."No."';
         LibraryWorkflow: Codeunit "Library - Workflow";
@@ -778,6 +779,58 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         VerifyApprovalEntry(ApprovalEntry, CurrentUserSetup."Approver ID", CurrentUserSetup."User ID", ApprovalEntry.Status::Canceled);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderApprovalWithOverReceiptWorkflowStep()
+    var
+        Workflow: Record Workflow;
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        CurrentUserSetup: Record "User Setup";
+        IntermediateApproverUserSetup: Record "User Setup";
+        FinalApproverUserSetup: Record "User Setup";
+        WorkflowStep: Record "Workflow Step";
+        OverReceiptCode: Record "Over-Receipt Code";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+    begin
+        // [SCENARIO 395546] Purchase Order approval workflow with Over-Receipt workflow step
+        Initialize;
+
+        // [GIVEN] The Purchase Order Approval Workflow with additional Over-Receipt workflow step is enabled
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
+        Workflow.Validate(Enabled, false);
+        Workflow.Modify(true);
+        InsertNewWorkflowStepAfter(
+            Workflow.Code, WorkflowResponseHandling.AllowRecordUsageCode(),
+            WorkflowStep.Type::Response, WorkflowResponseHandling.GetApproveOverReceiptCode());
+        LibraryWorkflow.EnableWorkflow(Workflow);
+
+        // [GIVEN] Approval Setup
+        CreateUserSetupsAndChainOfApprovers(CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
+
+        // [GIVEN] Purchase Order created with Purchase Line containing Over-Receipt Code
+        CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(10, 50));
+        LibraryPurchase.FindFirstPurchLine(PurchLine, PurchHeader);
+        PurchLine.Validate("Over-Receipt Code", CreateOverReceiptCode());
+        PurchLine.Validate("Over-Receipt Approval Status", PurchLine."Over-Receipt Approval Status"::Pending);
+        PurchLine.Modify(True);
+
+        // [GIVEN] Purchase Order sent for approval
+        SendPurchaseOrderForApproval(PurchHeader);
+        VerifyPurchaseDocumentStatus(PurchHeader, PurchHeader.Status::"Pending Approval");
+        UpdateApprovalEntryWithTempUser(CurrentUserSetup, PurchHeader);
+
+        // [WHEN] Purchase Order is approved
+        ApprovePurchaseOrder(PurchHeader);
+
+        // [THEN] Purchase Order status = Released and Purchase Line "Over-Receipt Approval Status" = Approved
+        VerifyPurchaseDocumentStatus(PurchHeader, PurchHeader.Status::Released);
+        LibraryPurchase.FindFirstPurchLine(PurchLine, PurchHeader);
+        PurchLine.TestField("Over-Receipt Approval Status", PurchLine."Over-Receipt Approval Status"::Approved);
+    end;
+
     local procedure SendDocumentForApproval(var Workflow: Record Workflow; var CurrentUserSetup: Record "User Setup"; var IntermediateApproverUserSetup: Record "User Setup"; var FinalApproverUserSetup: Record "User Setup"; var PurchHeader: Record "Purchase Header")
     var
         WorkflowSetup: Codeunit "Workflow Setup";
@@ -1061,6 +1114,35 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowEvent."Function Name");
         WorkflowStep.FindFirst;
+    end;
+
+    local procedure CreateOverReceiptCode(): Code[20]
+    var
+        OverReceiptCode: Record "Over-Receipt Code";
+    begin
+        OverReceiptCode.Init();
+        OverReceiptCode.Code := LibraryUtility.GenerateRandomCode20(OverReceiptCode.FieldNo(Code), Database::"Over-Receipt Code");
+        OverReceiptCode.Description := OverReceiptCode.Code;
+        OverReceiptCode."Over-Receipt Tolerance %" := 100;
+        OverReceiptCode.Insert();
+
+        exit(OverReceiptCode.Code);
+    end;
+
+    local procedure InsertNewWorkflowStepAfter(WorkflowCode: Code[20]; AfterStepFunctioName: Code[128]; StepType: Option; NewStepFunctionName: Code[128])
+    var
+        WorkflowStep: Record "Workflow Step";
+        NewWorkflowStep: Record "Workflow Step";
+    begin
+        WorkflowStep.SetRange("Workflow Code", WorkflowCode);
+        WorkflowStep.SetRange("Function Name", AfterStepFunctioName);
+        WorkflowStep.FindFirst();
+        NewWorkflowStep.Init();
+        NewWorkflowStep."Workflow Code" := WorkflowCode;
+        NewWorkflowStep.Type := StepType;
+        NewWorkflowStep.Validate("Function Name", NewStepFunctionName);
+        NewWorkflowStep.Insert(true);
+        WorkflowStep.InsertAfterStep(NewWorkflowStep);
     end;
 }
 

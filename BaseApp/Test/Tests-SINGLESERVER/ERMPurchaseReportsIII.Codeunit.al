@@ -22,6 +22,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -1614,6 +1615,7 @@ codeunit 134988 "ERM Purchase Reports III"
     var
         GenJournalLine: array[3] of Record "Gen. Journal Line";
         Vendor: Record Vendor;
+        AutoFormat: Codeunit "Auto Format";
     begin
         // [FEATURE] [Vendor - Balance to Date]
         // [SCENARIO 288122] Remaining Amount in "Vendor - Balance to Date" report shows sum of invoice that is closed at a later date.
@@ -1645,7 +1647,9 @@ codeunit 134988 "ERM Purchase Reports III"
 
         // [THEN] RemainingAmt is equal to 'X' + 'Y'
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('RemainingAmt', GenJournalLine[1].Amount + GenJournalLine[2].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('RemainingAmt',
+            Format(GenJournalLine[1].Amount + GenJournalLine[2].Amount, 0,
+                AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, GenJournalLine[1]."Currency Code")));
     end;
 
     [Test]
@@ -1759,6 +1763,138 @@ codeunit 134988 "ERM Purchase Reports III"
 
         // [THEN] Report dataset has Planned/Expected/Promised/Requested Receipt Dates = 01.01, 02.01, 03.01, 04.01
         VerifyStandardPurchaseOrderReceiptDates(PurchaseLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHAgedAccountsPayableFileName')]
+    procedure AgedAccountsPayableCurrencyFilterNotSet()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        CurrencyCode: array[2] of Code[10];
+        DocumentNo: Code[20];
+        PeriodLength: DateFormula;
+        Filters: Text;
+        AmountFCY: array[2] of Decimal;
+        AmountLCY: array[2] of Decimal;
+    begin
+        // [FEATURE] [Aged Accounts Payable]
+        // [SCENARIO 397446] Run Aged Accounts Payable report for Purchase Documents with different currencies when Currency Filter is not set.
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with Currency "C1". Posted Purchase Invoice with Currency "C2".
+        LibraryPurchase.CreateVendor(Vendor);
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CurrencyCode[2] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentNo := CreateAndPostPurchaseDocumentWithCurrency(Vendor."No.", PurchaseHeader."Document Type"::Invoice, CurrencyCode[1]);
+        GetPurchaseDocAmounts(PurchaseHeader."Document Type"::Invoice, DocumentNo, AmountFCY[1], AmountLCY[1]);
+        DocumentNo := CreateAndPostPurchaseDocumentWithCurrency(Vendor."No.", PurchaseHeader."Document Type"::Invoice, CurrencyCode[2]);
+        GetPurchaseDocAmounts(PurchaseHeader."Document Type"::Invoice, DocumentNo, AmountFCY[2], AmountLCY[2]);
+
+        // [WHEN] Run report Aged Accounts Payable. "Currency Filter" is not set in "Filter Totals by" section in Vendor block.
+        Evaluate(PeriodLength, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)));
+        Vendor.SetRecFilter();
+        SaveAgedAccountsPayable(Vendor, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
+
+        // [THEN] Lines for currencies "C1" and "C2" are shown. Totals are equal to sum of Amount(LCY) of Invoices.
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+        VerifyCurrencyAgedAccountsPayable(CurrencyCode[1], AmountFCY[1], AmountLCY[1], 0);
+        VerifyCurrencyAgedAccountsPayable(CurrencyCode[2], AmountFCY[2], AmountLCY[2], 1);
+        VerifyTotalLCYAgedAccountsPayable(AmountLCY[1] + AmountLCY[2]);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/CurrCode_TempVenLedgEntryLoop', 2);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/TempCurrency2Code', 2);
+
+        // [THEN] Filter on the report page does not contain "Currency Filter".
+        Filters := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Result/VendorFilter', 0);
+        asserterror Assert.ExpectedMessage('Currency Filter', Filters);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHAgedAccountsPayableFileName')]
+    procedure AgedAccountsPayableCurrencyFilterSetOneCurrency()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        CurrencyCode: array[2] of Code[10];
+        DocumentNo: Code[20];
+        PeriodLength: DateFormula;
+        Filters: Text;
+        AmountFCY: Decimal;
+        AmountLCY: Decimal;
+    begin
+        // [FEATURE] [Aged Accounts Payable]
+        // [SCENARIO 397446] Run Aged Accounts Payable report for Purchase Documents with different currencies when Currency Filter is set to one currency.
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with Currency "C1". Posted Purchase Invoice with Currency "C2".
+        LibraryPurchase.CreateVendor(Vendor);
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CurrencyCode[2] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CreateAndPostPurchaseDocumentWithCurrency(Vendor."No.", PurchaseHeader."Document Type"::Invoice, CurrencyCode[1]);
+        DocumentNo := CreateAndPostPurchaseDocumentWithCurrency(Vendor."No.", PurchaseHeader."Document Type"::Invoice, CurrencyCode[2]);
+        GetPurchaseDocAmounts(PurchaseHeader."Document Type"::Invoice, DocumentNo, AmountFCY, AmountLCY);
+
+        // [WHEN] Run report Aged Accounts Payable. Set "Currency Filter" = "C2" in "Filter Totals by" section in Vendor block.
+        Evaluate(PeriodLength, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)));
+        Vendor.SetRecFilter();
+        Vendor.SetRange("Currency Filter", CurrencyCode[2]);
+        SaveAgedAccountsPayable(Vendor, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
+
+        // [THEN] Only line for currency "C2" is shown. Totals are equal to corresponding values of the posted Invoice with Currency "C2".
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+        VerifyCurrencyAgedAccountsPayable(CurrencyCode[2], AmountFCY, AmountLCY, 0);
+        VerifyTotalLCYAgedAccountsPayable(AmountLCY);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/CurrCode_TempVenLedgEntryLoop', 1);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/TempCurrency2Code', 1);
+
+        // [THEN] Filter on the report page contains "Currency Filter: C2".
+        Filters := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Result/VendorFilter', 0);
+        Assert.ExpectedMessage(StrSubstNo('Currency Filter: %1', CurrencyCode[2]), Filters);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHAgedAccountsPayableFileName')]
+    procedure AgedAccountsPayableCurrencyFilterSetTwoCurrencies()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        CurrencyCode: array[2] of Code[10];
+        DocumentNo: Code[20];
+        PeriodLength: DateFormula;
+        Filters: Text;
+        AmountFCY: array[2] of Decimal;
+        AmountLCY: array[2] of Decimal;
+    begin
+        // [FEATURE] [Aged Accounts Payable]
+        // [SCENARIO 397446] Run Aged Accounts Payable report for Purchase Documents with different currencies when Currency Filter is set for two currencies.
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with Currency "C1". Posted Purchase Invoice with Currency "C2".
+        LibraryPurchase.CreateVendor(Vendor);
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CurrencyCode[2] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentNo := CreateAndPostPurchaseDocumentWithCurrency(Vendor."No.", PurchaseHeader."Document Type"::Invoice, CurrencyCode[1]);
+        GetPurchaseDocAmounts(PurchaseHeader."Document Type"::Invoice, DocumentNo, AmountFCY[1], AmountLCY[1]);
+        DocumentNo := CreateAndPostPurchaseDocumentWithCurrency(Vendor."No.", PurchaseHeader."Document Type"::Invoice, CurrencyCode[2]);
+        GetPurchaseDocAmounts(PurchaseHeader."Document Type"::Invoice, DocumentNo, AmountFCY[2], AmountLCY[2]);
+
+        // [WHEN] Run report Aged Accounts Payable. Set "Currency Filter" = "C1|C2" in "Filter Totals by" section in Vendor block.
+        Evaluate(PeriodLength, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)));
+        Vendor.SetRecFilter();
+        Vendor.SetFilter("Currency Filter", '%1|%2', CurrencyCode[1], CurrencyCode[2]);
+        SaveAgedAccountsPayable(Vendor, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
+
+        // [THEN] Lines for currencies "C1" and "C2" are shown. Totals are equal to sum of Amount(LCY) of Invoices.
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+        VerifyCurrencyAgedAccountsPayable(CurrencyCode[1], AmountFCY[1], AmountLCY[1], 0);
+        VerifyCurrencyAgedAccountsPayable(CurrencyCode[2], AmountFCY[2], AmountLCY[2], 1);
+        VerifyTotalLCYAgedAccountsPayable(AmountLCY[1] + AmountLCY[2]);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/CurrCode_TempVenLedgEntryLoop', 2);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/TempCurrency2Code', 2);
+
+        // [THEN] Filter on the report page contains "Currency Filter: C1|C2".
+        Filters := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Result/VendorFilter', 0);
+        Assert.ExpectedMessage(StrSubstNo('Currency Filter: %1|%2', CurrencyCode[1], CurrencyCode[2]), Filters);
     end;
 
     local procedure Initialize()
@@ -2046,6 +2182,18 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
         PurchInvHeader.CalcFields("Amount Including VAT");
         exit(PurchInvHeader."Amount Including VAT");
+    end;
+
+    local procedure CreateAndPostPurchaseDocumentWithCurrency(VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreateFCYPurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, DocumentType, VendorNo, '', LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate(), CurrencyCode);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
     local procedure CreatePurchaseDocSaveReport(VendorInvoiceNo: Code[20]; DocumentType: Enum "Purchase Document Type")
@@ -2419,6 +2567,21 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchInvHeader.FindLast;
+    end;
+
+    local procedure FormatDecimalXML(DecimalValue: Decimal): Text
+    begin
+        exit(Format(DecimalValue, 0, '<Precision,0:2><Standard Format,9>'));
+    end;
+
+    local procedure GetPurchaseDocAmounts(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; var Amount: Decimal; var AmountLCY: Decimal)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
+        VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
+        Amount := VendorLedgerEntry.Amount;
+        AmountLCY := VendorLedgerEntry."Amount (LCY)";
     end;
 
     local procedure ModifyCurrencyCodeOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
@@ -2939,7 +3102,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.SetRange('PostDt_VendLedgEntry3', Format(WorkDate));
         LibraryReportDataset.SetRange('DocType_VendLedgEntry3', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', VendorLedgerEntry.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(VendorLedgerEntry.Amount));
     end;
 
     local procedure VerifyVendorEntriesAndBalanceInVendorBalanceToDate(GenJournalLine: Record "Gen. Journal Line"; Balance: Decimal)
@@ -2947,10 +3110,10 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocType_VendLedgEntry3', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', -GenJournalLine.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(-GenJournalLine.Amount));
         LibraryReportDataset.SetRange('DocType_VendLedgEntry3', Format(GenJournalLine."Document Type"::"Credit Memo"));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', GenJournalLine.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(GenJournalLine.Amount));
         LibraryReportDataset.SetRange('Name1_Vendor', GenJournalLine."Account No.");
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('CurrTotalBufferTotalAmt', Balance);
@@ -3068,6 +3231,24 @@ codeunit 134988 "ERM Purchase Reports III"
           NoOfHits,
           CodeCoverageMgt.GetNoOfHitsCoverageForObject(CodeCoverage."Object Type"::Report, REPORT::"Aged Accounts Payable", CodeLine),
           StrSubstNo('%1 must be called %2 times when Aged Accounts Payable is run', CodeLine, NoOfHits));
+    end;
+
+    local procedure VerifyCurrencyAgedAccountsPayable(CurrencyCode: Code[10]; Amount: Decimal; AmountLCY: Decimal; NodeIndex: Integer)
+    begin
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/CurrCode_TempVenLedgEntryLoop', CurrencyCode, NodeIndex);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/TempCurrency2Code', CurrencyCode, NodeIndex);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/VLEEndingDateRemAmt', FormatDecimalXML(Amount), NodeIndex);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/VLEEndingDateRemAmtLCY', FormatDecimalXML(AmountLCY), NodeIndex);
+    end;
+
+    local procedure VerifyTotalLCYAgedAccountsPayable(TotalLCY: Decimal)
+    var
+        nodeList: DotNet XmlNodeList;
+        TotalLastIndex: Integer;
+    begin
+        LibraryXPathXMLReader.GetNodeList('//Result/GrandTotalVLE1AmtLCY', nodeList);
+        TotalLastIndex := nodeList.Count - 1; // index of the last node that contains Total(LCY) value
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/GrandTotalVLE1AmtLCY', FormatDecimalXML(TotalLCY), TotalLastIndex);
     end;
 
     local procedure VerifyXMLReport(XmlElementCaption: Text; XmlValue: Text; ValidateCaption: Text; ValidateValue: Decimal)
@@ -3199,6 +3380,17 @@ codeunit 134988 "ERM Purchase Reports III"
     procedure RHAgedAccountsPayable(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable")
     begin
         AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHAgedAccountsPayableFileName(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable")
+    var
+        FileName: Text;
+    begin
+        FileName := LibraryReportDataset.GetFileName();
+        LibraryVariableStorage.Enqueue(FileName);
+        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
     end;
 
     [RequestPageHandler]
