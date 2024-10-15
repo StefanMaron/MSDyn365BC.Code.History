@@ -31,11 +31,12 @@
         Text008: Label '&Request Stamp,&Send,Request Stamp &and Send';
         Text009: Label 'Cannot find a valid PAC web service for the action %1.\You must specify web service details for the combination of the %1 action and the %2 and %3 that you have selected in the %4 window.';
         Text010: Label 'You cannot choose the action %1 when the document status is %2.';
-        EDocAction: Option "Request Stamp",Send,Cancel;
+        EDocAction: Option "Request Stamp",Send,Cancel,CancelRequest;
         Text011: Label 'There is no electronic stamp for document no. %1.\Do you want to continue?';
-        MethodType: Option "Request Stamp",Cancel;
+        CancelAction: Option ,CancelRequest,GetResponse,MarkAsCanceled;
+        MethodTypeRef: Option "Request Stamp",Cancel,CancelRequest;
         Text012: Label 'Cannot contact the PAC. You must specify a value for the %1 field in the %2 window for the PAC that you selected in the %3 window.', Comment = '%1=Certificate;%2=PACWebService table caption;%3=GLSetup table caption';
-        Text013: Label 'Request Stamp,Send,Cancel';
+        Text013: Label 'Request Stamp,Send,Cancel,Cancel Request';
         Text014: Label 'CFDI feature is not enabled. Open the General Ledger Setup page, toggle the Enabled checkbox and specify the PAC Environment under the Electronic Invoice FastTab.';
         Text015: Label 'Do you want to cancel the electronic document?';
         Text016: Label 'The SMTP mail system returned the following error: %1.';        
@@ -85,6 +86,7 @@
         CFDIXSDLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd', Comment = 'Locked';
         CFDIComercioExteriorNamespaceTxt: Label 'http://www.sat.gob.mx/ComercioExterior11', Comment = 'Locked';
         CFDIComercioExteriorSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/ComercioExterior11/ComercioExterior11.xsd', Comment = 'Locked';
+        CancelSelectionMenuQst: Label 'Cancel Request,Get Response,Mark as Canceled';
 
     procedure RequestStampDocument(var RecRef: RecordRef; Prepayment: Boolean)
     var
@@ -142,76 +144,189 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesShipmentHeader: Record "Sales Shipment Header";
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        Selection: Integer;
     begin
-        if not Confirm(Text015, false) then
-            exit;
         Export := false;
         GetCheckCompanyInfo;
         GetGLSetup();
         SourceCodeSetup.Get();
 
+        Selection := CancelAction;
+        if GuiAllowed and (Selection = 0) then begin
+            Selection := StrMenu(CancelSelectionMenuQst, 1);
+            if Selection <> CancelAction::GetResponse then
+                if not Confirm(Text015, false) then
+                    exit;
+        end;
+        if Selection = 0 then
+            exit;
+
+        if Selection = CancelAction::MarkAsCanceled then begin
+            CancelDocumentManual(RecRef);
+            exit;
+        end;
+
         case RecRef.Number of
             DATABASE::"Sales Invoice Header":
                 begin
                     RecRef.SetTable(SalesInvHeader);
-                    EDocActionValidation(EDocAction::Cancel, SalesInvHeader."Electronic Document Status");
-                    CancelESalesInvoice(SalesInvHeader);
+                    case Selection of
+                        CancelAction::CancelRequest:
+                            begin
+                                EDocActionValidation(EDocAction::Cancel, SalesInvHeader."Electronic Document Status");
+                                CancelESalesInvoice(SalesInvHeader, MethodTypeRef::Cancel);
+                            end;
+                        CancelAction::GetResponse:
+                            begin
+                                SalesInvHeader.TestField("CFDI Cancellation ID");
+                                if SalesInvHeader."Electronic Document Status" in
+                                    [SalesInvHeader."Electronic Document Status"::"Cancel In Progress", SalesInvHeader."Electronic Document Status"::"Cancel Error"]
+                                then
+                                    CancelESalesInvoice(SalesInvHeader, MethodTypeRef::CancelRequest);
+                            end;
+                    end;
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
                     RecRef.SetTable(SalesCrMemoHeader);
-                    EDocActionValidation(EDocAction::Cancel, SalesCrMemoHeader."Electronic Document Status");
-                    CancelESalesCrMemo(SalesCrMemoHeader);
+                    case Selection of
+                        CancelAction::CancelRequest:
+                            begin
+                                EDocActionValidation(EDocAction::Cancel, SalesCrMemoHeader."Electronic Document Status");
+                                CancelESalesCrMemo(SalesCrMemoHeader, MethodTypeRef::Cancel);
+                            end;
+                        CancelAction::GetResponse:
+                            begin
+                                SalesCrMemoHeader.TestField("CFDI Cancellation ID");
+                                if SalesCrMemoHeader."Electronic Document Status" in
+                                    [SalesCrMemoHeader."Electronic Document Status"::"Cancel In Progress", SalesCrMemoHeader."Electronic Document Status"::"Cancel Error"]
+                                then
+                                    CancelESalesCrMemo(SalesCrMemoHeader, MethodTypeRef::CancelRequest);
+                            end;
+                    end;
                 end;
             DATABASE::"Service Invoice Header":
                 begin
                     RecRef.SetTable(ServiceInvHeader);
-                    EDocActionValidation(EDocAction::Cancel, ServiceInvHeader."Electronic Document Status");
-                    CancelEServiceInvoice(ServiceInvHeader);
+                    case Selection of
+                        CancelAction::CancelRequest:
+                            begin
+                                EDocActionValidation(EDocAction::Cancel, ServiceInvHeader."Electronic Document Status");
+                                CancelEServiceInvoice(ServiceInvHeader, MethodTypeRef::Cancel);
+                            end;
+                        CancelAction::GetResponse:
+                            begin
+                                ServiceInvHeader.TestField("CFDI Cancellation ID");
+                                if ServiceInvHeader."Electronic Document Status" in
+                                    [ServiceInvHeader."Electronic Document Status"::"Cancel In Progress", ServiceInvHeader."Electronic Document Status"::"Cancel Error"]
+                                then
+                                    CancelEServiceInvoice(ServiceInvHeader, MethodTypeRef::CancelRequest);
+                            end;
+                    end;
                 end;
             DATABASE::"Service Cr.Memo Header":
                 begin
                     RecRef.SetTable(ServiceCrMemoHeader);
-                    EDocActionValidation(EDocAction::Cancel, ServiceCrMemoHeader."Electronic Document Status");
-                    CancelEServiceCrMemo(ServiceCrMemoHeader);
+                    case Selection of
+                        CancelAction::CancelRequest:
+                            begin
+                                EDocActionValidation(EDocAction::Cancel, ServiceCrMemoHeader."Electronic Document Status");
+                                CancelEServiceCrMemo(ServiceCrMemoHeader, MethodTypeRef::Cancel);
+                            end;
+                        CancelAction::GetResponse:
+                            begin
+                                ServiceCrMemoHeader.TestField("CFDI Cancellation ID");
+                                if ServiceCrMemoHeader."Electronic Document Status" in
+                                    [ServiceCrMemoHeader."Electronic Document Status"::"Cancel In Progress", ServiceCrMemoHeader."Electronic Document Status"::"Cancel Error"]
+                                then
+                                    CancelEServiceCrMemo(ServiceCrMemoHeader, MethodTypeRef::CancelRequest);
+                            end;
+                    end;
                 end;
             DATABASE::"Cust. Ledger Entry":
                 begin
                     RecRef.SetTable(CustLedgerEntry);
-                    EDocActionValidation(EDocAction::Cancel, CustLedgerEntry."Electronic Document Status");
-                    CancelEPayment(CustLedgerEntry);
+                    case Selection of
+                        CancelAction::CancelRequest:
+                            begin
+                                EDocActionValidation(EDocAction::Cancel, CustLedgerEntry."Electronic Document Status");
+                                CancelEPayment(CustLedgerEntry, MethodTypeRef::Cancel);
+                            end;
+                        CancelAction::GetResponse:
+                            begin
+                                CustLedgerEntry.TestField("CFDI Cancellation ID");
+                                if CustLedgerEntry."Electronic Document Status" in
+                                    [CustLedgerEntry."Electronic Document Status"::"Cancel In Progress", CustLedgerEntry."Electronic Document Status"::"Cancel Error"]
+                                then
+                                    CancelEPayment(CustLedgerEntry, MethodTypeRef::CancelRequest);
+                            end;
+                    end;
                 end;
             DATABASE::"Sales Shipment Header":
                 begin
                     RecRef.SetTable(SalesShipmentHeader);
-                    EDocActionValidation(EDocAction::Cancel, SalesShipmentHeader."Electronic Document Status");
-                    CancelESalesShipment(SalesShipmentHeader);
+                    case Selection of
+                        CancelAction::CancelRequest:
+                            begin
+                                EDocActionValidation(EDocAction::Cancel, SalesShipmentHeader."Electronic Document Status");
+                                CancelESalesShipment(SalesShipmentHeader, MethodTypeRef::Cancel);
+                            end;
+                        CancelAction::GetResponse:
+                            begin
+                                SalesShipmentHeader.TestField("CFDI Cancellation ID");
+                                if SalesShipmentHeader."Electronic Document Status" in
+                                    [SalesShipmentHeader."Electronic Document Status"::"Cancel In Progress", SalesShipmentHeader."Electronic Document Status"::"Cancel Error"]
+                                then
+                                    CancelESalesShipment(SalesShipmentHeader, MethodTypeRef::CancelRequest);
+                            end;
+                    end;
                 end;
             DATABASE::"Transfer Shipment Header":
                 begin
                     RecRef.SetTable(TransferShipmentHeader);
-                    EDocActionValidation(EDocAction::Cancel, TransferShipmentHeader."Electronic Document Status");
-                    CancelETransferShipment(TransferShipmentHeader);
+                    case Selection of
+                        CancelAction::CancelRequest:
+                            begin
+                                EDocActionValidation(EDocAction::Cancel, TransferShipmentHeader."Electronic Document Status");
+                                CancelETransferShipment(TransferShipmentHeader, MethodTypeRef::Cancel);
+                            end;
+                        CancelAction::GetResponse:
+                            begin
+                                TransferShipmentHeader.TestField("CFDI Cancellation ID");
+                                if TransferShipmentHeader."Electronic Document Status" in
+                                    [TransferShipmentHeader."Electronic Document Status"::"Cancel In Progress", TransferShipmentHeader."Electronic Document Status"::"Cancel Error"]
+                                then
+                                    CancelETransferShipment(TransferShipmentHeader, MethodTypeRef::CancelRequest);
+                            end;
+                    end;
                 end;
         end;
+    end;
+
+    procedure CancelDocumentRequestStatus(var RecRef: RecordRef)
+    begin
+        CancelAction := CancelAction::GetResponse;
+        CancelDocument(RecRef);
     end;
 
     procedure EDocActionValidation("Action": Option "Request Stamp",Send,Cancel; Status: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error") Selection: Integer
     var
         TempSalesInvoiceHeader: Record "Sales Invoice Header" temporary;
+        DocStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
     begin
         TempSalesInvoiceHeader."Electronic Document Status" := Status;
 
         if Action = Action::"Request Stamp" then
-            if Status in [Status::"Stamp Received", Status::Sent, Status::"Cancel Error", Status::Canceled] then
+            if Status in [Status::"Stamp Received", Status::Sent, Status::"Cancel Error", Status::Canceled, DocStatus::"Cancel In Progress"] then
                 Error(Text010, SelectStr(Action + 1, Text013), TempSalesInvoiceHeader."Electronic Document Status");
 
         if Action = Action::Send then
-            if Status in [Status::" ", Status::Canceled, Status::"Cancel Error", Status::"Stamp Request Error"] then
+            if Status in [Status::" ", Status::Canceled, Status::"Cancel Error", Status::"Stamp Request Error", DocStatus::"Cancel In Progress"]
+            then
                 Error(Text010, SelectStr(Action + 1, Text013), TempSalesInvoiceHeader."Electronic Document Status");
 
         if Action = Action::Cancel then
-            if Status in [Status::" ", Status::Canceled, Status::"Stamp Request Error"] then
+            if Status in [Status::" ", Status::Canceled, Status::"Stamp Request Error", DocStatus::"Cancel In Progress"] then
                 Error(Text010, SelectStr(Action + 1, Text013), TempSalesInvoiceHeader."Electronic Document Status");
     end;
 
@@ -522,7 +637,7 @@
 
         Commit();
 
-        Response := InvokeMethod(XMLDoc, MethodType::"Request Stamp");
+        Response := InvokeMethod(XMLDoc, MethodTypeRef::"Request Stamp");
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -864,7 +979,7 @@
         Session.LogMessage('0000C75', StrSubstNo(SendDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
-    local procedure CancelESalesInvoice(var SalesInvHeader: Record "Sales Invoice Header")
+    local procedure CancelESalesInvoice(var SalesInvHeader: Record "Sales Invoice Header"; MethodType: Option)
     var
         SalesInvoiceHeaderSubst: Record "Sales Invoice Header";
         XMLDoc: DotNet XmlDocument;
@@ -885,12 +1000,17 @@
         CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
         SalesInvHeader."Date/Time Canceled" := CancelDateTime;
         SalesInvHeader."Original Document XML".CreateOutStream(OutStr);
-        CancelXMLDocument(
-          XMLDoc, OutStr,
-          CancelDateTime, SalesInvHeader."Date/Time Stamped", SalesInvHeader."Fiscal Invoice Number PAC",
-          SalesInvHeader."CFDI Cancellation Reason Code", SalesInvoiceHeaderSubst."Fiscal Invoice Number PAC");
 
-        Response := InvokeMethod(XMLDoc, MethodType::Cancel);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                CancelXMLDocument(
+                  XMLDoc, OutStr,
+                  CancelDateTime, SalesInvHeader."Date/Time Stamped", SalesInvHeader."Fiscal Invoice Number PAC",
+                  SalesInvHeader."CFDI Cancellation Reason Code", SalesInvoiceHeaderSubst."Fiscal Invoice Number PAC");
+            MethodTypeRef::CancelRequest:
+                CancelStatusRequestXMLDocument(XMLDoc, OutStr, SalesInvHeader."CFDI Cancellation ID");
+        end;
+        Response := InvokeMethod(XMLDoc, MethodType);
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -899,13 +1019,18 @@
         end;
 
         SalesInvHeader.Modify();
-        ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::Cancel, false);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::Cancel, false);
+            MethodTypeRef::CancelRequest:
+                ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::CancelRequest, false);
+        end;
         SalesInvHeader.Modify();
 
         Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
-    local procedure CancelESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    local procedure CancelESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; MethodType: Option)
     var
         SalesCrMemoHeaderSubst: Record "Sales Cr.Memo Header";
         XMLDoc: DotNet XmlDocument;
@@ -926,12 +1051,17 @@
         CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesCrMemoHeader)));
         SalesCrMemoHeader."Date/Time Canceled" := CancelDateTime;
         SalesCrMemoHeader."Original Document XML".CreateOutStream(OutStr);
-        CancelXMLDocument(
-          XMLDoc, OutStr,
-          CancelDateTime, SalesCrMemoHeader."Date/Time Stamped", SalesCrMemoHeader."Fiscal Invoice Number PAC",
-          SalesCrMemoHeader."CFDI Cancellation Reason Code", SalesCrMemoHeaderSubst."Fiscal Invoice Number PAC");
 
-        Response := InvokeMethod(XMLDoc, MethodType::Cancel);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                CancelXMLDocument(
+                  XMLDoc, OutStr,
+                  CancelDateTime, SalesCrMemoHeader."Date/Time Stamped", SalesCrMemoHeader."Fiscal Invoice Number PAC",
+                  SalesCrMemoHeader."CFDI Cancellation Reason Code", SalesCrMemoHeaderSubst."Fiscal Invoice Number PAC");
+            MethodTypeRef::CancelRequest:
+                CancelStatusRequestXMLDocument(XMLDoc, OutStr, SalesCrMemoHeader."CFDI Cancellation ID");
+        end;
+        Response := InvokeMethod(XMLDoc, MethodType);
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -940,13 +1070,18 @@
         end;
 
         SalesCrMemoHeader.Modify();
-        ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::Cancel);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::Cancel);
+            MethodTypeRef::CancelRequest:
+                ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::CancelRequest);
+        end;
         SalesCrMemoHeader.Modify();
 
         Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
-    local procedure CancelEServiceInvoice(var ServiceInvHeader: Record "Service Invoice Header")
+    local procedure CancelEServiceInvoice(var ServiceInvHeader: Record "Service Invoice Header"; MethodType: Option)
     var
         ServiceInvoiceHeaderSubst: Record "Service Invoice Header";
         XMLDoc: DotNet XmlDocument;
@@ -967,12 +1102,17 @@
         CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceInvHeader)));
         ServiceInvHeader."Date/Time Canceled" := CancelDateTime;
         ServiceInvHeader."Original Document XML".CreateOutStream(OutStr);
-        CancelXMLDocument(
-          XMLDoc, OutStr,
-          CancelDateTime, ServiceInvHeader."Date/Time Stamped", ServiceInvHeader."Fiscal Invoice Number PAC",
-          ServiceInvHeader."CFDI Cancellation Reason Code", ServiceInvoiceHeaderSubst."Substitution Document No.");
 
-        Response := InvokeMethod(XMLDoc, MethodType::Cancel);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                CancelXMLDocument(
+                  XMLDoc, OutStr,
+                  CancelDateTime, ServiceInvHeader."Date/Time Stamped", ServiceInvHeader."Fiscal Invoice Number PAC",
+                  ServiceInvHeader."CFDI Cancellation Reason Code", ServiceInvoiceHeaderSubst."Substitution Document No.");
+            MethodTypeRef::CancelRequest:
+                CancelStatusRequestXMLDocument(XMLDoc, OutStr, ServiceInvoiceHeaderSubst."CFDI Cancellation ID");
+        end;
+        Response := InvokeMethod(XMLDoc, MethodType);
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -981,13 +1121,18 @@
         end;
 
         ServiceInvHeader.Modify();
-        ProcessResponseEServiceInvoice(ServiceInvHeader, EDocAction::Cancel, 0);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                ProcessResponseEServiceInvoice(ServiceInvHeader, EDocAction::Cancel, 0);
+            MethodTypeRef::CancelRequest:
+                ProcessResponseEServiceInvoice(ServiceInvHeader, EDocAction::CancelRequest, 0);
+        end;
         ServiceInvHeader.Modify();
 
         Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
-    local procedure CancelEServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    local procedure CancelEServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; MethodType: Option)
     var
         ServiceCrMemoHeaderSubst: Record "Service Cr.Memo Header";
         XMLDoc: DotNet XmlDocument;
@@ -1008,12 +1153,17 @@
         CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceCrMemoHeader)));
         ServiceCrMemoHeader."Date/Time Canceled" := CancelDateTime;
         ServiceCrMemoHeader."Original Document XML".CreateOutStream(OutStr);
-        CancelXMLDocument(
-          XMLDoc, OutStr,
-          CancelDateTime, ServiceCrMemoHeader."Date/Time Stamped", ServiceCrMemoHeader."Fiscal Invoice Number PAC",
-          ServiceCrMemoHeader."CFDI Cancellation Reason Code", ServiceCrMemoHeaderSubst."Fiscal Invoice Number PAC");
 
-        Response := InvokeMethod(XMLDoc, MethodType::Cancel);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                CancelXMLDocument(
+                  XMLDoc, OutStr,
+                  CancelDateTime, ServiceCrMemoHeader."Date/Time Stamped", ServiceCrMemoHeader."Fiscal Invoice Number PAC",
+                  ServiceCrMemoHeader."CFDI Cancellation Reason Code", ServiceCrMemoHeaderSubst."Fiscal Invoice Number PAC");
+            MethodTypeRef::CancelRequest:
+                CancelStatusRequestXMLDocument(XMLDoc, OutStr, ServiceCrMemoHeader."CFDI Cancellation ID");
+        end;
+        Response := InvokeMethod(XMLDoc, MethodType);
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -1022,13 +1172,18 @@
         end;
 
         ServiceCrMemoHeader.Modify();
-        ProcessResponseEServiceCrMemo(ServiceCrMemoHeader, EDocAction::Cancel, 0);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                ProcessResponseEServiceCrMemo(ServiceCrMemoHeader, EDocAction::Cancel, 0);
+            MethodTypeRef::CancelRequest:
+                ProcessResponseEServiceCrMemo(ServiceCrMemoHeader, EDocAction::CancelRequest, 0);
+        end;
         ServiceCrMemoHeader.Modify();
 
         Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
-    local procedure CancelESalesShipment(var SalesShipmentHeader: Record "Sales Shipment Header")
+    local procedure CancelESalesShipment(var SalesShipmentHeader: Record "Sales Shipment Header"; MethodType: Option)
     var
         SalesShipmentHeaderSubst: Record "Sales Shipment Header";
         XMLDoc: DotNet XmlDocument;
@@ -1050,7 +1205,7 @@
           CancelDateTime, SalesShipmentHeader."Date/Time Stamped", SalesShipmentHeader."Fiscal Invoice Number PAC",
           SalesShipmentHeader."CFDI Cancellation Reason Code", SalesShipmentHeaderSubst."Fiscal Invoice Number PAC");
 
-        Response := InvokeMethod(XMLDoc, MethodType::Cancel);
+        Response := InvokeMethod(XMLDoc, MethodType);
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -1063,7 +1218,7 @@
         SalesShipmentHeader.Modify();
     end;
 
-    local procedure CancelETransferShipment(var TransferShipmentHeader: Record "Transfer Shipment Header")
+    local procedure CancelETransferShipment(var TransferShipmentHeader: Record "Transfer Shipment Header"; MethodType: Option)
     var
         TransferShipmentHeaderSubst: Record "Transfer Shipment Header";
         XMLDoc: DotNet XmlDocument;
@@ -1085,7 +1240,7 @@
           CancelDateTime, TransferShipmentHeader."Date/Time Stamped", TransferShipmentHeader."Fiscal Invoice Number PAC",
           TransferShipmentHeader."CFDI Cancellation Reason Code", TransferShipmentHeaderSubst."Fiscal Invoice Number PAC");
 
-        Response := InvokeMethod(XMLDoc, MethodType::Cancel);
+        Response := InvokeMethod(XMLDoc, MethodType);
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -1098,7 +1253,7 @@
         TransferShipmentHeader.Modify();
     end;
 
-    local procedure CancelEPayment(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure CancelEPayment(var CustLedgerEntry: Record "Cust. Ledger Entry"; MethodType: Option)
     var
         CustLedgerEntrySubst: Record "Cust. Ledger Entry";
         OutStr: OutStream;
@@ -1117,12 +1272,17 @@
           FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromCustomer(CustLedgerEntry."Customer No.")));
         CustLedgerEntry."Date/Time Canceled" := CancelDateTime;
         CustLedgerEntry."Original Document XML".CreateOutStream(OutStr);
-        CancelXMLDocument(
-          XMLDoc, OutStr,
-          CancelDateTime, CustLedgerEntry."Date/Time Stamped", CustLedgerEntry."Fiscal Invoice Number PAC",
-          CustLedgerEntry."CFDI Cancellation Reason Code", CustLedgerEntrySubst."Fiscal Invoice Number PAC");
 
-        Response := InvokeMethod(XMLDoc, MethodType::Cancel);
+        case MethodType of
+            MethodTypeRef::Cancel:
+                CancelXMLDocument(
+                  XMLDoc, OutStr,
+                  CancelDateTime, CustLedgerEntry."Date/Time Stamped", CustLedgerEntry."Fiscal Invoice Number PAC",
+                  CustLedgerEntry."CFDI Cancellation Reason Code", CustLedgerEntrySubst."Fiscal Invoice Number PAC");
+            MethodTypeRef::CancelRequest:
+                CancelStatusRequestXMLDocument(XMLDoc, OutStr, CustLedgerEntry."CFDI Cancellation ID");
+        end;
+        Response := InvokeMethod(XMLDoc, MethodType);
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -1135,6 +1295,20 @@
         CustLedgerEntry.Modify();
 
         Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+    end;
+
+    local procedure CancelDocumentManual(var RecRef: RecordRef)
+    var
+        FieldRef: FieldRef;
+        Status: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
+    begin
+        FieldRef := RecRef.Field(GetFieldIDElectronicDocumentStatus);
+        FieldRef.Value := Status::Canceled;
+        FieldRef := RecRef.Field(GetFieldIDDateTimeCancelled);
+        FieldRef.Value := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(RecRef)));
+        FieldRef := RecRef.Field(GetFieldIDMarkedAsCanceled);
+        FieldRef.Value := true;
+        RecRef.Modify;
     end;
 
     local procedure CancelXMLDocument(var XMLDoc: DotNet XmlDocument; var OutStr: OutStream; CancelDateTime: Text[50]; DateTimeStamped: Text; FiscalinvoiceNumberPAC: Text; CancellationReason: Text; SubstitutionDocumentUUID: Text)
@@ -1154,7 +1328,7 @@
         XMLCurrNode := XMLNewChild;
 
         AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
-        AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
+        AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC Number");
         AddElement(XMLCurrNode, 'Folios', '', '', XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddElement(XMLCurrNode, 'Folio', '', '', XMLNewChild);
@@ -1163,6 +1337,23 @@
         AddAttribute(XMLDoc, XMLCurrNode, 'UUID', FiscalinvoiceNumberPAC);
         AddAttribute(XMLDoc, XMLCurrNode, 'MotivoCancelacion', CancellationReason);
         AddAttribute(XMLDoc, XMLCurrNode, 'FolioSustitucion', SubstitutionDocumentUUID);
+        XMLDoc.Save(OutStr);
+    end;
+
+    local procedure CancelStatusRequestXMLDocument(var XMLDoc: DotNet XmlDocument; var OutStr: OutStream; CFDICancellationID: Text)
+    var
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        XMLCurrNode: DotNet XmlNode;
+    begin
+        // Create instance
+        if IsNull(XMLDoc) then
+            XMLDoc := XMLDoc.XmlDocument;
+
+        DocNameSpace := 'http://www.sat.gob.mx/sitio_internet/cfd';
+        XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <ConsultaCancelacion /> ', XMLDoc);
+        XMLCurrNode := XMLDoc.DocumentElement;
+        AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC Number");
+        AddAttribute(XMLDoc, XMLCurrNode, 'ConsultaCancelacionId', CFDICancellationID);
         XMLDoc.Save(OutStr);
     end;
 
@@ -1186,6 +1377,9 @@
         QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
+        CancelStatus: Option InProgress,Rejected,Cancelled;
+        CancelResult: Text[250];
+        DocumentStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
     begin
         GetGLSetup();
         GetCompanyInfo();
@@ -1270,7 +1464,15 @@
             SalesInvoiceHeader."Error Code" := '';
             SalesInvoiceHeader."Error Description" := '';
             if Action = EDocAction::Cancel then begin
-                SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::Canceled;
+                SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Cancel In Progress";
+                SalesInvoiceHeader."CFDI Cancellation ID" := GetResponseValueCancellationID(XMLCurrNode, XMLDOMNamedNodeMap);
+                exit;
+            end;
+            if Action = EDocAction::CancelRequest then begin
+                ProcessCancelResponse(XMLCurrNode, XMLDOMNamedNodeMap, CancelStatus, CancelResult);
+                GetDocumentStatusFromCancelStatus(DocumentStatus, CancelStatus);
+                SalesInvoiceHeader."Electronic Document Status" := DocumentStatus;
+                SalesInvoiceHeader."Error Description" := CancelResult;
                 exit;
             end;
         end else begin
@@ -1340,14 +1542,14 @@
         // Create QRCode
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         if not Reverse then begin
-            QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC No.", Customer."RFC No.", SalesInvoiceHeader."Amount Including VAT",
+            QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", SalesInvoiceHeader."Amount Including VAT",
                 Format(SalesInvoiceHeader."Fiscal Invoice Number PAC"));
             CreateQRCode(QRCodeInput, TempBlob);
             RecordRef.GetTable(SalesInvoiceHeader);
             TempBlob.ToRecordRef(RecordRef, SalesInvoiceHeader.FieldNo("QR Code"));
             RecordRef.SetTable(SalesInvoiceHeader);
         end else begin
-            QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC No.", Customer."RFC No.", SalesInvoiceHeader."Amount Including VAT",
+            QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", SalesInvoiceHeader."Amount Including VAT",
                 Format(CFDIDocuments."Fiscal Invoice Number PAC"));
             CreateQRCode(QRCodeInput, TempBlob);
             RecordRef.GetTable(CFDIDocuments);
@@ -1374,6 +1576,9 @@
         QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
+        CancelStatus: Option InProgress,Rejected,Cancelled;
+        CancelResult: Text[250];
+        DocumentStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
     begin
         GetGLSetup();
         GetCompanyInfo();
@@ -1425,9 +1630,18 @@
         SalesCrMemoHeader."Error Code" := '';
         SalesCrMemoHeader."Error Description" := '';
         if Action = EDocAction::Cancel then begin
-            SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::Canceled;
+            SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::"Cancel In Progress";
+            SalesCrMemoHeader."CFDI Cancellation ID" := GetResponseValueCancellationID(XMLCurrNode, XMLDOMNamedNodeMap);
             exit;
         end;
+        if Action = EDocAction::CancelRequest then begin
+            ProcessCancelResponse(XMLCurrNode, XMLDOMNamedNodeMap, CancelStatus, CancelResult);
+            GetDocumentStatusFromCancelStatus(DocumentStatus, CancelStatus);
+            SalesCrMemoHeader."Electronic Document Status" := DocumentStatus;
+            SalesCrMemoHeader."Error Description" := CancelResult;
+            exit;
+        end;
+
         XMLCurrNode := XMLDoc.SelectSingleNode('Resultado');
         XMLDOMNodeList := XMLCurrNode.ChildNodes;
         NodeCount := XMLDOMNodeList.Count();
@@ -1467,7 +1681,7 @@
 
         // Create QRCode
         SalesCrMemoHeader.CalcFields("Amount Including VAT");
-        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC No.", Customer."RFC No.", SalesCrMemoHeader."Amount Including VAT",
+        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", SalesCrMemoHeader."Amount Including VAT",
             Format(SalesCrMemoHeader."Fiscal Invoice Number PAC"));
         CreateQRCode(QRCodeInput, TempBlob);
         RecordRef.GetTable(SalesCrMemoHeader);
@@ -1493,6 +1707,9 @@
         QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
+        CancelStatus: Option InProgress,Rejected,Cancelled;
+        CancelResult: Text[250];
+        DocumentStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
     begin
         GetGLSetup();
         GetCompanyInfo();
@@ -1544,9 +1761,18 @@
         ServInvoiceHeader."Error Code" := '';
         ServInvoiceHeader."Error Description" := '';
         if Action = EDocAction::Cancel then begin
-            ServInvoiceHeader."Electronic Document Status" := ServInvoiceHeader."Electronic Document Status"::Canceled;
+            ServInvoiceHeader."Electronic Document Status" := ServInvoiceHeader."Electronic Document Status"::"Cancel In Progress";
+            ServInvoiceHeader."CFDI Cancellation ID" := GetResponseValueCancellationID(XMLCurrNode, XMLDOMNamedNodeMap);
             exit;
         end;
+        if Action = EDocAction::CancelRequest then begin
+            ProcessCancelResponse(XMLCurrNode, XMLDOMNamedNodeMap, CancelStatus, CancelResult);
+            GetDocumentStatusFromCancelStatus(DocumentStatus, CancelStatus);
+            ServInvoiceHeader."Electronic Document Status" := DocumentStatus;
+            ServInvoiceHeader."Error Description" := CancelResult;
+            exit;
+        end;
+
         XMLCurrNode := XMLDoc.SelectSingleNode('Resultado');
         XMLDOMNodeList := XMLCurrNode.ChildNodes;
         NodeCount := XMLDOMNodeList.Count();
@@ -1585,7 +1811,7 @@
         ServInvoiceHeader."Electronic Document Status" := ServInvoiceHeader."Electronic Document Status"::"Stamp Received";
 
         // Create QRCode
-        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC No.", Customer."RFC No.", AmountInclVAT,
+        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", AmountInclVAT,
             Format(ServInvoiceHeader."Fiscal Invoice Number PAC"));
         CreateQRCode(QRCodeInput, TempBlob);
         RecordRef.GetTable(ServInvoiceHeader);
@@ -1611,6 +1837,9 @@
         QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
+        CancelStatus: Option InProgress,Rejected,Cancelled;
+        CancelResult: Text[250];
+        DocumentStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
     begin
         GetGLSetup();
         GetCompanyInfo();
@@ -1662,9 +1891,18 @@
         ServCrMemoHeader."Error Code" := '';
         ServCrMemoHeader."Error Description" := '';
         if Action = EDocAction::Cancel then begin
-            ServCrMemoHeader."Electronic Document Status" := ServCrMemoHeader."Electronic Document Status"::Canceled;
+            ServCrMemoHeader."Electronic Document Status" := ServCrMemoHeader."Electronic Document Status"::"Cancel In Progress";
+            ServCrMemoHeader."CFDI Cancellation ID" := GetResponseValueCancellationID(XMLCurrNode, XMLDOMNamedNodeMap);
             exit;
         end;
+        if Action = EDocAction::CancelRequest then begin
+            ProcessCancelResponse(XMLCurrNode, XMLDOMNamedNodeMap, CancelStatus, CancelResult);
+            GetDocumentStatusFromCancelStatus(DocumentStatus, CancelStatus);
+            ServCrMemoHeader."Electronic Document Status" := DocumentStatus;
+            ServCrMemoHeader."Error Description" := CancelResult;
+            exit;
+        end;
+
         XMLCurrNode := XMLDoc.SelectSingleNode('Resultado');
         XMLDOMNodeList := XMLCurrNode.ChildNodes;
         NodeCount := XMLDOMNodeList.Count();
@@ -1703,7 +1941,7 @@
         ServCrMemoHeader."Electronic Document Status" := ServCrMemoHeader."Electronic Document Status"::"Stamp Received";
 
         // Create QRCode
-        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC No.", Customer."RFC No.", AmountInclVAT,
+        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", AmountInclVAT,
             Format(ServCrMemoHeader."Fiscal Invoice Number PAC"));
         CreateQRCode(QRCodeInput, TempBlob);
         RecordRef.GetTable(ServCrMemoHeader);
@@ -1728,6 +1966,9 @@
         Counter: Integer;
         QRCodeInput: Text;
         ErrorDescription: Text;
+        CancelStatus: Option InProgress,Rejected,Cancelled;
+        CancelResult: Text[250];
+        DocumentStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
     begin
         GetGLSetup();
         GetCompanyInfo();
@@ -1760,10 +2001,12 @@
             SalesShipmentHeader."Error Description" := CopyStr(ErrorDescription, 1, 250);
             case Action of
                 EDocAction::"Request Stamp":
-                    SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Stamp Request Error";
+                    SalesShipmentHeader."Electronic Document Status" :=
+                      SalesShipmentHeader."Electronic Document Status"::"Stamp Request Error";
                 EDocAction::Cancel:
                     begin
-                        SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Cancel Error";
+                        SalesShipmentHeader."Electronic Document Status" :=
+                          SalesShipmentHeader."Electronic Document Status"::"Cancel Error";
                         SalesShipmentHeader."Date/Time Canceled" := '';
                     end;
             end;
@@ -1773,7 +2016,15 @@
         SalesShipmentHeader."Error Code" := '';
         SalesShipmentHeader."Error Description" := '';
         if Action = EDocAction::Cancel then begin
-            SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::Canceled;
+            SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Cancel In Progress";
+            SalesShipmentHeader."CFDI Cancellation ID" := GetResponseValueCancellationID(XMLCurrNode, XMLDOMNamedNodeMap);
+            exit;
+        end;
+        if Action = EDocAction::CancelRequest then begin
+            ProcessCancelResponse(XMLCurrNode, XMLDOMNamedNodeMap, CancelStatus, CancelResult);
+            GetDocumentStatusFromCancelStatus(DocumentStatus, CancelStatus);
+            SalesShipmentHeader."Electronic Document Status" := DocumentStatus;
+            SalesShipmentHeader."Error Description" := CancelResult;
             exit;
         end;
         XMLCurrNode := XMLDoc.SelectSingleNode('Resultado');
@@ -1839,6 +2090,9 @@
         Counter: Integer;
         QRCodeInput: Text;
         ErrorDescription: Text;
+        CancelStatus: Option InProgress,Rejected,Cancelled;
+        CancelResult: Text[250];
+        DocumentStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
     begin
         GetGLSetup();
         GetCompanyInfo();
@@ -1871,10 +2125,12 @@
             TransferShipmentHeader."Error Description" := CopyStr(ErrorDescription, 1, 250);
             case Action of
                 EDocAction::"Request Stamp":
-                    TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Stamp Request Error";
+                    TransferShipmentHeader."Electronic Document Status" :=
+                      TransferShipmentHeader."Electronic Document Status"::"Stamp Request Error";
                 EDocAction::Cancel:
                     begin
-                        TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Cancel Error";
+                        TransferShipmentHeader."Electronic Document Status" :=
+                          TransferShipmentHeader."Electronic Document Status"::"Cancel Error";
                         TransferShipmentHeader."Date/Time Canceled" := '';
                     end;
             end;
@@ -1884,7 +2140,16 @@
         TransferShipmentHeader."Error Code" := '';
         TransferShipmentHeader."Error Description" := '';
         if Action = EDocAction::Cancel then begin
-            TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::Canceled;
+            TransferShipmentHeader."Electronic Document Status" :=
+              TransferShipmentHeader."Electronic Document Status"::"Cancel In Progress";
+            TransferShipmentHeader."CFDI Cancellation ID" := GetResponseValueCancellationID(XMLCurrNode, XMLDOMNamedNodeMap);
+            exit;
+        end;
+        if Action = EDocAction::CancelRequest then begin
+            ProcessCancelResponse(XMLCurrNode, XMLDOMNamedNodeMap, CancelStatus, CancelResult);
+            GetDocumentStatusFromCancelStatus(DocumentStatus, CancelStatus);
+            TransferShipmentHeader."Electronic Document Status" := DocumentStatus;
+            TransferShipmentHeader."Error Description" := CancelResult;
             exit;
         end;
         XMLCurrNode := XMLDoc.SelectSingleNode('Resultado');
@@ -1931,6 +2196,68 @@
         RecordRef.GetTable(TransferShipmentHeader);
         TempBlob.ToRecordRef(RecordRef, TransferShipmentHeader.FieldNo("QR Code"));
         RecordRef.SetTable(TransferShipmentHeader);
+    end;
+
+    local procedure ProcessCancelResponse(XMLCurrNode: DotNet XmlNode; XMLDOMNamedNodeMap: DotNet XmlNamedNodeMap; var CancelStatus: Option InProgress,Rejected,Cancelled; var CancelResult: Text[250])
+    var
+        StatusTxt: Text[10];
+    begin
+        XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('Estatus');
+        StatusTxt := XMLCurrNode.Value;
+        XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('Resultado');
+        CancelResult := XMLCurrNode.Value;
+        case StatusTxt of
+            'EnProceso':
+                CancelStatus := CancelStatus::InProgress;
+            'Rechazado':
+                CancelStatus := CancelStatus::Rejected;
+            'Cancelado':
+                begin
+                    CancelStatus := CancelStatus::Cancelled;
+                    CancelResult := '';
+                end;
+        end;
+    end;
+
+    local procedure GetDocumentStatusFromCancelStatus(var DocumentStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress"; CancelStatus: Option InProgress,Rejected,Cancelled)
+    begin
+        case CancelStatus of
+            CancelStatus::InProgress:
+                DocumentStatus := DocumentStatus::"Cancel In Progress";
+            CancelStatus::Rejected:
+                DocumentStatus := DocumentStatus::"Cancel Error";
+            CancelStatus::Cancelled:
+                DocumentStatus := DocumentStatus::Canceled;
+            else
+                DocumentStatus := DocumentStatus::"Cancel Error";
+        end;
+    end;
+
+    local procedure GetResponseValueCancellationID(XMLCurrNode: DotNet XmlNode; XMLDOMNamedNodeMap: DotNet XmlNamedNodeMap): Text[50]
+    begin
+        XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('ConsultaCancelacionId');
+        exit(XMLCurrNode.Value);
+    end;
+
+    local procedure GetFieldIDElectronicDocumentStatus(): Integer
+    var
+        DummySalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        exit(DummySalesInvoiceHeader.FieldNo("Electronic Document Status"));
+    end;
+
+    local procedure GetFieldIDDateTimeCancelled(): Integer
+    var
+        DummySalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        exit(DummySalesInvoiceHeader.FieldNo("Date/Time Canceled"));
+    end;
+
+    local procedure GetFieldIDMarkedAsCanceled(): Integer
+    var
+        DummySalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        exit(DummySalesInvoiceHeader.FieldNo("Marked as Canceled"));
     end;
 
     local procedure CreateXMLDocument33(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; IsCredit: Boolean; var XMLDoc: DotNet XmlDocument; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
@@ -2397,7 +2724,7 @@
         // Receptor
         AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
-        AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', CompanyInfo."RFC No.");
+        AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', CompanyInfo."RFC Number");
         AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', TempDocumentHeader."Bill-to/Pay-To Name");
         AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', TempDocumentHeader."CFDI Purpose");
         AddAttribute(
@@ -2460,12 +2787,12 @@
         AddElementCartaPorte(XMLCurrNode, 'Ubicaciones', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddNodeCartaPorteUbicacion(
-          'Origen', CompanyInfo."RFC No.", TempDocumentHeader."Transit-from Location", 'OR',
+          'Origen', CompanyInfo."RFC Number", TempDocumentHeader."Transit-from Location", 'OR',
           FormatDateTime(TempDocumentHeader."Transit-from Date/Time"), '', TempDocumentHeader."Foreign Trade",
           XMLDoc, XMLCurrNode, XMLNewChild);
         DestinationRFCNo := Customer."RFC No.";
         if DestinationRFCNo = '' then
-            DestinationRFCNo := CompanyInfo."RFC No.";
+            DestinationRFCNo := CompanyInfo."RFC Number";
         AddNodeCartaPorteUbicacion(
           'Destino', DestinationRFCNo, TempDocumentHeader."Transit-to Location", 'DE',
           FormatDateTime(TempDocumentHeader."Transit-from Date/Time" + TempDocumentHeader."Transit Hours" * 1000 * 60 * 60),
@@ -2721,7 +3048,7 @@
             AddStrRelacionado(TempCFDIRelationDocument, OutStream); // CfdiRelacionados
 
             // Company Information (Emisor)
-            WriteOutStr(OutStream, CompanyInfo."RFC No." + '|'); // Rfc
+            WriteOutStr(OutStream, CompanyInfo."RFC Number" + '|'); // Rfc
             WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo.Name) + '|'); // Nombre
             WriteOutStr(OutStream, CompanyInfo."SAT Tax Regime Classification" + '|'); // RegimenFiscal
 
@@ -2821,7 +3148,7 @@
             AddStrRelacionado(TempCFDIRelationDocument, OutStream); // CfdiRelacionados
 
             // Company Information (Emisor)
-            WriteOutStr(OutStream, CompanyInfo."RFC No." + '|'); // Rfc
+            WriteOutStr(OutStream, CompanyInfo."RFC Number" + '|'); // Rfc
             WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo.Name) + '|'); // Nombre
             WriteOutStr(OutStream, CompanyInfo."SAT Tax Regime Classification" + '|'); // RegimenFiscal
 
@@ -2900,7 +3227,7 @@
             WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo."SAT Postal Code") + '|'); // LugarExpedicion
 
             // Company Information (Emisor)
-            WriteOutStr(OutStream, CompanyInfo."RFC No." + '|'); // Rfc
+            WriteOutStr(OutStream, CompanyInfo."RFC Number" + '|'); // Rfc
             WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo.Name) + '|'); // Nombre
             WriteOutStr(OutStream, CompanyInfo."SAT Tax Regime Classification" + '|'); // RegimenFiscal
 
@@ -3006,7 +3333,7 @@
             WriteOutStr(OutStream, UUID + '|'); // UUID
 
             // Company Information (Emisor)
-            WriteOutStr(OutStream, CompanyInfo."RFC No." + '|'); // Rfc
+            WriteOutStr(OutStream, CompanyInfo."RFC Number" + '|'); // Rfc
             WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo.Name) + '|'); // Nombre
             WriteOutStr(OutStream, CompanyInfo."SAT Tax Regime Classification" + '|'); // RegimenFiscal
 
@@ -3059,12 +3386,12 @@
         WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo."SAT Postal Code") + '|'); // LugarExpedicion
 
         // Company Information (Emisor)
-        WriteOutStr(OutStream, CompanyInfo."RFC No." + '|'); // Rfc
+        WriteOutStr(OutStream, CompanyInfo."RFC Number" + '|'); // Rfc
         WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo.Name) + '|'); // Nombre
         WriteOutStr(OutStream, CompanyInfo."SAT Tax Regime Classification" + '|'); // RegimenFiscal
 
         // Customer information (Receptor)
-        WriteOutStr(OutStream, CompanyInfo."RFC No." + '|'); // Rfc
+        WriteOutStr(OutStream, CompanyInfo."RFC Number" + '|'); // Rfc
         WriteOutStr(OutStream, RemoveInvalidChars(TempDocumentHeader."Bill-to/Pay-To Name") + '|'); // Nombre
         WriteOutStr(OutStream,
             GetSATPostalCode(
@@ -3099,12 +3426,12 @@
         WriteOutStr(OutStream, FormatDecimal(TempDocumentHeader."Transit Distance", 6) + '|'); // TotalDistRec
 
         AddStrCartaPorteUbicacion(
-          'Origen', CompanyInfo."RFC No.", TempDocumentHeader."Transit-from Location", 'OR',
+          'Origen', CompanyInfo."RFC Number", TempDocumentHeader."Transit-from Location", 'OR',
           FormatDateTime(TempDocumentHeader."Transit-from Date/Time"), '', TempDocumentHeader."Foreign Trade",
           OutStream);
         DestinationRFCNo := Customer."RFC No.";
         if DestinationRFCNo = '' then
-            DestinationRFCNo := CompanyInfo."RFC No.";
+            DestinationRFCNo := CompanyInfo."RFC Number";
         AddStrCartaPorteUbicacion(
           'Destino', DestinationRFCNo, TempDocumentHeader."Transit-to Location", 'DE',
           FormatDateTime(TempDocumentHeader."Transit-from Date/Time" + TempDocumentHeader."Transit Hours" * 1000 * 60 * 60),
@@ -3417,7 +3744,7 @@
             // Emisor
             AddElementCFDI(XMLCurrNode, 'Emisor', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', "RFC No.");
+            AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', "RFC Number");
             AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Name);
             AddAttribute(XMLDoc, XMLCurrNode, 'RegimenFiscal', "SAT Tax Regime Classification");
         end;
@@ -3668,7 +3995,7 @@
     begin
         GetCompanyInfo();
         CompanyInfo.TestField(Name);
-        CompanyInfo.TestField("RFC No.");
+        CompanyInfo.TestField("RFC Number");
         CompanyInfo.TestField(Address);
         CompanyInfo.TestField(City);
         CompanyInfo.TestField("Country/Region Code");
@@ -3734,7 +4061,7 @@
                 end;
     end;
 
-    local procedure InvokeMethod(var XMLDoc: DotNet XmlDocument; MethodType: Option "Request Stamp",Cancel): Text
+    local procedure InvokeMethod(var XMLDoc: DotNet XmlDocument; MethodType: Option "Request Stamp",Cancel,CancelRequest): Text
     var
         PACWebService: Record "PAC Web Service";
         PACWebServiceDetail: Record "PAC Web Service Detail";
@@ -3757,7 +4084,7 @@
         // Depending on the chosen service provider, this section needs to be modified.
         // The parameters for the invoked method need to be added in the correct order.
         case MethodType of
-            MethodType::"Request Stamp":
+            MethodTypeRef::"Request Stamp":
                 begin
                     if not PACWebServiceDetail.Get(GLSetup."PAC Code", GLSetup."PAC Environment", PACWebServiceDetail.Type::"Request Stamp") then begin
                         PACWebServiceDetail.Type := PACWebServiceDetail.Type::"Request Stamp";
@@ -3767,10 +4094,19 @@
                     IWebServiceInvoker.AddParameter(XMLDoc.InnerXml);
                     IWebServiceInvoker.AddParameter(false);
                 end;
-            MethodType::Cancel:
+            MethodTypeRef::Cancel:
                 begin
                     if not PACWebServiceDetail.Get(GLSetup."PAC Code", GLSetup."PAC Environment", PACWebServiceDetail.Type::Cancel) then begin
                         PACWebServiceDetail.Type := PACWebServiceDetail.Type::Cancel;
+                        Error(Text009, PACWebServiceDetail.Type, GLSetup.FieldCaption("PAC Code"),
+                          GLSetup.FieldCaption("PAC Environment"), GLSetup.TableCaption);
+                    end;
+                    IWebServiceInvoker.AddParameter(XMLDoc.InnerXml);
+                end;
+            MethodTypeRef::CancelRequest:
+                begin
+                    if not PACWebServiceDetail.Get(GLSetup."PAC Code", GLSetup."PAC Environment", PACWebServiceDetail.Type::CancelRequest) then begin
+                        PACWebServiceDetail.Type := PACWebServiceDetail.Type::CancelRequest;
                         Error(Text009, PACWebServiceDetail.Type, GLSetup.FieldCaption("PAC Code"),
                           GLSetup.FieldCaption("PAC Environment"), GLSetup.TableCaption());
                     end;
@@ -4447,7 +4783,7 @@
 
         Commit();
 
-        Response := InvokeMethod(XMLDoc, MethodType::"Request Stamp");
+        Response := InvokeMethod(XMLDoc, MethodTypeRef::"Request Stamp");
 
         // For Test Mocking
         if not GLSetup."Sim. Request Stamp" then begin
@@ -4604,6 +4940,9 @@
         QRCodeInput: Text;
         ErrorDescription: Text;
         TelemetryError: Text;
+        CancelStatus: Option InProgress,Rejected,Cancelled;
+        CancelResult: Text[250];
+        DocumentStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
     begin
         GetGLSetup();
         GetCheckCompanyInfo;
@@ -4655,7 +4994,15 @@
         CustLedgerEntry."Error Code" := '';
         CustLedgerEntry."Error Description" := '';
         if Action = EDocAction::Cancel then begin
-            CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::Canceled;
+            CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::"Cancel In Progress";
+            CustLedgerEntry."CFDI Cancellation ID" := GetResponseValueCancellationID(XMLCurrNode, XMLDOMNamedNodeMap);
+            exit;
+        end;
+        if Action = EDocAction::CancelRequest then begin
+            ProcessCancelResponse(XMLCurrNode, XMLDOMNamedNodeMap, CancelStatus, CancelResult);
+            GetDocumentStatusFromCancelStatus(DocumentStatus, CancelStatus);
+            CustLedgerEntry."Electronic Document Status" := DocumentStatus;
+            CustLedgerEntry."Error Description" := CancelResult;
             exit;
         end;
 
@@ -4700,7 +5047,7 @@
 
         // Create QRCode
         CustLedgerEntry.CalcFields(Amount);
-        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC No.", Customer."RFC No.", CustLedgerEntry.Amount,
+        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", CustLedgerEntry.Amount,
             Format(CustLedgerEntry."Fiscal Invoice Number PAC"));
         CreateQRCode(QRCodeInput, TempBlob);
         RecordRef.GetTable(CustLedgerEntry);
@@ -4919,7 +5266,7 @@
 
             // Emisor
             GetCompanyInfo();
-            WriteOutStr(OutStream, CompanyInfo."RFC No." + '|');// RfcNoFromCompany
+            WriteOutStr(OutStream, CompanyInfo."RFC Number" + '|');// RfcNoFromCompany
             WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo.Name) + '|');// Nombre
             WriteOutStr(OutStream, CompanyInfo."SAT Tax Regime Classification" + '|');// RegimenFiscal
 
@@ -6447,7 +6794,7 @@ IsVATExemptLine(TempDocumentLine));
             LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Post Code"), "Message Type"::Error);
             LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("E-Mail"), "Message Type"::Error);
             LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Tax Scheme"), "Message Type"::Error);
-            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("RFC No."), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("RFC Number"), "Message Type"::Error);
             LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("SAT Tax Regime Classification"), "Message Type"::Error);
             LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("SAT Postal Code"), "Message Type"::Error);
         end;

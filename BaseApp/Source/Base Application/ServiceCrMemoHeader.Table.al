@@ -1,4 +1,4 @@
-table 5994 "Service Cr.Memo Header"
+﻿table 5994 "Service Cr.Memo Header"
 {
     Caption = 'Service Cr.Memo Header';
     DataCaptionFields = "No.", Name;
@@ -768,8 +768,8 @@ table 5994 "Service Cr.Memo Header"
         {
             Caption = 'Electronic Document Status';
             Editable = false;
-            OptionCaption = ' ,Stamp Received,Sent,Canceled,Stamp Request Error,Cancel Error';
-            OptionMembers = " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error";
+            OptionCaption = ' ,Stamp Received,Sent,Canceled,Stamp Request Error,Cancel Error,Cancel In Progress';
+            OptionMembers = " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
         }
         field(10031; "Date/Time Stamped"; Text[50])
         {
@@ -839,6 +839,14 @@ table 5994 "Service Cr.Memo Header"
         {
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
+        }
+        field(27007; "CFDI Cancellation ID"; Text[50])
+        {
+            Caption = 'CFDI Cancellation ID';
+        }
+        field(27008; "Marked as Canceled"; Boolean)
+        {
+            Caption = 'Marked as Canceled';
         }
     }
 
