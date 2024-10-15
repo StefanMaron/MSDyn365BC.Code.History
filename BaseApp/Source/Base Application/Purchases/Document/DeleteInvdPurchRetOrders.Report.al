@@ -127,6 +127,12 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                 if GuiAllowed() then
                     ProgressDialog.Open(ProcessingProgressTxt);
             end;
+
+            trigger OnPostDataItem()
+            begin
+                if GuiAllowed() then
+                    ProgressDialog.Close();
+            end;
         }
     }
 

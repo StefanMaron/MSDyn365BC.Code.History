@@ -237,6 +237,8 @@ report 5601 "Fixed Asset - List"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Fixed Asset List';
+        AboutText = 'The **Fixed Asset List** report provides a comprehensive listing of all fixed assets owned by an organization at a specific point in time. This report is crucial for asset management, financial reporting, and compliance purposes.';
 
         layout
         {
@@ -250,6 +252,8 @@ report 5601 "Fixed Asset - List"
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Book';
                         TableRelation = "Depreciation Book";
+                        AboutTitle = 'Select Depreciation Book';
+                        AboutText = 'Choose the Depreciation Book and specify New Page per Asset if you want each fixed asset printed on a new page.';
                         ToolTip = 'Specifies the code for the depreciation book to be included in the report or batch job.';
                     }
                     field(PrintOnlyOnePerPage; PrintOnlyOnePerPage)

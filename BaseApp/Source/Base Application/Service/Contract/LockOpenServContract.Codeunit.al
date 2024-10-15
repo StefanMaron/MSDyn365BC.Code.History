@@ -11,11 +11,15 @@ codeunit 5943 "Lock-OpenServContract"
 
     var
         SignServContractDoc: Codeunit SignServContractDoc;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'It is not possible to lock this %1 Service %2 because some lines have zero %3.';
         Text001: Label 'It is not possible to open a %1 service contract';
+#pragma warning restore AA0470
         Text002: Label 'New lines have been added to this contract.\Would you like to continue?';
         Text003: Label 'You cannot lock service contract with negative annual amount.';
         Text004: Label 'You cannot lock service contract with zero annual amount when invoice period is different from None.';
+#pragma warning restore AA0074
 
     procedure LockServContract(FromServContractHeader: Record "Service Contract Header")
     var

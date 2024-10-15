@@ -10,7 +10,6 @@ using Microsoft.CRM.Duplicates;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Profiling;
-using Microsoft.Service.Contract;
 using Microsoft.Foundation.Address;
 using Microsoft.Finance.Currency;
 using Microsoft.Sales.Receivables;
@@ -49,11 +48,6 @@ using Microsoft.Sales.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Setup;
 using Microsoft.Finance.SalesTax;
 using Microsoft.CRM.Task;
 using Microsoft.Purchases.Payables;
@@ -91,7 +85,6 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Contact Business Relation" = ImD,
                   tabledata "Contact Duplicate" = R,
                   tabledata "Contact Profile Answer" = R,
-                  tabledata "Contract Gain/Loss Entry" = rm,
                   tabledata "Country/Region" = R,
                   tabledata Currency = R,
                   tabledata "Currency Exchange Rate" = R,
@@ -111,8 +104,6 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Duplicate Search String Setup" = R,
                   tabledata "Employee Ledger Entry" = r,
                   tabledata "FA Ledger Entry" = rm,
-                  tabledata "Filed Contract Line" = rm,
-                  tabledata "Filed Service Contract Header" = rm,
                   tabledata "Finance Charge Terms" = R,
                   tabledata "Finance Charge Text" = R,
                   tabledata "G/L Entry - VAT Entry Link" = rm,
@@ -155,6 +146,7 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Purchase Header Archive" = r,
                   tabledata "Registered Whse. Activity Line" = rm,
                   tabledata "Reminder Attachment Text" = R,
+                  tabledata "Reminder Attachment Text Line" = R,
                   tabledata "Reminder Email Text" = R,
                   tabledata "Reminder Level" = R,
                   tabledata "Reminder Terms" = R,
@@ -184,7 +176,7 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Sales Invoice Header" = rm,
                   tabledata "Sales Invoice Line" = rm,
                   tabledata "Sales Line" = Rm,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Line Discount" = Rd,
                   tabledata "Sales Price" = Rid,
 #endif
@@ -192,15 +184,6 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Sales Shipment Header" = rm,
                   tabledata "Sales Shipment Line" = rm,
                   tabledata "Salesperson/Purchaser" = R,
-                  tabledata "Service Contract Header" = Rm,
-                  tabledata "Service Contract Line" = Rm,
-                  tabledata "Service Header" = r,
-                  tabledata "Service Invoice Line" = Rm,
-                  tabledata "Service Item" = Rm,
-                  tabledata "Service Item Line" = Rm,
-                  tabledata "Service Ledger Entry" = rm,
-                  tabledata "Service Line" = r,
-                  tabledata "Service Zone" = R,
                   tabledata "Ship-to Address" = RIMD,
                   tabledata "Shipment Method" = R,
                   tabledata "Shipping Agent" = R,
@@ -220,12 +203,12 @@ permissionset 9221 "Customer - Edit"
                   tabledata "VAT Registration Log" = rd,
                   tabledata "VAT Registration Log Details" = RIMD,
                   tabledata "VAT Registration No. Format" = R,
+                  tabledata "Alt. Cust. VAT Reg." = R,
                   tabledata "Vendor Ledger Entry" = r,
                   tabledata "Warehouse Activity Header" = rm,
                   tabledata "Warehouse Activity Line" = rm,
                   tabledata "Warehouse Reason Code" = rm,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
-                  tabledata "Warranty Ledger Entry" = rm,
                   tabledata "Whse. Worksheet Line" = r;
 }

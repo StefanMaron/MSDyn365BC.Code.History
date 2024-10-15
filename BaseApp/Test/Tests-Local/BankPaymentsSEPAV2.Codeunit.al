@@ -826,17 +826,18 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate("Country/Region Code", CountryRegion.Code);
-            Validate("Post Code", FindPostCode(CountryRegion.Code));
-            Validate("Bank Branch No.", LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Bank Account"));
-            Validate("Bank Account No.", '159030-776'); // Hardcode to match the Bank Account No validation
-            Validate("Transit No.", LibraryUtility.GenerateRandomCode(FieldNo("Transit No."), DATABASE::"Bank Account"));
-            Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Bank Account"));
-            Validate(IBAN, 'FI9780RBOS16173241116737'); // Hardcoded to match a valid IBAN
-            Validate("Payment Export Format", 'SEPACT V02'); // Hardcoded to match the test format under test
-            Modify();
-        end;
+        BankAccount.Validate("Country/Region Code", CountryRegion.Code);
+        BankAccount.Validate("Post Code", FindPostCode(CountryRegion.Code));
+        BankAccount.Validate("Bank Branch No.", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Branch No."), DATABASE::"Bank Account"));
+        BankAccount.Validate("Bank Account No.", '159030-776');
+        // Hardcode to match the Bank Account No validation
+        BankAccount.Validate("Transit No.", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Transit No."), DATABASE::"Bank Account"));
+        BankAccount.Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account"));
+        BankAccount.Validate(IBAN, 'FI9780RBOS16173241116737');
+        // Hardcoded to match a valid IBAN
+        BankAccount.Validate("Payment Export Format", 'SEPACT V02');
+        // Hardcoded to match the test format under test
+        BankAccount.Modify();
 
         CreateBankAccountReferenceFileSetup(BankAccount."No.");
 
@@ -848,23 +849,22 @@ codeunit 144004 "Bank Payments - SEPA V2"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
-        with VendorBankAccount do begin
-            Validate(Name, Code);
-            Validate("Country/Region Code", CountryCode);
-            Validate(Address, LibraryUtility.GenerateGUID());
-            Validate("Address 2", LibraryUtility.GenerateGUID());
-            Validate(City, LibraryUtility.GenerateGUID());
-            Validate("Post Code", FindPostCode(CountryCode));
-            Validate("Bank Branch No.", LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Vendor Bank Account"));
-            Validate("Bank Account No.", '159030-776');
-            Validate("Transit No.", LibraryUtility.GenerateRandomCode(FieldNo("Transit No."), DATABASE::"Vendor Bank Account"));
-            Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Vendor Bank Account"));
-            IBAN := CountryCode + Format(LibraryRandom.RandIntInRange(111111111, 999999999)); // Use direct assignement to avoid confirm dialog
-            Validate("Clearing Code", LibraryUtility.GenerateRandomCode(FieldNo("Clearing Code"), DATABASE::"Vendor Bank Account"));
-            Validate("SEPA Payment", SEPAPayment);
-            Modify();
-            exit(Code);
-        end;
+        VendorBankAccount.Validate(Name, VendorBankAccount.Code);
+        VendorBankAccount.Validate("Country/Region Code", CountryCode);
+        VendorBankAccount.Validate(Address, LibraryUtility.GenerateGUID());
+        VendorBankAccount.Validate("Address 2", LibraryUtility.GenerateGUID());
+        VendorBankAccount.Validate(City, LibraryUtility.GenerateGUID());
+        VendorBankAccount.Validate("Post Code", FindPostCode(CountryCode));
+        VendorBankAccount.Validate("Bank Branch No.", LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Bank Branch No."), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Validate("Bank Account No.", '159030-776');
+        VendorBankAccount.Validate("Transit No.", LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Transit No."), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("SWIFT Code"), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.IBAN := CountryCode + Format(LibraryRandom.RandIntInRange(111111111, 999999999));
+        // Use direct assignement to avoid confirm dialog
+        VendorBankAccount.Validate("Clearing Code", LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Clearing Code"), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Validate("SEPA Payment", SEPAPayment);
+        VendorBankAccount.Modify();
+        exit(VendorBankAccount.Code);
     end;
 
     local procedure CreateVendor(CountryCode: Code[10]; SEPAPayment: Boolean): Code[20]
@@ -872,16 +872,14 @@ codeunit 144004 "Bank Payments - SEPA V2"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Country/Region Code", CountryCode);
-            Validate(Address, LibraryUtility.GenerateRandomCode(FieldNo(Address), DATABASE::Vendor));
-            Validate("Post Code", FindPostCode(CountryCode));
-            Validate("Business Identity Code", LibraryUtility.GenerateRandomCode(FieldNo("Business Identity Code"), DATABASE::Vendor));
-            Validate("Our Account No.", LibraryUtility.GenerateRandomCode(FieldNo("Our Account No."), DATABASE::Vendor));
-            Validate("Preferred Bank Account Code", CreateVendorBankAccount("No.", CountryCode, SEPAPayment));
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Country/Region Code", CountryCode);
+        Vendor.Validate(Address, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address), DATABASE::Vendor));
+        Vendor.Validate("Post Code", FindPostCode(CountryCode));
+        Vendor.Validate("Business Identity Code", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Business Identity Code"), DATABASE::Vendor));
+        Vendor.Validate("Our Account No.", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Our Account No."), DATABASE::Vendor));
+        Vendor.Validate("Preferred Bank Account Code", CreateVendorBankAccount(Vendor."No.", CountryCode, SEPAPayment));
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure FindPostCode(CountryCode: Code[10]): Code[20]
@@ -897,13 +895,11 @@ codeunit 144004 "Bank Payments - SEPA V2"
     var
         ReferenceFileSetup: Record "Reference File Setup";
     begin
-        with ReferenceFileSetup do begin
-            Init();
-            Validate("No.", BankAccountNo);
-            Validate("Bank Party ID", LibraryUtility.GenerateRandomCode(FieldNo("Bank Party ID"), DATABASE::"Reference File Setup"));
-            Validate("File Name", GenerateFileName(FieldNo("File Name"), DATABASE::"Reference File Setup", 'xml'));
-            Insert();
-        end;
+        ReferenceFileSetup.Init();
+        ReferenceFileSetup.Validate("No.", BankAccountNo);
+        ReferenceFileSetup.Validate("Bank Party ID", LibraryUtility.GenerateRandomCode(ReferenceFileSetup.FieldNo("Bank Party ID"), DATABASE::"Reference File Setup"));
+        ReferenceFileSetup.Validate("File Name", GenerateFileName(ReferenceFileSetup.FieldNo("File Name"), DATABASE::"Reference File Setup", 'xml'));
+        ReferenceFileSetup.Insert();
     end;
 
     local procedure GenerateFileName(FieldNo: Integer; TableNo: Integer; Extension: Text): Text[250]
@@ -997,24 +993,22 @@ codeunit 144004 "Bank Payments - SEPA V2"
         InvoiceMessage2: Text[250];
     begin
         Precision := LibraryRandom.RandIntInRange(2, 5);
-        with PurchaseHeader do begin
-            if MessageType <> "Message Type"::"Reference No." then begin
-                InvoiceMessage :=
-                  LibraryUtility.GenerateRandomCode(FieldNo("Invoice Message"), DATABASE::"Purchase Header");
-                InvoiceMessage2 :=
-                  LibraryUtility.GenerateRandomCode(FieldNo("Invoice Message 2"), DATABASE::"Purchase Header");
-            end else
-                InvoiceMessage := '268745';
-            LibraryInventory.CreateItem(Item);
+        if MessageType <> PurchaseHeader."Message Type"::"Reference No." then begin
+            InvoiceMessage :=
+              LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Invoice Message"), DATABASE::"Purchase Header");
+            InvoiceMessage2 :=
+              LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Invoice Message 2"), DATABASE::"Purchase Header");
+        end else
+            InvoiceMessage := '268745';
+        LibraryInventory.CreateItem(Item);
 
-            DocumentNo :=
-              CreateAndPostPurchaseDocument(
-                PurchaseHeader, DocumentType, VendorNo,
-                PurchaseLine.Type::Item, Item."No.",
-                LibraryRandom.RandDec(1000, Precision), LibraryRandom.RandDec(1000, Precision),
-                ToShipReceive, ToInvoice,
-                MessageType, InvoiceMessage, InvoiceMessage2);
-        end;
+        DocumentNo :=
+          CreateAndPostPurchaseDocument(
+            PurchaseHeader, DocumentType, VendorNo,
+            PurchaseLine.Type::Item, Item."No.",
+            LibraryRandom.RandDec(1000, Precision), LibraryRandom.RandDec(1000, Precision),
+            ToShipReceive, ToInvoice,
+            MessageType, InvoiceMessage, InvoiceMessage2);
 
         exit(DocumentNo);
     end;
@@ -1024,17 +1018,13 @@ codeunit 144004 "Bank Payments - SEPA V2"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        with PurchaseHeader do begin
-            Validate("Message Type", MessageType);
-            Validate("Invoice Message", InvoiceMessage);
-            Validate("Invoice Message 2", InvoiceMessage2);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Message Type", MessageType);
+        PurchaseHeader.Validate("Invoice Message", InvoiceMessage);
+        PurchaseHeader.Validate("Invoice Message 2", InvoiceMessage2);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, No, Quantity);
-        with PurchaseLine do begin
-            Validate("Direct Unit Cost", Cost);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Direct Unit Cost", Cost);
+        PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument2(PurchaseHeader, ToShipReceive, ToInvoice));
     end;
 
@@ -1044,19 +1034,15 @@ codeunit 144004 "Bank Payments - SEPA V2"
         Item: Record Item;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        with PurchaseHeader do begin
-            Validate("Prepayment %", LibraryRandom.RandIntInRange(1, 99));
-            Validate("Message Type", "Message Type"::"Reference No.");
-            Validate("Invoice Message", '268745');
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(1, 99));
+        PurchaseHeader.Validate("Message Type", PurchaseHeader."Message Type"::"Reference No.");
+        PurchaseHeader.Validate("Invoice Message", '268745');
+        PurchaseHeader.Modify(true);
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 99));
-        with PurchaseLine do begin
-            Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
     end;
 
@@ -1107,13 +1093,11 @@ codeunit 144004 "Bank Payments - SEPA V2"
     var
         ReferenceFileSetup: Record "Reference File Setup";
     begin
-        with ReferenceFileSetup do begin
-            Get(BankAccountNo);
-            Validate("Allow Comb. SEPA Pmts.", Allow);
-            Validate("Allow Comb. Domestic Pmts.", Allow);
-            Validate("Allow Comb. Foreign Pmts.", Allow);
-            Modify(true);
-        end;
+        ReferenceFileSetup.Get(BankAccountNo);
+        ReferenceFileSetup.Validate("Allow Comb. SEPA Pmts.", Allow);
+        ReferenceFileSetup.Validate("Allow Comb. Domestic Pmts.", Allow);
+        ReferenceFileSetup.Validate("Allow Comb. Foreign Pmts.", Allow);
+        ReferenceFileSetup.Modify(true);
     end;
 
     local procedure RunSuggestBankPayments(BankAccountNo: Code[20]; VendorNo: Code[20]; PaymentDate: Date)

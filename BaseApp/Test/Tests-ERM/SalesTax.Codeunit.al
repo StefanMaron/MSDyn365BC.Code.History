@@ -35,10 +35,9 @@ codeunit 134064 "Sales Tax"
         CreateSalesDoc(SalesHeader, SalesLine, false);
 
         // Create Posting Setup for Sales Tax.
-        with SalesLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax",
-              "Line Amount" + LibraryRandom.RandDec(1, 2));
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, SalesLine."Tax Area Code", SalesLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax",
+              SalesLine."Line Amount" + LibraryRandom.RandDec(1, 2));
 
         // Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -63,10 +62,9 @@ codeunit 134064 "Sales Tax"
         CreateSalesDoc(SalesHeader, SalesLine, false);
 
         // Create Posting Setup for Sales Tax.
-        with SalesLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax",
-              "Line Amount" - LibraryRandom.RandDec(1, 2));
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, SalesLine."Tax Area Code", SalesLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax",
+              SalesLine."Line Amount" - LibraryRandom.RandDec(1, 2));
 
         // Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -92,10 +90,9 @@ codeunit 134064 "Sales Tax"
         CreateSalesDoc(SalesHeader, SalesLine, false);
 
         // Create Posting Setup for Sales Tax.
-        with SalesLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Excise Tax",
-              Quantity + LibraryRandom.RandInt(5));
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, SalesLine."Tax Area Code", SalesLine."Tax Group Code", TaxDetail."Tax Type"::"Excise Tax",
+              SalesLine.Quantity + LibraryRandom.RandInt(5));
 
         // Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -119,10 +116,9 @@ codeunit 134064 "Sales Tax"
         CreateSalesDoc(SalesHeader, SalesLine, false);
 
         // Create Posting Setup for Sales Tax.
-        with SalesLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Excise Tax",
-              Quantity - LibraryRandom.RandInt(Quantity));
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, SalesLine."Tax Area Code", SalesLine."Tax Group Code", TaxDetail."Tax Type"::"Excise Tax",
+              SalesLine.Quantity - LibraryRandom.RandInt(SalesLine.Quantity));
 
         // Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -148,8 +144,7 @@ codeunit 134064 "Sales Tax"
         CreateSalesDoc(SalesHeader, SalesLine, true);
 
         // Create Posting Setup for Sales Tax.
-        with SalesLine do
-            SetupSalesTax(TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 2 * "Line Amount");
+        SetupSalesTax(TaxDetail, TaxJurisdiction, SalesLine."Tax Area Code", SalesLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 2 * SalesLine."Line Amount");
 
         // Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -175,8 +170,7 @@ codeunit 134064 "Sales Tax"
         CreateSalesDoc(SalesHeader, SalesLine, true);
 
         // Create Posting Setup for Sales Tax.
-        with SalesLine do
-            SetupSalesTax(TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 0);
+        SetupSalesTax(TaxDetail, TaxJurisdiction, SalesLine."Tax Area Code", SalesLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 0);
 
         // Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -202,9 +196,8 @@ codeunit 134064 "Sales Tax"
         CreateSalesDoc(SalesHeader, SalesLine, true);
 
         // Create Posting Setup for Sales Tax.
-        with SalesLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 0.5 * "Line Amount");
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, SalesLine."Tax Area Code", SalesLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 0.5 * SalesLine."Line Amount");
 
         // Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -232,10 +225,9 @@ codeunit 134064 "Sales Tax"
         CreatePurchDoc(PurchHeader, PurchLine, false);
 
         // Create Posting Setup for Purch Tax.
-        with PurchLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax",
-              "Line Amount" + LibraryRandom.RandDec(1, 2));
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, PurchLine."Tax Area Code", PurchLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax",
+              PurchLine."Line Amount" + LibraryRandom.RandDec(1, 2));
 
         // Post Purch Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -260,10 +252,9 @@ codeunit 134064 "Sales Tax"
         CreatePurchDoc(PurchHeader, PurchLine, false);
 
         // Create Posting Setup for Purch Tax.
-        with PurchLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax",
-              "Line Amount" - LibraryRandom.RandDec(1, 2));
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, PurchLine."Tax Area Code", PurchLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax",
+              PurchLine."Line Amount" - LibraryRandom.RandDec(1, 2));
 
         // Post Purch Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -290,10 +281,9 @@ codeunit 134064 "Sales Tax"
         CreatePurchDoc(PurchHeader, PurchLine, false);
 
         // Create Posting Setup for Purch Tax.
-        with PurchLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Excise Tax",
-              Quantity + LibraryRandom.RandInt(5));
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, PurchLine."Tax Area Code", PurchLine."Tax Group Code", TaxDetail."Tax Type"::"Excise Tax",
+              PurchLine.Quantity + LibraryRandom.RandInt(5));
 
         // Post Purch Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -317,10 +307,9 @@ codeunit 134064 "Sales Tax"
         CreatePurchDoc(PurchHeader, PurchLine, false);
 
         // Create Posting Setup for Purch Tax.
-        with PurchLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Excise Tax",
-              Quantity - LibraryRandom.RandInt(Quantity));
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, PurchLine."Tax Area Code", PurchLine."Tax Group Code", TaxDetail."Tax Type"::"Excise Tax",
+              PurchLine.Quantity - LibraryRandom.RandInt(PurchLine.Quantity));
 
         // Post Purch Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -346,8 +335,7 @@ codeunit 134064 "Sales Tax"
         CreatePurchDoc(PurchHeader, PurchLine, true);
 
         // Create Posting Setup for Sales Tax.
-        with PurchLine do
-            SetupSalesTax(TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 2 * "Line Amount");
+        SetupSalesTax(TaxDetail, TaxJurisdiction, PurchLine."Tax Area Code", PurchLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 2 * PurchLine."Line Amount");
 
         // Post Sales Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -373,8 +361,7 @@ codeunit 134064 "Sales Tax"
         CreatePurchDoc(PurchHeader, PurchLine, true);
 
         // Create Posting Setup for Sales Tax.
-        with PurchLine do
-            SetupSalesTax(TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 0);
+        SetupSalesTax(TaxDetail, TaxJurisdiction, PurchLine."Tax Area Code", PurchLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 0);
 
         // Post Sales Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -400,9 +387,8 @@ codeunit 134064 "Sales Tax"
         CreatePurchDoc(PurchHeader, PurchLine, true);
 
         // Create Posting Setup for Sales Tax.
-        with PurchLine do
-            SetupSalesTax(
-              TaxDetail, TaxJurisdiction, "Tax Area Code", "Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 0.5 * "Line Amount");
+        SetupSalesTax(
+              TaxDetail, TaxJurisdiction, PurchLine."Tax Area Code", PurchLine."Tax Group Code", TaxDetail."Tax Type"::"Sales Tax", 0.5 * PurchLine."Line Amount");
 
         // Post Sales Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);

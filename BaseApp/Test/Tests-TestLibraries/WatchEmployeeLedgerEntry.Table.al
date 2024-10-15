@@ -1,3 +1,5 @@
+namespace Microsoft.HumanResources.Test;
+
 table 131323 "Watch Employee Ledger Entry"
 {
     ReplicateData = false;

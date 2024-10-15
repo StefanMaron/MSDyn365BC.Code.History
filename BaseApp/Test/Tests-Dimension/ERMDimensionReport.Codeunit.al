@@ -1000,19 +1000,17 @@ codeunit 134975 "ERM Dimension Report"
         Counter: Integer;
     begin
         FindItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item, true);
-        with DimensionValue do begin
-            SetRange("Global Dimension No.", 1);
-            FindSet();
-            repeat
-                Counter += 1;
-                LibraryInventory.CreateItem(Item[Counter]);
-                ItemNo[Counter] := Item[Counter]."No.";
-                LibraryDimension.CreateDefaultDimensionItem(DefaultDimension[Counter], ItemNo[Counter], "Dimension Code", Code);
-                LibraryInventory.CreateItemJournalLine(
-                  ItemJournalLine, ItemJournalBatch."Journal Template Name",
-                  ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, ItemNo[Counter], LibraryRandom.RandInt(9) + 1);
-            until (Next() = 0) or (Counter = 2)
-        end;
+        DimensionValue.SetRange("Global Dimension No.", 1);
+        DimensionValue.FindSet();
+        repeat
+            Counter += 1;
+            LibraryInventory.CreateItem(Item[Counter]);
+            ItemNo[Counter] := Item[Counter]."No.";
+            LibraryDimension.CreateDefaultDimensionItem(DefaultDimension[Counter], ItemNo[Counter], DimensionValue."Dimension Code", DimensionValue.Code);
+            LibraryInventory.CreateItemJournalLine(
+              ItemJournalLine, ItemJournalBatch."Journal Template Name",
+              ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, ItemNo[Counter], LibraryRandom.RandInt(9) + 1);
+        until (DimensionValue.Next() = 0) or (Counter = 2)
     end;
 
     local procedure ClearItemJournal(var ItemJournalBatch: Record "Item Journal Batch")

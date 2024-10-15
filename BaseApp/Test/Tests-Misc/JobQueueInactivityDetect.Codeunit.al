@@ -365,26 +365,24 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         IntegrationTableMapping."Table ID" := TableNo;
         IntegrationTableMapping.Insert();
 
-        with JobQueueEntry do begin
-            ID := CreateGuid();
-            Description := Format(TableNo);
-            Status := JobStatus;
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"Mock Synch. Job Runner";
-            "Recurring Job" := true;
-            "No. of Minutes between Runs" := 5;
-            "Record ID to Process" := IntegrationTableMapping.RecordId;
-            "Run on Mondays" := true;
-            "Run on Tuesdays" := true;
-            "Run on Wednesdays" := true;
-            "Run on Thursdays" := true;
-            "Run on Fridays" := true;
-            "Run on Saturdays" := true;
-            "Run on Sundays" := true;
-            "Inactivity Timeout Period" := 10;
-            "System Task ID" := CreateGuid();
-            Insert(true);
-        end;
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry.Description := Format(TableNo);
+        JobQueueEntry.Status := JobStatus;
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"Mock Synch. Job Runner";
+        JobQueueEntry."Recurring Job" := true;
+        JobQueueEntry."No. of Minutes between Runs" := 5;
+        JobQueueEntry."Record ID to Process" := IntegrationTableMapping.RecordId;
+        JobQueueEntry."Run on Mondays" := true;
+        JobQueueEntry."Run on Tuesdays" := true;
+        JobQueueEntry."Run on Wednesdays" := true;
+        JobQueueEntry."Run on Thursdays" := true;
+        JobQueueEntry."Run on Fridays" := true;
+        JobQueueEntry."Run on Saturdays" := true;
+        JobQueueEntry."Run on Sundays" := true;
+        JobQueueEntry."Inactivity Timeout Period" := 10;
+        JobQueueEntry."System Task ID" := CreateGuid();
+        JobQueueEntry.Insert(true);
     end;
 
     local procedure CreateJobQueueEntryWithDeletedUserID(var JobQueueEntry: Record "Job Queue Entry"; TableNo: Integer; JobStatus: Option)

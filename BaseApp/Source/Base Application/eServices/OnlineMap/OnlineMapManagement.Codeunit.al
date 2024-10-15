@@ -31,13 +31,19 @@ codeunit 802 "Online Map Management"
         DirectionsFromLocationTxt: Label '&Directions from my location';
         OtherDirectionsTxt: Label '&Other';
         OtherMenuQst: Label '&Directions from my company,Directions to my &company,Directions from &another address,Directions to an&other address';
+#pragma warning disable AA0074
         Text002: Label 'There is no default Map setup.';
+#pragma warning restore AA0074
         ShowMapQst: Label 'Show map with:';
         GoToOnlineMapQst: Label 'To get a map with route directions, you must set up the map service on the Online Map Setup page. Do you want to go there now?';
         ContiueOpeningMapQst: Label 'Do you want to open the map with route directions?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'Table %1 has not been set up to use Online Map.';
+#pragma warning restore AA0470
         Text008: Label 'The specified record could not be found.';
         Text015: Label 'Bing Maps';
+#pragma warning restore AA0074
 
     procedure MakeSelectionIfMapEnabled(TableID: Integer; Position: Text[1000])
     var
@@ -467,23 +473,25 @@ codeunit 802 "Online Map Management"
     [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     procedure HandleMAPRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
-        OnlineMapSetup: Record "Online Map Setup";
+        OnlineMapSetupLocal: Record "Online Map Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        OnlineMapSetup2: Record "Online Map Setup";
         RecRef: RecordRef;
     begin
-        if not OnlineMapSetup.Get() then begin
-            if not OnlineMapSetup.WritePermission then
+        if not OnlineMapSetupLocal.Get() then begin
+            if not OnlineMapSetup2.WritePermission() then
                 exit;
-            OnlineMapSetup.Init();
-            OnlineMapSetup.Insert();
+            OnlineMapSetupLocal.Init();
+            OnlineMapSetupLocal.Insert();
         end;
-        RecRef.GetTable(OnlineMapSetup);
+        RecRef.GetTable(OnlineMapSetupLocal);
 
         ServiceConnection.Status := ServiceConnection.Status::Enabled;
         ServiceConnection.Status := ServiceConnection.Status::Disabled;
-        if OnlineMapSetup.Enabled then
+        if OnlineMapSetupLocal.Enabled then
             ServiceConnection.Status := ServiceConnection.Status::Enabled;
         ServiceConnection.InsertServiceConnection(
-          ServiceConnection, RecRef.RecordId, OnlineMapSetup.TableCaption(), '', PAGE::"Online Map Setup");
+          ServiceConnection, RecRef.RecordId, OnlineMapSetupLocal.TableCaption(), '', PAGE::"Online Map Setup");
     end;
 
     local procedure GetSetup()

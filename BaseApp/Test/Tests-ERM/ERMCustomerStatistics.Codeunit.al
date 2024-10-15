@@ -1102,14 +1102,12 @@ codeunit 134389 "ERM Customer Statistics"
 
     local procedure CreateBasicCustLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20])
     begin
-        with CustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate();
-            "Customer No." := CustNo;
-            Open := true;
-            Insert();
-        end;
+        CustLedgEntry.Init();
+        CustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgEntry, CustLedgEntry.FieldNo("Entry No."));
+        CustLedgEntry."Posting Date" := WorkDate();
+        CustLedgEntry."Customer No." := CustNo;
+        CustLedgEntry.Open := true;
+        CustLedgEntry.Insert();
     end;
 
     local procedure CreateCustLedgerEntryWithDueDate(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20]; DueDate: Date)
@@ -1121,50 +1119,42 @@ codeunit 134389 "ERM Customer Statistics"
 
     local procedure CreateClosedInvoiceCustLedgerEntryWithEmptyDueDate(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20])
     begin
-        with CustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate();
-            "Customer No." := CustNo;
-            "Document Type" := "Document Type"::Invoice;
-            "Due Date" := 0D;
-            Open := false;
-            Insert();
-        end;
+        CustLedgEntry.Init();
+        CustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgEntry, CustLedgEntry.FieldNo("Entry No."));
+        CustLedgEntry."Posting Date" := WorkDate();
+        CustLedgEntry."Customer No." := CustNo;
+        CustLedgEntry."Document Type" := CustLedgEntry."Document Type"::Invoice;
+        CustLedgEntry."Due Date" := 0D;
+        CustLedgEntry.Open := false;
+        CustLedgEntry.Insert();
     end;
 
     local procedure CreatePaymentDetailedCustLedgerEntryForCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgEntryNo: Integer)
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate();
-            "Cust. Ledger Entry No." := CustLedgEntryNo;
-            "Document Type" := "Document Type"::Payment;
-            Insert();
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntryNo;
+        DetailedCustLedgEntry."Document Type" := DetailedCustLedgEntry."Document Type"::Payment;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure MockDetailedCustLedgerEntryWithDueDate(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        with DetailedCustLedgEntry do begin
-            CreatePaymentDetailedCustLedgerEntryForCustLedgerEntry(DetailedCustLedgEntry, CustLedgerEntry."Entry No.");
-            Validate("Initial Entry Due Date", CustLedgerEntry."Due Date");
-            Validate("Customer No.", CustLedgerEntry."Customer No.");
-            Validate(Amount, LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-        end;
+        CreatePaymentDetailedCustLedgerEntryForCustLedgerEntry(DetailedCustLedgEntry, CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.Validate("Initial Entry Due Date", CustLedgerEntry."Due Date");
+        DetailedCustLedgEntry.Validate("Customer No.", CustLedgerEntry."Customer No.");
+        DetailedCustLedgEntry.Validate(Amount, LibraryRandom.RandDec(1000, 2));
+        DetailedCustLedgEntry.Modify(true);
     end;
 
     local procedure MockDetailedCustLedgerEntryWithPostingDate(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; PostingDate: Date)
     begin
-        with DetailedCustLedgEntry do begin
-            CreatePaymentDetailedCustLedgerEntryForCustLedgerEntry(DetailedCustLedgEntry, CustLedgerEntry."Entry No.");
-            Validate("Posting Date", PostingDate);
-            Validate("Customer No.", CustLedgerEntry."Customer No.");
-            Validate(Amount, LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-        end;
+        CreatePaymentDetailedCustLedgerEntryForCustLedgerEntry(DetailedCustLedgEntry, CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.Validate("Posting Date", PostingDate);
+        DetailedCustLedgEntry.Validate("Customer No.", CustLedgerEntry."Customer No.");
+        DetailedCustLedgEntry.Validate(Amount, LibraryRandom.RandDec(1000, 2));
+        DetailedCustLedgEntry.Modify(true);
     end;
 
     local procedure MockSalesLine(CustNo: Code[20]; DocType: Enum "Sales Document Type"; OutstandingAmountLCY: Decimal; ShippedNotInvoicedLCY: Decimal; RetRcvdNotInvoicedLCY: Decimal)
@@ -1223,14 +1213,12 @@ codeunit 134389 "ERM Customer Statistics"
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
     begin
         CodeCoverageMgt.Refresh();
-        with CodeCoverage do begin
-            SetRange("Line Type", "Line Type"::Code);
-            SetRange("Object Type", ObjectType);
-            SetRange("Object ID", ObjectID);
-            SetFilter("No. of Hits", '>%1', 0);
-            SetFilter(Line, '@*' + CodeLine + '*');
-            exit(not IsEmpty);
-        end;
+        CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
+        CodeCoverage.SetRange("Object Type", ObjectType);
+        CodeCoverage.SetRange("Object ID", ObjectID);
+        CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
+        CodeCoverage.SetFilter(Line, '@*' + CodeLine + '*');
+        exit(not CodeCoverage.IsEmpty);
     end;
 
     local procedure InvokeCustStatsByCurrLinesFromCustomerList(var CustStatsByCurrLines: TestPage "Cust. Stats. by Curr. Lines"; CustomerNo: Code[20])

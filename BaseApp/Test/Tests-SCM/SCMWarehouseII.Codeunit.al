@@ -6,7 +6,6 @@ codeunit 137048 "SCM Warehouse II"
     trigger OnRun()
     begin
         // [FEATURE] [Warehouse] [SCM]
-        isInitialized := false;
     end;
 
     var
@@ -36,7 +35,6 @@ codeunit 137048 "SCM Warehouse II"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         WarehouseShipmentNo: Code[20];
         NewUnitOfMeasure: Code[10];
-        isInitialized: Boolean;
         BinError: Label 'Bin Code must be%1 in %2.';
         BinError2: Label 'Bin Code must be %1 in %2.';
         QuantityError: Label 'Quantity must be %1 in %2.';
@@ -2558,17 +2556,14 @@ codeunit 137048 "SCM Warehouse II"
 
     local procedure Initialize()
     var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         WarehouseSetup: Record "Warehouse Setup";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse II");
         LibraryVariableStorage.Clear();
         Clear(WarehouseShipmentNo);
         Clear(LocationCode2);
         Clear(NewUnitOfMeasure);
-        // Lazy Setup.
-        if isInitialized then
-            exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse II");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
@@ -2581,8 +2576,6 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseSetup.Validate("Receipt Posting Policy", WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
         WarehouseSetup.Validate("Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed");
         WarehouseSetup.Modify();
-        isInitialized := true;
-        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse II");
     end;
 

@@ -255,15 +255,13 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     var
         CurrencyForReminderLevel: Record "Currency for Reminder Level";
     begin
-        with CurrencyForReminderLevel do begin
-            Init();
-            Validate("Reminder Terms Code", ReminderTermsCode);
-            Validate("No.", Level);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Additional Fee", AdditionalFee);
-            Validate("Add. Fee per Line", LineFee);
-            Insert(true);
-        end;
+        CurrencyForReminderLevel.Init();
+        CurrencyForReminderLevel.Validate("Reminder Terms Code", ReminderTermsCode);
+        CurrencyForReminderLevel.Validate("No.", Level);
+        CurrencyForReminderLevel.Validate("Currency Code", CurrencyCode);
+        CurrencyForReminderLevel.Validate("Additional Fee", AdditionalFee);
+        CurrencyForReminderLevel.Validate("Add. Fee per Line", LineFee);
+        CurrencyForReminderLevel.Insert(true);
     end;
 
     local procedure CreateCustomerWithReminderTermsAddFeePerLine(var CustNo: Code[20]; var ReminderTermCode: Code[10]; WithLineFee: Boolean; CurrencyCode: Code[10]; LineFee: Decimal)

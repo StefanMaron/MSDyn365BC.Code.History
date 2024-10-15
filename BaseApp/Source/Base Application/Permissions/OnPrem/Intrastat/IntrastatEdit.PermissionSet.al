@@ -14,12 +14,6 @@ permissionset 2345 "Intrastat - Edit"
     Permissions = tabledata Area = R,
                   tabledata "Country/Region" = R,
                   tabledata "Entry/Exit Point" = R,
-#if not CLEAN22
-                  tabledata "Advanced Intrastat Checklist" = RIMD,
-                  tabledata "Intrastat Jnl. Batch" = RIMD,
-                  tabledata "Intrastat Jnl. Line" = RIMD,
-                  tabledata "Intrastat Jnl. Template" = RIMD,
-#endif
                   tabledata Item = R,
                   tabledata "Item Ledger Entry" = R,
                   tabledata "Item Variant" = R,

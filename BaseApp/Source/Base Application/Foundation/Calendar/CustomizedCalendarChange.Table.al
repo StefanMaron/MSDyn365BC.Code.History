@@ -9,7 +9,6 @@ using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using Microsoft.Service.Setup;
 using System.Utilities;
 
 table 7602 "Customized Calendar Change"
@@ -234,7 +233,6 @@ table 7602 "Customized Calendar Change"
         Vendor: Record Vendor;
         Location: Record Location;
         ShippingAgentServices: Record "Shipping Agent Services";
-        ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         case "Source Type" of
             "Source Type"::Company:
@@ -258,9 +256,6 @@ table 7602 "Customized Calendar Change"
                 else
                     if CompanyInformation.Get() then
                         "Base Calendar Code" := CompanyInformation."Base Calendar Code";
-            "Source Type"::Service:
-                if ServiceMgtSetup.Get() then
-                    "Base Calendar Code" := ServiceMgtSetup."Base Calendar Code";
         end;
 
         OnAfterCalcCalendarCode(Rec);

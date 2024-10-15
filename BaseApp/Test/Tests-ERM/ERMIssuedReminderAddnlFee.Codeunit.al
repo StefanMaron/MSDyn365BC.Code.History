@@ -323,19 +323,16 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
         // Setup.
         Initialize();
-
         // Exercise: Insert Reminder Lines with Different Line Types and calculate Amounts.
-        with ReminderLine do begin
-            AddReminderLine(ReminderLine, '', Type::"Customer Ledger Entry", "Line Type"::"Reminder Line");
-            AddReminderLine(ReminderLine, '', Type::"Customer Ledger Entry", "Line Type"::"Not Due");
-            AddReminderLine(ReminderLine, '', Type::"G/L Account", "Line Type"::"Reminder Line");
+        AddReminderLine(ReminderLine, '', ReminderLine.Type::"Customer Ledger Entry", ReminderLine."Line Type"::"Reminder Line");
+        AddReminderLine(ReminderLine, '', ReminderLine.Type::"Customer Ledger Entry", ReminderLine."Line Type"::"Not Due");
+        AddReminderLine(ReminderLine, '', ReminderLine.Type::"G/L Account", ReminderLine."Line Type"::"Reminder Line");
 
-            SetRange("Line Type", "Line Type"::"Reminder Line");
-            CalcSums(Amount, "VAT Amount", "Remaining Amount");
-            TestField(Amount, Amount);
-            TestField("VAT Amount", "VAT Amount");
-            TestField("Remaining Amount", "Remaining Amount");
-        end;
+        ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Reminder Line");
+        ReminderLine.CalcSums(Amount, "VAT Amount", "Remaining Amount");
+        ReminderLine.TestField(Amount, ReminderLine.Amount);
+        ReminderLine.TestField("VAT Amount", ReminderLine."VAT Amount");
+        ReminderLine.TestField("Remaining Amount", ReminderLine."Remaining Amount");
     end;
 
     [Test]
@@ -695,14 +692,12 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
     local procedure CreateFinanceChargeInterestRates(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; FinanceChargeTermsCode: Code[10]; StartDate: Date)
     begin
-        with FinanceChargeInterestRate do begin
-            Init();
-            Validate("Fin. Charge Terms Code", FinanceChargeTermsCode);
-            Validate("Start Date", StartDate);
-            Validate("Interest Rate", LibraryRandom.RandInt(10));
-            Validate("Interest Period (Days)", LibraryRandom.RandInt(100));
-            Insert(true);
-        end;
+        FinanceChargeInterestRate.Init();
+        FinanceChargeInterestRate.Validate("Fin. Charge Terms Code", FinanceChargeTermsCode);
+        FinanceChargeInterestRate.Validate("Start Date", StartDate);
+        FinanceChargeInterestRate.Validate("Interest Rate", LibraryRandom.RandInt(10));
+        FinanceChargeInterestRate.Validate("Interest Period (Days)", LibraryRandom.RandInt(100));
+        FinanceChargeInterestRate.Insert(true);
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -897,21 +892,19 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
     local procedure SumRemainigLineAmounts(ReminderLine: Record "Reminder Line"; FieldNumber: Integer): Decimal
     begin
-        with ReminderLine do begin
-            SetRange("Reminder No.", "Reminder No.");
-            SetRange("Line Type", "Line Type"::"Reminder Line");
-            case FieldNumber of
-                FieldNo("Remaining Amount"):
-                    begin
-                        CalcSums("Remaining Amount");
-                        exit("Remaining Amount");
-                    end;
-                FieldNo(Amount):
-                    begin
-                        CalcSums(Amount);
-                        exit(Amount);
-                    end;
-            end;
+        ReminderLine.SetRange("Reminder No.", ReminderLine."Reminder No.");
+        ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Reminder Line");
+        case FieldNumber of
+            ReminderLine.FieldNo("Remaining Amount"):
+                begin
+                    ReminderLine.CalcSums("Remaining Amount");
+                    exit(ReminderLine."Remaining Amount");
+                end;
+            ReminderLine.FieldNo(Amount):
+                begin
+                    ReminderLine.CalcSums(Amount);
+                    exit(ReminderLine.Amount);
+                end;
         end;
     end;
 
@@ -974,14 +967,12 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     var
         ReminderLine: Record "Reminder Line";
     begin
-        with ReminderLine do begin
-            SetRange("Reminder No.", ReminderNo);
-            SetRange(Type, Type::"Customer Ledger Entry");
-            FindSet();
-            repeat
-                Assert.AreEqual(NoOfReminders, "No. of Reminders", NoOfRemindersErr);
-            until Next() = 0;
-        end;
+        ReminderLine.SetRange("Reminder No.", ReminderNo);
+        ReminderLine.SetRange(Type, ReminderLine.Type::"Customer Ledger Entry");
+        ReminderLine.FindSet();
+        repeat
+            Assert.AreEqual(NoOfReminders, ReminderLine."No. of Reminders", NoOfRemindersErr);
+        until ReminderLine.Next() = 0;
     end;
 
     local procedure VerifyReminderDescription(ReminderNo: Code[20])

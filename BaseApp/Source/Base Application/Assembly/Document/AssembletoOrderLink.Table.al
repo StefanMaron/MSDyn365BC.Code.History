@@ -107,15 +107,19 @@ table 904 "Assemble-to-Order Link"
         UOMMgt: Codeunit "Unit of Measure Management";
         HideConfirm: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Synchronizing...\  from: %1 with %2\  to: %3 with %4.', Comment = '%1 = Table caption of SalesLine or WhseShptLine or InvtPickLine, %2 = Key text of SalesLine or WhseShptLine or InvtPickLine, %3 = Table caption of Assembly header, %4 = Key text of assembly header';
         Text001: Label 'Do you want to roll up the price from the assembly components?';
         Text002: Label 'Do you want to roll up the cost from the assembly components?';
+#pragma warning disable AA0470
         Text003: Label 'The item tracking defined on Assembly Header with Document Type %1, No. %2 exceeds %3 on Sales Line with Document Type %4, Document No. %5, Line No. %6.\\ You must adjust the existing item tracking before you can reenter the new quantity.', Comment = '%1 = Document Type, %2 = No.';
         Text004: Label '%1 cannot be lower than %2 or higher than %3.\These limits may be defined by constraints calculated from the %4 field on the related %5. Refer to the field help for more information.';
         Text005: Label 'One or more %1 lines exist for the %2.';
         Text006: Label 'The status of the linked assembly order will be changed to %1. Do you want to continue?';
         Text007: Label 'A %1 exists for the %2. \\If you want to record and post a different %3, then you must do this in the %4 field on the related %1.';
+#pragma warning restore AA0470
         Text008: Label '%1 %2', Comment = 'Key Value, say: %1=Line No. %2=10000';
+#pragma warning restore AA0074
         ItemTrackingQtyDiffErr: Label 'The item tracking defined on Assembly Header with Document Type %1, No. %2 exceeds %3 on Project Planning Line with Job No. %4, Job Task No. %5, Line No. %6.\\ You must adjust the existing item tracking before you can reenter the new quantity.', Comment = '%1 = Document Type, %2 = No., %3 = Qty. to Assemble (Base), %4 = Job No., %5 = Job Task No., %6 = Line No.';
         CreateAsmForJobErr: Label 'It is not possible to create an assembly order for a job task that is completed.';
         AssebmlyOrderExistsForJobErr: Label 'One or more assembly orders exists for the project %1.\\You must delete the assembly order before you can change the job status.', Comment = '%1 = Job No.';
@@ -891,6 +895,7 @@ table 904 "Assemble-to-Order Link"
         ReservEntry: Record "Reservation Entry";
         FromTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
         GetAsmHeader();
 
@@ -909,7 +914,7 @@ table 904 "Assemble-to-Order Link"
                   DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
                   AsmHeader."Qty. per Unit of Measure", 0, TrackingSpecification."Quantity (Base)", ReservEntry);
 
-                FromTrackingSpecification.InitFromSalesLine(SalesLine);
+                SalesLineReserve.InitFromSalesLine(FromTrackingSpecification, SalesLine);
                 FromTrackingSpecification."Qty. per Unit of Measure" := AsmHeader."Qty. per Unit of Measure";
                 FromTrackingSpecification.CopyTrackingFromTrackingSpec(TrackingSpecification);
                 CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
@@ -928,6 +933,7 @@ table 904 "Assemble-to-Order Link"
         ReservEntry: Record "Reservation Entry";
         FromTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
+        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
     begin
         if not TrackingSpecification.Find('-') then
             exit;
@@ -946,7 +952,7 @@ table 904 "Assemble-to-Order Link"
               DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
               AsmHeader."Qty. per Unit of Measure", 0, TrackingSpecification."Quantity (Base)", ReservEntry);
 
-            FromTrackingSpecification.InitFromJobPlanningLine(JobPlanningLine);
+            JobPlanningLineReserve.InitFromJobPlanningLine(FromTrackingSpecification, JobPlanningLine);
             FromTrackingSpecification."Qty. per Unit of Measure" := AsmHeader."Qty. per Unit of Measure";
             FromTrackingSpecification.CopyTrackingFromTrackingSpec(TrackingSpecification);
             CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);

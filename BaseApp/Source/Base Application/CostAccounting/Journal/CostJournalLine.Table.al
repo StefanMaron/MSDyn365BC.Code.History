@@ -250,7 +250,11 @@ table 1101 "Cost Journal Line"
         CostType: Record "Cost Type";
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalTemplate: Record "Cost Journal Template";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Line Type must be %1 or Begin-Total in %2 %3.', Comment = '%2 = Cost Center or Cost Object; %3 = Cost Center or Cost Object Code';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CalcBalance()
     begin

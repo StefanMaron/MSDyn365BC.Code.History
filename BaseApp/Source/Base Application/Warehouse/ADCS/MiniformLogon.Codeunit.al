@@ -41,10 +41,12 @@ codeunit 7705 "Miniform Logon"
         ADCSUserId: Text[250];
         WhseEmpId: Text[250];
         LocationFilter: Text[250];
+#pragma warning disable AA0074
         Text001: Label 'Invalid User ID.';
         Text002: Label 'Invalid Password.';
         Text003: Label 'No input Node found.';
         Text004: Label 'Record not found.';
+#pragma warning restore AA0074
         CurrentCode: Text[250];
         StackCode: Text[250];
         ActiveInputField: Integer;

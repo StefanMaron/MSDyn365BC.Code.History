@@ -22,7 +22,11 @@ codeunit 5913 "FaultResolRelation-Calculate"
         AreaFlag: Boolean;
         SymptomFlag: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Searching Posted Service Order No.  #1###########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CopyResolutionRelationToTable(FromDate: Date; ToDate: Date; ServiceItemGroupRelation: Boolean; RetainManuallyInserted: Boolean)
     begin

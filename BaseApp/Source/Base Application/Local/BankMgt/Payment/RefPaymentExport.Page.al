@@ -18,7 +18,7 @@ page 32000004 "Ref. Payment - Export"
     RefreshOnActivate = true;
     SourceTable = "Ref. Payment - Exported";
     SourceTableView = sorting("Payment Date")
-                      order(Ascending);
+                      order(ascending);
 
     layout
     {

@@ -171,6 +171,8 @@ page 1275 "Doc. Exch. Service Setup"
                     ToolTip = 'Specifies the client ID of the application that will be used to connect to the document exchange service.';
 
                     trigger OnValidate()
+                    var
+                        BlankSecretText: SecretText;
                     begin
                         if Rec."Client Id" = '' then begin
                             AppUrl := '';
@@ -180,8 +182,8 @@ page 1275 "Doc. Exch. Service Setup"
                         if Rec."Client Id" = xRec."Client Id" then
                             exit;
 
-                        Rec.SetAccessToken('');
-                        Rec.SetRefreshToken('');
+                        Rec.SetAccessToken(BlankSecretText);
+                        Rec.SetRefreshToken(BlankSecretText);
                         Rec."Id Token" := '';
                         Rec."Token Subject" := '';
                         Rec."Token Issued At" := 0DT;
@@ -370,7 +372,7 @@ page 1275 "Doc. Exch. Service Setup"
         end;
         Sandbox := DocExchServiceMgt.IsSandbox(Rec);
         AppUrl := DocExchServiceMgt.GetAppUrl(Rec);
-        ClientSecret := Rec.GetClientSecret();
+        SetClientSecretGlobal();
         SavedClientSecret := ClientSecret;
         if (Rec."Redirect URL" = '') or (SoftwareAsAservice and (Rec."Redirect URL" <> DocExchServiceMgt.GetDefaultRedirectUrl())) then begin
             Rec.SetDefaultRedirectUrl();
@@ -456,5 +458,12 @@ page 1275 "Doc. Exch. Service Setup"
             end;
         end;
     end;
+
+    [NonDebuggable]
+    local procedure SetClientSecretGlobal()
+    begin
+        ClientSecret := Rec.GetClientSecretAsSecretText().Unwrap();
+    end;
+
 }
 

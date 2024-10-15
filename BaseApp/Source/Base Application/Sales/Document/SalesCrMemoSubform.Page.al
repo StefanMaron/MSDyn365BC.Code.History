@@ -39,6 +39,7 @@ page 96 "Sales Cr. Memo Subform"
                 {
                     ApplicationArea = Advanced;
                     ToolTip = 'Specifies the type of entity that will be posted for this sales line, such as Item, Resource, or G/L Account.';
+                    Visible = not TypeAsTextFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -56,7 +57,7 @@ page 96 "Sales Cr. Memo Subform"
                     LookupPageID = "Option Lookup List";
                     TableRelation = "Option Lookup Buffer"."Option Caption" where("Lookup Type" = const(Sales));
                     ToolTip = 'Specifies the type of transaction that will be posted with the document line. If you select Comment, then you can enter any text in the Description field, such as a message to a customer. ';
-                    Visible = IsFoundation;
+                    Visible = TypeAsTextFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -533,18 +534,6 @@ page 96 "Sales Cr. Memo Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-#if not CLEAN22
-                field("Auto. Acc. Group"; Rec."Auto. Acc. Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code of the automatic account group on the sales credit memo line that was posted.';
-                    Visible = not IsAutomaticAccountCodesEnabled;
-                    Enabled = not IsAutomaticAccountCodesEnabled;
-                    ObsoleteReason = 'Moved to Automatic Account Codes app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -921,7 +910,7 @@ page 96 "Sales Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -933,7 +922,7 @@ page 96 "Sales Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -945,7 +934,7 @@ page 96 "Sales Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -958,7 +947,7 @@ page 96 "Sales Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -982,7 +971,7 @@ page 96 "Sales Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -1020,7 +1009,7 @@ page 96 "Sales Cr. Memo Subform"
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
                     Enabled = Rec.Type = Rec.Type::Item;
-                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                    ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -1099,7 +1088,7 @@ page 96 "Sales Cr. Memo Subform"
                         EditinExcel: Codeunit "Edit in Excel";
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                     begin
-                        EditinExcelFilters.AddField('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
 
                         EditinExcel.EditPageInExcel(
                             'Sales_Cr_Memo_Line',
@@ -1164,10 +1153,7 @@ page 96 "Sales Cr. Memo Subform"
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillLookupBuffer(Enum::"Option Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
-#if not CLEAN22
-        IsAutomaticAccountCodesEnabled := FeatureKeyManagement.IsAutomaticAccountCodesEnabled();
-#endif
+        TypeAsTextFieldVisible := ApplicationAreaMgmtFacade.IsFoundationEnabled() and not ApplicationAreaMgmtFacade.IsAdvancedEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1199,19 +1185,15 @@ page 96 "Sales Cr. Memo Subform"
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-#if not CLEAN22
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsAutomaticAccountCodesEnabled: Boolean;
-#endif
         AmountWithDiscountAllowed: Decimal;
-        IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         VariantCodeMandatory: Boolean;
         TypeAsText: Text[30];
+        TypeAsTextFieldVisible: Boolean;
         ItemChargeStyleExpression: Text;
         UseAllocationAccountNumber: Boolean;
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Type.';

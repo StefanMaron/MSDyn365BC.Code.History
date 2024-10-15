@@ -189,6 +189,7 @@ table 1140 "OAuth 2.0 Setup"
     var
         TokenValueSecretText: SecretText;
     begin
+        TokenValueSecretText := TokenValue;
         SetToken(TokenKey, TokenValueSecretText);
     end;
 #endif

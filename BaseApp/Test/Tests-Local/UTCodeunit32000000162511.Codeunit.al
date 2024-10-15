@@ -345,14 +345,12 @@ codeunit 144008 "UT Codeunit32000000 162511"
     var
         ReferenceFileSetup: Record "Reference File Setup";
     begin
-        with ReferenceFileSetup do begin
-            Init();
-            Validate("No.", BankAccountNo);
-            Validate("Allow Comb. SEPA Pmts.", Allow);
-            Validate("Allow Comb. Domestic Pmts.", Allow);
-            Validate("Allow Comb. Foreign Pmts.", Allow);
-            Insert();
-        end;
+        ReferenceFileSetup.Init();
+        ReferenceFileSetup.Validate("No.", BankAccountNo);
+        ReferenceFileSetup.Validate("Allow Comb. SEPA Pmts.", Allow);
+        ReferenceFileSetup.Validate("Allow Comb. Domestic Pmts.", Allow);
+        ReferenceFileSetup.Validate("Allow Comb. Foreign Pmts.", Allow);
+        ReferenceFileSetup.Insert();
     end;
 
     local procedure CreateVendorBankAccount(VendorNo: Code[20]): Code[10]
@@ -366,11 +364,9 @@ codeunit 144008 "UT Codeunit32000000 162511"
     local procedure CreateVendor(var Vendor: Record Vendor): Code[20]
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Preferred Bank Account Code", CreateVendorBankAccount("No."));
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Preferred Bank Account Code", CreateVendorBankAccount(Vendor."No."));
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateRefPmtExpLineBank(PaymentType: Option Domestic,Foreign,SEPA; PaymentAccount: Code[20]; VendorNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]; PaymentAmount: Decimal; VendorBankNo: Code[20])
@@ -383,36 +379,34 @@ codeunit 144008 "UT Codeunit32000000 162511"
         AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate() + 1000);
         Vendor.Get(VendorNo);
 
-        with RefPmtExported do begin
-            if FindLast() then
-                NextNo := "No." + 1;
-            Init();
-            Validate("No.", NextNo);
-            Validate("Vendor No.", VendorNo);
-            Validate("Description 2", LibraryUtility.GenerateRandomCode(FieldNo("Description 2"), DATABASE::"Ref. Payment - Exported"));
-            Validate("Payment Account", PaymentAccount);
-            Validate("Due Date", AnyDate);
-            Validate("Payment Date", PostingDate);
-            Validate("Document Type", "Document Type"::"Credit Memo");
-            Validate("Document No.", LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Ref. Payment - Exported"));
-            Validate("Currency Code", CurrencyCode);
-            Validate(Amount, PaymentAmount);
-            Validate("Vendor Account", VendorBankNo);
-            Validate("External Document No.",
-              LibraryUtility.GenerateRandomCode(FieldNo("External Document No."), DATABASE::"Ref. Payment - Exported"));
-            Validate("Invoice Message", LibraryUtility.GenerateRandomCode(FieldNo("Invoice Message"), DATABASE::"Ref. Payment - Exported"));
-            case PaymentType of
-                PaymentType::Domestic:
-                    Validate("Foreign Payment", false);
-                PaymentType::Foreign:
-                    Validate("Foreign Payment", true);
-                PaymentType::SEPA:
-                    Validate("SEPA Payment", true);
-            end;
-            Validate("Foreign Payment Method", PaymentMethodeCode);
-            Validate("Foreign Banks Service Fee", ServiceFeeCode);
-            Insert(true);
+        if RefPmtExported.FindLast() then
+            NextNo := RefPmtExported."No." + 1;
+        RefPmtExported.Init();
+        RefPmtExported.Validate("No.", NextNo);
+        RefPmtExported.Validate("Vendor No.", VendorNo);
+        RefPmtExported.Validate("Description 2", LibraryUtility.GenerateRandomCode(RefPmtExported.FieldNo("Description 2"), DATABASE::"Ref. Payment - Exported"));
+        RefPmtExported.Validate("Payment Account", PaymentAccount);
+        RefPmtExported.Validate("Due Date", AnyDate);
+        RefPmtExported.Validate("Payment Date", PostingDate);
+        RefPmtExported.Validate("Document Type", RefPmtExported."Document Type"::"Credit Memo");
+        RefPmtExported.Validate("Document No.", LibraryUtility.GenerateRandomCode(RefPmtExported.FieldNo("Document No."), DATABASE::"Ref. Payment - Exported"));
+        RefPmtExported.Validate("Currency Code", CurrencyCode);
+        RefPmtExported.Validate(Amount, PaymentAmount);
+        RefPmtExported.Validate("Vendor Account", VendorBankNo);
+        RefPmtExported.Validate("External Document No.",
+          LibraryUtility.GenerateRandomCode(RefPmtExported.FieldNo("External Document No."), DATABASE::"Ref. Payment - Exported"));
+        RefPmtExported.Validate("Invoice Message", LibraryUtility.GenerateRandomCode(RefPmtExported.FieldNo("Invoice Message"), DATABASE::"Ref. Payment - Exported"));
+        case PaymentType of
+            PaymentType::Domestic:
+                RefPmtExported.Validate("Foreign Payment", false);
+            PaymentType::Foreign:
+                RefPmtExported.Validate("Foreign Payment", true);
+            PaymentType::SEPA:
+                RefPmtExported.Validate("SEPA Payment", true);
         end;
+        RefPmtExported.Validate("Foreign Payment Method", PaymentMethodeCode);
+        RefPmtExported.Validate("Foreign Banks Service Fee", ServiceFeeCode);
+        RefPmtExported.Insert(true);
     end;
 
     local procedure CreateRefPmtExpLine(PaymentType: Option Domestic,Foreign,SEPA; PaymentAccount: Code[20]; VendorNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]; PaymentAmount: Decimal)
@@ -472,43 +466,38 @@ codeunit 144008 "UT Codeunit32000000 162511"
         RefPmtExportedLine1: Record "Ref. Payment - Exported";
         RefPmtExported: Record "Ref. Payment - Exported";
     begin
-        with RefPmtExported do begin
-            SetRange("Applied Payments", false);
-            Assert.AreEqual(1, Count, 'Wrong number of lines to export');
+        RefPmtExported.SetRange("Applied Payments", false);
+        Assert.AreEqual(1, RefPmtExported.Count, 'Wrong number of lines to export');
 
-            FindFirst();
-            // Validate values in common from lines beeing combined
-            Assert.AreEqual(BankAccountNo, "Payment Account", 'Wrong Payment Account');
-            Assert.AreEqual(VendorNo, "Vendor No.", 'Wrong Vendor No.');
-            Assert.AreEqual(PaymentDate, "Payment Date", 'Wrong Payment Date');
-            Assert.AreEqual(CurrencyCode, "Currency Code", 'Wrong Currency Code');
-
-            // Validate ammount
-            RefPmtExportedLine0.Get(0);
-            RefPmtExportedLine1.Get(1);
-            Assert.AreEqual(RefPmtExportedLine0.Amount + RefPmtExportedLine1.Amount, Amount, 'Wrong Amount');
-            Assert.AreEqual(RefPmtExportedLine0."Amount (LCY)" + RefPmtExportedLine1."Amount (LCY)", "Amount (LCY)", 'Wrong Amount (LCY)');
-
-            // Validate values taken from the first line
-            // BUG: Hardcoded to Invoice
-            asserterror Assert.AreEqual(RefPmtExportedLine0."Document Type", "Document Type", 'Wrong Ducument Type');
-            Assert.AreEqual(RefPmtExportedLine0."Vendor Account", "Vendor Account", 'Wrong Vendor Account');
-
-            // Validate values that should be cleared
-            Assert.AreEqual(0D, "Due Date", 'Wrong Due Date');
-            Assert.AreEqual('', "External Document No.", 'Wrong External Document No.');
-            // BUG: Holds the Document No from the last line when combined SEPA
-            if DocumentASSERTERROR then
-                asserterror Assert.AreEqual('', "Document No.", 'Wrong Document No.')
-            else
-                Assert.AreEqual('', "Document No.", 'Wrong Document No.');
-            Assert.AreEqual("Message Type"::Message, "Message Type", 'Wrong Message Type');
-            Assert.AreEqual('', "Invoice Message", 'Wrong Invoice Message');
-            Assert.AreEqual('', "Foreign Payment Method", 'Wrong Foreign Payment Method');
-            Assert.AreEqual('', "Foreign Banks Service Fee", 'Wrong Foreign Banks Service Fee');
-            // BUG: Holds Vendor No
-            asserterror Assert.AreEqual('', "Description 2", 'Wrong Description');
-        end;
+        RefPmtExported.FindFirst();
+        // Validate values in common from lines beeing combined
+        Assert.AreEqual(BankAccountNo, RefPmtExported."Payment Account", 'Wrong Payment Account');
+        Assert.AreEqual(VendorNo, RefPmtExported."Vendor No.", 'Wrong Vendor No.');
+        Assert.AreEqual(PaymentDate, RefPmtExported."Payment Date", 'Wrong Payment Date');
+        Assert.AreEqual(CurrencyCode, RefPmtExported."Currency Code", 'Wrong Currency Code');
+        // Validate ammount
+        RefPmtExportedLine0.Get(0);
+        RefPmtExportedLine1.Get(1);
+        Assert.AreEqual(RefPmtExportedLine0.Amount + RefPmtExportedLine1.Amount, RefPmtExported.Amount, 'Wrong Amount');
+        Assert.AreEqual(RefPmtExportedLine0."Amount (LCY)" + RefPmtExportedLine1."Amount (LCY)", RefPmtExported."Amount (LCY)", 'Wrong Amount (LCY)');
+        // Validate values taken from the first line
+        // BUG: Hardcoded to Invoice
+        asserterror Assert.AreEqual(RefPmtExportedLine0."Document Type", RefPmtExported."Document Type", 'Wrong Ducument Type');
+        Assert.AreEqual(RefPmtExportedLine0."Vendor Account", RefPmtExported."Vendor Account", 'Wrong Vendor Account');
+        // Validate values that should be cleared
+        Assert.AreEqual(0D, RefPmtExported."Due Date", 'Wrong Due Date');
+        Assert.AreEqual('', RefPmtExported."External Document No.", 'Wrong External Document No.');
+        // BUG: Holds the Document No from the last line when combined SEPA
+        if DocumentASSERTERROR then
+            asserterror Assert.AreEqual('', RefPmtExported."Document No.", 'Wrong Document No.')
+        else
+            Assert.AreEqual('', RefPmtExported."Document No.", 'Wrong Document No.');
+        Assert.AreEqual(RefPmtExported."Message Type"::Message, RefPmtExported."Message Type", 'Wrong Message Type');
+        Assert.AreEqual('', RefPmtExported."Invoice Message", 'Wrong Invoice Message');
+        Assert.AreEqual('', RefPmtExported."Foreign Payment Method", 'Wrong Foreign Payment Method');
+        Assert.AreEqual('', RefPmtExported."Foreign Banks Service Fee", 'Wrong Foreign Banks Service Fee');
+        // BUG: Holds Vendor No
+        asserterror Assert.AreEqual('', RefPmtExported."Description 2", 'Wrong Description');
     end;
 }
 

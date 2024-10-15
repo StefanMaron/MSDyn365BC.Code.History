@@ -385,11 +385,9 @@ codeunit 144007 "E-Banking FI"
     begin
         RecRef.GetTable(RefPaymentExported);
 
-        with RefPaymentExported do begin
-            Init();
-            "No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("No."));
-            Insert();
-        end;
+        RefPaymentExported.Init();
+        RefPaymentExported."No." := LibraryUtility.GetNewLineNo(RecRef, RefPaymentExported.FieldNo("No."));
+        RefPaymentExported.Insert();
     end;
 
     local procedure CreateRefPaymentExportedWithVendorAndEntry(var RefPaymentExported: Record "Ref. Payment - Exported"; VendorNo: Code[20])
@@ -420,27 +418,25 @@ codeunit 144007 "E-Banking FI"
 
     local procedure VerifyClearedRefPaymentExported(RefPaymentExported: Record "Ref. Payment - Exported"; ExpectedVendorNo: Code[20])
     begin
-        with RefPaymentExported do begin
-            TestField("Entry No.", 0);
-            TestField("Vendor No.", ExpectedVendorNo);
-            TestField("Payment Account", '');
-            TestField("Due Date", 0D);
-            TestField("Payment Date", 0D);
-            TestField("Document No.", '');
-            TestField("Document Type", "Document Type"::" ");
-            TestField("Currency Code", '');
-            TestField(Amount, 0);
-            TestField("Amount (LCY)", 0);
-            TestField("Vendor Account", '');
-            TestField("Message Type", "Message Type"::"Reference No.");
-            TestField("Invoice Message", '');
-            TestField("Invoice Message 2", '');
-            TestField("Applies-to ID", '');
-            TestField("External Document No.", '');
-            TestField("Posting Date", 0D);
-            TestField("Foreign Payment Method", '');
-            TestField("Foreign Banks Service Fee", '');
-        end;
+        RefPaymentExported.TestField("Entry No.", 0);
+        RefPaymentExported.TestField("Vendor No.", ExpectedVendorNo);
+        RefPaymentExported.TestField("Payment Account", '');
+        RefPaymentExported.TestField("Due Date", 0D);
+        RefPaymentExported.TestField("Payment Date", 0D);
+        RefPaymentExported.TestField("Document No.", '');
+        RefPaymentExported.TestField("Document Type", RefPaymentExported."Document Type"::" ");
+        RefPaymentExported.TestField("Currency Code", '');
+        RefPaymentExported.TestField(Amount, 0);
+        RefPaymentExported.TestField("Amount (LCY)", 0);
+        RefPaymentExported.TestField("Vendor Account", '');
+        RefPaymentExported.TestField("Message Type", RefPaymentExported."Message Type"::"Reference No.");
+        RefPaymentExported.TestField("Invoice Message", '');
+        RefPaymentExported.TestField("Invoice Message 2", '');
+        RefPaymentExported.TestField("Applies-to ID", '');
+        RefPaymentExported.TestField("External Document No.", '');
+        RefPaymentExported.TestField("Posting Date", 0D);
+        RefPaymentExported.TestField("Foreign Payment Method", '');
+        RefPaymentExported.TestField("Foreign Banks Service Fee", '');
     end;
 
     [ConfirmHandler]

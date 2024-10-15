@@ -8,6 +8,7 @@ using Microsoft.Inventory.Item.Picture;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Structure;
 using System.Device;
+using System.Telemetry;
 
 page 7388 "Scan Warehouse Activity Line"
 {
@@ -241,15 +242,22 @@ page 7388 "Scan Warehouse Activity Line"
                 trigger BarcodeReceived(Barcode: Text; Format: Text)
                 var
                     ScanWarehouseLine: Codeunit "Scan Warehouse Activity Line";
+                    FeatureTelemetry: Codeunit "Feature Telemetry";
+                    NeedsRefresh: Boolean;
+                    AllLinesFulfilled: Boolean;
                 begin
-                    if Barcode = '' then
-                        exit;
+                    FeatureTelemetry.LogUsage('0000MZQ', FeatureTelemetryNameLbl, ScannedBarcodeAvailableLbl);
+                    ScanWarehouseLine.CheckAndSetBarcode(Rec, Barcode, NeedsRefresh, AllLinesFulfilled);
 
-                    // Remove leading and trailing "
-                    Barcode := DelChr(Barcode, '=', '"');
+                    if AllLinesFulfilled then begin
+                        Message(AllLinesFulfilledMsg);
+                        CurrPage.Close();
+                    end;
 
-                    if not ScanWarehouseLine.ValidateBarcode(Rec, Barcode) then
-                        Error(BarcodeNotFoundErr);
+                    if NeedsRefresh then begin
+                        Message(CurrentLineFulfilledMoveNextMsg);
+                        CurrPage.Update(false);
+                    end;
                 end;
             }
         }
@@ -285,7 +293,10 @@ page 7388 "Scan Warehouse Activity Line"
         ScanPackageNoVisible: Boolean;
         ScanBinVisible: Boolean;
         BarcodeScannerNotSupportedMsg: Label 'Barcode scanner is not supported on this device.';
-        BarcodeNotFoundErr: Label 'Barcode not found. Please try again or enter the value manually.';
+        CurrentLineFulfilledMoveNextMsg: Label 'The quantity to handle has been fulfilled on this line. Continuing to the next line.';
+        AllLinesFulfilledMsg: Label 'The quantity to handle on all the lines have been fulfulled. Page will be closed.';
+        FeatureTelemetryNameLbl: Label 'Barcode Scanning', Locked = true;
+        ScannedBarcodeAvailableLbl: Label 'Scanned barcode from laser scanner available for processing.', Locked = true;
 
     local procedure SetFieldsVisibility()
     var

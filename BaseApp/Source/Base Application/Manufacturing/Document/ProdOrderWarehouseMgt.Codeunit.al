@@ -8,9 +8,11 @@ using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.CrossDock;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Worksheet;
 
 codeunit 5996 "Prod. Order Warehouse Mgt."
 {
@@ -20,6 +22,8 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         WhseManagement: Codeunit "Whse. Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         WMSManagement: Codeunit "WMS Management";
+
+        LocationMustBeBinMandatoryErr: Label 'Location %1 must be set up with Bin Mandatory if the Work Center %2 uses it.', Comment = '%1 - location code,  %2 = Object No.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocLine', '', false, false)]
     local procedure OnShowSourceDocLine(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
@@ -319,7 +323,6 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         then begin
             if ProdOrderComponent.Get(Status, ProdOrderNo, ProdOrderLineNo, ProdOrdCompLineNo) then
                 exit(true);
-
             exit(false);
         end;
         exit(true);
@@ -600,9 +603,184 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                 end;
         end;
     end;
-    
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSrcDocLineQtyOutstanding', '', false, false)]
+    local procedure OnAfterGetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var QtyBaseOutstanding: Decimal; var QtyOutstanding: Decimal)
+    var
+        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        case SourceType of
+            Database::"Prod. Order Component":
+                if ProdOrderComp.Get(SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo) then begin
+                    QtyOutstanding := ProdOrderComp."Remaining Quantity";
+                    QtyBaseOutstanding := ProdOrderComp."Remaining Qty. (Base)";
+                end;
+            Database::"Prod. Order Line":
+                if ProdOrderLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
+                    QtyOutstanding := ProdOrderLine."Remaining Quantity";
+                    QtyBaseOutstanding := ProdOrderLine."Remaining Qty. (Base)";
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSourceDocumentType', '', false, false)]
+    local procedure WhseManagementGetSourceDocumentType(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+        if SourceType = Database::"Prod. Order Component" then begin
+            SourceDocument := "Warehouse Journal Source Document"::"Prod. Consumption";
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetJournalSourceDocument', '', false, false)]
+    local procedure WhseManagementGetJournalSourceDocument(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+        if SourceType = Database::"Prod. Order Component" then begin
+            SourceDocument := SourceDocument::"Prod. Consumption";
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnBeforeGetSourceType', '', false, false)]
+    local procedure WhseManagementOnBeforeGetSourceType(WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer; var IsHandled: Boolean)
+    begin
+        if WhseWorksheetLine."Whse. Document Type" = WhseWorksheetLine."Whse. Document Type"::Production then begin
+            SourceType := Database::"Prod. Order Component";
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Create Pick", 'OnCheckSourceDocument', '', false, false)]
+    local procedure CreatePickOnCheckSourceDocument(var PickWhseWkshLine: Record "Whse. Worksheet Line")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        if PickWhseWkshLine."Source Type" = Database::"Prod. Order Component" then begin
+            ProdOrderComponent.SetRange(Status, PickWhseWkshLine."Source Subtype");
+            ProdOrderComponent.SetRange("Prod. Order No.", PickWhseWkshLine."Source No.");
+            ProdOrderComponent.SetRange("Prod. Order Line No.", PickWhseWkshLine."Source Line No.");
+            ProdOrderComponent.SetRange("Line No.", PickWhseWkshLine."Source Subline No.");
+            if ProdOrderComponent.IsEmpty() then
+                Error(WhseManagement.GetSourceDocumentDoesNotExistErr(), ProdOrderComponent.TableCaption(), ProdOrderComponent.GetFilters());
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Cross-Dock Management", 'OnCalcCrossDockToProdOrderComponent', '', false, false)]
+    local procedure OnCalcCrossDockToProdOrderComponent(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; CrossDockDate: Date; LineNo: Integer; var sender: Codeunit "Whse. Cross-Dock Management")
+    begin
+        CalcCrossDockToProdOrderComponent(WhseCrossDockOpportunity, ItemNo, VariantCode, LocationCode, CrossDockDate, LineNo, sender);
+    end;
+
+    local procedure CalcCrossDockToProdOrderComponent(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; CrossDockDate: Date; LineNo: Integer; var sender: Codeunit "Whse. Cross-Dock Management")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.SetRange("Variant Code", VariantCode);
+        ProdOrderComponent.SetRange("Location Code", LocationCode);
+        ProdOrderComponent.SetRange("Due Date", 0D, CrossDockDate);
+        ProdOrderComponent.SetRange("Planning Level Code", 0);
+        ProdOrderComponent.SetFilter("Remaining Qty. (Base)", '>0');
+        if ProdOrderComponent.Find('-') then
+            repeat
+                ProdOrderComponent.CalcFields("Pick Qty. (Base)");
+#if not CLEAN25
+                sender.RunOnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComponent);
+#endif
+                OnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComponent);
+                sender.InsertCrossDockOpp(
+                    WhseCrossDockOpportunity,
+                    Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
+                    ProdOrderComponent."Line No.", ProdOrderComponent."Prod. Order Line No.",
+                    ProdOrderComponent."Remaining Quantity", ProdOrderComponent."Remaining Qty. (Base)",
+                    ProdOrderComponent."Pick Qty.", ProdOrderComponent."Pick Qty. (Base)", ProdOrderComponent."Qty. Picked", ProdOrderComponent."Qty. Picked (Base)",
+                    ProdOrderComponent."Unit of Measure Code", ProdOrderComponent."Qty. per Unit of Measure", ProdOrderComponent."Due Date",
+                    ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", LineNo);
+            until ProdOrderComponent.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetMachineCenterBinCode(MachineCenterNo: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method"; var Result: Code[20]; var IsHandled: Boolean)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Integration Management", 'OnCheckBinTypeAndCode', '', false, false)]
+    local procedure OnCheckBinTypeAndCode(BinType: Record "Bin Type"; AdditionalIdentifier: Option; SourceTable: Integer; BinCodeFieldCaption: Text)
+    begin
+        CheckBinTypeAndCode(BinType, AdditionalIdentifier, SourceTable, BinCodeFieldCaption);
+    end;
+
+    procedure CheckBinTypeAndCode(BinType: Record "Bin Type"; AdditionalIdentifier: Option; SourceTable: Integer; BinCodeFieldCaption: Text)
+    var
+        MachineCenter: Record "Machine Center";
+        WorkCenter: Record "Work Center";
+    begin
+        case SourceTable of
+            Database::"Production Order",
+            Database::"Prod. Order Line":
+                BinType.AllowPutawayPickOrQCBinsOnly();
+            Database::"Prod. Order Component":
+                BinType.AllowPutawayOrQCBinsOnly();
+            Database::"Machine Center":
+                case BinCodeFieldCaption of
+                    MachineCenter.FieldCaption("Open Shop Floor Bin Code"),
+                    MachineCenter.FieldCaption("To-Production Bin Code"):
+                        BinType.AllowPutawayOrQCBinsOnly();
+                    MachineCenter.FieldCaption("From-Production Bin Code"):
+                        BinType.AllowPutawayPickOrQCBinsOnly();
+                end;
+            Database::"Work Center":
+                case BinCodeFieldCaption of
+                    WorkCenter.FieldCaption("Open Shop Floor Bin Code"),
+                    WorkCenter.FieldCaption("To-Production Bin Code"):
+                        BinType.AllowPutawayOrQCBinsOnly();
+                    WorkCenter.FieldCaption("From-Production Bin Code"):
+                        BinType.AllowPutawayPickOrQCBinsOnly();
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Integration Management", 'OnAfterIsOpenShopFloorBin', '', false, false)]
+    local procedure OnAfterIsOpenShopFloorBin(LocationCode: Code[10]; BinCode: Code[20]; var Result: Boolean)
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+    begin
+        WorkCenter.SetRange("Location Code", LocationCode);
+        WorkCenter.SetRange("Open Shop Floor Bin Code", BinCode);
+        if not WorkCenter.IsEmpty() then
+            Result := true;
+
+        if not Result then begin
+            MachineCenter.SetRange("Location Code", LocationCode);
+            MachineCenter.SetRange("Open Shop Floor Bin Code", BinCode);
+            if not MachineCenter.IsEmpty() then
+                Result := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Location, 'OnValidateBinMandatoryOnAfterCheckBins', '', false, false)]
+    local procedure OnValidateBinMandatoryOnAfterCheckBins(Location: Record Location)
+    begin
+        CheckLocationOnBins(Location);
+    end;
+
+    internal procedure CheckLocationOnBins(Location: Record Location)
+    var
+        WorkCenter: Record "Work Center";
+    begin
+        WorkCenter.SetRange("Location Code", Location.Code);
+        if WorkCenter.FindSet(false) then
+            repeat
+                if not Location."Bin Mandatory" then
+                    Error(LocationMustBeBinMandatoryErr, Location.Code, WorkCenter."No.");
+            until WorkCenter.Next() = 0;
     end;
 }

@@ -4,20 +4,31 @@ using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
-using System.Utilities;
 
 codeunit 5790 "Available to Promise"
 {
-    Permissions = TableData "Prod. Order Line" = r,
-                  TableData "Prod. Order Component" = r;
+    Permissions = tabledata "Assembly Header" = r,
+                  tabledata "Assembly Line" = r,
+                  tabledata "Item Ledger Entry" = r,
+                  tabledata "Job Planning Line" = r,
+                  tabledata "Planning Component" = r,
+                  tabledata "Prod. Order Component" = r,
+                  tabledata "Prod. Order Line" = r,
+                  tabledata "Purchase Line" = r,
+                  tabledata "Requisition Line" = r,
+                  tabledata "Reservation Entry" = r,
+                  tabledata "Sales Line" = r,
+                  tabledata "Transfer Line" = r,
+                  tabledata "Value Entry" = r;
 
     trigger OnRun()
     begin
@@ -95,7 +106,6 @@ codeunit 5790 "Available to Promise"
                 Item."Planning Issues (Qty.)" +
                 Item."Planning Transfer Ship. (Qty)." +
                 Item."Qty. on Sales Order" +
-                Item."Qty. on Service Order" +
                 Item."Qty. on Job Order" +
                 Item."Trans. Ord. Shipment (Qty.)" +
                 Item."Qty. on Asm. Component" +
@@ -116,7 +126,6 @@ codeunit 5790 "Available to Promise"
             ReservedRequirement :=
                 Item."Res. Qty. on Prod. Order Comp." +
                 Item."Reserved Qty. on Sales Orders" +
-                Item."Res. Qty. on Service Orders" +
                 Item."Res. Qty. on Job Order" +
                 Item."Res. Qty. on Outbound Transfer" +
                 Item."Res. Qty. on  Asm. Comp." +
@@ -168,7 +177,7 @@ codeunit 5790 "Available to Promise"
 
     procedure CalcEarliestAvailabilityDate(var Item: Record Item; NeededQty: Decimal; StartDate: Date; ExcludeQty: Decimal; ExcludeOnDate: Date; var AvailableQty: Decimal; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula): Date
     var
-        Date: Record Date;
+        Date: Record System.Utilities.Date;
         DummyItem: Record Item;
         TempAvailabilityAtDate: Record "Availability at Date" temporary;
         CalendarManagement: Codeunit "Calendar Management";
@@ -322,15 +331,10 @@ codeunit 5790 "Available to Promise"
         OnCalculateAvailabilityAfterClearAvailabilityAtDate(AvailabilityAtDate, Item, ReqShipDate);
         OldRecordExists := false;
 
-        UpdateSchedRcptAvail(AvailabilityAtDate, Item);
         UpdatePurchReqRcptAvail(AvailabilityAtDate, Item);
-        UpdatePurchOrderAvail(AvailabilityAtDate, Item);
         UpdateTransOrderRcptAvail(AvailabilityAtDate, Item);
-        UpdateSchedNeedAvail(AvailabilityAtDate, Item);
         UpdatePlanningIssuesAvail(AvailabilityAtDate, Item);
         UpdateSalesOrderAvail(AvailabilityAtDate, Item);
-        UpdateServOrderAvail(AvailabilityAtDate, Item);
-        UpdateJobOrderAvail(AvailabilityAtDate, Item);
         UpdateTransOrderShptAvail(AvailabilityAtDate, Item);
         UpdateAsmOrderAvail(AvailabilityAtDate, Item);
         UpdateAsmCompAvail(AvailabilityAtDate, Item);
@@ -383,7 +387,7 @@ codeunit 5790 "Available to Promise"
     local procedure CalculateAvailabilityByPeriod(var AvailabilityAtDate: Record "Availability at Date"; PeriodType: Enum "Analysis Period Type")
     var
         AvailabilityInPeriod: Record "Availability at Date";
-        Date: Record Date;
+        Date: Record System.Utilities.Date;
     begin
         if PeriodType = PeriodType::Day then
             exit;
@@ -427,7 +431,7 @@ codeunit 5790 "Available to Promise"
 
     procedure GetPeriodEndingDate(PeriodEnd: Date; PeriodType: Enum "Analysis Period Type"): Date
     var
-        Date: Record Date;
+        Date: Record System.Utilities.Date;
     begin
         if PeriodType = PeriodType::Day then
             exit(PeriodEnd);
@@ -491,18 +495,17 @@ codeunit 5790 "Available to Promise"
           "Planning Issues (Qty.)",
           "Planning Transfer Ship. (Qty).",
           "Qty. on Sales Order",
-          "Qty. on Service Order",
           "Qty. on Job Order",
           "Trans. Ord. Shipment (Qty.)",
           "Qty. on Asm. Component",
           "Qty. on Purch. Return",
           "Res. Qty. on Prod. Order Comp.",
           "Reserved Qty. on Sales Orders",
-          "Res. Qty. on Service Orders",
           "Res. Qty. on Job Order",
           "Res. Qty. on Outbound Transfer",
           "Res. Qty. on  Asm. Comp.",
           "Res. Qty. on Purch. Returns");
+
         // Max function parameters is 20, hence split in 2
         Item.CalcFields(
           "Scheduled Receipt (Qty.)",
@@ -517,6 +520,7 @@ codeunit 5790 "Available to Promise"
           "Res. Qty. on Assembly Order",
           "Res. Qty. on Sales Returns",
           "Reserved Qty. on Prod. Order");
+
         OnCalcAllItemFieldsOnAfterItemCalcFields(Item);
 
         AllFieldCalculated := true;
@@ -527,23 +531,6 @@ codeunit 5790 "Available to Promise"
     procedure ResetItemNo()
     begin
         PrevItemNo := '';
-    end;
-
-    local procedure UpdateSchedRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateSchedRcptAvail(AvailabilityAtDate, Item, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
-            repeat
-                ProdOrderLine.CalcFields("Reserved Qty. (Base)");
-                UpdateScheduledReceipt(AvailabilityAtDate, ProdOrderLine."Due Date", ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)");
-            until ProdOrderLine.Next() = 0;
     end;
 
     local procedure UpdatePurchReqRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -563,29 +550,6 @@ codeunit 5790 "Available to Promise"
             until RequisitionLine.Next() = 0;
     end;
 
-    local procedure UpdatePurchOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
-    var
-        PurchaseLine: Record "Purchase Line";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdatePurchOrderAvail(AvailabilityAtDate, Item, IsHandled);
-        if IsHandled then
-            exit;
-
-        if PurchaseLine.FindLinesWithItemToPlan(Item, PurchaseLine."Document Type"::Order) then
-            repeat
-                PurchaseLine.CalcFields("Reserved Qty. (Base)");
-                UpdateScheduledReceipt(AvailabilityAtDate, PurchaseLine."Expected Receipt Date", PurchaseLine."Outstanding Qty. (Base)" - PurchaseLine."Reserved Qty. (Base)");
-            until PurchaseLine.Next() = 0;
-
-        if PurchaseLine.FindLinesWithItemToPlan(Item, PurchaseLine."Document Type"::"Return Order") then
-            repeat
-                PurchaseLine.CalcFields("Reserved Qty. (Base)");
-                UpdateGrossRequirement(AvailabilityAtDate, PurchaseLine."Expected Receipt Date", PurchaseLine."Outstanding Qty. (Base)" - PurchaseLine."Reserved Qty. (Base)")
-            until PurchaseLine.Next() = 0;
-    end;
-
     local procedure UpdateTransOrderRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
     var
         TransferLine: Record "Transfer Line";
@@ -602,23 +566,6 @@ codeunit 5790 "Available to Promise"
                 UpdateScheduledReceipt(AvailabilityAtDate, TransferLine."Receipt Date",
                   TransferLine."Outstanding Qty. (Base)" + TransferLine."Qty. Shipped (Base)" - TransferLine."Qty. Received (Base)" - TransferLine."Reserved Qty. Inbnd. (Base)");
             until TransferLine.Next() = 0;
-    end;
-
-    local procedure UpdateSchedNeedAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
-    var
-        ProdOrderComp: Record "Prod. Order Component";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateSchedNeedAvail(AvailabilityAtDate, Item, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ProdOrderComp.FindLinesWithItemToPlan(Item, true) then
-            repeat
-                ProdOrderComp.CalcFields("Reserved Qty. (Base)");
-                UpdateGrossRequirement(AvailabilityAtDate, ProdOrderComp."Due Date", ProdOrderComp."Remaining Qty. (Base)" - ProdOrderComp."Reserved Qty. (Base)");
-            until ProdOrderComp.Next() = 0;
     end;
 
     local procedure UpdatePlanningIssuesAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -661,40 +608,6 @@ codeunit 5790 "Available to Promise"
                 SalesLine.CalcFields("Reserved Qty. (Base)");
                 UpdateScheduledReceipt(AvailabilityAtDate, SalesLine."Shipment Date", SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)")
             until SalesLine.Next() = 0;
-    end;
-
-    local procedure UpdateServOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
-    var
-        ServiceLine: Record "Service Line";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateServOrderAvail(AvailabilityAtDate, Item, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ServiceLine.FindLinesWithItemToPlan(Item) then
-            repeat
-                ServiceLine.CalcFields("Reserved Qty. (Base)");
-                UpdateGrossRequirement(AvailabilityAtDate, ServiceLine."Needed by Date", ServiceLine."Outstanding Qty. (Base)" - ServiceLine."Reserved Qty. (Base)");
-            until ServiceLine.Next() = 0;
-    end;
-
-    local procedure UpdateJobOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
-    var
-        JobPlanningLine: Record "Job Planning Line";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateJobOrderAvail(AvailabilityAtDate, Item, IsHandled);
-        if IsHandled then
-            exit;
-
-        if JobPlanningLine.FindLinesWithItemToPlan(Item) then
-            repeat
-                JobPlanningLine.CalcFields("Reserved Qty. (Base)");
-                UpdateGrossRequirement(AvailabilityAtDate, JobPlanningLine."Planning Date", JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)");
-            until JobPlanningLine.Next() = 0;
     end;
 
     local procedure UpdateTransOrderShptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -855,10 +768,18 @@ codeunit 5790 "Available to Promise"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeUpdatePurchOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdatePurchOrderAvail(AvailabilityAtDate, Item, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit JobPlanningAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAllItemFieldsOnAfterItemCalcFields(var Item: Record Item)
@@ -885,10 +806,18 @@ codeunit 5790 "Available to Promise"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeUpdateSchedRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateSchedRcptAvail(AvailabilityAtDate, Item, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSchedRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchReqRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
@@ -900,25 +829,49 @@ codeunit 5790 "Available to Promise"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeUpdateSchedNeedAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateSchedNeedAvail(AvailabilityAtDate, Item, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSchedNeedAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePlanningIssuesAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeUpdateServOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateServOrderAvail(AvailabilityAtDate, Item, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ServAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateServOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeUpdateJobOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateJobOrderAvail(AvailabilityAtDate, Item, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit JobPlanningAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateJobOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTransOrderShptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)

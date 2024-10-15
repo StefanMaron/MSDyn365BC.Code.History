@@ -11,9 +11,6 @@ using Microsoft.HumanResources.Payables;
 using Microsoft.Sales.Archive;
 using System.Privacy;
 using Microsoft.Purchases.Payables;
-#if not CLEAN22
-using Microsoft.Finance.AutomaticAccounts;
-#endif
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.Bank.Setup;
 using Microsoft.Bank.Payment;
@@ -36,15 +33,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeRelative();
         ClassifyEmployeeQualification();
         ClassifyVATReportHeader();
-#if not CLEAN22
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Buffer");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Payment Buffer");
-#if not CLEAN22
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Intrastat - File Setup");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Depr. Diff. Posting Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reference File Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Ref. Payment - Imported");

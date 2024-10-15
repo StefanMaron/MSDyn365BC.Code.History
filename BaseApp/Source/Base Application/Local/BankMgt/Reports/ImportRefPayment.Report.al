@@ -20,7 +20,7 @@ report 32000000 "Import Ref. Payment"
     {
         dataitem(BankPayments; "Ref. Payment - Imported")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
 
             trigger OnPostDataItem()
             var

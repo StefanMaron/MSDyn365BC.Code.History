@@ -553,7 +553,7 @@ page 99000852 "Planning Worksheet"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -602,7 +602,7 @@ page 99000852 "Planning Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::"Event")
                         end;
                     }
                     action(Period)
@@ -614,7 +614,7 @@ page 99000852 "Planning Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Period)
                         end;
                     }
                     action(Variant)
@@ -626,7 +626,7 @@ page 99000852 "Planning Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Variant)
                         end;
                     }
                     action(Location)
@@ -639,7 +639,7 @@ page 99000852 "Planning Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Location)
                         end;
                     }
                     action(Lot)
@@ -662,7 +662,7 @@ page 99000852 "Planning Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
                 }
@@ -864,10 +864,10 @@ page 99000852 "Planning Worksheet"
                     begin
                         // The parameter of ODataUtility.ExternalizeName() should be the field name of page, because ODataUnitility generates ODataFieldName based on the field name of page.
                         // If we use the field name from table, it is possible to return a wrong name when the name of page field is different from the name of table field.
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Journal Batch Name")), Enum::"Edit in Excel Filter Type"::Equal, CurrentWkshBatchName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Journal Batch Name")), Enum::"Edit in Excel Filter Type"::Equal, CurrentWkshBatchName, Enum::"Edit in Excel Edm Type"::"Edm.String");
                         // But here the "Worksheet Template Name" is not a part of the page, so we have to get the ODataFieldName from the record.
                         // The reason why the "Worksheet Template Name" is still a part of the web service although not being a field on this page, is that it is a key in the underlying record.
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Worksheet Template Name")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Worksheet Template Name", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Worksheet Template Name")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Worksheet Template Name", Enum::"Edit in Excel Edm Type"::"Edm.String");
                         EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Planning Worksheet", EditInExcelFilters, StrSubstNo(ExcelFileNameTxt, CurrentWkshBatchName, Rec."Worksheet Template Name"));
                     end;
                 }
@@ -1012,7 +1012,7 @@ page 99000852 "Planning Worksheet"
         PlanningTransparency: Codeunit "Planning Transparency";
         ReqJnlManagement: Codeunit ReqJnlManagement;
         PlanningWkshManagement: Codeunit PlanningWkshManagement;
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
         CurrentWkshBatchName: Code[10];
         ExcelFileNameTxt: Label 'Planning Worksheet - JournalBatchName %1 - WorksheetTemplateName %2', Comment = '%1 = Journal Batch Name; %2 = Worksheet Template Name';
         OpenedFromBatch: Boolean;

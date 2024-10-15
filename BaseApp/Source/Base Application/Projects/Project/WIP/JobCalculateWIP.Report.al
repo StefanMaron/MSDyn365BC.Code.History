@@ -151,9 +151,11 @@ report 1086 "Job Calculate WIP"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'WIP was successfully calculated.\';
         Text001: Label 'There were no new WIP entries created.';
         Text002: Label 'WIP was calculated with warnings.\';
+#pragma warning restore AA0074
         PreviewQst: Label 'Do you want to preview the posting accounts?';
         RunWIPFunctionsQst: Label 'You must run the %1 function to post the completion entries for this project. \Do you want to run this function now?', Comment = '%1 = The name of the Project Post WIP to G/L report';
 

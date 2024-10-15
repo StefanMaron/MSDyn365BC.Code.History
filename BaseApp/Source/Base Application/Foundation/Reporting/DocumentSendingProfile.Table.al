@@ -154,11 +154,15 @@ table 60 "Document Sending Profile"
     var
         DefaultCodeTxt: Label 'DEFAULT', Comment = 'Translate as we translate default term in local languages';
         DefaultDescriptionTxt: Label 'Default rule used if no other provided';
+#pragma warning disable AA0470
         RecordAsTextFormatterTxt: Label '%1 ; %2';
+#pragma warning restore AA0470
         FieldCaptionContentFormatterTxt: Label '%1 (%2)', Comment = '%1=Field Caption (e.g. Email), %2=Field Content (e.g. PDF) so for example ''Email (PDF)''';
         CannotDeleteDefaultRuleErr: Label 'You cannot delete the default rule. Assign other rule to be default first.';
         CannotRemoveDefaultRuleErr: Label 'There must be one default rule in the system. To remove the default property from this rule, assign default to another rule.';
+#pragma warning disable AA0470
         UpdateAssCustomerQst: Label 'If you delete document sending profile %1, it will also be deleted on customer cards that use the profile.\\Do you want to continue?';
+#pragma warning restore AA0470
         CannotDeleteErr: Label 'Cannot delete the document sending profile.';
         CannotSendMultipleSalesDocsErr: Label 'You can only send one electronic sales document at a time.';
         ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confirmation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
@@ -279,9 +283,9 @@ table 60 "Document Sending Profile"
     procedure SetDocumentUsage(DocumentVariant: Variant)
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        DocumentUsage: Option;
+        DocumentUsage: Enum "Electronic Document Format Usage";
     begin
-        ElectronicDocumentFormat.GetDocumentUsage(DocumentUsage, DocumentVariant);
+        ElectronicDocumentFormat.GetDocumentFormatUsage(DocumentUsage, DocumentVariant);
         Validate(Usage, DocumentUsage);
     end;
 

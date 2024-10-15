@@ -989,8 +989,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
 
     local procedure CalcCurrencyFactor(CurrencyExchangeRate: Record "Currency Exchange Rate"): Decimal
     begin
-        with CurrencyExchangeRate do
-            exit("Exchange Rate Amount" / "Relational Exch. Rate Amount");
+        exit(CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount");
     end;
 
     local procedure ValidateVendWithFCYOnOrder(var CurrencyExchangeRate: Record "Currency Exchange Rate"; var PurchHeader: Record "Purchase Header")
@@ -1105,15 +1104,13 @@ codeunit 134086 "ERM Update Currency - Purchase"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(No, "No.",
-              StrSubstNo(IncorrectValueErr, "No.", FieldCaption("No.")));
-            Assert.AreEqual(CurrencyCode, "Currency Code",
-              StrSubstNo(IncorrectValueErr, "Currency Code", FieldCaption("Currency Code")));
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(No, PurchaseLine."No.",
+          StrSubstNo(IncorrectValueErr, PurchaseLine."No.", PurchaseLine.FieldCaption("No.")));
+        Assert.AreEqual(CurrencyCode, PurchaseLine."Currency Code",
+          StrSubstNo(IncorrectValueErr, PurchaseLine."Currency Code", PurchaseLine.FieldCaption("Currency Code")));
     end;
 
     local procedure ExecuteUIHandler()

@@ -402,7 +402,11 @@ report 304 "Vendor - Detail Trial Balance"
         PageGroupNo: Integer;
         SumCorrections: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VendDetailTrialBalCapLbl: Label 'Vendor - Detail Trial Balance';
         PageCaptionLbl: Label 'Page';
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY.';

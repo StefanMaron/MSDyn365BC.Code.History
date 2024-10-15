@@ -38,9 +38,8 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
 
         // [GIVEN] Gen. Journal Template with batches
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        for i := 1 to 5 do begin
+        for i := 1 to 5 do
             LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        end;
 
         // [WHEN] Enable "Copy to Posted Jnl. Lines"
         GenJournalTemplate.Validate("Copy to Posted Jnl. Lines", true);
@@ -70,9 +69,8 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
 
         // [GIVEN] Gen. Journal Template with batches and enabled "Copy to Posted Jnl. Lines"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        for i := 1 to 5 do begin
+        for i := 1 to 5 do
             LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        end;
         GenJournalTemplate.Validate("Copy to Posted Jnl. Lines", true);
         GenJournalTemplate.Modify(true);
 
@@ -113,7 +111,7 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
         asserterror GenJournalBatch.Validate("Copy to Posted Jnl. Lines", true);
 
         // [THEN] Error message that Gen. Journal Template "Copy to Posted Jnl. Lines"
-        Assert.ExpectedError('Copy to Posted Jnl. Lines must be equal to ''Yes''');
+        Assert.ExpectedTestFieldError(GenJournalBatch.FieldCaption("Copy to Posted Jnl. Lines"), Format(true));
     end;
 
     [Test]
@@ -132,7 +130,7 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
         asserterror GenJournalTemplate.Validate("Copy to Posted Jnl. Lines", true);
 
         // [THEN] Error message that recurring must not be enabled
-        Assert.ExpectedError('Recurring must be equal to ''No''');
+        Assert.ExpectedTestFieldError(GenJournalTemplate.FieldCaption(Recurring), Format(false));
     end;
 
     [Test]

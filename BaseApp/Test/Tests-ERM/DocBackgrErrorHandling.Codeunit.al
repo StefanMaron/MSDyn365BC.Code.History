@@ -23,10 +23,6 @@
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        EmptyJournalTemplNameErr: Label 'Journal Template Name must have a value';
-        EmptyDocumentDateErr: Label 'Document Date must have a value';
-        EmptyUnitOfMeasureCodeErr: Label 'Unit of Measure Code must have a value';
-        ReturnQtyToReceiveErr: Label 'Return Qty. to Receive must be equal to ''0''';
         InvalidDimensionsErr: Label 'The dimensions used in %1 %2 are invalid', Comment = '%1 = Document Type, %2 = Document No, %3 = Error text';
         CheckUnhandledErrorTxt: Label 'Check unhandled error', Locked = true;
 
@@ -36,6 +32,7 @@
     procedure SalesOrderNotification_Action_EnableThisForMe()
     var
         SalesHeader: Record "Sales Header";
+        GenJournalLine: Record "Gen. Journal Line";
         SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [Sales] 
@@ -57,7 +54,7 @@
 
         // [THEN] "Sales Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         SalesOrder.SalesDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, SalesOrder.SalesDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(SalesOrder.SalesDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
 
         // [THEN] Notification "Enable Data Check" is disabled
         VerifyNotificationOff();
@@ -96,6 +93,7 @@
     procedure SalesOrderOneError()
     var
         SalesHeader: Record "Sales Header";
+        GenJournalLine: Record "Gen. Journal Line";
         SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [Sales] 
@@ -111,7 +109,7 @@
 
         // [THEN] "Sales Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         SalesOrder.SalesDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, SalesOrder.SalesDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(SalesOrder.SalesDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
     end;
 
     [Test]
@@ -147,6 +145,7 @@
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        GenJournalLine: record "Gen. Journal Line";
         SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [Sales] 
@@ -169,8 +168,8 @@
 
         // [THEN] "Sales Doc. Check Factbox" shows 2 errors "Journal Template Name must have a value..." and "Return Qty. to Receive must be equal to 0"
         SalesOrder.SalesDocCheckFactbox.NumberOfErrors.AssertEquals(2);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, SalesOrder.SalesDocCheckFactbox.Error1.Value());
-        Assert.ExpectedMessage(ReturnQtyToReceiveErr, SalesOrder.SalesDocCheckFactbox.Error2.Value());
+        Assert.ExpectedTestFieldMessage(SalesOrder.SalesDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
+        Assert.ExpectedTestFieldMessage(SalesOrder.SalesDocCheckFactbox.Error2.Value(), SalesLine.FieldCaption("Return Qty. to Receive"), '', '', '');
     end;
 
     [Test]
@@ -289,6 +288,7 @@
     procedure SalesInvoiceOneError()
     var
         SalesHeader: Record "Sales Header";
+        GenJournalLine: Record "Gen. Journal Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [FEATURE] [Sales] 
@@ -304,7 +304,7 @@
 
         // [THEN] "Sales Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         SalesInvoice.SalesDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, SalesInvoice.SalesDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(SalesInvoice.SalesDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
     end;
 
     [Test]
@@ -312,6 +312,7 @@
     procedure SalesCreditMemoOneError()
     var
         SalesHeader: Record "Sales Header";
+        GenJournalLine: Record "Gen. Journal Line";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // [FEATURE] [Sales] 
@@ -327,7 +328,7 @@
 
         // [THEN] "Sales Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         SalesCreditMemo.SalesDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, SalesCreditMemo.SalesDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(SalesCreditMemo.SalesDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
     end;
 
     [Test]
@@ -335,6 +336,7 @@
     procedure SalesReturnOrderOneError()
     var
         SalesHeader: Record "Sales Header";
+        GenJournalLine: Record "Gen. Journal Line";
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [FEATURE] [Sales] 
@@ -350,7 +352,7 @@
 
         // [THEN] "Sales Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         SalesReturnOrder.SalesDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, SalesReturnOrder.SalesDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(SalesReturnOrder.SalesDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
     end;
 
     [Test]
@@ -358,6 +360,7 @@
     procedure PurchaseOrderOneError()
     var
         PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [FEATURE] [Purchase] 
@@ -373,7 +376,7 @@
 
         // [THEN] "Purchase Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         PurchaseOrder.PurchaseDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, PurchaseOrder.PurchaseDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(PurchaseOrder.PurchaseDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
     end;
 
     [Test]
@@ -381,6 +384,7 @@
     procedure PurchaseInvoiceOneError()
     var
         PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [FEATURE] [Purchase] 
@@ -396,7 +400,7 @@
 
         // [THEN] "Purchase Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         PurchaseInvoice.PurchaseDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, PurchaseInvoice.PurchaseDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(PurchaseInvoice.PurchaseDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
     end;
 
     [Test]
@@ -404,6 +408,7 @@
     procedure PurchaseReturnOrderOneError()
     var
         PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // [FEATURE] [Purchase] 
@@ -419,7 +424,7 @@
 
         // [THEN] "Purchase Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         PurchaseReturnOrder.PurchaseDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, PurchaseReturnOrder.PurchaseDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(PurchaseReturnOrder.PurchaseDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
     end;
 
     [Test]
@@ -427,6 +432,7 @@
     procedure PurchaseCreditMemoOneError()
     var
         PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // [FEATURE] [Purchase] 
@@ -442,7 +448,7 @@
 
         // [THEN] "Purchase Doc. Check Factbox" shows error "Journal Template Name must have a value..."
         PurchaseCreditMemo.PurchaseDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyJournalTemplNameErr, PurchaseCreditMemo.PurchaseDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(PurchaseCreditMemo.PurchaseDocCheckFactbox.Error1.Value(), GenJournalLine.FieldCaption("Journal Template Name"), '', '', '');
     end;
 
     [Test]
@@ -465,7 +471,7 @@
 
         // [THEN] "Service Doc. Check Factbox" shows error "Document Date must have a value..."
         ServiceOrder.ServiceDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyDocumentDateErr, ServiceOrder.ServiceDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(ServiceOrder.ServiceDocCheckFactbox.Error1.Value(), ServiceHeader.FieldCaption("Document Date"), '', '', '');
     end;
 
     [Test]
@@ -488,7 +494,7 @@
 
         // [THEN] "Service Doc. Check Factbox" shows error "Document Date must have a value..."
         ServiceInvoice.ServiceDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyDocumentDateErr, ServiceInvoice.ServiceDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(ServiceInvoice.ServiceDocCheckFactbox.Error1.Value(), ServiceHeader.FieldCaption("Document Date"), '', '', '');
     end;
 
     [Test]
@@ -511,7 +517,7 @@
 
         // [THEN] "Service Doc. Check Factbox" shows error "Document Date must have a value..."
         ServiceCreditMemo.ServiceDocCheckFactbox.NumberOfErrors.AssertEquals(1);
-        Assert.ExpectedMessage(EmptyDocumentDateErr, ServiceCreditMemo.ServiceDocCheckFactbox.Error1.Value());
+        Assert.ExpectedTestFieldMessage(ServiceCreditMemo.ServiceDocCheckFactbox.Error1.Value(), ServiceHeader.FieldCaption("Document Date"), '', '', '');
     end;
 
     [Test]
@@ -542,8 +548,8 @@
 
         // [THEN] "Service Doc. Check Factbox" shows error "Document Date must have a value..." and "Unit of Measure Code must have a value..."
         ServiceInvoice.ServiceDocCheckFactbox.NumberOfErrors.AssertEquals(2);
-        Assert.ExpectedMessage(EmptyDocumentDateErr, ServiceInvoice.ServiceDocCheckFactbox.Error1.Value());
-        Assert.ExpectedMessage(EmptyUnitOfMeasureCodeErr, ServiceInvoice.ServiceDocCheckFactbox.Error2.Value());
+        Assert.ExpectedTestFieldMessage(ServiceInvoice.ServiceDocCheckFactbox.Error1.Value(), ServiceHeader.FieldCaption("Document Date"), '', '', '');
+        Assert.ExpectedTestFieldMessage(ServiceInvoice.ServiceDocCheckFactbox.Error2.Value(), ServiceLine.FieldCaption("Unit of Measure Code"), '', '', '');
     end;
 
     [Test]
@@ -709,32 +715,28 @@
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesSetup do begin
-            Get();
-            Validate(
-                "S. Invoice Template Name",
-                CreateGenJournalTemplateWithPostingSeriesNo("Gen. Journal Template Type"::Sales, CreateNoSeriesCode()));
-            Validate(
-                "S. Cr. Memo Template Name",
-                CreateGenJournalTemplateWithPostingSeriesNo("Gen. Journal Template Type"::Sales, CreateNoSeriesCode()));
-            Modify(true);
-        end;
+        SalesSetup.Get();
+        SalesSetup.Validate(
+            "S. Invoice Template Name",
+            CreateGenJournalTemplateWithPostingSeriesNo("Gen. Journal Template Type"::Sales, CreateNoSeriesCode()));
+        SalesSetup.Validate(
+            "S. Cr. Memo Template Name",
+            CreateGenJournalTemplateWithPostingSeriesNo("Gen. Journal Template Type"::Sales, CreateNoSeriesCode()));
+        SalesSetup.Modify(true);
     end;
 
     local procedure UpdateNoSeriesInPurchaseSetup()
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchSetup do begin
-            Get();
-            Validate(
-                "P. Invoice Template Name",
-                CreateGenJournalTemplateWithPostingSeriesNo("Gen. Journal Template Type"::Purchases, CreateNoSeriesCode()));
-            Validate(
-                "P. Cr. Memo Template Name",
-                CreateGenJournalTemplateWithPostingSeriesNo("Gen. Journal Template Type"::Purchases, CreateNoSeriesCode()));
-            Modify(true);
-        end;
+        PurchSetup.Get();
+        PurchSetup.Validate(
+            "P. Invoice Template Name",
+            CreateGenJournalTemplateWithPostingSeriesNo("Gen. Journal Template Type"::Purchases, CreateNoSeriesCode()));
+        PurchSetup.Validate(
+            "P. Cr. Memo Template Name",
+            CreateGenJournalTemplateWithPostingSeriesNo("Gen. Journal Template Type"::Purchases, CreateNoSeriesCode()));
+        PurchSetup.Modify(true);
     end;
 
     local procedure CreateEmptyTemplatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")

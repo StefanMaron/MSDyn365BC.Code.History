@@ -21,7 +21,7 @@ report 32000001 "Ref. Payment Imported"
     {
         dataitem(RefPmtImp; "Ref. Payment - Imported")
         {
-            DataItemTableView = sorting("No.") ORDER(Ascending) where("Posted to G/L" = const(false));
+            DataItemTableView = sorting("No.") order(ascending) where("Posted to G/L" = const(false));
             RequestFilterFields = "Banks Posting Date";
             column(Time; Time)
             {
@@ -130,7 +130,7 @@ report 32000001 "Ref. Payment Imported"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = const(1));
+                DataItemTableView = sorting(Number) order(ascending) where(Number = const(1));
                 column(Number_IntegerLine; Number)
                 {
                 }

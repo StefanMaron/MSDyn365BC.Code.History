@@ -145,12 +145,14 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
 
     local procedure ResetIfAccSchedChanged(AccSchedName: Code[10])
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        AccSchedKPIWebSrvSetup2: Record "Acc. Sched. KPI Web Srv. Setup";
         AccSchedKPIWebSrvLine: Record "Acc. Sched. KPI Web Srv. Line";
     begin
         if AccSchedName = PrevAccSchedName then
             exit;
         PrevAccSchedName := AccSchedName;
-        if not AccSchedKPIWebSrvSetup.WritePermission then
+        if not AccSchedKPIWebSrvSetup2.WritePermission() then
             exit;
         if TempAccSchedKPIWebSrvLine.Get(AccSchedName) then begin
             ResetAccSchedKPIWevSrvSetup();
@@ -167,13 +169,15 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
     local procedure ResetIfGlBudgetChanged(GLBudgetEntryRecRef: RecordRef)
     var
         GLBudgetEntry: Record "G/L Budget Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        AccSchedKPIWebSrvSetup2: Record "Acc. Sched. KPI Web Srv. Setup";
     begin
         GLBudgetEntryRecRef.SetTable(GLBudgetEntry);
 
         if GLBudgetEntry."Budget Name" = PrevGlBudgetName then
             exit;
         PrevGlBudgetName := GLBudgetEntry."Budget Name";
-        if not AccSchedKPIWebSrvSetup.WritePermission then
+        if not AccSchedKPIWebSrvSetup2.WritePermission() then
             exit;
         if not AccSchedKPIWebSrvSetup.Get() then
             exit;

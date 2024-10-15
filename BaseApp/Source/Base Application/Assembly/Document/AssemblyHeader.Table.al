@@ -729,10 +729,10 @@ table 900 "Assembly Header"
                 NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, "Posting Date", "No.");
             end;
 #else
-			if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := GetNoSeriesCode();
+            if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #endif
         end;
@@ -771,21 +771,31 @@ table 900 "Assembly Header"
         ConfirmManagement: Codeunit "Confirm Management";
         GLSetupRead: Boolean;
         CurrentFieldNum: Integer;
+#pragma warning disable AA0470
         PostingDateLaterErr: Label 'Posting Date on Assembly Order %1 must not be later than the Posting Date on Sales Order %2.';
+#pragma warning restore AA0470
         RowIdx: Option ,MatCost,ResCost,ResOvhd,AsmOvhd,Total;
 
+#pragma warning disable AA0074
         Text001: Label '%1 %2 cannot be created, because it already exists or has been posted.', Comment = '%1 = Document Type, %2 = No.';
+#pragma warning disable AA0470
         Text002: Label '%1 cannot be lower than the %2, which is %3.';
         Text003: Label '%1 cannot be higher than the %2, which is %3.';
         Text005: Label 'Changing %1 or %2 is not allowed when %3 is %4.';
+#pragma warning restore AA0470
         Text007: Label 'Nothing to handle. The assembly line items are completely picked.';
+#pragma warning disable AA0470
         Text009: Label 'You cannot rename an %1.';
         Text010: Label 'You have modified %1.';
         Text011: Label 'the %1 from %2 to %3';
+#pragma warning restore AA0470
         Text012: Label '%1 %2', Locked = true;
+#pragma warning disable AA0470
         Text013: Label 'Do you want to update %1?';
         Text014: Label '%1 and %2';
+#pragma warning restore AA0470
         Text015: Label '%1 %2 is before %3 %4.', Comment = '%1 and %3 = Date Captions, %2 and %4 = Date Values';
+#pragma warning restore AA0074
         UpdateDimensionLineMsg: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         ConfirmDeleteQst: Label 'The items have been picked. If you delete the Assembly Header, then the items will remain in the operation area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the Assembly Header?';
 
@@ -1335,10 +1345,10 @@ table 900 "Assembly Header"
             exit(Result);
 
         Result :=
-          LeadTimeMgt.PlannedStartingDate(
-            "Item No.", "Location Code", "Variant Code", '',
-            LeadTimeMgt.ManufacturingLeadTime("Item No.", "Location Code", "Variant Code"),
-            ReqLine."Ref. Order Type"::Assembly, EndingDate);
+            LeadTimeMgt.GetPlannedStartingDate(
+                "Item No.", "Location Code", "Variant Code", '',
+                LeadTimeMgt.ManufacturingLeadTime("Item No.", "Location Code", "Variant Code"),
+                ReqLine."Ref. Order Type"::Assembly, EndingDate);
 
         OnAfterCalcStartDateFromEndDate(Rec, Result);
     end;
@@ -1351,10 +1361,10 @@ table 900 "Assembly Header"
         OnBeforeCalcEndDateFromStartDate(Rec);
 
         Result :=
-          LeadTimeMgt.PlannedEndingDate(
-            "Item No.", "Location Code", "Variant Code", '',
-            LeadTimeMgt.ManufacturingLeadTime("Item No.", "Location Code", "Variant Code"),
-            ReqLine."Ref. Order Type"::Assembly, StartingDate);
+            LeadTimeMgt.GetPlannedEndingDate(
+                "Item No.", "Location Code", "Variant Code", '',
+                LeadTimeMgt.ManufacturingLeadTime("Item No.", "Location Code", "Variant Code"),
+                ReqLine."Ref. Order Type"::Assembly, StartingDate);
 
         OnAfterCalcEndDateFromStartDate(Rec, Result);
     end;
@@ -1365,7 +1375,7 @@ table 900 "Assembly Header"
         LeadTimeMgt: Codeunit "Lead-Time Management";
     begin
         exit(
-          LeadTimeMgt.PlannedEndingDate(
+          LeadTimeMgt.GetPlannedEndingDate(
             "Item No.", "Location Code", "Variant Code", DueDate, '', ReqLine."Ref. Order Type"::Assembly));
     end;
 
@@ -1375,7 +1385,7 @@ table 900 "Assembly Header"
         LeadTimeMgt: Codeunit "Lead-Time Management";
     begin
         exit(
-          LeadTimeMgt.PlannedDueDate(
+          LeadTimeMgt.GetPlannedDueDate(
             "Item No.", "Location Code", "Variant Code", EndingDate, '', ReqLine."Ref. Order Type"::Assembly));
     end;
 
@@ -1764,7 +1774,7 @@ table 900 "Assembly Header"
     var
         OrderTracking: Page "Order Tracking";
     begin
-        OrderTracking.SetAsmHeader(Rec);
+        OrderTracking.SetVariantRec(Rec, Rec."No.", Rec."Remaining Quantity (Base)", Rec."Due Date", Rec."Due Date");
         OrderTracking.RunModal();
     end;
 

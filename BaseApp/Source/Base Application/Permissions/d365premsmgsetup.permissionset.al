@@ -1,17 +1,17 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Loaner;
-using Microsoft.Service.Resources;
-using Microsoft.Service.Pricing;
-using Microsoft.Service.Setup;
 using Microsoft.Service.Document;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Resources;
+using Microsoft.Service.Setup;
 
 permissionset 6524 "D365PREM SMG, SETUP"
 {
     Assignable = true;
-
     Caption = 'D365 Service Management Setup';
+
     Permissions = tabledata "Fault Area" = RIMD,
                   tabledata "Fault Code" = RIMD,
                   tabledata "Fault Reason Code" = RIMD,

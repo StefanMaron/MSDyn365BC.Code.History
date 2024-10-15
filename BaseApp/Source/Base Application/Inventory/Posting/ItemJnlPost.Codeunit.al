@@ -25,11 +25,15 @@ codeunit 241 "Item Jnl.-Post"
         SuppressCommit: Boolean;
         HideDialog: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'cannot be filtered when posting recurring journals';
         Text001: Label 'Do you want to post the journal lines?';
         Text003: Label 'The journal lines were successfully posted.';
         Text004: Label 'The journal lines were successfully posted. ';
+#pragma warning disable AA0470
         Text005: Label 'You are now in the %1 journal.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

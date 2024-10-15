@@ -12,16 +12,10 @@ table 11204 "Automatic Acc. Line"
 {
     Caption = 'Automatic Acc. Line';
     ObsoleteReason = 'Moved to Automatic Account Codes app.';
-#if CLEAN22
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#else
-    DrillDownPageID = "Automatic Acc. Line";
-    LookupPageID = "Automatic Acc. Line";
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#endif
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
@@ -52,7 +46,7 @@ table 11204 "Automatic Acc. Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnValidate()
             begin
@@ -63,7 +57,7 @@ table 11204 "Automatic Acc. Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnValidate()
             begin
@@ -72,7 +66,7 @@ table 11204 "Automatic Acc. Line"
         }
         field(7; Description; Text[50])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("G/L Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("G/L Account No.")));
             Caption = 'Description';
             Editable = false;
             FieldClass = FlowField;

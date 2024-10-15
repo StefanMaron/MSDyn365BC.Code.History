@@ -1584,9 +1584,9 @@ codeunit 134099 "Purchase Documents"
 
         // [WHEN] User set "Buy-from Contact No." = "C2" by validate page field
         LibraryVariableStorage.Enqueue(Contact2."No.");
-        LibraryVariableStorage.Enqueue(True);  // true for "Do you want to change Sell-to Contact No.?"
+        LibraryVariableStorage.Enqueue(true);  // true for "Do you want to change Sell-to Contact No.?"
         LibraryVariableStorage.Enqueue(0);     // init value for count of confirmation handlers
-        LibraryVariableStorage.Enqueue(False); // false for "Do you want to change Bill-to Contact No.?"
+        LibraryVariableStorage.Enqueue(false); // false for "Do you want to change Bill-to Contact No.?"
         PurchaseOrder."Buy-from Contact No.".Lookup();
 
         // [THEN] "Purchase Order"."Phone No." = "333333333"
@@ -1646,9 +1646,6 @@ codeunit 134099 "Purchase Documents"
 
     local procedure Initialize()
     var
-#if not CLEAN22
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         ReportSelections: Record "Report Selections";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
@@ -1665,15 +1662,6 @@ codeunit 134099 "Purchase Documents"
 
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-#if not CLEAN22
-        if not IntrastatSetup.Get() then begin
-            IntrastatSetup.Init();
-            IntrastatSetup.Insert();
-        end;
-        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup();
-
-        LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
-#endif
 
         ReportSelections.SetRange(Usage, LibraryERMCountryData.GetReportSelectionsUsagePurchaseQuote());
         ReportSelections.ModifyAll("Report ID", REPORT::"Purchase - Quote");

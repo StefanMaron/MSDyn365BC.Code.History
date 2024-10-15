@@ -791,18 +791,6 @@ page 54 "Purchase Order Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-#if not CLEAN22
-                field("Auto. Acc. Group"; Rec."Auto. Acc. Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code of the automatic account group on the purchase order line that was posted.';
-                    Visible = not IsAutomaticAccountCodesEnabled;
-                    Enabled = not IsAutomaticAccountCodesEnabled;
-                    ObsoleteReason = 'Moved to Automatic Account Codes app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -1131,7 +1119,7 @@ page 54 "Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -1143,7 +1131,7 @@ page 54 "Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -1155,7 +1143,7 @@ page 54 "Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -1168,7 +1156,7 @@ page 54 "Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -1192,7 +1180,7 @@ page 54 "Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -1217,7 +1205,7 @@ page 54 "Purchase Order Subform"
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
                     Enabled = Rec.Type = Rec.Type::Item;
-                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                    ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -1422,7 +1410,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowTracking();
+                        Rec.ShowOrderTracking();
                     end;
                 }
             }
@@ -1542,7 +1530,7 @@ page 54 "Purchase Order Subform"
                         EditinExcel: Codeunit "Edit in Excel";
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                     begin
-                        EditinExcelFilters.AddField('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
 
                         EditinExcel.EditPageInExcel(
                             'Purchase_Order_Line',
@@ -1612,9 +1600,6 @@ page 54 "Purchase Order Subform"
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
         Currency.InitRoundingPrecision();
-#if not CLEAN22
-        IsAutomaticAccountCodesEnabled := FeatureKeyManagement.IsAutomaticAccountCodesEnabled();
-#endif
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1649,14 +1634,12 @@ page 54 "Purchase Order Subform"
         InventorySetup: Record "Inventory Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
+#pragma warning disable AA0074
         Text001: Label 'You cannot use the Explode BOM function because a prepayment of the purchase order has been invoiced.';
+#pragma warning restore AA0074
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
-#if not CLEAN22
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsAutomaticAccountCodesEnabled: Boolean;
-#endif
         AmountWithDiscountAllowed: Decimal;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
@@ -1781,11 +1764,8 @@ page 54 "Purchase Order Subform"
     end;
 
     procedure ShowTracking()
-    var
-        TrackingForm: Page "Order Tracking";
     begin
-        TrackingForm.SetPurchLine(Rec);
-        TrackingForm.RunModal();
+        Rec.ShowOrderTracking();
     end;
 
     protected procedure OpenSpecOrderSalesOrderForm()

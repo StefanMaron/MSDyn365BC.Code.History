@@ -409,24 +409,22 @@ codeunit 144024 "Test Suggest Vendor Payments"
         InvoiceMessage2: Text[250];
     begin
         Precision := LibraryRandom.RandIntInRange(2, 5);
-        with PurchaseHeader do begin
-            if MessageType <> "Message Type"::"Reference No." then begin
-                InvoiceMessage :=
-                  LibraryUtility.GenerateRandomCode(FieldNo("Invoice Message"), DATABASE::"Purchase Header");
-                InvoiceMessage2 :=
-                  LibraryUtility.GenerateRandomCode(FieldNo("Invoice Message 2"), DATABASE::"Purchase Header");
-            end else
-                InvoiceMessage := '268745';
-            LibraryInventory.CreateItem(Item);
+        if MessageType <> PurchaseHeader."Message Type"::"Reference No." then begin
+            InvoiceMessage :=
+              LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Invoice Message"), DATABASE::"Purchase Header");
+            InvoiceMessage2 :=
+              LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Invoice Message 2"), DATABASE::"Purchase Header");
+        end else
+            InvoiceMessage := '268745';
+        LibraryInventory.CreateItem(Item);
 
-            DocumentNo :=
-              CreateAndPostPurchaseDocument(
-                PurchaseHeader, DocumentType, VendorNo,
-                PurchaseLine.Type::Item, Item."No.",
-                LibraryRandom.RandDec(1000, Precision), LibraryRandom.RandDec(1000, Precision),
-                ToShipReceive, ToInvoice,
-                MessageType, InvoiceMessage, InvoiceMessage2);
-        end;
+        DocumentNo :=
+          CreateAndPostPurchaseDocument(
+            PurchaseHeader, DocumentType, VendorNo,
+            PurchaseLine.Type::Item, Item."No.",
+            LibraryRandom.RandDec(1000, Precision), LibraryRandom.RandDec(1000, Precision),
+            ToShipReceive, ToInvoice,
+            MessageType, InvoiceMessage, InvoiceMessage2);
 
         exit(DocumentNo);
     end;
@@ -439,18 +437,14 @@ codeunit 144024 "Test Suggest Vendor Payments"
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify();
 
-        with PurchaseHeader do begin
-            Validate("Message Type", MessageType);
-            Validate("Invoice Message", InvoiceMessage);
-            Validate("Invoice Message 2", InvoiceMessage2);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Message Type", MessageType);
+        PurchaseHeader.Validate("Invoice Message", InvoiceMessage);
+        PurchaseHeader.Validate("Invoice Message 2", InvoiceMessage2);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, No, Quantity);
-        with PurchaseLine do begin
-            Validate("VAT %", 0);
-            Validate("Direct Unit Cost", Cost);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("VAT %", 0);
+        PurchaseLine.Validate("Direct Unit Cost", Cost);
+        PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument2(PurchaseHeader, ToShipReceive, ToInvoice));
     end;
 

@@ -130,7 +130,11 @@ report 7314 "Whse. Change Unit of Measure"
         QtyAvailBase: Decimal;
         QtyChangeBase: Decimal;
         ChangeUOM2: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The %1 %2 exceeds the Quantity available to pick %3 of the %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure DefWhseActLine(WhseActLine2: Record "Warehouse Activity Line")
     begin

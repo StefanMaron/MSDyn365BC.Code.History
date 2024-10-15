@@ -212,18 +212,6 @@ page 133 "Posted Sales Invoice Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
-#if not CLEAN22
-                field("Auto. Acc. Group"; Rec."Auto. Acc. Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code of the automatic account group on the sales invoice line that was posted.';
-                    Visible = not IsAutomaticAccountCodesEnabled;
-                    Enabled = not IsAutomaticAccountCodesEnabled;
-                    ObsoleteReason = 'Moved to Automatic Account Codes app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -419,7 +407,7 @@ page 133 "Posted Sales Invoice Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                    ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                     trigger OnAction()
                     begin
@@ -501,9 +489,6 @@ page 133 "Posted Sales Invoice Subform"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
-#if not CLEAN22
-        IsAutomaticAccountCodesEnabled := FeatureKeyManagement.IsAutomaticAccountCodesEnabled();
-#endif
     end;
 
     trigger OnOpenPage()
@@ -513,10 +498,6 @@ page 133 "Posted Sales Invoice Subform"
 
     var
         DocumentTotals: Codeunit "Document Totals";
-#if not CLEAN22
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsAutomaticAccountCodesEnabled: Boolean;
-#endif
         IsFoundation: Boolean;
 
     protected var

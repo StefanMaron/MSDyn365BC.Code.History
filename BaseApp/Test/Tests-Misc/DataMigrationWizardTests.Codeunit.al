@@ -723,27 +723,25 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
-        with DataMigrationWizard do begin
-            VerifyDataTypeBuffer(OnRegisterDataMigratorTxt, true);
+        VerifyDataTypeBuffer(OnRegisterDataMigratorTxt, true);
 
-            ActionNext.Invoke(); // Choose Data Source page
-            ActionBack.Invoke(); // Welcome page
-            ActionNext.Invoke(); // Choose Data Source page
-            Description.Lookup();
-            Assert.AreEqual('Test', Description.Value, 'The Test data migrator was not selected.');
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.ActionBack.Invoke(); // Welcome page
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        Assert.AreEqual('Test', DataMigrationWizard.Description.Value, 'The Test data migrator was not selected.');
 
-            ActionNext.Invoke(); // Upload Data File page
-            VerifyDataTypeBuffer(OnGetInstructionsTxt, true);
+        DataMigrationWizard.ActionNext.Invoke(); // Upload Data File page
+        VerifyDataTypeBuffer(OnGetInstructionsTxt, true);
 
-            ActionNext.Invoke(); // Apply Imported Data page
-            VerifyDataTypeBuffer(OnDataImportTxt, true);
-            VerifyDataTypeBuffer(OnSelectDataToApplyTxt, true);
+        DataMigrationWizard.ActionNext.Invoke(); // Apply Imported Data page
+        VerifyDataTypeBuffer(OnDataImportTxt, true);
+        VerifyDataTypeBuffer(OnSelectDataToApplyTxt, true);
 
-            ActionApply.Invoke(); // That's it page
-            VerifyDataTypeBuffer(OnApplySelectedDataTxt, true);
+        DataMigrationWizard.ActionApply.Invoke(); // That's it page
+        VerifyDataTypeBuffer(OnApplySelectedDataTxt, true);
 
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-        end;
+        Assert.IsFalse(DataMigrationWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
     end;
 
     local procedure RunWizardToApply(var DataMigrationWizard: TestPage "Data Migration Wizard")
@@ -751,14 +749,12 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
-        with DataMigrationWizard do begin
-            ActionNext.Invoke(); // Choose Data Source page
-            ActionBack.Invoke(); // Welcome page
-            ActionNext.Invoke(); // Choose Data Source page
-            Description.Lookup();
-            ActionNext.Invoke(); // Upload Data File page
-            ActionNext.Invoke(); // Apply Imported Data page
-        end;
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.ActionBack.Invoke(); // Welcome page
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionNext.Invoke(); // Upload Data File page
+        DataMigrationWizard.ActionNext.Invoke(); // Apply Imported Data page
     end;
 
     local procedure InsertDataMigrationEntityRecord(var DataMigrationEntity: Record "Data Migration Entity")

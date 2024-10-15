@@ -3051,6 +3051,9 @@ End Function
         <Field Name="ShipToAddress8">
           <DataField>ShipToAddress8</DataField>
         </Field>
+        <Field Name="ShipToPhoneNo">
+          <DataField>ShipToPhoneNo</DataField>
+        </Field>
         <Field Name="SellToContactPhoneNoLbl">
           <DataField>SellToContactPhoneNoLbl</DataField>
         </Field>

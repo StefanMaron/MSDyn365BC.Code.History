@@ -782,7 +782,9 @@ report 208 "Sales - Shipment"
         AsmHeaderExists: Boolean;
         LinNo: Integer;
 
+#pragma warning disable AA0074
         Text002: Label 'Sales - Shipment %1', Comment = '%1 = Document No.';
+#pragma warning restore AA0074
         ItemTrackingAppendixCaptionLbl: Label 'Item Tracking - Appendix';
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegNoCaptionLbl: Label 'VAT Reg. No.';
@@ -802,7 +804,11 @@ report 208 "Sales - Shipment"
         LotNoCaptionLbl: Label 'Lot No.';
         DescriptionCaptionLbl: Label 'Description';
         NoCaptionLbl: Label 'No.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         PageCaptionCap: Label 'Page %1 of %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BusinessIdentityCodeLbl: Label 'Business Identity Code';
         RegisteredHomeCityLbl: Label 'Registered Home City';
         OurDocumentNoLbl: Label 'Our Document No.';

@@ -126,33 +126,27 @@ codeunit 144026 "SEPA Bank Payment Export"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            "Country/Region Code" := CountryCode;
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation."Country/Region Code" := CountryCode;
+        CompanyInformation.Modify();
     end;
 
     local procedure InitGeneralLedgerSetup(LCYCode: Code[10])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "LCY Code" := LCYCode;
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := LCYCode;
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure InitCountryRegion(CountryCode: Code[10]; SepaAllowed: Boolean)
     var
         CountryRegion: Record "Country/Region";
     begin
-        with CountryRegion do begin
-            Get(CountryCode);
-            "SEPA Allowed" := SepaAllowed;
-            Modify();
-        end;
+        CountryRegion.Get(CountryCode);
+        CountryRegion."SEPA Allowed" := SepaAllowed;
+        CountryRegion.Modify();
     end;
 
     local procedure SetupNoSeries(Default: Boolean; Manual: Boolean; DateOrder: Boolean; StartingNo: Code[20]; EndingNo: Code[20])
@@ -164,45 +158,39 @@ codeunit 144026 "SEPA Bank Payment Export"
         LibraryUtility.CreateNoSeries(NoSeries, Default, Manual, DateOrder);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, StartingNo, EndingNo);
 
-        with PurchasesPayablesSetup do begin
-            Get();
-            "Bank Batch Nos." := NoSeries.Code;
-            Modify();
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Bank Batch Nos." := NoSeries.Code;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure CreateBankAccount(CountryCode: Code[10]; IBANCode: Code[50]; PmtExpFormat: Code[20]; SEPACTNoSeries: Code[20]): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
-        with BankAccount do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Bank Account");
-            Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Bank Account");
-            "SWIFT Code" := LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Bank Account");
-            "Country/Region Code" := CountryCode;
-            Validate("Post Code", FindPostCode(CountryCode));
-            "Bank Branch No." := LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Bank Account");
-            "Bank Account No." := CreateGLAccount();
-            "Bank Acc. Posting Group" := CreateBankAccountPostingGroup();
-            "Transit No." := LibraryUtility.GenerateRandomCode(FieldNo("Transit No."), DATABASE::"Bank Account");
-            Validate(IBAN, IBANCode);
-            "Payment Export Format" := PmtExpFormat;
-            "Credit Transfer Msg. Nos." := SEPACTNoSeries;
-            Insert();
-            exit("No.");
-        end
+        BankAccount.Init();
+        BankAccount."No." := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("No."), DATABASE::"Bank Account");
+        BankAccount.Name := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(Name), DATABASE::"Bank Account");
+        BankAccount."SWIFT Code" := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account");
+        BankAccount."Country/Region Code" := CountryCode;
+        BankAccount.Validate("Post Code", FindPostCode(CountryCode));
+        BankAccount."Bank Branch No." := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Branch No."), DATABASE::"Bank Account");
+        BankAccount."Bank Account No." := CreateGLAccount();
+        BankAccount."Bank Acc. Posting Group" := CreateBankAccountPostingGroup();
+        BankAccount."Transit No." := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Transit No."), DATABASE::"Bank Account");
+        BankAccount.Validate(IBAN, IBANCode);
+        BankAccount."Payment Export Format" := PmtExpFormat;
+        BankAccount."Credit Transfer Msg. Nos." := SEPACTNoSeries;
+        BankAccount.Insert();
+        exit(BankAccount."No.");
     end;
 
     local procedure FindPostCode(CountryCode: Code[10]): Code[20]
     var
         PostCode: Record "Post Code";
     begin
-        with PostCode do begin
-            SetRange("Country/Region Code", CountryCode);
-            FindFirst();
-            exit(Code);
-        end;
+        PostCode.SetRange("Country/Region Code", CountryCode);
+        PostCode.FindFirst();
+        exit(PostCode.Code);
     end;
 
     local procedure CreateGLAccount(): Code[20]
@@ -217,27 +205,23 @@ codeunit 144026 "SEPA Bank Payment Export"
     var
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        with BankAccountPostingGroup do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Bank Account Posting Group");
-            "G/L Account No." := CreateGLAccount();
-            Insert();
-            exit(Code);
-        end;
+        BankAccountPostingGroup.Init();
+        BankAccountPostingGroup.Code := LibraryUtility.GenerateRandomCode(BankAccountPostingGroup.FieldNo(Code), DATABASE::"Bank Account Posting Group");
+        BankAccountPostingGroup."G/L Account No." := CreateGLAccount();
+        BankAccountPostingGroup.Insert();
+        exit(BankAccountPostingGroup.Code);
     end;
 
     local procedure CreateBankAccountReferenceFileSetup(var ReferenceFileSetup: Record "Reference File Setup"; BankAccountNo: Code[20])
     var
         FieldLength: Integer;
     begin
-        with ReferenceFileSetup do begin
-            Init();
-            "No." := BankAccountNo;
-            Validate("Bank Party ID", LibraryUtility.GenerateRandomCode(FieldNo("Bank Party ID"), DATABASE::"Reference File Setup"));
-            "File Name" :=
-              CopyStr(GenerateFileName(FieldNo("File Name"), DATABASE::"Reference File Setup", 'xml', FieldLength), 1, FieldLength);
-            Insert();
-        end;
+        ReferenceFileSetup.Init();
+        ReferenceFileSetup."No." := BankAccountNo;
+        ReferenceFileSetup.Validate("Bank Party ID", LibraryUtility.GenerateRandomCode(ReferenceFileSetup.FieldNo("Bank Party ID"), DATABASE::"Reference File Setup"));
+        ReferenceFileSetup."File Name" :=
+          CopyStr(GenerateFileName(ReferenceFileSetup.FieldNo("File Name"), DATABASE::"Reference File Setup", 'xml', FieldLength), 1, FieldLength);
+        ReferenceFileSetup.Insert();
     end;
 
     local procedure GenerateFileName(FieldNo: Integer; TableNo: Integer; Extension: Text; var FieldLength: Integer): Text
@@ -263,40 +247,36 @@ codeunit 144026 "SEPA Bank Payment Export"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            "Country/Region Code" := CountryCode;
-            Validate("Post Code", FindPostCode(CountryCode));
-            "Business Identity Code" :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Business Identity Code"), DATABASE::Vendor);
-            "Our Account No." := CreateGLAccount();
-            Priority := VendorPriority;
-            "Preferred Bank Account Code" := CreateVendorBankAccount("No.", CountryCode, IBANCode, SEPAPayment);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor."Country/Region Code" := CountryCode;
+        Vendor.Validate("Post Code", FindPostCode(CountryCode));
+        Vendor."Business Identity Code" :=
+          LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Business Identity Code"), DATABASE::Vendor);
+        Vendor."Our Account No." := CreateGLAccount();
+        Vendor.Priority := VendorPriority;
+        Vendor."Preferred Bank Account Code" := CreateVendorBankAccount(Vendor."No.", CountryCode, IBANCode, SEPAPayment);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorBankAccount(VendorNo: Code[20]; CountryCode: Code[10]; IBANCode: Code[50]; SEPAPayment: Boolean): Code[10]
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        with VendorBankAccount do begin
-            Init();
-            "Vendor No." := VendorNo;
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Bank Account");
-            Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Vendor Bank Account");
-            "SWIFT Code" := LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Vendor Bank Account");
-            "Country/Region Code" := CountryCode;
-            "Post Code" := FindPostCode(CountryCode);
-            "Bank Branch No." := LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Vendor Bank Account");
-            "Bank Account No." := CreateGLAccount();
-            "Transit No." := LibraryUtility.GenerateRandomCode(FieldNo("Transit No."), DATABASE::"Vendor Bank Account");
-            IBAN := IBANCode;
-            "SEPA Payment" := SEPAPayment;
-            "Clearing Code" := LibraryUtility.GenerateRandomCode(FieldNo("Clearing Code"), DATABASE::"Vendor Bank Account");
-            Insert();
-            exit(Code);
-        end;
+        VendorBankAccount.Init();
+        VendorBankAccount."Vendor No." := VendorNo;
+        VendorBankAccount.Code := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo(Code), DATABASE::"Vendor Bank Account");
+        VendorBankAccount.Name := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo(Name), DATABASE::"Vendor Bank Account");
+        VendorBankAccount."SWIFT Code" := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("SWIFT Code"), DATABASE::"Vendor Bank Account");
+        VendorBankAccount."Country/Region Code" := CountryCode;
+        VendorBankAccount."Post Code" := FindPostCode(CountryCode);
+        VendorBankAccount."Bank Branch No." := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Bank Branch No."), DATABASE::"Vendor Bank Account");
+        VendorBankAccount."Bank Account No." := CreateGLAccount();
+        VendorBankAccount."Transit No." := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Transit No."), DATABASE::"Vendor Bank Account");
+        VendorBankAccount.IBAN := IBANCode;
+        VendorBankAccount."SEPA Payment" := SEPAPayment;
+        VendorBankAccount."Clearing Code" := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Clearing Code"), DATABASE::"Vendor Bank Account");
+        VendorBankAccount.Insert();
+        exit(VendorBankAccount.Code);
     end;
 
     local procedure CreateReferancePaymentExportLines(BankAccountNo: Code[20]; VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header"): Code[20]
@@ -327,21 +307,19 @@ codeunit 144026 "SEPA Bank Payment Export"
         InvoiceMessage2: Text[250];
     begin
         Precision := LibraryRandom.RandIntInRange(2, 5);
-        with PurchaseHeader do begin
-            InvoiceMessage :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Invoice Message"), DATABASE::"Purchase Header");
-            InvoiceMessage2 :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Invoice Message 2"), DATABASE::"Purchase Header");
-            LibraryInventory.CreateItem(Item);
+        InvoiceMessage :=
+          LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Invoice Message"), DATABASE::"Purchase Header");
+        InvoiceMessage2 :=
+          LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Invoice Message 2"), DATABASE::"Purchase Header");
+        LibraryInventory.CreateItem(Item);
 
-            DocumentNo :=
-              CreateAndPostPurchaseDocument(
-                PurchaseHeader, DocumentType, VendorNo,
-                PurchaseLine.Type::Item, Item."No.",
-                LibraryRandom.RandDec(1000, Precision), LibraryRandom.RandDec(1000, Precision),
-                ToShipReceive, ToInvoice,
-                InvoiceMessage, InvoiceMessage2);
-        end;
+        DocumentNo :=
+          CreateAndPostPurchaseDocument(
+            PurchaseHeader, DocumentType, VendorNo,
+            PurchaseLine.Type::Item, Item."No.",
+            LibraryRandom.RandDec(1000, Precision), LibraryRandom.RandDec(1000, Precision),
+            ToShipReceive, ToInvoice,
+            InvoiceMessage, InvoiceMessage2);
 
         exit(DocumentNo);
     end;
@@ -351,16 +329,12 @@ codeunit 144026 "SEPA Bank Payment Export"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        with PurchaseHeader do begin
-            Validate("Invoice Message", InvoiceMessage);
-            Validate("Invoice Message 2", InvoiceMessage2);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Invoice Message", InvoiceMessage);
+        PurchaseHeader.Validate("Invoice Message 2", InvoiceMessage2);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, No, Quantity);
-        with PurchaseLine do begin
-            Validate("Direct Unit Cost", Cost);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Direct Unit Cost", Cost);
+        PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ToShipReceive, ToInvoice));
     end;
 

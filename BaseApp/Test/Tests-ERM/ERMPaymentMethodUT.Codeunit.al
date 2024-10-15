@@ -15,7 +15,6 @@ codeunit 134405 "ERM Payment Method UT"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        TestFieldErr: Label '%1 must be equal to ''%2''  in %3: %4=%5.', Comment = '%1=Field;%2=Value;%3=Tablecaption;%4=Field;%5=Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -121,8 +120,7 @@ codeunit 134405 "ERM Payment Method UT"
         asserterror PaymentMethod.Validate("Direct Debit", true);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, PaymentMethod.FieldCaption("Bal. Account No."), '',
-            PaymentMethod.TableCaption(), PaymentMethod.FieldCaption(Code), PaymentMethod.Code));
+        Assert.ExpectedTestFieldError(PaymentMethod.FieldCaption("Bal. Account No."), '');
     end;
 
     [Test]
@@ -143,8 +141,7 @@ codeunit 134405 "ERM Payment Method UT"
         asserterror PaymentMethod.Validate("Direct Debit Pmt. Terms Code", PaymentTerms.Code);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, PaymentMethod.FieldCaption("Direct Debit"), true,
-            PaymentMethod.TableCaption(), PaymentMethod.FieldCaption(Code), PaymentMethod.Code));
+        Assert.ExpectedTestFieldError(PaymentMethod.FieldCaption("Direct Debit"), Format(true));
     end;
 
     [Test]

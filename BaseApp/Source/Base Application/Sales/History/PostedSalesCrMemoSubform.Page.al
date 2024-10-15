@@ -192,18 +192,6 @@ page 135 "Posted Sales Cr. Memo Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
-#if not CLEAN22
-                field("Auto. Acc. Group"; Rec."Auto. Acc. Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code of the automatic account group on the sales credit memo line that was posted.';
-                    Visible = not IsAutomaticAccountCodesEnabled;
-                    Enabled = not IsAutomaticAccountCodesEnabled;
-                    ObsoleteReason = 'Moved to Automatic Account Codes app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -411,7 +399,7 @@ page 135 "Posted Sales Cr. Memo Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                    ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                     trigger OnAction()
                     begin
@@ -479,9 +467,6 @@ page 135 "Posted Sales Cr. Memo Subform"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
-#if not CLEAN22
-        IsAutomaticAccountCodesEnabled := FeatureKeyManagement.IsAutomaticAccountCodesEnabled();
-#endif
     end;
 
     trigger OnOpenPage()
@@ -495,12 +480,6 @@ page 135 "Posted Sales Cr. Memo Subform"
 
     protected var
         TotalSalesCrMemoHeader: Record "Sales Cr.Memo Header";
-#if not CLEAN22
-        [Obsolete('Feature merged to W1', '22.0')]
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        [Obsolete('Feature merged to W1', '22.0')]
-        IsAutomaticAccountCodesEnabled: Boolean;
-#endif
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

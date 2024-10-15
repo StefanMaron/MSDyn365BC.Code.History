@@ -456,11 +456,9 @@ codeunit 134479 "ERM Dimension Combination"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        with GLBudgetName do begin
-            Validate("Budget Dimension 1 Code", Dimension1Code);
-            Validate("Budget Dimension 2 Code", Dimension2Code);
-            Modify(true);
-        end;
+        GLBudgetName.Validate("Budget Dimension 1 Code", Dimension1Code);
+        GLBudgetName.Validate("Budget Dimension 2 Code", Dimension2Code);
+        GLBudgetName.Modify(true);
         GLBudgetEntry.Init();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), GLAccount."No.", GLBudgetName.Name);

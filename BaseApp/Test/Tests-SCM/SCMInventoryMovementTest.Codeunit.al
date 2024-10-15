@@ -144,8 +144,8 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // Post output
         asserterror PostOutput(ProductionOrder);
-        if StrPos(GetLastErrorText, 'The Bin Content does not exist.') = 0 then
-            Assert.Fail(StrSubstNo('%1', GetLastErrorText));
+        Assert.ExpectedErrorCannotFind(Database::"Bin Content");
+
         ClearLastError();
     end;
 
@@ -251,8 +251,8 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // Post output
         asserterror PostOutput(ProductionOrder);
-        if StrPos(GetLastErrorText, 'The Bin Content does not exist.') = 0 then
-            Assert.Fail(StrSubstNo('%1', GetLastErrorText));
+        Assert.ExpectedErrorCannotFind(Database::"Bin Content");
+
         ClearLastError();
     end;
 
@@ -512,32 +512,27 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // [GIVEN] Created Inventory Movement from Internal Movement
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::"Invt. Movement");
-            SetRange("Action Type", "Action Type"::Take);
-            SetRange("Item No.", ItemJournalLine."Item No.");
-            SetRange("Bin Code", ItemJournalLine."Bin Code");
-            FindFirst();
-            WarehouseActivityHeader.Get("Activity Type", "No.");
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        WarehouseActivityLine.SetRange("Bin Code", ItemJournalLine."Bin Code");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
 
         // [WHEN] Register Inventory Movement
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-
         // [THEN] Registered Invt. Movement Take Line has 10 PCS of the Item and the Bin
-        with RegisteredInvtMovementLine do begin
-            SetRange("Item No.", ItemJournalLine."Item No.");
-            SetRange("Action Type", "Action Type"::Take);
-            FindFirst();
-            TestField("Bin Code", ItemJournalLine."Bin Code");
-            TestField(Quantity, ItemJournalLine.Quantity);
+        RegisteredInvtMovementLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Take);
+        RegisteredInvtMovementLine.FindFirst();
+        RegisteredInvtMovementLine.TestField("Bin Code", ItemJournalLine."Bin Code");
+        RegisteredInvtMovementLine.TestField(Quantity, ItemJournalLine.Quantity);
 
-            SetRange("Action Type", "Action Type"::Place);
-            FindFirst();
-            TestField("Bin Code", Bin.Code);
-            TestField(Quantity, ItemJournalLine.Quantity);
-        end;
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Place);
+        RegisteredInvtMovementLine.FindFirst();
+        RegisteredInvtMovementLine.TestField("Bin Code", Bin.Code);
+        RegisteredInvtMovementLine.TestField(Quantity, ItemJournalLine.Quantity);
     end;
 
     [Test]
@@ -693,34 +688,28 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // [WHEN] Create Inventory Movement from Warehouse Worksheet Line
         CreateInventoryPickMovement.CreateInvtMvntWithoutSource(WhseWorksheetLine);
-
         // [THEN] Inventory Movement document is created
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::"Invt. Movement");
-            SetRange("Action Type", "Action Type"::Take);
-            SetRange("Item No.", ItemJournalLine."Item No.");
-            SetRange("Bin Code", ItemJournalLine."Bin Code");
-            FindFirst();
-            WarehouseActivityHeader.Get("Activity Type", "No.");
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        WarehouseActivityLine.SetRange("Bin Code", ItemJournalLine."Bin Code");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
 
         // [WHEN] Register Inventory Movement
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-
         // [THEN] Registered Invt. Movement Take Line has 10 PCS of the Item and the Bin
-        with RegisteredInvtMovementLine do begin
-            SetRange("Item No.", ItemJournalLine."Item No.");
-            SetRange("Action Type", "Action Type"::Take);
-            FindFirst();
-            TestField("Bin Code", FromBin.Code);
-            TestField(Quantity, ItemJournalLine.Quantity);
+        RegisteredInvtMovementLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Take);
+        RegisteredInvtMovementLine.FindFirst();
+        RegisteredInvtMovementLine.TestField("Bin Code", FromBin.Code);
+        RegisteredInvtMovementLine.TestField(Quantity, ItemJournalLine.Quantity);
 
-            SetRange("Action Type", "Action Type"::Place);
-            FindFirst();
-            TestField("Bin Code", ToBin.Code);
-            TestField(Quantity, ItemJournalLine.Quantity);
-        end;
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Place);
+        RegisteredInvtMovementLine.FindFirst();
+        RegisteredInvtMovementLine.TestField("Bin Code", ToBin.Code);
+        RegisteredInvtMovementLine.TestField(Quantity, ItemJournalLine.Quantity);
     end;
 
     [Test]
@@ -1320,18 +1309,16 @@ codeunit 137200 "SCM Inventory Movement Test"
         ProdOrderComponent: Record "Prod. Order Component";
         BinContent: Record "Bin Content";
     begin
-        with ProdOrderComponent do begin
-            SetRange(Status, ProductionOrder.Status);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
-            if Find('-') then
-                repeat
-                    BinContent.SetRange("Location Code", LocationCode);
-                    BinContent.SetRange("Item No.", "Item No.");
-                    BinContent.FindFirst();
-                    Validate("Bin Code", BinContent."Bin Code");
-                    Modify(true);
-                until Next() = 0;
-        end;
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        if ProdOrderComponent.Find('-') then
+            repeat
+                BinContent.SetRange("Location Code", LocationCode);
+                BinContent.SetRange("Item No.", ProdOrderComponent."Item No.");
+                BinContent.FindFirst();
+                ProdOrderComponent.Validate("Bin Code", BinContent."Bin Code");
+                ProdOrderComponent.Modify(true);
+            until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure CreateRoutingWithWC(var WorkCenterRec1: Record "Work Center"; var WorkCenterRec2: Record "Work Center"; var RoutingHeaderRec: Record "Routing Header")

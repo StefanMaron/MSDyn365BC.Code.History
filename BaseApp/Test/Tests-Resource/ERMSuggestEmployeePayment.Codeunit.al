@@ -1252,15 +1252,13 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DefaultDimension: Record "Default Dimension";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            LibraryDimension.CreateDefaultDimension(
-              DefaultDimension, DATABASE::Employee, EmployeeNo, "Shortcut Dimension 1 Code",
-              LibraryDimension.FindDifferentDimensionValue("Shortcut Dimension 1 Code", GlobalDimValueCode1));
-            LibraryDimension.CreateDefaultDimension(
-              DefaultDimension, DATABASE::Employee, EmployeeNo, "Shortcut Dimension 2 Code",
-              LibraryDimension.FindDifferentDimensionValue("Shortcut Dimension 2 Code", GlobalDimValueCode2));
-        end;
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::Employee, EmployeeNo, GeneralLedgerSetup."Shortcut Dimension 1 Code",
+          LibraryDimension.FindDifferentDimensionValue(GeneralLedgerSetup."Shortcut Dimension 1 Code", GlobalDimValueCode1));
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::Employee, EmployeeNo, GeneralLedgerSetup."Shortcut Dimension 2 Code",
+          LibraryDimension.FindDifferentDimensionValue(GeneralLedgerSetup."Shortcut Dimension 2 Code", GlobalDimValueCode2));
     end;
 
     local procedure ClearSelectedDim()
@@ -1409,17 +1407,15 @@ codeunit 134116 "ERM Suggest Employee Payment"
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
-        with EmployeeLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Employee No.", EmployeeNo);
-            FindFirst();
-            CalcFields(Amount, "Remaining Amount");
-            Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(ValidateErrorErr, FieldCaption(Amount), Amount2, TableCaption(), FieldCaption("Entry No."), "Entry No."));
-            TestField("Remaining Amount", RemainingAmount);
-            TestField(Open, Open2);
-        end;
+        EmployeeLedgerEntry.SetRange("Document No.", DocumentNo);
+        EmployeeLedgerEntry.SetRange("Document Type", DocumentType);
+        EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
+        EmployeeLedgerEntry.FindFirst();
+        EmployeeLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        Assert.AreNearlyEqual(Amount2, EmployeeLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(ValidateErrorErr, EmployeeLedgerEntry.FieldCaption(Amount), Amount2, EmployeeLedgerEntry.TableCaption(), EmployeeLedgerEntry.FieldCaption("Entry No."), EmployeeLedgerEntry."Entry No."));
+        EmployeeLedgerEntry.TestField("Remaining Amount", RemainingAmount);
+        EmployeeLedgerEntry.TestField(Open, Open2);
     end;
 
     local procedure VerifyValuesOnGLEntry(GenJournalLine: Record "Gen. Journal Line"; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20])

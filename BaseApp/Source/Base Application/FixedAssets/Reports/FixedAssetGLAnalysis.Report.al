@@ -208,6 +208,8 @@ report 5610 "Fixed Asset - G/L Analysis"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Fixed Asset G/L Analysis';
+        AboutText = 'The **Fixed Assets G/L Analysis** report is essential for financial management and reporting, offering detailed insights into the accounting treatment and reconciliation of subledger with the general ledger mainly validating the disposal entries. Structurally it is similar to FA Analysis report but this one is focused on GL reconciliation purpose.';
 
         layout
         {
@@ -221,6 +223,8 @@ report 5610 "Fixed Asset - G/L Analysis"
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Book';
                         TableRelation = "Depreciation Book";
+                        AboutTitle = 'Select Depreciation Book';
+                        AboutText = 'Choose the Depreciation Book and specify the Starting Date, Ending Date for which details are to be seen in the report.';
                         ToolTip = 'Specifies the code for the depreciation book to be included in the report or batch job.';
                     }
                     field(StartingDate; StartingDate)
@@ -240,6 +244,8 @@ report 5610 "Fixed Asset - G/L Analysis"
                         ApplicationArea = FixedAssets;
                         Caption = 'Date Field 1';
                         TableRelation = "FA Date Type"."FA Date Type Name" where("G/L Entry" = const(true));
+                        AboutTitle = 'Select Date Field';
+                        AboutText = 'Specify the Date and Amount fields which need to be shown in the report output.';
                         ToolTip = 'Specifies the first type of date that the report must show. The report has two columns in which two types of dates can be displayed. In each of the fields, select one of the available date types.';
                     }
                     field(DateField2; DateType2)
@@ -296,12 +302,16 @@ report 5610 "Fixed Asset - G/L Analysis"
                         ApplicationArea = FixedAssets;
                         Caption = 'Group Totals';
                         OptionCaption = ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
+                        AboutTitle = 'Select Group Totals';
+                        AboutText = 'Specifies a group type if you want the report to group the fixed assets and print group totals.';
                         ToolTip = 'Specifies a group type if you want the report to group the fixed assets and print group totals. For example, if you have set up six FA classes, then select the FA Class option to have group totals printed for each of the six class codes. Select to see the available options. If you do not want group totals to be printed, select the blank option.';
                     }
                     field(PrintperFixedAsset; PrintDetails)
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Print per Fixed Asset';
+                        AboutTitle = 'Enable Print per Fixed Asset';
+                        AboutText = 'Specify the options to see the report details Per Fixed Asset- print information separately for each fixed asset, Only Sold Assets - show information only for sold fixed assets.';
                         ToolTip = 'Specifies if you want the report to print information separately for each fixed asset.';
                     }
                     field(OnlySoldAssets; SalesReport)
@@ -384,13 +394,17 @@ report 5610 "Fixed Asset - G/L Analysis"
         SalesReport: Boolean;
         TypeExist: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Group Total';
         Text001: Label 'Group Totals';
+#pragma warning disable AA0470
         Text002: Label '%1 must be specified only together with the types %2, %3, %4 or %5.';
         Text003: Label 'The date type %1 is not a valid option.';
         Text004: Label 'The posting type %1 is not a valid option.';
         Text005: Label '%1 has been modified in fixed asset %2.';
+#pragma warning restore AA0470
         Text006: Label ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
+#pragma warning restore AA0074
         CurrReportPageNoCaptionLbl: Label 'Page';
         FixedAssetGLAnalysisCptnLbl: Label 'Fixed Asset - G/L Analysis';
         TotalCaptionLbl: Label 'Total';
@@ -435,7 +449,9 @@ report 5610 "Fixed Asset - G/L Analysis"
 
     local procedure MakeAmountHeadLine(i: Integer; PostingType: Text[50]; PostingTypeNo: Integer; var Period: Option " ",Disposal,"Bal. Disposal")
     var
+#pragma warning disable AA0074
         LocalText000: Label ' ,Disposal,Bal. Disposal';
+#pragma warning restore AA0074
     begin
         if PostingTypeNo = 0 then
             exit;

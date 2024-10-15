@@ -243,10 +243,18 @@ table 5927 "Repair Status"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The program cannot find the %1 %2 in the %3 table.';
         Text001: Label 'Only one %1 can be marked as %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ServStatusPrioritySetup: Record "Service Status Priority Setup";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'You cannot delete the %1 %2 because there is at least one %3 that has this %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ReturnStatusCode(RepairStatus2: Record "Repair Status"): Code[10]
     var

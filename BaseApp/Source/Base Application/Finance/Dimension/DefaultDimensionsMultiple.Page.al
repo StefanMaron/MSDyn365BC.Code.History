@@ -135,8 +135,12 @@ page 542 "Default Dimensions-Multiple"
     var
         TempDimValuePerAccount: Record "Dim. Value per Account" temporary;
         TempDimValuePerAccount2: Record "Dim. Value per Account" temporary;
+#pragma warning disable AA0470
         CannotRenameErr: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
         Text001: Label '(Conflict)';
+#pragma warning restore AA0074
         TempDefaultDim2: Record "Default Dimension" temporary;
         TempDefaultDim3: Record "Default Dimension" temporary;
         TotalRecNo: Integer;

@@ -184,8 +184,9 @@ codeunit 130502 "Library - Item Tracking"
     procedure CreateItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; var ItemTrackingLines: Page Microsoft.Inventory.Tracking."Item Tracking Lines")
     var
         TrackingSpecification: Record "Tracking Specification";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
-        TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+        ItemJnlLineReserve.InitFromItemJnlLine(TrackingSpecification, ItemJournalLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
         ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
         ItemTrackingLines.RunModal();

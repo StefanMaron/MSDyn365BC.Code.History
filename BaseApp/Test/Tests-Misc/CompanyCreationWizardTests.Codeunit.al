@@ -257,18 +257,16 @@ codeunit 139316 "Company Creation Wizard Tests"
         CompanyCreationWizard.Trap();
         PAGE.Run(PAGE::"Company Creation Wizard");
 
-        with CompanyCreationWizard do begin
-            ActionNext.Invoke(); // Basic Information page
-            ActionBack.Invoke(); // Welcome page
-            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled at the beginning of the wizard');
-            ActionNext.Invoke(); // Basic Information page
-            CompanyName.SetValue(NewCompanyName);
-            CompanyData.SetValue(NewCompanyData::"No Data"); // Set to None to avoid lengthy data import
-            ActionNext.Invoke(); // Manage Users page
-            ActionNext.Invoke(); // That's it page
-            Assert.IsTrue(ActionBack.Enabled(), 'Back should be enabled at the end of the wizard');
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-        end;
+        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
+        CompanyCreationWizard.ActionBack.Invoke(); // Welcome page
+        Assert.IsFalse(CompanyCreationWizard.ActionBack.Enabled(), 'Back should not be enabled at the beginning of the wizard');
+        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
+        CompanyCreationWizard.CompanyName.SetValue(NewCompanyName);
+        CompanyCreationWizard.CompanyData.SetValue(NewCompanyData::"No Data"); // Set to None to avoid lengthy data import
+        CompanyCreationWizard.ActionNext.Invoke(); // Manage Users page
+        CompanyCreationWizard.ActionNext.Invoke(); // That's it page
+        Assert.IsTrue(CompanyCreationWizard.ActionBack.Enabled(), 'Back should be enabled at the end of the wizard');
+        Assert.IsFalse(CompanyCreationWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
     end;
 
     [ConfirmHandler]

@@ -35,7 +35,6 @@
         LibraryERM: Codeunit "Library - ERM";
         AvailabilityMgt: Codeunit AvailabilityManagement;
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-        DemandType: Option " ",Production,Sales,Service,Jobs,Assembly;
         isInitialized: Boolean;
         RequisitionLineMustNotExistTxt: Label 'Requisition Line must not exist for Item %1.', Comment = '%1 = Item No.';
         ShipmentDateMessageTxt: Label 'Shipment Date';
@@ -49,9 +48,8 @@
         DateConflictWithExistingReservationsErr: Label 'The change leads to a date conflict with existing reservations.';
         WillNotAffectExistingMsg: Label 'The change will not affect existing entries';
         AutoReservNotPossibleMsg: Label 'Full automatic Reservation is not possible.';
-        QtyRoundingErr: Label 'is of lesser precision than expected';
+        QtyRoundingErr: Label 'is of lower precision than expected';
         QuantityImbalanceErr: Label '%1 on %2-%3 causes the %4 and %5 to be out of balance. Rounding of the field %5 results to 0.';
-        InvalidReplenishmentOptionErr: Label 'Replenishment System must be equal to';
         WrongPrecisionItemAndUOMExpectedQtyErr: Label 'The value in the Rounding Precision field on the Item page, and Qty. Rounding Precision field on the Item Unit of Measure page, are causing the rounding precision for the Expected Quantity field to be incorrect.';
         BlockedErr: Label 'You cannot choose %1 %2 because the %3 check box is selected on its %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
         ItemVariantPrimaryKeyLbl: Label '%1, %2', Comment = '%1 - Item No., %2 - Variant Code', Locked = true;
@@ -62,7 +60,7 @@
         BOMLineNoAndProdOrderBOMLineNoMustNotMatchErr: Label 'BOM Line No. and Prod. Order BOM Line No. must not match.';
         ItemFiltersLbl: Label '%1|%2', Comment = '%1 = Item, %2 = Item 2';
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1 = Quantity, %2 = Minimum Order Quanity, %3 = Requisition Line';
-        MPSOrderErr: Label 'MPS Order mustbe true.';
+        MPSOrderErr: Label '%1 must be true', Comment = '%1 = MPS Order';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -2178,7 +2176,7 @@
         VerifyReservationEntryDeleted(Item."No.");
 
         // Exercise: Run Available to Promise in Sales Order.
-        AvailabilityMgt.SetSalesHeader(TempOrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(TempOrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcAvailableToPromise(TempOrderPromisingLine);
 
         // Verify: Verify the Earliest Shipment date in Order Promising Table.
@@ -2214,7 +2212,7 @@
         VerifyReservationEntry(Item."No.", CalcDate(ManufacturingSetup."Default Safety Lead Time", PromisedReceiptDate));
 
         // Exercise: Run Available to Promise in Sales Order.
-        AvailabilityMgt.SetSalesHeader(TempOrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(TempOrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcAvailableToPromise(TempOrderPromisingLine);
 
         // Verify: Verify the Earliest Shipment date in Order Promising Table.
@@ -2306,7 +2304,7 @@
         ReservEntry: Record "Reservation Entry";
     begin
         InitializeOrderPlanRecalculdationScenario(Item, Item."Reordering Policy"::"Lot-for-Lot");
-        RecalculateReqPlanAfterOrderPlan(DemandType::Sales, Item);
+        RecalculateReqPlanAfterOrderPlan("Demand Order Source Type"::"Sales Demand", Item);
 
         Item.CalcFields("Qty. on Sales Order");
         VerifyReservedQuantity(Item."No.", ReservEntry."Reservation Status"::Reservation, Item."Qty. on Sales Order");
@@ -2321,7 +2319,7 @@
         ReservEntry: Record "Reservation Entry";
     begin
         InitializeOrderPlanRecalculdationScenario(Item, Item."Reordering Policy"::"Maximum Qty.");
-        RecalculateReqPlanAfterOrderPlan(DemandType::Sales, Item);
+        RecalculateReqPlanAfterOrderPlan("Demand Order Source Type"::"Sales Demand", Item);
 
         Item.CalcFields("Qty. on Sales Order");
         VerifyReservedQuantity(Item."No.", ReservEntry."Reservation Status"::Reservation, Item."Qty. on Sales Order");
@@ -2337,7 +2335,7 @@
         ReservEntry: Record "Reservation Entry";
     begin
         InitializeOrderPlanRecalculdationScenario(Item, Item."Reordering Policy"::"Maximum Qty.");
-        CalculateOrderPlanAndCarryOut(DemandType::Sales, Item."No.");
+        CalculateOrderPlanAndCarryOut("Demand Order Source Type"::"Sales Demand", Item."No.");
 
         RecalculateReqPlanForIncreasedSalesQty(Item);
 
@@ -2382,7 +2380,7 @@
         CreateReleasedProdOrder(ProdItem, CompItem, Qty);
 
         // Exercise: Recalculate requisition plan for component item
-        RecalculateReqPlanAfterOrderPlan(DemandType::Production, CompItem);
+        RecalculateReqPlanAfterOrderPlan("Demand Order Source Type"::"Production Demand", CompItem);
 
         // Verify: Demand from production order is reserved, safety stock quantity purchase is planned
         CompItem.CalcFields("Qty. on Component Lines");
@@ -2460,20 +2458,18 @@
 
         // [GIVEN] Production Item with Order Multiple = "X", "Order Tracking Policy" = "Tracking Only", available stock = "S".
         OrderMultipleQty := LibraryRandom.RandDecInRange(10, 50, 1);
-        with Item do begin
-            LibraryVariableStorage.Enqueue(WillNotAffectExistingMsg);
-            CreateItem(Item, "Reordering Policy"::"Lot-for-Lot", "Replenishment System"::"Prod. Order");
-            Validate("Minimum Order Quantity", OrderMultipleQty);
-            Validate("Order Multiple", OrderMultipleQty);
-            Validate("Order Tracking Policy", "Order Tracking Policy"::"Tracking Only");
-            Modify(true);
-            LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(
-              StockkeepingUnit, LocationRed.Code, "No.", '');
-            LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, LocationRed.Code, "Inventory Posting Group");
-            LibraryInventory.UpdateInventoryPostingSetup(LocationRed);
-            UpdateInventoryOnLocation(
-              ItemJournalLine, "No.", LocationRed.Code, WorkDate(), LibraryRandom.RandDecInRange(100, 200, 2));
-        end;
+        LibraryVariableStorage.Enqueue(WillNotAffectExistingMsg);
+        CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Minimum Order Quantity", OrderMultipleQty);
+        Item.Validate("Order Multiple", OrderMultipleQty);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Modify(true);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(
+          StockkeepingUnit, LocationRed.Code, Item."No.", '');
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, LocationRed.Code, Item."Inventory Posting Group");
+        LibraryInventory.UpdateInventoryPostingSetup(LocationRed);
+        UpdateInventoryOnLocation(
+          ItemJournalLine, Item."No.", LocationRed.Code, WorkDate(), LibraryRandom.RandDecInRange(100, 200, 2));
 
         // [GIVEN] Create Sales Order of Quantity = "S" + "X" / 2, delivery date = WorkDate() + 2 weeks. Calculate regeneration plan and carry out.
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", ItemJournalLine.Quantity + OrderMultipleQty / 2);
@@ -2579,7 +2575,7 @@
         SalesLine.Modify(true);
 
         // [WHEN] Calculate plan for sales demand.
-        CalculateOrderPlan(RequisitionLine, DemandType::Sales);
+        CalculateOrderPlan(RequisitionLine, "Demand Order Source Type"::"Sales Demand");
 
         // [THEN] Requisition line for item "I" is not created.
         FilterOnRequisitionLine(RequisitionLine, SalesLine."No.");
@@ -3562,25 +3558,25 @@
         asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::" ");
 
         // [THEN] An error is thrown.
-        Assert.ExpectedError(InvalidReplenishmentOptionErr);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Replenishment System"), '');
 
         // [WHEN] Setting setting replenish option to assembly.
         asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::Assembly);
 
         // [THEN] An error is thrown.
-        Assert.ExpectedError(InvalidReplenishmentOptionErr);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Replenishment System"), '');
 
         // [WHEN] Setting setting replenish option to prod. order.
         asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::"Prod. Order");
 
         // [THEN] An error is thrown.
-        Assert.ExpectedError(InvalidReplenishmentOptionErr);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Replenishment System"), '');
 
         // [WHEN] Setting setting replenish option to transfer.
         asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::Transfer);
 
         // [THEN] An error is thrown.
-        Assert.ExpectedError(InvalidReplenishmentOptionErr);
+        Assert.ExpectedTestFieldError(RequisitionLine.FieldCaption("Replenishment System"), '');
     end;
 
     [Test]
@@ -3929,70 +3925,6 @@
         RequisitionLine.SetRange("Variant Code", ItemVariant[3].Code);
         RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, SalesQty[3] + SalesQty[5] + SalesQty[6] - ItemVariantStockQty[3]);
-    end;
-
-    [Test]
-    procedure FastDeletionOfAllLinesInWorksheet()
-    var
-        Item: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionBOMLine: Record "Production BOM Line";
-        RequisitionLine: Record "Requisition Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        StartTime: Time;
-        DurationBefore: Duration;
-        DurationAfter: Duration;
-        i: Integer;
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 451265] Fast deletion of all lines with dependencies in planning or requisition worksheet.
-        Initialize();
-
-        // [GIVEN] Manufacturing item "I" with 20 components.
-        // [GIVEN] Set up the item for planning.
-        LibraryInventory.CreateItem(Item);
-        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
-        for i := 1 to 20 do
-            LibraryManufacturing.CreateProductionBOMLine(
-              ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item,
-              LibraryInventory.CreateItemNo(), 1);
-        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
-        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
-        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
-        Item.Modify(true);
-
-        // [GIVEN] Create sales order with 50 lines, each for item "I", different shipment dates.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        for i := 1 to 50 do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 50);
-            SalesLine.Validate("Shipment Date", WorkDate() + 5 * i);
-            SalesLine.Modify(true);
-        end;
-
-        Item.SetRecFilter();
-
-        // [WHEN] Calculate regenerative plan for the item "I" twice and delete all lines in the planning worksheet with two different methods.
-        // Use DeleteAll(true) to delete all requisition lines on the first run. Deletion time = "T1".
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
-        RequisitionLine.SetRange("No.", Item."No.");
-        Assert.RecordCount(RequisitionLine, 50);
-        StartTime := Time;
-        RequisitionLine.DeleteAll(true);
-        DurationBefore := Time - StartTime;
-
-        // Use ClearPlanningWorksheet() function to delete all requisition lines on the second run. Deletion time = "T2".
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
-        RequisitionLine.SetRange("No.", Item."No.");
-        Assert.RecordCount(RequisitionLine, 50);
-        RequisitionLine.FindFirst();
-        StartTime := Time;
-        RequisitionLine.ClearPlanningWorksheet(true);
-        DurationAfter := Time - StartTime;
-
-        // [THEN] "T2" is at least 50% less than "T1".
-        Assert.IsTrue(DurationAfter * 1.5 < DurationBefore, '');
     end;
 
     [Test]
@@ -4716,7 +4648,9 @@
         RequisitionLine.FindLast();
 
         // [THEN] Verify: MPS is true
-        Assert.IsTrue(RequisitionLine."MPS Order", MPSOrderErr);
+        Assert.IsTrue(
+            RequisitionLine."MPS Order",
+            StrSubstNo(MPSOrderErr, RequisitionLine.FieldCaption("MPS Order")));
 
         // Teardown
         UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
@@ -4810,11 +4744,9 @@
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        with ManufacturingSetup do begin
-            Get();
-            Validate("Blank Overflow Level", "Blank Overflow Level"::"Use Item/SKU Values Only");
-            Modify(true);
-        end;
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Blank Overflow Level", ManufacturingSetup."Blank Overflow Level"::"Use Item/SKU Values Only");
+        ManufacturingSetup.Modify(true);
     end;
 
     local procedure AutoReserveForSalesLine(SalesLine: Record "Sales Line")
@@ -4833,22 +4765,11 @@
         SalesLineOrder.Modify(true);
     end;
 
-    local procedure CalculateOrderPlan(var ReqLine: Record "Requisition Line"; FilterOnDemandType: Option)
+    local procedure CalculateOrderPlan(var ReqLine: Record "Requisition Line"; FilterOnDemandType: Enum "Demand Order Source Type")
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        case FilterOnDemandType of
-            DemandType::Production:
-                OrderPlanningMgt.SetProdOrder();
-            DemandType::Sales:
-                OrderPlanningMgt.SetSalesOrder();
-            DemandType::Service:
-                OrderPlanningMgt.SetServOrder();
-            DemandType::Jobs:
-                OrderPlanningMgt.SetJobOrder();
-            DemandType::Assembly:
-                OrderPlanningMgt.SetAsmOrder();
-        end;
+        OrderPlanningMgt.SetDemandType(FilterOnDemandType);
 
         OrderPlanningMgt.GetOrdersToPlan(ReqLine);
     end;
@@ -4934,22 +4855,20 @@
         Item.SetRange("Location Filter", LocationCode);
         LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false);
         Item.SetRange("Location Filter");
-        with StockkeepingUnit do begin
-            SetRange("Item No.", Item."No.");
-            SetRange("Location Code", LocationCode);
-            FindFirst();
-            Validate("Replenishment System", RepSystem);
-            Evaluate(
-              "Lead Time Calculation",
-              '<' + Format(LibraryRandom.RandIntInRange(8, 10)) + 'W>');
-            Validate("Flushing Method", "Flushing Method"::Backward);
-            Validate("Reordering Policy", ReordPolicy);
-            Validate("Transfer-from Code", FromLocation);
-            Validate("Include Inventory", IncludeInventory);
-            Evaluate("Rescheduling Period", ReschedulingPeriod);
-            Evaluate("Safety Lead Time", SafetyLeadTime);
-            Modify(true);
-        end;
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.SetRange("Location Code", LocationCode);
+        StockkeepingUnit.FindFirst();
+        StockkeepingUnit.Validate("Replenishment System", RepSystem);
+        Evaluate(
+          StockkeepingUnit."Lead Time Calculation",
+          '<' + Format(LibraryRandom.RandIntInRange(8, 10)) + 'W>');
+        StockkeepingUnit.Validate("Flushing Method", StockkeepingUnit."Flushing Method"::Backward);
+        StockkeepingUnit.Validate("Reordering Policy", ReordPolicy);
+        StockkeepingUnit.Validate("Transfer-from Code", FromLocation);
+        StockkeepingUnit.Validate("Include Inventory", IncludeInventory);
+        Evaluate(StockkeepingUnit."Rescheduling Period", ReschedulingPeriod);
+        Evaluate(StockkeepingUnit."Safety Lead Time", SafetyLeadTime);
+        StockkeepingUnit.Modify(true);
     end;
 
     local procedure CreateSKUForLocationWithReplenishmentSystemAndReorderingPolicy(ItemNo: Code[20]; LocationCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System"; TransferFromCode: Code[10];
@@ -5013,13 +4932,11 @@
 
     local procedure CreateItemAndSetFRQ(var Item: Record Item)
     begin
-        with Item do begin
-            CreateItem(Item, "Reordering Policy"::"Fixed Reorder Qty.", "Replenishment System"::Purchase);
-            Validate("Safety Stock Quantity", LibraryRandom.RandInt(30));
-            Validate("Reorder Point", LibraryRandom.RandInt(100));
-            Validate("Reorder Quantity", LibraryRandom.RandInt(50) + "Reorder Point");
-            Modify(true);
-        end;
+        CreateItem(Item, Item."Reordering Policy"::"Fixed Reorder Qty.", Item."Replenishment System"::Purchase);
+        Item.Validate("Safety Stock Quantity", LibraryRandom.RandInt(30));
+        Item.Validate("Reorder Point", LibraryRandom.RandInt(100));
+        Item.Validate("Reorder Quantity", LibraryRandom.RandInt(50) + Item."Reorder Point");
+        Item.Modify(true);
     end;
 
     local procedure CreateOrderItem(var Item: Record Item; ProductionBOMNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System")
@@ -5274,15 +5191,13 @@
     var
         Item: Record Item;
     begin
-        with ReqLine do begin
-            Type := Type::Item;
-            "No." := LibraryInventory.CreateItem(Item);
-            "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-            "Routing No." := RoutingHeaderNo;
-            "Starting Date" := StartingDate;
-            "Ending Date" := EndingDate;
-            Insert();
-        end;
+        ReqLine.Type := ReqLine.Type::Item;
+        ReqLine."No." := LibraryInventory.CreateItem(Item);
+        ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::"Prod. Order";
+        ReqLine."Routing No." := RoutingHeaderNo;
+        ReqLine."Starting Date" := StartingDate;
+        ReqLine."Ending Date" := EndingDate;
+        ReqLine.Insert();
     end;
 
     local procedure CalcPlanAndCarryOutActionMessageWithPlanningFlexibility(var RequisitionWkshName: Record "Requisition Wksh. Name"; var Item: Record Item; PlanningFlexibility: Enum "Reservation Planning Flexibility"; EndingDate: Date)
@@ -5380,7 +5295,7 @@
         ShipmentDate2 := SalesLine."Shipment Date";
     end;
 
-    local procedure RecalculateReqPlanAfterOrderPlan(FilterOnDemandType: Option; var Item: Record Item)
+    local procedure RecalculateReqPlanAfterOrderPlan(FilterOnDemandType: Enum "Demand Order Source Type"; var Item: Record Item)
     begin
         CalculateOrderPlanAndCarryOut(FilterOnDemandType, Item."No.");
         CalculateReqWorksheetPlanForItem(Item);
@@ -5423,12 +5338,10 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("No.", ItemNo);
-            FindFirst();
-            Validate(Quantity, Quantity * LibraryRandom.RandDecInRange(2, 10, 2));
-            Modify(true);
-        end;
+        SalesLine.SetRange("No.", ItemNo);
+        SalesLine.FindFirst();
+        SalesLine.Validate(Quantity, SalesLine.Quantity * LibraryRandom.RandDecInRange(2, 10, 2));
+        SalesLine.Modify(true);
     end;
 
     local procedure PostReceiptAndAutoReserveForSale(Item: Record Item; Quantity: Decimal)
@@ -5473,10 +5386,8 @@
 
     local procedure FindRequisitionLineForItem(var ReqLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
-        with ReqLine do begin
-            FilterOnRequisitionLine(ReqLine, ItemNo);
-            FindFirst();
-        end;
+        FilterOnRequisitionLine(ReqLine, ItemNo);
+        ReqLine.FindFirst();
     end;
 
     local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
@@ -5513,11 +5424,9 @@
 
     local procedure SetSupplyFromVendorOnRequisitionLine(var ReqLine: Record "Requisition Line")
     begin
-        with ReqLine do begin
-            Validate("Supply From", LibraryPurchase.CreateVendorNo());
-            Validate(Reserve, true);
-            Modify(true);
-        end;
+        ReqLine.Validate("Supply From", LibraryPurchase.CreateVendorNo());
+        ReqLine.Validate(Reserve, true);
+        ReqLine.Modify(true);
     end;
 
     local procedure AcceptActionMessage(ItemNo: Code[20])
@@ -5686,14 +5595,12 @@
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplateType);
-        with RequisitionWkshName do begin
-            SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
-            FindFirst();
-            exit(Name);
-        end;
+        RequisitionWkshName.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
+        RequisitionWkshName.FindFirst();
+        exit(RequisitionWkshName.Name);
     end;
 
-    local procedure CalculateOrderPlanAndCarryOut(FilterOnDemandType: Option; ItemNo: Code[20])
+    local procedure CalculateOrderPlanAndCarryOut(FilterOnDemandType: Enum "Demand Order Source Type"; ItemNo: Code[20])
     var
         ReqLine: Record "Requisition Line";
     begin
@@ -5768,11 +5675,9 @@
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do begin
-            Get("Document Type"::Order, PurchaseHeaderNo);
-            Validate("Promised Receipt Date", PromisedReceiptDate);
-            Modify(true);
-        end;
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseHeaderNo);
+        PurchaseHeader.Validate("Promised Receipt Date", PromisedReceiptDate);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdateProductionForecastType(var ProductionForecastEntry: array[3] of Record "Production Forecast Entry"; ComponentForecast: Boolean)
@@ -5902,7 +5807,7 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
-    local procedure VerifyRequisitionLineQuantity(var RequisitionLine: Record "Requisition Line"; Quantity: Decimal; OriginalQuantity: Decimal; RefOrderType: Option)
+    local procedure VerifyRequisitionLineQuantity(var RequisitionLine: Record "Requisition Line"; Quantity: Decimal; OriginalQuantity: Decimal; RefOrderType: Enum "Requisition Ref. Order Type")
     begin
         RequisitionLine.TestField(Quantity, Quantity);
         RequisitionLine.TestField("Original Quantity", OriginalQuantity);
@@ -5974,13 +5879,11 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange(Positive, true);
-            SetRange("Reservation Status", ReservStatus);
-            CalcSums("Quantity (Base)");
-            Assert.AreEqual(ExpectedQty, "Quantity (Base)", ReservationEntryErr);
-        end;
+        ReservEntry.SetRange("Item No.", ItemNo);
+        ReservEntry.SetRange(Positive, true);
+        ReservEntry.SetRange("Reservation Status", ReservStatus);
+        ReservEntry.CalcSums("Quantity (Base)");
+        Assert.AreEqual(ExpectedQty, ReservEntry."Quantity (Base)", ReservationEntryErr);
     end;
 
     local procedure VerifyFirmPlannedProdOrderExist(ItemNo: Code[20]; DueDate: Date; DueDateExist: Boolean)
@@ -5998,12 +5901,10 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Reservation Status", "Reservation Status"::Surplus);
-            FindFirst();
-            TestField(Quantity, ExpectedQuantity);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, ExpectedQuantity);
     end;
 
     local procedure VerifyTransferHeadersAndLinesCount(FromLocationCode: Code[10]; ToLocationCode: Code[10]; NoOfHeaders: Integer; NoOfLines: Integer)

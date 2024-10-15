@@ -18,7 +18,9 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
 
     var
         ExportAgainQst: Label 'One or more of the selected lines has already been exported. Do you want to export it again?';
+#pragma warning disable AA0470
         ProgressMsg: Label 'Processing line no. #1######.';
+#pragma warning restore AA0470
         PaymentExportMgt: Codeunit "Payment Export Mgt";
 
     [Scope('OnPrem')]

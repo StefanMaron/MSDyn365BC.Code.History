@@ -1,20 +1,10 @@
-namespace Microsoft.Inventory.Availability;
+﻿namespace Microsoft.Inventory.Availability;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 table 5530 "Inventory Event Buffer"
 {
@@ -167,198 +157,85 @@ table 5530 "Inventory Event Buffer"
     var
         RecRef: RecordRef;
 
-    procedure TransferFromSales(SalesLine: Record "Sales Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit SalesAvailabilityMgt', '25.0')]
+    procedure TransferFromSales(SalesLine: Record Microsoft.Sales.Document."Sales Line")
     var
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
-        RemQty: Decimal;
+        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
     begin
-        if SalesLine.Type <> SalesLine.Type::Item then
-            exit;
-
-        Init();
-        RecRef.GetTable(SalesLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := SalesLine."No.";
-        "Variant Code" := SalesLine."Variant Code";
-        "Location Code" := SalesLine."Location Code";
-        "Availability Date" := SalesLine."Shipment Date";
-        Type := Type::Sale;
-        SalesLineReserve.ReservQuantity(SalesLine, RemQty, "Remaining Quantity (Base)");
-        SalesLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -"Remaining Quantity (Base)";
-        "Reserved Quantity (Base)" := -SalesLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-        "Derived from Blanket Order" := SalesLine."Blanket Order No." <> '';
-        if "Derived from Blanket Order" then begin
-            "Ref. Order No." := SalesLine."Blanket Order No.";
-            "Ref. Order Line No." := SalesLine."Blanket Order Line No.";
-        end;
-
-        OnAfterTransferFromSales(Rec, SalesLine);
+        SalesAvailabilityMgt.TransferFromSales(Rec, SalesLine);
     end;
+#endif
 
-    procedure TransferFromSalesReturn(SalesLine: Record "Sales Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit SalesAvailabilityMgt', '25.0')]
+    procedure TransferFromSalesReturn(SalesLine: Record Microsoft.Sales.Document."Sales Line")
     var
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
-        RemQty: Decimal;
+        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
     begin
-        if SalesLine.Type <> SalesLine.Type::Item then
-            exit;
-
-        Init();
-        RecRef.GetTable(SalesLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := SalesLine."No.";
-        "Variant Code" := SalesLine."Variant Code";
-        "Location Code" := SalesLine."Location Code";
-        "Availability Date" := SalesLine."Shipment Date";
-        Type := Type::Sale;
-        SalesLineReserve.ReservQuantity(SalesLine, RemQty, "Remaining Quantity (Base)");
-        SalesLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -"Remaining Quantity (Base)";
-        "Reserved Quantity (Base)" := -SalesLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-        "Derived from Blanket Order" := SalesLine."Blanket Order No." <> '';
-        if "Derived from Blanket Order" then begin
-            "Ref. Order No." := SalesLine."Blanket Order No.";
-            "Ref. Order Line No." := SalesLine."Blanket Order Line No.";
-        end;
-
-        OnAfterTransferFromSalesReturn(Rec, SalesLine);
+        SalesAvailabilityMgt.TransferFromSalesReturn(Rec, SalesLine);
     end;
+#endif
 
-    procedure TransferFromProdComp(ProdOrderComp: Record "Prod. Order Component")
-    begin
-        Init();
-        RecRef.GetTable(ProdOrderComp);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := ProdOrderComp."Item No.";
-        "Variant Code" := ProdOrderComp."Variant Code";
-        "Location Code" := ProdOrderComp."Location Code";
-        "Availability Date" := ProdOrderComp."Due Date";
-        Type := Type::Component;
-        ProdOrderComp.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -ProdOrderComp."Remaining Qty. (Base)";
-        "Reserved Quantity (Base)" := -ProdOrderComp."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromProdComp(Rec, ProdOrderComp);
-    end;
-
-    procedure TransferFromJobNeed(JobPlanningLine: Record "Job Planning Line")
-    begin
-        if JobPlanningLine.Type <> JobPlanningLine.Type::Item then
-            exit;
-
-        Init();
-        RecRef.GetTable(JobPlanningLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := JobPlanningLine."No.";
-        "Variant Code" := JobPlanningLine."Variant Code";
-        "Location Code" := JobPlanningLine."Location Code";
-        "Availability Date" := JobPlanningLine."Planning Date";
-        Type := Type::Job;
-        JobPlanningLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -JobPlanningLine."Remaining Qty. (Base)";
-        "Reserved Quantity (Base)" := -JobPlanningLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromJobNeed(Rec, JobPlanningLine);
-    end;
-
-    procedure TransferFromServiceNeed(ServLine: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
+    procedure TransferFromProdComp(ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     var
-        ServLineReserve: Codeunit "Service Line-Reserve";
-        RemQty: Decimal;
+        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
     begin
-        if ServLine.Type <> ServLine.Type::Item then
-            exit;
-
-        Init();
-        RecRef.GetTable(ServLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := ServLine."No.";
-        "Variant Code" := ServLine."Variant Code";
-        "Location Code" := ServLine."Location Code";
-        "Availability Date" := ServLine."Needed by Date";
-        Type := Type::Service;
-        ServLineReserve.ReservQuantity(ServLine, RemQty, "Remaining Quantity (Base)");
-        ServLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -"Remaining Quantity (Base)";
-        "Reserved Quantity (Base)" := -ServLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromServiceNeed(Rec, ServLine);
+        ProdOrderAvailabilityMgt.TransferFromProdComp(Rec, ProdOrderComp);
     end;
+#endif
 
-    procedure TransferFromOutboundTransOrder(TransLine: Record "Transfer Line")
-    begin
-        Init();
-        RecRef.GetTable(TransLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := TransLine."Item No.";
-        "Variant Code" := TransLine."Variant Code";
-        "Location Code" := TransLine."Transfer-from Code";
-        "Availability Date" := TransLine."Shipment Date";
-        Type := Type::Transfer;
-        TransLine.CalcFields("Reserved Qty. Outbnd. (Base)");
-        "Remaining Quantity (Base)" := -TransLine."Outstanding Qty. (Base)";
-        "Reserved Quantity (Base)" := -TransLine."Reserved Qty. Outbnd. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-        "Transfer Direction" := "Transfer Direction"::Outbound;
-
-        OnAfterTransferFromOutboundTransfer(Rec, TransLine);
-    end;
-
-    procedure TransferFromPlanProdComp(PlngComp: Record "Planning Component")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit JobPlanningAvailabilityMgt', '25.0')]
+    procedure TransferFromJobNeed(JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
     var
-        ReqLine: Record "Requisition Line";
+        JobPlanningAvailabilityMgt: Codeunit Microsoft.Projects.Project.Planning."Job Planning Availability Mgt.";
     begin
-        Init();
-        ReqLine.Get(PlngComp."Worksheet Template Name", PlngComp."Worksheet Batch Name", PlngComp."Worksheet Line No.");
-        RecRef.GetTable(PlngComp);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := PlngComp."Item No.";
-        "Variant Code" := PlngComp."Variant Code";
-        "Location Code" := PlngComp."Location Code";
-        "Availability Date" := PlngComp."Due Date";
-        Type := Type::Plan;
-        PlngComp.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -PlngComp."Expected Quantity (Base)";
-        "Reserved Quantity (Base)" := -PlngComp."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-        "Action Message" := ReqLine."Action Message";
-        "Ref. Order No." := ReqLine."Ref. Order No.";
-        "Ref. Order Type" := GetRefOrderTypeFromReqLine(ReqLine."Ref. Order Type");
-
-        OnAfterTransferFromPlanProdComp(Rec, PlngComp, ReqLine);
+        JobPlanningAvailabilityMgt.TransferFromJobNeed(Rec, JobPlanningLine);
     end;
+#endif
 
-    procedure TransferFromReqLineTransDemand(ReqLine: Record "Requisition Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServAvailabilityMgt', '25.0')]
+    procedure TransferFromServiceNeed(ServiceLine: Record Microsoft.Service.Document."Service Line")
+    var
+        ServAvailabilityMgt: Codeunit Microsoft.Service.Document."Serv. Availability Mgt.";
     begin
-        if ReqLine.Type <> ReqLine.Type::Item then
-            exit;
-
-        Init();
-        RecRef.GetTable(ReqLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := ReqLine."No.";
-        "Variant Code" := ReqLine."Variant Code";
-        "Location Code" := ReqLine."Transfer-from Code";
-        "Availability Date" := ReqLine."Transfer Shipment Date";
-        Type := Type::Transfer;
-        ReqLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -ReqLine."Quantity (Base)";
-        "Reserved Quantity (Base)" := -ReqLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-        "Action Message" := ReqLine."Action Message";
-        "Ref. Order No." := ReqLine."Ref. Order No.";
-        "Ref. Order Type" := GetRefOrderTypeFromReqLine(ReqLine."Ref. Order Type");
-        // Notice: Planned outbound transfer uses an opposite direction of transfer
-        "Transfer Direction" := "Transfer Direction"::Inbound;
-
-        OnAfterTransferFromReqLineTransDemand(Rec, ReqLine);
+        ServAvailabilityMgt.TransferFromServiceNeed(Rec, ServiceLine);
     end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Moved to codeunit TransferAvailabilityMgt', '25.0')]
+    procedure TransferFromOutboundTransOrder(TransLine: Record Microsoft.Inventory.Transfer."Transfer Line")
+    var
+        TransferAvailabilityMgt: Codeunit Microsoft.Inventory.Transfer."Transfer Availability Mgt.";
+    begin
+        TransferAvailabilityMgt.TransferFromOutboundTransOrder(Rec, TransLine);
+    end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ReqLineAvailabilityMgt', '25.0')]
+    procedure TransferFromPlanProdComp(PlngComp: Record Microsoft.Inventory.Planning."Planning Component")
+    var
+        ReqLineAvailabilityMgt: Codeunit Microsoft.Inventory.Requisition."Req. Line Availability Mgt.";
+    begin
+        ReqLineAvailabilityMgt.TransferFromPlanProdComp(Rec, PlngComp);
+    end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ReqLineAvailabilityMgt', '25.0')]
+    procedure TransferFromReqLineTransDemand(ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line")
+    var
+        ReqLineAvailabilityMgt: Codeunit Microsoft.Inventory.Requisition."Req. Line Availability Mgt.";
+    begin
+        ReqLineAvailabilityMgt.TransferFromReqLineTransDemand(Rec, ReqLine);
+    end;
+#endif
 
     procedure TransferInventoryQty(ItemLedgEntry: Record "Item Ledger Entry")
     begin
@@ -379,166 +256,83 @@ table 5530 "Inventory Event Buffer"
         OnAfterTransferInventoryQty(Rec, ItemLedgEntry);
     end;
 
-    procedure TransferFromPurchase(PurchLine: Record "Purchase Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit PurchAvailabilityMgt', '25.0')]
+    procedure TransferFromPurchase(PurchLine: Record Microsoft.Purchases.Document."Purchase Line")
     var
-        PurchLineReserve: Codeunit "Purch. Line-Reserve";
+        PurchAvailabilityMgt: Codeunit Microsoft.Purchases.Document."Purch. Availability Mgt.";
     begin
-        if PurchLine.Type <> PurchLine.Type::Item then
-            exit;
-
-        Init();
-        RecRef.GetTable(PurchLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := PurchLine."No.";
-        "Variant Code" := PurchLine."Variant Code";
-        "Location Code" := PurchLine."Location Code";
-        "Availability Date" := PurchLine."Expected Receipt Date";
-        Type := Type::Purchase;
-        PurchLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -PurchLineReserve.ReservQuantity(PurchLine);
-        "Reserved Quantity (Base)" := PurchLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromPurchase(Rec, PurchLine);
+        PurchAvailabilityMgt.TransferFromPurchase(Rec, PurchLine);
     end;
+#endif
 
-    procedure TransferFromPurchReturn(PurchLine: Record "Purchase Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit PurchAvailabilityMgt', '25.0')]
+    procedure TransferFromPurchReturn(PurchLine: Record Microsoft.Purchases.Document."Purchase Line")
     var
-        PurchLineReserve: Codeunit "Purch. Line-Reserve";
+        PurchAvailabilityMgt: Codeunit Microsoft.Purchases.Document."Purch. Availability Mgt.";
     begin
-        if PurchLine.Type <> PurchLine.Type::Item then
-            exit;
-
-        Init();
-        RecRef.GetTable(PurchLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := PurchLine."No.";
-        "Variant Code" := PurchLine."Variant Code";
-        "Location Code" := PurchLine."Location Code";
-        "Availability Date" := PurchLine."Expected Receipt Date";
-        Type := Type::Purchase;
-        PurchLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -PurchLineReserve.ReservQuantity(PurchLine);
-        "Reserved Quantity (Base)" := PurchLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromPurchReturn(Rec, PurchLine);
+        PurchAvailabilityMgt.TransferFromPurchReturn(Rec, PurchLine);
     end;
+#endif
 
-    procedure TransferFromProdOrder(ProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
+    procedure TransferFromProdOrder(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    var
+        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
     begin
-        Init();
-        RecRef.GetTable(ProdOrderLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := ProdOrderLine."Item No.";
-        "Variant Code" := ProdOrderLine."Variant Code";
-        "Location Code" := ProdOrderLine."Location Code";
-        "Availability Date" := ProdOrderLine."Due Date";
-        Type := Type::Production;
-        ProdOrderLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := ProdOrderLine."Remaining Qty. (Base)";
-        "Reserved Quantity (Base)" := ProdOrderLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromProdOrder(Rec, ProdOrderLine);
+        ProdOrderAvailabilityMgt.TransferFromProdOrder(Rec, ProdOrderLine);
     end;
+#endif
 
-    procedure TransferFromInboundTransOrder(TransLine: Record "Transfer Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit TransferAvailabilityMgt', '25.0')]
+    procedure TransferFromInboundTransOrder(TransLine: Record Microsoft.Inventory.Transfer."Transfer Line")
+    var
+        TransferAvailabilityMgt: Codeunit Microsoft.Inventory.Transfer."Transfer Availability Mgt.";
     begin
-        Init();
-        RecRef.GetTable(TransLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := TransLine."Item No.";
-        "Variant Code" := TransLine."Variant Code";
-        "Location Code" := TransLine."Transfer-to Code";
-        "Availability Date" := TransLine."Receipt Date";
-        Type := Type::Transfer;
-        TransLine.CalcFields("Reserved Qty. Inbnd. (Base)", "Reserved Qty. Shipped (Base)");
-        "Remaining Quantity (Base)" := TransLine."Quantity (Base)" - TransLine."Qty. Received (Base)";
-        "Reserved Quantity (Base)" := TransLine."Reserved Qty. Inbnd. (Base)" + TransLine."Reserved Qty. Shipped (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-        "Transfer Direction" := "Transfer Direction"::Inbound;
-
-        OnAfterTransferFromInboundTransOrder(Rec, TransLine);
+        TransferAvailabilityMgt.TransferFromInboundTransOrder(Rec, TransLine);
     end;
+#endif
 
-    procedure TransferFromReqLine(ReqLine: Record "Requisition Line"; AtLocation: Code[10]; AtDate: Date; DeltaQtyBase: Decimal; RecID: RecordID)
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ReqLineAvailabilityMgt', '25.0')]
+    procedure TransferFromReqLine(ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line"; AtLocation: Code[10]; AtDate: Date; DeltaQtyBase: Decimal; RecID: RecordID)
+    var
+        ReqLineAvailabilityMgt: Codeunit Microsoft.Inventory.Requisition."Req. Line Availability Mgt.";
     begin
-        if ReqLine.Type <> ReqLine.Type::Item then
-            exit;
-
-        Init();
-        "Source Line ID" := RecID;
-        "Item No." := ReqLine."No.";
-        "Variant Code" := ReqLine."Variant Code";
-        "Location Code" := AtLocation;
-        "Availability Date" := AtDate;
-        Type := Type::Plan;
-        ReqLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := DeltaQtyBase;
-        "Reserved Quantity (Base)" := ReqLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-        "Action Message" := ReqLine."Action Message";
-        "Ref. Order No." := ReqLine."Ref. Order No.";
-        "Ref. Order Type" := GetRefOrderTypeFromReqLine(ReqLine."Ref. Order Type");
-
-        OnAfterTransferFromReqLine(Rec, ReqLine);
+        ReqLineAvailabilityMgt.TransferFromReqLine(Rec, ReqLine, AtLocation, AtDate, DeltaQtyBase, RecID);
     end;
+#endif
 
-    procedure TransferFromForecast(ProdForecastEntry: Record "Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean)
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
+    procedure TransferFromForecast(ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean)
     begin
         TransferFromForecast(ProdForecastEntry, UnconsumedQtyBase, ForecastOnLocation, false);
     end;
+#endif
 
-    procedure TransferFromForecast(ProdForecastEntry: Record "Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean; ForecastOnVariant: Boolean)
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
+    procedure TransferFromForecast(ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean; ForecastOnVariant: Boolean)
+    var
+        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
     begin
-        Init();
-        RecRef.GetTable(ProdForecastEntry);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := ProdForecastEntry."Item No.";
-        "Variant Code" := '';
-        if ForecastOnLocation then
-            "Location Code" := ProdForecastEntry."Location Code"
-        else
-            "Location Code" := '';
-        if ForecastOnVariant then
-            "Variant Code" := ProdForecastEntry."Variant Code"
-        else
-            "Variant Code" := '';
-        "Availability Date" := ProdForecastEntry."Forecast Date";
-        Type := Type::Forecast;
-        if ProdForecastEntry."Component Forecast" then
-            "Forecast Type" := "Forecast Type"::Component
-        else
-            "Forecast Type" := "Forecast Type"::Sales;
-        "Remaining Quantity (Base)" := -UnconsumedQtyBase;
-        "Reserved Quantity (Base)" := 0;
-        "Orig. Quantity (Base)" := -ProdForecastEntry."Forecast Quantity (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromForecast(Rec, ProdForecastEntry);
+        ProdOrderAvailabilityMgt.TransferFromForecast(Rec, ProdForecastEntry, UnconsumedQtyBase, ForecastOnLocation, ForecastOnVariant);
     end;
+#endif
 
-    procedure TransferFromSalesBlanketOrder(SalesLine: Record "Sales Line"; UnconsumedQtyBase: Decimal)
+#if not CLEAN25
+    [Obsolete('Moved to codeunit SalesAvailabilityMgt', '25.0')]
+    procedure TransferFromSalesBlanketOrder(SalesLine: Record Microsoft.Sales.Document."Sales Line"; UnconsumedQtyBase: Decimal)
+    var
+        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
     begin
-        if SalesLine.Type <> SalesLine.Type::Item then
-            exit;
-
-        Init();
-        RecRef.GetTable(SalesLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := SalesLine."No.";
-        "Variant Code" := SalesLine."Variant Code";
-        "Location Code" := SalesLine."Location Code";
-        "Availability Date" := SalesLine."Shipment Date";
-        Type := Type::"Blanket Sales Order";
-        "Remaining Quantity (Base)" := -UnconsumedQtyBase;
-        "Reserved Quantity (Base)" := 0;
-        "Orig. Quantity (Base)" := -SalesLine."Quantity (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromSalesBlanketOrder(Rec, SalesLine);
+        SalesAvailabilityMgt.TransferFromSalesBlanketOrder(Rec, SalesLine, UnconsumedQtyBase);
     end;
+#endif
 
     procedure PlanRevertEntry(InvtEventBuf: Record "Inventory Event Buffer"; ParentActionMessage: Enum "Action Message Type")
     begin
@@ -551,59 +345,25 @@ table 5530 "Inventory Event Buffer"
         "Attached to Line No." := InvtEventBuf."Entry No.";
     end;
 
-    procedure TransferFromAsmOrder(AssemblyHeader: Record "Assembly Header")
-    begin
-        Init();
-        Type := Type::"Assembly Order";
-        RecRef.GetTable(AssemblyHeader);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := AssemblyHeader."Item No.";
-        "Variant Code" := AssemblyHeader."Variant Code";
-        "Location Code" := AssemblyHeader."Location Code";
-        "Availability Date" := AssemblyHeader."Due Date";
-        AssemblyHeader.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := AssemblyHeader."Remaining Quantity (Base)";
-        "Reserved Quantity (Base)" := AssemblyHeader."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromAsmOrder(Rec, AssemblyHeader);
-    end;
-
-    procedure TransferFromAsmOrderLine(AssemblyLine: Record "Assembly Line")
-    begin
-        Init();
-        Type := Type::"Assembly Component";
-        RecRef.GetTable(AssemblyLine);
-        "Source Line ID" := RecRef.RecordId;
-        "Item No." := AssemblyLine."No.";
-        "Variant Code" := AssemblyLine."Variant Code";
-        "Location Code" := AssemblyLine."Location Code";
-        "Availability Date" := AssemblyLine."Due Date";
-        AssemblyLine.CalcFields("Reserved Qty. (Base)");
-        "Remaining Quantity (Base)" := -AssemblyLine."Remaining Quantity (Base)";
-        "Reserved Quantity (Base)" := -AssemblyLine."Reserved Qty. (Base)";
-        Positive := not ("Remaining Quantity (Base)" < 0);
-
-        OnAfterTransferFromAsmOrderLine(Rec, AssemblyLine);
-    end;
-
-    local procedure GetRefOrderTypeFromReqLine(ReqLineRefOrderType: Option): Integer
+#if not CLEAN25
+    [Obsolete('Moved to codeunit AssemblyAvailabilityMgt', '25.0')]
+    procedure TransferFromAsmOrder(AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     var
-        ReqLine: Record "Requisition Line";
+        AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
     begin
-        case ReqLineRefOrderType of
-            ReqLine."Ref. Order Type"::" ":
-                exit("Ref. Order Type"::" ");
-            ReqLine."Ref. Order Type"::Purchase:
-                exit("Ref. Order Type"::Purchase);
-            ReqLine."Ref. Order Type"::"Prod. Order":
-                exit("Ref. Order Type"::"Prod. Order");
-            ReqLine."Ref. Order Type"::Transfer:
-                exit("Ref. Order Type"::Transfer);
-            ReqLine."Ref. Order Type"::Assembly:
-                exit("Ref. Order Type"::Assembly);
-        end;
+        AssemblyAvailabilityMgt.TransferFromAsmOrder(Rec, AssemblyHeader);
     end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Moved to codeunit AssemblyAvailabilityMgt', '25.0')]
+    procedure TransferFromAsmOrderLine(AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    var
+        AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
+    begin
+        AssemblyAvailabilityMgt.TransferFromAsmOrderLine(Rec, AssemblyLine);
+    end;
+#endif
 
     procedure CalcReservedQuantity(ItemLedgEntry: Record "Item Ledger Entry"): Decimal
     var
@@ -620,94 +380,230 @@ table 5530 "Inventory Event Buffer"
         exit(ReservEntry."Quantity (Base)");
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromSales(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record "Sales Line")
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromSales(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
+        OnAfterTransferFromSales(InventoryEventBuffer, SalesLine);
     end;
 
+    [Obsolete('Moved to codeunit SalesAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromSalesReturn(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record "Sales Line")
+    local procedure OnAfterTransferFromSales(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromSalesReturn(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    begin
+        OnAfterTransferFromSalesReturn(InventoryEventBuffer, SalesLine);
     end;
 
+    [Obsolete('Moved to codeunit SalesAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromProdComp(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnAfterTransferFromSalesReturn(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromProdComp(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+        OnAfterTransferFromProdComp(InventoryEventBuffer, ProdOrderComponent);
     end;
 
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromJobNeed(var InventoryEventBuffer: Record "Inventory Event Buffer"; JobPlanningLine: Record "Job Planning Line")
+    local procedure OnAfterTransferFromProdComp(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromJobNeed(var InventoryEventBuffer: Record "Inventory Event Buffer"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    begin
+        OnAfterTransferFromJobNeed(InventoryEventBuffer, JobPlanningLine);
     end;
 
+    [Obsolete('Moved to codeunit JobPlanningAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromServiceNeed(var InventoryEventBuffer: Record "Inventory Event Buffer"; ServiceLine: Record "Service Line")
+    local procedure OnAfterTransferFromJobNeed(var InventoryEventBuffer: Record "Inventory Event Buffer"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromServiceNeed(var InventoryEventBuffer: Record "Inventory Event Buffer"; ServiceLine: Record Microsoft.Service.Document."Service Line")
+    begin
+        OnAfterTransferFromServiceNeed(InventoryEventBuffer, ServiceLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit ServAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromOutboundTransfer(var InventoryEventBuffer: Record "Inventory Event Buffer"; TransferLine: Record "Transfer Line")
+    local procedure OnAfterTransferFromServiceNeed(var InventoryEventBuffer: Record "Inventory Event Buffer"; ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromOutboundTransfer(var InventoryEventBuffer: Record "Inventory Event Buffer"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line")
+    begin
+        OnAfterTransferFromOutboundTransfer(InventoryEventBuffer, TransferLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit TransferAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromPlanProdComp(var InventoryEventBuffer: Record "Inventory Event Buffer"; PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line")
+    local procedure OnAfterTransferFromOutboundTransfer(var InventoryEventBuffer: Record "Inventory Event Buffer"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromPlanProdComp(var InventoryEventBuffer: Record "Inventory Event Buffer"; PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
+    begin
+        OnAfterTransferFromPlanProdComp(InventoryEventBuffer, PlanningComponent, RequisitionLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit ReqLineAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromReqLineTransDemand(var InventoryEventBuffer: Record "Inventory Event Buffer"; RequisitionLine: Record "Requisition Line")
+    local procedure OnAfterTransferFromPlanProdComp(var InventoryEventBuffer: Record "Inventory Event Buffer"; PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromReqLineTransDemand(var InventoryEventBuffer: Record "Inventory Event Buffer"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
+    begin
+        OnAfterTransferFromReqLineTransDemand(InventoryEventBuffer, RequisitionLine);
+    end;
+
+    [Obsolete('Replaced by event in codeunit ReqLineAvailabilityMgt', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromReqLineTransDemand(var InventoryEventBuffer: Record "Inventory Event Buffer"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferInventoryQty(var InventoryEventBuffer: Record "Inventory Event Buffer"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromPurchase(var InventoryEventBuffer: Record "Inventory Event Buffer"; PurchaseLine: Record "Purchase Line")
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromPurchase(var InventoryEventBuffer: Record "Inventory Event Buffer"; PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
     begin
+        OnAfterTransferFromPurchase(InventoryEventBuffer, PurchaseLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit PurchAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromPurchReturn(var InventoryEventBuffer: Record "Inventory Event Buffer"; PurchaseLine: Record "Purchase Line")
+    local procedure OnAfterTransferFromPurchase(var InventoryEventBuffer: Record "Inventory Event Buffer"; PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromPurchReturn(var InventoryEventBuffer: Record "Inventory Event Buffer"; PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
+    begin
+        OnAfterTransferFromPurchReturn(InventoryEventBuffer, PurchaseLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit PurchAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromProdOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnAfterTransferFromPurchReturn(var InventoryEventBuffer: Record "Inventory Event Buffer"; PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromProdOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        OnAfterTransferFromProdOrder(InventoryEventBuffer, ProdOrderLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit ProdOrderAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromInboundTransOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; TransferLine: Record "Transfer Line")
+    local procedure OnAfterTransferFromProdOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromInboundTransOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line")
+    begin
+        OnAfterTransferFromInboundTransOrder(InventoryEventBuffer, TransferLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit TransferAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromReqLine(var InventoryEventBuffer: Record "Inventory Event Buffer"; RequisitionLine: Record "Requisition Line")
+    local procedure OnAfterTransferFromInboundTransOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromReqLine(var InventoryEventBuffer: Record "Inventory Event Buffer"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
+    begin
+        OnAfterTransferFromReqLine(InventoryEventBuffer, RequisitionLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit ReqLineAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromForecast(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdForecastEntry: Record "Production Forecast Entry")
+    local procedure OnAfterTransferFromReqLine(var InventoryEventBuffer: Record "Inventory Event Buffer"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromForecast(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
+    begin
+        OnAfterTransferFromForecast(InventoryEventBuffer, ProdForecastEntry);
     end;
 
+    [Obsolete('Replaced by event in codeunit ProdOrderAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromSalesBlanketOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record "Sales Line")
+    local procedure OnAfterTransferFromForecast(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromSalesBlanketOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    begin
+        OnAfterTransferFromSalesBlanketOrder(InventoryEventBuffer, SalesLine);
     end;
 
+    [Obsolete('Replaced by event in codeunit SalesAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromAsmOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; AssemblyHeader: Record "Assembly Header")
+    local procedure OnAfterTransferFromSalesBlanketOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromAsmOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+        OnAfterTransferFromAsmOrder(InventoryEventBuffer, AssemblyHeader);
     end;
 
+    [Obsolete('Replaced by event in codeunit AssemblyAvailabilityMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromAsmOrderLine(var InventoryEventBuffer: Record "Inventory Event Buffer"; AssemblyLine: Record "Assembly Line")
+    local procedure OnAfterTransferFromAsmOrder(var InventoryEventBuffer: Record "Inventory Event Buffer"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromAsmOrderLine(var InventoryEventBuffer: Record "Inventory Event Buffer"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+        OnAfterTransferFromAsmOrderLine(InventoryEventBuffer, AssemblyLine);
+    end;
+
+    [Obsolete('Replaced by event in codeunit AssemblyAvailabilityMgt', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromAsmOrderLine(var InventoryEventBuffer: Record "Inventory Event Buffer"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+    end;
+#endif
 }
 

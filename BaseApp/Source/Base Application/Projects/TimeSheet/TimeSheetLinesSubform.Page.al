@@ -125,18 +125,6 @@ page 974 "Time Sheet Lines Subform"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Service Order No."; Rec."Service Order No.")
-                {
-                    ApplicationArea = Service;
-                    Editable = AllowEdit;
-                    ToolTip = 'Specifies the service order number that is associated with the time sheet line.';
-                    Visible = ServiceOrderNoVisible;
-
-                    trigger OnValidate()
-                    begin
-                        CurrPage.SaveRecord();
-                    end;
-                }
                 field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;
@@ -464,7 +452,7 @@ page 974 "Time Sheet Lines Subform"
         NoOfColumns: Integer;
         ColumnCaption: array[32] of Text[1024];
         UnitOfMeasureCode: Code[10];
-        WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, ServiceOrderNoVisible, AbsenceCauseVisible, AssemblyOrderNoVisible : Boolean;
+        WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, AbsenceCauseVisible, AssemblyOrderNoVisible : Boolean;
         InvalidTypeErr: Label 'The type of time sheet line cannot be empty.';
         DimensionCaptionTok: Label 'Dimensions';
 
@@ -478,6 +466,7 @@ page 974 "Time Sheet Lines Subform"
         RejectLineEnabled: Boolean;
         ReopenApprovedLineEnabled: Boolean;
         AllowEdit: Boolean;
+        ServiceOrderNoVisible: Boolean;
 
     procedure SetManagerTimeSheetMode()
     begin

@@ -314,9 +314,13 @@ report 5705 "Transfer Receipt"
         OldDimText: Text[75];
         Continue: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'COPY';
+#pragma warning disable AA0470
         Text001: Label 'Transfer Receipt %1';
         Text002: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TransRcptHdrNo2CaptionLbl: Label 'Shipment No.';
         HdrDimCaptionLbl: Label 'Header Dimensions';
         LineDimCaptionLbl: Label 'Line Dimensions';

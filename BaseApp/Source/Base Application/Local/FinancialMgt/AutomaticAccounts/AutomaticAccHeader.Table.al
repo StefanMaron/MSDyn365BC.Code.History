@@ -9,16 +9,10 @@ table 11203 "Automatic Acc. Header"
 {
     Caption = 'Automatic Acc. Header';
     ObsoleteReason = 'Moved to Automatic Account Codes app.';
-#if CLEAN22
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#else
-    DrillDownPageID = "Automatic Acc. List";
-    LookupPageID = "Automatic Acc. List";
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#endif
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {

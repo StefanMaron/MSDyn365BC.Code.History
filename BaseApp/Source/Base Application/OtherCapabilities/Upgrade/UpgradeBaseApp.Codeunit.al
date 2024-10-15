@@ -25,17 +25,18 @@ using Microsoft.Finance.GeneralLedger.Setup;
 #if not CLEAN23
 using Microsoft.Finance.ReceivablesPayables;
 #endif
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.HumanResources.Payables;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Task;
 using Microsoft.Foundation.UOM;
 using Microsoft.HumanResources.Employee;
-using Microsoft.HumanResources.Payables;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Entity;
@@ -44,10 +45,8 @@ using Microsoft.Integration.SyncEngine;
 using Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Outbox;
+using Microsoft.Sales.Reminder;
 using Microsoft.Intercompany.Setup;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
@@ -61,10 +60,6 @@ using Microsoft.Pricing.Source;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN22
-using Microsoft.Projects.Resources.Setup;
-using Microsoft.Projects.TimeSheet;
-#endif
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -74,9 +69,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Utilities;
@@ -128,7 +120,7 @@ codeunit 104000 "Upgrade - BaseApp"
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral', Locked = true;
         ProductionOrderLbl: Label 'PRODUCTION', Locked = true;
         ProductionOrderTxt: Label 'Production Order', Locked = true;
-        ServiceBlockedAlreadySetLbl: Label 'CopyItemSalesBlockedToServiceBlocked skipped. %1 already set for at least one record in table %2.', Comment = '%1 = Field Caption, %2 = Table Caption', Locked = true;
+        JobConsumpWhseHandlingUnexpectedValueLbl: Label 'UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation skipped. %1 set to different value than %2 for at least one record in table %3 with %4 enabled.', Comment = '%1 = "Job Consump. Whse. Handling" field caption, %2 = "Job Consump. Whse. Handling" expected value, %3 = "Location" table caption, %4 = "Directed Put-away and Pick" field caption', Locked = true;
 
     trigger OnCheckPreconditionsPerDatabase()
     begin
@@ -160,6 +152,7 @@ codeunit 104000 "Upgrade - BaseApp"
             exit;
 
         ClearTemporaryTables();
+        ClearVATAmountLineTable();
 
         UpdateGenJournalBatchReferencedIds();
         UpdateJobs();
@@ -188,9 +181,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradePurchaseRcptLineOverReceiptCode();
         UpgradeContactMobilePhoneNo();
         UpgradePostCodeServiceKey();
-#if not CLEAN22
-        UpgradeIntrastatJnlLine();
-#endif
         UpgradeDimensionSetEntry();
         UpgradeUserTaskDescriptionToUTF8();
         UpgradeRemoveSmartListGuidedExperience();
@@ -224,7 +214,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeHandledICOutboxTransactionAccountNo();
         UpdateCheckWhseClassOnLocation();
         UpdateDeferralSourceCode();
-        UpdateServiceLineOrderNo();
         UpgradeMapCurrencySymbol();
         UpgradeOptionMapping();
         UpdateProductionSourceCode();
@@ -236,13 +225,13 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeInventorySetupAllowInvtAdjmt();
         UpgradeGranularWarehouseHandlingSetup();
         UpgradeVATSetup();
-#if not CLEAN22
-        UpgradeTimesheetExperience();
-#endif
         UpgradeVATSetupAllowVATDate();
-        CopyItemSalesBlockedToServiceBlocked();
         SetEmployeeLedgerEntryCurrencyFactor();
+        InitShipToPhoneNo();
+        UpgradeReminderTextMultilines();
         UpgradeCountryVATSchemeDK();
+        UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation();
+        UpgradeIntegrationTableMappingTemplates();
     end;
 
     local procedure ClearTemporaryTables()
@@ -285,6 +274,21 @@ codeunit 104000 "Upgrade - BaseApp"
         ParallelSessionEntry.DeleteAll();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetClearTemporaryTablesUpgradeTag());
+    end;
+
+    local procedure ClearVATAmountLineTable()
+    var
+        VATAmountLine: Record "VAT Amount Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetClearVATAmountLineTableUpgradeTag()) then
+            exit;
+
+        VATAmountLine.Reset();
+        VATAmountLine.DeleteAll();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetClearVATAmountLineTableUpgradeTag());
     end;
 
     local procedure UpgradeBankExportImportSetup()
@@ -1517,8 +1521,6 @@ codeunit 104000 "Upgrade - BaseApp"
     local procedure UpgradeSearchEmail()
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Contact: Record Contact;
-        ContactAltAddress: Record "Contact Alt. Address";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
@@ -1534,26 +1536,6 @@ codeunit 104000 "Upgrade - BaseApp"
                     SalespersonPurchaser.Modify();
                 end;
             until SalespersonPurchaser.Next() = 0;
-
-        Contact.SetCurrentKey("Search E-Mail");
-        Contact.SetRange("Search E-Mail", '');
-        if Contact.FindFirst() then
-            repeat
-                if Contact."E-Mail" <> '' then begin
-                    Contact."Search E-Mail" := Contact."E-Mail";
-                    Contact.Modify();
-                end;
-            until Contact.Next() = 0;
-
-        ContactAltAddress.SetCurrentKey("Search E-Mail");
-        ContactAltAddress.SetRange("Search E-Mail", '');
-        if ContactAltAddress.FindFirst() then
-            repeat
-                if ContactAltAddress."E-Mail" <> '' then begin
-                    ContactAltAddress."Search E-Mail" := ContactAltAddress."E-Mail";
-                    ContactAltAddress.Modify();
-                end;
-            until ContactAltAddress.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSearchEmailUpgradeTag());
     end;
@@ -2445,28 +2427,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPostCodeServiceKeyUpgradeTag());
     end;
 
-#if not CLEAN22
-    local procedure UpgradeIntrastatJnlLine()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag()) then
-            exit;
-
-        IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment);
-        if IntrastatJnlLine.FindSet() then
-            repeat
-                IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
-                IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
-                IntrastatJnlLine.Modify();
-            until IntrastatJnlLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag());
-    end;
-#endif
-
     local procedure UpgradeDimensionSetEntry()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -2942,9 +2902,6 @@ codeunit 104000 "Upgrade - BaseApp"
                 CRMConnectionSetup.Modify();
 
                 IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-#if not CLEAN22
-                IntegrationFieldMapping.SetRange("Field No.", UnitGroup.FieldNo("Code"));
-#endif
                 IntegrationFieldMapping.ModifyAll("Field No.", UnitGroup.FieldNo("Source No."));
             end else begin
                 UnitGroup.DeleteAll();
@@ -3409,32 +3366,6 @@ codeunit 104000 "Upgrade - BaseApp"
         if SourceCode.Insert() then;
     end;
 
-    local procedure UpdateServiceLineOrderNo()
-    var
-        ServiceLine: Record "Service Line";
-        ServiceShipmentLine: Record "Service Shipment Line";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetServiceLineOrderNoUpgradeTag()) then
-            exit;
-
-        ServiceLine.SetLoadFields("Shipment No.", "Shipment Line No.");
-        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Invoice);
-        ServiceLine.SetFilter("Shipment No.", '<>%1', '');
-        ServiceLine.SetFilter("Shipment Line No.", '<>%1', 0);
-        if ServiceLine.FindSet(true) then
-            repeat
-                ServiceShipmentLine.SetLoadFields("Order No.");
-                if ServiceShipmentLine.Get(ServiceLine."Shipment No.", ServiceLine."Shipment Line No.") then begin
-                    ServiceLine."Order No." := ServiceShipmentLine."Order No.";
-                    ServiceLine.Modify();
-                end;
-            until ServiceLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetServiceLineOrderNoUpgradeTag());
-    end;
-
     local procedure UpgradeMapCurrencySymbol()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -3464,9 +3395,6 @@ codeunit 104000 "Upgrade - BaseApp"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
-#if not CLEAN22
-        CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
-#endif
         TempCRMAccount: Record "CRM Account" temporary;
         TempCRMInvoice: Record "CRM Invoice" temporary;
         TempCRMSalesorder: Record "CRM Salesorder" temporary;
@@ -3532,10 +3460,6 @@ codeunit 104000 "Upgrade - BaseApp"
             IntegrationTableMapping."Dependency Filter" += '|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT';
             IntegrationTableMapping.Modify();
         end;
-
-#if not CLEAN22
-        CDSFailedOptionMapping.DeleteAll();
-#endif
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetOptionMappingUpgradeTag());
     end;
@@ -3771,7 +3695,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultPowerPagesAADApplicationsTag());
     end;
 
-
     local procedure CheckLedgerEntriesMoveFromRecordIDToSystemId()
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -3790,34 +3713,6 @@ codeunit 104000 "Upgrade - BaseApp"
             until CheckLedgerEntry.Next() = 0;
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCheckLedgerEntriesMoveFromRecordIDToSystemIdUpgradeTag());
     end;
-
-#if not CLEAN22
-    local procedure UpgradeTimesheetExperience()
-    var
-        ResourcesSetup: Record "Resources Setup";
-        FeatureDataUpdateStatus: Record "Feature Data Update Status";
-        TimeSheetManagement: Codeunit "Time Sheet Management";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewTimeSheetExperienceUpgradeTag()) then
-            exit;
-
-        if TimeSheetManagement.GetTimeSheetV2FeatureKey() <> '' then
-            if ResourcesSetup.Get() then
-                if not ResourcesSetup."Use New Time Sheet Experience" then begin
-                    // Set to True if the feature NewTimeSheetExperience is enabled for any company
-                    FeatureDataUpdateStatus.SetFilter("Feature Key", TimeSheetManagement.GetTimeSheetV2FeatureKey());
-                    FeatureDataUpdateStatus.SetRange("Feature Status", FeatureDataUpdateStatus."Feature Status"::"Enabled");
-                    if not FeatureDataUpdateStatus.IsEmpty() then begin
-                        ResourcesSetup."Use New Time Sheet Experience" := true;
-                        ResourcesSetup.Modify();
-                    end;
-                end;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewTimeSheetExperienceUpgradeTag());
-    end;
-#endif
 
     local procedure UpgradeVATSetupAllowVATDate()
     var
@@ -3862,67 +3757,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATSetupAllowVATDateTag());
     end;
 
-    local procedure CopyItemSalesBlockedToServiceBlocked()
-    var
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        ItemTempl: Record "Item Templ.";
-        ServiceItem: Record "Service Item";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        DataTransfer: DataTransfer;
-        SkipUpgrade: Boolean;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCopyItemSalesBlockedToServiceBlockedUpgradeTag()) then
-            exit;
-
-        SkipUpgrade := ServiceItem.IsEmpty();
-
-        if not SkipUpgrade then begin
-            Item.SetRange("Service Blocked", true);
-            SkipUpgrade := not Item.IsEmpty();
-            if SkipUpgrade then
-                Session.LogMessage('0000LZQ', StrSubstNo(ServiceBlockedAlreadySetLbl, Item.FieldCaption("Service Blocked"), Item.TableCaption()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
-        end;
-        if not SkipUpgrade then begin
-            ItemVariant.SetRange("Service Blocked", true);
-            SkipUpgrade := not ItemVariant.IsEmpty();
-            if SkipUpgrade then
-                Session.LogMessage('0000LZR', StrSubstNo(ServiceBlockedAlreadySetLbl, ItemVariant.FieldCaption("Service Blocked"), ItemVariant.TableCaption()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
-        end;
-        if not SkipUpgrade then begin
-            ItemTempl.SetRange("Service Blocked", true);
-            SkipUpgrade := not ItemTempl.IsEmpty();
-            if SkipUpgrade then
-                Session.LogMessage('0000LZS', StrSubstNo(ServiceBlockedAlreadySetLbl, ItemTempl.FieldCaption("Service Blocked"), ItemTempl.TableCaption()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
-        end;
-
-        if not SkipUpgrade then begin
-            DataTransfer.SetTables(Database::"Item", Database::"Item");
-            DataTransfer.AddSourceFilter(Item.FieldNo("Sales Blocked"), '=%1', true);
-            DataTransfer.AddFieldValue(Item.FieldNo("Sales Blocked"), Item.FieldNo("Service Blocked"));
-            DataTransfer.UpdateAuditFields := false;
-            DataTransfer.CopyFields();
-            Clear(DataTransfer);
-
-            DataTransfer.SetTables(Database::"Item Variant", Database::"Item Variant");
-            DataTransfer.AddSourceFilter(ItemVariant.FieldNo("Sales Blocked"), '=%1', true);
-            DataTransfer.AddFieldValue(ItemVariant.FieldNo("Sales Blocked"), ItemVariant.FieldNo("Service Blocked"));
-            DataTransfer.UpdateAuditFields := false;
-            DataTransfer.CopyFields();
-            Clear(DataTransfer);
-
-            DataTransfer.SetTables(Database::"Item Templ.", Database::"Item Templ.");
-            DataTransfer.AddSourceFilter(ItemTempl.FieldNo("Sales Blocked"), '=%1', true);
-            DataTransfer.AddFieldValue(ItemTempl.FieldNo("Sales Blocked"), ItemTempl.FieldNo("Service Blocked"));
-            DataTransfer.UpdateAuditFields := false;
-            DataTransfer.CopyFields();
-            Clear(DataTransfer);
-        end;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCopyItemSalesBlockedToServiceBlockedUpgradeTag());
-    end;
-
     local procedure SetEmployeeLedgerEntryCurrencyFactor()
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
@@ -3944,6 +3778,82 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEmployeeLedgerEntryCurrencyFactorUpgradeTag());
     end;
 
+    local procedure InitShipToPhoneNo()
+    var
+        CompanyInformation: Record "Company Information";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        DataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetInitShipToPhoneNoUpgradeTag()) then
+            exit;
+
+        if not CompanyInformation.Get() then begin
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetInitShipToPhoneNoUpgradeTag());
+            exit;
+        end;
+
+        DataTransfer.SetTables(Database::"Company Information", Database::"Company Information");
+        DataTransfer.AddFieldValue(CompanyInformation.FieldNo("Phone No."), CompanyInformation.FieldNo("Ship-to Phone No."));
+        DataTransfer.UpdateAuditFields := false;
+        DataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetInitShipToPhoneNoUpgradeTag());
+    end;
+
+    local procedure UpgradeReminderTextMultilines()
+    var
+        ReminderAttachmentText: Record "Reminder Attachment Text";
+        ReminderAttachmentTextLine: Record "Reminder Attachment Text Line";
+        ReminderAttachmentTextLineToInsert: Record "Reminder Attachment Text Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMultilineReminderTextUpgradeTag()) then
+            exit;
+
+        if ReminderAttachmentText.FindSet() then
+            repeat
+                if ReminderAttachmentText."Beginning Line" <> '' then begin
+                    Clear(ReminderAttachmentTextLineToInsert);
+                    ReminderAttachmentTextLineToInsert.Id := ReminderAttachmentText.Id;
+                    ReminderAttachmentTextLineToInsert."Language Code" := ReminderAttachmentText."Language Code";
+                    ReminderAttachmentTextLineToInsert.Position := ReminderAttachmentTextLineToInsert.Position::"Beginning Line";
+                    ReminderAttachmentTextLineToInsert.Text := ReminderAttachmentText."Beginning Line";
+
+                    ReminderAttachmentTextLine.SetRange(Id, ReminderAttachmentText.Id);
+                    ReminderAttachmentTextLine.SetRange("Language Code", ReminderAttachmentText."Language Code");
+                    ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Beginning Line");
+                    if ReminderAttachmentTextLine.FindLast() then
+                        ReminderAttachmentTextLineToInsert."Line No." := ReminderAttachmentTextLine."Line No." + 10000
+                    else
+                        ReminderAttachmentTextLineToInsert."Line No." := 10000;
+
+                    ReminderAttachmentTextLineToInsert.Insert();
+                end;
+
+                if ReminderAttachmentText."Ending Line" <> '' then begin
+                    Clear(ReminderAttachmentTextLineToInsert);
+                    ReminderAttachmentTextLineToInsert.Id := ReminderAttachmentText.Id;
+                    ReminderAttachmentTextLineToInsert."Language Code" := ReminderAttachmentText."Language Code";
+                    ReminderAttachmentTextLineToInsert.Position := ReminderAttachmentTextLineToInsert.Position::"Ending Line";
+                    ReminderAttachmentTextLineToInsert.Text := ReminderAttachmentText."Ending Line";
+
+                    ReminderAttachmentTextLine.SetRange(Id, ReminderAttachmentText.Id);
+                    ReminderAttachmentTextLine.SetRange("Language Code", ReminderAttachmentText."Language Code");
+                    ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Ending Line");
+                    if ReminderAttachmentTextLine.FindLast() then
+                        ReminderAttachmentTextLineToInsert."Line No." := ReminderAttachmentTextLine."Line No." + 10000
+                    else
+                        ReminderAttachmentTextLineToInsert."Line No." := 10000;
+
+                    ReminderAttachmentTextLineToInsert.Insert();
+                end;
+            until ReminderAttachmentText.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMultilineReminderTextUpgradeTag());
+    end;
+
     local procedure UpgradeCountryVATSchemeDK()
     var
         CountryRegion: Record "Country/Region";
@@ -3960,9 +3870,107 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryVATSchemeDKTag());
     end;
 
+    local procedure UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation()
+    var
+        Location: Record Location;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        LocationDataTransfer: DataTransfer;
+        SkipUpgrade: Boolean;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag()) then
+            exit;
+
+        Location.SetRange("Directed Put-away and Pick", true);
+        Location.SetRange("Require Pick", true);
+        Location.SetRange("Require Shipment", true);
+        SkipUpgrade := Location.IsEmpty();
+
+        if not SkipUpgrade then begin
+            Location.SetFilter("Job Consump. Whse. Handling", '<>%1', Location."Job Consump. Whse. Handling"::"No Warehouse Handling");
+            SkipUpgrade := not Location.IsEmpty();
+            if SkipUpgrade then
+                Session.LogMessage('0000N3U', StrSubstNo(JobConsumpWhseHandlingUnexpectedValueLbl, Location.FieldCaption("Job Consump. Whse. Handling"), Location."Job Consump. Whse. Handling"::"No Warehouse Handling", Location.TableCaption(), Location.FieldCaption("Directed Put-away and Pick")), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade')
+        end;
+
+        if not SkipUpgrade then begin
+            LocationDataTransfer.SetTables(Database::Location, Database::Location);
+            LocationDataTransfer.AddSourceFilter(Location.FieldNo("Directed Put-away and Pick"), '=%1', true);
+            LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', true);
+            LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', true);
+            LocationDataTransfer.AddConstantValue("Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)", Location.FieldNo("Job Consump. Whse. Handling"));
+            LocationDataTransfer.UpdateAuditFields := false;
+            LocationDataTransfer.CopyFields();
+            Clear(LocationDataTransfer);
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag());
+    end;
+
+    local procedure UpgradeIntegrationTableMappingTemplates()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
+        TableConfigTemplate: Record "Table Config Template";
+        IntTableConfigTemplate: Record "Int. Table Config Template";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag()) then
+            exit;
+
+        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
+        IntegrationTableMapping.FilterGroup(-1);
+        IntegrationTableMapping.SetFilter("Table Config Template Code", '<>%1', '');
+        IntegrationTableMapping.SetFilter("Int. Tbl. Config Template Code", '<>%1', '');
+        if IntegrationTableMapping.FindSet() then
+            repeat
+                if IntegrationTableMapping."Table Config Template Code" <> '' then begin
+                    Clear(TableConfigTemplate);
+                    TableConfigTemplate."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+                    TableConfigTemplate."Table ID" := IntegrationTableMapping."Table ID";
+                    TableConfigTemplate."Integration Table ID" := IntegrationTableMapping."Integration Table ID";
+                    TableConfigTemplate."Table Config Template Code" := IntegrationTableMapping."Table Config Template Code";
+                    TableConfigTemplate.Insert();
+                end;
+                if IntegrationTableMapping."Int. Tbl. Config Template Code" <> '' then begin
+                    Clear(IntTableConfigTemplate);
+                    IntTableConfigTemplate."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+                    IntTableConfigTemplate."Table ID" := IntegrationTableMapping."Table ID";
+                    IntTableConfigTemplate."Integration Table ID" := IntegrationTableMapping."Integration Table ID";
+                    IntTableConfigTemplate."Int. Tbl. Config Template Code" := IntegrationTableMapping."Int. Tbl. Config Template Code";
+                    IntTableConfigTemplate.Insert();
+                end;
+            until IntegrationTableMapping.Next() = 0;
+
+        ManIntegrationTableMapping.FilterGroup(-1);
+        ManIntegrationTableMapping.SetFilter("Table Config Template Code", '<>%1', '');
+        ManIntegrationTableMapping.SetFilter("Int. Tbl. Config Template Code", '<>%1', '');
+        if ManIntegrationTableMapping.FindSet() then
+            repeat
+                if ManIntegrationTableMapping."Table Config Template Code" <> '' then begin
+                    Clear(TableConfigTemplate);
+                    TableConfigTemplate."Integration Table Mapping Name" := ManIntegrationTableMapping.Name;
+                    TableConfigTemplate."Table ID" := ManIntegrationTableMapping."Table ID";
+                    TableConfigTemplate."Integration Table ID" := ManIntegrationTableMapping."Integration Table ID";
+                    TableConfigTemplate."Table Config Template Code" := ManIntegrationTableMapping."Table Config Template Code";
+                    TableConfigTemplate.Insert();
+                end;
+                if ManIntegrationTableMapping."Int. Tbl. Config Template Code" <> '' then begin
+                    Clear(IntTableConfigTemplate);
+                    IntTableConfigTemplate."Integration Table Mapping Name" := ManIntegrationTableMapping.Name;
+                    IntTableConfigTemplate."Integration Table ID" := ManIntegrationTableMapping."Integration Table ID";
+                    IntTableConfigTemplate."Table ID" := ManIntegrationTableMapping."Table ID";
+                    IntTableConfigTemplate."Int. Tbl. Config Template Code" := ManIntegrationTableMapping."Int. Tbl. Config Template Code";
+                    IntTableConfigTemplate.Insert();
+                end;
+            until ManIntegrationTableMapping.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
     begin
     end;
-
 }

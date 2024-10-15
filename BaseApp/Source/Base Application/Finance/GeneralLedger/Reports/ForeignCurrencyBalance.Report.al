@@ -264,7 +264,11 @@ report 503 "Foreign Currency Balance"
         TotalCurrentBalanceLCY: Decimal;
         CalcTotalCurrentBalanceLCY: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Total %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ForeignCurrencyBalanceCaptionLbl: Label 'Foreign Currency Balance';
         CurrReportPageNoCaptionLbl: Label 'Page';
         CurrencyCustomerBalanceCaptionLbl: Label 'Balance';

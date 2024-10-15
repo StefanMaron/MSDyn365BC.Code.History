@@ -4,6 +4,7 @@ using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Planning;
@@ -33,7 +34,11 @@ codeunit 99000886 "Capable to Promise"
         OrderPromisingLineToSave: Integer;
         SourceLineNo: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Calculation with date #1######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ValidateCapableToPromise(var ReqLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Enum "Analysis Period Type"; var DueDateOfReqLine: Date) Result: Boolean
     var
@@ -181,7 +186,8 @@ codeunit 99000886 "Capable to Promise"
         ReqLine."Action Message" := ReqLine."Action Message"::New;
         ReqLine."Accept Action Message" := false;
         ReqLine.Validate("Ending Date",
-          LeadTimeMgt.PlannedEndingDate(ItemNo, LocationCode, VariantCode, DueDate, ReqLine."Vendor No.", ReqLine."Ref. Order Type"));
+          LeadTimeMgt.GetPlannedEndingDate(
+            ItemNo, LocationCode, VariantCode, DueDate, ReqLine."Vendor No.", ReqLine."Ref. Order Type"));
         ReqLine."Ending Time" := 235959T;
         ReqLine.Validate(Quantity, Quantity);
         ReqLine.Validate("Unit of Measure Code", Unit);
@@ -216,7 +222,6 @@ codeunit 99000886 "Capable to Promise"
         PlanningComponent: Record "Planning Component";
         ReqLine2: Record "Requisition Line";
         CompReqLine: Record "Requisition Line";
-        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         IsValidDate: Boolean;
         DueDateOfReqLine: Date;
         IsHandled: Boolean;
@@ -236,8 +241,7 @@ codeunit 99000886 "Capable to Promise"
                          CompReqLine, PlanningComponent."Item No.", PlanningComponent."Variant Code", PlanningComponent."Location Code", PlanningComponent."Due Date",
                          PlanningComponent."Expected Quantity", PlanningComponent."Unit of Measure Code", PeriodType, DueDateOfReqLine)
                     then
-                        PlngComponentReserve.BindToRequisition(
-                          PlanningComponent, CompReqLine, CompReqLine.Quantity, CompReqLine."Quantity (Base)")
+                        BindToRequisition(PlanningComponent, CompReqLine)
                     else begin
                         OrderPromisingLineNo := OrderPromisingLineNo - 1;
                         exit(false);
@@ -251,6 +255,23 @@ codeunit 99000886 "Capable to Promise"
                         end;
             until PlanningComponent.Next() = 0;
         exit(true);
+    end;
+
+    local procedure BindToRequisition(PlanningComponent: Record "Planning Component"; CompReqLine: Record "Requisition Line")
+    var
+        TrackingSpecification: Record "Tracking Specification";
+        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
+    begin
+        if PlanningComponent."Location Code" <> CompReqLine."Location Code" then
+            exit;
+
+        TrackingSpecification.InitTrackingSpecification(
+            DATABASE::"Requisition Line", 0,
+            CompReqLine."Worksheet Template Name", CompReqLine."Journal Batch Name", 0, CompReqLine."Line No.",
+            CompReqLine."Variant Code", CompReqLine."Location Code", CompReqLine."Qty. per Unit of Measure");
+        PlngComponentReserve.BindToTracking(
+            PlanningComponent, TrackingSpecification, CompReqLine.Description, CompReqLine."Ending Date",
+            CompReqLine.Quantity, CompReqLine."Quantity (Base)")
     end;
 
     local procedure CheckTransferShptCTP(ReqLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type") Result: Boolean

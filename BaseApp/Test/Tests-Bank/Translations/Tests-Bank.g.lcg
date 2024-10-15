@@ -95,15 +95,6 @@
       <Cmt Name="Dev"><![CDATA[%1 Blocked field; %2 Bank Account table]D;]A;(LookupHint=Codeunit ERM Cash Manager - NamedType BankAccountBlockedErrorErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 184886348 - NamedType 2376125470" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Check Printed must be equal to 'Yes'  in %1: %2=%3, %4=%5, %6=%7. Current value is 'No'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 Gen.Journal Line table; %2 Journal Template Name caption; %3 Journal Template Name value; %4 Journal Batch Name caption; %5 Journal Batch Name value; %6 Line No caption; %7 Line No value.]D;]A;(LookupHint=Codeunit ERM Cash Manager - NamedType CheckPrintErrorErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 184886348 - NamedType 1750350494" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to 0 in %2.]]></Val>
@@ -111,15 +102,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 Balance field; %2 Bank Account table.]D;]A;(LookupHint=Codeunit ERM Cash Manager - NamedType CurrencyErrorErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 184886348 - NamedType 78895190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Exported to Payment File must be equal to 'No'  in Gen. Journal Line]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Manager - NamedType ExportedToPaymentFileMustBeNoMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 184886348 - NamedType 656295430" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

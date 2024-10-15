@@ -116,10 +116,12 @@ page 5797 "Registered Whse. Activity List"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Registered Whse. Put-away List';
         Text001: Label 'Registered Whse. Pick List';
         Text002: Label 'Registered Whse. Movement List';
         Text003: Label 'Registered Whse. Activity List';
+#pragma warning restore AA0074
 
     local procedure FormCaption(): Text[250]
     begin

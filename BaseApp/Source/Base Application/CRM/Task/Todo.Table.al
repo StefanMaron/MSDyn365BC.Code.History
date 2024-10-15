@@ -77,13 +77,12 @@ table 5080 "To-do"
                                 Validate(Closed, false);
                             end else
                                 "Team Code" := xRec."Team Code"
-                        end else begin
+                        end else
                             if Confirm(StrSubstNo(TasksWillBeDeletedQst, xRec."Team Code", "Team Code")) then
                                 ChangeTeam()
                             else
-                                "Team Code" := xRec."Team Code"
-                        end
-                    end else begin
+                                "Team Code" := xRec."Team Code";
+                    end else
                         if Closed then begin
                             if Confirm(StrSubstNo(Text042, "No.", "Team Code")) then begin
                                 ReassignSalespersonTaskToTeam();
@@ -93,7 +92,6 @@ table 5080 "To-do"
                                 "Team Code" := ''
                         end else
                             ReassignSalespersonTaskToTeam();
-                    end
                 end
             end;
         }
@@ -120,7 +118,7 @@ table 5080 "To-do"
                     if (Type = Type::Meeting) and ("Team Code" = '') then
                         Error(Text009, FieldCaption("Salesperson Code"));
 
-                    if "Team Code" <> '' then begin
+                    if "Team Code" <> '' then
                         if Type = Type::Meeting then
                             if Closed then
                                 if Confirm(StrSubstNo(Text040, "No.", "Salesperson Code")) then begin
@@ -144,7 +142,6 @@ table 5080 "To-do"
                                     "Salesperson Code" := xRec."Salesperson Code"
                             else
                                 ConfirmReassignmentOpenedNotMeetingToDo();
-                    end
                 end
             end;
         }
@@ -281,9 +278,9 @@ table 5080 "To-do"
 
                     if not IsMeetingOrPhoneCall(xRec.Type) and IsMeetingOrPhoneCall(Rec.Type) then begin
                         "Start Time" := 0T;
-                        if OldEndDate = Date then begin
-                            SetDuration(OldEndDate, DT2Time(CreateDateTime(OldEndDate, 0T) + 30 * 60 * 1000));
-                        end else
+                        if OldEndDate = Date then
+                            SetDuration(OldEndDate, DT2Time(CreateDateTime(OldEndDate, 0T) + 30 * 60 * 1000))
+                        else
                             SetDuration(OldEndDate, 0T);
                     end;
                 end;
@@ -863,10 +860,14 @@ table 5080 "To-do"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be specified.';
         Text001: Label '%1 No. %2 has been created from recurring %3 %4.';
+#pragma warning restore AA0470
         Text002: Label 'Do you want to create a Task for all contacts in the %1 Segment', Comment = '%1 = Segment Header No.';
         Text003: Label 'Do you want to assign an activity to all Contacts in the %1 Segment', Comment = '%1 = Segment Header No.';
+#pragma warning restore AA0074
         RMSetup: Record "Marketing Setup";
         Cont: Record Contact;
         Salesperson: Record "Salesperson/Purchaser";
@@ -877,44 +878,66 @@ table 5080 "To-do"
         SegHeader: Record "Segment Header";
         TempAttendee: Record Attendee temporary;
         NoSeries: Codeunit "No. Series";
+#pragma warning disable AA0074
         Text004: Label 'Do you want to register an Interaction Log Entry?';
         Text005: Label 'Information that you have entered in this field will cause the duration to be negative which is not allowed. Please modify the ending date/time value.';
+#pragma warning disable AA0470
         Text006: Label 'The valid range of dates is from %1 to %2. Please enter a date within this range.';
+#pragma warning restore AA0470
         Text007: Label 'Information that you have entered in this field will cause the duration to be less than 1 minute, which is not allowed. Please modify the ending date/time value.';
         Text008: Label 'Information that you have entered in this field will cause the duration to be more than 10 years, which is not allowed. Please modify the ending date/time value.';
         Text009: Label 'You cannot change the %1 for this Task, because this salesperson is the meeting organizer.', Comment = '%1=Salesperson Code';
         Text010: Label 'Do you want to create a new %2 value in %1 for this Task?', Comment = '%1=Task Interaction Language,%2=Language Code';
         Text012: Label 'You cannot change a Task type from Blank or Phone Call to Meeting and vice versa. You can only change a Task type from Blank to Phone Call or from Phone Call to Blank.';
+#pragma warning disable AA0470
         Text015: Label 'Dear %1,';
+#pragma warning restore AA0470
         Text016: Label 'You are cordially invited to attend the meeting, which will take place on %1, %2 at %3.', Comment = '%1 = Task Date,%2 = Task StartTime,%3=Task location';
         Text017: Label 'Yours sincerely,';
+#pragma warning disable AA0470
         Text018: Label 'The %1 check box is not selected.';
         Text019: Label 'Send invitations to all Attendees with selected %1 check boxes.';
+#pragma warning restore AA0470
         Text020: Label 'Send invitations to Attendees who have not been sent invitations yet.';
         Text021: Label 'Do not send invitations.';
+#pragma warning disable AA0470
         Text022: Label 'Invitations have already been sent to Attendees with selected %1 check boxes. Do you want to resend the invitations?';
         Text023: Label 'Outlook failed to send an invitation to %1.';
+#pragma warning restore AA0470
         Text029: Label 'The %1 field must be filled in for Tasks assigned to a team.', Comment = '%1=Completed By';
+#pragma warning restore AA0074
         TasksWillBeDeletedQst: Label 'Tasks of the %1 team members who do not belong to the %2 team will be deleted. Do you want to continue?', Comment = '%1 = old Team code, %2 = new Team code';
+#pragma warning disable AA0074
         Text032: Label 'Task No. %1 will be reassigned to %2 and the corresponding salesperson Tasks for team members will be deleted. Do you want to continue?', Comment = '%1=Task No.,%2=Salesperson Code';
         Text033: Label 'Task No. %1 will be reassigned to %2. Do you want to continue?', Comment = '%1=Task No.,%2=Salesperson Code';
         Text034: Label 'Do you want to close the Task?';
+#pragma warning disable AA0470
         Text035: Label 'You must fill in either the %1 field or the %2 field.';
+#pragma warning restore AA0470
         Text036: Label 'Creating Tasks...\';
+#pragma warning restore AA0074
         TaskNoMsg: Label 'Task No. #1##############\', Comment = '%1 = counter';
+#pragma warning disable AA0074
         Text038: Label 'Status    @2@@@@@@@@@@@@@@';
         Text039: Label 'Task No. %1 is closed and will be reopened. The Tasks of the %2 team members who do not belong to the %3 team will be deleted. Do you want to continue?', Comment = '%1=Task No,%2=Team Code,%3=Team Code';
         Text040: Label 'Task No. %1 is closed and will be reopened. It will be reassigned to %2, and the corresponding salesperson Tasks for team members will be deleted. Do you want to continue?', Comment = '%1=Task No.,%2=Salesperson Code';
         Text041: Label 'Task No. %1 is closed. It will be reopened and reassigned to %2. Do you want to continue?', Comment = '%1=Task No.,%2=Salesperson Code';
         Text042: Label 'Task No. %1 is closed. Do you want to reopen it and assign to the %2 team?', Comment = '%1=Task No.,%2=Team Code';
+#pragma warning disable AA0470
         Text043: Label 'You must fill in the %1 field.';
+#pragma warning restore AA0470
         Text047: Label 'You cannot use the wizard to create an attachment. You can create an attachment in the Interaction Template window.';
         Text051: Label 'Activity Code';
+#pragma warning disable AA0470
         Text053: Label 'You must specify %1 or %2.';
+#pragma warning restore AA0470
         Text056: Label 'Activity %1 contains Tasks of type Meeting. You must fill in the Meeting Organizer field.', Comment = '%1=Activity Code';
         Text065: Label 'You must specify the Task organizer.';
+#pragma warning disable AA0470
         Text067: Label 'The %1 must contain an attachment if you want to send an invitation to an %2 of the contact type.';
         Text068: Label 'You cannot select the Send invitation(s) on Finish check box, because none of the %1 check boxes are selected.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         RunFormCode: Boolean;
         CreateExchangeAppointment: Boolean;
         MeetingSaaSNotSupportedErr: Label 'You cannot create a task of type Meeting because you''re not using an on-premises deployment.';
@@ -1416,11 +1439,11 @@ table 5080 "To-do"
 
         TaskDate := Task2.Date;
         ActivityStep.SetRange("Activity Code", ActivityCode);
-        if ActivityStep.Find('-') then begin
+        if ActivityStep.Find('-') then
             repeat
                 InsertActivityStepTask(Task2, ActivityStep, TaskDate, Attendee);
-            until ActivityStep.Next() = 0;
-        end else
+            until ActivityStep.Next() = 0
+        else
             InsertActivityStepTask(Task2, ActivityStep, TaskDate, Attendee);
     end;
 
@@ -1695,7 +1718,7 @@ table 5080 "To-do"
                     TaskInteractionLanguage."To-do No." := Task."No.";
                     TaskInteractionLanguage."Language Code" := InteractTemplLanguage."Language Code";
                     TaskInteractionLanguage.Description := InteractTemplLanguage.Description;
-                    if Attachment2.Get(InteractTemplLanguage."Attachment No.") then begin
+                    if Attachment2.Get(InteractTemplLanguage."Attachment No.") then
                         if AttachmentTemporary then begin
                             Attachment.Init();
                             if Attachment2."Storage Type" = Attachment2."Storage Type"::Embedded then
@@ -1706,7 +1729,6 @@ table 5080 "To-do"
                         end else
                             TaskInteractionLanguage."Attachment No." :=
                               AttachmentManagement.InsertAttachment(InteractTemplLanguage."Attachment No.");
-                    end;
                     TaskInteractionLanguage.Insert();
                 until InteractTemplLanguage.Next() = 0
             else
@@ -1771,17 +1793,16 @@ table 5080 "To-do"
                 if Selected in [0, 3] then
                     Error('');
             end;
-            if NoNotSent = 0 then begin
+            if NoNotSent = 0 then
                 if not Confirm(
                      StrSubstNo(
                        Text022, Attendee.FieldCaption("Send Invitation")), false)
                 then
                     Error('');
-            end;
-            if NoToSend = NoNotSent then begin
+
+            if NoToSend = NoNotSent then
                 if not Confirm(StrSubstNo(Text019, Attendee.FieldCaption("Send Invitation")), false) then
                     Error('');
-            end;
 
             Attendee.Reset();
             Attendee.SetRange("To-do No.", Task."Organizer To-do No.");
@@ -2027,7 +2048,7 @@ table 5080 "To-do"
 
         TeamSalesperson.MarkedOnly(true);
         TeamSalesperson.SetRange("Salesperson Code");
-        if TeamSalesperson.Find('-') then begin
+        if TeamSalesperson.Find('-') then
             if Type = Type::Meeting then
                 repeat
                     Attendee.Reset();
@@ -2060,8 +2081,7 @@ table 5080 "To-do"
                       true);
                     CreateSubTask(TempAttendee, Rec);
                     TempAttendee.DeleteAll();
-                until TeamSalesperson.Next() = 0
-        end;
+                until TeamSalesperson.Next() = 0;
         Modify(true)
     end;
 
@@ -3018,12 +3038,11 @@ table 5080 "To-do"
     var
         ExchangeServiceSetup: Record "Exchange Service Setup";
         AzureADMgt: Codeunit "Azure AD Mgt.";
-        [NonDebuggable]
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
-        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
+        AccessToken := AzureADMgt.GetAccessTokenAsSecretText(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
 
-        if AccessToken <> '' then begin
+        if not AccessToken.IsEmpty() then begin
             ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint());
             exit;
         end;

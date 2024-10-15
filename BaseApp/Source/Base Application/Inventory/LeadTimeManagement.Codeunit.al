@@ -8,6 +8,7 @@ using Microsoft.Foundation.Calendar;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
@@ -94,19 +95,36 @@ codeunit 5404 "Lead-Time Management"
         OnAfterSafetyLeadTime(TempSKU, Result);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure GetPlannedEndingDate()', '25.0')]
     procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly) Result: Date
+    var
+        IsHandled: Boolean;
+    begin
+        exit(GetPlannedEndingDate(ItemNo, LocationCode, VariantCode, DueDate, VendorNo, "Requisition Ref. Order Type".FromInteger(RefOrderType)));
+    end;
+#endif
+
+    procedure GetPlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type") Result: Date
     var
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
-        PlannedReceiptDate: Date;
         DateFormula: DateFormula;
+        PlannedReceiptDate: Date;
         OrgDateExpression: Text[30];
         CheckBothCalendars: Boolean;
         IsHandled: Boolean;
     begin
+#if not CLEAN25
         // Returns Ending Date calculated backward from Due Date
         IsHandled := false;
-        OnBeforePlannedEndingDate(ItemNo, LocationCode, VariantCode, DueDate, VendorNo, RefOrderType, Result, IsHandled);
+        OnBeforePlannedEndingDate(ItemNo, LocationCode, VariantCode, DueDate, VendorNo, RefOrderType.AsInteger(), Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+#endif
+        // Returns Ending Date calculated backward from Due Date
+        IsHandled := false;
+        OnBeforeGetPlannedEndingDate(ItemNo, LocationCode, VariantCode, DueDate, VendorNo, RefOrderType, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
@@ -120,7 +138,10 @@ codeunit 5404 "Lead-Time Management"
               PlannedReceiptDate, DueDate, DateFormula, LocationCode, TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
             exit(PlannedReceiptDate);
         end;
-        OnPlannedEndingDateOnBeforeFormatDateFormula(TempSKU, RefOrderType, ItemNo, DueDate);
+#if not CLEAN25
+        OnPlannedEndingDateOnBeforeFormatDateFormula(TempSKU, RefOrderType.AsInteger(), ItemNo, DueDate);
+#endif
+        OnGetPlannedEndingDateOnBeforeFormatDateFormula(TempSKU, RefOrderType, ItemNo, DueDate);
         FormatDateFormula(TempSKU."Safety Lead Time");
         OrgDateExpression := InternalLeadTimeDays(WhseInBoundHandlingTime(LocationCode) + Format(TempSKU."Safety Lead Time"));
         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
@@ -132,17 +153,28 @@ codeunit 5404 "Lead-Time Management"
         exit(CalendarMgmt.CalcDateBOC2(OrgDateExpression, DueDate, CustomCalendarChange, CheckBothCalendars));
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure GetPlannedStartingDate()', '25.0')]
     procedure PlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date) Result: Date
+    begin
+        exit(GetPlannedStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, "Requisition Ref. Order Type".FromInteger(RefOrderType), EndingDate));
+    end;
+#endif
+
+    procedure GetPlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; EndingDate: Date) Result: Date
     var
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
-        PlannedShipmentDate: Date;
         ShippingTime: DateFormula;
+        PlannedShipmentDate: Date;
         CheckBothCalendars: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePlannedStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, RefOrderType, EndingDate, Result, IsHandled);
+#if not CLEAN25
+        OnBeforePlannedStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, RefOrderType.AsInteger(), EndingDate, Result, IsHandled);
+#endif
+        OnBeforeGetPlannedStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, RefOrderType, EndingDate, Result, IsHandled);
         if not IsHandled then begin
             // Returns Starting Date calculated backward from Ending Date
 
@@ -172,18 +204,33 @@ codeunit 5404 "Lead-Time Management"
         OnAfterPlannedStartingDate(LeadTime, EndingDate, CustomCalendarChange, CheckBothCalendars, Result);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure GetPlannedEndingDate()', '25.0')]
     procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; StartingDate: Date) Result: Date
+    begin
+        exit(GetPlannedEndingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, "Requisition Ref. Order Type".FromInteger(RefOrderType), StartingDate));
+    end;
+#endif
+
+    procedure GetPlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; StartingDate: Date) Result: Date
     var
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
-        PlannedReceiptDate: Date;
         ShippingTime: DateFormula;
+        PlannedReceiptDate: Date;
         CheckBothCalendars: Boolean;
         IsHandled: Boolean;
     begin
+#if not CLEAN25
         // Returns Ending Date calculated forward from Starting Date
         IsHandled := false;
-        OnBeforePlannedEndingDateCalculaterForwardFromStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, RefOrderType, StartingDate, Result, IsHandled);
+        OnBeforePlannedEndingDateCalculaterForwardFromStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, RefOrderType.AsInteger(), StartingDate, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+#endif
+        // Returns Ending Date calculated forward from Starting Date
+        IsHandled := false;
+        OnBeforeGetPlannedEndingDateCalculaterForwardFromStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, RefOrderType, StartingDate, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
@@ -210,24 +257,42 @@ codeunit 5404 "Lead-Time Management"
         exit(CalendarMgmt.CalcDateBOC(LeadTime, StartingDate, CustomCalendarChange, CheckBothCalendars));
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure GetPlannedDueDate()', '25.0')]
     procedure PlannedDueDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; EndingDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly) Result: Date
+    begin
+        exit(GetPlannedDueDate(ItemNo, LocationCode, VariantCode, EndingDate, VendorNo, "Requisition Ref. Order Type".FromInteger(RefOrderType)));
+    end;
+#endif
+
+    procedure GetPlannedDueDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; EndingDate: Date; VendorNo: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type") Result: Date
     var
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
-        ReceiptDate: Date;
         DateFormula: DateFormula;
+        ReceiptDate: Date;
         OrgDateExpression: Text[30];
         CheckBothCalendars: Boolean;
         IsHandled: Boolean;
     begin
+#if not CLEAN25
         // Returns Due Date calculated forward from Ending Date
         IsHandled := false;
-        OnBeforePlannedDueDate(ItemNo, LocationCode, VariantCode, EndingDate, VendorNo, RefOrderType, Result, IsHandled);
+        OnBeforePlannedDueDate(ItemNo, LocationCode, VariantCode, EndingDate, VendorNo, RefOrderType.AsInteger(), Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+#endif
+        // Returns Due Date calculated forward from Ending Date
+        IsHandled := false;
+        OnBeforeGetPlannedDueDate(ItemNo, LocationCode, VariantCode, EndingDate, VendorNo, RefOrderType, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
         GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
-        OnPlannedDueDateOnBeforeFormatDateFormula(TempSKU, RefOrderType, EndingDate, ItemNo, LocationCode);
+#if not CLEAN25
+        OnPlannedDueDateOnBeforeFormatDateFormula(TempSKU, RefOrderType.AsInteger(), EndingDate, ItemNo, LocationCode);
+#endif
+        OnGetPlannedDueDateOnBeforeFormatDateFormula(TempSKU, RefOrderType, EndingDate, ItemNo, LocationCode);
         FormatDateFormula(TempSKU."Safety Lead Time");
 
         if RefOrderType = RefOrderType::Transfer then begin
@@ -296,28 +361,68 @@ codeunit 5404 "Lead-Time Management"
             Error(LeadTimeCalcNegativeErr);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeGetPlannedDueDate()', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlannedDueDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; EndingDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; var Result: Date; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPlannedDueDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; EndingDate: Date; VendorNo: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeGetPlannedEndingDate()', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; var Result: Date; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeGetPlannedStartingDate()', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; var LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date; var Result: Date; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; var LeadTime: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; EndingDate: Date; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnGetPlannedEndingDateOnBeforeFormatDateFormula()', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPlannedDueDateOnBeforeFormatDateFormula(var SKU: Record "Stockkeeping Unit"; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date; ItemNo: Code[20]; LocationCode: Code[10]);
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnGetPlannedDueDateOnBeforeFormatDateFormula(var SKU: Record "Stockkeeping Unit"; RefOrderType: Enum "Requisition Ref. Order Type"; EndingDate: Date; ItemNo: Code[20]; LocationCode: Code[10]);
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnGetPlannedEndingDateOnBeforeFormatDateFormula()', '25.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnPlannedEndingDateOnBeforeFormatDateFormula(var SKU: Record "Stockkeeping Unit"; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; ItemNo: code[20]; DueDate: Date);
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetPlannedEndingDateOnBeforeFormatDateFormula(var SKU: Record "Stockkeeping Unit"; RefOrderType: Enum "Requisition Ref. Order Type"; ItemNo: code[20]; DueDate: Date);
     begin
     end;
 
@@ -346,8 +451,16 @@ codeunit 5404 "Lead-Time Management"
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnBeforeGetPlannedEndingDateCalculaterForwardFromStartingDate()', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlannedEndingDateCalculaterForwardFromStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; var LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; var StartingDate: Date; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPlannedEndingDateCalculaterForwardFromStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; var LeadTime: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; var StartingDate: Date; var Result: Date; var IsHandled: Boolean)
     begin
     end;
 }

@@ -850,10 +850,18 @@ page 9183 "Generic Chart Setup"
         xRecSourceID: Integer;
         DummyInt: Integer;
         DummyCaption: Text[50];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'All fields will be reset. Are you sure that you want to change the %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         OptionalMeasuresEnabled: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Field %1 is already assigned to a measure or dimension. Select a different field.';
         Text003: Label 'Do you want to replace the existing definition for %1 %2?', Comment = 'Do you want to replace the existing definition for Chart 36-06?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DataColumn1Enabled: Boolean;
         DataColumn2Enabled: Boolean;
         DataColumn3Enabled: Boolean;
@@ -861,8 +869,10 @@ page 9183 "Generic Chart Setup"
         DataColumn5Enabled: Boolean;
         DataColumn6Enabled: Boolean;
         ZAxisEnabled: Boolean;
+#pragma warning disable AA0074
         Text004: Label 'You can only specify one Measure with aggregation type Count.';
         Text005: Label 'If you select Aggregation Count, the Data Column will be cleared for this measure. Do you want to continue?';
+#pragma warning restore AA0074
         TitleEnabled: Boolean;
 
     local procedure SetFieldValues()

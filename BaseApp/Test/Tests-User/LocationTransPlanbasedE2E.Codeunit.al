@@ -332,12 +332,10 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         CompanyInformation: Record "Company Information";
         BlankDateFormula: DateFormula;
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("Check-Avail. Period Calc.", BlankDateFormula);
-            Validate("Check-Avail. Time Bucket", "Check-Avail. Time Bucket"::Day);
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Check-Avail. Period Calc.", BlankDateFormula);
+        CompanyInformation.Validate("Check-Avail. Time Bucket", CompanyInformation."Check-Avail. Time Bucket"::Day);
+        CompanyInformation.Modify(true);
     end;
 
     local procedure InitializePreExistingMasterDataForTeamMember(var Item: Record Item; var Vendor: Record Vendor; var Customer: Record Customer)
@@ -473,10 +471,8 @@ codeunit 135402 "Location Trans. Plan-based E2E"
 
     local procedure CheckPostedDetailsOfTransferShipmentAndReceiptForSpecificTransferOrder(TransferHeader: Record "Transfer Header")
     begin
-        with TransferHeader do begin
-            AssertPostedTransferShipmentExists("Transfer-from Code", "Transfer-to Code", "In-Transit Code");
-            AssertPostedTransferReceiptExists("Transfer-from Code", "Transfer-to Code", "In-Transit Code");
-        end;
+        AssertPostedTransferShipmentExists(TransferHeader."Transfer-from Code", TransferHeader."Transfer-to Code", TransferHeader."In-Transit Code");
+        AssertPostedTransferReceiptExists(TransferHeader."Transfer-from Code", TransferHeader."Transfer-to Code", TransferHeader."In-Transit Code");
     end;
 
     local procedure CreateLocation("Code": Code[10]; Name: Text[100])

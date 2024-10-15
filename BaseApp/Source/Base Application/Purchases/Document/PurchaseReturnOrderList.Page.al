@@ -293,10 +293,22 @@ page 9311 "Purchase Return Order List"
                 SubPageLink = "No." = field("Buy-from Vendor No."),
                               "Date Filter" = field("Date Filter");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Purchase Header"), "No." = field("No."), "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Purchase Header"), "No." = field("No."), "Document Type" = field("Document Type");
             }
             systempart(Control1900383207; Links)
@@ -781,15 +793,6 @@ page 9311 "Purchase Return Order List"
                 actionref("Create &Warehouse Shipment_Promoted"; "Create &Warehouse Shipment")
                 {
                 }
-#if not CLEAN22
-                actionref(TestReport_Promoted; TestReport)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Category6)
             {
@@ -838,25 +841,6 @@ page 9311 "Purchase Return Order List"
             group(Category_Category5)
             {
                 Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 4.';
-
-#if not CLEAN22
-                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
-#if not CLEAN22
-                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Category4)
             {

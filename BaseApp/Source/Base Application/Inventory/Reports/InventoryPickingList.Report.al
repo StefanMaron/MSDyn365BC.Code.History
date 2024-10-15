@@ -180,7 +180,11 @@ report 813 "Inventory Picking List"
         GetSalesLineCurrentKey: Text[250];
         GetItemCurrentKey: Text[250];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Sales Order Line: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InventoryPickingListCaptionLbl: Label 'Inventory Picking List';
         PageCaptionLbl: Label 'Page';
         CustomerCaptionLbl: Label 'Customer';

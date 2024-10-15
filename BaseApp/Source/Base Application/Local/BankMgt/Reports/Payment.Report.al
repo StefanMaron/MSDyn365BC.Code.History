@@ -18,7 +18,7 @@ report 32000005 Payment
     {
         dataitem("Bank Account"; "Bank Account")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(TodayFormatted; Format(Today, 0, 4))
@@ -54,7 +54,7 @@ report 32000005 Payment
             dataitem("Ref. Payment - Exported"; "Ref. Payment - Exported")
             {
                 DataItemLink = "Payment Account" = field("No.");
-                DataItemTableView = sorting("Payment Date", "Vendor No.", "Entry No.") ORDER(Ascending) where(Transferred = const(false), "Applied Payments" = const(false));
+                DataItemTableView = sorting("Payment Date", "Vendor No.", "Entry No.") order(ascending) where(Transferred = const(false), "Applied Payments" = const(false));
                 RequestFilterFields = "Vendor No.";
                 column(PmtDate_RefPmtExported; "Payment Date")
                 {

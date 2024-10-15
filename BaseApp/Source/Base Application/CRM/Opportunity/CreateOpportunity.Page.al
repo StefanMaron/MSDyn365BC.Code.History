@@ -229,8 +229,10 @@ page 5126 "Create Opportunity"
         WizardCampaignDescriptionEdita: Boolean;
         IsOnMobile: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label '(Multiple)';
         Text001: Label 'untitled';
+#pragma warning restore AA0074
 
     procedure Caption(): Text
     var

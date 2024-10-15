@@ -435,7 +435,7 @@ table 5330 "CRM Connection Setup"
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CRMProductName: Codeunit "CRM Product Name";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
-        TempUserPassword: Text;
+        TempUserPassword: SecretText;
 
         ConnectionErr: Label 'The connection setup cannot be validated. Verify the settings and try again.\Detailed error description: %1.', Comment = '%1 Error message from the provider (.NET exception message)';
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
@@ -474,7 +474,8 @@ table 5330 "CRM Connection Setup"
         CDSConnectionMustBeEnabledErr: Label 'You must enable the connection to Dataverse before you can set up the connection to %1.\\Choose ''Set up Dataverse connection'' in %2 page.', Comment = '%1 = CRM product name, %2 = Assisted Setup page caption.';
         ShowDataverseConnectionSetupLbl: Label 'Show Dataverse Connection Setup';
         DeploySucceedMsg: Label 'The solution, user roles, and entities have been deployed.';
-        DeployFailedMsg: Label 'The deployment of the solution, user roles, and entities failed.';
+        DeployFailedMsg: Label 'The deployment of the solution succeeded, but the deployment of user roles failed.';
+        DeploySolutionFailedMsg: Label 'The deployment of the solution failed.';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMConnDisabledTxt: Label 'CRM connection has been disabled.', Locked = true;
         CRMConnEnabledTxt: Label 'CRM connection has been enabled.', Locked = true;
@@ -530,9 +531,11 @@ table 5330 "CRM Connection Setup"
     var
         DummyCRMConnectionSetup: Record "CRM Connection Setup";
         AdminEmail: Text;
-        AdminPassword: Text;
-        AccessToken: Text;
+        AdminPassword: SecretText;
+        AdminPasswordProvided: Text;
+        AccessToken: SecretText;
         AdminADDomain: Text;
+        ImportSolutionFailed: Boolean;
     begin
         if not ForceRedeploy and CRMIntegrationManagement.IsCRMSolutionInstalled() then
             exit;
@@ -542,17 +545,24 @@ table 5330 "CRM Connection Setup"
             "Authentication Type"::Office365:
                 CDSIntegrationImpl.GetAccessToken("Server Address", true, AccessToken);
             "Authentication Type"::AD:
-                if not PromptForCredentials(AdminEmail, AdminPassword, AdminADDomain) then
+                if not PromptForCredentials(AdminEmail, AdminPasswordProvided, AdminADDomain) then begin
+                    AdminPassword := AdminPasswordProvided;
                     exit;
+                end;
             else
-                if not PromptForCredentials(AdminEmail, AdminPassword) then
+                if not PromptForCredentials(AdminEmail, AdminPasswordProvided) then begin
+                    AdminPassword := AdminPasswordProvided;
                     exit;
+                end;
         end;
 
-        if CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, GetProxyVersion(), ForceRedeploy) then
+        if CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, GetProxyVersion(), ForceRedeploy, ImportSolutionFailed) then
             Message(DeploySucceedMsg)
         else
-            Message(DeployFailedMsg);
+            if ImportSolutionFailed then
+                Message(DeploySolutionFailedMsg)
+            else
+                Message(DeployFailedMsg);
     end;
 
     procedure CountCRMJobQueueEntries(var ActiveJobs: Integer; var TotalJobs: Integer)
@@ -574,16 +584,26 @@ table 5330 "CRM Connection Setup"
         end;
     end;
 
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasPassword(): Boolean
     begin
-        exit(GetPassword() <> '');
+        exit(not GetSecretPassword().IsEmpty());
     end;
 
-    [Scope('OnPrem')]
+#if not CLEAN25
+    [Obsolete('Use SetPassword(PasswordText: SecretText) instead.', '25.0')]
     [NonDebuggable]
     procedure SetPassword(PasswordText: Text)
+    var
+        SecretPasswordText: SecretText;
+    begin
+        SecretPasswordText := PasswordText;
+        SetPassword(SecretPasswordText);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SetPassword(PasswordText: SecretText)
     begin
         if IsTemporary() then begin
             TempUserPassword := PasswordText;
@@ -615,9 +635,10 @@ table 5330 "CRM Connection Setup"
             RegisterConnectionWithName("Primary Key");
     end;
 
+    [NonDebuggable]
     procedure RegisterConnectionWithName(ConnectionName: Text)
     begin
-        RegisterTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, GetConnectionStringWithCredentials());
+        RegisterTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, GetSecretConnectionStringWithCredentials().Unwrap());
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, GetDefaultCRMConnection(ConnectionName));
     end;
 
@@ -632,40 +653,55 @@ table 5330 "CRM Connection Setup"
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName);
     end;
 
-    [Scope('OnPrem')]
+#if not CLEAN25
+    [Obsolete('Use the GetSecretConnectionStringWithCredentials procedure instead.', '25.0')]
     [NonDebuggable]
-    procedure GetConnectionStringWithCredentials() ConnectionString: Text
+    procedure GetConnectionStringWithCredentials(): Text
     var
+        ConnectionString: SecretText;
+    begin
+        ConnectionString := GetSecretConnectionStringWithCredentials();
+        exit(ConnectionString.Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetSecretConnectionStringWithCredentials() ConnectionString: SecretText
+    var
+        [NonDebuggable]
+        ConnectionStringWithPlaceholders: Text;
         PasswordPlaceHolderPos: Integer;
     begin
-        ConnectionString := GetConnectionString();
+        ConnectionStringWithPlaceholders := GetConnectionString();
 
         // if the setup record is temporary and connection string contains access token, this is a temp setup record constructed for the admin log-on
         // in this case just use the connection string
-        if IsTemporary() and ConnectionString.Contains(AccessTokenTok) then
-            exit(ConnectionString);
+        if IsTemporary() and ConnectionStringWithPlaceholders.Contains(AccessTokenTok) then
+            exit(ConnectionStringWithPlaceholders);
 
-        if ConnectionString = '' then
-            ConnectionString := UpdateConnectionString();
+        if ConnectionStringWithPlaceholders = '' then
+            ConnectionStringWithPlaceholders := UpdateConnectionString();
 
         // if auth type is Office365 and connection string contains {ClientSecret} token
         // then we will connect via OAuth client credentials grant flow, and construct the connection string accordingly, with the actual client secret
         if "Authentication Type" = "Authentication Type"::Office365 then begin
-            if ConnectionString.Contains(ClientSecretTok) then begin
-                ConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, "Server Address", CDSIntegrationImpl.GetCDSConnectionClientId(), CDSIntegrationImpl.GetCDSConnectionClientSecret(), GetProxyVersion());
+            if ConnectionStringWithPlaceholders.Contains(ClientSecretTok) then begin
+                ConnectionStringWithPlaceholders := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, "Server Address", CDSIntegrationImpl.GetCDSConnectionClientId(), '%1', GetProxyVersion());
+                ConnectionString := SecretStrSubstNo(ConnectionStringWithPlaceholders, CDSIntegrationImpl.GetCDSConnectionClientSecret());
                 exit(ConnectionString);
             end;
 
-            if ConnectionString.Contains(CertificateTok) then begin
+            if ConnectionStringWithPlaceholders.Contains(CertificateTok) then begin
                 ConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, "Server Address", CDSIntegrationImpl.GetCDSConnectionFirstPartyAppId(), CDSIntegrationImpl.GetCDSConnectionFirstPartyAppCertificate(), GetProxyVersion());
                 exit(ConnectionString);
             end;
         end;
 
-        PasswordPlaceHolderPos := StrPos(ConnectionString, MissingPasswordTok);
-        ConnectionString :=
-          CopyStr(ConnectionString, 1, PasswordPlaceHolderPos - 1) + GetPassword() +
-          CopyStr(ConnectionString, PasswordPlaceHolderPos + StrLen(MissingPasswordTok));
+        PasswordPlaceHolderPos := StrPos(ConnectionStringWithPlaceholders, MissingPasswordTok);
+        ConnectionStringWithPlaceholders :=
+          CopyStr(ConnectionStringWithPlaceholders, 1, PasswordPlaceHolderPos - 1) + '%1' +
+          CopyStr(ConnectionStringWithPlaceholders, PasswordPlaceHolderPos + StrLen(MissingPasswordTok));
+        ConnectionString := SecretStrSubstNo(ConnectionStringWithPlaceholders, GetSecretPassword());
     end;
 
     procedure GetIntegrationUserID() IntegrationUserID: Guid
@@ -681,17 +717,25 @@ table 5330 "CRM Connection Setup"
             ShowError(UserCRMSetupTxt, StrSubstNo(CannotResolveUserFromConnectionSetupErr, CRMProductName.SHORT()));
     end;
 
+#if not CLEAN25
+    [Obsolete('Use the procedure GetSecretPassword instead.', '25.0')]
     [NonDebuggable]
-    [Scope('OnPrem')]
     procedure GetPassword(): Text
+    begin
+        exit(GetSecretPassword().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetSecretPassword(): SecretText
     var
         Value: SecretText;
     begin
         if IsTemporary() then
             exit(TempUserPassword);
         if not IsNullGuid("User Password Key") then
-            IsolatedStorageManagement.Get("User Password Key", DATASCOPE::Company, Value);
-        exit(Value.Unwrap());
+            IsolatedStorageManagement.Get("User Password Key", DataScope::Company, Value);
+        exit(Value);
     end;
 
     local procedure GetUserName() UserName: Text
@@ -835,9 +879,10 @@ table 5330 "CRM Connection Setup"
         CRMSystemuser.FindFirst();
     end;
 
+    [NonDebuggable]
     local procedure CreateOrganizationService(var CRMHelper: DotNet CrmHelper)
     begin
-        CRMHelper := CRMHelper.CrmHelper(GetConnectionStringWithCredentials());
+        CRMHelper := CRMHelper.CrmHelper(GetSecretConnectionStringWithCredentials().Unwrap());
     end;
 
     [TryFunction]
@@ -863,8 +908,19 @@ table 5330 "CRM Connection Setup"
         exit(false);
     end;
 
+#if not CLEAN25
+    [Obsolete('Use the procedure that receives PasswordText as SecretText instead.', '25.0')]
     [NonDebuggable]
     procedure UpdateFromWizard(var SourceCRMConnectionSetup: Record "CRM Connection Setup"; PasswordText: Text)
+    var
+        SecretPasswordText: SecretText;
+    begin
+        SecretPasswordText := PasswordText;
+        UpdateFromWizard(SourceCRMConnectionSetup, SecretPasswordText);
+    end;
+#endif
+
+    procedure UpdateFromWizard(var SourceCRMConnectionSetup: Record "CRM Connection Setup"; PasswordText: SecretText)
     begin
         if not Get() then begin
             Init();
@@ -914,8 +970,9 @@ table 5330 "CRM Connection Setup"
     var
         AdminEmail: Text;
         AdminPassword: Text;
-        AccessToken: Text;
+        AccessToken: SecretText;
         AdminADDomain: Text;
+        ImportSolutionFailed: Boolean;
     begin
         if CRMIntegrationManagement.IsCRMSolutionInstalled() then
             exit;
@@ -932,7 +989,7 @@ table 5330 "CRM Connection Setup"
         end;
 
         CRMIntegrationManagement.ImportCRMSolution(
-            "Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, GetProxyVersion(), false);
+            "Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, GetProxyVersion(), false, ImportSolutionFailed);
     end;
 
     local procedure EnableIntegrationTables()
@@ -999,7 +1056,7 @@ table 5330 "CRM Connection Setup"
         else begin
             CRMConnectionSetup.Get();
             TempCRMConnectionSetup.Validate("User Name", CRMConnectionSetup."User Name");
-            TempCRMConnectionSetup.SetPassword(CRMConnectionSetup.GetPassword());
+            TempCRMConnectionSetup.SetPassword(CRMConnectionSetup.GetSecretPassword());
             TempCRMConnectionSetup.SetConnectionString(CRMConnectionSetup.GetConnectionString());
         end;
         ConnectionName := Format(CreateGuid());

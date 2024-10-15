@@ -1469,18 +1469,16 @@
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with PmtGenJnlLine do begin
-            CreateGeneralJournalBatch(GenJournalBatch);
-            Init();
-            "Journal Template Name" := GenJournalBatch."Journal Template Name";
-            "Journal Batch Name" := GenJournalBatch.Name;
-            "Document Type" := "Document Type"::Payment;
-            "Document No." :=
-              CopyStr(
-                LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Gen. Journal Line"), 1, MaxStrLen("Document No."));
-            "Account Type" := AccountType;
-            "Account No." := CVNo;
-        end;
+        CreateGeneralJournalBatch(GenJournalBatch);
+        PmtGenJnlLine.Init();
+        PmtGenJnlLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
+        PmtGenJnlLine."Journal Batch Name" := GenJournalBatch.Name;
+        PmtGenJnlLine."Document Type" := PmtGenJnlLine."Document Type"::Payment;
+        PmtGenJnlLine."Document No." :=
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(PmtGenJnlLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"), 1, MaxStrLen(PmtGenJnlLine."Document No."));
+        PmtGenJnlLine."Account Type" := AccountType;
+        PmtGenJnlLine."Account No." := CVNo;
     end;
 
     local procedure CreatePmtLineAppliedToDoc(PmtGenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; PmtAmount: Decimal)
@@ -1497,17 +1495,15 @@
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, PmtGenJnlLine."Journal Template Name", PmtGenJnlLine."Journal Batch Name", DocType,
-              PmtGenJnlLine."Account Type", PmtGenJnlLine."Account No.", PmtAmount);
-            Validate("Bal. Account Type", BalAccountType);
-            Validate("Bal. Account No.", BalAccountNo);
-            Validate("Document No.", PmtGenJnlLine."Document No.");
-            Validate("Applies-to Doc. Type", AppliesToDocType);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, PmtGenJnlLine."Journal Template Name", PmtGenJnlLine."Journal Batch Name", DocType,
+            PmtGenJnlLine."Account Type", PmtGenJnlLine."Account No.", PmtAmount);
+        GenJnlLine.Validate("Bal. Account Type", BalAccountType);
+        GenJnlLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJnlLine.Validate("Document No.", PmtGenJnlLine."Document No.");
+        GenJnlLine.Validate("Applies-to Doc. Type", AppliesToDocType);
+        GenJnlLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
@@ -1555,29 +1551,26 @@
         FindGeneralPostingSetup(GeneralPostingSetup);
         FindVATPostingSetup(VATPostingSetup);
 
-        with GenJnlLine do begin
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Validate("Bal. Gen. Posting Type", GetGenPostingType("Account Type"));
-            Validate("Bal. Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            Validate("Bal. Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-        end;
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJnlLine.Validate("Bal. Gen. Posting Type", GetGenPostingType(GenJnlLine."Account Type"));
+        GenJnlLine.Validate("Bal. Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GenJnlLine.Validate("Bal. Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GenJnlLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJnlLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GenJnlLine.Modify(true);
     end;
 
     local procedure GetGenPostingType(AccountType: Enum "Gen. Journal Account Type"): Enum "General Posting Type"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do
-            case AccountType of
-                "Account Type"::Customer:
-                    exit("Bal. Gen. Posting Type"::Sale);
-                "Account Type"::Vendor:
-                    exit("Bal. Gen. Posting Type"::Purchase);
-            end;
+        case AccountType of
+            GenJnlLine."Account Type"::Customer:
+                exit(GenJnlLine."Bal. Gen. Posting Type"::Sale);
+            GenJnlLine."Account Type"::Vendor:
+                exit(GenJnlLine."Bal. Gen. Posting Type"::Purchase);
+        end;
     end;
 
     local procedure PostGenJnlLineFromBatch(JnlTemplName: Code[10]; JnlBatchName: Code[10])
@@ -1929,17 +1922,15 @@
     begin
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         // Using assignment to avoid error in ES.
-        with GeneralPostingSetup do begin
-            if "Sales Pmt. Disc. Credit Acc." = '' then
-                "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
-            if "Sales Pmt. Disc. Debit Acc." = '' then
-                "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
-            if "Purch. Pmt. Disc. Credit Acc." = '' then
-                "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
-            if "Purch. Pmt. Disc. Debit Acc." = '' then
-                "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
-            Modify(true);
-        end;
+        if GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." = '' then
+            GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        if GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." = '' then
+            GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        if GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." = '' then
+            GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        if GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." = '' then
+            GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GeneralPostingSetup.Modify(true);
     end;
 
     local procedure FindUpdateVATPostingSetupVATPct(NewVATPct: Decimal)
@@ -2025,11 +2016,9 @@
 
     local procedure ModifyVATPostingSetupUnrealizedType(var VATPostingSetup: Record "VAT Posting Setup"; NewUnrealizedVATType: Option) OldUnrealizedVATType: Integer
     begin
-        with VATPostingSetup do begin
-            OldUnrealizedVATType := "Unrealized VAT Type";
-            Validate("Unrealized VAT Type", NewUnrealizedVATType);
-            Modify(true);
-        end;
+        OldUnrealizedVATType := VATPostingSetup."Unrealized VAT Type";
+        VATPostingSetup.Validate("Unrealized VAT Type", NewUnrealizedVATType);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure DeleteVATPostingSetup(VATBusPostingGroupCode: Code[20])
@@ -2114,28 +2103,24 @@
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            SetRange("Entry Type", EntryType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreNearlyEqual(
-              AmountLCY, "Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountLCYErr, FieldCaption("Entry No."), AmountLCY, TableCaption));
-        end;
+        DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
+        DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedCustLedgEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          AmountLCY, DetailedCustLedgEntry."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountLCYErr, DetailedCustLedgEntry.FieldCaption("Entry No."), AmountLCY, DetailedCustLedgEntry.TableCaption));
     end;
 
     local procedure VerifyDetailedVendLedgerEntryAmount(DocumentNo: Code[20]; AmountLCY: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            SetRange("Entry Type", EntryType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreNearlyEqual(
-              AmountLCY, "Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountLCYErr, FieldCaption("Entry No."), AmountLCY, TableCaption));
-        end;
+        DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
+        DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedVendorLedgEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          AmountLCY, DetailedVendorLedgEntry."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountLCYErr, DetailedVendorLedgEntry.FieldCaption("Entry No."), AmountLCY, DetailedVendorLedgEntry.TableCaption));
     end;
 
     local procedure VerifyGLEntries(GenJournalLine: Record "Gen. Journal Line"; DebitAmount: Decimal; CreditAmount: Decimal)
@@ -2227,17 +2212,15 @@
     var
         DummyGLEntry: Record "G/L Entry";
     begin
-        with DummyGLEntry do begin
-            Init();
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            if IsPositiveAmount then
-                SetFilter(Amount, '>%1', 0)
-            else
-                SetFilter(Amount, '<%1', 0);
-            SetRange("Gen. Posting Type", ExpectedGenPostingType);
-            Assert.RecordIsNotEmpty(DummyGLEntry);
-        end;
+        DummyGLEntry.Init();
+        DummyGLEntry.SetRange("Document No.", DocumentNo);
+        DummyGLEntry.SetRange("G/L Account No.", GLAccountNo);
+        if IsPositiveAmount then
+            DummyGLEntry.SetFilter(Amount, '>%1', 0)
+        else
+            DummyGLEntry.SetFilter(Amount, '<%1', 0);
+        DummyGLEntry.SetRange("Gen. Posting Type", ExpectedGenPostingType);
+        Assert.RecordIsNotEmpty(DummyGLEntry);
     end;
 
     local procedure VerifyUnappliedVATEntry(DocumentNo: Code[20]; AccountNo: Code[20]; VATBase: Decimal; VATAmount: Decimal)

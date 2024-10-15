@@ -79,17 +79,15 @@ codeunit 144010 "Company Field Report Test"
         Customer: Record Customer;
         DocumentNumber: Variant;
     begin
-        with LibrarySales do begin
-            CreateCustomer(Customer);
-            CreateSalesHeader(SalesHeader, Type, Customer."No.");
-            CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(1000));
-            if Post then
-                DocumentNumber := PostSalesDocument(SalesHeader, true, true)
-            else
-                DocumentNumber := SalesHeader."No.";
-            LibraryVariableStorage.Enqueue(DocumentNumber);
-            Commit();
-        end;
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, Type, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(1000));
+        if Post then
+            DocumentNumber := LibrarySales.PostSalesDocument(SalesHeader, true, true)
+        else
+            DocumentNumber := SalesHeader."No.";
+        LibraryVariableStorage.Enqueue(DocumentNumber);
+        Commit();
         exit(DocumentNumber);
     end;
 
@@ -100,20 +98,18 @@ codeunit 144010 "Company Field Report Test"
         Vendor: Record Vendor;
         DocumentNumber: Variant;
     begin
-        with LibraryPurchase do begin
-            CreateVendor(Vendor);
-            CreatePurchHeader(PurchaseHeader, Type, Vendor."No.");
-            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then
-                PurchaseHeader."Vendor Cr. Memo No." := VendorCrMemoNoTxt;
-            CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(1000));
-            if Post then
-                DocumentNumber := PostPurchaseDocument(PurchaseHeader, true, true)
-            else
-                DocumentNumber := PurchaseHeader."No.";
-            LibraryVariableStorage.Enqueue(DocumentNumber);
-            Commit();
-        end;
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, Type, Vendor."No.");
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then
+            PurchaseHeader."Vendor Cr. Memo No." := VendorCrMemoNoTxt;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(1000));
+        if Post then
+            DocumentNumber := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true)
+        else
+            DocumentNumber := PurchaseHeader."No.";
+        LibraryVariableStorage.Enqueue(DocumentNumber);
+        Commit();
         exit(DocumentNumber);
     end;
 
@@ -126,27 +122,25 @@ codeunit 144010 "Company Field Report Test"
         LibraryService: Codeunit "Library - Service";
         DocumentNumber: Variant;
     begin
-        with LibraryService do begin
-            Initialize();
-            LibrarySales.CreateCustomer(Customer);
-            CreateServiceHeader(ServiceHeader, Type, Customer."No.");
-            CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
-            ServiceLine.Validate(Quantity, 1);
-            ServiceLine.Modify();
-            if Post then begin
-                PostServiceOrder(ServiceHeader, true, false, true);
+        Initialize();
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, Type, Customer."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Modify();
+        if Post then begin
+            LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
-                ServiceInvoiceHeader.FindLast();
-                DocumentNumber := ServiceInvoiceHeader."No.";
-            end else
-                DocumentNumber := ServiceHeader."No.";
-            LibraryVariableStorage.Enqueue(DocumentNumber);
-            Commit();
-        end;
+            ServiceInvoiceHeader.FindLast();
+            DocumentNumber := ServiceInvoiceHeader."No.";
+        end else
+            DocumentNumber := ServiceHeader."No.";
+        LibraryVariableStorage.Enqueue(DocumentNumber);
+        Commit();
         exit(DocumentNumber);
     end;
 
-    local procedure CreateServiceContract(Type: Integer): Text
+    local procedure CreateServiceContract(ServiceContractType: Enum "Service Contract Type"): Text
     var
         ServiceContractHeader: Record "Service Contract Header";
         ServiceContractLine: Record "Service Contract Line";
@@ -155,16 +149,14 @@ codeunit 144010 "Company Field Report Test"
         LibraryService: Codeunit "Library - Service";
         DocumentNumber: Variant;
     begin
-        with LibraryService do begin
-            Initialize();
-            LibrarySales.CreateCustomer(Customer);
-            CreateServiceContractHeader(ServiceContractHeader, "Service Contract Type".FromInteger(Type), Customer."No.");
-            CreateServiceItem(ServiceItem, Customer."No.");
-            CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
-            DocumentNumber := ServiceContractHeader."Contract No.";
-            LibraryVariableStorage.Enqueue(DocumentNumber);
-            Commit();
-        end;
+        Initialize();
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractType, Customer."No.");
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+        DocumentNumber := ServiceContractHeader."Contract No.";
+        LibraryVariableStorage.Enqueue(DocumentNumber);
+        Commit();
         exit(DocumentNumber);
     end;
 
@@ -724,74 +716,6 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
 
         LibraryPriceCalculation.SetupDefaultHandler(xImplemetation);
-    end;
-#endif
-
-#if not CLEAN22
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure IntrastatFormReportHandler(var IntrastatFormReport: TestRequestPage "Intrastat - Form")
-    var
-        JournalBatchName: Variant;
-        JournalTemplateName: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(JournalTemplateName);
-        LibraryVariableStorage.Dequeue(JournalBatchName);
-
-        IntrastatFormReport."Intrastat Jnl. Batch".SetFilter("Journal Template Name", JournalTemplateName);
-        IntrastatFormReport."Intrastat Jnl. Batch".SetFilter(Name, JournalBatchName);
-        IntrastatFormReport."Intrastat Jnl. Line".SetFilter(Type, 'Receipt');
-        IntrastatFormReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('IntrastatFormReportHandler')]
-    [Scope('OnPrem')]
-    procedure IntrastatFormReport()
-    var
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        CountryRegion: Record "Country/Region";
-        TariffNumber: Record "Tariff Number";
-        TransactionType: Record "Transaction Type";
-        TransportMethod: Record "Transport Method";
-        IntrastatFormReport: Report "Intrastat - Form";
-        JournalBatchName: Variant;
-        JournalTemplateName: Variant;
-    begin
-        Initialize();
-
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlTemplate.Name, IntrastatJnlBatch.Name);
-        IntrastatJnlLine.Date := WorkDate();
-        LibraryERM.CreateCountryRegion(CountryRegion);
-        IntrastatJnlLine.Validate("Country/Region Code", CountryRegion.Code);
-        TariffNumber.FindFirst();
-        IntrastatJnlLine.Validate("Tariff No.", TariffNumber."No.");
-        TransactionType.FindFirst();
-        IntrastatJnlLine.Validate("Transaction Type", TransactionType.Code);
-        TransportMethod.FindFirst();
-        IntrastatJnlLine.Validate("Transport Method", TransportMethod.Code);
-        IntrastatJnlLine.Validate("Total Weight", 1);
-
-        IntrastatJnlLine.Modify(true);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(IntrastatJnlLine.Date, 0, '<Year,2><Month,2>'));
-        IntrastatJnlBatch.Modify(true);
-        Commit();
-
-        JournalBatchName := IntrastatJnlBatch.Name;
-        JournalTemplateName := IntrastatJnlTemplate.Name;
-        LibraryVariableStorage.Enqueue(JournalTemplateName);
-        LibraryVariableStorage.Enqueue(JournalBatchName);
-
-        IntrastatFormReport.UseRequestPage(true);
-
-        IntrastatFormReport.Run();
-        TestBusinessIdentityandHomeCity(1);
     end;
 #endif
 

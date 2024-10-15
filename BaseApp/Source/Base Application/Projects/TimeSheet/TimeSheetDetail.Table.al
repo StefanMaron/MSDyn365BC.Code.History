@@ -8,7 +8,6 @@ using Microsoft.Assembly.Document;
 using Microsoft.HumanResources.Absence;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Service.Document;
 
 table 952 "Time Sheet Detail"
 {
@@ -53,15 +52,6 @@ table 952 "Time Sheet Detail"
         {
             Caption = 'Cause of Absence Code';
             TableRelation = "Cause of Absence";
-        }
-        field(13; "Service Order No."; Code[20])
-        {
-            Caption = 'Service Order No.';
-            TableRelation = if (Posted = const(false)) "Service Header"."No." where("Document Type" = const(Order));
-        }
-        field(14; "Service Order Line No."; Integer)
-        {
-            Caption = 'Service Order Line No.';
         }
         field(15; Quantity; Decimal)
         {
@@ -160,8 +150,6 @@ table 952 "Time Sheet Detail"
         "Job Id" := TimeSheetLine."Job Id";
         "Job Task No." := TimeSheetLine."Job Task No.";
         "Cause of Absence Code" := TimeSheetLine."Cause of Absence Code";
-        "Service Order No." := TimeSheetLine."Service Order No.";
-        "Service Order Line No." := TimeSheetLine."Service Order Line No.";
         "Assembly Order No." := TimeSheetLine."Assembly Order No.";
         "Assembly Order Line No." := TimeSheetLine."Assembly Order Line No.";
         Status := TimeSheetLine.Status;

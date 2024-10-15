@@ -173,6 +173,13 @@ table 352 "Default Dimension"
                     UpdateDimValuesPerAccountFromAllowedValuesFilter(DimValuePerAccount);
             end;
         }
+        field(20; "Dimension Value Name"; Text[50])
+        {
+            CalcFormula = lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"), Code = field("Dimension Value Code")));
+            Caption = 'Dimension Value Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(8000; ParentId; Guid)
         {
             Caption = 'ParentId';

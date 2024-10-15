@@ -1,7 +1,6 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Sales.Setup;
-using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Service.Posting;
 using System.Environment;
 
@@ -43,12 +42,12 @@ report 6004 "Batch Post Service Invoices"
 
             trigger OnPreDataItem()
             var
-                PostingSelectionManagement: Codeunit "Posting Selection Management";
+                ServPostingSelectionMgt: Codeunit "Serv. Posting Selection Mgt.";
             begin
                 if ReplacePostingDate and (PostingDateReq = 0D) then
                     Error(Text000);
 
-                PostingSelectionManagement.CheckUserCanInvoiceService();
+                ServPostingSelectionMgt.CheckUserCanInvoiceService();
                 CounterTotal := Count;
                 Window.Open(Text001);
             end;
@@ -151,10 +150,14 @@ report 6004 "Batch Post Service Invoices"
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
+#pragma warning disable AA0470
         Text001: Label 'Posting invoices   #1########## @2@@@@@@@@@@@@@';
         Text002: Label '%1 invoices out of a total of %2 have now been posted.';
+#pragma warning restore AA0470
         Text003: Label 'The exchange rate associated with the new posting date on the service header will not apply to the service lines.';
+#pragma warning restore AA0074
 
     local procedure CalculateInvoiceDiscount()
     begin

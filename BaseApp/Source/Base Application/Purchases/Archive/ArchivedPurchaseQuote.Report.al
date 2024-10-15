@@ -545,8 +545,12 @@ report 415 "Archived Purchase Quote"
         OutputNo: Integer;
         PurchaseLineArchiveType: Integer;
 
+#pragma warning disable AA0074
         Text002: Label 'Purchase - Quote Archived %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text004: Label 'Version %1 of %2 ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
         CompanyInfo__Fax_No__CaptionLbl: Label 'Fax No.';
         CompanyInfo__VAT_Registration_No__CaptionLbl: Label 'VAT Reg. No.';

@@ -167,7 +167,11 @@ report 6 "Trial Balance"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Trial_BalanceCaptionLbl: Label 'Trial Balance';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Net_ChangeCaptionLbl: Label 'Net Change';

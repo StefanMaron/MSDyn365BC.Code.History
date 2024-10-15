@@ -531,7 +531,6 @@ page 1803 "Assisted Company Setup Wizard"
             end;
     end;
 
-    [NonDebuggable]
     [TryFunction]
     local procedure TryDownloadCompanyDetailsFromMicrosoft365(var JsonCompanyInfo: JsonObject)
     var
@@ -544,12 +543,12 @@ page 1803 "Assisted Company Setup Wizard"
         JsonPropValue: JsonToken;
         CompaniesJsonArray: JsonArray;
         JsonContent: Text;
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
-        AccessToken := AzureADMgt.GetAccessToken(UrlHelper.GetGraphUrl(), ResourceNameTxt, false);
+        AccessToken := AzureADMgt.GetAccessTokenAsSecretText(UrlHelper.GetGraphUrl(), ResourceNameTxt, false);
         RequestMessage.Method('GET');
         RequestMessage.SetRequestUri(StrSubstNo(GraphURLEndpointLbl, UrlHelper.GetGraphUrl()));
-        Client.DefaultRequestHeaders().Add('Authorization', StrSubstNo(BearerLbl, AccessToken));
+        Client.DefaultRequestHeaders().Add('Authorization', SecretStrSubstNo(BearerLbl, AccessToken));
         Client.DefaultRequestHeaders().Add('Accept', 'application/json');
 
         if Client.Send(RequestMessage, ResponseMessage) then

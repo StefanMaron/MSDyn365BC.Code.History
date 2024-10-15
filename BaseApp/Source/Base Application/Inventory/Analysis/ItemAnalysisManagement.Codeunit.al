@@ -19,15 +19,19 @@ codeunit 7153 "Item Analysis Management"
         PrevItemAnalysisView: Record "Item Analysis View";
         MatrixMgt: Codeunit "Matrix Management";
 
+#pragma warning disable AA0074
         Text000: Label 'Period';
-        Text001: Label '<Sign><Integer Thousand><Decimals,2>, Locked = true';
+        Text001: Label '<Sign><Integer Thousand><Decimals,2>', Locked = true;
+#pragma warning disable AA0470
         Text003: Label '%1 is not a valid line definition.';
         Text004: Label '%1 is not a valid column definition.';
+#pragma warning restore AA0470
         Text005: Label '1,6,,Dimension 1 Filter';
         Text006: Label '1,6,,Dimension 2 Filter';
         Text007: Label '1,6,,Dimension 3 Filter';
         Text008: Label 'DEFAULT';
         Text009: Label 'Default analysis view';
+#pragma warning restore AA0074
 
     local procedure DimCodeNotAllowed(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View") Result: Boolean
     var

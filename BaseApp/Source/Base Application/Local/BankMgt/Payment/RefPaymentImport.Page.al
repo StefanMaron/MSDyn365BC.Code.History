@@ -18,7 +18,7 @@ page 32000001 "Ref. Payment - Import"
     RefreshOnActivate = true;
     SourceTable = "Ref. Payment - Imported";
     SourceTableView = sorting("No.")
-                      ORDER(Ascending)
+                      order(ascending)
                       where("Filing Code" = filter(<> ''));
 
     layout

@@ -48,8 +48,10 @@ page 454 "Fin. Charge Comment Sheet"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'untitled';
         Text001: Label 'Fin. Charge Memo';
+#pragma warning restore AA0074
 
     procedure Caption(FinChrgCommentLine: Record "Fin. Charge Comment Line"): Text
     begin

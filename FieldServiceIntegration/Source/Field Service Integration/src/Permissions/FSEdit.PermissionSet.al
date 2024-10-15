@@ -20,6 +20,7 @@ permissionset 6610 "FS - Edit"
                   tabledata "FS Customer Asset Category" = IMD,
                   tabledata "FS Project Task" = IMD,
                   tabledata "FS Resource Pay Type" = IMD,
+                  tabledata "FS Warehouse" = IMD,
                   tabledata "FS Work Order" = IMD,
                   tabledata "FS Work Order Incident" = IMD,
                   tabledata "FS Work Order Product" = IMD,

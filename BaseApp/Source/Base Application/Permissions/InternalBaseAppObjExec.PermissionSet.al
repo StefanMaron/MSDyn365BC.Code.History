@@ -6,9 +6,6 @@ using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Costing;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Sales.Analysis;
 using Microsoft.Warehouse.Availability;
 using Microsoft.Utilities;
@@ -62,9 +59,6 @@ permissionset 23 "Internal BaseApp Obj. - Exec"
                   Codeunit "BOM Tree Node Dictionary Impl." = X,
                   Codeunit "BOM Tree Nodes Bucket" = X,
                   Codeunit "Global Admin Notifier" = X,
-#if not CLEAN22
-                  Codeunit "Intrastat File Writer" = X,
-#endif
                   Codeunit "Job Queue Start Report" = X,
                   codeunit "Monitored Field Notification" = X,
                   Codeunit "Scheduled Tasks" = X,

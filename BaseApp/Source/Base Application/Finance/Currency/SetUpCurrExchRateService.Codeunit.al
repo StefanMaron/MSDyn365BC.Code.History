@@ -14,13 +14,15 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
     var
         Currency: Record Currency;
         CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        CurrExchRateUpdateSetup2: Record "Curr. Exch. Rate Update Setup";
         GLSetup: Record "General Ledger Setup";
     begin
         if Currency.IsEmpty() then
             exit;
-        if not CurrExchRateUpdateSetup.IsEmpty() then
+        if not CurrExchRateUpdateSetup2.IsEmpty() then
             exit;
-        if not CurrExchRateUpdateSetup.WritePermission then
+        if not CurrExchRateUpdateSetup2.WritePermission then
             exit;
         GLSetup.Get();
         if GLSetup."LCY Code" = 'EUR' then

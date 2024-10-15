@@ -2690,22 +2690,18 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry: Record "Approval Entry";
     begin
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        with ApprovalEntry do begin
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
-              ApprovalEntry, DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
-              Status::Open, "Limit Type"::"Approval Limits", SalesHeader.RecordId,
-              "Approval Type"::Approver, 0D, 0);
-            "Approver ID" := RecipientUser;
-            Modify();
-        end;
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
+            ApprovalEntry, DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+            ApprovalEntry.Status::Open, ApprovalEntry."Limit Type"::"Approval Limits", SalesHeader.RecordId,
+            ApprovalEntry."Approval Type"::Approver, 0D, 0);
+        ApprovalEntry."Approver ID" := RecipientUser;
+        ApprovalEntry.Modify();
 
-        with NotificationEntry do begin
-            Init();
-            Type := Type::Approval;
-            "Recipient User ID" := RecipientUser;
-            "Triggered By Record" := ApprovalEntry.RecordId;
-            Insert();
-        end;
+        NotificationEntry.Init();
+        NotificationEntry.Type := NotificationEntry.Type::Approval;
+        NotificationEntry."Recipient User ID" := RecipientUser;
+        NotificationEntry."Triggered By Record" := ApprovalEntry.RecordId;
+        NotificationEntry.Insert();
     end;
 
     local procedure CreateNotificationSetupWithDisplayTarget(var NotificationSetup: Record "Notification Setup"; UserName: Code[50]; NotificationType: Enum "Notification Entry Type"; NotificationMethod: Enum "Notification Method Type")
@@ -2732,12 +2728,10 @@ codeunit 134202 "Document Approval - Users"
         PurchLine: Record "Purchase Line";
     begin
         CreatePurchDocument(PurchHeader, DocumentType);
-        with PurchLine do begin
-            SetRange("Document No.", PurchHeader."No.");
-            FindFirst();
-            Validate("Direct Unit Cost", Cost);
-            Modify(true);
-        end;
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.FindFirst();
+        PurchLine.Validate("Direct Unit Cost", Cost);
+        PurchLine.Modify(true);
     end;
 
     local procedure CreatePurchDocumentWithPurchaserCode(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PurchaserCode: Code[20])
@@ -2841,19 +2835,17 @@ codeunit 134202 "Document Approval - Users"
         ApprovalCommentLine: Record "Approval Comment Line";
         LastEntryNo: Integer;
     begin
-        with ApprovalCommentLine do begin
-            LastEntryNo := 0;
-            if FindLast() then
-                LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Table ID" := SourceRecordID.TableNo;
-            "Document Type" := DocumentType;
-            "Document No." := DocumentNo;
-            "Record ID to Approve" := SourceRecordID;
-            Comment := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Comment)), 1, MaxStrLen(Comment));
-            Insert();
-        end;
+        LastEntryNo := 0;
+        if ApprovalCommentLine.FindLast() then
+            LastEntryNo := ApprovalCommentLine."Entry No.";
+        ApprovalCommentLine.Init();
+        ApprovalCommentLine."Entry No." := LastEntryNo + 1;
+        ApprovalCommentLine."Table ID" := SourceRecordID.TableNo;
+        ApprovalCommentLine."Document Type" := DocumentType;
+        ApprovalCommentLine."Document No." := DocumentNo;
+        ApprovalCommentLine."Record ID to Approve" := SourceRecordID;
+        ApprovalCommentLine.Comment := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(ApprovalCommentLine.Comment)), 1, MaxStrLen(ApprovalCommentLine.Comment));
+        ApprovalCommentLine.Insert();
     end;
 
     local procedure MockApprovalEntry(var ApprovalEntry: Record "Approval Entry"; ApproverId: Code[50]; SenderId: Code[50])
@@ -3374,26 +3366,22 @@ codeunit 134202 "Document Approval - Users"
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Sell-to Customer No.", CustomerNo);
-            SetRange("Quote No.", QuoteNo);
-            FindFirst();
-            exit("No.");
-        end;
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.SetRange("Quote No.", QuoteNo);
+        SalesHeader.FindFirst();
+        exit(SalesHeader."No.");
     end;
 
     local procedure FindPurchOrderNoByQuoteNo(QuoteNo: Code[20]; VendorNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange("Quote No.", QuoteNo);
-            FindFirst();
-            exit("No.");
-        end;
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchaseHeader.SetRange("Quote No.", QuoteNo);
+        PurchaseHeader.FindFirst();
+        exit(PurchaseHeader."No.");
     end;
 
     local procedure FindApprovalEntry(var ApprovalEntry: Record "Approval Entry"; SenderId: Code[50]; DocumentNo: Code[20])
@@ -3407,13 +3395,6 @@ codeunit 134202 "Document Approval - Users"
     var
         UserSetup: Record "User Setup";
         AccessControl: Record "Access Control";
-#if not CLEAN22
-        UserGroup: Record "User Group";
-        UserGroupMember: Record "User Group Member";
-        UserGroupAccessControl: Record "User Group Access Control";
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        UserGroupPlan: Record "User Group Plan";
-#endif
     begin
         // When we add any user into User table Server switches authentication mode
         // and further tests fail with permission error until Server is restarted.
@@ -3424,13 +3405,6 @@ codeunit 134202 "Document Approval - Users"
         DeleteAllUsers();
         UserSetup.DeleteAll(true);
         AccessControl.DeleteAll(true);
-#if not CLEAN22
-        UserGroupMember.DeleteAll(true);
-        UserGroupAccessControl.DeleteAll(true);
-        UserGroupPermissionSet.DeleteAll(true);
-        UserGroupPlan.DeleteAll(true);
-        UserGroup.DeleteAll(true);
-#endif
     end;
 
     local procedure DeleteAllUsers()

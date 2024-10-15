@@ -12,7 +12,7 @@ page 32000002 "Apply Ref. Payment"
     PageType = List;
     SourceTable = "Ref. Payment - Imported";
     SourceTableView = sorting("No.")
-                      ORDER(Ascending)
+                      order(ascending)
                       where("Posted to G/L" = const(false),
                             "Record ID" = filter(3 .. 5));
 

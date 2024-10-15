@@ -453,16 +453,14 @@ codeunit 134204 "Document Approval - Requests"
     local procedure CreateApprovalEntry(var ApprovalEntry: Record "Approval Entry"; No: Code[20])
     begin
         Clear(ApprovalEntry);
-        with ApprovalEntry do begin
-            Init();
-            Validate("Table ID", LibraryRandom.RandInt(100));
-            Validate("Document Type", LibraryRandom.RandIntInRange(0, 5));
-            Validate("Document No.", No);
-            Validate("Sequence No.", LibraryRandom.RandInt(100));
-            Validate(Status, Status::Open);
-            "Approver ID" := UserId;
-            Insert(true);
-        end;
+        ApprovalEntry.Init();
+        ApprovalEntry.Validate("Table ID", LibraryRandom.RandInt(100));
+        ApprovalEntry.Validate("Document Type", LibraryRandom.RandIntInRange(0, 5));
+        ApprovalEntry.Validate("Document No.", No);
+        ApprovalEntry.Validate("Sequence No.", LibraryRandom.RandInt(100));
+        ApprovalEntry.Validate(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry."Approver ID" := UserId;
+        ApprovalEntry.Insert(true);
     end;
 
     local procedure CreateApprovalEntryPurchaseInvoice(var ApprovalEntry: Record "Approval Entry"; No: Code[20])
@@ -473,18 +471,16 @@ codeunit 134204 "Document Approval - Requests"
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, No);
         PurchaseHeader.CalcFields(Amount);
         Clear(ApprovalEntry);
-        with ApprovalEntry do begin
-            Init();
-            Validate("Table ID", DATABASE::"Purchase Header");
-            Validate("Document Type", EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type"));
-            Validate("Document No.", PurchaseHeader."No.");
-            Validate("Sequence No.", LibraryRandom.RandInt(100));
-            Validate(Amount, PurchaseHeader.Amount);
-            Validate(Status, Status::Open);
-            "Approver ID" := UserId;
-            "Record ID to Approve" := PurchaseHeader.RecordId;
-            Insert(true);
-        end;
+        ApprovalEntry.Init();
+        ApprovalEntry.Validate("Table ID", DATABASE::"Purchase Header");
+        ApprovalEntry.Validate("Document Type", EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type"));
+        ApprovalEntry.Validate("Document No.", PurchaseHeader."No.");
+        ApprovalEntry.Validate("Sequence No.", LibraryRandom.RandInt(100));
+        ApprovalEntry.Validate(Amount, PurchaseHeader.Amount);
+        ApprovalEntry.Validate(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry."Approver ID" := UserId;
+        ApprovalEntry."Record ID to Approve" := PurchaseHeader.RecordId;
+        ApprovalEntry.Insert(true);
     end;
 
     local procedure CreateUserSetup(var UserSetup: Record "User Setup"; UserID: Code[50]; SubstituteUserID: Code[50])

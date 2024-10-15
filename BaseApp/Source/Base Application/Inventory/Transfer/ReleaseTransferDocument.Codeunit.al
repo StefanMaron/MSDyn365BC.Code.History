@@ -73,8 +73,14 @@ codeunit 5708 "Release Transfer Document"
         TransferHeader: Record "Transfer Header";
         InvtSetup: Record "Inventory Setup";
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The transfer order %1 cannot be released because %2 and %3 are the same.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         NothingToReleaseErr: Label 'There is nothing to release for transfer order %1.';
+#pragma warning restore AA0470
 
     procedure Reopen(var TransHeader: Record "Transfer Header")
     begin
@@ -89,7 +95,7 @@ codeunit 5708 "Release Transfer Document"
         OnAfterReopenTransferDoc(TransHeader);
     end;
 
-    internal procedure Release(var TransHeader: Record "Transfer Header")
+    procedure Release(var TransHeader: Record "Transfer Header")
     begin
         if TransHeader.Status = TransHeader.Status::Released then
             exit;

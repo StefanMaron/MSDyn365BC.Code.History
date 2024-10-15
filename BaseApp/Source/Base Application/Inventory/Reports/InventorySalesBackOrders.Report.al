@@ -129,6 +129,8 @@ report 718 "Inventory - Sales Back Orders"
 
     requestpage
     {
+        AboutTitle = 'About Inventory - Sales Back Orders';
+        AboutText = 'See an overview of sales orders that can''''t be fulfilled due to out-of-stock items. This report highlights sales lines that are overdue to be shipped and includes information on the document & customer the order is linked to.';
 
         layout
         {
@@ -157,7 +159,11 @@ report 718 "Inventory - Sales Back Orders"
         ItemFilter: Text;
         SalesLineFilter: Text;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Sales Order Line: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InvSalesBackOrdersCaptionLbl: Label 'Inventory - Sales Back Orders';
         CurrReportPageNoCaptionLbl: Label 'Page';
         CustNameCaptionLbl: Label 'Customer';

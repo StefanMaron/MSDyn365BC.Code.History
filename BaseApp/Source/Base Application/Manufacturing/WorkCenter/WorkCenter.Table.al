@@ -505,13 +505,13 @@ table 99000754 "Work Center"
             var
                 Location: Record Location;
                 MachineCenter: Record "Machine Center";
-                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
                 AutoUpdate: Boolean;
             begin
                 if "Location Code" <> xRec."Location Code" then begin
                     if "Location Code" <> '' then begin
                         Location.Get("Location Code");
-                        WhseIntegrationMgt.CheckLocationCode(Location, Database::"Work Center", "No.");
+                        if not Location."Bin Mandatory" then
+                            Error(LocationMustBeBinMandatoryErr, Location.Code, "No.");
                     end;
 
                     if "Open Shop Floor Bin Code" <> '' then
@@ -560,13 +560,8 @@ table 99000754 "Work Center"
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
-            var
-                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode("Location Code",
-                  "Open Shop Floor Bin Code",
-                  FieldCaption("Open Shop Floor Bin Code"),
-                  Database::"Work Center", "No.");
+                CheckBinCode("Location Code", "Open Shop Floor Bin Code", FieldCaption("Open Shop Floor Bin Code"), "No.");
             end;
         }
         field(7302; "To-Production Bin Code"; Code[20])
@@ -575,13 +570,8 @@ table 99000754 "Work Center"
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
-            var
-                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode("Location Code",
-                  "To-Production Bin Code",
-                  FieldCaption("To-Production Bin Code"),
-                  Database::"Work Center", "No.");
+                CheckBinCode("Location Code", "To-Production Bin Code", FieldCaption("To-Production Bin Code"), "No.");
             end;
         }
         field(7303; "From-Production Bin Code"; Code[20])
@@ -590,13 +580,8 @@ table 99000754 "Work Center"
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
-            var
-                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode("Location Code",
-                  "From-Production Bin Code",
-                  FieldCaption("From-Production Bin Code"),
-                  Database::"Work Center", "No.");
+                CheckBinCode("Location Code", "From-Production Bin Code", FieldCaption("From-Production Bin Code"), "No.");
             end;
         }
     }
@@ -724,17 +709,30 @@ table 99000754 "Work Center"
         NoOfRecords: Integer;
         GLSetupRead: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'The Work Center is being used on production orders.';
+#pragma warning disable AA0470
         Text001: Label 'Do you want to change %1?';
+#pragma warning restore AA0470
         Text002: Label 'Work Center Group Code is changed...\\';
+#pragma warning disable AA0470
         Text003: Label 'Calendar Entry    #1###### @2@@@@@@@@@@@@@\';
         Text004: Label 'Calendar Absent.  #3###### @4@@@@@@@@@@@@@\';
         Text006: Label 'Prod. Order Need  #7###### @8@@@@@@@@@@@@@';
         Text007: Label '%1 cannot be changed for scheduled work centers.';
+#pragma warning restore AA0470
         Text008: Label 'Capacity Unit of Time is corrected on\\';
+#pragma warning disable AA0470
         Text009: Label 'Calendar Entry    #1###### @2@@@@@@@@@@@@@';
+#pragma warning restore AA0470
         Text010: Label 'You cannot delete %1 %2 because there is at least one %3 associated with it.', Comment = '%1 = Table caption; %2 = Field Value; %3 = Table Caption';
+#pragma warning disable AA0470
         Text011: Label 'If you change the %1, then all bin codes on the %2 and related %3 will be removed. Are you sure that you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
+        LocationMustBeBinMandatoryErr: Label 'Location %1 must be set up with Bin Mandatory if the Work Center %2 uses it.', Comment = '%2 = Work Center No.';
+#pragma warning restore AA0470
 
     procedure AssistEdit(OldWorkCenter: Record "Work Center"): Boolean
     var
@@ -814,6 +812,21 @@ table 99000754 "Work Center"
         RoutingLine.SetRange("No.", "No.");
         if not RoutingLine.IsEmpty() then
             Error(Text010, TableCaption(), "No.", RoutingLine.TableCaption());
+    end;
+
+    procedure CheckBinCode(LocationCode: Code[10]; BinCode: Code[20]; BinCaption: Text; WorkCenterNo: Code[20])
+    var
+        Bin: Record Bin;
+        Location: Record Location;
+        WhseIntegrationMgt: Codeunit "Whse. Integration Management";
+    begin
+        if BinCode <> '' then begin
+            Location.Get(LocationCode);
+            if not Location."Bin Mandatory" then
+                Error(LocationMustBeBinMandatoryErr, Location.Code, WorkCenterNo);
+            Bin.Get(LocationCode, BinCode);
+            WhseIntegrationMgt.CheckBinTypeAndCode(Database::"Work Center", BinCaption, LocationCode, BinCode, 0);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

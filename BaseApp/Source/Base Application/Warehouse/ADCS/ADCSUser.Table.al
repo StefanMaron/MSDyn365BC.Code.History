@@ -56,7 +56,9 @@ table 7710 "ADCS User"
     end;
 
     var
+#pragma warning disable AA0074
         RenameIsNotAllowed: Label 'You cannot rename the record.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CalculatePassword(Input: Text[30]) HashedValue: Text[250]

@@ -47,7 +47,7 @@ page 9109 "Item Warehouse FactBox"
             field("Item Tracking Code"; Rec."Item Tracking Code")
             {
                 ApplicationArea = ItemTracking;
-                ToolTip = 'Specifies how serial or lot numbers assigned to the item are tracked in the supply chain.';
+                ToolTip = 'Specifies how serial, lot or package numbers assigned to the item are tracked in the supply chain.';
 
                 trigger OnDrillDown()
                 var

@@ -9,6 +9,7 @@ using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Inventory.Availability;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Ledger;
@@ -59,15 +60,14 @@ codeunit 7314 "Warehouse Availability Mgt."
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         if ReservEntry.Find('-') then
             repeat
+                ReservEntry2.Reset();
                 ReservEntry2.SetRange("Entry No.", ReservEntry."Entry No.");
                 ReservEntry2.SetRange(Positive, true);
                 ReservEntry2.SetRange("Source Type", Database::"Item Ledger Entry");
                 ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                 ReservEntry2.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
-                if ReservEntry2.Find('-') then
-                    repeat
-                        ReservQtyonInvt += ReservEntry2."Quantity (Base)";
-                    until ReservEntry2.Next() = 0;
+                ReservEntry2.CalcSums("Quantity (Base)");
+                ReservQtyonInvt += ReservEntry2."Quantity (Base)";
             until ReservEntry.Next() = 0;
 
         if HandleResPickAndShipQty then begin
@@ -235,7 +235,7 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     local procedure CalcQtyRcvdNotAvailable(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
     var
-        PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
         TempBin: Record Bin temporary;
         WarehouseEntry: Record "Warehouse Entry";
         DummyItemTrackingSetup: Record "Item Tracking Setup";
@@ -245,74 +245,71 @@ codeunit 7314 "Warehouse Availability Mgt."
         // Returns the quantity received but not yet put-away for a given item
         // for pick/ship/receipt/put-away locations without directed put-away and pick
         // with consideration of actually available quantity to put-away in receive bins
-        PostedWhseRcptLine.SetCurrentKey("Item No.", "Location Code", "Variant Code");
-        PostedWhseRcptLine.SetRange("Item No.", ItemNo);
-        PostedWhseRcptLine.SetRange("Location Code", LocationCode);
-        PostedWhseRcptLine.SetRange("Variant Code", VariantCode);
-        OnCalcQtyRcvdNotAvailableOnBeforeCalcSums(PostedWhseRcptLine, LocationCode, ItemNo, VariantCode);
-        PostedWhseRcptLine.CalcSums("Qty. (Base)", "Qty. Put Away (Base)");
-        QtyRcvdNotAvailable := PostedWhseRcptLine."Qty. (Base)" - PostedWhseRcptLine."Qty. Put Away (Base)";
+        PostedWhseReceiptLine.SetCurrentKey("Item No.", "Location Code", "Variant Code");
+        PostedWhseReceiptLine.SetRange("Item No.", ItemNo);
+        PostedWhseReceiptLine.SetRange("Location Code", LocationCode);
+        PostedWhseReceiptLine.SetRange("Variant Code", VariantCode);
+        OnCalcQtyRcvdNotAvailableOnBeforeCalcSums(PostedWhseReceiptLine, LocationCode, ItemNo, VariantCode);
+        PostedWhseReceiptLine.CalcSums("Qty. (Base)", "Qty. Put Away (Base)");
+        QtyRcvdNotAvailable := PostedWhseReceiptLine."Qty. (Base)" - PostedWhseReceiptLine."Qty. Put Away (Base)";
 
         WarehouseEntry.SetRange("Location Code", LocationCode);
         if (QtyRcvdNotAvailable > 0) and not WarehouseEntry.IsEmpty() then begin
-            PostedWhseRcptLine.FindSet();
+            PostedWhseReceiptLine.FindSet();
             repeat
-                TempBin."Location Code" := PostedWhseRcptLine."Location Code";
-                TempBin.Code := PostedWhseRcptLine."Bin Code";
+                TempBin."Location Code" := PostedWhseReceiptLine."Location Code";
+                TempBin.Code := PostedWhseReceiptLine."Bin Code";
                 if TempBin.Insert() then;
-            until PostedWhseRcptLine.Next() = 0;
+            until PostedWhseReceiptLine.Next() = 0;
 
             if TempBin.FindSet() then
                 repeat
                     QtyAvailToPutAway +=
-                        CalcQtyOnBin(TempBin."Location Code", TempBin.Code, PostedWhseRcptLine."Item No.", PostedWhseRcptLine."Variant Code", DummyItemTrackingSetup);
+                        CalcQtyOnBin(TempBin."Location Code", TempBin.Code, PostedWhseReceiptLine."Item No.", PostedWhseReceiptLine."Variant Code", DummyItemTrackingSetup);
                 until TempBin.Next() = 0;
 
             if QtyAvailToPutAway < QtyRcvdNotAvailable then
                 QtyRcvdNotAvailable := QtyAvailToPutAway;
         end;
 
-        OnAfterCalcQtyRcvdNotAvailable(PostedWhseRcptLine, LocationCode, ItemNo, VariantCode, QtyRcvdNotAvailable);
+        OnAfterCalcQtyRcvdNotAvailable(PostedWhseReceiptLine, LocationCode, ItemNo, VariantCode, QtyRcvdNotAvailable);
         exit(QtyRcvdNotAvailable);
     end;
 
     procedure CalcQtyAssgndtoPick(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; BinTypeFilter: Text[250]): Decimal
     var
-        WhseActivLine: Record "Warehouse Activity Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Returns the outstanding quantity on pick lines for a given item
         // for a pick location without directed put-away and pick
-        WhseActivLine.SetCurrentKey(
+        WarehouseActivityLine.SetCurrentKey(
             "Item No.", "Location Code", "Activity Type", "Bin Type Code",
             "Unit of Measure Code", "Variant Code", "Breakbulk No.");
-        WhseActivLine.SetRange("Item No.", ItemNo);
-        WhseActivLine.SetRange("Location Code", Location.Code);
-        WhseActivLine.SetRange("Variant Code", VariantCode);
-        WhseActivLine.SetRange("Bin Type Code", BinTypeFilter);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.SetRange("Variant Code", VariantCode);
+        WarehouseActivityLine.SetRange("Bin Type Code", BinTypeFilter);
         if Location."Bin Mandatory" then
-            WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Take)
+            WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take)
         else begin
-            WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::" ");
-            WhseActivLine.SetRange("Breakbulk No.", 0);
+            WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::" ");
+            WarehouseActivityLine.SetRange("Breakbulk No.", 0);
         end;
         if Location."Require Shipment" then
-            WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Pick)
+            WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick)
         else begin
-            WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Invt. Pick");
-            WhseActivLine.SetRange("Assemble to Order", false);
+            WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+            WarehouseActivityLine.SetRange("Assemble to Order", false);
         end;
-        OnCalcQtyAssgndtoPickOnAfterSetFilters(WhseActivLine, Location, ItemNo, VariantCode, BinTypeFilter);
-        WhseActivLine.CalcSums("Qty. Outstanding (Base)");
-        exit(WhseActivLine."Qty. Outstanding (Base)");
+        OnCalcQtyAssgndtoPickOnAfterSetFilters(WarehouseActivityLine, Location, ItemNo, VariantCode, BinTypeFilter);
+        WarehouseActivityLine.CalcSums("Qty. Outstanding (Base)");
+        exit(WarehouseActivityLine."Qty. Outstanding (Base)");
     end;
 
     procedure CalcQtyAssignedToMove(WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line"): Decimal
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        WarehouseActivityLine.SetCurrentKey(
-            "Item No.", "Location Code", "Activity Type", "Bin Type Code", "Unit of Measure Code", "Variant Code", "Breakbulk No.",
-            "Action Type");
         WarehouseActivityLine.SetRange("Item No.", WhseWorksheetLine."Item No.");
         WarehouseActivityLine.SetRange("Location Code", WhseWorksheetLine."Location Code");
         WarehouseActivityLine.SetRange("Activity Type", "Warehouse Activity Type"::Movement);
@@ -328,14 +325,12 @@ codeunit 7314 "Warehouse Availability Mgt."
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        WarehouseActivityLine.SetCurrentKey("Item No.", "Location Code");
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("Variant Code", VariantCode);
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
         WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Receipt);
-        WarehouseActivityLine.SetFilter(
-          "Action Type", '%1|%2', WarehouseActivityLine."Action Type"::Take, WarehouseActivityLine."Action Type"::" ");
+        WarehouseActivityLine.SetFilter("Action Type", '%1|%2', WarehouseActivityLine."Action Type"::Take, WarehouseActivityLine."Action Type"::" ");
         if DedicatedOnly then
             WarehouseActivityLine.SetRange(Dedicated, true);
         WarehouseActivityLine.CalcSums("Qty. Outstanding (Base)");
@@ -344,32 +339,31 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     procedure CalcQtyAssgndOnWksh(DefWhseWkshLine: Record "Whse. Worksheet Line"; RespectUOMCode: Boolean; ExcludeLine: Boolean): Decimal
     var
-        WhseWkshLine: Record "Whse. Worksheet Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
-        WhseWkshLine.SetCurrentKey(
+        WhseWorksheetLine.SetCurrentKey(
               "Item No.", "Location Code", "Worksheet Template Name", "Variant Code", "Unit of Measure Code");
-        WhseWkshLine.SetRange("Item No.", DefWhseWkshLine."Item No.");
-        WhseWkshLine.SetRange("Location Code", DefWhseWkshLine."Location Code");
-        WhseWkshLine.SetRange("Worksheet Template Name", DefWhseWkshLine."Worksheet Template Name");
-        WhseWkshLine.SetRange("Variant Code", DefWhseWkshLine."Variant Code");
+        WhseWorksheetLine.SetRange("Item No.", DefWhseWkshLine."Item No.");
+        WhseWorksheetLine.SetRange("Location Code", DefWhseWkshLine."Location Code");
+        WhseWorksheetLine.SetRange("Worksheet Template Name", DefWhseWkshLine."Worksheet Template Name");
+        WhseWorksheetLine.SetRange("Variant Code", DefWhseWkshLine."Variant Code");
         if RespectUOMCode then
-            WhseWkshLine.SetRange("Unit of Measure Code", DefWhseWkshLine."Unit of Measure Code");
-        WhseWkshLine.CalcSums("Qty. to Handle (Base)");
+            WhseWorksheetLine.SetRange("Unit of Measure Code", DefWhseWkshLine."Unit of Measure Code");
+        WhseWorksheetLine.CalcSums("Qty. to Handle (Base)");
         if ExcludeLine and DefWhseWkshLine.Find() then
-            WhseWkshLine."Qty. to Handle (Base)" := WhseWkshLine."Qty. to Handle (Base)" - DefWhseWkshLine."Qty. to Handle (Base)";
-        exit(WhseWkshLine."Qty. to Handle (Base)");
+            WhseWorksheetLine."Qty. to Handle (Base)" := WhseWorksheetLine."Qty. to Handle (Base)" - DefWhseWkshLine."Qty. to Handle (Base)";
+        exit(WhseWorksheetLine."Qty. to Handle (Base)");
     end;
 
     local procedure CalcQtyShipped(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
     var
-        WhseShptLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        WhseShptLine.SetCurrentKey("Item No.", "Location Code", "Variant Code", "Due Date");
-        WhseShptLine.SetRange("Item No.", ItemNo);
-        WhseShptLine.SetRange("Location Code", Location.Code);
-        WhseShptLine.SetRange("Variant Code", VariantCode);
-        WhseShptLine.CalcSums("Qty. Shipped (Base)");
-        exit(WhseShptLine."Qty. Shipped (Base)");
+        WarehouseShipmentLine.SetRange("Item No.", ItemNo);
+        WarehouseShipmentLine.SetRange("Location Code", Location.Code);
+        WarehouseShipmentLine.SetRange("Variant Code", VariantCode);
+        WarehouseShipmentLine.CalcSums("Qty. Shipped (Base)");
+        exit(WarehouseShipmentLine."Qty. Shipped (Base)");
     end;
 
     procedure CalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
@@ -381,40 +375,37 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     procedure CalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
-        WhseEntry: Record "Warehouse Entry";
+        WarehouseEntry: Record "Warehouse Entry";
         QtyOnDedicatedBin: Decimal;
     begin
-        WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code",
-          "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type");
-        WhseEntry.SetRange("Item No.", ItemNo);
-        WhseEntry.SetRange("Location Code", LocationCode);
-        WhseEntry.SetRange("Variant Code", VariantCode);
-        WhseEntry.SetRange(Dedicated, true);
-        WhseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
-        WhseEntry.CalcSums(WhseEntry."Qty. (Base)");
-        QtyOnDedicatedBin := WhseEntry."Qty. (Base)";
+        WarehouseEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.SetRange("Variant Code", VariantCode);
+        WarehouseEntry.SetRange(Dedicated, true);
+        WarehouseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        QtyOnDedicatedBin := WarehouseEntry."Qty. (Base)";
 
-        OnAfterCalcQtyOnDedicatedBins(LocationCode, ItemNo, VariantCode, WhseEntry, WhseItemTrackingSetup, QtyOnDedicatedBin);
+        OnAfterCalcQtyOnDedicatedBins(LocationCode, ItemNo, VariantCode, WarehouseEntry, WhseItemTrackingSetup, QtyOnDedicatedBin);
         exit(QtyOnDedicatedBin);
     end;
 
     procedure CalcQtyOnBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
-        WhseEntry: Record "Warehouse Entry";
+        WarehouseEntry: Record "Warehouse Entry";
     begin
         if BinCode = '' then
             exit(0);
 
-        WhseEntry.SetCurrentKey(
-            "Item No.", "Bin Code", "Location Code", "Variant Code",
-            "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type");
-        WhseEntry.SetRange("Item No.", ItemNo);
-        WhseEntry.SetRange("Bin Code", BinCode);
-        WhseEntry.SetRange("Location Code", LocationCode);
-        WhseEntry.SetRange("Variant Code", VariantCode);
-        WhseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
-        WhseEntry.CalcSums("Qty. (Base)");
-        exit(WhseEntry."Qty. (Base)");
+        WarehouseEntry.SetLoadFields("Qty. (Base)");
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Bin Code", BinCode);
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.SetRange("Variant Code", VariantCode);
+        WarehouseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        exit(WarehouseEntry."Qty. (Base)");
     end;
 
     procedure CalcQtyOnBlockedITOrOnBlockedOutbndBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyBlocked: Decimal
@@ -484,6 +475,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         if not Location."Directed Put-away and Pick" then
             exit(0);
 
+        WhseEntry.ReadIsolation(IsolationLevel::ReadCommitted);
         WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBinContent);
         WhseEntry.SetFilter("Bin Type Code", CreatePick.GetBinTypeFilter(1)); // Shipping area
         WhseEntry.CalcSums("Qty. (Base)");
@@ -514,10 +506,17 @@ codeunit 7314 "Warehouse Availability Mgt."
         WhseItemTrackingSetup."Lot No. Required" := true;
         WhseItemTrackingSetup."Package No. Required" := true;
 
+        WarehouseEntry.SetLoadFields("Bin Code");
+        WarehouseEntry.SetCurrentKey("Bin Code");
         WarehouseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
-        WarehouseEntry.SetRange("Whse. Document Type", WarehouseEntry."Whse. Document Type"::Shipment);
+        WarehouseEntry.SetFilter("Whse. Document Type", '%1|%2|%3|%4',
+            WarehouseEntry."Whse. Document Type"::Shipment,
+            WarehouseEntry."Whse. Document Type"::Production,
+            WarehouseEntry."Whse. Document Type"::Assembly,
+            WarehouseEntry."Whse. Document Type"::Job);
         WarehouseEntry.SetRange("Reference Document", WarehouseEntry."Reference Document"::Pick);
         WarehouseEntry.SetFilter("Qty. (Base)", '>%1', 0);
+        WarehouseEntry.SetLoadFields("Bin Code");
         if WarehouseEntry.FindSet() then
             repeat
                 WarehouseEntry.SetRange("Bin Code", WarehouseEntry."Bin Code");
@@ -583,6 +582,8 @@ codeunit 7314 "Warehouse Availability Mgt."
             SpecialBins.Add(Location."Open Shop Floor Bin Code");
         if (Location."To-Production Bin Code" <> '') and not SpecialBins.Contains(Location."To-Production Bin Code") then
             SpecialBins.Add(Location."To-Production Bin Code");
+        if Location."To-Job Bin Code" <> '' then
+            SpecialBins.Add(Location."To-Job Bin Code");
 
         OnAfterGetSpecialBins(Location, SpecialBins);
     end;
@@ -591,6 +592,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     var
         WhseEntry2: Record "Warehouse Entry";
     begin
+        WhseEntry2.ReadIsolation(IsolationLevel::ReadCommitted);
         if WhseEntry.FindSet() then
             repeat
                 WhseEntry.SetRange("Bin Code", WhseEntry."Bin Code");
@@ -696,6 +698,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         ProdOrderComponent.SetRange("Prod. Order No.", SourceID);
         ProdOrderComponent.SetRange("Prod. Order Line No.", SourceProdOrderLineNo);
         ProdOrderComponent.SetRange("Line No.", SourceRefNo);
+        ProdOrderComponent.SetLoadFields("Qty. Picked (Base)");
         if ProdOrderComponent.FindFirst() then
             exit(ProdOrderComponent."Qty. Picked (Base)");
 
@@ -709,6 +712,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         JobPlanningLine.SetRange(Status, SourceSubtype);
         JobPlanningLine.SetRange("Job No.", SourceID);
         JobPlanningLine.SetRange("Job Contract Entry No.", SourceRefNo);
+        JobPlanningLine.SetLoadFields("Qty. Picked (Base)");
         if JobPlanningLine.FindFirst() then
             exit(JobPlanningLine."Qty. Picked (Base)");
     end;
@@ -720,6 +724,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         AssemblyLine.SetRange("Document Type", SourceSubtype);
         AssemblyLine.SetRange("Document No.", SourceID);
         AssemblyLine.SetRange("Line No.", SourceRefNo);
+        AssemblyLine.SetLoadFields("Qty. Picked (Base)");
         if AssemblyLine.FindFirst() then
             exit(AssemblyLine."Qty. Picked (Base)");
 
@@ -748,6 +753,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             exit(QtyPickedBase);
 
         WarehouseEntry.Reset();
+        WarehouseEntry.ReadIsolation(IsolationLevel::ReadCommitted);
         WarehouseEntry.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, true);
         WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::Movement);
         WarehouseEntry.SetRange("Reference Document", WarehouseEntry."Reference Document"::Pick);
@@ -756,6 +762,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         QtyPickedBase := WarehouseEntry."Qty. (Base)";
 
         WarehouseEntry.Reset();
+        WarehouseEntry.ReadIsolation(IsolationLevel::ReadCommitted);
         WarehouseEntry.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, true);
         WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
         WarehouseEntry.SetRange("Whse. Document Type", WarehouseEntry."Whse. Document Type"::Shipment);
@@ -955,6 +962,86 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var WarehouseEntry: Record "Warehouse Entry"; TempWhseItemTrackingSetup: Record "Item Tracking Setup" temporary; var QtyOnDedicatedBin: Decimal)
+    begin
+    end;
+
+    // Codeunit "Item Availability Forms Mgt"
+
+    procedure ShowItemAvailFromWhseRcptLine(var WhseRcptLine: Record "Warehouse Receipt Line"; AvailabilityType: Enum "Item Availability Type")
+    var
+        Item: Record Item;
+        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
+        NewDate: Date;
+        NewVariantCode: Code[10];
+        NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
+    begin
+        WhseRcptLine.TestField("Item No.");
+        Item.Reset();
+        Item.Get(WhseRcptLine."Item No.");
+        ItemAvailabilityFormsMgt.FilterItem(Item, WhseRcptLine."Location Code", WhseRcptLine."Variant Code", WhseRcptLine."Due Date");
+
+        OnBeforeShowItemAvailFromWhseRcptLine(Item, WhseRcptLine, AvailabilityType);
+#if not CLEAN25
+        ItemAvailabilityFormsMgt.RunOnBeforeShowItemAvailFromWhseRcptLine(Item, WhseRcptLine, AvailabilityType);
+#endif
+        case AvailabilityType of
+            AvailabilityType::Period:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByPeriod(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Due Date"), WhseRcptLine."Due Date", NewDate);
+            AvailabilityType::Variant:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByVariant(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Variant Code"), WhseRcptLine."Variant Code", NewVariantCode);
+            AvailabilityType::Location:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByLocation(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Location Code"), WhseRcptLine."Location Code", NewLocationCode);
+            AvailabilityType::"Event":
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByEvent(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Due Date"), WhseRcptLine."Due Date", NewDate, false);
+            AvailabilityType::BOM:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByBOMLevel(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Due Date"), WhseRcptLine."Due Date", NewDate);
+            AvailabilityType::UOM:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByUOM(Item, WhseRcptLine.FieldCaption(WhseRcptLine."Unit of Measure Code"), WhseRcptLine."Unit of Measure Code", NewUnitOfMeasureCode);
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailFromWhseRcptLine(var Item: Record Item; var WhseRcptLine: Record Microsoft.Warehouse.Document."Warehouse Receipt Line"; AvailabilityType: Enum "Item Availability Type")
+    begin
+    end;
+
+    procedure ShowItemAvailabilityFromWhseActivLine(var WhseActivLine: Record "Warehouse Activity Line"; AvailabilityType: Enum "Item Availability Type")
+    var
+        Item: Record Item;
+        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
+        NewDate: Date;
+        NewVariantCode: Code[10];
+        NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
+    begin
+        WhseActivLine.TestField("Item No.");
+        Item.Reset();
+        Item.Get(WhseActivLine."Item No.");
+        ItemAvailabilityFormsMgt.FilterItem(Item, WhseActivLine."Location Code", WhseActivLine."Variant Code", WhseActivLine."Due Date");
+
+        OnBeforeShowItemAvailabilityFromWhseActivLine(Item, WhseActivLine, AvailabilityType);
+#if not CLEAN25
+        ItemAvailabilityFormsMgt.RunOnBeforeShowItemAvailFromWhseActivLine(Item, WhseActivLine, AvailabilityType);
+#endif
+        case AvailabilityType of
+            AvailabilityType::Period:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByPeriod(Item, WhseActivLine.FieldCaption(WhseActivLine."Due Date"), WhseActivLine."Due Date", NewDate);
+            AvailabilityType::Variant:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByVariant(Item, WhseActivLine.FieldCaption(WhseActivLine."Variant Code"), WhseActivLine."Variant Code", NewVariantCode);
+            AvailabilityType::Location:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByLocation(Item, WhseActivLine.FieldCaption(WhseActivLine."Location Code"), WhseActivLine."Location Code", NewLocationCode);
+            AvailabilityType::"Event":
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByEvent(Item, WhseActivLine.FieldCaption(WhseActivLine."Due Date"), WhseActivLine."Due Date", NewDate, false);
+            AvailabilityType::BOM:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByBOMLevel(Item, WhseActivLine.FieldCaption(WhseActivLine."Due Date"), WhseActivLine."Due Date", NewDate);
+            AvailabilityType::UOM:
+                ItemAvailabilityFormsMgt.ShowItemAvailabilityByUOM(Item, WhseActivLine.FieldCaption(WhseActivLine."Unit of Measure Code"), WhseActivLine."Unit of Measure Code", NewUnitOfMeasureCode);
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailabilityFromWhseActivLine(var Item: Record Item; var WhseActivLine: Record Microsoft.Warehouse.Activity."Warehouse Activity Line"; AvailabilityType: Enum "Item Availability Type")
     begin
     end;
 

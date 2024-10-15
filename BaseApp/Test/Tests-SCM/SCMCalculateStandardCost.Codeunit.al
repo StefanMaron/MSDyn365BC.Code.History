@@ -663,21 +663,19 @@ codeunit 137910 "SCM Calculate Standard Cost"
         UOM: Record "Unit of Measure";
     begin
         LibraryInventory.CreateUnitOfMeasureCode(UOM);
-        with item do begin
-            LibraryKitting.ItemCreate(No, ITEM_DESC, UOM.Code, 0, Cost);
-            Get(No);
-            "Standard Cost" := Cost;
-            "Single-Level Material Cost" := SLMat;
-            "Single-Level Capacity Cost" := SLRes;
-            "Single-Level Cap. Ovhd Cost" := SLResOvhd;
-            "Single-Level Mfg. Ovhd Cost" := Cost - SLMat - SLRes - SLResOvhd;
-            "Rolled-up Material Cost" := RUMat;
-            "Rolled-up Capacity Cost" := RURes;
-            "Rolled-up Cap. Overhead Cost" := RUResOvhd;
-            "Rolled-up Mfg. Ovhd Cost" := Cost - RUMat - RURes - RUResOvhd;
-            "Replenishment System" := "Replenishment System"::Assembly;
-            Modify(true)
-        end;
+        LibraryKitting.ItemCreate(No, ITEM_DESC, UOM.Code, 0, Cost);
+        item.Get(No);
+        item."Standard Cost" := Cost;
+        item."Single-Level Material Cost" := SLMat;
+        item."Single-Level Capacity Cost" := SLRes;
+        item."Single-Level Cap. Ovhd Cost" := SLResOvhd;
+        item."Single-Level Mfg. Ovhd Cost" := Cost - SLMat - SLRes - SLResOvhd;
+        item."Rolled-up Material Cost" := RUMat;
+        item."Rolled-up Capacity Cost" := RURes;
+        item."Rolled-up Cap. Overhead Cost" := RUResOvhd;
+        item."Rolled-up Mfg. Ovhd Cost" := Cost - RUMat - RURes - RUResOvhd;
+        item."Replenishment System" := item."Replenishment System"::Assembly;
+        item.Modify(true);
         ValidateCost('', item, Cost, SLMat, SLRes, SLResOvhd, RUMat, RURes, RUResOvhd);
         exit(No)
     end;

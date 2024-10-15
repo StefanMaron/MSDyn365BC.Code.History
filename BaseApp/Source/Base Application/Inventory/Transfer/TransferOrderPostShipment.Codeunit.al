@@ -205,12 +205,16 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Warehouse handling is required for Transfer order = %1, %2 = %3.';
         Text003: Label 'Posting transfer lines     #2######';
         Text004: Label 'Transfer Order %1';
         Text005: Label 'The combination of dimensions used in transfer order %1 is blocked. %2';
         Text006: Label 'The combination of dimensions used in transfer order %1, line no. %2 is blocked. %3';
         Text007: Label 'The dimensions that are used in transfer order %1, line no. %2 are not valid. %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InvtSetup: Record "Inventory Setup";
         TransShptHeader: Record "Transfer Shipment Header";
         TransShptLine: Record "Transfer Shipment Line";
@@ -241,8 +245,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
         WhseReference: Integer;
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
+#pragma warning disable AA0074
         Text008: Label 'This order must be a complete shipment.';
+#pragma warning disable AA0470
         Text009: Label 'Item %1 is not in inventory.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SuppressCommit: Boolean;
         HideValidationDialog: Boolean;
         PreviewMode: Boolean;
@@ -467,7 +475,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     WhseSplitSpecification := WhsePosting or WhseShip or InvtPickPutaway;
                     OnInsertShptEntryRelationOnAfterCalcWhseSplitSpecification(
                         TransLine, TransShptLine, TempHandlingSpecification2, TempWhseSplitSpecification, WhsePosting, WhseShip, InvtPickPutaway, WhseSplitSpecification);
-                    if WhseSplitSpecification then begin
+                    if WhseSplitSpecification then
                         if ItemTrackingMgt.GetWhseItemTrkgSetup(TransShptLine."Item No.") then begin
                             TempWhseSplitSpecification := TempHandlingSpecification2;
                             TempWhseSplitSpecification."Source Type" := DATABASE::"Transfer Line";
@@ -475,7 +483,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
                             TempWhseSplitSpecification."Source Ref. No." := TransLine."Line No.";
                             TempWhseSplitSpecification.Insert();
                         end;
-                    end;
 
                     ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification2);
                     ItemEntryRelation.TransferFieldsTransShptLine(TransShptLine);
@@ -759,7 +766,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     begin
         if AutoCostPosting then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast() then;
+            GLEntry.GetLastEntryNo();
         end;
     end;
 

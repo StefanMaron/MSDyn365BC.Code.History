@@ -26,10 +26,8 @@ codeunit 139322 "Teams User Deployment Tests"
         // [WHEN] The Teams Individual Deployment is completed
         TeamsIndividualDeployment.Trap();
         Page.Run(Page::"Teams Individual Deployment");
-        with TeamsIndividualDeployment do begin
-            Assert.IsTrue(ActionOkay.Visible(), 'Okay is not visible');
-            ActionOkay.Invoke();
-        end;
+        Assert.IsTrue(TeamsIndividualDeployment.ActionOkay.Visible(), 'Okay is not visible');
+        TeamsIndividualDeployment.ActionOkay.Invoke();
 
         // [THEN] No assisted setup entry exists
         Assert.IsFalse(GuidedExperience.Exists("Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"Teams Individual Deployment"), 'Teams Individual Deployment assisted setup entry should not exist.');
@@ -51,10 +49,8 @@ codeunit 139322 "Teams User Deployment Tests"
         // [WHEN] The Teams Individual Deployment is completed
         TeamsIndividualDeployment.Trap();
         Page.Run(Page::"Teams Individual Deployment");
-        with TeamsIndividualDeployment do begin
-            Assert.IsFalse(ActionOkay.Visible(), 'Okay is visible');
-            ActionGetFromStore.Invoke();
-        end;
+        Assert.IsFalse(TeamsIndividualDeployment.ActionOkay.Visible(), 'Okay is visible');
+        TeamsIndividualDeployment.ActionGetFromStore.Invoke();
 
         // [THEN] No assisted setup entry exists
         Assert.IsFalse(GuidedExperience.Exists("Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"Teams Individual Deployment"), 'Teams Individual Deployment assisted setup entry should not exist.');

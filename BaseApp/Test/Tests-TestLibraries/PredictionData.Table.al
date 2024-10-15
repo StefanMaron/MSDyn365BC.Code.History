@@ -26,12 +26,12 @@ table 135300 "Prediction Data"
         }
         field(16; "Feature E"; Decimal)
         {
-            CalcFormula = Sum("Sales Invoice Line".Quantity);
+            CalcFormula = sum("Sales Invoice Line".Quantity);
             FieldClass = FlowField;
         }
         field(17; "Feature F"; Decimal)
         {
-            CalcFormula = Sum("Sales Invoice Line"."Unit Price");
+            CalcFormula = sum("Sales Invoice Line"."Unit Price");
             FieldClass = FlowField;
         }
         field(18; "Feature G"; Boolean)

@@ -2,14 +2,10 @@ table 13400 "Intrastat - File Setup"
 {
     Caption = 'Intrastat - File Setup';
     ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-#if not CLEAN22
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#endif
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {

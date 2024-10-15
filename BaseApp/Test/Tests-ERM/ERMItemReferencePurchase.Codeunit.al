@@ -1660,18 +1660,16 @@ codeunit 134464 "ERM Item Reference Purchase"
 
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ItemVariantNo: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30])
     begin
-        with ItemReference do begin
-            Init();
-            Validate("Item No.", ItemNo);
-            Validate("Variant Code", ItemVariantNo);
-            Validate("Reference Type", ReferenceType);
-            Validate("Reference Type No.", ReferenceTypeNo);
-            Validate(
-              "Reference No.",
-              LibraryUtility.GenerateRandomCode(FieldNo("Reference No."), DATABASE::"Item Reference"));
-            Validate(Description, ReferenceTypeNo);
-            Insert(true);
-        end;
+        ItemReference.Init();
+        ItemReference.Validate("Item No.", ItemNo);
+        ItemReference.Validate("Variant Code", ItemVariantNo);
+        ItemReference.Validate("Reference Type", ReferenceType);
+        ItemReference.Validate("Reference Type No.", ReferenceTypeNo);
+        ItemReference.Validate(
+          "Reference No.",
+          LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), DATABASE::"Item Reference"));
+        ItemReference.Validate(Description, ReferenceTypeNo);
+        ItemReference.Insert(true);
     end;
 
     local procedure MockPurchaseLineForICRLookupPurchaseItem(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemRefNo: Code[50])

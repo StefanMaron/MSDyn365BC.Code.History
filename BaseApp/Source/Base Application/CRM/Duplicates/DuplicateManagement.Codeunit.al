@@ -15,7 +15,9 @@ codeunit 5060 DuplicateManagement
     var
         RMSetup: Record "Marketing Setup";
 
+#pragma warning disable AA0074
         Text000: Label 'Duplicate Contacts were found. Would you like to process these?';
+#pragma warning restore AA0074
         DuplicateContactExistMsg: Label 'There are duplicate contacts.';
         OpenContactDuplicatesPageLbl: Label 'Show';
 

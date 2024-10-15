@@ -6,8 +6,8 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Worksheet;
 using System.Text;
 using System.Reflection;
@@ -22,11 +22,15 @@ codeunit 5752 "Get Source Doc. Outbound"
     var
         GetSourceDocuments: Report "Get Source Documents";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'If %1 is %2 in %3 no. %4, then all associated lines where type is %5 must use the same location.';
         Text002: Label 'The warehouse shipment was not created because the Shipping Advice field is set to Complete, and item no. %1 is not available in location code %2.\\You can create the warehouse shipment by either changing the Shipping Advice field to Partial in %3 no. %4 or by manually filling in the warehouse shipment document.';
         Text003: Label 'The warehouse shipment was not created because an open warehouse shipment exists for the Sales Header and Shipping Advice is %1.\\You must add the item(s) as new line(s) to the existing warehouse shipment or change Shipping Advice to Partial.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
-    local procedure CreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request") Result: Boolean
+    procedure CreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request") Result: Boolean
     var
         WhseShptHeader: Record "Warehouse Shipment Header";
         IsHandled: Boolean;
@@ -172,19 +176,25 @@ codeunit 5752 "Get Source Doc. Outbound"
         exit(CreateWhseShipmentHeaderFromWhseRequest(WhseRqst));
     end;
 
-    procedure CreateFromServiceOrder(ServiceHeader: Record "Service Header")
-    begin
-        OnBeforeCreateFromServiceOrder(ServiceHeader);
-        ShowResult(CreateFromServiceOrderHideDialog(ServiceHeader));
-    end;
-
-    procedure CreateFromServiceOrderHideDialog(ServiceHeader: Record "Service Header"): Boolean
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
+    procedure CreateFromServiceOrder(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        ServGetSourceDocOutbound: Codeunit "Serv. Get Source Doc. Outbound";
     begin
-        FindWarehouseRequestForServiceOrder(WhseRqst, ServiceHeader);
-        exit(CreateWhseShipmentHeaderFromWhseRequest(WhseRqst));
+        ServGetSourceDocOutbound.CreateFromServiceOrder(ServiceHeader);
     end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
+    procedure CreateFromServiceOrderHideDialog(ServiceHeader: Record Microsoft.Service.Document."Service Header"): Boolean
+    var
+        ServGetSourceDocOutbound: Codeunit "Serv. Get Source Doc. Outbound";
+    begin
+        exit(ServGetSourceDocOutbound.CreateFromServiceOrderHideDialog(ServiceHeader));
+    end;
+#endif
 
     procedure GetSingleWhsePickDoc(CurrentWhseWkshTemplate: Code[10]; CurrentWhseWkshName: Code[10]; LocationCode: Code[10])
     var
@@ -428,6 +438,7 @@ codeunit 5752 "Get Source Doc. Outbound"
     local procedure OpenWarehouseShipmentPage()
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WMSManagement: Codeunit "WMS Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -435,11 +446,12 @@ codeunit 5752 "Get Source Doc. Outbound"
         if IsHandled then
             exit;
 
-        GetSourceDocuments.GetLastShptHeader(WarehouseShipmentHeader);
+        GetSourceDocuments.GetLastShptHeader(WarehouseShipmentHeader);        
+        WMSManagement.CheckUserIsWhseEmployeeForLocation(WarehouseShipmentHeader."Location Code", true);
         PAGE.Run(PAGE::"Warehouse Shipment", WarehouseShipmentHeader);
     end;
 
-    local procedure GetRequireShipRqst(var WhseRqst: Record "Warehouse Request")
+    procedure GetRequireShipRqst(var WhseRqst: Record "Warehouse Request")
     var
         Location: Record Location;
         LocationList: List of [Code[20]];
@@ -479,7 +491,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         exit((CurrItemVariant."Item No." = ItemNo) and (CurrItemVariant.Code = VariantCode));
     end;
 
-    local procedure FindWarehouseRequestForSalesOrder(var WhseRqst: Record "Warehouse Request"; SalesHeader: Record "Sales Header")
+    procedure FindWarehouseRequestForSalesOrder(var WhseRqst: Record "Warehouse Request"; SalesHeader: Record "Sales Header")
     begin
         SalesHeader.TestField(Status, SalesHeader.Status::Released);
         CheckWhseShipmentConflict(SalesHeader);
@@ -518,18 +530,6 @@ codeunit 5752 "Get Source Doc. Outbound"
         OnAfterFindWarehouseRequestForOutbndTransferOrder(WhseRqst, TransHeader);
     end;
 
-    local procedure FindWarehouseRequestForServiceOrder(var WhseRqst: Record "Warehouse Request"; ServiceHeader: Record "Service Header")
-    begin
-        ServiceHeader.TestField("Release Status", ServiceHeader."Release Status"::"Released to Ship");
-        WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
-        WhseRqst.SetSourceFilter(Database::"Service Line", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.");
-        WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
-        OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(WhseRqst, ServiceHeader);
-        GetRequireShipRqst(WhseRqst);
-
-        OnAfterFindWarehouseRequestForServiceOrder(WhseRqst, ServiceHeader);
-    end;
-
     local procedure CheckWhseShipmentConflict(SalesHeader: Record "Sales Header")
     var
         IsHandled: Boolean;
@@ -548,7 +548,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         WarehouseShipmentHeader.Modify();
     end;
 
-    local procedure ShowResult(WhseShipmentCreated: Boolean)
+    procedure ShowResult(WhseShipmentCreated: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -615,10 +615,18 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnAfterFindWarehouseRequestForServiceOrder(var WarehouseRequest: Record "Warehouse Request"; ServiceHeader: Record Microsoft.Service.Document."Service Header")
+    begin
+        OnAfterFindWarehouseRequestForServiceOrder(WarehouseRequest, ServiceHeader);
+    end;
+
+    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindWarehouseRequestForServiceOrder(var WarehouseRequest: Record "Warehouse Request"; ServiceHeader: Record "Service Header")
+    local procedure OnAfterFindWarehouseRequestForServiceOrder(var WarehouseRequest: Record "Warehouse Request"; ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetOutboundDocs(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
@@ -665,10 +673,18 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCreateFromServiceOrder(var ServiceHeader: Record Microsoft.Service.Document."Service Header")
+    begin
+        OnBeforeCreateFromServiceOrder(ServiceHeader);
+    end;
+
+    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateFromServiceOrder(var ServiceHeader: Record "Service Header")
+    local procedure OnBeforeCreateFromServiceOrder(var ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var Rusult: Boolean; var IsHandled: Boolean; var GetSourceDocuments: Report "Get Source Documents")
@@ -745,10 +761,18 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(var WarehouseRequest: Record "Warehouse Request"; var ServiceHeader: Record Microsoft.Service.Document."Service Header")
+    begin
+        OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(WarehouseRequest, ServiceHeader);
+    end;
+
+    [Obsolete('Moved to codeunit ServGetSourceDocOutbound', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(var WarehouseRequest: Record "Warehouse Request"; var ServiceHeader: Record "Service Header")
+    local procedure OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(var WarehouseRequest: Record "Warehouse Request"; var ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSingleWhsePickDocOnWhsePickRqstSetFilters(var WhsePickRequest: Record "Whse. Pick Request"; CurrentWhseWkshTemplate: Code[10]; CurrentWhseWkshName: Code[10]; LocationCode: Code[10])

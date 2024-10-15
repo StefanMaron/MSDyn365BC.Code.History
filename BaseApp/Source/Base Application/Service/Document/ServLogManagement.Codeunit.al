@@ -12,6 +12,7 @@ codeunit 5906 ServLogManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Order created';
         Text001: Label 'Status changed';
         Text002: Label 'Customer changed';
@@ -26,7 +27,9 @@ codeunit 5906 ServLogManagement
         Text011: Label 'Quote accepted';
         Text012: Label 'Quote created';
         Text013: Label 'Repair status changed';
+#pragma warning restore AA0074
         UnknownEventTxt: Label 'Unknown event';
+#pragma warning disable AA0074
         Text015: Label 'Created';
         Text016: Label 'Automatically created';
         Text017: Label 'Added to contract';
@@ -53,6 +56,7 @@ codeunit 5906 ServLogManagement
         Text038: Label 'Invoice posted';
         Text039: Label 'Invoice deleted';
         Text040: Label 'Credit memo deleted';
+#pragma warning restore AA0074
         BlockedChangedLbl: Label 'Blocked changed';
 
     procedure ServOrderEventDescription(EventNo: Integer): Text[50]

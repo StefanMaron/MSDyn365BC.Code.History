@@ -18,6 +18,8 @@ codeunit 130000 Assert
         TableIsNotEmptyErr: Label 'Assert.TableIsNotEmpty failed. Table <%1> with filter <%2> must contain records.', Locked = true;
         KnownFailureMsg: Label 'Known failure: see VSTF Bug #%1.';
         ExpectedErrorFailed: Label 'Assert.ExpectedError failed. Expected: %1. Actual: %2.';
+        ExpectedTestFieldFailedErr: Label 'Assert.ExpectedError failed. Could not find the value: %1 in the raised error text: %2.';
+        WrongErrorCodeErr: Label 'Assert.ExpectedErrorCode failed. Error code raised: %1. Actual error message: %2.', Comment = '%1 - Error code that was raised. %2 - Error message reported.', Locked = true;
         ExpectedErrorCodeFailed: Label 'Assert.ExpectedErrorCode failed. Expected: %1. Actual: %2. Actual error message: %3.';
         ExpectedMessageFailedErr: Label 'Assert.ExpectedMessage failed. Expected: %1. Actual: %2.';
         ExpectedConfirmFailedErr: Label 'Assert.ExpectedConfirm failed. Expected: %1. Actual: %2.';
@@ -35,6 +37,19 @@ codeunit 130000 Assert
         ErrorHasNotBeenThrownErr: Label 'The error has not been thrown.';
         TextEndsWithErr: Label 'Assert.TextEndsWith failed. The text <%1> must end with <%2>';
         TextEndSubstringIsBlankErr: Label 'Substring must not be blank.';
+        TestFieldFormat1Tok: Label ' must be ';
+        TestFieldFormat1Part2Tok: Label 'Currently it''s';
+        TestFieldFormat2Tok: Label ' must have a value in ';
+        TestFieldFormat2Part2Tok: Label 'It can''t be zero or empty.';
+        TestFieldFormat3Tok: Label ' can''t be ';
+        //CantFindTok: Label 'Can''t find ';
+        TestFieldValidationCodeTxt: Label 'TestValidation';
+        NCLCSRTSTableErrorStrTxt: Label 'NCLCSRTS:TableErrorStr';
+        TestWrappedTxt: Label 'TestWrapped';
+        TestWrappedCSideRecordNotFoundTxt: Label 'TestWrapped:CSideRecordNotFound';
+        TestFieldCodeTxt: Label 'TestField';
+        DialogTxt: Label 'Dialog';
+        ErrorMessageIsNotMatchingExpectedErrorFormatErr: Label 'Assert.ExpectedError failed. The error message is not matching the expected error format. Error message: %1', Comment = '%1 error message that was raised.';
 
     procedure IsTrue(Condition: Boolean; Msg: Text)
     begin
@@ -165,6 +180,163 @@ codeunit 130000 Assert
         end else
             if StrPos(GetLastErrorText, Expected) = 0 then
                 Error(ExpectedErrorFailed, Expected, GetLastErrorText);
+    end;
+
+    /// <summary>
+    /// Checks for the field error that it cannot find the record
+    /// </summary>
+    /// Old formats: The {0} does not exist. Identification fields and values: {1}.  
+    /// New format:  Can't find {0} in {1}.
+    /// <param name="TableID">Table ID Raising the erro</param>
+    procedure ExpectedErrorCannotFind(TableID: Integer)
+    begin
+        ExpectedErrorCannotFind(TableID, '');
+    end;
+
+    /// <summary>
+    /// Checks for the field error that it cannot find the record
+    /// </summary>
+    /// Old formats: The {0} does not exist. Identification fields and values: {1}.  
+    /// New format:  Can't find {0} in {1}.
+    /// <param name="TableID">Table ID Raising the erro</param>
+    /// <param name="RecordIndentificationText">Identification text of the record that it cannot find</param>
+    procedure ExpectedErrorCannotFind(TableID: Integer; RecordIndentificationText: Text)
+    var
+        LastErrorText: Text;
+        LastErrorCode: Text;
+    begin
+        LastErrorText := GetLastErrorText();
+        if (GetLastErrorText() = '') then
+            if GetLastErrorCallStack() = '' then
+                Error(ErrorHasNotBeenThrownErr);
+
+        LastErrorCode := GetLastErrorCode();
+        if (LastErrorCode <> RecordNotFoundErrorCode) and
+           (LastErrorCode <> PrimRecordNotFoundErrorCode) and
+           (LastErrorCode <> TestWrappedCSideRecordNotFoundTxt) and
+           (not LastErrorCode.Contains(TestFieldValidationCodeTxt))
+        then
+            Error(WrongErrorCodeErr, LastErrorCode, LastErrorText);
+
+        ExpectedMessageCannotFind(LastErrorText, TableID, RecordIndentificationText);
+    end;
+
+    procedure ExpectedMessageCannotFind(LastErrorText: Text; TableID: Integer; RecordIndentificationText: Text)
+    var
+        AllObjWithCaption: Record AllObjWithCaption;
+        TableCaption: Text;
+        IsCantFindError: Boolean;
+    begin
+        AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
+        AllObjWithCaption.SetRange("Object ID", TableID);
+        AllObjWithCaption.FindFirst();
+        TableCaption := AllObjWithCaption."Object Caption";
+
+        IsCantFindError := true;
+        // TODO Return: IsCantFindError := StrPos(LastErrorText, CantFindTok) > 0;
+        if not IsCantFindError then
+            Error(ErrorMessageIsNotMatchingExpectedErrorFormatErr, LastErrorText);
+
+        if TableCaption <> '' then
+            if StrPos(LastErrorText, TableCaption) = 0 then
+                Error(ExpectedTestFieldFailedErr, TableCaption, LastErrorText);
+
+        if RecordIndentificationText <> '' then
+            if StrPos(LastErrorText, RecordIndentificationText) = 0 then
+                Error(ExpectedTestFieldFailedErr, TableCaption, LastErrorText);
+    end;
+
+    /// <summary>
+    /// Checks for the test filed errors. 
+    /// Old formats: {0} must not be {1} in {2} {3}.
+    ///              {0} must have a value in {1}: {2}. It cannot be zero or empty.
+    ///              {0} must be equal to “{2}” in {1}: {4}. Current value is “{3}”.    
+    /// New format:  {0} can’t be {1} in {2}.
+    ///              {0} must have a value in {1}: {2}. It can’t be zero or empty. 
+    ///              {0} must be {2} for {1}: {4}. Currently it’s {3}.
+    /// </summary>
+    /// <param name="FieldCaptionTested">Name of the field raising the error</param>
+    /// <param name="ExpectedValue">Expected value in the error message</param>
+    procedure ExpectedTestFieldError(FieldCaptionTested: Text; ExpectedValue: Text)
+    begin
+        ExpectedTestFieldError(FieldCaptionTested, ExpectedValue, '', '');
+    end;
+
+    /// <summary>
+    /// Checks for the test filed errors. 
+    /// New format:  {0} can’t be {1} in {2}.
+    ///              {0} must have a value in {1}: {2}. It can’t be zero or empty. 
+    ///              {0} must be {2} for {1}: {4}. Currently it’s {3}.
+    /// Old formats: {0} must not be {1} in {2} {3}.
+    ///              {0} must have a value in {1}: {2}. It cannot be zero or empty.
+    ///              {0} must be equal to “{2}” in {1}: {4}. Current value is “{3}”.
+    /// </summary>
+    /// <param name="FieldCaptionTested">Name of the field raising the error</param>
+    /// <param name="ExpectedValue">Expected value in the error message</param>
+    /// <param name="ActualValue">Actual value in the error message</param>
+    /// <param name="TableCaptionTested">Name of the table raising the error</param>
+    procedure ExpectedTestFieldError(FieldCaptionTested: Text; ExpectedValue: Text; ActualValue: Text; TableCaptionTested: Text)
+    var
+        LastErrorText: Text;
+        LastErrorCode: Text;
+    begin
+        LastErrorText := GetLastErrorText();
+        if (GetLastErrorText() = '') then
+            if GetLastErrorCallStack() = '' then
+                Error(ErrorHasNotBeenThrownErr);
+
+        LastErrorCode := GetLastErrorCode();
+        if not (LastErrorCode.Contains(TestFieldValidationCodeTxt) or
+               (LastErrorCode in [NCLCSRTSTableErrorStrTxt, TestWrappedTxt]) or
+               (LastErrorCode.Contains(TestFieldCodeTxt)) or
+               (LastErrorCode.Contains(DialogTxt)))
+        then
+            Error(WrongErrorCodeErr, LastErrorCode, LastErrorText);
+
+        ExpectedTestFieldMessage(LastErrorText, FieldCaptionTested, ExpectedValue, ActualValue, TableCaptionTested);
+    end;
+
+    procedure ExpectedTestFieldMessage(LastErrorText: Text; FieldCaptionTested: Text; ExpectedValue: Text; ActualValue: Text; TableCaptionTested: Text)
+    var
+        IsTestFieldError: Boolean;
+    begin
+        if ExpectedValue <> '' then
+            if StrPos(LastErrorText, ExpectedValue) = 0 then
+                Error(ExpectedTestFieldFailedErr, ExpectedValue, LastErrorText);
+
+        if ActualValue <> '' then
+            if StrPos(LastErrorText, ActualValue) = 0 then
+                Error(ExpectedTestFieldFailedErr, ActualValue, LastErrorText);
+
+        if FieldCaptionTested <> '' then
+            if StrPos(LastErrorText, FieldCaptionTested) = 0 then
+                Error(ExpectedTestFieldFailedErr, FieldCaptionTested, LastErrorText);
+
+        if TableCaptionTested <> '' then
+            if StrPos(LastErrorText, TableCaptionTested) = 0 then
+                Error(ExpectedTestFieldFailedErr, TableCaptionTested, LastErrorText);
+
+        IsTestFieldError := true;
+        // TODO Return: IsTestFieldError := MatchesTestFieldMessageFormat(LastErrorText);
+        // IsTestFieldError := MatchesTestFieldMessageFormat(ExpectedTestFieldFailedErr);
+
+        if not IsTestFieldError then
+            Error(ErrorMessageIsNotMatchingExpectedErrorFormatErr, LastErrorText);
+    end;
+
+    // TODO: Return to local
+    internal procedure MatchesTestFieldMessageFormat(ErrorMessage: Text): Boolean
+    begin
+        if (StrPos(ErrorMessage, TestFieldFormat1Tok) > 0) and (StrPos(ErrorMessage, TestFieldFormat1Part2Tok) > 0) then
+            exit(true);
+
+        if (StrPos(ErrorMessage, TestFieldFormat2Tok) > 0) and (StrPos(ErrorMessage, TestFieldFormat2Part2Tok) > 0) then
+            exit(true);
+
+        if StrPos(ErrorMessage, TestFieldFormat3Tok) > 0 then
+            exit(true);
+
+        exit(false);
     end;
 
     procedure ExpectedErrorCode(Expected: Text)

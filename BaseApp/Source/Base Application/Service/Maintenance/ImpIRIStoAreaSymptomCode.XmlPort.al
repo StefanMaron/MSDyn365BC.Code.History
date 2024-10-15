@@ -74,6 +74,10 @@ xmlport 5900 "Imp. IRIS to Area/Symptom Code"
 
     var
         Counter: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 records were successfully inserted or modified.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

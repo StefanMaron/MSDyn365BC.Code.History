@@ -509,16 +509,21 @@ report 94 "Close Income Statement"
         ColumnDim: Text[250];
         NoOfAccounts: Integer;
         ThisAccountNo: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Enter the ending date for the fiscal year.';
         Text001: Label 'Enter a Document No.';
         Text002: Label 'Enter Retained Earnings Account No.';
+#pragma warning restore AA0074
         Confirm01Tok: Label 'By using an additional reporting currency, this batch job will post closing entries directly to the general ledger.  ';
         Confirm02Tok: Label 'These closing entries will not be transferred to a general journal before the program posts them to the general ledger.\ ';
         Confirm03Tok: Label 'Post to Retained Earnings Acc. will be set to Details.\\';
         Confirm04Tok: Label '\Do you want to continue?';
+#pragma warning disable AA0074
         Text008: Label 'Creating general journal lines...\\';
+#pragma warning disable AA0470
         Text009: Label 'Account No.         #1##################\';
         Text010: Label 'Now performing      #2##################\';
+#pragma warning restore AA0470
         Text011: Label '                    @3@@@@@@@@@@@@@@@@@@\';
         Text019: Label '                    @4@@@@@@@@@@@@@@@@@@\';
         Text012: Label 'Creating Gen. Journal lines';
@@ -529,6 +534,7 @@ report 94 "Close Income Statement"
         Text016: Label 'The closing entries have successfully been posted.';
         Text020: Label 'The following G/L Accounts have mandatory dimension codes that have not been selected:';
         Text021: Label '\\In order to post to these accounts you must also select these dimensions:';
+#pragma warning restore AA0074
         MaxEntry: Integer;
         EntryCount: Integer;
         LastWindowUpdateDateTime: DateTime;

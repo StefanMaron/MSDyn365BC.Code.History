@@ -11,7 +11,9 @@ codeunit 7702 "Miniform Management"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'The Node does not exist.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure ReceiveXML(xmlin: DotNet XmlDocument)

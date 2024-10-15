@@ -52,7 +52,7 @@ page 9860 "AAD Application List"
     actions
     {
     }
-    
+
     trigger OnAfterGetRecord()
     var
         User: Record User;

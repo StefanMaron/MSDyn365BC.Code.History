@@ -350,7 +350,7 @@ codeunit 132200 "Library - Costing"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         PurchasePrice.Init();
@@ -395,7 +395,7 @@ codeunit 132200 "Library - Costing"
         CalcInvtValue.RunModal();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         SalesPrice.Init();
@@ -540,7 +540,7 @@ codeunit 132200 "Library - Costing"
         SuggestCapacityStandardCostReport.Run();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
 #pragma warning disable AS0072
     [Obsolete('Not used', '23.0')]
 #pragma warning restore AS0072
