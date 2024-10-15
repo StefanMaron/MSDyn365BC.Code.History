@@ -1292,6 +1292,9 @@
                   </Group>
                   <TablixMembers>
                     <TablixMember>
+                      <Visibility>
+                        <Hidden>true</Hidden>
+                      </Visibility>
                       <KeepWithGroup>After</KeepWithGroup>
                       <RepeatOnNewPage>true</RepeatOnNewPage>
                       <KeepTogether>true</KeepTogether>
@@ -1322,7 +1325,11 @@
                             <Hidden>=IIF(Fields!Cust__Ledger_Entry__Document_No__.Value &lt;&gt; "",False,True)</Hidden>
                           </Visibility>
                         </TablixMember>
-                        <TablixMember />
+                        <TablixMember>
+                          <Visibility>
+                            <Hidden>=IIF(Fields!VendLedgEntry__Document_Type_.Value &lt;&gt; "",False,True)</Hidden>
+                          </Visibility>
+                        </TablixMember>
                         <TablixMember>
                           <Visibility>
                             <Hidden>=IIF(Fields!Text004.Value &lt;&gt; "",False,True)</Hidden>

@@ -279,8 +279,15 @@ table 981 "Payment Registration Buffer"
         exit('');
     end;
 
-    procedure GetDueDateStyle(): Text
+    procedure GetDueDateStyle() ReturnValue: Text
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDueDateStyle(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         if "Due Date" < "Date Received" then
             exit('Unfavorable');
         exit('');
@@ -358,6 +365,11 @@ table 981 "Payment Registration Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnRestoreUserValuesOnBeforeModify(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"; var TempSavePmtRegnBuf: Record "Payment Registration Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDueDateStyle(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"; var ReturnValue: Text; var IsHandled: Boolean)
     begin
     end;
 }

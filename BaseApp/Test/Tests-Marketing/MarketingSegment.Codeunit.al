@@ -330,7 +330,6 @@ codeunit 136213 "Marketing Segment"
     end;
 
     [Test]
-    [HandlerFunctions('ODataFieldsExportMPH')]
     [Scope('OnPrem')]
     procedure SegmentPageExportContactsSaaS()
     var
@@ -790,13 +789,6 @@ codeunit 136213 "Marketing Segment"
     begin
         SaveSegmentCriteria.Code.SetValue(SalesPersonCode2);
         SaveSegmentCriteria.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ODataFieldsExportMPH(var ODataFieldsExport: TestPage "OData Fields Export")
-    begin
-        ODataFieldsExport.Cancel.Invoke;
     end;
 
     [ConfirmHandler]
