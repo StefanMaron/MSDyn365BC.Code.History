@@ -10,7 +10,9 @@ codeunit 138500 "Common Demodata"
 
     var
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DoNotChangeO365ProfileNameErr: Label 'Important!! DO NOT CHANGE THE NAME OF THE O365 Sales profile name!';
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -21,6 +23,8 @@ codeunit 138500 "Common Demodata"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO] Config. Template Code for Customer/Vendor/Item should start with 'CUST'/'VEND'/'ITEM' prefix.
+        Initialize();
+
         ConfigTemplateHeader.SetFilter("Table ID", '%1|%2|%3', DATABASE::Customer, DATABASE::Vendor, DATABASE::Item);
         if ConfigTemplateHeader.FindSet then
             repeat
@@ -39,6 +43,8 @@ codeunit 138500 "Common Demodata"
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
         // [SCENARIO] There are 4 fields filled in the Interaction Template Setup
+        Initialize();
+
         InteractionTemplateSetup.Get();
         InteractionTemplateSetup.TestField("E-Mails");
         InteractionTemplateSetup.TestField("Cover Sheets");
@@ -53,6 +59,8 @@ codeunit 138500 "Common Demodata"
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO] There Business Relation and Number Series fields are filled in the Marketing Setup
+        Initialize();
+
         MarketingSetup.Get();
         MarketingSetup.TestField("Contact Nos.");
         MarketingSetup.TestField("Segment Nos.");
@@ -71,6 +79,8 @@ codeunit 138500 "Common Demodata"
         VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
         // [SCENARIO] There are 3 VAT Bus. Posting groups
+        Initialize();
+
         Assert.RecordCount(VATBusPostingGroup, 3);
     end;
 
@@ -81,6 +91,8 @@ codeunit 138500 "Common Demodata"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
+        Initialize();
+
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
             Assert.RecordCount(VATPostingSetup, 2);
@@ -101,6 +113,8 @@ codeunit 138500 "Common Demodata"
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
         // [SCENARIO] Human Resources Setup contains a number series
+        Initialize();
+
         HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Employee Nos.");
     end;
@@ -113,6 +127,8 @@ codeunit 138500 "Common Demodata"
         Location: Record Location;
     begin
         // [SCENARIO] Inventory Posting Setup exists for the default location, and all locations (if any)
+        Initialize();
+
         InventoryPostingSetup.SetRange("Location Code", '');
         Assert.RecordIsNotEmpty(InventoryPostingSetup);
 
@@ -131,6 +147,8 @@ codeunit 138500 "Common Demodata"
     begin
         // [FEATURE] [Invoicing]
         // [SCENARIO 184609] There should be 3 payment methods with Use for Invoicing = Yes
+        Initialize();
+
         PaymentMethod.SetRange("Use for Invoicing", true);
         Assert.RecordCount(PaymentMethod, 5);
     end;
@@ -142,6 +160,8 @@ codeunit 138500 "Common Demodata"
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
         // [SCENARIO 199993] Email Draft interaction template code should be defined in Interaction Template Setup
+        Initialize();
+
         InteractionTemplateSetup.Get();
         InteractionTemplateSetup.TestField("E-Mail Draft");
     end;
@@ -155,6 +175,8 @@ codeunit 138500 "Common Demodata"
         // Important!! DO NOT CHANGE THE O365SalesTxt string below!!!
         // If this string needs to be changed, contact the invoicing app team
         // The invoicing app client has a hard dependency on this string!
+        Initialize();
+
         AllProfile.SetRange("Profile ID", 'O' + '3' + '6' + '5' + ' ' + 'S' + 'a' + 'l' + 'e' + 's'); // Defend again bulk rename!
         if AllProfile.Count() <> 1 then
             Error(DoNotChangeO365ProfileNameErr);
@@ -168,6 +190,8 @@ codeunit 138500 "Common Demodata"
     begin
         // [FEATURE] [Report Selection] [Proforma Invoice]
         // [SCENARIO 201636] There is a Report Selections setup for Usage = "Pro Forma S. Invoice" with REP 1302 "Standard Sales - Pro Forma Inv"
+        Initialize();
+
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"Pro Forma S. Invoice");
         ReportSelections.FindFirst;
         ReportSelections.TestField("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
@@ -181,6 +205,8 @@ codeunit 138500 "Common Demodata"
     begin
         // [FEATURE] [Report Selection] [Proforma Invoice]
         // [SCENARIO 225721] There is a Word Custom Report Layout setup for REP 1302 "Standard Sales - Pro Forma Inv"
+        Initialize();
+
         CustomReportLayout.SetRange("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
         CustomReportLayout.FindFirst;
         CustomReportLayout.TestField(Type, CustomReportLayout.Type::Word);
@@ -194,6 +220,8 @@ codeunit 138500 "Common Demodata"
     begin
         // [FEATURE] [Forward Link]
         // [SCENARIO 284641] Named Forward Links do exist and none of fields (Name, Description, Link) are blank.
+        Initialize();
+
         Assert.TableIsNotEmpty(DATABASE::"Named Forward Link");
         NamedForwardLink.FilterGroup(-1);
         NamedForwardLink.SetRange(Name, '');
@@ -209,6 +237,8 @@ codeunit 138500 "Common Demodata"
         CountryRegion: Record "Country/Region";
     begin
         // [FEATURE] [Country/Region] [ISO Code]
+        Initialize();
+
         CountryRegion.SetRange("ISO Code", '');
         Assert.RecordIsEmpty(CountryRegion);
         CountryRegion.Reset();
@@ -223,6 +253,8 @@ codeunit 138500 "Common Demodata"
         Currency: Record Currency;
     begin
         // [FEATURE] [Currency] [ISO Code]
+        Initialize();
+
         Currency.SetRange("ISO Code", '');
         Assert.RecordIsEmpty(Currency);
         Currency.Reset();
@@ -241,6 +273,8 @@ codeunit 138500 "Common Demodata"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         // [FEATURE] [Price Calculation Setup]
+        Initialize();
+
         // [THEN] "Price Calculation Setup" and "Dtld. Price Calculation Setup" tables are empty
         Assert.RecordIsEmpty(PriceCalculationSetup);
         Assert.RecordIsEmpty(DtldPriceCalculationSetup);
@@ -263,10 +297,23 @@ codeunit 138500 "Common Demodata"
     begin
         // [FEATURE] [Currency] [VAT Scheme]
         // [SCENARIO 334415] 'VAT Scheme' in Country/Region keeps values from Electronic Address Scheme (EAS)
+        Initialize();
+
         CountryRegion.SetFilter("VAT Scheme", '*%1', ':VAT');
         Assert.RecordIsEmpty(CountryRegion);
         CountryRegion.SetFilter("VAT Scheme", '<>%1', '');
         Assert.RecordCount(CountryRegion, 30);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Common Demodata");
+
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+        Commit();
     end;
 }
 

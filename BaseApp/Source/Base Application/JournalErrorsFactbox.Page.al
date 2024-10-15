@@ -128,6 +128,7 @@ page 9121 "Journal Errors Factbox"
 
         BackgroundErrorHandlingMgt.CollectGenJnlCheckParameters(Rec, ErrorHandlingParameters);
         ErrorHandlingParameters.ToArgs(Args);
+        BackgroundErrorHandlingMgt.PackDeletedDocumentsToArgs(Args);
 
         CurrPage.EnqueueBackgroundTask(TaskIdCountErrors, Codeunit::"Check Gen. Jnl. Line. Backgr.", Args);
     end;

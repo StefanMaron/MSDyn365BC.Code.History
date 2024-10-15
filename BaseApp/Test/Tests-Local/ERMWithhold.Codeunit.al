@@ -1,4 +1,4 @@
-codeunit 144090 "ERM Withhold"
+﻿codeunit 144090 "ERM Withhold"
 {
     // // [FEATURE] [Withholding Tax]
     // Test for Withhold Tax functionality.
@@ -103,6 +103,7 @@ codeunit 144090 "ERM Withhold"
         TestFieldErr: Label 'TestField';
         DialogErr: Label 'Dialog';
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        MultiApplyErr: Label 'To calculate taxes correctly, the payment must be applied to only one document.';
 
     [Test]
     [HandlerFunctions('ContributionCodesINPSModalPageHandler')]
@@ -272,7 +273,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [Test]
-    [HandlerFunctions('TaxableValueShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('TaxableValueShowComputedWithholdContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure WithholdTaxesContributionOnPaymentJnl()
     var
@@ -285,7 +286,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Tax value on Withh. Taxes-Contribution Card after creating Payment Journal with apply Posted Purchase Invoice.
 
         // Setup: Create and Post Purchase Invoice and Create and Apply payment Journal.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');  // Blank for Social Security Code and INAIL Code.
         CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", TaxableBase);
         NonTaxableAmount := PurchaseLine."Line Amount" - TaxableBase;
@@ -293,7 +294,6 @@ codeunit 144090 "ERM Withhold"
         // Enqueue value for Handler -TaxableValueShowComputedWithholdContribModalPageHandler
         CreateAndApplyGeneralJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, PostedDocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(TaxableBase);
         LibraryVariableStorage.Enqueue(NonTaxableAmount);
 
@@ -301,10 +301,11 @@ codeunit 144090 "ERM Withhold"
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
 
         // Verify: Verify Taxable Base and Non Taxable Amount in Handler -TaxableValueShowComputedWithholdContribModalPageHandler.
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure WithholdingTaxPaymentJnlWithAppliesToInvoice()
     var
@@ -318,7 +319,7 @@ codeunit 144090 "ERM Withhold"
         // [SCENARIO] Tax value on Withholding Tax after posting Payment Journal with apply Posted Purchase Invoice.
 
         // [GIVEN] Posted Purchase Invoice.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');  // Blank for Social Security Code and INAIL Code.
         WithholdingTaxAmount := CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", TaxableBase);
         NonTaxableAmount := PurchaseLine."Line Amount" - TaxableBase;
@@ -331,10 +332,12 @@ codeunit 144090 "ERM Withhold"
         VerifyTmpWithholdingContributionEmpty(PostedDocumentNo);
         // [THEN] Verify Non Taxable Amount, Taxable Base, Withholding Tax Amount on Withholding Tax.
         VerifyWithholdingTax(PurchaseLine."Buy-from Vendor No.", NonTaxableAmount, TaxableBase, WithholdingTaxAmount);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithhContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithhContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure WithholdingTaxNoCalcAmtPaymentJnlWithAppliesToInvoice()
     var
@@ -346,7 +349,7 @@ codeunit 144090 "ERM Withhold"
         // [SCENARIO 374904] Record in Tmp Withholding Contribution table is cleared after posting Payment Journal with apply Posted Purchase Invoice.
 
         // [GIVEN] Posted Purchase Invoice with Withholding Tax Amount = 0.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');
         CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", TaxableBase);
 
@@ -358,10 +361,12 @@ codeunit 144090 "ERM Withhold"
 
         // [THEN] Record from table Tmp Withholding Contribution is deleted.
         VerifyTmpWithholdingContributionEmpty(PostedDocumentNo);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithhContribModalPageHandler,ConfirmHandler,MessageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithhContribModalPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure MultipleWithholdingTaxNoCalcAmtPmtJnlWithAppliesToInvoice()
     var
@@ -373,7 +378,7 @@ codeunit 144090 "ERM Withhold"
         i: Integer;
     begin
         // [SCENARIO 374904] Only 1 line in Tmp Withholding Contribution table is removed after posting only 1 Payment Journal line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted 2 Purchase Invoices and 2 Payment Journal lines applied to invoices with Withholding Tax Amount = 0.
         CreateGenJournalBatch(GenJournalBatch);
@@ -386,22 +391,22 @@ codeunit 144090 "ERM Withhold"
 
             CreateJournalLineWithAppliesToDocNo(
               GenJournalBatch, VendorLedgerEntry."Vendor No.", InvoiceNo[i], -VendorLedgerEntry.Amount);
-            LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
             ShowComputedWithholdContributionOnPayment(GenJournalBatch.Name);
             VerifyTmpWithholdingContributionNotEmpty(InvoiceNo[i]);
         end;
 
         // [WHEN] Post second Payment Journal line.
-        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         PostPaymentJournalWithPage(GenJournalBatch.Name, PurchaseLine."Buy-from Vendor No.");
 
         // [THEN] 2nd Record for Invoice 2 from table TempWithholdingSocSec is deleted, 1st line for Invoice 2 exists.
         VerifyTmpWithholdingContributionNotEmpty(InvoiceNo[1]);
         VerifyTmpWithholdingContributionEmpty(InvoiceNo[2]);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure WithholdingTaxPaymentJnlLine()
     var
@@ -414,12 +419,11 @@ codeunit 144090 "ERM Withhold"
         // Verify withholding tax amount on the payment of a purchase invoice is correct in Payment Journal.
 
         // Setup: Create and Post Purchase Invoice and Create and Apply Payment Journal.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');  // Blank for Social Security Code and INAIL Code.
         WithholdingTaxAmount := CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", TaxableBase);
         CreateAndApplyGeneralJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, PostedDocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
 
         // Exercise: Show Computed Withhold Taxes Contribution on Payment Journal Page.
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
@@ -428,6 +432,8 @@ codeunit 144090 "ERM Withhold"
         VerifyGenJournalLine(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           WithholdingTaxAmount);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -459,7 +465,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure ContributionsPaymentJnlWithAppliesToInvoice()
     var
@@ -472,7 +478,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Contributions after Posting of Payment Journal with apply Posted Purchase Invoice.
 
         // Setup: Create Contribution Code with Type as INAIL and INPS. Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateContributionCodeWithLine(ContributionCodeLine, ContributionCodeLine."Contribution Type"::INAIL);
         CreateContributionCodeWithLine(ContributionCodeLine2, ContributionCodeLine2."Contribution Type"::INPS);
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, ContributionCodeLine2.Code, ContributionCodeLine.Code);
@@ -485,10 +491,12 @@ codeunit 144090 "ERM Withhold"
         VerifyContributions(
           ContributionCodeLine2.Code, ContributionCodeLine.Code, ContributionCodeLine2."Social Security %",
           ContributionCodeLine."Free-Lance Amount %");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('GrossAmountShowComputedWithhContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('GrossAmountShowComputedWithhContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure VendorWithINPSAndTotalAmtPaymentJnl()
     var
@@ -498,15 +506,15 @@ codeunit 144090 "ERM Withhold"
         // Verify Gross Amount on Withh. Taxes-Contribution Card after creating Payment Journal.
 
         // Setup: Create Contribution Code with Type INPS and Create General Journal.
-        Initialize;
+        Initialize();
         CreateContributionCodeWithLine(ContributionCodeLine, ContributionCodeLine."Contribution Type"::INPS);
         CreateGeneralJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, CreateVendor(ContributionCodeLine.Code, ''),
           LibraryRandom.RandDecInRange(100, 500, 2));  // Blank for INAIL Code.
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");  // Open handler - GrossAmountShowComputedWithhContribModalPageHandler
 
         // Exercise and Verify: Update Total Amount and verify Gross Amount on Page Handler - GrossAmountShowComputedWithhContribModalPageHandler
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -606,7 +614,6 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [Test]
-    [HandlerFunctions('GenJnlLineTemplateListPageHandler')]
     [Scope('OnPrem')]
     procedure PaymentJnlDocTypeCreditMemoWithholdTaxesError()
     var
@@ -615,16 +622,17 @@ codeunit 144090 "ERM Withhold"
         // Verify error message "Document Type must be Payment or Refund type" pops up when running Withh. Tax-Soc.Sec. on Payment Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateGeneralJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", CreateVendor('', ''), LibraryRandom.RandDec(10, 2));  // Blank for Social Security Code and INAIL Code.
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
 
         // Exercise.
         asserterror ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
 
         // Verify: Verify error message - Because this invoice includes Withholding Tax, it should not be applied directly. Please use the function Payment Journals -> Payments -> Withh.Tax-Soc.Sec.
         Assert.ExpectedError(DocumentTypeErr);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -659,7 +667,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,CertificationsRequestPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,CertificationsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CertificationsRefundPaymentJnlWithAppliesToCreditMemo()
     var
@@ -673,7 +681,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Tax value on Report Certifications after posting Payment Journal as Refund with apply Posted Purchase Credit Memo.
 
         // Setup: Create and Post Purchase Credit Memo and create General Journal line with refund and apply posted credit memo.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseCreditMemo(PurchaseLine);
         WithholdingTaxAmount := CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", TaxableBase);
         NonTaxableAmount := PurchaseLine."Line Amount" - TaxableBase;
@@ -685,10 +693,12 @@ codeunit 144090 "ERM Withhold"
 
         // Verify: Verify Non Taxable Amount, Taxable Base, Withholding Tax Amount on generated XML file.
         VerifyTaxValueOnCertificationsReport(-NonTaxableAmount, -TaxableBase, -WithholdingTaxAmount);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,CertificationsRequestPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,CertificationsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CertificationsPaymentJnlWithAppliesToInvoice()
     var
@@ -702,7 +712,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Tax value on Report Certifications after posting Payment Journal with apply Posted Purchase Invoice.
 
         // Setup: Create and Post Purchase Invoice and create General Journal line with Payment and apply posted Invoice.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');  // Blank for Social Security Code and INAIL Code.
         WithholdingTaxAmount := CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", TaxableBase);
         NonTaxableAmount := PurchaseLine."Line Amount" - TaxableBase;
@@ -714,10 +724,12 @@ codeunit 144090 "ERM Withhold"
 
         // Verify: Verify Non Taxable Amount, Taxable Base, Withholding Tax Amount on generated XML file.
         VerifyTaxValueOnCertificationsReport(NonTaxableAmount, TaxableBase, WithholdingTaxAmount);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,WithholdingTaxesRequestPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,WithholdingTaxesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure WithholdingTaxPaidAsFalseDeleteWithholdTaxPayment()
     var
@@ -731,7 +743,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Paid field on Withhold Tax when entry in the Withhold Tax Payment is deleted.
 
         // Setup: Delete Withholding Tax Payment, Create and Post Purchase Invoice, Create and Post Payment Journal and Run Withhold Taxes report.
-        Initialize;
+        Initialize();
         WithholdingTaxPayment.DeleteAll();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');  // Blank for Social Security Code and INAIL Code.
         CreateAndPostGeneralJnlLineWithAppliesToDoc(
@@ -748,6 +760,8 @@ codeunit 144090 "ERM Withhold"
         FindWithholdingTax(WithholdingTax, PurchaseLine."Buy-from Vendor No.");
         WithholdingTax.TestField(Paid, false);
         Assert.AreNotEqual(Paid, WithholdingTax.Paid, ValueMustBeSameMsg);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -828,7 +842,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure PaymentJournalWithPricesIncludingVAT()
     var
@@ -842,7 +856,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Withholding Tax Entry after Post payment journal applied to posted Purchase invoice while Prices Including VAT - TRUE.
 
         // Setup: Create Post Purchase Invoice with Calculating Withhold Taxes Contribution, Create Payment Journal and apply to posted Purchase Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor('', ''), true);  // Blank Social Security Code, INAIL Code and Prices Including VAT - TRUE.
         WithholdingTaxAmount :=
           CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."VAT Base Amount", TaxableBase);
@@ -850,7 +864,6 @@ codeunit 144090 "ERM Withhold"
         PostedDocumentNo := PostPurchaseDocument(PurchaseLine."Document Type"::Invoice, PurchaseLine."Document No.");
         CreateAndApplyGeneralJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, PostedDocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
 
         // Exercise.
@@ -858,10 +871,12 @@ codeunit 144090 "ERM Withhold"
 
         // Verify: Verify Non Taxable Amount, Taxable Base, Withholding Tax Amount on Withholding Tax.
         VerifyWithholdingTax(PurchaseLine."Buy-from Vendor No.", PurchaseLine.Amount - TaxableBase, TaxableBase, WithholdingTaxAmount);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure WithholdingTaxPaymentJnlUsingDifferentBalAccount()
     var
@@ -873,11 +888,10 @@ codeunit 144090 "ERM Withhold"
         // Verify posting Withholding Tax Payment Journal using different Bal. Account can succeed and verify the tax amount in Vendor Ledger Entry.
 
         // Setup: Create and Post Purchase Invoice with calculating Withholding Tax. Create and apply Payment journal to the Invoice.
-        Initialize;
+        Initialize();
         PostedDocumentNo := PostPurchInvoiceWithCalcWithholdingTax(PurchaseLine, WithholdingTaxAmount);
         CreateAndApplyGeneralJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, PostedDocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
 
         // Show Computed Withhold Taxes Contribution on Payment Journal Page.
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
@@ -891,10 +905,12 @@ codeunit 144090 "ERM Withhold"
         VerifyAmountInVendorLedgerEntry(
           GenJournalLine."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.",
           GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Bal. Account No.", WithholdingTaxAmount);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceWithhTaxWithNoTaxableBase()
     var
@@ -904,7 +920,7 @@ codeunit 144090 "ERM Withhold"
         PostedDocumentNo: Code[20];
     begin
         // [SCENARIO 377969] Withholding Tax should be reported on Payment for Purchase Invoice even if no withholding tax amounts have been calculated
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice of Amount = "A" with Withholding Tax where "Taxable Base" = 0
         PostedDocumentNo :=
@@ -913,7 +929,6 @@ codeunit 144090 "ERM Withhold"
         // [GIVEN] Payment with Withhold Contribution where "Non Taxable Amount" = Invoice Amount = "A" applied to the Invoice
         CreateAndApplyGeneralJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, PostedDocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
 
         // [WHEN] Post Payment journal line
@@ -923,6 +938,8 @@ codeunit 144090 "ERM Withhold"
         WithholdingTax.SetRange("Document No.", GenJournalLine."Document No.");
         WithholdingTax.FindFirst;
         WithholdingTax.TestField("Non Taxable Amount", PurchaseLine.Amount);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1504,7 +1521,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [Test]
-    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler,GenJnlLineTemplateListPageHandler')]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
     [Scope('OnPrem')]
     procedure WithholdingTaxPaymentJnlWithAppliesToInvoiceZeroWHT()
     var
@@ -1515,7 +1532,7 @@ codeunit 144090 "ERM Withhold"
         ContributionCode: Code[20];
     begin
         // [SCENARIO 347071] Withholding tax line appears with amount 0 for payment journal if amount of WHT on Invoice was 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] SocSec and WHT setup for 0% WHT
         SetupWithhAndSocSec(ContributionCode, WithholdCode);
@@ -1528,14 +1545,14 @@ codeunit 144090 "ERM Withhold"
         // [GIVEN] Create Payment Journal line with applies to Posted Invoice.
         CreateAndApplyGeneralJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, PostedDocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
 
         // [WHEN] Open SocSec Calculate and pressing OK
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
-        // Invoke Handler - GenJnlLineTemplateListPageHandler.
 
         // [THEN] General Journal Line for Withholding Tax with amount 0 exists.
         VerifyGenJournalLineWithoutWHTAmount(GenJournalLine);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1717,9 +1734,252 @@ codeunit 144090 "ERM Withhold"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure TmpWithholdingContributionClearLineNosUT_Withholding()
+    var
+        TmpWithholdingContribution: Record "Tmp Withholding Contribution";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 369203] When deleting Gen. Journal Line that is related to Withholding contribution via "Payment Line-Withholding" field, it is cleared
+        Initialize;
+
+        // [GIVEN] A journal batch
+        CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create 2 General Journal Lines
+        CreatePaymentLineForBatch(GenJournalLine[1], GenJournalBatch);
+        CreatePaymentLineForBatch(GenJournalLine[2], GenJournalBatch);
+
+        // [GIVEN] Mock a Tmp Withholding Contribution with Line No. = first line's no and "Payment Line-Withholding" = second line's Line No.
+        MockTmpWithholdingContribution(TmpWithholdingContribution, GenJournalLine[1]);
+        TmpWithholdingContribution.Validate("Payment Line-Withholding", GenJournalLine[2]."Line No.");
+        TmpWithholdingContribution.Modify(true);
+
+        // [WHEN] Delete second Gen Journal Line
+        GenJournalLine[2].Delete(true);
+
+        // [THEN] "Payment Line-Withholding" is empty
+        TmpWithholdingContribution.Find();
+        TmpWithholdingContribution.TestField("Payment Line-Withholding", 0);
+    end;
+
+    [Test]
+    procedure TmpWithholdingContributionClearLineNosUT_SocSec()
+    var
+        TmpWithholdingContribution: Record "Tmp Withholding Contribution";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 369203] When deleting Gen. Journal Line that is related to Withholding contribution via "Payment Line-Soc. Sec." field, it is cleared
+        Initialize;
+
+        // [GIVEN] A journal batch
+        CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create 2 General Journal Lines
+        CreatePaymentLineForBatch(GenJournalLine[1], GenJournalBatch);
+        CreatePaymentLineForBatch(GenJournalLine[2], GenJournalBatch);
+
+        // [GIVEN] Mock a Tmp Withholding Contribution with Line No. = first line's no and "Payment Line-Soc. Sec." = second line's Line No.
+        MockTmpWithholdingContribution(TmpWithholdingContribution, GenJournalLine[1]);
+        TmpWithholdingContribution.Validate("Payment Line-Soc. Sec.", GenJournalLine[2]."Line No.");
+        TmpWithholdingContribution.Modify(true);
+
+        // [WHEN] Delete second Gen Journal Line
+        GenJournalLine[2].Delete(true);
+
+        // [THEN] "Payment Line-Soc. Sec." is empty
+        TmpWithholdingContribution.Find();
+        TmpWithholdingContribution.TestField("Payment Line-Soc. Sec.", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentMPH')]
+    procedure CreatePaymentFromVendorLedgerEntriesPage()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 370440] "Applies-to ID" is set after "Create Payment" action from vendor ledger entries page
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice for a vendor including withholding taxes
+        InvoiceNo :=
+            CreatePostPurchaseInvoiceWithAmount(
+                WorkDate(), CreateVendorWithBlankedPaymentMethod(), LibraryRandom.RandDecInRange(1000, 2000, 2));
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        // [WHEN] Invoke "Create Payment" action from the vendor ledger entries page for the posted invoice
+        CreateGenJournalBatch(GenJournalBatch);
+        RunCreatePayment(VendorLedgerEntry, GenJournalBatch);
+        FindGenJournalLineByBatch(GenJournalLine, GenJournalBatch);
+
+        // [THEN] A new payment line is created with "Applies-to ID" = "X", blanked "Applies-to Doc. No."
+        // [THEN] The vendor ledger entry is updated with "Applies-to ID" = "X"
+        Assert.RecordCount(GenJournalLine, 1);
+        GenJournalLine.TestField("Applies-to ID");
+        GenJournalLine.TestField("Applies-to Doc. No.", '');
+        VendorLedgerEntry.Find();
+        VendorLedgerEntry.TestField("Applies-to ID", GenJournalLine."Applies-to ID");
+
+        // [WHEN] Invoke "Create Payment" action again
+        RunCreatePayment(VendorLedgerEntry, GenJournalBatch);
+
+        // [THEN] There are no new lines have been created
+        Assert.RecordCount(GenJournalLine, 1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentMPH')]
+    procedure ErrorOnTryPostPmtJournalAfterCreatePayment()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 370440] System doesn't allow to post a payment journal after
+        // [SCENARIO 370440] "Create Payment" action from vendor ledger entries page
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice for a vendor including withholding taxes
+        InvoiceNo :=
+            CreatePostPurchaseInvoiceWithAmount(
+                WorkDate(), CreateVendorWithBlankedPaymentMethod(), LibraryRandom.RandDecInRange(10000, 20000, 2));
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        // [GIVEN] Invoke "Create Payment" action from the vendor ledger entries page for the posted invoice
+        CreateGenJournalBatch(GenJournalBatch);
+        RunCreatePayment(VendorLedgerEntry, GenJournalBatch);
+        FindGenJournalLineByBatch(GenJournalLine, GenJournalBatch);
+
+        // [WHEN] Try post the payment journal
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] An error occurs: "Because this invoice includes Withholding Tax, it should not be applied directly..."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(WithholdingTaxErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentMPH,ShowComputedWithholdContribModalPageHandler')]
+    procedure PostPmtJournalAfterCreatePaymentAndCalcWithhTaxes()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntry2: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 370440] Post payment journal after "Create Payment" action
+        // [SCENARIO 370440] from vendor ledger entries page and calculated withholding taxes
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice "X" for a vendor including withholding taxes
+        InvoiceNo :=
+            CreatePostPurchaseInvoiceWithAmount(
+                WorkDate(), CreateVendorWithBlankedPaymentMethod(), LibraryRandom.RandDecInRange(1000, 2000, 2));
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        // [GIVEN] Invoke "Create Payment" action from the vendor ledger entries page for the posted invoice
+        CreateGenJournalBatch(GenJournalBatch);
+        RunCreatePayment(VendorLedgerEntry, GenJournalBatch);
+        FindGenJournalLineByBatch(GenJournalLine, GenJournalBatch);
+
+        // [GIVEN] Caluclate payment withholding taxes ("Withh.Tax-Soc.Sec." action from the journal page)
+        ShowComputedWithholdContributionOnPayment(GenJournalBatch.Name);
+
+        // [GIVEN] There are 4 journal lines have been created, all having blanked "Applies-to ID", including:
+        Assert.RecordCount(GenJournalLine, 4);
+        GenJournalLine.SetRange("Applies-to ID", '');
+        Assert.RecordCount(GenJournalLine, 4);
+        GenJournalLine.SetRange("Applies-to ID");
+        // [GIVEN] 3 vendor payments with "Applies-to Doc. Type" = "Invoice", "Applies-to Doc. No." = "X", "Applies-to Occurrence No." = 1
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.SetRange("Applies-to Doc. No.", InvoiceNo);
+        GenJournalLine.SetRange("Applies-to Occurrence No.", 1);
+        Assert.RecordCount(GenJournalLine, 3);
+        // [GIVEN] 1 G/L account (balance) line with blanked "Applies-to Doc. No."
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.SetRange("Applies-to Doc. Type");
+        GenJournalLine.SetRange("Applies-to Doc. No.", '');
+        Assert.RecordCount(GenJournalLine, 1);
+        GenJournalLine.SetRange("Applies-to Doc. No.");
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] The journal is posted and all posted vendor ledger enties (3 entries) are closed
+        VendorLedgerEntry2.SetFilter("Entry No.", '>%1', VendorLedgerEntry."Entry No.");
+        Assert.RecordCount(VendorLedgerEntry2, 3);
+        VendorLedgerEntry2.SetRange(Open, false);
+        Assert.RecordCount(VendorLedgerEntry2, 3);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure ErrorOnCalcWithhTaxesFromPmtJournalAppliedToSeveralInvoices()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: array[2] of Code[20];
+        VendorNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 370440] Error on try to calculate payment withholding taxes ("Withh.Tax-Soc.Sec." payment journal action) 
+        // [SCENARIO 370440] in case of payment line is applied to several invoices
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice "X", "Y" for a vendor including withholding taxes
+        VendorNo := CreateVendorWithBlankedPaymentMethod();
+        for i := 1 to ArrayLen(InvoiceNo) do
+            InvoiceNo[i] :=
+                CreatePostPurchaseInvoiceWithAmount(
+                    WorkDate(), VendorNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+
+        // [GIVEN] Vendor payment journal line
+        CreateGeneralJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, VendorNo, 0);
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify();
+
+        for i := 1 to ArrayLen(InvoiceNo) do begin
+            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo[i]);
+            LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        end;
+
+        // [WHEN] Try caluclate payment withholding taxes ("Withh.Tax-Soc.Sec." action from the journal page)
+        asserterror ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
+
+        // [THEN] An error occurs: "The vendor payment line is applied to more than one document."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(MultiApplyErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
+        ClearPaymentJnlTemplates();
+    end;
+
+    local procedure ClearPaymentJnlTemplates()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        GenJournalTemplate.DeleteAll();
     end;
 
     local procedure SetupWithhAndSocSec(var ContributionCode: Code[20]; var WithholdCode: Code[20])
@@ -1813,13 +2073,13 @@ codeunit 144090 "ERM Withhold"
         PostedDocumentNo := PostPurchaseDocument(PurchaseLine."Document Type"::"Credit Memo", PurchaseLine."Document No.");
     end;
 
-    local procedure CreateAndPostGeneralJnlLineWithAppliesToDoc(DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
+    local procedure CreateAndPostGeneralJnlLineWithAppliesToDoc(DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20];
+                                                                    AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateAndApplyGeneralJnlLine(GenJournalLine, DocumentType, AppliesToDocNo, AppliesToDocType);
-        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name"); // Invoke Handler - GenJnlLineTemplateListPageHandler.
+        ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
         VerifyTmpWithholdingContributionNotEmpty(AppliesToDocNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1838,7 +2098,8 @@ codeunit 144090 "ERM Withhold"
         EXIT(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndApplyGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
+    local procedure CreateAndApplyGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20];
+                                                                                                     AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2000,6 +2261,16 @@ codeunit 144090 "ERM Withhold"
         exit(Vendor."No.");
     end;
 
+    local procedure CreateVendorWithBlankedPaymentMethod() VendorNo: Code[20]
+    var
+        ContributionCode: Code[20];
+        WithholdCode: Code[20];
+    begin
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+        VendorNo := CreateVendorWithSocSecAndWithholdCodes(WithholdCode, ContributionCode, '');
+        UpdateBlankPaymentMethodCodeOnVendor(VendorNo);
+    end;
+
     local procedure CreateVendorBillHeaderWithPaymentMethod(var VendorBillHeader: Record "Vendor Bill Header"; PaymentMethodCode: Code[10])
     begin
         VendorBillHeader.Get(CreateVendorBillHeader);
@@ -2017,6 +2288,14 @@ codeunit 144090 "ERM Withhold"
         VendorBillHeader.Validate("Bank Account No.", BankAccount."No.");
         VendorBillHeader.Modify(true);
         exit(VendorBillHeader."No.");
+    end;
+
+    local procedure CreatePaymentLineForBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(200, 2));
     end;
 
     local procedure CreatePaymentMethodWithBill(): Code[10]
@@ -2170,6 +2449,24 @@ codeunit 144090 "ERM Withhold"
         GenJournalLine.Modify(true);
     end;
 
+    local procedure FindGenJournalLineByBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+    end;
+
+    local procedure MockTmpWithholdingContribution(var TmpWithholdingContribution: Record "Tmp Withholding Contribution"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+        with TmpWithholdingContribution do begin
+            Init();
+            "Journal Batch Name" := GenJournalLine."Journal Batch Name";
+            "Journal Template Name" := GenJournalLine."Journal Template Name";
+            "Line No." := GenJournalLine."Line No.";
+            Insert();
+        end;
+    end;
+
     local procedure GetExternalDocNoFromPostedInvoice(VendorNo: Code[20]): Code[35]
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -2244,6 +2541,18 @@ codeunit 144090 "ERM Withhold"
         SuggestVendorBills.SetTableView(VendorLedgerEntry);
         SuggestVendorBills.UseRequestPage(false);
         SuggestVendorBills.RunModal;
+    end;
+
+    local procedure RunCreatePayment(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        CreatePayment: Page "Create Payment";
+    begin
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+
+        CreatePayment.RunModal();
+        CreatePayment.MakeGenJnlLines(VendorLedgerEntry);
+        CreatePayment.Close();
     end;
 
     local procedure PostPaymentJournalWithPage(GenJournalBatchName: Code[10]; AccountNo: Code[20])
@@ -2436,7 +2745,10 @@ codeunit 144090 "ERM Withhold"
           'WithholdingTax."External Document No."');
     end;
 
-    local procedure VerifyAmountInVendorLedgerEntry(DocType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyAmountInVendorLedgerEntry(DocType: Enum "Gen. Journal Document Type"; VendorNo: Code[20];
+                                                                 BalAccType: Enum "Gen. Journal Account Type";
+                                                                 BalAccNo: Code[20];
+                                                                 ExpectedAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2665,11 +2977,14 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure GenJnlLineTemplateListPageHandler(var GenJournalTemplateList: TestPage "General Journal Template List")
+    procedure CreatePaymentMPH(var CreatePayment: TestPage "Create Payment")
     begin
-        GenJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GenJournalTemplateList.OK.Invoke;
+        CreatePayment."Posting Date".SetValue(WorkDate());
+        CreatePayment."Template Name".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Batch Name".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Starting Document No.".SetValue(LibraryUtility.GenerateGUID());
+        CreatePayment."Bank Account".SetValue(LibraryERM.CreateBankAccountNo());
+        CreatePayment.OK().Invoke();
     end;
 }
 

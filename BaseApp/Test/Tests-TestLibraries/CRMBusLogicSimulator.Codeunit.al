@@ -31,9 +31,7 @@ codeunit 139192 "CRM Bus. Logic Simulator"
     begin
         if Rec.IsTemporary then
             exit;
-        // CRM sets StateCode to default value Draft and expects StatusCode to be blank
-        Rec.StateCode := Rec.StateCode::Draft;
-        Rec.TestField(StatusCode, Rec.StatusCode::" ");
+        Rec.StateCode := Rec.StateCode::Active;
     end;
 
     [EventSubscriber(ObjectType::Table, 5347, 'OnBeforeInsertEvent', '', false, false)]

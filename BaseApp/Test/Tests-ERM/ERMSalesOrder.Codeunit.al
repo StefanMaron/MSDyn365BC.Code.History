@@ -4132,6 +4132,48 @@ codeunit 134378 "ERM Sales Order"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeWithHundredPctDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        DocNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Sales Order] [Item Charge]
+        // [SCENARIO 371811] Stan can post sales order that has the item charge with hundred percent line discount
+
+        Initialize();
+
+        // [GIVEN] Create sales Order with item and item charge lines. Item Charge Line has quantity = 1, line discount % = 100, amount = 0
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(5), LibraryRandom.RandDec(100, 2));
+        Qty := SalesLine.Quantity;
+        CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)",
+          LibraryInventory.CreateItemChargeNo, Qty, SalesLine."Unit Price" / 3);
+        SalesLine.Validate("Line Discount %", 100);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line
+        LibraryVariableStorage.Enqueue(1); // suggest equally
+        SalesLine.ShowItemChargeAssgnt();
+
+        // [GIVEN] Post sales order
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Posted sales Invoice Line has quantity and amount of sales order
+        SalesInvoiceLine.SetRange("Document No.", DocNo);
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
+        SalesInvoiceLine.FindFirst();
+        SalesInvoiceLine.TestField(Quantity, SalesLine.Quantity);
+        SalesInvoiceLine.TestField(Amount, SalesLine.Amount);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";

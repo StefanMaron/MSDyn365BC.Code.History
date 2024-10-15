@@ -74,6 +74,13 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the company''s VAT registration number.';
+
+                    trigger OnDrillDown()
+                    var
+                        VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+                    begin
+                        VATRegistrationLogMgt.AssistEditCompanyInfoVATReg();
+                    end;
                 }
                 field(GLN; GLN)
                 {
@@ -817,6 +824,8 @@ Page 1 "Company Information"
 
         ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(Experience);
         MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
+
+        BankAcctPostingGroup := CompanyInformationMgt.GetCompanyBankAccountPostingGroup();
     end;
 
     var

@@ -251,6 +251,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         ReversedCustLedgEntry: Record "Cust. Ledger Entry";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        IsHandled: Boolean;
     begin
         with NewCustLedgEntry do begin
             NewCustLedgEntry := CustLedgEntry;
@@ -310,8 +311,10 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 NewDtldCustLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
                 NewDtldCustLedgEntry."Entry No." := NextDtldCustLedgEntryEntryNo;
                 NextDtldCustLedgEntryEntryNo := NextDtldCustLedgEntryEntryNo + 1;
-                OnReverseCustLedgEntryOnBeforeInsertDtldCustLedgEntry(NewDtldCustLedgEntry, DtldCustLedgEntry);
-                NewDtldCustLedgEntry.Insert(true);
+                IsHandled := false;
+                OnReverseCustLedgEntryOnBeforeInsertDtldCustLedgEntry(NewDtldCustLedgEntry, DtldCustLedgEntry, IsHandled);
+                if not IsHandled then
+                    NewDtldCustLedgEntry.Insert(true);
             until DtldCustLedgEntry.Next = 0;
 
             ApplyCustLedgEntryByReversal(
@@ -327,6 +330,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         ReversedVendLedgEntry: Record "Vendor Ledger Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        IsHandled: Boolean;
     begin
         with NewVendLedgEntry do begin
             NewVendLedgEntry := VendLedgEntry;
@@ -385,8 +389,10 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 NewDtldVendLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
                 NewDtldVendLedgEntry."Entry No." := NextDtldVendLedgEntryEntryNo;
                 NextDtldVendLedgEntryEntryNo := NextDtldVendLedgEntryEntryNo + 1;
-                OnReverseVendLedgEntryOnBeforeInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry);
-                NewDtldVendLedgEntry.Insert(true);
+                IsHandled := false;
+                OnReverseVendLedgEntryOnBeforeInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry, IsHandled);
+                if not IsHandled then
+                    NewDtldVendLedgEntry.Insert(true);
             until DtldVendLedgEntry.Next = 0;
 
             ApplyVendLedgEntryByReversal(
@@ -560,6 +566,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     local procedure ApplyCustLedgEntryByReversal(CustLedgEntry: Record "Cust. Ledger Entry"; CustLedgEntry2: Record "Cust. Ledger Entry"; DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; AppliedEntryNo: Integer; var NextDtldCustLedgEntryEntryNo: Integer)
     var
         NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        IsHandled: Boolean;
     begin
         CustLedgEntry2.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
         CustLedgEntry."Closed by Entry No." := CustLedgEntry2."Entry No.";
@@ -579,13 +586,16 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         NewDtldCustLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
         NewDtldCustLedgEntry."Entry No." := NextDtldCustLedgEntryEntryNo;
         NextDtldCustLedgEntryEntryNo := NextDtldCustLedgEntryEntryNo + 1;
-        OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(NewDtldCustLedgEntry, DtldCustLedgEntry2);
-        NewDtldCustLedgEntry.Insert(true);
+        IsHandled := false;
+        OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(NewDtldCustLedgEntry, DtldCustLedgEntry2, IsHandled);
+        if not IsHandled then
+            NewDtldCustLedgEntry.Insert(true);
     end;
 
     local procedure ApplyVendLedgEntryByReversal(VendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry2: Record "Vendor Ledger Entry"; DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry"; AppliedEntryNo: Integer; var NextDtldVendLedgEntryEntryNo: Integer)
     var
         NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        IsHandled: Boolean;
     begin
         VendLedgEntry2.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
         VendLedgEntry."Closed by Entry No." := VendLedgEntry2."Entry No.";
@@ -605,8 +615,10 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         NewDtldVendLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo;
         NewDtldVendLedgEntry."Entry No." := NextDtldVendLedgEntryEntryNo;
         NextDtldVendLedgEntryEntryNo := NextDtldVendLedgEntryEntryNo + 1;
-        OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry2);
-        NewDtldVendLedgEntry.Insert(true);
+        IsHandled := false;
+        OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry2, IsHandled);
+        if not IsHandled then
+            NewDtldVendLedgEntry.Insert(true);
     end;
 
     local procedure ApplyEmplLedgEntryByReversal(EmployeeLedgerEntry: Record "Employee Ledger Entry"; EmployeeLedgerEntry2: Record "Employee Ledger Entry"; DetailedEmployeeLedgerEntry2: Record "Detailed Employee Ledger Entry"; AppliedEntryNo: Integer; var NextDtldEmplLedgEntryNo: Integer)
@@ -860,12 +872,12 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseCustLedgEntryOnBeforeInsertDtldCustLedgEntry(var NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    local procedure OnReverseCustLedgEntryOnBeforeInsertDtldCustLedgEntry(var NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseVendLedgEntryOnBeforeInsertDtldVendLedgEntry(var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    local procedure OnReverseVendLedgEntryOnBeforeInsertDtldVendLedgEntry(var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -890,12 +902,12 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(var NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    local procedure OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(var NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    local procedure OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 

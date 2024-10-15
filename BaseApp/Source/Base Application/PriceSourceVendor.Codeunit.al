@@ -31,10 +31,14 @@ codeunit 7035 "Price Source - Vendor" implements "Price Source"
     end;
 
     procedure IsLookupOK(var PriceSource: Record "Price Source"): Boolean
+    var
+        xPriceSource: Record "Price Source";
     begin
-        if Vendor.Get(PriceSource."Source No.") then;
+        xPriceSource := PriceSource;
+        if Vendor.Get(xPriceSource."Source No.") then;
         if Page.RunModal(Page::"Vendor List", Vendor) = ACTION::LookupOK then begin
-            PriceSource.Validate("Source No.", Vendor."No.");
+            xPriceSource.Validate("Source No.", Vendor."No.");
+            PriceSource := xPriceSource;
             exit(true);
         end;
     end;

@@ -313,30 +313,34 @@ codeunit 5920 ServItemManagement
                     TempServiceItem := ServItem;
                     if TempServiceItem.Insert() then;
                     ResSkillMgt.AssignServItemResSkills(ServItem);
-                    if SalesLine."BOM Item No." <> '' then begin
-                        Clear(BOMComp);
-                        BOMComp.SetRange("Parent Item No.", SalesLine."BOM Item No.");
-                        BOMComp.SetRange(Type, BOMComp.Type::Item);
-                        BOMComp.SetRange("No.", SalesLine."No.");
-                        BOMComp.SetRange("Installed in Line No.", 0);
-                        if BOMComp.FindSet then
-                            repeat
-                                Clear(BOMComp2);
-                                BOMComp2.SetRange("Parent Item No.", SalesLine."BOM Item No.");
-                                BOMComp2.SetRange("Installed in Line No.", BOMComp."Line No.");
-                                NextLineNo := 0;
-                                if BOMComp2.FindSet then
-                                    repeat
-                                        for Index := 1 to Round(BOMComp2."Quantity per", 1) do begin
-                                            NextLineNo := NextLineNo + 10000;
-                                            InsertServiceItemComponent(ServItemComponent, BOMComp, BOMComp2, SalesHeader, SalesShipmentLine);
-                                            Clear(TempServiceItemComp);
-                                            TempServiceItemComp := ServItemComponent;
-                                            TempServiceItemComp.Insert();
-                                        end;
-                                    until BOMComp2.Next = 0;
-                            until BOMComp.Next = 0;
-                    end;
+
+                    IsHandled := false;
+                    CreateServItemOnSalesLineShptOnBeforeInsertServiceItemComponents(ServItem, IsHandled);
+                    if not IsHandled then
+                        if SalesLine."BOM Item No." <> '' then begin
+                            Clear(BOMComp);
+                            BOMComp.SetRange("Parent Item No.", SalesLine."BOM Item No.");
+                            BOMComp.SetRange(Type, BOMComp.Type::Item);
+                            BOMComp.SetRange("No.", SalesLine."No.");
+                            BOMComp.SetRange("Installed in Line No.", 0);
+                            if BOMComp.FindSet then
+                                repeat
+                                    Clear(BOMComp2);
+                                    BOMComp2.SetRange("Parent Item No.", SalesLine."BOM Item No.");
+                                    BOMComp2.SetRange("Installed in Line No.", BOMComp."Line No.");
+                                    NextLineNo := 0;
+                                    if BOMComp2.FindSet then
+                                        repeat
+                                            for Index := 1 to Round(BOMComp2."Quantity per", 1) do begin
+                                                NextLineNo := NextLineNo + 10000;
+                                                InsertServiceItemComponent(ServItemComponent, BOMComp, BOMComp2, SalesHeader, SalesShipmentLine);
+                                                Clear(TempServiceItemComp);
+                                                TempServiceItemComp := ServItemComponent;
+                                                TempServiceItemComp.Insert();
+                                            end;
+                                        until BOMComp2.Next = 0;
+                                until BOMComp.Next = 0;
+                        end;
 
                     OnCreateServItemOnSalesLineShptOnAfterAddServItemComponents(
                       SalesHeader, SalesLine, SalesShipmentLine, ServItem, TempServiceItem, TempServiceItemComp);
@@ -673,6 +677,11 @@ codeunit 5920 ServItemManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateServItemOnSalesLineShptOnAfterAddServItemComponents(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesShipmentLine: Record "Sales Shipment Line"; var ServiceItem: Record "Service Item"; var TempServiceItem: Record "Service Item" temporary; var TempServiceItemComp: Record "Service Item Component" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure CreateServItemOnSalesLineShptOnBeforeInsertServiceItemComponents(var ServItem: Record "Service Item"; var IsHandled: Boolean)
     begin
     end;
 }

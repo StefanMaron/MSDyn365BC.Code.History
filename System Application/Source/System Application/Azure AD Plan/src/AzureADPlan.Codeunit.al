@@ -57,11 +57,11 @@ codeunit 9016 "Azure AD Plan"
     end;
 
     /// <summary>
-    /// Updates plans for user.
+    /// Updates license plans for a user.
     /// </summary>
     /// <raises>OnRemoveUserGroupsForUserAndPlan</raises>
     /// <raises>OnUpdateUserAccessForSaaS</raises>
-    /// <param name="UserSecurityId">The user to update.</param>
+    /// <param name="UserSecurityId">The user for whom to update license information.</param>
     /// <param name="GraphUser">The graph user corresponding to the user to update, and containing the information about the plans assigned to the user.</param>
     [Scope('OnPrem')]
     procedure UpdateUserPlans(UserSecurityId: Guid; var GraphUser: DotNet UserInfo)
@@ -70,11 +70,11 @@ codeunit 9016 "Azure AD Plan"
     end;
 
     /// <summary>
-    /// Updates plans for user.
+    /// Updates license plans for a user.
     /// </summary>
     /// <raises>OnRemoveUserGroupsForUserAndPlan</raises>
     /// <raises>OnUpdateUserAccessForSaaS</raises>
-    /// <param name="UserSecurityId">The user to update.</param>
+    /// <param name="UserSecurityId">The user for whom to update license information.</param>
     /// <param name="GraphUser">The graph user corresponding to the user to update, and containing the information about the plans assigned to the user.</param>
     /// <param name="AppendPermissionsOnNewPlan">Append permissions from the new plan to the user.</param>
     /// <param name="RemovePermissionsOnDeletePlan">Remove permissions when removing the plan for the user.</param>
@@ -85,29 +85,45 @@ codeunit 9016 "Azure AD Plan"
     end;
 
     /// <summary>
-    /// Updates plans for user.
+    /// Updates license plans for a user.
     /// </summary>
     /// <raises>OnRemoveUserGroupsForUserAndPlan</raises>
     /// <raises>OnUpdateUserAccessForSaaS</raises>
-    /// <param name="UserSecurityId">The user to update.</param>
+    /// <param name="UserSecurityId">The user for whom to update license information.</param>
     [Scope('OnPrem')]
     procedure UpdateUserPlans(UserSecurityId: Guid)
     begin
-        AzureAdPlanImpl.UpdateUserPlans(UserSecurityId, true, true);
+        AzureAdPlanImpl.UpdateUserPlans(UserSecurityId, true, true, false);
     end;
 
     /// <summary>
-    /// Updates plans for user.
+    /// Updates license plans for a user.
     /// </summary>
     /// <raises>OnRemoveUserGroupsForUserAndPlan</raises>
     /// <raises>OnUpdateUserAccessForSaaS</raises>
-    /// <param name="UserSecurityId">The user to update.</param>
+    /// <param name="UserSecurityId">The user for whom to update license information.</param>
     /// <param name="AppendPermissionsOnNewPlan">Append permissions from the new plan to the user.</param>
     /// <param name="RemovePermissionsOnDeletePlan">Remove permissions when removing the plan for the user.</param>
     [Scope('OnPrem')]
+    [Obsolete('Replaced with an overload accepting the RemovePlansOnDeleteUser parameter', '18.0')]
     procedure UpdateUserPlans(UserSecurityId: Guid; AppendPermissionsOnNewPlan: Boolean; RemovePermissionsOnDeletePlan: Boolean)
     begin
-        AzureAdPlanImpl.UpdateUserPlans(UserSecurityId, AppendPermissionsOnNewPlan, RemovePermissionsOnDeletePlan);
+        AzureAdPlanImpl.UpdateUserPlans(UserSecurityId, AppendPermissionsOnNewPlan, RemovePermissionsOnDeletePlan, false);
+    end;
+
+    /// <summary>
+    /// Updates license plans for a user.
+    /// </summary>
+    /// <raises>OnRemoveUserGroupsForUserAndPlan</raises>
+    /// <raises>OnUpdateUserAccessForSaaS</raises>
+    /// <param name="UserSecurityId">The user for whom to update license information.</param>
+    /// <param name="AppendPermissionsOnNewPlan">Add permissions from the new license plan to the user. Existing permissions will not be affected.</param>
+    /// <param name="RemovePermissionsOnDeletePlan">Remove permissions when removing a license plan for a user.</param>
+    /// <param name="RemovePlansOnDeleteUser">Remove license plans when a user is deleted in Office 365.</param>
+    [Scope('OnPrem')]
+    procedure UpdateUserPlans(UserSecurityId: Guid; AppendPermissionsOnNewPlan: Boolean; RemovePermissionsOnDeletePlan: Boolean; RemovePlansOnDeleteUser: Boolean)
+    begin
+        AzureAdPlanImpl.UpdateUserPlans(UserSecurityId, AppendPermissionsOnNewPlan, RemovePermissionsOnDeletePlan, RemovePlansOnDeleteUser);
     end;
 
     /// <summary>

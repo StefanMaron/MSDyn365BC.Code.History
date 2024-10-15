@@ -31,6 +31,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The current Company is a Demo Company
+        Initialize();
+
         CompanyInformation.Get();
         Assert.IsTrue(CompanyInformation."Demo Company", CompanyInformation.FieldName("Demo Company"));
     end;
@@ -42,6 +44,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The ship-to name and display name equals the company name
+        Initialize();
+
         CompanyInformation.Get();
         CompanyInformation.TestField(Name, CompanyName);
         CompanyInformation.TestField("Ship-to Name", CompanyName);
@@ -54,6 +58,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         // [SCENARIO 169269] "Posting Outside Fiscal Year Not Allowed" is on in "My Settings"
+        Initialize();
 
         Assert.IsTrue(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode), PostingOutsideFYIsOnErr);
     end;
@@ -66,6 +71,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] There are 7 Sales Invoices, 4 Orders, and 2 Quotes
+        Initialize();
+
         with SalesHeader do begin
             SetRange("Document Type", "Document Type"::Invoice);
             Assert.RecordCount(SalesHeader, 7);
@@ -86,6 +93,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] There are 2 Sales Invoices and 4 Sales Orders with Shipping Agent Code
+        Initialize();
+
         with SalesHeader do begin
             Reset;
             SetRange("Document Type", "Document Type"::Invoice);
@@ -108,6 +117,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [FEATURE] [Sales]
         // [SCENARIO] There are no Released Sales Documents in the Evaluation data except orders
         // As we can reopen orders, we have will not open orders
+        Initialize();
+
         SalesHeader.SetRange(Status, SalesHeader.Status::Released);
         SalesHeader.SetFilter("Document Type", '<> %1', SalesHeader."Document Type"::Order);
         Assert.RecordIsEmpty(SalesHeader);
@@ -121,6 +132,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] The Sales Lines have the Amount field set in the Evaluation data
+        Initialize();
+
         SalesLine.SetRange(Amount, 0);
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
         Assert.RecordIsEmpty(SalesLine);
@@ -138,6 +151,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Item sales forecast]
         // [SCENARIO] The data on itemsales.xml are consistent
+        Initialize();
+
         TempXMLBuffer.Load(FileManagement.CombinePath(
             ApplicationPath, '../../App/Demotool/Pictures/MachineLearning/itemsales.xml'));
 
@@ -163,6 +178,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Salesperson]
         // [SCENARIO] All customers should have "Salesperson Code" defined.
+        Initialize();
+
         Customer.SetRange("Salesperson Code", '');
         Assert.RecordIsEmpty(Customer);
     end;
@@ -177,6 +194,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Existing Sales Invoices can be posted without errors
+        Initialize();
+
         with SalesHeader do begin
             // [WHEN] Post all Invoices
             Reset;
@@ -200,6 +219,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] There are 3 Purchase Invoices and 4 purchase orders but no documents of other types
+        Initialize();
+
         with PurchHeader do begin
             SetRange("Document Type", "Document Type"::Invoice);
             Assert.RecordCount(PurchHeader, 3);
@@ -220,6 +241,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] There are no Released Purchase Documents in the Evaluation data
+        Initialize();
+
         PurchaseHeader.SetRange(Status, PurchaseHeader.Status::Released);
         Assert.RecordIsEmpty(PurchaseHeader);
     end;
@@ -236,6 +259,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Cash Flow] [Forecast] [Azure AI]
         // [SCENARIO] Monthly purchases must be between 15.000 and 45.000
+        Initialize();
+
         PurchaseHeader.Reset();
         PurchaseHeader.SetCurrentKey("Due Date");
         PurchaseHeader.FindFirst;
@@ -271,6 +296,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Existing Purchase Invoices can be posted without errors
+        Initialize();
+
         with PurchHeader do begin
             // [WHEN] Post all Invoices
             Reset;
@@ -298,6 +325,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Contacts]
         // [SCENARIO] There are two contacts (Company, Person) per each Customer, Vendor, Bank
+        Initialize();
+
         if Customer.FindSet then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
@@ -321,6 +350,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     procedure ShippingAgentRelatedTablesAreNotEmpty()
     begin
         // [SCENARIO] Shipping Agent related tables should not be empty
+        Initialize();
+
         Assert.TableIsNotEmpty(DATABASE::"Shipping Agent");
         Assert.TableIsNotEmpty(DATABASE::"Shipping Agent Services");
     end;
@@ -331,6 +362,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [SCENARIO 171192] Susan can set up Item Substitution
         // [SCENARIO 167751] Susan can set up Item Cross References
+        Initialize();
+
         Assert.TableIsNotEmpty(DATABASE::"Item Substitution");
         Assert.TableIsNotEmpty(DATABASE::"Item Cross Reference");
     end;
@@ -363,6 +396,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [CRM] [Interaction Group]
         // [SCENARIO 174769] Interaction Group should have 6 groups.
+        Initialize();
+
         Assert.RecordCount(InteractionGroup, 6);
     end;
 
@@ -374,6 +409,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [CRM] [Interaction Template]
         // [SCENARIO 174769] Interaction Template should have 29 templates.
+        Initialize();
+
         Assert.RecordCount(InteractionTemplate, 29);
     end;
 
@@ -385,6 +422,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [CRM] [Interaction Template]
         // [SCENARIO 159181] Interaction Template OUTGOING should have Ignore Contact Corres. Type = TRUE
+        Initialize();
+
         InteractionTemplate.Get(XOUTGOINGTxt);
         InteractionTemplate.TestField("Ignore Contact Corres. Type", true);
     end;
@@ -397,6 +436,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Location]
         // [SCENARIO] Demo data contains 3 regular locations and 2 in-transit locations
+        Initialize();
+
         Location.SetRange("Use As In-Transit", false);
         Assert.RecordCount(Location, 3);
         Location.SetRange("Use As In-Transit", true);
@@ -411,6 +452,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Location Transfer]
         // [SCENARIO] Demo data contains 2 transfer routes
+        Initialize();
+
         Assert.RecordCount(TransferRoute, 2);
     end;
 
@@ -422,6 +465,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Location Transfer]
         // [SCENARIO] Demo data contains 2 transfer orders.
+        Initialize();
+
         Assert.RecordCount(TransferHeader, 2);
     end;
 
@@ -434,6 +479,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Transfer] [Shipment]
         // [SCENARIO] Demo data contains 1 transfer shipment
+        Initialize();
+
         Assert.RecordCount(TransferShipmentHeader, 1);
         Assert.RecordCount(TransferShipmentLine, 1);
     end;
@@ -447,6 +494,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Transfer] [Receipt]
         // [SCENARIO] Demo data contains 1 transfer receipt
+        Initialize();
+
         Assert.RecordCount(TransferReceiptHeader, 1);
         Assert.RecordCount(TransferReceiptLine, 1);
     end;
@@ -459,6 +508,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Basic HR]
         // [SCENARIO] Demo data contains 7 employees
+        Initialize();
+
         Assert.RecordCount(Employee, 7);
     end;
 
@@ -469,6 +520,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO 175276] Marketing Setup Default fields filled
+        Initialize();
+
         MarketingSetup.Get();
         MarketingSetup.TestField("Default Language Code");
         MarketingSetup.TestField("Default Correspondence Type", MarketingSetup."Default Correspondence Type"::Email);
@@ -485,6 +538,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [CRM] [Campaigns]
         // [SCENARIO 180135] Demo data contain 3 campaigns
+        Initialize();
+
         Assert.RecordCount(Campaign, 3);
     end;
 
@@ -496,6 +551,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [G/L Account]
         // [SCENARIO] Demo DB should have at least one G/L Account
+        Initialize();
+
         Assert.RecordIsNotEmpty(GLAccount);
     end;
 
@@ -508,6 +565,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [BOM]
         // [SCENARIO] Demo DB should have 5 BOMs with multiple components
+        Initialize();
+
         // [THEN] 4 BOMs have 3 components
         // [THEN] 1 BOM has 2 components
         Item.SetRange("Assembly BOM", true);
@@ -535,6 +594,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         InventorySetup: Record "Inventory Setup";
     begin
+        Initialize();
+
         InventorySetup.Get();
         InventorySetup.TestField("Automatic Cost Posting", true);
         InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
@@ -546,6 +607,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         InventorySetup: Record "Inventory Setup";
     begin
+        Initialize();
+
         InventorySetup.Get();
         InventorySetup.TestField("Item Nos.", ItemNoSeriesTok);
         ValidateNoSeriesExists(ItemNoSeriesTok);
@@ -564,6 +627,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     procedure ReportLayoutSelections()
     begin
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
+        Initialize();
+
         VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUESIMPLE');
         VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUESIMPLE');
     end;
@@ -595,6 +660,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         // [SCENARIO] There are 7 VAT Prod. Posting groups
+        Initialize();
+
         Assert.RecordCount(VATProductPostingGroup, 13);
     end;
 
@@ -605,6 +672,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
         ConfigPackageTable: Record "Config. Package Table";
         Permission: Record Permission;
     begin
+        Initialize();
+
         if ConfigPackageTable.FindSet then begin
             Permission.SetRange("Role ID", LibraryExtensionPerm.D365BusFull);
             Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
@@ -622,6 +691,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         Item: Record Item;
     begin
+        Initialize();
+
         Item.FindSet;
         repeat
             Assert.AreNotEqual(0, Item.Picture.Count, StrSubstNo('Expected at least one image for item %1', Item."No."));
@@ -635,6 +706,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
         PurchSetup: Record "Purchases & Payables Setup";
     begin
         // [SCENARIO 259575] Purchase Setup has all needed number series fields filled in to be able create and post purchase documents
+        Initialize();
+
         with PurchSetup do begin
             Get;
             TestField("Vendor Nos.");
@@ -668,6 +741,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         PermissionSet: Record "Permission Set";
     begin
+        Initialize();
+
         PermissionSet.SetRange(Hash, '');
         if PermissionSet.FindSet then
             repeat
@@ -684,6 +759,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Sales] [No. Series] [UT]
         // [SCENARIO 291743] Posted Sales Return Receipt No. Series is populated
+        Initialize();
+
         ValidateNoSeriesExists(SalesReturnReceiptTok);
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Posted Return Receipt Nos.");
@@ -697,6 +774,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [UT] [Purchasing]
         // [SCENARIO 328635] There are 3 records of Purchasing table
+        Initialize();
+
         Assert.RecordCount(Purchasing, 3);
     end;
 

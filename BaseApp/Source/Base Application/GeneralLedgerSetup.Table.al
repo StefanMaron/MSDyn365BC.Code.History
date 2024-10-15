@@ -949,7 +949,13 @@
     procedure FirstAllowedPostingDate() AllowedPostingDate: Date
     var
         InvtPeriod: Record "Inventory Period";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFirstAllowedPostingDate(Rec, AllowedPostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         AllowedPostingDate := "Allow Posting From";
         if not InvtPeriod.IsValidDate(AllowedPostingDate) then
             AllowedPostingDate := CalcDate('<+1D>', AllowedPostingDate);
@@ -1032,6 +1038,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckRoundingError(var ErrorMessage: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFirstAllowedPostingDate(GeneralLedgerSetup: Record "General Ledger Setup"; var AllowedPostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

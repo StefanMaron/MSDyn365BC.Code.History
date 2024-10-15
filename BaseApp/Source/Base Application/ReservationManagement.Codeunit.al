@@ -273,6 +273,7 @@ codeunit 99000845 "Reservation Management"
         SalesLine.SetReservationEntry(CalcReservEntry);
         OnSetSalesLineOnBeforeUpdateReservation(CalcReservEntry, SalesLine);
         UpdateReservation((CreateReservEntry.SignFactor(CalcReservEntry) * SalesLine."Outstanding Qty. (Base)") <= 0);
+        OnAfterSetSourceForSalesLine(CalcReservEntry, SalesLine);
     end;
 
     local procedure SetSourceForServiceLine()
@@ -464,7 +465,14 @@ codeunit 99000845 "Reservation Management"
     end;
 
     local procedure UpdateReservation(EntryIsPositive: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateReservation(SourceRecRef, CalcReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcReservEntry2 := CalcReservEntry;
         GetItemSetup(CalcReservEntry);
         Positive := EntryIsPositive;
@@ -633,8 +641,13 @@ codeunit 99000845 "Reservation Management"
         RemainingQtyToReserveBase: Decimal;
         i: Integer;
         StopReservation: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeAutoReserve(CalcReservEntry, FullAutoReservation, Description, AvailabilityDate, MaxQtyToReserve, MaxQtyToReserveBase);
+        IsHandled := false;
+        OnBeforeAutoReserve(CalcReservEntry, FullAutoReservation, Description, AvailabilityDate, MaxQtyToReserve, MaxQtyToReserveBase, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcReservEntry.TestField("Source Type");
 
         if CalcReservEntry."Source Type" in [DATABASE::"Sales Line", DATABASE::"Purchase Line", DATABASE::"Service Line"] then
@@ -765,7 +778,7 @@ codeunit 99000845 "Reservation Management"
                   ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, Search, NextStep);
             else
                 OnAfterAutoReserveOneLine(
-                  ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, Search, NextStep, CalcReservEntry);
+                  ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, Search, NextStep, CalcReservEntry, CalcReservEntry2, Positive);
         end;
     end;
 
@@ -1282,6 +1295,7 @@ codeunit 99000845 "Reservation Management"
             end;
             CopySign(RemainingQtyToReserveBase, QtyThisLineBase);
             CopySign(RemainingQtyToReserve, QtyThisLine);
+            OnInsertReservationEntriesOnBeforeCreateReservation(TrackingSpecification);
             CreateReservation(Description, ExpectedDate, QtyThisLine, QtyThisLineBase, TrackingSpecification);
             RemainingQtyToReserve := RemainingQtyToReserve - QtyThisLine;
             RemainingQtyToReserveBase := RemainingQtyToReserveBase - QtyThisLineBase;
@@ -1363,8 +1377,9 @@ codeunit 99000845 "Reservation Management"
         HandleItemTracking2: Boolean;
         SignFactor: Integer;
         QuantityIsValidated: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeDeleteReservEntries(ReservEntry, DownToQuantity);
+        OnBeforeDeleteReservEntries(ReservEntry, DownToQuantity, CalcReservEntry, CalcReservEntry2, IsHandled);
 
         ReservEntry.SetRange("Reservation Status");
         if ReservEntry.IsEmpty then
@@ -1692,12 +1707,6 @@ codeunit 99000845 "Reservation Management"
         QtyToTrack: Decimal;
     begin
         CalcReservEntry.TestField("Source Type");
-        if CalcReservEntry."Item No." = '' then
-            exit;
-
-        GetItemSetup(CalcReservEntry);
-        if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
-            exit;
 
         if CalcReservEntry."Source Type" in [DATABASE::"Sales Line", DATABASE::"Purchase Line", DATABASE::"Service Line"] then
             if not (CalcReservEntry."Source Subtype" in [1, 5]) then
@@ -1707,6 +1716,16 @@ codeunit 99000845 "Reservation Management"
         then
             if CalcReservEntry."Source Subtype" = 0 then
                 exit; // Not simulation
+
+        if CalcReservEntry."Source Type" = DATABASE::"Item Journal Line" then
+            exit;
+
+        if CalcReservEntry."Item No." = '' then
+            exit;
+
+        GetItemSetup(CalcReservEntry);
+        if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
+            exit;
 
         CalcReservEntry.Lock;
 
@@ -2242,7 +2261,13 @@ codeunit 99000845 "Reservation Management"
     procedure DeleteItemTrackingConfirm(): Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteItemTrackingConfirm(CalcReservEntry2, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ItemTrackingExist(CalcReservEntry2) then
             exit(true);
 
@@ -2816,7 +2841,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry")
+    local procedure OnAfterAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry"; CalcReservEntry2: Record "Reservation Entry"; Positive: Boolean)
     begin
     end;
 
@@ -2826,7 +2851,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteDocumentReservation(TableID: Integer; DocType: Option; DocNo: Code[20]; HideValidationDialog: Boolean)
+    local procedure OnBeforeDeleteDocumentReservation(TableID: Integer; DocType: Option; DocNo: Code[20]; var HideValidationDialog: Boolean)
     begin
     end;
 
@@ -2866,7 +2891,12 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserve(var CalcReservEntry: Record "Reservation Entry"; var FullAutoReservation: Boolean; var Description: Text[100]; var AvailabilityDate: Date; var MaxQtyToReserve: Decimal; var MaxQtyToReserveBase: Decimal)
+    local procedure OnAfterSetSourceForSalesLine(var CalcReservEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserve(var CalcReservEntry: Record "Reservation Entry"; var FullAutoReservation: Boolean; var Description: Text[100]; var AvailabilityDate: Date; var MaxQtyToReserve: Decimal; var MaxQtyToReserveBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -2933,8 +2963,13 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeleteItemTrackingConfirm(var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteReservEntries(var ReservationEntry: Record "Reservation Entry"; var DownToQuantity: Decimal)
+    local procedure OnBeforeDeleteReservEntries(var ReservationEntry: Record "Reservation Entry"; var DownToQuantity: Decimal; CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2945,6 +2980,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemLedgEntryStats(var CalcReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReservation(var SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2986,6 +3026,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFilterReservFor(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; Direction: Integer; var CaptionText: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReservationEntriesOnBeforeCreateReservation(var TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

@@ -936,6 +936,8 @@ table 5409 "Prod. Order Routing Line"
         "Expected Capacity Ovhd. Cost" := PlanningRoutingLine."Expected Capacity Ovhd. Cost";
         "Expected Capacity Need" := PlanningRoutingLine."Expected Capacity Need";
         "WIP Item" := PlanningRoutingLine."WIP Item";
+
+        OnAfterCopyFromPlanningRoutingLine(Rec, PlanningRoutingLine);
     end;
 
     procedure CopyFromRoutingLine(RoutingLine: Record "Routing Line")
@@ -1742,9 +1744,13 @@ table 5409 "Prod. Order Routing Line"
     begin
     end;
 
-
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingStatusOnBeforeConfirm(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromPlanningRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PlanningRoutingLine: Record "Planning Routing Line")
     begin
     end;
 }

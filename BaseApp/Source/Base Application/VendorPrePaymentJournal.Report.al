@@ -525,7 +525,7 @@ report 317 "Vendor Pre-Payment Journal"
 
                     trigger OnAfterGetRecord()
                     begin
-                        if "Document No." = LastDocumentNo then
+                        if ("Document No." = LastDocumentNo) and ("Account Type" = LastAccountType) and ("Account No." = LastAccountNo) then
                             TotalAmount := TotalAmount + Amount
                         else begin
                             TotalAmount := Amount;
@@ -585,11 +585,15 @@ report 317 "Vendor Pre-Payment Journal"
                                         CustVendName := Vend.Name;
                             end;
                         end;
+                        LastAccountNo := "Account No.";
+                        LastAccountType := "Account Type";
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         LastDocumentNo := '';
+                        LastAccountNo := '';
+                        LastAccountType := 0;
                         AmountBalLcy := 0;
                         AmountLcy := 0;
                         TotalAmount := 0;
@@ -895,6 +899,8 @@ report 317 "Vendor Pre-Payment Journal"
         TotalCustAmount: array[2] of Decimal;
         TotalVendAmount: array[2] of Decimal;
         Sign: Option " ",Negative,Positive;
+        LastAccountNo: Code[20];
+        LastAccountType: Enum "Gen. Journal Account Type";
 
     local procedure CheckRecurringLine(GenJnlLine2: Record "Gen. Journal Line")
     begin

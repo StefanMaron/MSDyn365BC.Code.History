@@ -25,8 +25,6 @@ table 12186 "VAT Exemption"
             NotBlank = true;
 
             trigger OnValidate()
-            var
-                VATExemption: Record "VAT Exemption";
             begin
                 if Type = Type::Vendor then
                     "VAT Exempt. No." := Format("VAT Exempt. Starting Date", 0, 9);
@@ -34,12 +32,7 @@ table 12186 "VAT Exemption"
                 if ("VAT Exempt. Ending Date" <> 0D) and ("VAT Exempt. Ending Date" < "VAT Exempt. Starting Date") then
                     Error(Text12100, FieldCaption("VAT Exempt. Ending Date"), FieldCaption("VAT Exempt. Starting Date"));
 
-                VATExemption.SetRange(Type, Type);
-                VATExemption.SetRange("No.", "No.");
-                VATExemption.SetFilter("VAT Exempt. No.", '<>%1', "VAT Exempt. No.");
-                VATExemption.SetFilter("VAT Exempt. Ending Date", '>=%1', "VAT Exempt. Starting Date");
-                if VATExemption.FindFirst then
-                    Error(Text12101);
+                CheckExistingActiveExemption();
             end;
         }
         field(4; "VAT Exempt. Ending Date"; Date)
@@ -48,21 +41,11 @@ table 12186 "VAT Exemption"
             NotBlank = true;
 
             trigger OnValidate()
-            var
-                VATExemption: Record "VAT Exemption";
             begin
                 if "VAT Exempt. Ending Date" < "VAT Exempt. Starting Date" then
                     Error(Text12100, FieldCaption("VAT Exempt. Ending Date"), FieldCaption("VAT Exempt. Starting Date"));
-                VATExemption.SetRange(Type, Type);
-                VATExemption.SetRange("No.", "No.");
-                VATExemption.SetFilter("VAT Exempt. No.", '<>%1', "VAT Exempt. No.");
-                VATExemption.SetRange("VAT Exempt. Starting Date", "VAT Exempt. Starting Date", "VAT Exempt. Ending Date");
-                if VATExemption.FindFirst then
-                    Error(TwoVATExemptionsInOnePeriodErr);
-                VATExemption.SetRange("VAT Exempt. Starting Date");
-                VATExemption.SetRange("VAT Exempt. Ending Date", "VAT Exempt. Starting Date", "VAT Exempt. Ending Date");
-                if VATExemption.FindFirst then
-                    Error(TwoVATExemptionsInOnePeriodErr);
+
+                CheckTwoExemptionsInOnePeriod();
             end;
         }
         field(5; "VAT Exempt. Int. Registry No."; Code[20])
@@ -186,6 +169,56 @@ table 12186 "VAT Exemption"
         VATExemptNo += "VAT Exempt. No.";
         if "Consecutive VAT Exempt. No." <> '' then
             VATExemptNo += '-' + "Consecutive VAT Exempt. No.";
+    end;
+
+    local procedure CheckExistingActiveExemption()
+    var
+        VATExemption: Record "VAT Exemption";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckExistingActiveExemption(IsHandled);
+        if IsHandled then
+            exit;
+
+        VATExemption.SetRange(Type, Type);
+        VATExemption.SetRange("No.", "No.");
+        VATExemption.SetFilter("VAT Exempt. No.", '<>%1', "VAT Exempt. No.");
+        VATExemption.SetFilter("VAT Exempt. Ending Date", '>=%1', "VAT Exempt. Starting Date");
+        if VATExemption.FindFirst then
+            Error(Text12101);
+    end;
+
+    local procedure CheckTwoExemptionsInOnePeriod()
+    var
+        VATExemption: Record "VAT Exemption";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckTwoExemptionsInOnePeriod(IsHandled);
+        if IsHandled then
+            exit;
+
+        VATExemption.SetRange(Type, Type);
+        VATExemption.SetRange("No.", "No.");
+        VATExemption.SetFilter("VAT Exempt. No.", '<>%1', "VAT Exempt. No.");
+        VATExemption.SetRange("VAT Exempt. Starting Date", "VAT Exempt. Starting Date", "VAT Exempt. Ending Date");
+        if VATExemption.FindFirst then
+            Error(TwoVATExemptionsInOnePeriodErr);
+        VATExemption.SetRange("VAT Exempt. Starting Date");
+        VATExemption.SetRange("VAT Exempt. Ending Date", "VAT Exempt. Starting Date", "VAT Exempt. Ending Date");
+        if VATExemption.FindFirst then
+            Error(TwoVATExemptionsInOnePeriodErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckExistingActiveExemption(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTwoExemptionsInOnePeriod(var IsHandled: Boolean)
+    begin
     end;
 }
 

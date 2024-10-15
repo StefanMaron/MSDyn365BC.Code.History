@@ -58,8 +58,7 @@
                         Validate("Quantity per");
                 end;
                 Description := Item.Description;
-                Item.TestField("Base Unit of Measure");
-                Validate("Unit of Measure Code", Item."Base Unit of Measure");
+                UpdateUOMFromItem(Item);
                 GetUpdateFromSKU;
                 CreateDim(DATABASE::Item, "Item No.");
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -220,10 +219,8 @@
             trigger OnValidate()
             begin
                 if Item.Get("Item No.") then
-                    if Item."Rounding Precision" > 0 then begin
-                        "Expected Quantity" := UOMMgt.RoundToItemRndPrecision("Expected Quantity", Item."Rounding Precision");
-                        OnAfterRoundExpectedQuantity(Rec);
-                    end;
+                    if Item."Rounding Precision" > 0 then
+                        RoundExpectedQuantity();
 
                 "Expected Qty. (Base)" := Round("Expected Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
                 if (Status in [Status::Released, Status::Finished]) and
@@ -395,7 +392,13 @@
             var
                 WMSManagement: Codeunit "WMS Management";
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBinCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Bin Code" <> '' then begin
                     TestField("Location Code");
                     WMSManagement.FindBin("Location Code", "Bin Code", '');
@@ -1256,6 +1259,32 @@
         Validate("Flushing Method", SKU."Flushing Method");
     end;
 
+    local procedure RoundExpectedQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRoundExpectedQuantity(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Expected Quantity" := UOMMgt.RoundToItemRndPrecision("Expected Quantity", Item."Rounding Precision");
+        OnAfterRoundExpectedQuantity(Rec);
+    end;
+
+    local procedure UpdateUOMFromItem(Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateUOMFromItem(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        Item.TestField("Base Unit of Measure");
+        Validate("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
     procedure UpdateDatetime()
     begin
         if ("Due Date" <> 0D) and ("Due Time" <> 0T) then
@@ -1294,7 +1323,13 @@
     procedure GetDefaultBin()
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultBin(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Quantity * xRec.Quantity > 0) and
            ("Item No." = xRec."Item No.") and
            ("Location Code" = xRec."Location Code") and
@@ -1522,7 +1557,7 @@
         ItemSubstitutionMgt.GetCompSubst(Rec);
     end;
 
-    local procedure GetSKU(): Boolean
+    local procedure GetSKU() Result: Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "Item No.") and
@@ -1532,7 +1567,8 @@
         if SKU.Get("Location Code", "Item No.", "Variant Code") then
             exit(true);
 
-        exit(false);
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     local procedure ClearCalcFormula()
@@ -1545,7 +1581,14 @@
     end;
 
     local procedure UpdateUnitCost()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateUnitCost(Rec, GLSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         if GetSKU then
             "Unit Cost" := SKU."Unit Cost"
         else
@@ -1701,6 +1744,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(ProdOrderComponent: Record "Prod. Order Component"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateUnitCost(var ProdOrderComp: Record "Prod. Order Component"; GeneralLedgerSetup: Record "General Ledger Setup")
     begin
     end;
@@ -1752,6 +1800,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultConsumptionBin(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var BinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitCost(var ProdOrderComponent: Record "Prod. Order Component"; GLSetup: Record "General Ledger Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUOMFromItem(var ProdOrderComponent: Record "Prod. Order Component"; Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 
@@ -1827,6 +1885,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemSub(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBinCode(var Rec: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultBin(var ProdOrderComponent: Record "Prod. Order Component"; var xProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundExpectedQuantity(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 }

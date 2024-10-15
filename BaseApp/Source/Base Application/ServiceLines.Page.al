@@ -1003,6 +1003,7 @@ page 5905 "Service Lines"
                 }
                 action(GetLineDiscount)
                 {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
                     ApplicationArea = Service;
                     Caption = 'Get Li&ne Discount';
                     Image = LineDiscount;

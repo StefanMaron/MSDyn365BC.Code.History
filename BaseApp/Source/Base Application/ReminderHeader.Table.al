@@ -1,4 +1,4 @@
-table 295 "Reminder Header"
+﻿table 295 "Reminder Header"
 {
     Caption = 'Reminder Header';
     DataCaptionFields = "No.", Name;
@@ -42,8 +42,7 @@ table 295 "Reminder Header"
                 Cust.Get("Customer No.");
                 if Cust."Privacy Blocked" then
                     Cust.CustPrivacyBlockedErrorMessage(Cust, false);
-                if Cust.Blocked = Cust.Blocked::All then
-                    Cust.CustBlockedErrorMessage(Cust, false);
+                CheckCustomerBlockedAll(Cust);
 
                 if Cont.Get(Cust."Primary Contact No.") then
                     Cont.CheckIfPrivacyBlockedGeneric();
@@ -484,16 +483,7 @@ table 295 "Reminder Header"
         ReminderCommentLine.SetRange("No.", "No.");
         ReminderCommentLine.DeleteAll();
 
-        if IssuedReminderHeader."No." <> '' then begin
-            Commit();
-            if Confirm(
-                 Text001, true,
-                 IssuedReminderHeader."No.")
-            then begin
-                IssuedReminderHeader.SetRecFilter;
-                IssuedReminderHeader.PrintRecords(true, false, false)
-            end;
-        end;
+        PrintIssuedReminders();
     end;
 
     trigger OnInsert()
@@ -918,9 +908,32 @@ table 295 "Reminder Header"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure ReminderRounding(ReminderHeader: Record "Reminder Header")
+    procedure GetInvoiceRoundingAmount(): Decimal
     var
         TotalAmountInclVAT: Decimal;
+    begin
+        GetCurrency(ReminderHeader);
+        if Currency."Invoice Rounding Precision" = 0 then
+            exit(0);
+
+        CalcFields(
+            "Remaining Amount","Interest Amount","Additional Fee","VAT Amount","Add. Fee per Line");
+        TotalAmountInclVAT :=
+            "Remaining Amount" + "Interest Amount" + "Additional Fee" +
+            "Add. Fee per Line" + "VAT Amount";
+
+        exit(
+            -Round(
+                TotalAmountInclVAT -
+                Round(
+                    TotalAmountInclVAT,
+                    Currency."Invoice Rounding Precision",
+                    Currency.InvoiceRoundingDirection),
+                Currency."Amount Rounding Precision"));
+    end;
+
+    local procedure ReminderRounding(ReminderHeader: Record "Reminder Header")
+    var
         ReminderRoundingAmount: Decimal;
         Handled: Boolean;
     begin
@@ -928,26 +941,8 @@ table 295 "Reminder Header"
         if Handled then
             exit;
 
-        GetCurrency(ReminderHeader);
-        if Currency."Invoice Rounding Precision" = 0 then
-            exit;
+        ReminderRoundingAmount := ReminderHeader.GetInvoiceRoundingAmount();
 
-        ReminderHeader.CalcFields(
-          "Remaining Amount", "Interest Amount", "Additional Fee", "VAT Amount", "Add. Fee per Line");
-
-        TotalAmountInclVAT := ReminderHeader."Remaining Amount" +
-          ReminderHeader."Interest Amount" +
-          ReminderHeader."Additional Fee" +
-          ReminderHeader."Add. Fee per Line" +
-          ReminderHeader."VAT Amount";
-        ReminderRoundingAmount :=
-          -Round(
-            TotalAmountInclVAT -
-            Round(
-              TotalAmountInclVAT,
-              Currency."Invoice Rounding Precision",
-              Currency.InvoiceRoundingDirection),
-            Currency."Amount Rounding Precision");
         if ReminderRoundingAmount <> 0 then begin
             CustPostingGr.Get(ReminderHeader."Customer Posting Group");
             with ReminderLine do begin
@@ -1061,6 +1056,37 @@ table 295 "Reminder Header"
         end;
     end;
 
+    local procedure CheckCustomerBlockedAll(Cust: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCustomerBlockedAll(Rec, Cust, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Cust.Blocked = Cust.Blocked::All then
+            Cust.CustBlockedErrorMessage(Cust, false);
+    end;
+
+    local procedure PrintIssuedReminders()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintIssuedReminders(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if IssuedReminderHeader."No." <> '' then begin
+            Commit();
+            if Confirm(Text001, true, IssuedReminderHeader."No.") then begin
+                IssuedReminderHeader.SetRecFilter();
+                IssuedReminderHeader.PrintRecords(true, false, false)
+            end;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ReminderHeader: Record "Reminder Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
@@ -1143,6 +1169,16 @@ table 295 "Reminder Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ReminderHeader: Record "Reminder Header"; var xReminderHeader: Record "Reminder Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustomerBlockedAll(var ReminderHeader: Record "Reminder Header"; Cust: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintIssuedReminders(var Rec: Record "Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 }

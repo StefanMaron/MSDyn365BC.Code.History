@@ -221,8 +221,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Assert.AreEqual(1, UnitOfMeasure.Count, 'Expected 1 records to be synchronized');
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure SynchOnlyCoupledRecordsMapping()
     var
@@ -498,8 +497,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         SyncCRMAccountToCustomer(CRMAccount, 1, 0);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure SyncCoupledCRMAccountToCustomer()
     var

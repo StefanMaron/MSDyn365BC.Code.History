@@ -383,6 +383,7 @@
     var
         DeleteOne: Boolean;
     begin
+        OnBeforeFinalizePosting(TransHeader, PostedWhseShptHeader, WhseShip);
         TransLine.SetRange(Quantity);
         TransLine.SetRange("Qty. to Ship");
         DeleteOne := TransHeader.ShouldDeleteOneTransferOrder(TransLine);
@@ -571,7 +572,13 @@
     var
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         ShowError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWarehouse(TransLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation(TransLine."Transfer-from Code");
         if Location."Require Pick" or Location."Require Shipment" then begin
             if Location."Bin Mandatory" then
@@ -852,6 +859,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarehouse(TransLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyTransLines(TransferHeader: Record "Transfer Header")
     begin
     end;
@@ -863,6 +875,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteOneTransferOrder(TransferHeader: Record "Transfer Header"; var DeleteOne: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinalizePosting(TransferHeader: Record "Transfer Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header"; WhseShip: Boolean)
     begin
     end;
 

@@ -332,6 +332,8 @@ table 49 "Invoice Post. Buffer"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
+        OnBeforePrepareSales(Rec, SalesLine);
+
         Clear(Rec);
         Type := SalesLine.Type.AsInteger();
         "System-Created Entry" := true;
@@ -385,7 +387,13 @@ table 49 "Invoice Post. Buffer"
         CurrencyLCY: Record Currency;
         CurrencyACY: Record Currency;
         GLSetup: Record "General Ledger Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcDiscount(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CurrencyLCY.InitRoundingPrecision;
         GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then
@@ -789,12 +797,22 @@ table 49 "Invoice Post. Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcDiscount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInvPostBufferUpdate(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var FromInvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInvPostBufferModify(var InvoicePostBuffer: Record "Invoice Post. Buffer"; FromInvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareSales(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesLine: Record "Sales Line")
     begin
     end;
 
