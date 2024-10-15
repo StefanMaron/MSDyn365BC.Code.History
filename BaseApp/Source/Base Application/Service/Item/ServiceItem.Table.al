@@ -1208,12 +1208,14 @@ table 5940 "Service Item"
         end;
     end;
 
-    local procedure ServItemLinesExist(): Boolean
+    local procedure ServItemLinesExist() Result: Boolean
     begin
         ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Service Item No.");
         ServItemLine.SetRange("Service Item No.", "No.");
-        exit(ServItemLine.FindFirst());
+        Result := ServItemLine.FindFirst();
+
+        OnAfterServItemLinesExist(Rec, ServItemLine, CurrFieldNo, Result);
     end;
 
     procedure MessageIfServItemLinesExist(ChangedFieldName: Text)
@@ -1442,6 +1444,11 @@ table 5940 "Service Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateWarrantyEndingDateParts(var ServiceItem: Record "Service Item"; xServiceItem: Record "Service Item"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServItemLinesExist(var ServiceItem: Record "Service Item"; var ServiceItemLine: Record "Service Item Line"; CurrFieldNo: Integer; var Result: Boolean)
     begin
     end;
 }

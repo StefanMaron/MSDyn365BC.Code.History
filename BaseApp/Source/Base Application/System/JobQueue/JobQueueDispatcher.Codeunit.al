@@ -4,7 +4,8 @@ using System.IO;
 
 codeunit 448 "Job Queue Dispatcher"
 {
-    Permissions = TableData "Job Queue Entry" = rimd;
+    Permissions = TableData "Job Queue Entry" = rimd,
+                  TableData "Job Queue Category" = rm;
     TableNo = "Job Queue Entry";
 
     trigger OnRun()
@@ -26,17 +27,18 @@ codeunit 448 "Job Queue Dispatcher"
             if not IsWithinStartEndTime(Rec) then
                 Reschedule(Rec)
             else
-                if WaitForOthersWithSameCategory(Rec) then 
+                if WaitForOthersWithSameCategory(Rec) then
                     RescheduleAsWaiting(Rec)
                 else begin
                     HandleRequest(Rec);
                     if Rec."Job Queue Category Code" <> '' then begin
                         Commit();
-                        Rec.ActivateNextJobInCategory();
+                        Rec.ActivateNextJobInCategoryIfAny();
                     end;
                 end;
         Commit();
         CleanupCurrentUsersJobsWithSameCategory(Rec);
+        CleanupStaleJobs();
     end;
 
     var
@@ -60,6 +62,7 @@ codeunit 448 "Job Queue Dispatcher"
         JobQueueEntry."User Session ID" := SessionId();
         JobQueueEntry."User Service Instance ID" := ServiceInstanceId();
         JobQueueEntry.Modify();
+        Commit();
 
         JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
         // Codeunit.Run is limited during write transactions because one or more tables will be locked.
@@ -102,6 +105,11 @@ codeunit 448 "Job Queue Dispatcher"
             exit(true);
 
         CurrTime := DT2Time(CurrentDateTime);
+
+        // Starting time > Ending time -> roll-over midnight, e.g. from 23:00 - 02:00
+        if (CurrJobQueueEntry."Ending Time" <> 0T) and (CurrJobQueueEntry."Starting Time" > CurrJobQueueEntry."Ending Time") then
+            exit((CurrTime >= CurrJobQueueEntry."Starting Time") or (CurrTime <= CurrJobQueueEntry."Ending Time"));
+
         // Start and end time set, check if current time is within the range
         if (CurrJobQueueEntry."Starting Time" <> 0T) and (CurrJobQueueEntry."Ending Time" <> 0T) then
             if CurrJobQueueEntry."Starting Time" <> CurrJobQueueEntry."Ending Time" then
@@ -136,8 +144,8 @@ codeunit 448 "Job Queue Dispatcher"
         if not JobQueueCategory.Get(CurrJobQueueEntry."Job Queue Category Code") then
             exit(false);
 
-        JobQueueEntry.SetLoadFields(ID);
-        JobQueueEntry.ReadIsolation(JobQueueEntry.ReadIsolation::ReadUnCommitted);
+        SelectLatestVersion();  // bypasses the cache on the NST
+        JobQueueEntry.ReadIsolation(JobQueueEntry.ReadIsolation::ReadCommitted);
         JobQueueEntry.SetFilter(ID, '<>%1', CurrJobQueueEntry.ID);
         JobQueueEntry.SetRange("Job Queue Category Code", CurrJobQueueEntry."Job Queue Category Code");
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
@@ -146,10 +154,11 @@ codeunit 448 "Job Queue Dispatcher"
         if not JobQueueEntry.IsEmpty() then
             exit(true);
 
-        JobQueueEntry.SetRange(Scheduled, false);
-        if TestMode then
+        if TestMode then begin
+            JobQueueEntry.SetRange(Scheduled, false);
             if not JobQueueEntry.IsEmpty() then
                 exit(true);
+        end;
         exit(false);
     end;
 
@@ -160,22 +169,54 @@ codeunit 448 "Job Queue Dispatcher"
     begin
         if CurrJobQueueEntry."Job Queue Category Code" = '' then
             exit;
+        SelectLatestVersion();  // bypasses the cache on the NST
         JobQueueEntry.SetLoadFields(ID);
-        JobQueueEntry.ReadIsolation(JobQueueEntry.ReadIsolation::ReadCommitted);
+        JobQueueEntry.ReadIsolation(JobQueueEntry.ReadIsolation::ReadUnCommitted);
         JobQueueEntry.SetFilter(ID, '<>%1', CurrJobQueueEntry.ID);
         JobQueueEntry.SetRange("Job Queue Category Code", CurrJobQueueEntry."Job Queue Category Code");
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
         JobQueueEntry.SetRange(Scheduled, false);
         JobQueueEntry.SetRange("User ID", UserId());
         JobQueueEntryCheck.ReadIsolation(IsolationLevel::UpdLock);
+        JobQueueEntryCheck.SetAutoCalcFields(Scheduled);
         if JobQueueEntry.FindSet() then
             repeat
                 if JobQueueEntryCheck.Get(JobQueueEntry.ID) then
-                    if JobQueueEntryCheck.IsExpired(CurrentDateTime) then
-                        JobQueueEntryCheck.DeleteTask()
-                    else
-                        Reschedule(JobQueueEntryCheck);
+                    if not JobQueueEntryCheck.Scheduled then
+                        if JobQueueEntryCheck.IsExpired(CurrentDateTime) then
+                            JobQueueEntryCheck.DeleteTask()
+                        else
+                            Reschedule(JobQueueEntryCheck);
             until JobQueueEntry.Next() = 0;
+    end;
+
+    local procedure CleanupStaleJobs()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobDescrLbl: Label 'Clean up failed jobs';
+    begin
+        JobQueueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Job Queue Cleanup Tasks");
+        JobQueueEntry.SetAutoCalcFields(Scheduled);
+        if not JobQueueEntry.FindFirst() then begin
+            JobQueueEntry.Reset();
+            JobQueueEntry.ReadIsolation(IsolationLevel::UpdLock);
+            if JobQueueEntry.FindLast() then; // semaphore lock to avoid creating several jobs
+            JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+            JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Job Queue Cleanup Tasks");
+            if JobQueueEntry.FindFirst() then
+                exit;
+            Clear(JobQueueEntry);
+            JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+            JobQueueEntry."Object ID to Run" := Codeunit::"Job Queue Cleanup Tasks";
+            JobQueueEntry.Description := CopyStr(JobDescrLbl, MaxStrLen(JobQueueEntry.Description));
+            JobQueueEntry.Validate("Run on Sundays", true);
+            JobQueueEntry."Earliest Start Date/Time" := CalcInitialRunTime(JobQueueEntry, CurrentDateTime());
+            Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
+        end else
+            if not JobQueueEntry.Scheduled or (JobQueueEntry.Status = JobQueueEntry.Status::Error) then
+                JobQueueEntry.Restart();
     end;
 
     [Scope('OnPrem')]
@@ -196,8 +237,6 @@ codeunit 448 "Job Queue Dispatcher"
 
     local procedure RescheduleAsWaiting(var JobQueueEntry: Record "Job Queue Entry")
     begin
-        Commit();
-        JobQueueEntry.RefreshLocked();
         Clear(JobQueueEntry."System Task ID"); // to avoid canceling this task, which has already been executed
         OnRescheduleOnBeforeJobQueueEnqueue(JobQueueEntry);
         JobQueueEntry."System Task ID" := TASKSCHEDULER.CreateTask(CODEUNIT::"Job Queue Dispatcher", CODEUNIT::"Job Queue Error Handler", false, JobQueueEntry.CurrentCompany(), JobQueueEntry."Earliest Start Date/Time", JobQueueEntry.RecordId());
@@ -296,6 +335,8 @@ codeunit 448 "Job Queue Dispatcher"
         NoOfExtraDays: Integer;
         NoOfDays: Integer;
         Found: Boolean;
+        RunCrossMidnight: Boolean;
+        NewRunTime: Time;
     begin
         JobQueueEntry.TestField("Recurring Job");
         RunOnDate[1] := JobQueueEntry."Run on Mondays";
@@ -307,8 +348,15 @@ codeunit 448 "Job Queue Dispatcher"
         RunOnDate[7] := JobQueueEntry."Run on Sundays";
         OnCalcRunTimeForRecurringJobOnAfterInitDays(JobQueueEntry, StartingDateTime);
         NewRunDateTime := StartingDateTime;
+        NewRunTime := DT2Time(NewRunDateTime);
+
         NoOfDays := 0;
-        if (JobQueueEntry."Ending Time" <> 0T) and (NewRunDateTime > JobQueueEntry.GetEndingDateTime(NewRunDateTime)) then begin
+
+        // Starting time > Ending time -> roll-over midnight, e.g. from 23:00 - 02:00?  now: 16:05
+        RunCrossMidnight := (JobQueueEntry."Ending Time" <> 0T) and (JobQueueEntry."Starting Time" > JobQueueEntry."Ending Time");
+        if RunCrossMidnight and (NewRunTime < JobQueueEntry."Starting Time") and (NewRunTime > JobQueueEntry."Ending Time") or
+           not RunCrossMidnight and (JobQueueEntry."Ending Time" <> 0T) and (NewRunTime > JobQueueEntry."Ending Time")  // e.g. when 08:00 - 16:00
+        then begin
             NewRunDateTime := JobQueueEntry.GetStartingDateTime(NewRunDateTime);
             NoOfDays := NoOfDays + 1;
         end;
