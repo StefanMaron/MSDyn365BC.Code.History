@@ -171,6 +171,18 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the item''s shipment method.';
                 }
+                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
+                    Visible = false;
+                }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                    Visible = false;
+                }
             }
             group(Control40)
             {

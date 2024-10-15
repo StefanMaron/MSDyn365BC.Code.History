@@ -35,6 +35,8 @@ codeunit 137621 "SCM Costing Bugs II"
         InsufficientQtyErr: Label 'You have insufficient quantity of Item %1', Comment = '%1 - Item No.';
         STRMENUWasNotCalledTxt: Label 'STRMENU was not called';
         ValueIsNotPopulatedTxt: Label 'Value is not populated';
+        ListOf3SuggestAssignmentStrMenuTxt: Label 'Equally,By Weight,By Volume';
+        ListOf4SuggestAssignmentStrMenuTxt: Label 'Equally,By Amount,By Weight,By Volume';
 
     [Test]
     [HandlerFunctions('ViewAppliedEntriesHandler,ViewUnappliedEntriesModalHandler,ConfirmYesHandler')]
@@ -1274,12 +1276,12 @@ codeunit 137621 "SCM Costing Bugs II"
     end;
 
     [Test]
+    [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure CheckSuggestAssgntDialogueForDifferentReceipts()
     var
         PurchaseLine: Record "Purchase Line";
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
-        StrMenuCalled: Boolean;
     begin
         // [FEATURE] [Item Charge] [Suggest Assignment]
         // [SCENARIO 380487] If "Item Charge Assignment (Purch)" have different "Applies-to Doc. Type" then Suggest Item Charge Assignment function provides Dialog with Options Equally,Amount.
@@ -1288,14 +1290,12 @@ codeunit 137621 "SCM Costing Bugs II"
         // [GIVEN] "Item Charge Assignment (Purch)" for "Sales Shipment Line" and "Transfer Receipt Line"
         CreateItemChargeAssgntPurchForSalesShptLineAndTransferReceiptLine(PurchaseLine);
 
-        LibraryVariableStorage.Enqueue(StrMenuCalled); // Enque FALSE for handler
-
         // [WHEN] Suggest Assignment
         ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount");
 
-        // [THEN] STRMENU occurs
-        StrMenuCalled := LibraryVariableStorage.DequeueBoolean; // STRMENU called flag
-        Assert.IsFalse(StrMenuCalled, STRMENUWasNotCalledTxt);
+        // [THEN] STRMENU shows with 3 choices: "Equally", "By Weight", "By Volume"
+        Assert.AreEqual(ListOf3SuggestAssignmentStrMenuTxt, LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
@@ -1719,6 +1719,31 @@ codeunit 137621 "SCM Costing Bugs II"
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Transfer, Location[1].Code, false);
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         ItemLedgerEntry.TestField("Cost Amount (Actual)", -(79 * 20.0 + 1 * 18.0));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure CheckSuggestAssgntStrMenuForReceipts()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
+    begin
+        // [FEATURE] [Item Charge] [Suggest Assignment]
+        // [SCENARIO 380487] If all "Item Charge Assignment (Purch)" have "Applies-to Doc. Type" Sales Shipment then Suggest Item Charge Assignment function provides Dialog with Options Equally,Amount.
+        Initialize();
+
+        // [GIVEN] "Item Charge Assignment (Purch)" for "Sales Shipment Line"
+        CreateItemChargeAssgntPurchForSalesShptLine(PurchaseLine);
+        InsertItemChargeAssgntPurchForSalesShptLine(PurchaseLine);
+
+        // [WHEN] Suggest Assignment
+        ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount");
+
+        // [THEN] STRMENU occurs
+        // [THEN] STRMENU shows with 4 choices: "Equally", "By Amount", "By Weight", "By Volume"
+        Assert.AreEqual(ListOf4SuggestAssignmentStrMenuTxt, LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -2499,6 +2524,14 @@ codeunit 137621 "SCM Costing Bugs II"
     procedure ConfirmYesHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure StrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Option);
+        Choice := 1;
     end;
 }
 
