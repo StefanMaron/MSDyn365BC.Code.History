@@ -126,7 +126,7 @@ codeunit 134302 "Workflow E2E Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,CreateSuperUserConfirmHandlerYes')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestSendingApprovalRequestForPurchInvGeneratesNotification()
@@ -178,7 +178,6 @@ codeunit 134302 "Workflow E2E Tests"
     end;
 
     [Test]
-    [HandlerFunctions('CreateSuperUserConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestAutoApprovalOfPurchInvDoesNotGenerateNotification()
@@ -222,7 +221,7 @@ codeunit 134302 "Workflow E2E Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,CreateSuperUserConfirmHandlerYes')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestRejectingApprovalRequestForPurchInvGeneratesNotification()
@@ -285,7 +284,7 @@ codeunit 134302 "Workflow E2E Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,CreateSuperUserConfirmHandlerYes')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestRejectingApprovalRequestForPurchInvWithLoopbackToEvent()
@@ -356,7 +355,7 @@ codeunit 134302 "Workflow E2E Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,CreateSuperUserConfirmHandlerYes')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestRejectingApprovalRequestForPurchInvWithLoopbackToResponse()
@@ -431,7 +430,7 @@ codeunit 134302 "Workflow E2E Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,CreateSuperUserConfirmHandlerYes')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestRejectingApprovalRequestForPurchInvWithoutLoopback()
@@ -501,7 +500,7 @@ codeunit 134302 "Workflow E2E Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,CreateSuperUserConfirmHandlerYes')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestApprovingRejectedApprovalRequestForPurchInvWithLoopback()
@@ -854,13 +853,6 @@ codeunit 134302 "Workflow E2E Tests"
         Workflow.Code := LibraryUtility.GenerateRandomCode(Workflow.FieldNo(Code), DATABASE::Workflow);
         Workflow.Enabled := false;
         Workflow.Insert(true);
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure CreateSuperUserConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 }
 

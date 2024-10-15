@@ -22,7 +22,14 @@ report 190 "Issue Reminders"
             DataItemTableView = SORTING("No.");
 
             trigger OnAfterGetRecord()
+            var
+                InvoiceRoundingAmount: Decimal;
             begin
+                InvoiceRoundingAmount := GetInvoiceRoundingAmount();
+                if InvoiceRoundingAmount <> 0 then
+                    if not ConfirmManagement.GetResponse(ProceedOnIssuingWithInvRoundingQst, false) then
+                        CurrReport.Break();
+
                 RecordNo := RecordNo + 1;
                 Clear(ReminderIssue);
                 ReminderIssue.Set("Reminder Header", ReplacePostingDate, PostingDateReq);
@@ -158,6 +165,7 @@ report 190 "Issue Reminders"
         IssuedReminderHeader: Record "Issued Reminder Header";
         TempIssuedReminderHeader: Record "Issued Reminder Header" temporary;
         ReminderIssue: Codeunit "Reminder-Issue";
+        ConfirmManagement: Codeunit "Confirm Management";	
         PEPPOLValidation: Codeunit "PEPPOL Validation";
         Window: Dialog;
         NoOfRecords: Integer;
@@ -172,6 +180,7 @@ report 190 "Issue Reminders"
         HideDialog: Boolean;
         [InDataSet]
         IsOfficeAddin: Boolean;
+        ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the reminder when it is posted according to invoice rounding setup.\Do you want to continue?';
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintIssuedReminderHeader(var IssuedReminderHeader: Record "Issued Reminder Header"; var IsHandled: Boolean)

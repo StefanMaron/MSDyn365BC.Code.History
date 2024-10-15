@@ -127,6 +127,7 @@ page 7200 "CDS Connection Setup"
 
                     trigger OnValidate()
                     var
+                        CRMIntegrationRecord: Record "CRM Integration Record";
                         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
                     begin
                         RefreshStatuses := true;
@@ -136,6 +137,14 @@ page 7200 "CDS Connection Setup"
                             if "Ownership Model" = "Ownership Model"::Person then
                                 if Confirm(DoYouWantToMakeSalesPeopleMappingQst, true) then
                                     CDSSetupDefaults.RunCoupleSalespeoplePage();
+                        end else begin
+                            CRMIntegrationRecord.SetFilter("Table ID", '<>0');
+                            if not CRMIntegrationRecord.IsEmpty() then begin
+                                if not Confirm(DisableIntegrationQst) then
+                                    Error('');
+                                SendTraceTag('0000DRF', CategoryTok, Verbosity::Normal, CDSConnDisabledOnPageTxt, DataClassification::SystemMetadata);
+                            end else
+                                SendTraceTag('0000DRG', CategoryTok, Verbosity::Normal, CDSConnDisabledOnPageTxt, DataClassification::SystemMetadata);
                         end;
                     end;
                 }
@@ -663,7 +672,9 @@ page 7200 "CDS Connection Setup"
         UsersAddedToTeamMsg: Label 'Count of users added to the default owning team: %1.', Comment = '%1 - count of users.';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
         CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
-        CDSConnEnabledOnPageTxt: Label 'CDS Connection has been enabled from CDSConnectionSetupPage', Locked = true;
+        DisableIntegrationQst: Label 'You are about to disable integration with Common Data Service, but many records remain coupled. Please remove all couplings before you disable the integration, unless you are not going to re-enable it later.\\Do you want to continue anyway?';
+        CDSConnEnabledOnPageTxt: Label 'CDS Connection has been enabled from CDS Connection Setup page', Locked = true;
+        CDSConnDisabledOnPageTxt: Label 'CDS Connection has been disabled from CDS Connection Setup page', Locked = true;
         SuccessfullyRedeployedSolutionTxt: Label 'The CDS solutin has been successfully redeployed', Locked = true;
         UnsuccessfullyRedeployedSolutionTxt: Label 'The CDS solutin has failed to be redeployed', Locked = true;
         IsEditable: Boolean;

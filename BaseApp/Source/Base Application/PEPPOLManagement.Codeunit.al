@@ -1,4 +1,4 @@
-codeunit 1605 "PEPPOL Management"
+﻿codeunit 1605 "PEPPOL Management"
 {
 
     trigger OnRun()
@@ -149,7 +149,7 @@ codeunit 1605 "PEPPOL Management"
         CityName := CompanyInfo.City;
         PostalZone := CompanyInfo."Post Code";
         CountrySubentity := CompanyInfo.County;
-        IdentificationCode := CompanyInfo."Country/Region Code";
+        IdentificationCode := GetCountryISOCode(CompanyInfo."Country/Region Code");
         ListID := GetISO3166_1Alpha2();
     end;
 
@@ -211,7 +211,7 @@ codeunit 1605 "PEPPOL Management"
         end;
 
         SupplierRegAddrCityName := CompanyInfo.City;
-        SupplierRegAddrCountryIdCode := CompanyInfo."Country/Region Code";
+        SupplierRegAddrCountryIdCode := GetCountryISOCode(CompanyInfo."Country/Region Code");
         SupplRegAddrCountryIdListId := GetISO3166_1Alpha2();
     end;
 
@@ -270,7 +270,7 @@ codeunit 1605 "PEPPOL Management"
         CustomerCityName := SalesHeader."Bill-to City";
         CustomerPostalZone := SalesHeader."Bill-to Post Code";
         CustomerCountrySubentity := SalesHeader."Bill-to County";
-        CustomerIdentificationCode := SalesHeader."Bill-to Country/Region Code";
+        CustomerIdentificationCode := GetCountryISOCode(SalesHeader."Bill-to Country/Region Code");
         CustomerListID := GetISO3166_1Alpha2();
     end;
 
@@ -402,7 +402,7 @@ codeunit 1605 "PEPPOL Management"
         DeliveryCityName := SalesHeader."Ship-to City";
         DeliveryPostalZone := SalesHeader."Ship-to Post Code";
         DeliveryCountrySubentity := SalesHeader."Ship-to County";
-        DeliveryCountryIdCode := SalesHeader."Ship-to Country/Region Code";
+        DeliveryCountryIdCode := GetCountryISOCode(SalesHeader."Ship-to Country/Region Code");
         DeliveryCountryListID := GetISO3166_1Alpha2();
     end;
 
@@ -849,6 +849,14 @@ codeunit 1605 "PEPPOL Management"
             InvoiceDocRefID := SalesInvoiceHeader."No.";
             InvoiceDocRefIssueDate := Format(SalesInvoiceHeader."Posting Date", 0, 9);
         end;
+    end;
+
+    local procedure GetCountryISOCode(CountryRegionCode: Code[10]): Code[2]
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        CountryRegion.Get(CountryRegionCode);
+        exit(CountryRegion."ISO Code");
     end;
 
     procedure GetTotals(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")

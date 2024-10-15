@@ -63,27 +63,32 @@ page 249 "VAT Registration Log"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the customer, vendor, or contact whose VAT registration number was verified.';
+                    Visible = false;
                 }
                 field("Verified Address"; "Verified Address")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the address of the customer, vendor, or contact whose VAT registration number was verified.';
+                    Visible = false;
                 }
                 field("Verified Street"; "Verified Street")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the street of the customer, vendor, or contact whose VAT registration number was verified. ';
+                    Visible = false;
                 }
                 field("Verified Postcode"; "Verified Postcode")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postcode of the customer, vendor, or contact whose VAT registration number was verified. ';
+                    Visible = false;
                 }
                 field("Verified City"; "Verified City")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the customer, vendor, or contact whose VAT registration number was verified. ';
+                    Visible = false;
                 }
                 field("User ID"; "User ID")
                 {
@@ -101,6 +106,12 @@ page 249 "VAT Registration Log"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the request identifier of the VAT registration number validation service.';
+                }
+                field("Details Status"; Rec."Details Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the status of the details validation.';
+                    Enabled = DetailsExist;
                 }
             }
         }
@@ -121,6 +132,22 @@ page 249 "VAT Registration Log"
                 RunObject = Codeunit "VAT Lookup Ext. Data Hndl";
                 ToolTip = 'Verify a Tax registration number. If the number is verified the status field contains the value Valid.';
             }
+            action(ValidationDetails)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Validation Details';
+                Enabled = DetailsExist;
+                Image = List;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Open the list of fields that have been processed by the VAT registration no. validation service.';
+
+                trigger OnAction()
+                begin
+                    Rec.OpenModifyDetails();
+                end;
+            }
         }
     }
 
@@ -128,5 +155,13 @@ page 249 "VAT Registration Log"
     begin
         if FindFirst then;
     end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        DetailsExist := Rec."Details Status" <> Rec."Details Status"::"Not Verified";
+    end;
+
+    var
+        DetailsExist: Boolean;
 }
 
