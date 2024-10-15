@@ -2680,7 +2680,7 @@ page 42 "Sales Order"
 
     local procedure SalespersonCodeOnAfterValidate()
     begin
-        CurrPage.SalesLines.PAGE.UpdateForm(true);
+        CurrPage.SalesLines.PAGE.UpdateForm(false);
     end;
 
     local procedure ShortcutDimension1CodeOnAfterV()
