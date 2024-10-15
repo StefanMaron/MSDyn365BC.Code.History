@@ -29,10 +29,16 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
     local procedure LookupVatRegistrationFromWebService(ShowErrors: Boolean)
     var
         TempBlobRequestBody: Codeunit "Temp Blob";
+        SuppressCommit: Boolean;
     begin
         SendRequestToVatRegistrationService(TempBlobRequestBody, ShowErrors);
 
         InsertLogEntry(TempBlobRequestBody);
+
+        SuppressCommit := false;
+        OnLookupVatRegistrationFromWebServiceOnAfterResponseLogRecordingAndBeforeCommit(VATRegistrationLog, ShowErrors, SuppressCommit);
+        if not SuppressCommit then
+            Commit();
     end;
 
     local procedure SendRequestToVatRegistrationService(var TempBlobBody: Codeunit "Temp Blob"; ShowErrors: Boolean)
@@ -109,6 +115,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
             AccountStreet := GetField(RecordRef, Customer.FieldName(Address));
             AccountPostCode := GetField(RecordRef, Customer.FieldName("Post Code"));
             AccountCity := GetField(RecordRef, Customer.FieldName(City));
+            OnPrepareSOAPRequestBodyOnBeforeSetAccountDetails(RecordRef, VATRegistrationLog, AccountName, AccountStreet, AccountPostCode, AccountCity);
             VATRegistrationLog.SetAccountDetails(AccountName, AccountStreet, AccountCity, AccountPostCode);
         end;
 
@@ -176,6 +183,16 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendRequestToVATRegistrationServiceBeforeShowErrors(var VATRegistrationLog: Record "VAT Registration Log"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareSOAPRequestBodyOnBeforeSetAccountDetails(var RecordRef: RecordRef; var VATRegistrationLog: Record "VAT Registration Log"; var AccountName: Text; var AccountStreet: Text; var AccountCity: Text; var AccountPostCode: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupVatRegistrationFromWebServiceOnAfterResponseLogRecordingAndBeforeCommit(VATRegistrationLog: Record "VAT Registration Log"; ShowErrors: Boolean; var SuppressCommit: Boolean)
     begin
     end;
 }

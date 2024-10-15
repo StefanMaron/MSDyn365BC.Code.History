@@ -12,7 +12,7 @@ codeunit 11000053 "Digipoort SaaS Communication" implements "DigiPoort Communica
         DigipoortTok: Label 'DigipoortTelemetryCategoryTok', Locked = true;
         ResponseErr: Label 'There was an error while connecting to the service. Error message: %1', Comment = '%1=Error message';
         RequestSuccessfulMsg: label 'Digiport request was submitted successfully', Locked = true;
-        RequestFailedMsg: label 'Digiport request failed with reason: %1', Locked = true;
+        RequestFailedMsg: label 'Digiport request failed with reason: %1, and error message: %2', Locked = true;
         SecretsMissingMsg: label 'Digiport Az Function secrets are  missing', Locked = true;
 
     [NonDebuggable]
@@ -56,7 +56,7 @@ codeunit 11000053 "Digipoort SaaS Communication" implements "DigiPoort Communica
         AzureFunctionsAuthentication: Codeunit "Azure Functions Authentication";
         AzureFunctionsResponse: Codeunit "Azure Functions Response";
         IAzurefunctionAuthentication: Interface "Azure Functions Authentication";
-        Response: Text;
+        Response, ErrorMsg : Text;
         ClientID, ClientSecret, ResourceUrL, Endpoint, AuthUrl : Text;
     begin
         GetAzFunctionSecrets(ClientID, ClientSecret, ResourceUrL, Endpoint, AuthUrl);
@@ -69,7 +69,8 @@ codeunit 11000053 "Digipoort SaaS Communication" implements "DigiPoort Communica
             Session.LogMessage('0000JP0', RequestSuccessfulMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
             exit(Response)
         end else begin
-            Session.LogMessage('0000JP1', StrSubstNo(RequestFailedMsg, AzureFunctionsResponse.GetError()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
+            AzureFunctionsResponse.GetError(ErrorMsg);
+            Session.LogMessage('0000JP1', StrSubstNo(RequestFailedMsg, AzureFunctionsResponse.GetError(), ErrorMsg), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
             Error(ResponseErr, AzureFunctionsResponse.GetError());
         end;
     end;

@@ -110,7 +110,6 @@ page 311 "Intrastat Journal"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transaction specification code for the item transaction on this journal line.';
-                    Visible = false;
                 }
                 field("Transport Method"; Rec."Transport Method")
                 {

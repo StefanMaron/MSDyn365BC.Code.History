@@ -40,10 +40,13 @@ report 11000000 "Get Proposal Entries"
                     DetailLine.InitRecord();
 
                     DetailLine.Validate("Serial No. (Entry)", "Entry No.");
-                    if DetailLine."Amount (Entry)" <> 0 then begin
-                        NumberOfDetailLines := NumberOfDetailLines + 1;
-                        DetailLine.Insert(true);
-                    end;
+					IsHandled := false;
+					OnCustomerLedgerEntryOnAfterValidateSerialNoEntry("Cust. Ledger Entry", DetailLine, "Value Date", PmtDiscExpiryDate, NumberOfDetailLines, IsHandled);
+					if not IsHandled then
+                        if DetailLine."Amount (Entry)" <> 0 then begin
+                            NumberOfDetailLines := NumberOfDetailLines + 1;
+                            DetailLine.Insert(true);
+                        end;
                 end;
 
                 trigger OnPreDataItem()
@@ -90,10 +93,13 @@ report 11000000 "Get Proposal Entries"
                     DetailLine.InitRecord();
 
                     DetailLine.Validate("Serial No. (Entry)", "Entry No.");
-                    if DetailLine."Amount (Entry)" <> 0 then begin
-                        NumberOfDetailLines := NumberOfDetailLines + 1;
-                        DetailLine.Insert(true);
-                    end;
+                    IsHandled := false;
+                    OnVendorLedgerEntryOnAfterValidateSerialNoEntry("Vendor Ledger Entry", DetailLine, "Value Date", PmtDiscExpiryDate, NumberOfDetailLines, IsHandled);
+                    if not IsHandled then
+                        if DetailLine."Amount (Entry)" <> 0 then begin
+                            NumberOfDetailLines := NumberOfDetailLines + 1;
+                            DetailLine.Insert(true);
+                        end;
                 end;
 
                 trigger OnPreDataItem()
@@ -126,10 +132,13 @@ report 11000000 "Get Proposal Entries"
                     DetailLine.InitRecord();
 
                     DetailLine.Validate("Serial No. (Entry)", "Entry No.");
-                    if DetailLine."Amount (Entry)" <> 0 then begin
-                        NumberOfDetailLines := NumberOfDetailLines + 1;
-                        DetailLine.Insert(true);
-                    end;
+                    IsHandled := false;
+                    OnEmployeeLedgerEntryOnAfterValidateSerialNoEntry("Employee Ledger Entry", DetailLine, "Value Date", PmtDiscExpiryDate, NumberOfDetailLines, IsHandled);
+                    if not IsHandled then
+                        if DetailLine."Amount (Entry)" <> 0 then begin
+                            NumberOfDetailLines := NumberOfDetailLines + 1;
+                            DetailLine.Insert(true);
+                        end;
                 end;
 
                 trigger OnPreDataItem()
@@ -462,6 +471,7 @@ report 11000000 "Get Proposal Entries"
         NumeratorDetailLines: Integer;
         BatchStatus: Dialog;
         Found: Boolean;
+        IsHandled: Boolean;
         NoOfErrors: Integer;
         NumberOfWarnings: Integer;
         "Value Date": Date;
@@ -557,6 +567,21 @@ report 11000000 "Get Proposal Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPreReportOnAfterCalcShouldShowPaymentReservationConfirm(ValueDate: Date; var ShouldShowPaymentReservationConfirm: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustomerLedgerEntryOnAfterValidateSerialNoEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailLine: Record "Detail Line"; ValueDate: Date; PmtDiscExpiryDate: Date; var NumberOfDetailLines: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendorLedgerEntryOnAfterValidateSerialNoEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailLine: Record "Detail Line"; ValueDate: Date; PmtDiscExpiryDate: Date; var NumberOfDetailLines: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEmployeeLedgerEntryOnAfterValidateSerialNoEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry"; var DetailLine: Record "Detail Line"; ValueDate: Date; PmtDiscExpiryDate: Date; var NumberOfDetailLines: Integer; var IsHandled: Boolean)
     begin
     end;
 }

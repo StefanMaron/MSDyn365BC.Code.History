@@ -59,6 +59,7 @@ codeunit 7314 "Warehouse Availability Mgt."
                 ReservQtyonInvt := 0;
         end;
 
+        OnAfterCalcLineReservedQtyOnInvt(ReservEntry, ReservQtyonInvt);
         exit(ReservQtyonInvt);
     end;
 
@@ -433,7 +434,13 @@ codeunit 7314 "Warehouse Availability Mgt."
         WhseShptLine: Record "Warehouse Shipment Line";
         Location: Record Location;
         TempBinContentBuffer: Record "Bin Content Buffer" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyOnOutboundBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBinContent, IsHandled, QtyOnOutboundBins);
+        if IsHandled then
+            exit(QtyOnOutboundBins);
+
         Location.Get(LocationCode);
         if not Location."Require Pick" then
             exit(0);
@@ -551,23 +558,16 @@ codeunit 7314 "Warehouse Availability Mgt."
         end;
 
         TempBinContentBuffer.Reset();
+
+        OnAfterGetOutboundBinsOnBasicWarehouseLocation(Location, TempBinContentBuffer, LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup);
     end;
 
     procedure CalcQtyOnSpecialBinsOnLocation(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; var TempBinContentBufferExcluded: Record "Bin Content Buffer" temporary) QtyOnSpecialBins: Decimal
     var
-        Location: Record Location;
         SpecialBins: List of [Code[20]];
         SpecialBin: Code[20];
     begin
-        Location.Get(LocationCode);
-
-        if Location."To-Assembly Bin Code" <> '' then
-            SpecialBins.Add(Location."To-Assembly Bin Code");
-        if (Location."Open Shop Floor Bin Code" <> '') and not SpecialBins.Contains(Location."Open Shop Floor Bin Code") then
-            SpecialBins.Add(Location."Open Shop Floor Bin Code");
-        if (Location."To-Production Bin Code" <> '') and not SpecialBins.Contains(Location."To-Production Bin Code") then
-            SpecialBins.Add(Location."To-Production Bin Code");
-
+        GetSpecialBins(SpecialBins, LocationCode);
         foreach SpecialBin in SpecialBins do begin
             TempBinContentBufferExcluded.SetRange("Location Code", LocationCode);
             TempBinContentBufferExcluded.SetRange("Bin Code", SpecialBin);
@@ -575,6 +575,21 @@ codeunit 7314 "Warehouse Availability Mgt."
                 QtyOnSpecialBins +=
                     CalcQtyOnBin(LocationCode, SpecialBin, ItemNo, VariantCode, WhseItemTrackingSetup);
         end;
+    end;
+
+    local procedure GetSpecialBins(var SpecialBins: List of [Code[20]]; LocationCode: Code[10])
+    var
+        Location: Record Location;
+    begin
+        Location.Get(LocationCode);
+        if Location."To-Assembly Bin Code" <> '' then
+            SpecialBins.Add(Location."To-Assembly Bin Code");
+        if (Location."Open Shop Floor Bin Code" <> '') and not SpecialBins.Contains(Location."Open Shop Floor Bin Code") then
+            SpecialBins.Add(Location."Open Shop Floor Bin Code");
+        if (Location."To-Production Bin Code" <> '') and not SpecialBins.Contains(Location."To-Production Bin Code") then
+            SpecialBins.Add(Location."To-Production Bin Code");
+
+        OnAfterGetSpecialBins(Location, SpecialBins);
     end;
 
     procedure CalcResidualPickedQty(var WhseEntry: Record "Warehouse Entry") Result: Decimal
@@ -919,6 +934,26 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyOnBlockedItemTracking(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var QtyBlocked: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLineReservedQtyOnInvt(var ReservationEntry: Record "Reservation Entry"; var ReservQtyonInvt: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyOnOutboundBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; ExcludeDedicatedBinContent: Boolean; var IsHandled: Boolean; var QtyOnOutboundBins: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetOutboundBinsOnBasicWarehouseLocation(Location: Record Location; var TempBinContentBuffer: Record "Bin Content Buffer" temporary; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSpecialBins(Location: Record Location; var SpecialBins: List of [Code[20]])
     begin
     end;
 }

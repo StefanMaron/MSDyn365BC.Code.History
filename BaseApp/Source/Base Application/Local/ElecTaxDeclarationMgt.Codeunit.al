@@ -49,6 +49,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     [NonDebuggable]
     procedure SubmitDeclaration(XmlContent: Text; MessageType: Text; IdentityType: Text; IdentityNumber: Text; Reference: Text; RequestUrl: Text; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text): Text
     var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         DigipoortCommunication: Codeunit "Digipoort Communication";
         Window: Dialog;
         Request: DotNet aanleverRequest;
@@ -89,7 +90,9 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         if GuiAllowed then
             Window.Update(1, WindowStatusSendMsg);
 
-        DigipoortCommunication.Deliver(Request, Response, RequestUrl, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64, 30, false);
+        if ElecTaxDeclarationSetup.Get() then;
+
+        DigipoortCommunication.Deliver(Request, Response, RequestUrl, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64, 30, ElecTaxDeclarationSetup."Use Certificate Setup");
 
         Fault := Response.statusFoutcode();
 
@@ -166,6 +169,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     [NonDebuggable]
     procedure ReceiveResponse(MessageID: Text; ResponseUrl: Text; ResponseNo: Integer; VAR ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg."; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text)
     var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         DigipoortCommunication: Codeunit "Digipoort Communication";
         Request: DotNet getStatussenProcesRequest;
         StatusResultatQueue: DotNet Queue;
@@ -182,7 +186,9 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         Request.kenmerk := MessageID;
         Request.autorisatieAdres := 'http://geenausp.nl';
 
-        DigipoortCommunication.GetStatus(Request, StatusResultatQueue, ResponseUrl, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64, 30, false);
+        if ElecTaxDeclarationSetup.Get() then;
+
+        DigipoortCommunication.GetStatus(Request, StatusResultatQueue, ResponseUrl, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64, 30, ElecTaxDeclarationSetup."Use Certificate Setup");
 
         Window.Update(1, WindowStatusProcessingMsg);
         ElecTaxDeclResponseMsg.Reset();

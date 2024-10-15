@@ -3108,17 +3108,17 @@ End Function
         <Field Name="NoOfRecordsCaption">
           <DataField>NoOfRecordsCaption</DataField>
         </Field>
-        <Field Name="CountryRegionofOriginCode_IntrastatJnlLine">
-          <DataField>CountryRegionofOriginCode_IntrastatJnlLine</DataField>
-        </Field>
-        <Field Name="PartnerVATID_IntrastatJnlLine">
-          <DataField>PartnerVATID_IntrastatJnlLine</DataField>
-        </Field>
         <Field Name="TransactionSpecificationCaption">
           <DataField>TransactionSpecificationCaption</DataField>
         </Field>
         <Field Name="IntraJnlLine_TransactionSpecification">
           <DataField>IntraJnlLine_TransactionSpecification</DataField>
+        </Field>
+        <Field Name="CountryRegionofOriginCode_IntrastatJnlLine">
+          <DataField>CountryRegionofOriginCode_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="PartnerVATID_IntrastatJnlLine">
+          <DataField>PartnerVATID_IntrastatJnlLine</DataField>
         </Field>
       </Fields>
       <Query>

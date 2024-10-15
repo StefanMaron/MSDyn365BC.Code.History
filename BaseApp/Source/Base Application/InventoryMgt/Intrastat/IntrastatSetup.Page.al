@@ -22,11 +22,13 @@ page 328 "Intrastat Setup"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that you must include arrivals of received goods in Intrastat reports.';
+                    Visible = false;
                 }
                 field("Report Shipments"; Rec."Report Shipments")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that you must include shipments of dispatched items in Intrastat reports.';
+                    Visible = false;
                 }
                 field("Intrastat Contact Type"; Rec."Intrastat Contact Type")
                 {

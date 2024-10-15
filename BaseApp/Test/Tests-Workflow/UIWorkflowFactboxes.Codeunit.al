@@ -122,7 +122,6 @@ codeunit 134339 "UI Workflow Factboxes"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure LineWorkflowStatusFactboxIsVisibleOnCashRcptJnlPageWhenSentOnApproval()
     var
@@ -276,7 +275,6 @@ codeunit 134339 "UI Workflow Factboxes"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure LineWorkflowStatusFactboxIsVisibleOnPmtJnlPageWhenSentOnApproval()
     var

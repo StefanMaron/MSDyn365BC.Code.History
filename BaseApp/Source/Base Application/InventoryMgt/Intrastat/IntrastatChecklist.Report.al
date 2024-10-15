@@ -205,20 +205,6 @@ report 502 "Intrastat - Checklist"
 
                     if GetFilter(Type) <> '' then
                         exit;
-
-                    if not IntrastatSetup.Get() then
-                        exit;
-
-                    if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
-                        SetRange(Type)
-                    else
-                        if IntrastatSetup."Report Receipts" then
-                            SetRange(Type, Type::Receipt)
-                        else
-                            if IntrastatSetup."Report Shipments" then
-                                SetRange(Type, Type::Shipment)
-                            else
-                                Error(NoValuesErr);
                 end;
             }
 
@@ -290,7 +276,6 @@ report 502 "Intrastat - Checklist"
         GLSetup: Record "General Ledger Setup";
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatSetup: Record "Intrastat Setup";
         IntraJnlManagement: Codeunit IntraJnlManagement;
         NoOfRecords: Integer;
         NoOfRecordsRTC: Integer;
@@ -312,6 +297,5 @@ report 502 "Intrastat - Checklist"
         TransactionMethodCaptionLbl: Label 'Transport Method';
         NoOfEntriesCaptionLbl: Label 'No. of Combined Entries';
         TotalCaptionLbl: Label 'Total';
-        NoValuesErr: Label 'There are no values to report as per Intrastat Setup.';
 }
 #endif

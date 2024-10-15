@@ -2529,6 +2529,8 @@ page 21 "Customer Card"
 
     trigger OnOpenPage()
     begin
+        OnBeforeOnOpenPage(Rec);
+
         if Rec.GetFilter("Date Filter") = '' then
             SetRange("Date Filter", 0D, WorkDate());
         if GuiAllowed() then
@@ -2931,6 +2933,11 @@ page 21 "Customer Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCustomerFromTemplateOnBeforeCurrPageUpdate(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var Customer: Record Customer)
     begin
     end;
 }

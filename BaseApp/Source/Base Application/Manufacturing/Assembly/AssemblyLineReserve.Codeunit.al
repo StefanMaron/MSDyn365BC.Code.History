@@ -20,7 +20,13 @@ codeunit 926 "Assembly Line-Reserve"
     procedure CreateReservation(AssemblyLine: Record "Assembly Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateReservation(AssemblyLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry, FromTrackingSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text001);
 
@@ -647,6 +653,11 @@ codeunit 926 "Assembly Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var AssemblyLine: Record "Assembly Line"; var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReservation(AssemblyLine: Record "Assembly Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry"; FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 }
