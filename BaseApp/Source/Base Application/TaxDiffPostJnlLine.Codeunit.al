@@ -278,7 +278,7 @@ codeunit 17301 "Tax Diff.-Post Jnl. Line"
                     repeat
                         if FALedgerEntry."Depr. Bonus Recovery Date" <> 0D then
                             Error(Text1006, "Source No.");
-                    until FALedgerEntry.Next = 0;
+                    until FALedgerEntry.Next() = 0;
                 FALedgerEntry.ModifyAll("Depr. Bonus Recovery Date", "Posting Date");
             end;
     end;

@@ -15,7 +15,7 @@ table 12428 "Default Signature Setup"
                 if not
                    ("Table ID" in [
                                    DATABASE::"Sales Header", DATABASE::"Purchase Header", DATABASE::"Transfer Header",
-                                   DATABASE::"Item Document Header", DATABASE::"FA Document Header"])
+                                   DATABASE::"Invt. Document Header", DATABASE::"FA Document Header"])
                 then
                     Error(Text001, "Table ID");
             end;
@@ -48,7 +48,7 @@ table 12428 "Default Signature Setup"
         }
         field(8; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table ID")));
             Caption = 'Table Name';
             Editable = false;

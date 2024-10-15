@@ -50,7 +50,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify
         with JobPlanningLine do begin
             SetRange("Schedule Line", true);
-            FindSet;
+            FindSet();
             repeat
                 Assert.IsTrue("Usage Link", FieldCaption("Usage Link"));
                 Validate("Usage Link", false);
@@ -92,7 +92,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify
         with JobPlanningLine do begin
             SetRange("Schedule Line", true);
-            FindSet;
+            FindSet();
             repeat
                 Assert.IsFalse("Usage Link", 'Usage link for line type that includes budget');
                 Validate("Usage Link", true);
@@ -338,7 +338,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.PurchaseConsumption)
     end;
 
-    local procedure UseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Option; ApplyUsageLink: Boolean; Source: Option)
+    local procedure UseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Enum "Job Planning Line Line Type"; ApplyUsageLink: Boolean; Source: Option)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -532,7 +532,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         PartialUseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, true)
     end;
 
-    local procedure PartialUseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
+    local procedure PartialUseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Enum "Job Planning Line Line Type"; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -808,7 +808,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeBoth, false)
     end;
 
-    local procedure UseMatched(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
+    local procedure UseMatched(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Enum "Job Line Type"; LineTypeToMatch: Enum "Job Line Type"; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1068,7 +1068,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     end;
 
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
-    local procedure PartialUseMatched(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
+    local procedure PartialUseMatched(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Enum "Job Planning Line Line Type"; LineTypeToMatch: Enum "Job Planning Line Line Type"; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1230,7 +1230,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         ExcessUseMatched(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, true)
     end;
 
-    local procedure ExcessUseMatched(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
+    local procedure ExcessUseMatched(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Enum "Job Planning Line Line Type"; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1360,7 +1360,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobLedgerEntry.FindFirst;
         JobPlanningLine.SetRange(Description, JobPlanningLine.Description);
         Assert.AreEqual(LineCount, JobPlanningLine.Count, 'The original planning lines should be in the filter');
-        JobPlanningLine.FindSet;
+        JobPlanningLine.FindSet();
         repeat
             VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
             VerifyJobPlanningLineDone(JobPlanningLine)
@@ -1396,7 +1396,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         UsageLinkNoMatch(LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
     end;
 
-    local procedure UsageLinkNoMatch(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Option)
+    local procedure UsageLinkNoMatch(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Enum "Job Line Type")
     var
         Job: Record Job;
         JobTask: Record "Job Task";

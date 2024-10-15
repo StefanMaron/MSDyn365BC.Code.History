@@ -8,13 +8,13 @@ codeunit 6520 "Item Tracing Mgt."
     var
         FirstLevelEntries: Record "Item Tracing Buffer" temporary;
         TempTraceHistory: Record "Item Tracing History Buffer" temporary;
-        SearchCriteria: Option "None",Lot,Serial,Both,Item,CD;
+        SearchCriteria: Option "None",Lot,Serial,Both,Item,Package;
         TempLineNo: Integer;
         CurrentLevel: Integer;
         NextLineNo: Integer;
         CurrentHistoryEntryNo: Integer;
 
-    procedure FindRecords(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Code[1000]; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
+    procedure FindRecords(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
     begin
         DeleteTempTables(TempTrackEntry, TempTrackEntry2);
         InitSearchCriteria(SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter);
@@ -25,7 +25,7 @@ codeunit 6520 "Item Tracing Mgt."
         UpdateHistory(SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
     end;
 
-    local procedure FirstLevel(var TempTrackEntry: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Code[1000]; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
+    local procedure FirstLevel(var TempTrackEntry: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemLedgEntry2: Record "Item Ledger Entry";
@@ -46,8 +46,8 @@ codeunit 6520 "Item Tracing Mgt."
                         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive,
                           "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.");
             SearchCriteria::Lot,
-          SearchCriteria::CD,
-          SearchCriteria::Both:
+            SearchCriteria::Package,
+            SearchCriteria::Both:
                 if not ItemLedgEntry.SetCurrentKey("Lot No.") then
                     if ItemNoFilter <> '' then
                         ItemLedgEntry.SetCurrentKey("Item No.")
@@ -60,7 +60,7 @@ codeunit 6520 "Item Tracing Mgt."
 
         ItemLedgEntry.SetFilter("Lot No.", LotNoFilter);
         ItemLedgEntry.SetFilter("Serial No.", SerialNoFilter);
-        ItemLedgEntry.SetFilter("CD No.", CDNoFilter);
+        ItemLedgEntry.SetFilter("Package No.", CDNoFilter);
         ItemLedgEntry.SetFilter("Item No.", ItemNoFilter);
         ItemLedgEntry.SetFilter("Variant Code", VariantFilter);
         if Direction = Direction::Forward then
@@ -80,7 +80,7 @@ codeunit 6520 "Item Tracing Mgt."
                 FirstLevelEntries."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
                 OnFirstLevelOnBeforeInsertFirstLevelEntry(FirstLevelEntries, ItemLedgEntry);
                 FirstLevelEntries.Insert();
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
 
         case SearchCriteria of
             SearchCriteria::None:
@@ -88,11 +88,11 @@ codeunit 6520 "Item Tracing Mgt."
             SearchCriteria::Serial:
                 FirstLevelEntries.SetCurrentKey("Serial No.", "Item Ledger Entry No.");
             SearchCriteria::Lot,
-          SearchCriteria::Both:
+            SearchCriteria::Both:
                 FirstLevelEntries.SetCurrentKey("Lot No.", "Item Ledger Entry No.");
             SearchCriteria::Item:
                 FirstLevelEntries.SetCurrentKey("Item No.", "Item Ledger Entry No.");
-            SearchCriteria::CD:
+            SearchCriteria::Package:
                 FirstLevelEntries.SetCurrentKey("Item No.", "Item Ledger Entry No.");
         end;
 
@@ -126,8 +126,8 @@ codeunit 6520 "Item Tracing Mgt."
 
                     if SearchCriteria = SearchCriteria::Item then
                         ItemLedgEntry2.SetRange("Item No.", ItemLedgEntry."Item No.");
-                    if SearchCriteria = SearchCriteria::CD then
-                        ItemLedgEntry2.SetRange("CD No.", ItemLedgEntry."CD No.");
+                    if SearchCriteria = SearchCriteria::Package then
+                        ItemLedgEntry2.SetRange("Package No.", ItemLedgEntry."Package No.");
 
                     TransferData(ItemLedgEntry2, TempTrackEntry);
                     OnFirstLevelOnAfterTransferData(TempTrackEntry);
@@ -137,10 +137,10 @@ codeunit 6520 "Item Tracing Mgt."
                         NextLevel(TempTrackEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry2."Entry No.");
                     end;
                 end;
-            until (FirstLevelEntries.Next = 0) or (CurrentLevel > 50);
+            until (FirstLevelEntries.Next() = 0) or (CurrentLevel > 50);
     end;
 
-    local procedure NextLevel(var TempTrackEntry: Record "Item Tracing Buffer"; TempTrackEntry2: Record "Item Tracing Buffer"; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer)
+    procedure NextLevel(var TempTrackEntry: Record "Item Tracing Buffer"; TempTrackEntry2: Record "Item Tracing Buffer"; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemApplnEntry: Record "Item Application Entry";
@@ -201,12 +201,12 @@ codeunit 6520 "Item Tracing Mgt."
                                 NextLevel(TempTrackEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry."Entry No.");
                             end;
                         end;
-                until (TrackNo = 0) or (ItemApplnEntry.Next = 0);
+                until (TrackNo = 0) or (ItemApplnEntry.Next() = 0);
         end;
         CurrentLevel -= 1;
     end;
 
-    local procedure FindComponents(var ItemLedgEntry2: Record "Item Ledger Entry"; var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer)
+    procedure FindComponents(var ItemLedgEntry2: Record "Item Ledger Entry"; var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         IsHandled: Boolean;
@@ -249,7 +249,7 @@ codeunit 6520 "Item Tracing Mgt."
                                         NextLevel(TempItemTracingBuffer, TempItemTracingBuffer, Direction, ShowComponents, ItemLedgEntry."Entry No.");
                                     CurrentLevel -= 1;
                                 end;
-                            until ItemLedgEntry.Next = 0;
+                            until ItemLedgEntry.Next() = 0;
                     end;
                     ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Output,
                       ItemLedgEntry."Entry Type"::"Assembly Output");
@@ -271,13 +271,13 @@ codeunit 6520 "Item Tracing Mgt."
                             if InsertRecord(TempItemTracingBuffer, ParentID) then
                                 NextLevel(TempItemTracingBuffer, TempItemTracingBuffer, Direction, ShowComponents, ItemLedgEntry."Entry No.");
                         end;
-                    until ItemLedgEntry.Next = 0;
+                    until ItemLedgEntry.Next() = 0;
                 CurrentLevel -= 1;
             end;
         end;
     end;
 
-    local procedure InsertRecord(var TempTrackEntry: Record "Item Tracing Buffer"; ParentID: Integer): Boolean
+    procedure InsertRecord(var TempTrackEntry: Record "Item Tracing Buffer"; ParentID: Integer): Boolean
     var
         TempTrackEntry2: Record "Item Tracing Buffer";
         ProductionOrder: Record "Production Order";
@@ -356,17 +356,17 @@ codeunit 6520 "Item Tracing Mgt."
             repeat
                 TempTrackEntry2 := TempTrackEntry;
                 TempTrackEntry2.Insert();
-            until TempTrackEntry.Next = 0;
+            until TempTrackEntry.Next() = 0;
     end;
 
     local procedure DeleteTempTables(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer")
     begin
         Clear(TempTrackEntry);
-        if not TempTrackEntry.IsEmpty then
+        if not TempTrackEntry.IsEmpty() then
             TempTrackEntry.DeleteAll();
 
         Clear(TempTrackEntry2);
-        if not TempTrackEntry2.IsEmpty then
+        if not TempTrackEntry2.IsEmpty() then
             TempTrackEntry2.DeleteAll();
     end;
 
@@ -379,7 +379,7 @@ codeunit 6520 "Item Tracing Mgt."
             repeat
                 TempTrackEntry2 := TempTrackEntry;
                 TempTrackEntry2.Insert();
-            until TempTrackEntry.Next = 0;
+            until TempTrackEntry.Next() = 0;
     end;
 
     local procedure IsExpanded(ActualTrackingLine: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"): Boolean
@@ -401,13 +401,13 @@ codeunit 6520 "Item Tracing Mgt."
     begin
         TempTrackEntry.Reset();
         TempTrackEntry := ActualTrackingLine;
-        if TempTrackEntry.Next = 0 then
+        if TempTrackEntry.Next() = 0 then
             exit(false);
 
         exit(TempTrackEntry.Level > ActualTrackingLine.Level);
     end;
 
-    local procedure TransferData(var ItemLedgEntry: Record "Item Ledger Entry"; var TempTrackEntry: Record "Item Tracing Buffer")
+    procedure TransferData(var ItemLedgEntry: Record "Item Ledger Entry"; var TempTrackEntry: Record "Item Tracing Buffer")
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -453,7 +453,7 @@ codeunit 6520 "Item Tracing Mgt."
         OnAfterTransferData(ItemLedgEntry, TempTrackEntry);
     end;
 
-    procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Code[1000]; ItemNoFilter: Text)
+    procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Text; ItemNoFilter: Text)
     begin
         if (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (CDNoFilter = '') then
             SearchCriteria := SearchCriteria::None
@@ -471,22 +471,22 @@ codeunit 6520 "Item Tracing Mgt."
                         SearchCriteria := SearchCriteria::Item
                     else
                         if CDNoFilter <> '' then
-                            SearchCriteria := SearchCriteria::CD;
+                            SearchCriteria := SearchCriteria::Package;
     end;
 
-    procedure InitSearchParm(var Rec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Code[1000]; var ItemNoFilter: Text; var VariantFilter: Text)
+    procedure InitSearchParm(var Rec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text)
     var
         ItemTrackingEntry: Record "Item Tracing Buffer";
     begin
         with Rec do begin
             ItemTrackingEntry.SetRange("Serial No.", "Serial No.");
             ItemTrackingEntry.SetRange("Lot No.", "Lot No.");
-            ItemTrackingEntry.SetRange("CD No.", "CD No.");
+            ItemTrackingEntry.SetRange("Package No.", "Package No.");
             ItemTrackingEntry.SetRange("Item No.", "Item No.");
             ItemTrackingEntry.SetRange("Variant Code", "Variant Code");
             SerialNoFilter := ItemTrackingEntry.GetFilter("Serial No.");
             LotNoFilter := ItemTrackingEntry.GetFilter("Lot No.");
-            CDNoFilter := ItemTrackingEntry.GetFilter("CD No.");
+            CDNoFilter := ItemTrackingEntry.GetFilter("Package No.");
             ItemNoFilter := ItemTrackingEntry.GetFilter("Item No.");
             VariantFilter := ItemTrackingEntry.GetFilter("Variant Code");
         end;
@@ -806,14 +806,14 @@ codeunit 6520 "Item Tracing Mgt."
             Clear(ItemTrackingCode);
     end;
 
-    procedure SpecificTracking(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; LocationCode: Code[20]): Boolean
+    procedure SpecificTracking(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[50]; LocationCode: Code[20]): Boolean
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         GetItemTrackingCode(ItemTrackingCode, ItemNo);
         if ((SerialNo <> '') and ItemTrackingCode."SN Specific Tracking") or
            ((LotNo <> '') and ItemTrackingCode."Lot Specific Tracking") or
-           ((CDNo <> '') and ItemTrackingCode."CD Specific Tracking")
+           ((CDNo <> '') and ItemTrackingCode."Package Specific Tracking")
         then
             exit(true);
 
@@ -823,11 +823,11 @@ codeunit 6520 "Item Tracing Mgt."
     local procedure ExitLevel(TempTrackEntry: Record "Item Tracing Buffer"): Boolean
     begin
         with TempTrackEntry do begin
-            if ("Serial No." = '') and ("Lot No." = '') and ("CD No." = '') then
+            if ("Serial No." = '') and ("Lot No." = '') and ("Package No." = '') then
                 exit(true);
             if CurrentLevel > 50 then
                 exit(true);
-            if not SpecificTracking("Item No.", "Serial No.", "Lot No.", "CD No.", "Location Code") then
+            if not SpecificTracking("Item No.", "Serial No.", "Lot No.", "Package No.", "Location Code") then
                 exit(true);
             if "Already Traced" then
                 exit(true);
@@ -836,7 +836,7 @@ codeunit 6520 "Item Tracing Mgt."
         exit(false);
     end;
 
-    local procedure UpdateHistory(SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Code[1000]; ItemNoFilter: Text; VariantFilter: Text; TraceMethod: Option "Origin->Usage","Usage->Origin"; ShowComponents: Option No,"Item-tracked only",All) OK: Boolean
+    local procedure UpdateHistory(SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; TraceMethod: Option "Origin->Usage","Usage->Origin"; ShowComponents: Option No,"Item-tracked only",All) OK: Boolean
     var
         LevelCount: Integer;
         ExtFilterExists: Boolean;
@@ -855,7 +855,7 @@ codeunit 6520 "Item Tracing Mgt."
 
                 "Serial No. Filter" := CopyStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
                 "Lot No. Filter" := CopyStr(LotNoFilter, 1, MaxStrLen("Lot No. Filter"));
-                "CD No. Filter" := CopyStr(LotNoFilter, 1, MaxStrLen("CD No. Filter"));
+                "Package No. Filter" := CopyStr(LotNoFilter, 1, MaxStrLen("Package No. Filter"));
                 "Item No. Filter" := CopyStr(ItemNoFilter, 1, MaxStrLen("Item No. Filter"));
                 "Variant Filter" := CopyStr(VariantFilter, 1, MaxStrLen("Variant Filter"));
 
@@ -869,7 +869,7 @@ codeunit 6520 "Item Tracing Mgt."
                 LevelCount += 1;
                 SerialNoFilter := DelStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
                 LotNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("Lot No. Filter"));
-                CDNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("CD No. Filter"));
+                CDNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("Package No. Filter"));
                 ItemNoFilter := DelStr(ItemNoFilter, 1, MaxStrLen("Item No. Filter"));
                 VariantFilter := DelStr(VariantFilter, 1, MaxStrLen("Variant Filter"));
             until (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (VariantFilter = '') and
@@ -879,7 +879,7 @@ codeunit 6520 "Item Tracing Mgt."
         OK := true;
     end;
 
-    procedure RecallHistory(Steps: Integer; var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Code[1000]; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
+    procedure RecallHistory(Steps: Integer; var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
     begin
         if not RetrieveHistoryData(CurrentHistoryEntryNo + Steps,
              SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents)
@@ -896,7 +896,7 @@ codeunit 6520 "Item Tracing Mgt."
         exit(true);
     end;
 
-    local procedure RetrieveHistoryData(EntryNo: Integer; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Code[1000]; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
+    local procedure RetrieveHistoryData(EntryNo: Integer; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
     begin
         with TempTraceHistory do begin
             Reset;
@@ -908,7 +908,7 @@ codeunit 6520 "Item Tracing Mgt."
                 if Level = 0 then begin
                     SerialNoFilter := "Serial No. Filter";
                     LotNoFilter := "Lot No. Filter";
-                    CDNoFilter := "CD No. Filter";
+                    CDNoFilter := "Package No. Filter";
                     ItemNoFilter := "Item No. Filter";
                     VariantFilter := "Variant Filter";
                     TraceMethod := "Trace Method";
@@ -916,12 +916,12 @@ codeunit 6520 "Item Tracing Mgt."
                 end else begin
                     SerialNoFilter := SerialNoFilter + "Serial No. Filter";
                     LotNoFilter := LotNoFilter + "Lot No. Filter";
-                    CDNoFilter := CDNoFilter + "CD No. Filter";
+                    CDNoFilter := CDNoFilter + "Package No. Filter";
                     ItemNoFilter := ItemNoFilter + "Item No. Filter";
                     VariantFilter := VariantFilter + "Variant Filter";
                 end;
                 OnRetrieveHistoryDataOnAfterTraceHistoryLine(TempTraceHistory);
-            until Next = 0;
+            until Next() = 0;
             exit(true);
         end;
     end;
@@ -945,6 +945,18 @@ codeunit 6520 "Item Tracing Mgt."
                 then
                     exit(true);
         exit(false);
+    end;
+
+    procedure SetVariables(NewTempLineNo: Integer; NewCurrentLevel: Integer)
+    begin
+        TempLineNo := NewTempLineNo;
+        CurrentLevel := NewCurrentLevel;
+    end;
+
+    procedure GetVariables(var NewTempLineNo: Integer; var NewCurrentLevel: Integer)
+    begin
+        NewTempLineNo := TempLineNo;
+        NewCurrentLevel := CurrentLevel;
     end;
 
     [IntegrationEvent(false, false)]

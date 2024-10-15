@@ -102,7 +102,7 @@ report 12475 "Purchase Receipt M-4"
                                     InventoryReportsHelper.InsertBuffer(InvPostBuffer, VendPostingGroup."Payables Account", AccNo);
                                 end;
                         end;
-                    until PurchLine.Next = 0;
+                    until PurchLine.Next() = 0;
 
                 CheckSignature(ReleasedBy, ReleasedBy."Employee Type"::ReleasedBy);
                 CheckSignature(ReceivedBy, ReceivedBy."Employee Type"::ReceivedBy);

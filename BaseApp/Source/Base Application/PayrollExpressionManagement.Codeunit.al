@@ -130,7 +130,7 @@ codeunit 17414 "Payroll Expression Management"
                           DelChr(Format(PayrollDocLineExpr.Operator));
                     end;
                     PrevPayrollDocLineExpr := PayrollDocLineExpr;
-                until PayrollDocLineExpr.Next = 0;
+                until PayrollDocLineExpr.Next() = 0;
 
             if ExprResult <> '' then
                 DecimalResult := PayrollDocLineExpr.Rounding(CalcResultExpr(ExprResult));
@@ -586,7 +586,7 @@ codeunit 17414 "Payroll Expression Management"
                 repeat
                     if Value = PayrollDocLineVar.Value then
                         Error(Text031, Variable, Value);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

@@ -36,7 +36,7 @@ table 6504 "Serial No. Information"
             CalcFormula = Exist ("Item Tracking Comment" WHERE(Type = CONST("Serial No."),
                                                                "Item No." = FIELD("Item No."),
                                                                "Variant Code" = FIELD("Variant Code"),
-                                                               "Serial/Lot/CD No." = FIELD("Serial No.")));
+                                                               "Serial/Lot No." = FIELD("Serial No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -106,7 +106,7 @@ table 6504 "Serial No. Information"
         ItemTrackingComment.SetRange(Type, ItemTrackingComment.Type::"Serial No.");
         ItemTrackingComment.SetRange("Item No.", "Item No.");
         ItemTrackingComment.SetRange("Variant Code", "Variant Code");
-        ItemTrackingComment.SetRange("Serial/Lot/CD No.", "Serial No.");
+        ItemTrackingComment.SetRange("Serial/Lot No.", "Serial No.");
         ItemTrackingComment.DeleteAll();
     end;
 

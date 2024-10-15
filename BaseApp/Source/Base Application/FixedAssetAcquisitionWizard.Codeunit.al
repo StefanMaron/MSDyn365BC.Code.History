@@ -79,18 +79,16 @@ codeunit 5550 "Fixed Asset Acquisition Wizard"
         exit('FixedAssetNo');
     end;
 
-    [EventSubscriber(ObjectType::Page, 5600, 'OnClosePageEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RecallNotificationAboutFAAcquisitionWizardOnFixedAssetCard(var Rec: Record "Fixed Asset")
+    [EventSubscriber(ObjectType::Page, Page::"Fixed Asset Card", 'OnClosePageEvent', '', false, false)]
+    local procedure RecallNotificationAboutFAAcquisitionWizardOnFixedAssetCard(var Rec: Record "Fixed Asset")
     var
         FixedAsset: Record "Fixed Asset";
     begin
         FixedAsset.RecallNotificationForCurrentUser;
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
-    [Scope('OnPrem')]
-    procedure EnableSaaSNotificationPreferenceSetupOnInitializingNotificationWithDefaultState()
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableSaaSNotificationPreferenceSetupOnInitializingNotificationWithDefaultState()
     var
         FixedAsset: Record "Fixed Asset";
     begin

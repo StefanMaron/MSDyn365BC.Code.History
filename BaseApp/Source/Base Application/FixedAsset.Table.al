@@ -202,9 +202,9 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(23; "Maintenance Vendor No."; Code[20])
         {
@@ -283,7 +283,7 @@ table 5600 "Fixed Asset"
                                 FADeprBook."Straight-Line %" := DepreciationCode."Depreciation Quota";
                                 FADeprBook.Validate("No. of Depreciation Years", DepreciationCode."Service Life");
                                 FADeprBook.Modify();
-                            until FADeprBook.Next = 0;
+                            until FADeprBook.Next() = 0;
                     end;
             end;
         }
@@ -365,7 +365,7 @@ table 5600 "Fixed Asset"
                             repeat
                                 if FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"DB/SL-RU Tax Group" then
                                     FADeprBook.FieldError("Depreciation Method");
-                            until FADeprBook.Next = 0;
+                            until FADeprBook.Next() = 0;
                     end;
                 end;
             end;
@@ -615,12 +615,6 @@ table 5600 "Fixed Asset"
             Caption = 'Accrued Depr. Amount';
             MinValue = 0;
         }
-        field(14900; "CD No."; Code[30])
-        {
-            Caption = 'CD No.';
-            TableRelation = "CD No. Information"."CD No." WHERE(Type = CONST("Fixed Asset"),
-                                                                 "No." = FIELD("No."));
-        }
         field(14921; "Assessed Tax Code"; Code[20])
         {
             Caption = 'Assessed Tax Code';
@@ -775,7 +769,7 @@ table 5600 "Fixed Asset"
         FAMoveEntries.MoveFAInsuranceEntries("No.");
         FADeprBook.SetRange("FA No.", "No.");
         FADeprBook.DeleteAll(true);
-        if not FADeprBook.IsEmpty then
+        if not FADeprBook.IsEmpty() then
             Error(Text001, TableCaption, "No.");
 
         MainAssetComp.SetCurrentKey("FA No.");
@@ -1055,7 +1049,7 @@ table 5600 "Fixed Asset"
                     TaxDiffFABuffer."Tax Amount" += TaxDiffLedgerEntry."Tax Amount";
                     TaxDiffFABuffer.Modify();
                 end;
-            until TaxDiffLedgerEntry.Next = 0;
+            until TaxDiffLedgerEntry.Next() = 0;
 
         TaxDiffFABuffer.SetRange("FA No.", "No.");
         FATaxDifferences.SetTableView(TaxDiffFABuffer);

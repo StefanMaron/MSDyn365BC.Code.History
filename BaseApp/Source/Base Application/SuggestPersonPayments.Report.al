@@ -49,8 +49,8 @@ report 17455 "Suggest Person Payments"
                                     if PaymentAmount <> 0 then
                                         CreateJnlLine;
                                 end;
-                            until PostedPayrollDoc.Next = 0;
-                    until Employee.Next = 0;
+                            until PostedPayrollDoc.Next() = 0;
+                    until Employee.Next() = 0;
             end;
 
             trigger OnPreDataItem()

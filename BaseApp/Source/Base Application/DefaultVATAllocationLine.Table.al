@@ -247,7 +247,7 @@ table 14926 "Default VAT Allocation Line"
             SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
             SetFilter("Line No.", '<>%1', "Line No.");
             SetRange(Type, Type::VAT);
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 Rec := DefaultVATAllocationLine;
                 Type := Type::WriteOff;
             end else

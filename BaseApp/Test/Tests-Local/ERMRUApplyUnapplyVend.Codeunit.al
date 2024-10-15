@@ -166,7 +166,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
             SetRange("Entry Type", EntryType);
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
-            FindSet;
+            FindSet();
         end;
     end;
 

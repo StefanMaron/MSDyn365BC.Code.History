@@ -907,7 +907,7 @@
         BankAccReconciliationLine.SetRange("Statement No.", "Statement No.");
         BankAccReconciliationLine.SetRange("Data Exch. Entry No.", "Data Exch. Entry No.");
         BankAccReconciliationLine.SetFilter("Statement Line No.", '<>%1', "Statement Line No.");
-        if BankAccReconciliationLine.IsEmpty then
+        if BankAccReconciliationLine.IsEmpty() then
             DataExchField.DeleteRelatedRecords("Data Exch. Entry No.", 0);
     end;
 
@@ -963,7 +963,7 @@
                     if KPPCode <> '' then
                         Vend.SetRange("KPP Code", KPPCode);
                     VendorFound := Vend.FindFirst;
-                until (VendBankAcc.Next = 0) or VendorFound;
+                until (VendBankAcc.Next() = 0) or VendorFound;
 
             CustBankAcc.Reset();
             CustBankAcc.SetCurrentKey("Bank Account No.");
@@ -977,7 +977,7 @@
                     if KPPCode <> '' then
                         Cust.SetRange("KPP Code", KPPCode);
                     CustomerFound := Cust.FindFirst;
-                until (CustBankAcc.Next = 0) or CustomerFound;
+                until (CustBankAcc.Next() = 0) or CustomerFound;
 
             BankAccountDetail.Reset();
             BankAccountDetail.SetRange("Bank Account No.", BankAccountNo);
@@ -1152,7 +1152,7 @@
         if FindSet then
             repeat
                 AcceptApplication;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure RejectAppliedPaymentEntriesSelectedLines()
@@ -1160,7 +1160,7 @@
         if FindSet then
             repeat
                 RejectAppliedPayment;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure RejectAppliedPayment()
@@ -1211,7 +1211,7 @@
                         if BankAccLedgEntry.Find('-') then
                             repeat
                                 BankAccSetStmtNo.RemoveReconNo(BankAccLedgEntry, Rec, true);
-                            until BankAccLedgEntry.Next = 0;
+                            until BankAccLedgEntry.Next() = 0;
                         "Applied Entries" := 0;
                         Validate("Applied Amount", 0);
                         Modify;
@@ -1231,7 +1231,7 @@
                         if CheckLedgEntry.Find('-') then
                             repeat
                                 CheckSetStmtNo.RemoveReconNo(CheckLedgEntry, Rec, true);
-                            until CheckLedgEntry.Next = 0;
+                            until CheckLedgEntry.Next() = 0;
                         "Applied Entries" := 0;
                         Validate("Applied Amount", 0);
                         "Check No." := '';
@@ -1624,7 +1624,7 @@
                         else
                             AppliedNumbers := AppliedNumbers + SeparatorText + Format(AppliedPaymentEntry."Applies-to Entry No.");
                 end;
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
         end;
 
         exit(AppliedNumbers);
@@ -1798,7 +1798,7 @@
 
                 RemainingAmountAfterPosting += CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Amount";
                 DifferenceStatementAmtToApplEntryAmount -= CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Pmt. Discount";
-            until AppliedPmtEntry.Next = 0;
+            until AppliedPmtEntry.Next() = 0;
         end;
 
         if "Applied Entries" > 1 then
@@ -1824,7 +1824,7 @@
             PostedPaymentReconLine.SetRange("Bank Account No.", "Bank Account No.");
             PostedPaymentReconLine.SetRange("Transaction ID", "Transaction ID");
             PostedPaymentReconLine.SetRange(Reconciled, true);
-            if not PostedPaymentReconLine.IsEmpty then
+            if not PostedPaymentReconLine.IsEmpty() then
                 exit(true);
             BankAccountStatementLine.SetRange("Bank Account No.", "Bank Account No.");
             BankAccountStatementLine.SetRange("Transaction ID", "Transaction ID");
@@ -1940,7 +1940,7 @@
         AppliedPaymentEntry.FilterAppliedPmtEntry(Rec);
         AppliedPaymentEntry.SetFilter("Applies-to Entry No.", '<>%1', 0);
         if AppliedPaymentEntry.FindSet then
-            if AppliedPaymentEntry.Next = 0 then
+            if AppliedPaymentEntry.Next() = 0 then
                 exit(AppliedPaymentEntry.Description);
 
         exit('');

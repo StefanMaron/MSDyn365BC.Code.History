@@ -39,7 +39,7 @@ report 17401 "Suggest Payroll Documents"
                                                   "Payroll Calc Type", "Payroll Calc Type Line",
                                                   PayrollCalcPeriod, Employee, PayrollElement, CalculationDate);
                                                 UpdateTempLine(EmplLedgEntry);
-                                            until EmplLedgEntry.Next = 0
+                                            until EmplLedgEntry.Next() = 0
                                         else
                                             if "Payroll Calc Type"."Use in Calc" = "Payroll Calc Type"."Use in Calc"::Always then
                                                 InsertTempLine(
@@ -58,7 +58,7 @@ report 17401 "Suggest Payroll Documents"
                                                   "Payroll Calc Type", "Payroll Calc Type Line",
                                                   PayrollCalcPeriod, Employee, PayrollElement, CalculationDate);
                                                 UpdateTempLine(EmplLedgEntry);
-                                            until EmplLedgEntry.Next = 0
+                                            until EmplLedgEntry.Next() = 0
                                         else
                                             if "Payroll Calc Type"."Use in Calc" = "Payroll Calc Type"."Use in Calc"::Always then
                                                 InsertTempLine(
@@ -97,7 +97,7 @@ report 17401 "Suggest Payroll Documents"
                                 PayrollDocLine.CreateDim(DATABASE::"Payroll Element", "Element Code");
                                 CombineDimensions("Dimension Set ID");
                                 PayrollDocLine.Insert();
-                            until Next = 0;
+                            until Next() = 0;
                         DeleteAll();
                     end;
 
@@ -108,7 +108,7 @@ report 17401 "Suggest Payroll Documents"
                         if FindSet then
                             repeat
                                 PayrollCalculation.Run(PayrollDocLine);
-                            until Next = 0;
+                            until Next() = 0;
                     end;
 
                     if CalcGroupCode = '' then begin
@@ -470,7 +470,7 @@ report 17401 "Suggest Payroll Documents"
                     repeat
                         if DocWithoutCorrection(PstdPayrollDocLine."Document No.") then
                             DeleteDocLine := true;
-                    until PstdPayrollDocLine.Next = 0;
+                    until PstdPayrollDocLine.Next() = 0;
                 if DeleteDocLine then
                     Delete
                 else

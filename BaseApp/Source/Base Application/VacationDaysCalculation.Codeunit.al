@@ -84,7 +84,7 @@ codeunit 17375 "Vacation Days Calculation"
                 repeat
                     if "End Date" > MaxDate then
                         MaxDate := "End Date";
-                until Next = 0;
+                until Next() = 0;
 
             exit(MaxDate);
         end;

@@ -54,7 +54,7 @@
             else
                 SetRange("Expiration Date", 0D);
             SetRange("Location Code", Location.Code);
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
 
             FindSet();
@@ -79,7 +79,7 @@
                     FindLast();
 
                 ClearTrackingFilter();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -123,7 +123,7 @@
         WhseEntry.SetRange("Bin Code", Location."Adjustment Bin Code");
         WhseEntry.SetRange("Location Code", Location.Code);
         WhseEntry.SetRange("Variant Code", VariantCode);
-        if WhseEntry.IsEmpty then
+        if WhseEntry.IsEmpty() then
             exit;
 
         if WhseEntry.FindSet() then
@@ -152,6 +152,7 @@
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by same procedure with parameter ItemTrackingSetup.', '17.0')]
     procedure InsertEntrySummaryFEFO(LotNo: Code[50]; SerialNo: Code[50]; CDNo: Code[30]; ExpirationDate: Date)
     var
@@ -159,9 +160,10 @@
     begin
         WhseItemTrackingSetup."Serial No." := SerialNo;
         WhseItemTrackingSetup."Lot No." := LotNo;
-        WhseItemTrackingSetup."CD No." := CDNo;
+        WhseItemTrackingSetup."Package No." := CDNo;
         InsertEntrySummaryFEFO(WhseItemTrackingSetup, ExpirationDate);
     end;
+#endif
 
     procedure InsertEntrySummaryFEFO(ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date)
     begin
@@ -177,6 +179,7 @@
             HasExpiredItems := true;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by same procedure with parameter ItemTrackingSetup.', '17.0')]
     procedure EntrySummaryFEFOExists(LotNo: Code[50]; SerialNo: Code[50]; CDNo: Code[30]): Boolean
     var
@@ -184,9 +187,10 @@
     begin
         WhseItemTrackingSetup."Serial No." := SerialNo;
         WhseItemTrackingSetup."Lot No." := LotNo;
-        WhseItemTrackingSetup."CD No." := CDNo;
+        WhseItemTrackingSetup."Package No." := CDNo;
         EntrySummaryFEFOExists(WhseItemTrackingSetup);
     end;
+#endif
 
     procedure EntrySummaryFEFOExists(ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     begin
@@ -224,7 +228,7 @@
     procedure FindNextEntrySummaryFEFO(var EntrySummary: Record "Entry Summary"): Boolean
     begin
         with TempGlobalEntrySummary do begin
-            if Next = 0 then
+            if Next() = 0 then
                 exit(false);
 
             EntrySummary := TempGlobalEntrySummary;
@@ -273,7 +277,7 @@
                 repeat
                     if ReservedFromILE(SourceReservationEntry, ILENo) then
                         Result -= "Quantity (Base)"; // "Quantity (Base)" is negative
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(Result);
@@ -306,7 +310,6 @@
     var
         LotNoInformation: Record "Lot No. Information";
         SerialNoInformation: Record "Serial No. Information";
-        CDNoInformation: Record "CD No. Information";
         IsBlocked: Boolean;
     begin
         if ItemTrackingSetup."Lot No." <> '' then
@@ -317,13 +320,9 @@
             if SerialNoInformation.Get(ItemNo, VariantCode, ItemTrackingSetup."Serial No.") then
                 if SerialNoInformation.Blocked then
                     exit(true);
-        if ItemTrackingSetup."CD No." <> '' then
-            if CDNoInformation.Get(CDNoInformation.Type::Item, ItemNo, VariantCode, ItemTrackingSetup."CD No.") then
-                if CDNoInformation.Blocked then
-                    exit(true);
 
         IsBlocked := false;
-        OnAfterIsItemTrackingBlocked(SourceReservationEntry, ItemNo, VariantCode, ItemTrackingSetup."Lot No.", IsBlocked);
+        OnAfterIsItemTrackingBlocked(SourceReservationEntry, ItemNo, VariantCode, ItemTrackingSetup."Lot No.", IsBlocked, ItemTrackingSetup);
 
         exit(IsBlocked);
     end;
@@ -334,7 +333,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterIsItemTrackingBlocked(var ReservEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; var IsBlocked: Boolean)
+    local procedure OnAfterIsItemTrackingBlocked(var ReservEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; var IsBlocked: Boolean; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

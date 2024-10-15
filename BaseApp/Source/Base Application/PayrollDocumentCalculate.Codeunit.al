@@ -122,7 +122,7 @@ codeunit 17404 "Payroll Document - Calculate"
 
                     PayrollDocLineCalc."No. of Runs" += 1;
                     PayrollDocLineCalc.Modify();
-                    if PayrollDocLineCalc.Next = 0 then
+                    if PayrollDocLineCalc.Next() = 0 then
                         Calculated := true;
                 end else begin
                     // Execute statement if
@@ -312,7 +312,7 @@ codeunit 17404 "Payroll Document - Calculate"
                     if GotoFlag then
                         GotoFlag := false
                     else
-                        if PayrollDocLineCalc.Next = 0 then
+                        if PayrollDocLineCalc.Next() = 0 then
                             Calculated := true;
                 end;
 
@@ -643,9 +643,9 @@ codeunit 17404 "Payroll Document - Calculate"
                         if FindSet then
                             repeat
                                 Base := Base + "Payroll Amount";
-                            until Next = 0;
+                            until Next() = 0;
                     end;
-                until PayrollBaseAmount.Next = 0;
+                until PayrollBaseAmount.Next() = 0;
         end;
 
         exit(Base);
@@ -745,9 +745,9 @@ codeunit 17404 "Payroll Document - Calculate"
                         if FindSet then
                             repeat
                                 Base := Base + "Payroll Amount";
-                            until Next = 0;
+                            until Next() = 0;
                     end;
-                until PayrollBaseAmount.Next = 0;
+                until PayrollBaseAmount.Next() = 0;
         end;
 
         exit(Base);
@@ -955,7 +955,7 @@ codeunit 17404 "Payroll Document - Calculate"
                 WorkDays :=
                   CalendarMgt.GetPeriodInfo(EmplLedgEntry."Calendar Code", StartDate, EndDate, 2);
                 PeriodWorkDays := PeriodWorkDays + WorkDays;
-            until EmplLedgEntry.Next = 0;
+            until EmplLedgEntry.Next() = 0;
             if PeriodWorkDays = 0 then
                 exit(0);
 
@@ -974,7 +974,7 @@ codeunit 17404 "Payroll Document - Calculate"
                     WorkDays :=
                       CalendarMgt.GetPeriodInfo(EmplLedgEntry."Calendar Code", StartDate, EndDate, 2);
                     PeriodSalary := PeriodSalary + EmplLedgEntry.Amount * WorkDays / PeriodWorkDays;
-                until EmplLedgEntry.Next = 0;
+                until EmplLedgEntry.Next() = 0;
 
             exit(PeriodSalary);
         end;
@@ -1013,7 +1013,7 @@ codeunit 17404 "Payroll Document - Calculate"
                     FirstElement := false;
                 end else
                     ElementFilter2 += '|' + PayrollElement2.Code;
-            until PayrollElement2.Next = 0;
+            until PayrollElement2.Next() = 0;
 
         PeriodWorkDays := 0;
         PeriodSalary := 0;
@@ -1038,7 +1038,7 @@ codeunit 17404 "Payroll Document - Calculate"
                 WorkDays :=
                   CalendarMgt.GetPeriodInfo(EmplLedgEntry."Calendar Code", StartDate, EndDate, 2);
                 PeriodWorkDays := PeriodWorkDays + WorkDays;
-            until EmplLedgEntry.Next = 0;
+            until EmplLedgEntry.Next() = 0;
             if PeriodWorkDays = 0 then
                 exit(0);
 
@@ -1058,7 +1058,7 @@ codeunit 17404 "Payroll Document - Calculate"
                   CalendarMgt.GetPeriodInfo(EmplLedgEntry."Calendar Code", StartDate, EndDate, 2);
                 PeriodWorkDays := PeriodWorkDays + WorkDays;
                 PeriodSalary := PeriodSalary + EmplLedgEntry.Amount * WorkDays / PeriodWorkDays;
-            until EmplLedgEntry.Next = 0;
+            until EmplLedgEntry.Next() = 0;
 
             exit(PeriodSalary);
         end;
@@ -1120,7 +1120,7 @@ codeunit 17404 "Payroll Document - Calculate"
                           CalendarMgt.GetPeriodInfo(EmplLedgEntry."Calendar Code", StartDate, EndDate, 3);
                 end;
                 PeriodWorkTime := PeriodWorkTime + WorkTime;
-            until EmplLedgEntry.Next = 0;
+            until EmplLedgEntry.Next() = 0;
             if PeriodWorkTime = 0 then
                 exit(0);
             PayrollPeriod.TestField("Advance Date");
@@ -1147,7 +1147,7 @@ codeunit 17404 "Payroll Document - Calculate"
                                 PayrollDocLine."Employee No.", HumanResourcesSetup."Work Time Group Code", StartDate, EndDate, 3);
                     end;
                     PeriodSalary := PeriodSalary + EmplLedgEntry.Amount * WorkTime / PeriodWorkTime;
-                until EmplLedgEntry.Next = 0;
+                until EmplLedgEntry.Next() = 0;
             exit(PeriodSalary);
         end;
         exit(0);
@@ -1250,7 +1250,7 @@ codeunit 17404 "Payroll Document - Calculate"
 
                 Salary += EmplLedgEntry.Amount * ActualHours / PayrollDocLine."Planned Hours";
                 PayrollDocLine."Actual Hours" += ActualHours;
-            until EmplLedgEntry.Next = 0;
+            until EmplLedgEntry.Next() = 0;
 
         exit(Salary);
     end;
@@ -1577,10 +1577,10 @@ codeunit 17404 "Payroll Document - Calculate"
                             if PersonIncomeEntry.FindSet then
                                 repeat
                                     AmtToReturn += PersonIncomeEntry."Tax Deduction Amount";
-                                until PersonIncomeEntry.Next = 0;
+                                until PersonIncomeEntry.Next() = 0;
                         end;
                 end;
-            until PersonIncomeHeader.Next = 0;
+            until PersonIncomeHeader.Next() = 0;
         exit(AmtToReturn);
     end;
 
@@ -1714,7 +1714,7 @@ codeunit 17404 "Payroll Document - Calculate"
                     end;
                     TempEmplLedgEntry.Next(+1);
                 end;
-            until EmplLedgEntry.Next = 0;
+            until EmplLedgEntry.Next() = 0;
 
             HoursWork :=
               CalendarMgt.GetPeriodInfo(
@@ -1762,7 +1762,7 @@ codeunit 17404 "Payroll Document - Calculate"
                                     PayrollPeriod."Starting Date", PayrollPeriod."Ending Date", 3);
                                 ReturnValue := ReturnValue + (TempEmplLedgEntry.Amount / HoursWork) * CalendarHours;
                             end;
-            until TempEmplLedgEntry.Next = 0;
+            until TempEmplLedgEntry.Next() = 0;
             exit(ReturnValue);
         end;
         exit(0);
@@ -1864,7 +1864,7 @@ codeunit 17404 "Payroll Document - Calculate"
                             CurrDate := CalcDate('<1D+1M-1D>', CurrDate);
                         until CurrDate > DeductionEndDate;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(DeductionAmount);
     end;
@@ -2028,9 +2028,9 @@ codeunit 17404 "Payroll Document - Calculate"
                         if FindSet then
                             repeat
                                 Base := Base + "Payroll Amount";
-                            until Next = 0;
+                            until Next() = 0;
                     end;
-                until PayrollBaseAmount.Next = 0;
+                until PayrollBaseAmount.Next() = 0;
         end;
 
         exit(Base);
@@ -2141,9 +2141,9 @@ codeunit 17404 "Payroll Document - Calculate"
                         if FindSet then
                             repeat
                                 Base := Base + "Payroll Amount";
-                            until Next = 0;
+                            until Next() = 0;
                     end;
-                until PayrollBaseAmount.Next = 0;
+                until PayrollBaseAmount.Next() = 0;
         end;
 
         exit(Base);
@@ -2200,19 +2200,19 @@ codeunit 17404 "Payroll Document - Calculate"
             PayrollDocLineCalc.Reset();
             PayrollDocLineCalc.SetRange("Document No.", "Document No.");
             PayrollDocLineCalc.SetRange("Document Line No.", "Line No.");
-            if not PayrollDocLineCalc.IsEmpty then
+            if not PayrollDocLineCalc.IsEmpty() then
                 PayrollDocLineCalc.DeleteAll();
 
             PayrollDocLineExpr.Reset();
             PayrollDocLineExpr.SetRange("Document No.", "Document No.");
             PayrollDocLineExpr.SetRange("Document Line No.", "Line No.");
-            if not PayrollDocLineExpr.IsEmpty then
+            if not PayrollDocLineExpr.IsEmpty() then
                 PayrollDocLineExpr.DeleteAll();
 
             PayrollDocLineVar.Reset();
             PayrollDocLineVar.SetRange("Document No.", "Document No.");
             PayrollDocLineVar.SetRange("Document Line No.", "Line No.");
-            if not PayrollDocLineVar.IsEmpty then
+            if not PayrollDocLineVar.IsEmpty() then
                 PayrollDocLineVar.DeleteAll();
         end;
     end;
@@ -2230,7 +2230,7 @@ codeunit 17404 "Payroll Document - Calculate"
                 PayrollDocLineCalc."Document Line No." := PayrollDocLine."Line No.";
                 PayrollDocLineCalc."Period Code" := PayrollDocLine."Period Code";
                 PayrollDocLineCalc.Insert();
-            until PayrollCalcLine.Next = 0;
+            until PayrollCalcLine.Next() = 0;
 
         PayrollElementVar.Reset();
         PayrollElementVar.SetRange("Element Code", PayrollCalculation."Element Code");
@@ -2243,7 +2243,7 @@ codeunit 17404 "Payroll Document - Calculate"
                 PayrollDocLineVar."Document No." := PayrollDocLine."Document No.";
                 PayrollDocLineVar."Document Line No." := PayrollDocLine."Line No.";
                 PayrollDocLineVar.Insert();
-            until PayrollElementVar.Next = 0;
+            until PayrollElementVar.Next() = 0;
 
         PayrollElementExpr.Reset();
         PayrollElementExpr.SetRange("Element Code", PayrollCalculation."Element Code");
@@ -2255,7 +2255,7 @@ codeunit 17404 "Payroll Document - Calculate"
                 PayrollDocLineExpr."Document No." := PayrollDocLine."Document No.";
                 PayrollDocLineExpr."Document Line No." := PayrollDocLine."Line No.";
                 PayrollDocLineExpr.Insert();
-            until PayrollElementExpr.Next = 0;
+            until PayrollElementExpr.Next() = 0;
     end;
 }
 

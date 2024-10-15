@@ -112,7 +112,7 @@ table 17385 "Absence Header"
                 AbsenceLine.Reset();
                 AbsenceLine.SetRange("Document Type", "Document Type");
                 AbsenceLine.SetRange("Document No.", "No.");
-                if not AbsenceLine.IsEmpty then
+                if not AbsenceLine.IsEmpty() then
                     Error(Text000, FieldCaption("Employee No."));
             end;
         }
@@ -491,7 +491,7 @@ table 17385 "Absence Header"
                       AbsenceLine."Dimension Set ID", AbsenceLine."Shortcut Dimension 1 Code", AbsenceLine."Shortcut Dimension 2 Code");
                     AbsenceLine.Modify();
                 end;
-            until AbsenceLine.Next = 0;
+            until AbsenceLine.Next() = 0;
     end;
 }
 

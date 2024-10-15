@@ -279,7 +279,7 @@ page 26586 "Format Versions"
             repeat
                 FormatVersion.ExportExcelTemplate(PathName + FormatVersion."Excel File Name");
                 FormatVersion.ExportXMLSchema(PathName + FormatVersion."XML Schema File Name");
-            until FormatVersion.Next = 0;
+            until FormatVersion.Next() = 0;
     end;
 
     [Scope('OnPrem')]

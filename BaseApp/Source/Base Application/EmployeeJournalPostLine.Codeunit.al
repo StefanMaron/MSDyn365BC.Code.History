@@ -85,7 +85,7 @@ codeunit 17382 "Employee Journal - Post Line"
                                 repeat
                                     EmplLedgEntry."Action Ending Date" := CalcDate('<-1D>', "Starting Date");
                                     EmplLedgEntry.Modify();
-                                until EmplLedgEntry.Next = 0;
+                                until EmplLedgEntry.Next() = 0;
                         end;
 
                         // insert new entry
@@ -177,7 +177,7 @@ codeunit 17382 "Employee Journal - Post Line"
             repeat
                 PayrollStatus.CheckPayrollStatus(EmplLedgEntry."Period Code", EmplLedgEntry."Employee No.");
                 EmplLedgEntry.Delete();
-            until EmplLedgEntry.Next = 0;
+            until EmplLedgEntry.Next() = 0;
         end;
 
         PayrollReg."From Entry No." := 0;

@@ -277,7 +277,7 @@ page 17243 "Tax Customer Ledger Entries"
             repeat
                 TmpCustLedgerEntry := Rec;
                 TmpCustLedgerEntry.Insert();
-            until Next = 0;
+            until Next() = 0;
 
         Reset;
         SetCurrentKey("Customer No.", Open, Positive, "Due Date");
@@ -292,7 +292,7 @@ page 17243 "Tax Customer Ledger Entries"
                     TmpCustLedgerEntry := Rec;
                     if TmpCustLedgerEntry.Insert() then;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
         Reset;
         SetCurrentKey("Customer No.", Open, Positive, "Due Date");
@@ -307,7 +307,7 @@ page 17243 "Tax Customer Ledger Entries"
                     TmpCustLedgerEntry := Rec;
                     if TmpCustLedgerEntry.Insert() then;
                 end;
-            until Next = 0;
+            until Next() = 0;
         Reset;
         SetFilter("Date Filter", DueFilter);
         UseTmpCustLedgerEntry := true;

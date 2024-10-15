@@ -1,7 +1,7 @@
-﻿page 497 "Reservation Entries"
+page 497 "Reservation Entries"
 {
     Caption = 'Reservation Entries';
-    DataCaptionExpression = TextCaption;
+    DataCaptionExpression = TextCaption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
@@ -14,65 +14,67 @@
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Reservation Status"; "Reservation Status")
+                field("Reservation Status"; Rec."Reservation Status")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the status of the reservation.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the number of the item that has been reserved in this entry.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the Location of the items that have been reserved in the entry.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the serial number of the item that is being handled on the document line.';
                     Visible = false;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the lot number of the item that is being handled with the associated document line.';
                     Visible = false;
                 }
-                field("CD No."; "CD No.")
+                field("Package No."; Rec."Package No.")
                 {
-                    ToolTip = 'Specifies the customs declaration number.';
-                    Visible = false;
+                    ApplicationArea = ItemTracking;
+                    Editable = false;
+                    ToolTip = 'Specifies the package number of the item that is being handled with the associated document line.';
+                    Visible = PackageTrackingVisible;
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the date on which the reserved items are expected to enter inventory.';
                     Visible = false;
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                     Visible = false;
                 }
-                field("Quantity (Base)"; "Quantity (Base)")
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the quantity of the item that has been reserved in the entry.';
@@ -80,7 +82,7 @@
                     trigger OnValidate()
                     begin
                         ReservEngineMgt.ModifyReservEntry(xRec, "Quantity (Base)", Description, false);
-                        QuantityBaseOnAfterValidate;
+                        QuantityBaseOnAfterValidate();
                     end;
                 }
                 field("ReservEngineMgt.CreateForText(Rec)"; ReservEngineMgt.CreateForText(Rec))
@@ -92,7 +94,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        LookupReservedFor;
+                        LookupReservedFor();
                     end;
                 }
                 field(ReservedFrom; ReservEngineMgt.CreateFromText(Rec))
@@ -104,64 +106,64 @@
 
                     trigger OnDrillDown()
                     begin
-                        LookupReservedFrom;
+                        LookupReservedFrom();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies a description of the reservation entry.';
                     Visible = false;
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies for which source type the reservation entry is related to.';
                     Visible = false;
                 }
-                field("Source Subtype"; "Source Subtype")
+                field("Source Subtype"; Rec."Source Subtype")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies which source subtype the reservation entry is related to.';
                     Visible = false;
                 }
-                field("Source ID"; "Source ID")
+                field("Source ID"; Rec."Source ID")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies which source ID the reservation entry is related to.';
                     Visible = false;
                 }
-                field("Source Batch Name"; "Source Batch Name")
+                field("Source Batch Name"; Rec."Source Batch Name")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the journal batch name if the reservation entry is related to a journal or requisition line.';
                     Visible = false;
                 }
-                field("Source Ref. No."; "Source Ref. No.")
+                field("Source Ref. No."; Rec."Source Ref. No.")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies a reference number for the line, which the reservation entry is related to.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the date on which the entry was created.';
                     Visible = false;
                 }
-                field("Transferred from Entry No."; "Transferred from Entry No.")
+                field("Transferred from Entry No."; Rec."Transferred from Entry No.")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -210,18 +212,18 @@
                         CurrPage.SetSelectionFilter(ReservEntry);
                         if ReservEntry.Find('-') then
                             repeat
-                                ReservEntry.TestField("Reservation Status", "Reservation Status"::Reservation);
+                                ReservEntry.TestField("Reservation Status", Rec."Reservation Status"::Reservation);
                                 ReservEntry.TestField("Disallow Cancellation", false);
                                 OnCancelReservationOnBeforeConfirm(ReservEntry);
                                 if Confirm(
-                                     Text001, false, ReservEntry."Quantity (Base)",
+                                     CancelReservationQst, false, ReservEntry."Quantity (Base)",
                                      ReservEntry."Item No.", ReservEngineMgt.CreateForText(Rec),
                                      ReservEngineMgt.CreateFromText(Rec))
                                 then begin
                                     ReservEngineMgt.CancelReservation(ReservEntry);
                                     Commit();
                                 end;
-                            until ReservEntry.Next = 0;
+                            until ReservEntry.Next() = 0;
                     end;
                 }
             }
@@ -234,15 +236,24 @@
         exit(false);
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetPackageTrackingVisibility();
+    end;
+
     var
-        Text001: Label 'Cancel reservation of %1 of item number %2, reserved for %3 from %4?';
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
+        CancelReservationQst: Label 'Cancel reservation of %1 of item number %2, reserved for %3 from %4?';
+
+    protected var
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
 
     local procedure LookupReservedFor()
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        ReservEntry.Get("Entry No.", false);
+        ReservEntry.Get(Rec."Entry No.", false);
         LookupReserved(ReservEntry);
     end;
 
@@ -250,7 +261,7 @@
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        ReservEntry.Get("Entry No.", true);
+        ReservEntry.Get(Rec."Entry No.", true);
         LookupReserved(ReservEntry);
     end;
 
@@ -269,7 +280,7 @@
         TransLine: Record "Transfer Line";
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
-        ItemDocLine: Record "Item Document Line";
+        InvtDocLine: Record "Invt. Document Line";
     begin
         with ReservEntry do
             case "Source Type" of
@@ -373,12 +384,12 @@
                         AssemblyLine.SetRange("Line No.", "Source Ref. No.");
                         PAGE.RunModal(0, AssemblyLine);
                     end;
-                DATABASE::"Item Document Line":
+                DATABASE::"Invt. Document Line":
                     begin
-                        ItemDocLine.SetRange("Document Type", "Source Subtype");
-                        ItemDocLine.SetRange("Document No.", "Source ID");
-                        ItemDocLine.SetRange("Line No.", "Source Ref. No.");
-                        PAGE.RunModal(0, ItemDocLine);
+                        InvtDocLine.SetRange("Document Type", "Source Subtype");
+                        InvtDocLine.SetRange("Document No.", "Source ID");
+                        InvtDocLine.SetRange("Line No.", "Source Ref. No.");
+                        PAGE.RunModal(0, InvtDocLine);
                     end;
             end;
 
@@ -387,7 +398,14 @@
 
     protected procedure QuantityBaseOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

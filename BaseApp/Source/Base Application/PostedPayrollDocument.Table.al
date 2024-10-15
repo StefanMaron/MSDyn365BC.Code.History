@@ -153,7 +153,7 @@ table 17416 "Posted Payroll Document"
     trigger OnDelete()
     begin
         PostedPayrollDocLine.SetRange("Document No.", "No.");
-        if not PostedPayrollDocLine.IsEmpty then
+        if not PostedPayrollDocLine.IsEmpty() then
             PostedPayrollDocLine.DeleteAll();
     end;
 

@@ -886,7 +886,7 @@ codeunit 144013 "ERM Print Corr. Documents"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
         end;
     end;
 

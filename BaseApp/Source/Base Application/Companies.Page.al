@@ -14,7 +14,30 @@ page 357 Companies
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; CompanyNameVar)
+#if not CLEAN18
+                field(Name; Name)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced New field named CompanyNameVar';
+                    ObsoleteTag = '18.0';
+                    Caption = 'Name';
+                    Editable = PageInEditmode;
+                    Enabled = false;
+                    Visible = false;
+                    ToolTip = 'Specifies the name of a company that has been created in the current database.';
+                    trigger OnValidate()
+                    begin
+
+                        if (CompanyNameVar <> xRec.Name) and (xRec.Name <> '') then
+                            if SoftwareAsAService then
+                                Error(RenameNotAllowedErr, FieldCaption("Display Name"));
+                        Validate(Name, CompanyNameVar);
+                    end;
+
+                }
+#endif
+                field(CompanyNameVar; CompanyNameVar)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';
@@ -150,6 +173,7 @@ page 357 Companies
             }
         }
     }
+
     trigger OnOpenPage()
     begin
         PageInEditmode := CurrPage.Editable;

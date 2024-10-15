@@ -48,7 +48,7 @@ codeunit 143012 "Library - HRP"
     begin
         GenJnlLine.SetRange("Journal Template Name", TemplateName);
         GenJnlLine.SetRange("Journal Batch Name", BatchName);
-        if not GenJnlLine.IsEmpty then
+        if not GenJnlLine.IsEmpty() then
             GenJnlLine.DeleteAll(true);
     end;
 
@@ -450,7 +450,7 @@ codeunit 143012 "Library - HRP"
     begin
         Date.SetRange("Period Type", Date."Period Type"::Month);
         Date.SetRange("Period Start", StartDate, EndDate);
-        Date.FindSet;
+        Date.FindSet();
         repeat
             PeriodCode := Format(Date."Period Start", 0, '<Year><Month,2>');
             if not PayrollPeriod.Get(PeriodCode) then

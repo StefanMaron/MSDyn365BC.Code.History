@@ -96,7 +96,7 @@ page 17461 "Other Absence Orders"
                     trigger OnAction()
                     begin
                         ShowDocDim;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Co&mments")

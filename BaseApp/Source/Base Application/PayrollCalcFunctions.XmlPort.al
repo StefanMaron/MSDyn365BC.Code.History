@@ -48,7 +48,7 @@ xmlport 17402 "Payroll Calc. Functions"
             repeat
                 "Payroll Calculation Function" := SourcePayrollCalcFunction;
                 "Payroll Calculation Function".Insert();
-            until SourcePayrollCalcFunction.Next = 0;
+            until SourcePayrollCalcFunction.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -61,7 +61,7 @@ xmlport 17402 "Payroll Calc. Functions"
                     PayrollCalcFunction.Delete(true);
                 PayrollCalcFunction := "Payroll Calculation Function";
                 PayrollCalcFunction.Insert();
-            until "Payroll Calculation Function".Next = 0;
+            until "Payroll Calculation Function".Next() = 0;
     end;
 }
 

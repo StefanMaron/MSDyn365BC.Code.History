@@ -288,7 +288,7 @@ page 17244 "Tax Vendor Ledger Entries"
             repeat
                 TmpVendLedgerEntry := Rec;
                 TmpVendLedgerEntry.Insert();
-            until Next = 0;
+            until Next() = 0;
 
         Reset;
         SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
@@ -303,7 +303,7 @@ page 17244 "Tax Vendor Ledger Entries"
                     TmpVendLedgerEntry := Rec;
                     if TmpVendLedgerEntry.Insert() then;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
         Reset;
         SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
@@ -318,7 +318,7 @@ page 17244 "Tax Vendor Ledger Entries"
                     TmpVendLedgerEntry := Rec;
                     if TmpVendLedgerEntry.Insert() then;
                 end;
-            until Next = 0;
+            until Next() = 0;
         Reset;
         SetFilter("Date Filter", DueFilter);
         UseTmpVendLedgerEntry := true;

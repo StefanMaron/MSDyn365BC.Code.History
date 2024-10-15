@@ -71,40 +71,39 @@ codeunit 132217 "Library - Lower Permissions"
         XSalesQOIRCPostTok: Label 'S&R-Q/O/I/R/C, POST';
         XBackupRestoreTok: Label 'D365 BACKUP/RESTORE';
         D365ServiceMgtTxt: Label 'D365PREM SMG, VIEW';
+        D365WhseEditTok: Label 'D365 WHSE, EDIT';
 
     procedure AddTestObjectsToTestPermissionSet()
     var
-        PermissionSet: Record "Permission Set";
-        Permission: Record Permission;
+        TenantPermissionSet: Record "Tenant Permission Set";
+        TenantPermission: Record "Tenant Permission";
         TestAllObj: Record AllObj;
         PermissionManager: Codeunit "Permission Manager";
+        NullGuid: Guid;
     begin
-        if PermissionSet.Get(XTestPermissionSetTxt) then
+        //
+        // this currently does not work as the Permission Test Helper does not add Tenant Permission Sets 
+        //
+        if TenantPermissionSet.Get(NullGuid, XTestPermissionSetTxt) then
             exit; // Permission set has already been created
 
-        PermissionSet.Init();
-        PermissionSet."Role ID" := XTestPermissionSetTxt;
-        if PermissionSet.Insert() then;
+        TenantPermissionSet.Init();
+        TenantPermissionSet."App ID" := NullGuid;
+        TenantPermissionSet."Role ID" := XTestPermissionSetTxt;
+        if TenantPermissionSet.Insert() then;
 
         TestAllObj.SetRange("Object Type", TestAllObj."Object Type"::TableData);
         TestAllObj.SetRange("Object ID", 130000, 149999);
         if TestAllObj.FindSet then
             repeat
-                Permission.Init();
-                Permission."Role ID" := XTestPermissionSetTxt;
-                Permission."Object Type" := TestAllObj."Object Type";
-                Permission."Object ID" := TestAllObj."Object ID";
-                if Permission.Insert() then;
+                TenantPermission.Init();
+                TenantPermission."App ID" := NullGuid;
+                TenantPermission."Role ID" := XTestPermissionSetTxt;
+                TenantPermission."Object Type" := TestAllObj."Object Type";
+                TenantPermission."Object ID" := TestAllObj."Object ID";
+                if TenantPermission.Insert() then;
             until TestAllObj.Next = 0;
-        PermissionManager.UpdateHashForPermissionSet(PermissionSet."Role ID");
         Commit();
-    end;
-
-    procedure AddExtensionsPermissions()
-    var
-        LibraryExtensionPerm: Codeunit "Library - Extension Perm.";
-    begin
-        LibraryExtensionPerm.InsertExtensionPermissions;
     end;
 
     procedure StartLoggingNAVPermissions(PermissionSetRoleID: Code[20])
@@ -734,6 +733,18 @@ codeunit 132217 "Library - Lower Permissions"
     procedure SetO365BasicISV()
     begin
         PushPermissionSetInternal(BasicISVTok, false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetO365WhseEdit()
+    begin
+        PushPermissionSet(D365WhseEditTok);
+    end;
+
+    [Scope('OnPrem')]
+    procedure AddO365WhseEdit()
+    begin
+        AddPermissionSet(D365WhseEditTok);
     end;
 
     [IntegrationEvent(false, false)]

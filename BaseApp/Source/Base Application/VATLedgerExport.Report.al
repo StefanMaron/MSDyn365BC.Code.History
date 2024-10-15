@@ -646,7 +646,7 @@ report 12460 "VAT Ledger Export"
                         if not AdjustingVATEntryBuffer.Get(SourceVATEntry."Entry No.") then
                             Insert;
                     end;
-                until VATLedgerLine.Next = 0;
+                until VATLedgerLine.Next() = 0;
         end;
 
         with GroupBuffer do begin
@@ -675,7 +675,7 @@ report 12460 "VAT Ledger Export"
                         Amount20 += VATLedgerLineBuffer.Amount20;
                         Modify;
                     end;
-                until VATLedgerLineBuffer.Next = 0;
+                until VATLedgerLineBuffer.Next() = 0;
         end;
 
         GroupBuffer.Reset();
@@ -745,7 +745,7 @@ report 12460 "VAT Ledger Export"
                     PaymentDocNoDate,
                     LocalReportMgt.FormatCompoundExpr(
                       TempVendorLedgerEntry."External Document No.", Format(TempVendorLedgerEntry."Posting Date")));
-            until TempVendorLedgerEntry.Next = 0;
+            until TempVendorLedgerEntry.Next() = 0;
         exit(PaymentDocNoDate);
     end;
 

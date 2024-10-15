@@ -93,7 +93,7 @@ page 17441 "Employee Timesheet"
                     trigger OnAssistEdit()
                     begin
                         ActualAssistEdit;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -151,8 +151,8 @@ page 17441 "Employee Timesheet"
                                             TimesheetDetail."Document Date" := 0D;
                                             TimesheetDetail."User ID" := UserId;
                                             TimesheetDetail.Insert();
-                                        until TimesheetDetailFrom.Next = 0;
-                                until TimesheetLine.Next = 0;
+                                        until TimesheetDetailFrom.Next() = 0;
+                                until TimesheetLine.Next() = 0;
                         end;
                     end;
                 }
@@ -177,7 +177,7 @@ page 17441 "Employee Timesheet"
             repeat
                 ActualHours := ActualHours +
                   StrSubstNo('%1 / %2  ', TimesheetDetail."Time Activity Code", TimesheetDetail."Actual Hours");
-            until TimesheetDetail.Next = 0;
+            until TimesheetDetail.Next() = 0;
         DateOnFormat;
         DescriptionOnFormat;
     end;
@@ -239,12 +239,12 @@ page 17441 "Employee Timesheet"
     begin
         CurrPage.SaveRecord;
         TimesheetMgt.SetName(EmployeeNo, PayrollPeriod, Rec);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure TimeActivityGroupFilterOnAfter()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DateOnFormat()

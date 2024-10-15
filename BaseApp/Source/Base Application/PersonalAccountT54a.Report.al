@@ -81,7 +81,7 @@ report 17354 "Personal Account T-54a"
                         ExcelMgt.FillCell(StrSubstNo('BL%1', i), Format(Position."Base Salary Amount"));
                         ExcelMgt.FillCell(StrSubstNo('CD%1', i), Format(Position."Additional Salary Amount"));
                         i := i + 1;
-                    until EmployeeJobEntry.Next = 0;
+                    until EmployeeJobEntry.Next() = 0;
 
                 i := 25;
                 if EmplAbsenceEntry.FindSet then
@@ -100,7 +100,7 @@ report 17354 "Personal Account T-54a"
                         ExcelMgt.FillCell(StrSubstNo('FM%1', i), Format(0)); // tax benefit total amount
 
                         i := i + 1;
-                    until EmplAbsenceEntry.Next = 0;
+                    until EmplAbsenceEntry.Next() = 0;
 
                 // Deductions
                 ExcelMgt.DownloadBook(ExcelTemplate.GetTemplateFileName(HumanResSetup."T-54a Template Code"));

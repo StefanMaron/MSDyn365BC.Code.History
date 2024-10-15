@@ -19,7 +19,7 @@ page 17495 "Person Income"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Person No."; "Person No.")

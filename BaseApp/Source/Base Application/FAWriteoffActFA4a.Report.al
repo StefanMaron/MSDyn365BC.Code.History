@@ -38,7 +38,7 @@ report 14990 "FA Writeoff Act FA-4a"
                 dataitem("Part 4"; "Integer")
                 {
                     DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                    dataitem("Item Document Line"; "Item Document Line")
+                    dataitem("Invt. Document Line"; "Invt. Document Line")
                     {
                         DataItemLink = "Document No." = FIELD("Item Receipt No.");
                         DataItemLinkReference = "Part 3";

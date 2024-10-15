@@ -387,11 +387,9 @@ table 169 "Job Ledger Entry"
             Caption = 'Line Discount %';
             DecimalPlaces = 0 : 5;
         }
-        field(1022; "Line Type"; Option)
+        field(1022; "Line Type"; Enum "Job Line Type")
         {
             Caption = 'Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1023; "Original Unit Cost (LCY)"; Decimal)
         {
@@ -459,9 +457,22 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Posted Service Shipment No.';
         }
-        field(14900; "CD No."; Code[30])
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+        }
+        field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 

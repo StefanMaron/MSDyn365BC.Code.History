@@ -179,7 +179,7 @@ codeunit 134487 "Default Dimension"
         // [GIVEN] Array of Table, that creates Default Dimension lines, was created.
         LibraryDimension.GetTableNosWithGlobalDimensionCode(TableNo);
 
-        TableNo.FindSet;
+        TableNo.FindSet();
         repeat
             // [GIVEN] Configuration Header was created.
             LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
@@ -322,7 +322,7 @@ codeunit 134487 "Default Dimension"
         exit(Field."No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 408, 'OnAfterSetupObjectNoList', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"DimensionManagement", 'OnAfterSetupObjectNoList', '', false, false)]
     local procedure OnAfterSetupObjectNoListHandler(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     var
         DimensionManagement: Codeunit DimensionManagement;

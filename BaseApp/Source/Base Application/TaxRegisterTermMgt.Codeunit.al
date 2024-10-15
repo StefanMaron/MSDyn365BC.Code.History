@@ -832,7 +832,7 @@ codeunit 17200 "Tax Register Term Mgt."
                                     end;
                                 end;
                             end;
-                        until not FoundTerm or (TermLineRecordRef.Next = 0);
+                        until not FoundTerm or (TermLineRecordRef.Next() = 0);
                     if not FoundTerm then begin
                         AnythingChange := true;
                         TermNameRecordRef1 := TermNameRecordRef.Duplicate;
@@ -1470,7 +1470,7 @@ codeunit 17200 "Tax Register Term Mgt."
                             AddExprText(ExpressionText, ')');
                         end;
                 end;
-            until (TermLineRecordRef.Next = 0) or (ExpressionLength >= MaxStrLen(ExpressionText));
+            until (TermLineRecordRef.Next() = 0) or (ExpressionLength >= MaxStrLen(ExpressionText));
     end;
 
     local procedure FieldRefValue(var NewFieldRef: FieldRef; RecRef: RecordRef; FieldNo: Integer)

@@ -99,11 +99,9 @@ table 7345 "Registered Invt. Movement Line"
             Caption = 'Qty. (Base)';
             DecimalPlaces = 0 : 5;
         }
-        field(31; "Shipping Advice"; Option)
+        field(31; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(34; "Due Date"; Date)
         {
@@ -174,6 +172,15 @@ table 7345 "Registered Invt. Movement Line"
         {
             Caption = 'Expiration Date';
         }
+        field(6515; "Package No."; Code[20])
+        {
+            Caption = 'Package No.';
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
+        }
         field(7300; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
@@ -205,11 +212,14 @@ table 7345 "Registered Invt. Movement Line"
         field(14900; "CD No."; Code[20])
         {
             Caption = 'CD No.';
-
-            trigger OnLookup()
-            begin
-                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"CD No.", "CD No.");
-            end;
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 

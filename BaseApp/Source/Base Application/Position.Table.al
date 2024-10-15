@@ -740,7 +740,7 @@ table 17370 Position
                 if Position2.FindSet then
                     repeat
                         Position2.TestField(Status, Position2.Status::Closed);
-                    until Position2.Next = 0;
+                    until Position2.Next() = 0;
             end;
         end else begin
             CalcFields("Filled Rate");
@@ -794,7 +794,7 @@ table 17370 Position
                         LaborContractTermsSetup."Additional Salary" := DefaultLaborContractTerms."Additional Salary";
                         LaborContractTermsSetup.Insert();
                     end;
-                until DefaultLaborContractTerms.Next = 0;
+                until DefaultLaborContractTerms.Next() = 0;
         end;
     end;
 
@@ -818,7 +818,7 @@ table 17370 Position
                     PayrollElement.Get(LaborContractTermsSetup."Element Code");
                     if PayrollElement.Type = PayrollElement.Type::Wage then
                         "Additional Salary" := "Additional Salary" + LaborContractTermsSetup.Amount;
-                until LaborContractTermsSetup.Next = 0;
+                until LaborContractTermsSetup.Next() = 0;
 
             if "Additional Salary" <> xRec."Additional Salary" then begin
                 Validate("Additional Salary");
@@ -853,7 +853,7 @@ table 17370 Position
                 NewLaborContractTermsSetup := LaborContractTermsSetup;
                 NewLaborContractTermsSetup."No." := NewPosition."No.";
                 NewLaborContractTermsSetup.Insert();
-            until LaborContractTermsSetup.Next = 0;
+            until LaborContractTermsSetup.Next() = 0;
 
         exit(NewPosition."No.");
     end;

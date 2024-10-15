@@ -19,7 +19,7 @@ page 17366 "Labor Contract"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Contract Type"; "Contract Type")

@@ -35,7 +35,7 @@ page 314 "General Posting Setup"
                             SetAccountsVisibility(
                               PmtToleranceVisible, PmtDiscountVisible, SalesInvDiscVisible, SalesLineDiscVisible, PurchInvDiscVisible, PurchLineDiscVisible);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

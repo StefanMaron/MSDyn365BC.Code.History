@@ -158,10 +158,10 @@ table 17407 "Payroll Calculation Line"
                                             PayrollElementExpr2."Element Code" := "Element Code";
                                             PayrollElementExpr2."Calculation Line No." := "Line No.";
                                             PayrollElementExpr2.Insert();
-                                        until PayrollElementExpr.Next = 0;
+                                        until PayrollElementExpr.Next() = 0;
                                 end;
                             end;
-                        until LinesFound or (PayrollCalculationLine.Next = 0);
+                        until LinesFound or (PayrollCalculationLine.Next() = 0);
                 end;
             end;
         }
@@ -348,7 +348,7 @@ table 17407 "Payroll Calculation Line"
                 repeat
                     Expression := Expression +
                       ExprMgt.FormatElementStatement(PayrollElementExpr);
-                until PayrollElementExpr.Next = 0;
+                until PayrollElementExpr.Next() = 0;
 
             Expression := DelChr(Expression, '>', ' ');
         end;

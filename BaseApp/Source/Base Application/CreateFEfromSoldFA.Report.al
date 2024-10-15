@@ -138,7 +138,7 @@ report 17304 "Create FE from Sold FA"
                 if FATaxDeprBook.FindSet then
                     repeat
                         DeprBook.Get(FATaxDeprBook."Depreciation Book Code");
-                    until (FATaxDeprBook.Next = 0) or (DeprBook."Posting Book Type" = DeprBook."Posting Book Type"::"Tax Accounting");
+                    until (FATaxDeprBook.Next() = 0) or (DeprBook."Posting Book Type" = DeprBook."Posting Book Type"::"Tax Accounting");
                 FATaxDeprBook.CalcFields("Gain/Loss");
             end;
         }
@@ -233,7 +233,7 @@ report 17304 "Create FE from Sold FA"
                     "Depr. Period Starting Date" := FEJnlLineTmp."Depr. Period Starting Date";
                     Insert(true);
                     FEJnlLineTmp.Delete();
-                until FEJnlLineTmp.Next = 0;
+                until FEJnlLineTmp.Next() = 0;
             end;
         end;
     end;

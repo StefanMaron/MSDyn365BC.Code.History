@@ -1,4 +1,4 @@
-﻿codeunit 370 "Bank Acc. Reconciliation Post"
+codeunit 370 "Bank Acc. Reconciliation Post"
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm,
@@ -82,7 +82,7 @@
             TotalAppliedAmount := 0;
             TotalDiff := 0;
             Lines := 0;
-            if BankAccReconLine.IsEmpty then
+            if BankAccReconLine.IsEmpty() then
                 Error(Text002);
             BankAccLedgEntry.LockTable();
             CheckLedgEntry.LockTable();
@@ -111,7 +111,7 @@
                     BankAccReconLine.TestField("Applied Amount", AppliedAmount);
                     TotalAmount += BankAccReconLine."Statement Amount";
                     TotalAppliedAmount += AppliedAmount;
-                until BankAccReconLine.Next = 0;
+                until BankAccReconLine.Next() = 0;
 
             // Test amount
             if "Statement Type" = "Statement Type"::"Payment Application" then
@@ -167,7 +167,7 @@
 
                     BankAccReconLine.Delete();
                     BankAccReconLine.ClearDataExchEntries;
-                until BankAccReconLine.Next = 0;
+                until BankAccReconLine.Next() = 0;
 
             Find;
             Delete;
@@ -232,8 +232,8 @@
                         CheckLedgEntry.Open := false;
                         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
                         CheckLedgEntry.Modify();
-                    until CheckLedgEntry.Next = 0;
-            until BankAccLedgEntry.Next = 0;
+                    until CheckLedgEntry.Next() = 0;
+            until BankAccLedgEntry.Next() = 0;
     end;
 
     local procedure CloseCheckLedgEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal)
@@ -280,7 +280,7 @@
                         BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
                 end;
                 BankAccLedgEntry.Modify();
-            until CheckLedgEntry.Next = 0;
+            until CheckLedgEntry.Next() = 0;
     end;
 
     local procedure PostPaymentApplications(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal)
@@ -387,7 +387,7 @@
                         end;
                         IsApplied := true;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         if PaymentLineAmount <> 0 then begin
             if not IsApplied then
@@ -462,7 +462,7 @@
                 BankAccStmtLine."Statement No." := BankAccStmt."Statement No.";
                 BankAccStmtLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
-            until BankAccReconLine.Next = 0;
+            until BankAccReconLine.Next() = 0;
 
         OnBeforeBankAccStmtInsert(BankAccStmt, BankAccRecon);
         BankAccStmt.Insert();
@@ -498,7 +498,7 @@
 
                 PostedPmtReconLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
-            until BankAccReconLine.Next = 0;
+            until BankAccReconLine.Next() = 0;
 
         PostedPmtReconHdr.TransferFields(BankAccRecon);
         OnBeforePostedPmtReconInsert(PostedPmtReconHdr, BankAccRecon);
@@ -581,7 +581,7 @@
                     CheckLedgerEntry.Open := false;
                     CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Closed;
                     CheckLedgerEntry.Modify();
-                until CheckLedgerEntry.Next = 0;
+                until CheckLedgerEntry.Next() = 0;
         end;
     end;
 

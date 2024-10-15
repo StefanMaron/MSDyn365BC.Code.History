@@ -269,7 +269,7 @@ xmlport 1220 "Data Exch. Import - CSV"
                 DataExchFieldMapping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
                 DataExchFieldMapping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
                 DataExchFieldMapping.SetRange("Column No.", "Column No.");
-                if not DataExchFieldMapping.IsEmpty then begin
+                if not DataExchFieldMapping.IsEmpty() then begin
                     ColumnAsRowNo := "Column No.";
                     CurrentLineType := LineType::Data;
                     exit;

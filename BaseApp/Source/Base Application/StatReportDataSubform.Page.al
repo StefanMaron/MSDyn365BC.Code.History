@@ -695,7 +695,7 @@ page 35622 "_Stat. Report Data Subform"
                 i := i + 1;
                 MatrixRecords[i] := StatReportTableColumn;
                 MATRIX_CaptionSet[i] := StatReportTableColumn."Column Header";
-            until StatReportTableColumn.Next = 0;
+            until StatReportTableColumn.Next() = 0;
         MATRIX_CurrentNoOfMatrixColumn := StatReportTableColumn.Count();
 
         Field1Visible := MATRIX_CaptionSet[1] <> '';

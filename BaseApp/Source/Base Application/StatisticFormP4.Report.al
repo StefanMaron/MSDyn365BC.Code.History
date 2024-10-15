@@ -219,7 +219,7 @@ report 17355 "Statistic Form P-4"
                             LaborContract."Work Mode"::"External Co-work":
                                 AvgEmplCount[2] += AverageHeadcountCalculation.CalcAvgCount(Employee."No.", EndDate);
                         end;
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -262,7 +262,7 @@ report 17355 "Statistic Form P-4"
                                     Count += 1;
                         end else
                             Count += 1;
-            until LaborContractLines.Next = 0;
+            until LaborContractLines.Next() = 0;
 
         exit(Count);
     end;
@@ -313,7 +313,7 @@ report 17355 "Statistic Form P-4"
                 repeat
                     Hours += TimesheetMgt.GetTimesheetInfo("Employee No.", HumResSetup."P-4 Work Time Group Code",
                         StartingDate, EndingDate, 4);
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(Hours);
@@ -345,7 +345,7 @@ report 17355 "Statistic Form P-4"
                         StartingDate, EndingDate, '');
                     Salary += PayrollDocCalc.CalcElementByPostedEntries(HumResSetup."P-4 Benefits Element Code", "Employee No.",
                         StartingDate, EndingDate, '');
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(Salary);
@@ -367,7 +367,7 @@ report 17355 "Statistic Form P-4"
                 repeat
                     Salary += PayrollDocCalc.CalcElementByPostedEntries(HumResSetup."P-4 Benefits Element Code", "Employee No.",
                         StartingDate, EndingDate, '');
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(Salary);

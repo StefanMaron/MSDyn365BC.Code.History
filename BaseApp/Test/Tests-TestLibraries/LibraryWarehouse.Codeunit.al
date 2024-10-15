@@ -1517,7 +1517,7 @@ codeunit 132204 "Library - Warehouse"
     begin
         Clear(InternalMovementLine);
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
-        InternalMovementLine.FindSet;
+        InternalMovementLine.FindSet();
         repeat
             InternalMovementLine.Validate(Quantity, Qty);
             InternalMovementLine.Modify(true);
@@ -1536,7 +1536,7 @@ codeunit 132204 "Library - Warehouse"
         Clear(WhseActivityLine);
         WhseActivityLine.SetRange("Activity Type", WhseActivityHdr.Type);
         WhseActivityLine.SetRange("No.", WhseActivityHdr."No.");
-        WhseActivityLine.FindSet;
+        WhseActivityLine.FindSet();
         repeat
             WhseActivityLine.Validate(Quantity, Qty);
             WhseActivityLine.Modify(true);

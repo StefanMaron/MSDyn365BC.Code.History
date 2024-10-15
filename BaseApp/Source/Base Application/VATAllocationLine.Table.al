@@ -483,7 +483,7 @@ table 14925 "VAT Allocation Line"
             VATAllocLine.SetRange("VAT Entry No.", "VAT Entry No.");
             VATAllocLine.SetFilter("Line No.", '<>%1', "Line No.");
             VATAllocLine.SetRange(Type, Type::VAT);
-            if not VATAllocLine.IsEmpty then
+            if not VATAllocLine.IsEmpty() then
                 Type := Type::WriteOff;
         end;
     end;
@@ -509,7 +509,7 @@ table 14925 "VAT Allocation Line"
                     if VATAllocLine."Line No." = "Line No." then
                         exit(VATAllocLine.Amount);
                 end;
-            until VATAllocLine.Next = 0;
+            until VATAllocLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

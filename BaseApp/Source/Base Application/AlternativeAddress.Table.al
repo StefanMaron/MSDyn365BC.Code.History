@@ -605,7 +605,7 @@ table 5201 "Alternative Address"
                 Employee."Country/Region Code" := "Country/Region Code";
 
                 Employee.Modify();
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 
     [Scope('OnPrem')]

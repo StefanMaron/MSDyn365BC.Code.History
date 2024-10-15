@@ -38,6 +38,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryERM: Codeunit "Library - ERM";
         LibraryCosting: Codeunit "Library - Costing";
+        ShopCalendarMgt: Codeunit "Shop Calendar Management";
         IsInitialized: Boolean;
         TrackingMsg: Label 'The change will not affect existing entries';
         NewWorksheetMsg: Label 'You are now in worksheet';
@@ -3366,9 +3367,11 @@ codeunit 137079 "SCM Production Order III"
         PlannedProductionOrderCard: TestPage "Planned Production Order";
         NewDate: Date;
         NewTime: Time;
+        ItemNo: Code[20];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Planned Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field i
+        // [SCENARIO 379091] Validating "Starting Date-Time" and "Ending Date-Time" on a new planned prod. order line does not reset previously entered data.
         Initialize;
 
         MockProductionOrder(PlannedProdOrder, PlannedProdOrder.Status::Planned);
@@ -3404,6 +3407,17 @@ codeunit 137079 "SCM Production Order III"
         PlannedProductionOrderCard."Due Date".SetValue(NewDate);
         PlannedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
 
+        ItemNo := LibraryInventory.CreateItemNo();
+        PlannedProductionOrderCard.ProdOrderLines.New();
+        PlannedProductionOrderCard.ProdOrderLines."Item No.".SetValue(ItemNo);
+        PlannedProductionOrderCard.ProdOrderLines."Ending Date-Time".SetValue(NewDate);
+        PlannedProductionOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
+
+        PlannedProductionOrderCard.ProdOrderLines.New();
+        PlannedProductionOrderCard.ProdOrderLines."Item No.".SetValue(ItemNo);
+        PlannedProductionOrderCard.ProdOrderLines."Starting Date-Time".SetValue(NewDate);
+        PlannedProductionOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
+
         PlannedProductionOrderCard.Close;
     end;
 
@@ -3415,9 +3429,11 @@ codeunit 137079 "SCM Production Order III"
         FirmPlannedProdOrderCard: TestPage "Firm Planned Prod. Order";
         NewDate: Date;
         NewTime: Time;
+        ItemNo: Code[20];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Firm Planned Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding fi
+        // [SCENARIO 379091] Validating "Starting Date-Time" and "Ending Date-Time" on a new firm planned prod. order line does not reset previously entered data.
         Initialize;
 
         MockProductionOrder(FirmPlannedProdOrder, FirmPlannedProdOrder.Status::"Firm Planned");
@@ -3453,6 +3469,17 @@ codeunit 137079 "SCM Production Order III"
         FirmPlannedProdOrderCard."Due Date".SetValue(NewDate);
         FirmPlannedProdOrderCard."Ending Date".AssertEquals(NewDate - 1);
 
+        ItemNo := LibraryInventory.CreateItemNo();
+        FirmPlannedProdOrderCard.ProdOrderLines.New();
+        FirmPlannedProdOrderCard.ProdOrderLines."Item No.".SetValue(ItemNo);
+        FirmPlannedProdOrderCard.ProdOrderLines."Ending Date-Time".SetValue(NewDate);
+        FirmPlannedProdOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
+
+        FirmPlannedProdOrderCard.ProdOrderLines.New();
+        FirmPlannedProdOrderCard.ProdOrderLines."Item No.".SetValue(ItemNo);
+        FirmPlannedProdOrderCard.ProdOrderLines."Starting Date-Time".SetValue(NewDate);
+        FirmPlannedProdOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
+
         FirmPlannedProdOrderCard.Close;
     end;
 
@@ -3464,9 +3491,11 @@ codeunit 137079 "SCM Production Order III"
         ReleasedProductionOrderCard: TestPage "Released Production Order";
         NewDate: Date;
         NewTime: Time;
+        ItemNo: Code[20];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Released Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field
+        // [SCENARIO 379091] Validating "Starting Date-Time" and "Ending Date-Time" on a new released prod. order line does not reset previously entered data.
         Initialize;
 
         MockProductionOrder(ReleasedProdOrder, ReleasedProdOrder.Status::Released);
@@ -3502,6 +3531,17 @@ codeunit 137079 "SCM Production Order III"
         ReleasedProductionOrderCard."Due Date".SetValue(NewDate);
         ReleasedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
 
+        ItemNo := LibraryInventory.CreateItemNo();
+        ReleasedProductionOrderCard.ProdOrderLines.New();
+        ReleasedProductionOrderCard.ProdOrderLines."Item No.".SetValue(ItemNo);
+        ReleasedProductionOrderCard.ProdOrderLines."Ending Date-Time".SetValue(NewDate);
+        ReleasedProductionOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
+
+        ReleasedProductionOrderCard.ProdOrderLines.New();
+        ReleasedProductionOrderCard.ProdOrderLines."Item No.".SetValue(ItemNo);
+        ReleasedProductionOrderCard.ProdOrderLines."Starting Date-Time".SetValue(NewDate);
+        ReleasedProductionOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
+
         ReleasedProductionOrderCard.Close;
     end;
 
@@ -3535,9 +3575,11 @@ codeunit 137079 "SCM Production Order III"
         SimulatedProductionOrderCard: TestPage "Simulated Production Order";
         NewDate: Date;
         NewTime: Time;
+        ItemNo: Code[20];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Simulated Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field
+        // [SCENARIO 379091] Validating "Starting Date-Time" and "Ending Date-Time" on a new simulated prod. order line does not reset previously entered data.
         Initialize;
 
         MockProductionOrder(SimulatedProdOrder, SimulatedProdOrder.Status::Simulated);
@@ -3572,6 +3614,17 @@ codeunit 137079 "SCM Production Order III"
         NewDate := LibraryRandom.RandDate(30);
         SimulatedProductionOrderCard."Due Date".SetValue(NewDate);
         SimulatedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
+
+        ItemNo := LibraryInventory.CreateItemNo();
+        SimulatedProductionOrderCard.ProdOrderLines.New();
+        SimulatedProductionOrderCard.ProdOrderLines."Item No.".SetValue(ItemNo);
+        SimulatedProductionOrderCard.ProdOrderLines."Ending Date-Time".SetValue(NewDate);
+        SimulatedProductionOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
+
+        SimulatedProductionOrderCard.ProdOrderLines.New();
+        SimulatedProductionOrderCard.ProdOrderLines."Item No.".SetValue(ItemNo);
+        SimulatedProductionOrderCard.ProdOrderLines."Starting Date-Time".SetValue(NewDate);
+        SimulatedProductionOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
 
         SimulatedProductionOrderCard.Close;
     end;
@@ -3674,6 +3727,62 @@ codeunit 137079 "SCM Production Order III"
         ProductionOrder.Get(ProductionOrder.Status::Released, ReleasedProdOrderNo);
         ProductionOrder.TestField("Starting Date-Time", CreateDateTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time"));
         ProductionOrder.TestField("Ending Date-Time", CreateDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time"));
+    end;
+
+    [Test]
+    procedure FromProductionBinCodeAtWorkCenterIsUsedForProdOrderSKUExists()
+    var
+        Location: Record Location;
+        Bin: array[4] of Record Bin;
+        BinContent: Record "Bin Content";
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Work Center] [Bin]
+        // [SCENARIO 383668] Bin Code from "From-Production Bin Code" of Work Center of the SKU's routing is used with the top priority as a default bin for production order.
+        Initialize();
+
+        // [GIVEN] Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location "L" with bin "A" set up as "From-Production Bin Code".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("From-Production Bin Code", Bin[1].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create stockkeeping unit at location "L".
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", '');
+
+        // [GIVEN] Bin "B" set up as Default bin at the location.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin[2].Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        // [GIVEN] Work Center at location "L". Set bin "C" as "From-Production Bin Code".
+        // [GIVEN] Create a routing with the work center and update the item.
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter, Location.Code, Bin[3].Code);
+        UpdateItemManufacturingProperties(Item, '', CreateRouting(WorkCenter."No."));
+
+        // [GIVEN] Second Work Center at location "L". Set bin "D" as "From-Production Bin Code".
+        // [GIVEN] Create a routing with the work center and update the SKU.
+        LibraryWarehouse.CreateBin(Bin[4], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter, Location.Code, Bin[4].Code);
+        UpdateSKUManufacturingProperties(StockkeepingUnit, '', CreateRouting(WorkCenter."No."));
+
+        // [GIVEN] Create production order.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Validate location code = "L" on the production order.
+        ProductionOrder.Validate("Location Code", Location.Code);
+
+        // [THEN] Bin Code on the production order has been updated to "D" which is a "From-Production Bin Code" in the Work Center of the SKU's routing.
+        ProductionOrder.TestField("Bin Code", Bin[4].Code);
     end;
 
     [Test]
@@ -3987,6 +4096,7 @@ codeunit 137079 "SCM Production Order III"
         ItemJournalSetup;
         ConsumptionJournalSetup;
         OutputJournalSetup;
+        ShopCalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
 
         IsInitialized := true;
         Commit();
@@ -5507,6 +5617,15 @@ codeunit 137079 "SCM Production Order III"
         end;
     end;
 
+    local procedure UpdateSKUManufacturingProperties(var StockkeepingUnit: Record "Stockkeeping Unit"; ProdBOMNo: Code[20]; RoutingNo: Code[20])
+    begin
+        StockkeepingUnit.Validate("Replenishment System", StockkeepingUnit."Replenishment System"::"Prod. Order");
+        StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
+        StockkeepingUnit.Validate("Production BOM No.", ProdBOMNo);
+        StockkeepingUnit.Validate("Routing No.", RoutingNo);
+        StockkeepingUnit.Modify(true);
+    end;
+
     local procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup")
     var
         InventorySetup2: Record "Inventory Setup";
@@ -5515,7 +5634,6 @@ codeunit 137079 "SCM Production Order III"
         LibraryVariableStorage.Enqueue(ChangeExpectedCostPostingToGLMsg);
         LibraryVariableStorage.Enqueue(ExpectedCostPostingChangedMsg);
         LibraryVariableStorage.Enqueue(UnadjustedValueEntriesNotCoveredMsg);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
         InventorySetup.Get();  // To maintain the original state of setup.
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup2."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
@@ -5937,7 +6055,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
         PostedInvtPickLine.SetRange("Item No.", ItemNo);
-        PostedInvtPickLine.FindSet;
+        PostedInvtPickLine.FindSet();
         repeat
             PostedInvtPickLine.TestField("Bin Code", BinCode);
             PostedInvtPickLine.TestField(Quantity, Quantity);
@@ -5963,13 +6081,13 @@ codeunit 137079 "SCM Production Order III"
         ValueEntry.TestField("Cost Amount (Actual)", CostAmountActual);
     end;
 
-    local procedure VerifyValueEntrySource(ProdOrderNo: Code[20]; SourceNo: Code[20]; SourceType: Option " ",Customer,Vendor,Item)
+    local procedure VerifyValueEntrySource(ProdOrderNo: Code[20]; SourceNo: Code[20]; SourceType: Enum "Analysis Source Type")
     var
         ValueEntry: Record "Value Entry";
     begin
         with ValueEntry do begin
             SetRange("Order No.", ProdOrderNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(SourceType, "Source Type", StrSubstNo(ValueEntrySourceTypeErr, SourceType));
                 Assert.AreEqual(SourceNo, "Source No.", StrSubstNo(ValueEntrySourceNoErr, SourceNo));
@@ -6005,7 +6123,7 @@ codeunit 137079 "SCM Production Order III"
         with ItemLedgerEntry do begin
             SetRange("Entry Type", "Entry Type"::Output);
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             TestField(Quantity, Qty);
             TestField("Location Code", Location);
             Next;

@@ -24,7 +24,7 @@ page 5600 "Fixed Asset Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -69,11 +69,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     OptionCaption = 'Fixed Assets,Intangible Asset';
                     ToolTip = 'Specifies the type of asset.';
-                }
-                field("CD No."; "CD No.")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the customs declaration number.';
                 }
                 field("Search Description"; "Search Description")
                 {
@@ -655,18 +650,18 @@ page 5600 "Fixed Asset Card"
                 RunObject = Report "Fixed Asset - Details";
                 ToolTip = 'View detailed information about the fixed asset ledger entries that have been posted to a specified depreciation book for each fixed asset.';
             }
-            action("Book Value 01")
+            action("FA Book Value")
             {
                 ApplicationArea = FixedAssets;
-                Caption = 'Book Value 01';
+                Caption = 'FA Book Value';
                 Image = "Report";
                 RunObject = Report "Fixed Asset - Book Value 01";
                 ToolTip = 'View detailed information about acquisition cost, depreciation and book value for both individual fixed assets and groups of fixed assets. For each of these three amount types, amounts are calculated at the beginning and at the end of a specified period as well as for the period itself.';
             }
-            action("Book Value 02")
+            action("FA Book Val. - Appr. & Write-D")
             {
                 ApplicationArea = FixedAssets;
-                Caption = 'Book Value 02';
+                Caption = 'FA Book Val. - Appr. & Write-D';
                 Image = "Report";
                 RunObject = Report "Fixed Asset - Book Value 02";
                 ToolTip = 'View detailed information about acquisition cost, depreciation, appreciation, write-down and book value for both individual fixed assets and groups of fixed assets. For each of these categories, amounts are calculated at the beginning and at the end of a specified period, as well as for the period itself.';

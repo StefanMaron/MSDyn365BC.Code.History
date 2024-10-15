@@ -10,7 +10,7 @@ report 7398 "Date Compress Whse. Entries"
     {
         dataitem("Warehouse Entry"; "Warehouse Entry")
         {
-            DataItemTableView = SORTING("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "CD No.", "Entry Type", Dedicated);
+            DataItemTableView = SORTING("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.", "Entry Type", Dedicated);
             RequestFilterFields = "Item No.", "Bin Code", "Location Code", "Zone Code";
 
             trigger OnAfterGetRecord()
@@ -343,7 +343,7 @@ report 7398 "Date Compress Whse. Entries"
                     PosWeight := PosWeight + LocalWhseEntry.Weight;
                     PosCubage := PosCubage + LocalWhseEntry.Cubage;
                 end;
-            until LocalWhseEntry.Next = 0;
+            until LocalWhseEntry.Next() = 0;
     end;
 
     local procedure UpdateITWhseEntries()
@@ -403,7 +403,7 @@ report 7398 "Date Compress Whse. Entries"
                     if LocalWhseEntry2.Find('-') then
                         repeat
                             QtyonBin := QtyonBin + LocalWhseEntry2."Qty. (Base)";
-                        until LocalWhseEntry2.Next = 0;
+                        until LocalWhseEntry2.Next() = 0;
 
                     if QtyonBin <= 0 then begin
                         if LocalWhseEntry2.Find('-') then
@@ -421,7 +421,7 @@ report 7398 "Date Compress Whse. Entries"
                                 OnUpdateITWhseEntriesOnBeforeLocalWhseEntry2Modify(
                                     LocalWhseEntry2, RetainSerialNo, WhseItemTrackingSetup."Serial No. Required", RetainLotNo, WhseItemTrackingSetup."Lot No. Required");
                                 LocalWhseEntry2.Modify();
-                            until LocalWhseEntry2.Next = 0;
+                            until LocalWhseEntry2.Next() = 0;
 
                         if (not RetainSerialNo and WhseItemTrackingSetup."Serial No. Required") or
                            (not RetainLotNo and WhseItemTrackingSetup."Lot No. Required")
@@ -436,7 +436,7 @@ report 7398 "Date Compress Whse. Entries"
                         OnUpdateITWhseEntriesOnAfterSetWhseEntry2(
                             WhseEntry2, RetainSerialNo, WhseItemTrackingSetup."Serial No. Required", RetainLotNo, WhseItemTrackingSetup."Lot No. Required");
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

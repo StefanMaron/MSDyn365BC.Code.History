@@ -270,7 +270,7 @@ codeunit 12410 "VAT Prepayment-Post"
                     SalesInvLine."VAT Base Amount" := SalesInvLine.Amount;
                 end;
                 SalesInvLine.Insert();
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         // Final line update
         if TotalAmountInclVAT <> 0 then begin
@@ -601,7 +601,7 @@ codeunit 12410 "VAT Prepayment-Post"
                     TempOrigPurchInvLine.Init();
                     TempOrigPurchInvLine.TransferFields(PurchLine);
                     TempOrigPurchInvLine.Insert();
-                until PurchLine.Next = 0;
+                until PurchLine.Next() = 0;
         end else begin
             OrigPurchInvHeader.Get(GenJnlLine."Initial Document No.");
             TempOrigPurchInvHeader.Init();
@@ -613,7 +613,7 @@ codeunit 12410 "VAT Prepayment-Post"
                     TempOrigPurchInvLine.Init();
                     TempOrigPurchInvLine.TransferFields(OrigPurchInvLine);
                     TempOrigPurchInvLine.Insert();
-                until OrigPurchInvLine.Next = 0;
+                until OrigPurchInvLine.Next() = 0;
         end;
 
         PurchInvHeader.Init();
@@ -714,7 +714,7 @@ codeunit 12410 "VAT Prepayment-Post"
                 PurchInvLine."VAT Base Amount" := PurchInvLine.Amount;
                 PurchInvLine."Dimension Set ID" := GenJnlLine."Dimension Set ID";
                 PurchInvLine.Insert();
-            until InitialPurchInvLine.Next = 0;
+            until InitialPurchInvLine.Next() = 0;
 
         PurchInvLine."Amount Including VAT" += RemTotalAmountInclVAT;
         PurchInvLine.Amount += RemTotalAmount;

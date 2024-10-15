@@ -345,7 +345,7 @@ table 221 "Gen. Jnl. Allocation"
         if FromAllocations then
             UpdateGenJnlLine := true
         else
-            if not GenJnlAlloc.IsEmpty then begin
+            if not GenJnlAlloc.IsEmpty() then begin
                 GenJnlAlloc.LockTable();
                 UpdateGenJnlLine := true;
             end;
@@ -378,7 +378,7 @@ table 221 "Gen. Jnl. Allocation"
                     GenJnlAlloc.UpdateVAT(GenJnlLine);
                     GenJnlAlloc.Modify();
                 end;
-            until GenJnlAlloc.Next = 0;
+            until GenJnlAlloc.Next() = 0;
 
         if UpdateGenJnlLine then
             UpdateJnlBalance(GenJnlLine);
@@ -425,7 +425,7 @@ table 221 "Gen. Jnl. Allocation"
                             GenJnlAlloc2.SetFilter("Allocation Quantity", '<>0');
                             repeat
                                 TotalQty := TotalQty + GenJnlAlloc2."Allocation Quantity";
-                            until GenJnlAlloc2.Next = 0;
+                            until GenJnlAlloc2.Next() = 0;
                             if TotalQty = 0 then
                                 TotalQty := 1;
                         end;
@@ -443,7 +443,7 @@ table 221 "Gen. Jnl. Allocation"
                     end;
                     GenJnlAlloc.Modify();
                 end;
-            until GenJnlAlloc.Next = 0;
+            until GenJnlAlloc.Next() = 0;
         end;
     end;
 

@@ -645,7 +645,7 @@ table 17386 "Absence Line"
         if PostedAbsenceLine.Find('-') then
             repeat
                 Days := Days + PostedAbsenceLine."Payment Days" + PostedAbsenceLine."Special Payment Days";
-            until PostedAbsenceLine.Next = 0;
+            until PostedAbsenceLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

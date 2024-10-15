@@ -468,7 +468,7 @@ codeunit 137306 "SCM Costing Reports"
         GLEntry.SetFilter(
           "Document No.", '%1|%2|%3|%4|%5', Item."No.", DocumentNo, DocumentNo2, DocumentNo3, DocumentNo4);
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."Inventory Account");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             ActualAmount := ActualAmount + GLEntry.Amount;
         until GLEntry.Next = 0;

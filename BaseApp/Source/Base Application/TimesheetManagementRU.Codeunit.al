@@ -175,7 +175,7 @@ codeunit 17440 "Timesheet Management RU"
                     if TimesheetDetail."Document No." <> '' then
                         Error(Text001, TimesheetDetail."Document No.", EmployeeNo, Date);
                 end;
-            until TimesheetDetail.Next = 0;
+            until TimesheetDetail.Next() = 0;
         TimesheetDetail.DeleteAll();
 
         // Insert planned hours

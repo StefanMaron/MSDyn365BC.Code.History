@@ -204,7 +204,7 @@ report 17353 "Employee Card T-2"
                     end;
 
                     RowNo += 1;
-                until (Next = 0) or (RowNo > 1);
+                until (Next() = 0) or (RowNo > 1);
         end;
     end;
 
@@ -242,7 +242,7 @@ report 17353 "Employee Card T-2"
                 repeat
                     if MaxQualification."Type of Education" < "Type of Education" then
                         MaxQualification := EmployeeQualification;
-                until Next = 0;
+                until Next() = 0;
 
             if Get(PersonNo, MaxQualification."Qualification Type",
                  MaxQualification."From Date", MaxQualification."Line No.")
@@ -378,7 +378,7 @@ report 17353 "Employee Card T-2"
                         ExcelMgt.FillCell('AY' + Format(RowNo), Format(Date2DMY("Birth Date", 3)));
 
                     RowNo += 1;
-                until (RowNo > 22) or (Next = 0);
+                until (RowNo > 22) or (Next() = 0);
             end;
         end;
     end;
@@ -429,7 +429,7 @@ report 17353 "Employee Card T-2"
                 repeat
                     FillJobHistoryCells(RowNo, EmplJobEntry);
                     RowNo += 1;
-                until (Next = 0)
+                until (Next() = 0)
             end
         end
     end;
@@ -484,7 +484,7 @@ report 17353 "Employee Card T-2"
                     ExcelMgt.FillCell('AQ' + Format(RowNo), Format("Document Date"));
 
                     RowNo += 1;
-                until Next = 0;
+                until Next() = 0;
             end;
         end
     end;
@@ -526,7 +526,7 @@ report 17353 "Employee Card T-2"
                         ExcelMgt.FillCell('BA' + Format(RowNo), ClassificatorOKIN.Name);
 
                     RowNo += 1;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;

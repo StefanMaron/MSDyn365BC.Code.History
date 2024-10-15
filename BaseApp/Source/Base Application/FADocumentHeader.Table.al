@@ -409,7 +409,7 @@ table 12470 "FA Document Header"
                         FADocLine.Validate("FA Location Code", "New FA Location Code");
                 end;
                 FADocLine.Modify(true);
-            until FADocLine.Next = 0;
+            until FADocLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -430,7 +430,7 @@ table 12470 "FA Document Header"
             repeat
                 Index += 1;
                 Comment[Index] := FAComment.Comment
-            until (FAComment.Next = 0) or (Index = ArrayLen(Comment));
+            until (FAComment.Next() = 0) or (Index = ArrayLen(Comment));
     end;
 
     [Scope('OnPrem')]
@@ -443,7 +443,7 @@ table 12470 "FA Document Header"
         if FADocLine.FindSet then
             repeat
                 FADocLine.Check("FA Location Code", "New FA Location Code", "FA Employee No.");
-            until FADocLine.Next = 0;
+            until FADocLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -487,7 +487,7 @@ table 12470 "FA Document Header"
                       FADocLine."Dimension Set ID", FADocLine."Shortcut Dimension 1 Code", FADocLine."Shortcut Dimension 2 Code");
                     FADocLine.Modify();
                 end;
-            until FADocLine.Next = 0;
+            until FADocLine.Next() = 0;
     end;
 }
 

@@ -32,7 +32,7 @@ codeunit 8616 "Config. Management"
                 Error(Text000);
             if not FindFirst then
                 exit;
-            SingleTable := Next = 0;
+            SingleTable := Next() = 0;
             if SingleTable then begin
                 ConfirmTableText := StrSubstNo(Text001, Name, NewCompanyName);
                 MessageTableText := StrSubstNo(Text002, Name, NewCompanyName);
@@ -45,7 +45,7 @@ codeunit 8616 "Config. Management"
             if FindSet then
                 repeat
                     CopyData(ConfigLine);
-                until Next = 0;
+                until Next() = 0;
             Commit();
             Message(MessageTableText)
         end;
@@ -96,7 +96,7 @@ codeunit 8616 "Config. Management"
         if not CopyTable then
             exit;
         FromCompanyRecRef.Open(TableNumber, false, NewCompanyName);
-        if FromCompanyRecRef.IsEmpty then begin
+        if FromCompanyRecRef.IsEmpty() then begin
             FromCompanyRecRef.Close;
             exit;
         end;
@@ -113,10 +113,10 @@ codeunit 8616 "Config. Management"
                         ToCompanyFieldRef := ToCompanyRecRef.Field(FieldRec."No.");
                         ToCompanyFieldRef.Value(FromCompanyFieldRef.Value);
                     end;
-                until FieldRec.Next = 0;
+                until FieldRec.Next() = 0;
                 ToCompanyRecRef.Insert(true);
             end;
-        until FromCompanyRecRef.Next = 0;
+        until FromCompanyRecRef.Next() = 0;
         // Treatment of fields that require post-validation:
         TempFieldRec.SetRange(TableNo, TableNumber);
         TempFieldRec.SetRange(ObsoleteState, TempFieldRec.ObsoleteState::No);
@@ -125,14 +125,14 @@ codeunit 8616 "Config. Management"
             repeat
                 ToCompanyRecRef.SetPosition(FromCompanyRecRef.GetPosition);
                 ToCompanyRecRef.Find('=');
-                TempFieldRec.FindSet;
+                TempFieldRec.FindSet();
                 repeat
                     FromCompanyFieldRef := FromCompanyRecRef.Field(TempFieldRec."No.");
                     ToCompanyFieldRef := ToCompanyRecRef.Field(TempFieldRec."No.");
                     ToCompanyFieldRef.Value(FromCompanyFieldRef.Value);
-                until TempFieldRec.Next = 0;
+                until TempFieldRec.Next() = 0;
                 ToCompanyRecRef.Modify(true);
-            until FromCompanyRecRef.Next = 0;
+            until FromCompanyRecRef.Next() = 0;
         end;
 
         FromCompanyRecRef.Close;
@@ -304,8 +304,10 @@ codeunit 8616 "Config. Management"
                 exit(PAGE::"Sales Cycles");
             DATABASE::"Close Opportunity Code":
                 exit(PAGE::"Close Opportunity Codes");
+#if not CLEAN18
             DATABASE::"Customer Template":
                 exit(PAGE::"Customer Template List");
+#endif
             DATABASE::"Service Mgt. Setup":
                 exit(PAGE::"Service Mgt. Setup");
             DATABASE::"Service Item":
@@ -670,7 +672,7 @@ codeunit 8616 "Config. Management"
                         if Field.FindSet then
                             repeat
                                 InsertTempInt(TempInt, Field.RelationTableNo, IncludeLicensedTablesOnly);
-                            until Field.Next = 0;
+                            until Field.Next() = 0;
                     end;
                     if IncludeDimensionTables then
                         if CheckDimTables(AllObj."Object ID") then begin
@@ -678,12 +680,12 @@ codeunit 8616 "Config. Management"
                             IncludeDimensionTables := false;
                         end;
                 end;
-            until AllObj.Next = 0;
+            until AllObj.Next() = 0;
 
         if TempInt.FindSet then
             repeat
                 InsertConfigLine(TempInt.Number, NextLineNo, NextVertNo);
-            until TempInt.Next = 0;
+            until TempInt.Next() = 0;
 
         if not HideDialog then
             ConfigProgressBar.Close;
@@ -712,7 +714,7 @@ codeunit 8616 "Config. Management"
             repeat
                 if IsDimSetIDField(Field.TableNo, Field."No.") then
                     exit(true);
-            until Field.Next = 0;
+            until Field.Next() = 0;
     end;
 
     local procedure CheckTable(TableID: Integer): Boolean
@@ -750,7 +752,9 @@ codeunit 8616 "Config. Management"
           DATABASE::"Work Center",
           DATABASE::"Salesperson/Purchaser",
           DATABASE::Campaign,
+#if not CLEAN18
           DATABASE::"Customer Template",
+#endif
           DATABASE::"Cash Flow Manual Expense",
           DATABASE::"Cash Flow Manual Revenue":
                 exit(true);
@@ -833,7 +837,7 @@ codeunit 8616 "Config. Management"
                             end;
                     end;
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -848,7 +852,7 @@ codeunit 8616 "Config. Management"
                 if (ConfigLine."Table ID" > 0) and (ConfigLine.Status <= ConfigLine.Status::Completed) then
                     Filter += Format(ConfigLine."Table ID") + '|';
                 AddDimTables := AddDimTables or ConfigLine."Dimensions as Columns";
-            until ConfigLine.Next = 0;
+            until ConfigLine.Next() = 0;
         if AddDimTables and not Export then
             Filter += StrSubstNo('%1|%2|', DATABASE::"Dimension Value", DATABASE::"Default Dimension");
         if Filter <> '' then
@@ -865,6 +869,8 @@ codeunit 8616 "Config. Management"
     local procedure InsertTempInt(var TempInt: Record "Integer"; TableId: Integer; IncludeLicensedTablesOnly: Boolean)
     var
         ConfigLine: Record "Config. Line";
+        EnvironmentInformation: Codeunit "Environment Information";
+        EffectivePermissionsMgt: Codeunit "Effective Permissions Mgt.";
     begin
         if CheckTable(TableId) then begin
             TempInt.Number := TableId;
@@ -873,9 +879,15 @@ codeunit 8616 "Config. Management"
             ConfigLine."Line Type" := ConfigLine."Line Type"::Table;
             ConfigLine."Table ID" := TableId;
             if IncludeLicensedTablesOnly then begin
-                ConfigLine.CalcFields("Licensed Table");
-                if ConfigLine."Licensed Table" then
-                    if TempInt.Insert() then;
+                if EnvironmentInformation.IsSaaS() then begin
+                    if EffectivePermissionsMgt.HasDirectRIMPermissionsOnTableData(TableId) then
+                        if TempInt.Insert() then;
+                end
+                else begin
+                    ConfigLine.CalcFields("Licensed Table");
+                    if ConfigLine."Licensed Table" then
+                        if TempInt.Insert() then;
+                end;
             end else
                 if TempInt.Insert() then;
         end;

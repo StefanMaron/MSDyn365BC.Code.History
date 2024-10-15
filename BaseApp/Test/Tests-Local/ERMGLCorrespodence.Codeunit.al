@@ -584,8 +584,8 @@ codeunit 144016 "ERM G/L Correspodence"
           InitialGLCorrespondenceEntry.Count, ReversedGLCorrespondenceEntry.Count,
           'Rversed and Initial G/L Correspondence Entries must have the same number of records.');
 
-        InitialGLCorrespondenceEntry.FindSet;
-        ReversedGLCorrespondenceEntry.FindSet;
+        InitialGLCorrespondenceEntry.FindSet();
+        ReversedGLCorrespondenceEntry.FindSet();
         with InitialGLCorrespondenceEntry do
             repeat
                 Assert.AreEqual("Debit Account No.", ReversedGLCorrespondenceEntry."Debit Account No.", FieldCaption("Debit Account No."));

@@ -498,7 +498,7 @@ page 14925 "VAT Settlement Worksheet"
                     EntryToPost := Rec;
                     EntryToPost.Insert();
                 end;
-            until Next = 0;
+            until Next() = 0;
         Rec := CurrRec;
         Reset;
         CopyFilters(Filters);
@@ -508,7 +508,7 @@ page 14925 "VAT Settlement Worksheet"
         EntryToPost.SetFilter("Date Filter", GetFilter("Date Filter"));
         VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
         VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
-        if EntryToPost.IsEmpty then
+        if EntryToPost.IsEmpty() then
             Error(Text001);
         VATSettlementMgt.CopyToJnl(EntryToPost, VATEntry);
         EntryToPost.Reset();
@@ -557,8 +557,8 @@ page 14925 "VAT Settlement Worksheet"
             repeat
                 EntryNo.Number := "Entry No.";
                 EntryNo.Insert();
-            until Next = 0;
-        if EntryNo.IsEmpty then
+            until Next() = 0;
+        if EntryNo.IsEmpty() then
             Error(Text002);
 
         VATEntry.SetFilter(Type, GetFilter("Entry Type"));
@@ -569,11 +569,11 @@ page 14925 "VAT Settlement Worksheet"
         VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
         VATEntry.SetRange("Manual VAT Settlement", true);
         if VATSettlementMgt.SetGroupVATAlloc(VATEntry, EntryNo) then begin
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("VAT Amount To Allocate");
                 "Allocated VAT Amount" := "VAT Amount To Allocate";
-            until Next = 0;
+            until Next() = 0;
         end;
         EntryNo.DeleteAll();
 
@@ -627,7 +627,7 @@ page 14925 "VAT Settlement Worksheet"
                   "Vendor VAT Invoice Rcvd Date");
                 SetChangedVATInvoice;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         SetRange("Changed Vendor VAT Invoice");
         Rec := CurrRec;
         CurrPage.Update(false);

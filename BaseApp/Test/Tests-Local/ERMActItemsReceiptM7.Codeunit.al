@@ -127,27 +127,27 @@ codeunit 144708 "ERM Act Items Receipt M-7"
 
     local procedure PrintM7ItemDocumentReceipt(LineQty: Integer): Code[20]
     var
-        ItemDocumentHeader: Record "Item Document Header";
+        InvtDocumentHeader: Record "Invt. Document Header";
         ActItemsReceiptM7: Report "Act Items Receipt M-7";
     begin
         Initialize;
 
-        CreateItemDocumentReceipt(ItemDocumentHeader, LineQty);
+        CreateItemDocumentReceipt(InvtDocumentHeader, LineQty);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
 
-        ItemDocumentHeader.SetRecFilter;
-        ActItemsReceiptM7.SetTableView(ItemDocumentHeader);
+        InvtDocumentHeader.SetRecFilter;
+        ActItemsReceiptM7.SetTableView(InvtDocumentHeader);
         ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ActItemsReceiptM7.UseRequestPage(false);
         ActItemsReceiptM7.Run;
 
-        exit(ItemDocumentHeader."No.");
+        exit(InvtDocumentHeader."No.");
     end;
 
     local procedure PrintM7ItemReceipt(LineQty: Integer) DocumentNo: Code[20]
     var
-        ItemReceiptHeader: Record "Item Receipt Header";
+        ItemReceiptHeader: Record "Invt. Receipt Header";
         ActItemsReceiptM7: Report "Act Items Receipt M-7";
     begin
         Initialize;
@@ -185,20 +185,20 @@ codeunit 144708 "ERM Act Items Receipt M-7"
 
     local procedure CreateAndPostItemDocument(LineQty: Integer): Code[20]
     var
-        ItemDocumentHeader: Record "Item Document Header";
+        InvtDocumentHeader: Record "Invt. Document Header";
     begin
-        CreateItemDocumentReceipt(ItemDocumentHeader, LineQty);
+        CreateItemDocumentReceipt(InvtDocumentHeader, LineQty);
 
-        CODEUNIT.Run(CODEUNIT::"Item Doc.-Post Receipt", ItemDocumentHeader);
+        CODEUNIT.Run(CODEUNIT::"Invt. Doc.-Post Receipt", InvtDocumentHeader);
 
-        exit(ItemDocumentHeader."Posting No.");
+        exit(InvtDocumentHeader."Posting No.");
     end;
 
-    local procedure CreateItemDocumentReceipt(var ItemDocumentHeader: Record "Item Document Header"; LineQty: Integer)
+    local procedure CreateItemDocumentReceipt(var InvtDocumentHeader: Record "Invt. Document Header"; LineQty: Integer)
     var
         i: Integer;
     begin
-        with ItemDocumentHeader do begin
+        with InvtDocumentHeader do begin
             Init;
             "Document Type" := "Document Type"::Receipt;
             Validate("Location Code", CreateLocation);
@@ -206,25 +206,23 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         end;
 
         for i := 1 to LineQty do
-            CreateItemDocumentLine(ItemDocumentHeader);
+            CreateInvtDocumentLine(InvtDocumentHeader);
     end;
 
-    local procedure CreateItemDocumentLine(var ItemDocumentHeader: Record "Item Document Header")
+    local procedure CreateInvtDocumentLine(var InvtDocumentHeader: Record "Invt. Document Header")
     var
-        ItemDocumentLine: Record "Item Document Line";
+        InvtDocumentLine: Record "Invt. Document Line";
         RecRef: RecordRef;
     begin
-        with ItemDocumentLine do begin
-            Init;
-            Validate("Document Type", ItemDocumentHeader."Document Type");
-            Validate("Document No.", ItemDocumentHeader."No.");
-            RecRef.GetTable(ItemDocumentLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Validate("Item No.", LibraryInventory.CreateItemNo);
-            Validate(Quantity, LibraryRandom.RandDecInRange(5, 10, 2));
-            Validate("Unit Amount", LibraryRandom.RandDecInRange(10, 100, 2));
-            Insert(true);
-        end;
+        InvtDocumentLine.Init;
+        InvtDocumentLine.Validate("Document Type", InvtDocumentHeader."Document Type");
+        InvtDocumentLine.Validate("Document No.", InvtDocumentHeader."No.");
+        RecRef.GetTable(InvtDocumentLine);
+        InvtDocumentLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, InvtDocumentLine.FieldNo("Line No.")));
+        InvtDocumentLine.Validate("Item No.", LibraryInventory.CreateItemNo);
+        InvtDocumentLine.Validate(Quantity, LibraryRandom.RandDecInRange(5, 10, 2));
+        InvtDocumentLine.Validate("Unit Amount", LibraryRandom.RandDecInRange(10, 100, 2));
+        InvtDocumentLine.Insert(true);
     end;
 
     local procedure CreateLocation(): Code[10]
@@ -243,7 +241,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         with PurchaseLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 i += 1;
                 AmountArr[i] := Amount;
@@ -253,33 +251,29 @@ codeunit 144708 "ERM Act Items Receipt M-7"
 
     local procedure GetDocumentLineAmounts(var AmountArr: array[5] of Decimal; DocumentNo: Code[20])
     var
-        ItemDocumentLine: Record "Item Document Line";
+        InvtDocumentLine: Record "Invt. Document Line";
         i: Integer;
     begin
-        with ItemDocumentLine do begin
-            SetRange("Document Type", "Document Type"::Receipt);
-            SetRange("Document No.", DocumentNo);
-            FindSet;
-            repeat
-                i += 1;
-                AmountArr[i] := Amount;
-            until Next = 0;
-        end;
+        InvtDocumentLine.SetRange("Document Type", InvtDocumentLine."Document Type"::Receipt);
+        InvtDocumentLine.SetRange("Document No.", DocumentNo);
+        InvtDocumentLine.FindSet();
+        repeat
+            i += 1;
+            AmountArr[i] := InvtDocumentLine.Amount;
+        until InvtDocumentLine.Next() = 0;
     end;
 
     local procedure GetReceiptLineAmounts(var AmountArr: array[5] of Decimal; DocumentNo: Code[20])
     var
-        ItemReceiptLine: Record "Item Receipt Line";
+        ItemReceiptLine: Record "Invt. Receipt Line";
         i: Integer;
     begin
-        with ItemReceiptLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindSet;
-            repeat
-                i += 1;
-                AmountArr[i] := Amount;
-            until Next = 0;
-        end;
+        ItemReceiptLine.SetRange("Document No.", DocumentNo);
+        ItemReceiptLine.FindSet();
+        repeat
+            i += 1;
+            AmountArr[i] := ItemReceiptLine.Amount;
+        until ItemReceiptLine.Next() = 0;
     end;
 
     local procedure VerifyLineAmounts(AmountArr: array[5] of Decimal; LineQty: Integer; WorksheetNo: Integer)

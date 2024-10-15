@@ -18,59 +18,60 @@ page 6503 "Avail. - Item Tracking Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Reservation Status"; "Reservation Status")
+                field("Reservation Status"; Rec."Reservation Status")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the status of the reservation.';
                     Visible = false;
                 }
-                field(TextCaption; TextCaption)
+                field(TextCaption; Rec.TextCaption())
                 {
                     ApplicationArea = ItemTracking;
                     Caption = 'Document Type';
                     ToolTip = 'Specifies the type of document.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies for which source type the reservation entry is related to.';
                     Visible = false;
                 }
-                field("Source ID"; "Source ID")
+                field("Source ID"; Rec."Source ID")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies which source ID the reservation entry is related to.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the Location of the items that have been reserved in the entry.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of the item that is being handled on the document line.';
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the lot number of the item that is being handled with the associated document line.';
                 }
-                field("CD No."; "CD No.")
+                field("Package No."; Rec."Package No.")
                 {
-                    ToolTip = 'Specifies the customs declaration number.';
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number of the item that is being handled with the associated document line.';
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the date on which the reserved items are expected to enter inventory.';
                 }
-                field("Quantity (Base)"; "Quantity (Base)")
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the quantity of the item that has been reserved in the entry.';
                 }
-                field(ReservedQtyBase; GetReservedQtyBase)
+                field(ReservedQtyBase; GetReservedQtyBase())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Reserved Qty. (Base)';
@@ -85,7 +86,7 @@ page 6503 "Avail. - Item Tracking Lines"
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the item that is available for reservation.';
                 }
-                field(ReservedThisLine; GetReservedQty)
+                field(ReservedThisLine; GetReservedQty())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -128,8 +129,9 @@ page 6503 "Avail. - Item Tracking Lines"
 
                     trigger OnAction()
                     begin
-                        ReservMgt.LookupDocument("Source Type", "Source Subtype", "Source ID",
-                          "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
+                        ReservMgt.LookupDocument(
+                            Rec."Source Type", Rec."Source Subtype", Rec."Source ID",
+                            Rec."Source Batch Name", Rec."Source Prod. Order Line", Rec."Source Ref. No.");
                     end;
                 }
             }
@@ -152,10 +154,10 @@ page 6503 "Avail. - Item Tracking Lines"
                     begin
                         if not EnableReservations then
                             exit;
-                        if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
+                        if not ConfirmManagement.GetResponseOrDefault(CancelReservationQst, true) then
                             exit;
                         ReservEngineMgt.CancelReservation(Rec);
-                        UpdateReservFrom;
+                        UpdateReservFrom();
                     end;
                 }
                 action(Action36)
@@ -168,8 +170,9 @@ page 6503 "Avail. - Item Tracking Lines"
 
                     trigger OnAction()
                     begin
-                        ReservMgt.LookupDocument("Source Type", "Source Subtype", "Source ID",
-                          "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
+                        ReservMgt.LookupDocument(
+                            Rec."Source Type", Rec."Source Subtype", Rec."Source ID",
+                            Rec."Source Batch Name", Rec."Source Prod. Order Line", Rec."Source Ref. No.");
                     end;
                 }
             }
@@ -186,10 +189,12 @@ page 6503 "Avail. - Item Tracking Lines"
     begin
         FunctionButton1Visible := EnableReservations;
         FunctionButton2Visible := not EnableReservations;
+
+        SetPackageTrackingVisibility();
     end;
 
     var
-        Text001: Label 'Cancel reservation?';
+        CancelReservationQst: Label 'Cancel reservation?';
         ReservEntry: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
@@ -201,6 +206,8 @@ page 6503 "Avail. - Item Tracking Lines"
         FunctionButton1Visible: Boolean;
         [InDataSet]
         FunctionButton2Visible: Boolean;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     procedure SetReservSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -221,6 +228,7 @@ page 6503 "Avail. - Item Tracking Lines"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -291,19 +299,27 @@ page 6503 "Avail. - Item Tracking Lines"
         SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    procedure SetItemTrackingLine(LookupType: Integer; LookupSubtype: Integer; CurrentReservEntry: Record "Reservation Entry"; SearchForSupply: Boolean; AvailabilityDate: Date)
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
+    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        ReservMgt.SetMatchFilter(CurrentReservEntry, Rec, SearchForSupply, AvailabilityDate);
-        SetRange("Source Type", LookupType);
-        SetRange("Source Subtype", LookupSubtype);
-        EnableReservations := true;
+        SourceRecRef.GetTable(CurrentAssemblyLine);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetItemDocLine(var CurrentItemDocLine: Record "Item Document Line"; CurrentReservEntry: Record "Reservation Entry")
+    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        SourceRecRef.GetTable(CurrentItemDocLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, "Transfer DIrection"::Outbound);
+        SourceRecRef.GetTable(CurrentAssemblyHeader);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
+    end;
+#endif
+
+    procedure SetItemTrackingLine(LookupType: Integer; LookupSubtype: Integer; CurrentReservEntry: Record "Reservation Entry"; SearchForSupply: Boolean; AvailabilityDate: Date)
+    begin
+        ReservMgt.SetMatchFilter(CurrentReservEntry, Rec, SearchForSupply, AvailabilityDate);
+        Rec.SetRange("Source Type", LookupType);
+        Rec.SetRange("Source Subtype", LookupSubtype);
+        EnableReservations := true;
     end;
 
     local procedure UpdateReservFrom()
@@ -323,18 +339,11 @@ page 6503 "Avail. - Item Tracking Lines"
         // This procedure is intentionally left blank.
     end;
 
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
     begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetReservSource(SourceRecRef, CurrentReservEntry);
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     [IntegrationEvent(true, false)]

@@ -108,7 +108,7 @@ codeunit 14949 "TORG-29 Helper"
                                         TempValueEntryReceipts."Job No." := GLEntry."G/L Account No."
                                     else
                                         TempValueEntryReceipts."Job Task No." := GLEntry."G/L Account No."
-                            until GLItemRelation.Next = 0;
+                            until GLItemRelation.Next() = 0;
                     end;
                     TempValueEntryReceipts."Posting Date" := ValueEntryReceipts."Posting Date";
                     TempValueEntryReceipts."Sales Amount (Actual)" := CurrentSalesAmount;
@@ -165,7 +165,7 @@ codeunit 14949 "TORG-29 Helper"
                     else
                         TempValueEntryReceipts.Insert();
                 end;
-            until ValueEntryReceipts.Next = 0;
+            until ValueEntryReceipts.Next() = 0;
         ValueEntryReceipts.Reset();
         TempValueEntryReceipts.Reset();
     end;
@@ -257,7 +257,7 @@ codeunit 14949 "TORG-29 Helper"
                                         TempValueEntryShipment."Job No." := GLEntry."G/L Account No."
                                     else
                                         TempValueEntryShipment."Job Task No." := GLEntry."G/L Account No.";
-                            until GLItemRelation.Next = 0;
+                            until GLItemRelation.Next() = 0;
                     end;
 
                     TempValueEntryShipment."Posting Date" := ValueEntryShipment."Posting Date";
@@ -315,7 +315,7 @@ codeunit 14949 "TORG-29 Helper"
                     else
                         TempValueEntryShipment.Insert();
                 end;
-            until ValueEntryShipment.Next = 0;
+            until ValueEntryShipment.Next() = 0;
         ValueEntryShipment.Reset();
     end;
 
@@ -366,7 +366,7 @@ codeunit 14949 "TORG-29 Helper"
                             ResidOnstart +=
                               CalcAmountFromSalesPrice(ErrorBuffer, ErrorsCount, ValueEntryReceipts, PassedSalesType, SalesCode, false);
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

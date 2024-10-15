@@ -81,7 +81,7 @@ codeunit 14962 PayrlAViewEntryToPayrlEntries
                         TempPayrollLedgerEntry := PayrollLedgerEntry;
                         if TempPayrollLedgerEntry.Insert() then;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

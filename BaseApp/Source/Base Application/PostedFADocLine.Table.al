@@ -111,7 +111,7 @@ table 12472 "Posted FA Doc. Line"
         field(50; "Item Receipt No."; Code[20])
         {
             Caption = 'Item Receipt No.';
-            TableRelation = "Item Document Header"."No." WHERE("Document Type" = CONST(Receipt));
+            TableRelation = "Invt. Document Header"."No." WHERE("Document Type" = CONST(Receipt));
         }
         field(51; Canceled; Boolean)
         {
@@ -189,7 +189,7 @@ table 12472 "Posted FA Doc. Line"
             repeat
                 Index += 1;
                 Comment[Index] := PostedFAComment.Comment
-            until (PostedFAComment.Next = 0) or (Index = ArrayLen(Comment));
+            until (PostedFAComment.Next() = 0) or (Index = ArrayLen(Comment));
     end;
 
     [Scope('OnPrem')]
@@ -229,7 +229,7 @@ table 12472 "Posted FA Doc. Line"
                 PstdFADocLine.Canceled := true;
                 PstdFADocLine.Modify();
                 LedgEntriesCanceled := true;
-            until PstdFADocLine.Next = 0;
+            until PstdFADocLine.Next() = 0;
         if LedgEntriesCanceled then begin
             Message(Text14703);
         end;

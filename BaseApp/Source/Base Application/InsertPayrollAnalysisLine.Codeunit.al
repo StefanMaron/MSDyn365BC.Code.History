@@ -25,7 +25,7 @@ codeunit 14963 "Insert Payroll Analysis Line"
                         InsertAnalysisLine(
                           PayrollAnalysisLine, AnalysisLineNo,
                           PayrollElement.Description, PayrollElement.Code, PayrollAnalysisLine.Type::"Payroll Element", false, 0);
-                    until PayrollElement.Next = 0;
+                    until PayrollElement.Next() = 0;
             end;
         end;
     end;
@@ -50,7 +50,7 @@ codeunit 14963 "Insert Payroll Analysis Line"
                         InsertAnalysisLine(
                           PayrollAnalysisLine, AnalysisLineNo,
                           PayrollElementGroup.Name, PayrollElementGroup.Code, PayrollAnalysisLine.Type::"Payroll Element Group", false, 0);
-                    until PayrollElementGroup.Next = 0;
+                    until PayrollElementGroup.Next() = 0;
             end;
         end;
     end;
@@ -75,7 +75,7 @@ codeunit 14963 "Insert Payroll Analysis Line"
                         InsertAnalysisLine(
                           PayrollAnalysisLine, AnalysisLineNo,
                           Employee."Short Name", Employee."No.", PayrollAnalysisLine.Type::Employee, false, 0);
-                    until Employee.Next = 0;
+                    until Employee.Next() = 0;
             end;
         end;
     end;
@@ -100,7 +100,7 @@ codeunit 14963 "Insert Payroll Analysis Line"
                         InsertAnalysisLine(
                           PayrollAnalysisLine, AnalysisLineNo,
                           OrgUnit.Name, OrgUnit.Code, PayrollAnalysisLine.Type::"Org. Unit", false, 0);
-                    until OrgUnit.Next = 0;
+                    until OrgUnit.Next() = 0;
             end;
         end;
     end;

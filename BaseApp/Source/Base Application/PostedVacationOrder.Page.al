@@ -123,7 +123,7 @@ page 17462 "Posted Vacation Order"
                     begin
                         Clear(AbsenceOrderPostYesNo);
                         AbsenceOrderPostYesNo.CancelOrder(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

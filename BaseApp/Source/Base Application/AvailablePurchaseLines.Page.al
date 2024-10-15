@@ -73,7 +73,7 @@ page 501 "Available - Purchase Lines"
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
                         UpdateReservFrom;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -154,7 +154,7 @@ page 501 "Available - Purchase Lines"
                             UpdateReservMgt;
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
-                            until ReservEntry2.Next = 0;
+                            until ReservEntry2.Next() = 0;
 
                             UpdateReservFrom;
                         end;
@@ -254,6 +254,7 @@ page 501 "Available - Purchase Lines"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -316,13 +317,7 @@ page 501 "Available - Purchase Lines"
         SourceRecRef.GetTable(CurrentJobPlanningLine);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetItemDocLine(var CurrentItemDocLine: Record "Item Document Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentItemDocLine);
-        SetSource(SourceRecRef, CurrentReservEntry, "Transfer Direction"::Outbound);
-    end;
+#endif
 
     local procedure CreateReservation(ReservedQuantity: Decimal; ReserveQuantityBase: Decimal)
     var

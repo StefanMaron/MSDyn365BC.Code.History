@@ -19,7 +19,7 @@ codeunit 29 "Error Message Handler"
     begin
         with TempErrorMessage do begin
             SetRange(Context, false);
-            if IsEmpty then
+            if IsEmpty() then
                 exit(false);
 
             LogLastError;
@@ -29,13 +29,13 @@ codeunit 29 "Error Message Handler"
             if TempErrorMessageBuf.FindLast then
                 NextID := TempErrorMessageBuf.ID;
             SetRange(Context, false);
-            FindSet;
+            FindSet();
             repeat
                 NextID += 1;
                 TempErrorMessageBuf := TempErrorMessage;
                 TempErrorMessageBuf.ID := NextID;
                 TempErrorMessageBuf.Insert();
-            until Next = 0;
+            until Next() = 0;
             exit(true);
         end;
     end;
@@ -103,7 +103,7 @@ codeunit 29 "Error Message Handler"
             ErrorMessage."Register ID" := RegisterID;
             ErrorMessage.ID := 0; // autoincrement
             ErrorMessage.Insert();
-        until TempErrorMessage.Next = 0;
+        until TempErrorMessage.Next() = 0;
     end;
 
     procedure WriteMessagesToFile(FileName: Text; ThrowLastError: Boolean) FileCreated: Boolean;
@@ -139,7 +139,7 @@ codeunit 29 "Error Message Handler"
                 LogFile.CreateOutStream(OutStr);
                 repeat
                     OutStr.WriteText("Additional Information" + ' : ' + Description + CRLF);
-                until Next = 0;
+                until Next() = 0;
                 if ErrorCallStack <> '' then
                     OutStr.WriteText(ErrorCallStack);
                 LogFile.Close();
@@ -160,7 +160,7 @@ codeunit 29 "Error Message Handler"
         exit(LastErrorCallStack);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnGetFirstContextID', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetFirstContextID', '', false, false)]
     local procedure OnGetFirstContextIDHandler(ContextRecordID: RecordID; var ContextID: Integer)
     begin
         if Active then begin
@@ -179,7 +179,7 @@ codeunit 29 "Error Message Handler"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnGetErrors', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetErrors', '', false, false)]
     local procedure OnGetErrorsHandler(var TempErrorMessageResult: Record "Error Message" temporary)
     begin
         if Active then begin
@@ -188,7 +188,7 @@ codeunit 29 "Error Message Handler"
                 repeat
                     TempErrorMessageResult := TempErrorMessage;
                     TempErrorMessageResult.Insert();
-                until TempErrorMessage.Next = 0;
+                until TempErrorMessage.Next() = 0;
             TempErrorMessage.Reset();
         end
     end;
@@ -199,7 +199,7 @@ codeunit 29 "Error Message Handler"
         exit(TempErrorMessage.HasErrors(false));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnGetLastErrorID', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetLastErrorID', '', false, false)]
     local procedure OnGetLastErrorID(var ID: Integer; var ErrorMessage: Text[250])
     begin
         if Active then begin
@@ -208,7 +208,7 @@ codeunit 29 "Error Message Handler"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnLogError', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnLogError', '', false, false)]
     local procedure OnLogErrorHandler(MessageType: Option; ContextFieldNo: Integer; ErrorMessage: Text; SourceVariant: Variant; SourceFieldNo: Integer; HelpArticleCode: Code[30]; var IsLogged: Boolean)
     begin
         if Active then begin
@@ -219,21 +219,21 @@ codeunit 29 "Error Message Handler"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnLogSimpleError', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnLogSimpleError', '', false, false)]
     local procedure OnLogSimpleErrorHandler(ErrorMessage: Text; var IsLogged: Boolean)
     begin
         if Active then
             IsLogged := TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, ErrorMessage) <> 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnFindActiveSubscriber', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnFindActiveSubscriber', '', false, false)]
     local procedure OnFindActiveSubscriberHandler(var IsFound: Boolean)
     begin
         if not IsFound then
             IsFound := Active;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnPushContext', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnPushContext', '', false, false)]
     local procedure OnPushContextHandler()
     begin
         TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Information, '');

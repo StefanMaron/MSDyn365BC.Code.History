@@ -21,7 +21,7 @@ page 17331 "Future Period Expense Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -233,7 +233,7 @@ page 17331 "Future Period Expense Card"
 
     local procedure TaxAmountOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

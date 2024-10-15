@@ -7,12 +7,12 @@ report 12461 "VAT Ledger Export XML"
     {
         dataitem(VATLedger; "VAT Ledger")
         {
-            DataItemTableView = SORTING(Type, Code);
+            DataItemTableView = SORTING (Type, Code);
             dataitem(SalesVATLedgerLine; "VAT Ledger Line")
             {
-                DataItemLink = Type = FIELD(Type), Code = FIELD(Code);
+                DataItemLink = Type = FIELD (Type), Code = FIELD (Code);
                 DataItemLinkReference = VATLedger;
-                DataItemTableView = SORTING(Type, Code, "Line No.") WHERE(Type = CONST(Sales), "Additional Sheet" = CONST(false));
+                DataItemTableView = SORTING (Type, Code, "Line No.") WHERE (Type = CONST (Sales), "Additional Sheet" = CONST (false));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -31,9 +31,9 @@ report 12461 "VAT Ledger Export XML"
             }
             dataitem(PurchVATLedgerLine; "VAT Ledger Line")
             {
-                DataItemLink = Type = FIELD(Type), Code = FIELD(Code);
+                DataItemLink = Type = FIELD (Type), Code = FIELD (Code);
                 DataItemLinkReference = VATLedger;
-                DataItemTableView = SORTING(Type, Code, "Line No.") WHERE(Type = CONST(Purchase), "Additional Sheet" = CONST(false));
+                DataItemTableView = SORTING (Type, Code, "Line No.") WHERE (Type = CONST (Purchase), "Additional Sheet" = CONST (false));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -52,9 +52,9 @@ report 12461 "VAT Ledger Export XML"
             }
             dataitem(SalesVATLedgerLineAddSheet; "VAT Ledger Line")
             {
-                DataItemLink = Type = FIELD(Type), Code = FIELD(Code);
+                DataItemLink = Type = FIELD (Type), Code = FIELD (Code);
                 DataItemLinkReference = VATLedger;
-                DataItemTableView = SORTING(Type, Code, "Line No.") WHERE(Type = CONST(Sales), "Additional Sheet" = CONST(true));
+                DataItemTableView = SORTING (Type, Code, "Line No.") WHERE (Type = CONST (Sales), "Additional Sheet" = CONST (true));
 
                 trigger OnAfterGetRecord()
                 var
@@ -86,9 +86,9 @@ report 12461 "VAT Ledger Export XML"
             }
             dataitem(PurchVATLedgerLineAddSheet; "VAT Ledger Line")
             {
-                DataItemLink = Type = FIELD(Type), Code = FIELD(Code);
+                DataItemLink = Type = FIELD (Type), Code = FIELD (Code);
                 DataItemLinkReference = VATLedger;
-                DataItemTableView = SORTING(Type, Code, "Line No.") WHERE(Type = CONST(Purchase), "Additional Sheet" = CONST(true));
+                DataItemTableView = SORTING (Type, Code, "Line No.") WHERE (Type = CONST (Purchase), "Additional Sheet" = CONST (true));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -418,7 +418,7 @@ report 12461 "VAT Ledger Export XML"
             if FindSet then
                 repeat
                     TotalVATLCY += Amount10 + Amount18 + Amount20;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         if AddSheet then begin
@@ -504,7 +504,7 @@ report 12461 "VAT Ledger Export XML"
                                 XMLAddAttribute(XMLCurrNode, NomDocPdtvUplTxt, TempVendorLedgerEntry."External Document No.");
                                 XMLAddAttribute(XMLCurrNode, DataDocPdtvUplTxt, GetFormattedDate(TempVendorLedgerEntry."Posting Date"));
                                 XMLCurrNode := XMLCurrNode.ParentNode;
-                            until TempVendorLedgerEntry.Next = 0;
+                            until TempVendorLedgerEntry.Next() = 0;
                         exit;
                     end;
                 Prepayment,
@@ -568,7 +568,7 @@ report 12461 "VAT Ledger Export XML"
                     TotalAmount20 += Amount20;
                     TotalAmount18 += Amount18;
                     TotalAmount10 += Amount10;
-                until Next = 0;
+                until Next() = 0;
 
             if AddSheet then begin
                 XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '20', VATLedger."Tot Base20 Amt VAT Sales Ledg");
@@ -680,7 +680,7 @@ report 12461 "VAT Ledger Export XML"
             if FindSet then
                 repeat
                     XMLAddSimpleElement(RegNomTDTxt, Format("CD No."));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

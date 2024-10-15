@@ -21,24 +21,18 @@ table 334 "Column Layout"
         {
             Caption = 'Column Header';
         }
-        field(5; "Column Type"; Option)
+        field(5; "Column Type"; Enum "Column Layout Type")
         {
             Caption = 'Column Type';
             InitValue = "Net Change";
-            OptionCaption = 'Formula,Net Change,Balance at Date,Beginning Balance,Year to Date,Rest of Fiscal Year,Entire Fiscal Year,Subsidiary';
-            OptionMembers = Formula,"Net Change","Balance at Date","Beginning Balance","Year to Date","Rest of Fiscal Year","Entire Fiscal Year",Subsidiary;
         }
-        field(6; "Ledger Entry Type"; Option)
+        field(6; "Ledger Entry Type"; Enum "Column Layout Entry Type")
         {
             Caption = 'Ledger Entry Type';
-            OptionCaption = 'Entries,Budget Entries,,,,,,Corr. Entries';
-            OptionMembers = Entries,"Budget Entries",,,,,,"Corr. Entries";
         }
-        field(7; "Amount Type"; Option)
+        field(7; "Amount Type"; Enum "Account Schedule Amount Type")
         {
             Caption = 'Amount Type';
-            OptionCaption = 'Net Amount,Debit Amount,Credit Amount,Amount';
-            OptionMembers = "Net Amount","Debit Amount","Credit Amount",Amount;
         }
         field(8; Formula; Code[80])
         {

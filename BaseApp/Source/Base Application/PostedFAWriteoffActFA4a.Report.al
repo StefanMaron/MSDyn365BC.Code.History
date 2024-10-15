@@ -39,7 +39,7 @@ report 14991 "Posted FA Writeoff Act FA-4a"
                 {
                     DataItemTableView = SORTING(Number);
                     MaxIteration = 1;
-                    dataitem("Item Receipt Line"; "Item Receipt Line")
+                    dataitem("Invt. Receipt Line"; "Invt. Receipt Line")
                     {
                         DataItemLink = "Document No." = FIELD("Item Receipt No.");
                         DataItemLinkReference = "Part 3";

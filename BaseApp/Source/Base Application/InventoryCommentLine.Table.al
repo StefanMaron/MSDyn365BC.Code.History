@@ -5,11 +5,9 @@ table 5748 "Inventory Comment Line"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Inventory Comment Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Transfer Order,Posted Transfer Shipment,Posted Transfer Receipt,Item Receipt,Item Shipment,Posted Item Receipt,Posted Item Shipment,Posted Direct Transfer';
-            OptionMembers = " ","Transfer Order","Posted Transfer Shipment","Posted Transfer Receipt","Item Receipt","Item Shipment","Posted Item Receipt","Posted Item Shipment","Posted Direct Transfer";
         }
         field(2; "No."; Code[20])
         {
@@ -56,6 +54,22 @@ table 5748 "Inventory Comment Line"
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, InvtCommentLine);
+    end;
+
+    procedure CopyCommentLines(FromDocumentType: Enum "Inventory Comment Document Type"; FromNumber: Code[20]; ToDocumentType: Enum "Inventory Comment Document Type"; ToNumber: Code[20])
+    var
+        InvtCommentLine: Record "Inventory Comment Line";
+        InvtCommentLine2: Record "Inventory Comment Line";
+    begin
+        InvtCommentLine.SetRange("Document Type", FromDocumentType);
+        InvtCommentLine.SetRange("No.", FromNumber);
+        if InvtCommentLine.Find('-') then
+            repeat
+                InvtCommentLine2 := InvtCommentLine;
+                InvtCommentLine2."Document Type" := ToDocumentType;
+                InvtCommentLine2."No." := ToNumber;
+                InvtCommentLine2.Insert();
+            until InvtCommentLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

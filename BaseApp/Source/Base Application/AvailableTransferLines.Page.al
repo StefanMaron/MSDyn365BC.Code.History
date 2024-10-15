@@ -75,7 +75,7 @@ page 99000896 "Available - Transfer Lines"
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
                         UpdateReservFrom();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -146,7 +146,7 @@ page 99000896 "Available - Transfer Lines"
                             UpdateReservMgt();
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
-                            until ReservEntry2.Next = 0;
+                            until ReservEntry2.Next() = 0;
 
                             UpdateReservFrom();
                         end;
@@ -209,6 +209,7 @@ page 99000896 "Available - Transfer Lines"
         SetInbound(ReservMgt.IsPositive);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -273,11 +274,19 @@ page 99000896 "Available - Transfer Lines"
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetItemDocLine(var CurrentItemDocLine: Record "Item Document Line"; CurrentReservEntry: Record "Reservation Entry")
+    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
-        SourceRecRef.GetTable(CurrentItemDocLine);
-        SetSource(SourceRecRef, CurrentReservEntry, "Transfer Direction"::Outbound);
+        SourceRecRef.GetTable(CurrentAssemblyLine);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
+
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
+    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
+    begin
+        SourceRecRef.GetTable(CurrentAssemblyHeader);
+        SetSource(SourceRecRef, CurrentReservEntry);
+    end;
+#endif
 
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
@@ -353,20 +362,6 @@ page 99000896 "Available - Transfer Lines"
         else
             TransferDirection := TransferDirection::Outbound;
         DirectionIsSet := true;
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     local procedure SetSourceTableFilters()

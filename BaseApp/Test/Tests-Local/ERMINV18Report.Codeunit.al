@@ -136,7 +136,7 @@ codeunit 144710 "ERM INV-18 Report"
     begin
         RowShift := 0;
         with TempFAJournalLine do begin
-            FindSet;
+            FindSet();
             FixedAsset.Get("FA No.");
             repeat
                 for i := 1 to ArrayLen(ValueArray, 2) do

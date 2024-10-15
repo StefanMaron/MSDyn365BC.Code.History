@@ -1,4 +1,4 @@
-﻿table 7326 "Whse. Worksheet Line"
+table 7326 "Whse. Worksheet Line"
 {
     Caption = 'Whse. Worksheet Line';
 
@@ -614,7 +614,6 @@
                     if "Qty. to Handle" <> "Qty. Outstanding" then begin
                         Validate("Qty. to Handle", "Qty. Outstanding");
                         if "Qty. to Handle" <> xRec."Qty. to Handle" then begin
-                            OnAutofillQtyToHandleOnbeforeModift(WhseWkshLine);
                             OnAutofillQtyToHandleOnbeforeModify(WhseWkshLine);
                             Modify();
                             if not NotEnough then
@@ -622,7 +621,7 @@
                                     NotEnough := true;
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
             SetHideValidationDialog(false);
             if NotEnough then
                 Message(Text011);
@@ -640,7 +639,7 @@
                     Validate("Qty. to Handle", 0);
                     OnDeleteQtyToHandleOnBeforeModify(WhseWkshLine);
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -676,7 +675,7 @@
                         TotalReservedAndAssignedBase := TotalReservedAndAssignedBase + ReservedAndAssignedBase;
                     end;
                 end;
-            until WhseWkshLine.Next = 0;
+            until WhseWkshLine.Next() = 0;
         exit(TotalReservedAndAssignedBase);
     end;
 
@@ -832,7 +831,7 @@
                 WhseWkshLine."Sorting Sequence No." := SequenceNo;
                 WhseWkshLine.Modify();
                 SequenceNo := SequenceNo + 10000;
-            until WhseWkshLine.Next = 0;
+            until WhseWkshLine.Next() = 0;
         end;
     end;
 
@@ -1149,7 +1148,7 @@
                         repeat
                             WhseWkshName.SetRange("Location Code", WhseEmployee."Location Code");
                             FoundLocation := WhseWkshName.FindFirst;
-                        until (WhseEmployee.Next = 0) or FoundLocation;
+                        until (WhseEmployee.Next() = 0) or FoundLocation;
                 end;
                 if not FoundLocation then begin
                     WhseWkshName.Init();
@@ -1197,7 +1196,7 @@
 
         if UserId <> '' then begin
             WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty then
+            if WhseEmployee.IsEmpty() then
                 Error(Text007, UserId);
         end;
     end;
@@ -1250,7 +1249,7 @@
                 WhseActivLine2."Source No." := '';
                 WhseActivLine2."Source Line No." := 0;
                 WhseActivLine2.Modify();
-            until WhseActivLine.Next = 0;
+            until WhseActivLine.Next() = 0;
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -1531,16 +1530,18 @@
             Validate("From Bin Code", BinCode);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by LookupItemTracking()', '17.0')]
-    procedure RetrieveItemTracking(var LotNo: Code[50]; var SerialNo: Code[50]; var CDNo: Code[30])
+    procedure RetrieveItemTracking(var LotNo: Code[50]; var SerialNo: Code[50]; var CDNo: Code[50])
     var
         WhseItemTrackingSetup: Record "Item Tracking Setup";
     begin
         LookupItemTracking(WhseItemTrackingSetup);
         SerialNo := WhseItemTrackingSetup."Serial No.";
         LotNo := WhseItemTrackingSetup."Lot No.";
-        CDNo := WhseItemTrackingSetup."CD No.";
+        CDNo := WhseItemTrackingSetup."Package No.";
     end;
+#endif
 
     procedure LookupItemTracking(var WhseItemTrackingSetup: Record "Item Tracking Setup")
     var
@@ -1573,11 +1574,13 @@
     begin
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnbeforeModift(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnBeforeModify(var WhseWorksheetLine: Record "Whse. Worksheet Line")

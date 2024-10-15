@@ -233,7 +233,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
             repeat
                 AccSchedCellValue.TransferFields(Buffer);
                 if AccSchedCellValue.Insert() then;
-            until Buffer.Next = 0;
+            until Buffer.Next() = 0;
 
         EvaluateExpression(true, AccSchedLine.Totaling, AccSchedLine, SourceColumnLayout);
     end;
@@ -341,13 +341,13 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                                 repeat
                                     if AccSchedLine."Line No." <> AccSchedLineID then
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);
-                                until AccSchedLine.Next = 0
+                                until AccSchedLine.Next() = 0
                             else begin
                                 AccSchedLine.SetRange("Schedule Name", GLSetup."Shared Account Schedule");
                                 if AccSchedLine.FindFirst then
                                     repeat
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);
-                                    until AccSchedLine.Next = 0;
+                                    until AccSchedLine.Next() = 0;
                             end
                         end else begin
                             ColumnLayout.SetRange("Column Layout Name", ColumnLayout."Column Layout Name");
@@ -357,7 +357,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                                 repeat
                                     if ColumnLayout."Line No." <> AccSchedLineID then
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);
-                                until ColumnLayout.Next = 0
+                                until ColumnLayout.Next() = 0
                         end;
                 end;
         end;

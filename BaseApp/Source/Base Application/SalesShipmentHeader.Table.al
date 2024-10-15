@@ -647,7 +647,6 @@ table 110 "Sales Shipment Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure EmailRecords(ShowDialog: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -690,7 +689,7 @@ table 110 "Sales Shipment Header"
     begin
         SalesShipmentLine.SetRange("Document No.", "No.");
         SalesShipmentLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
-        if SalesShipmentLine.IsEmpty then
+        if SalesShipmentLine.IsEmpty() then
             exit(true);
         exit(false);
     end;
@@ -809,9 +808,9 @@ table 110 "Sales Shipment Header"
                                         else
                                             Error(Text12400);
                                 end;
-                            until ValueEntry.Next = 0;
-                    until ItemLedgEntry.Next = 0;
-            until SalesShptLine.Next = 0;
+                            until ValueEntry.Next() = 0;
+                    until ItemLedgEntry.Next() = 0;
+            until SalesShptLine.Next() = 0;
         SalesInvHeader.Reset();
         if DocNoFilter = '' then
             DocNoFilter := '.';

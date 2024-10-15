@@ -88,12 +88,12 @@ report 17377 "Create Salary Indexation Docs."
                     GroupOrderHeader."Posting Date" := StartingDate;
                     GroupOrderHeader.Insert(true);
 
-                    TempGroupOrderLine.FindSet;
+                    TempGroupOrderLine.FindSet();
                     repeat
                         GroupOrderLine.TransferFields(TempGroupOrderLine);
                         GroupOrderLine."Document No." := GroupOrderHeader."No.";
                         GroupOrderLine.Insert();
-                    until TempGroupOrderLine.Next = 0;
+                    until TempGroupOrderLine.Next() = 0;
 
                     StaffListOrderHeader."Document Date" := HROrderDate;
                     StaffListOrderHeader."Posting Date" := StartingDate;
@@ -101,12 +101,12 @@ report 17377 "Create Salary Indexation Docs."
                     StaffListOrderHeader."HR Order Date" := HROrderDate;
                     StaffListOrderHeader.Insert(true);
 
-                    TempStaffListOrderLine.FindSet;
+                    TempStaffListOrderLine.FindSet();
                     repeat
                         StaffListOrderLine.TransferFields(TempStaffListOrderLine);
                         StaffListOrderLine."Document No." := StaffListOrderHeader."No.";
                         StaffListOrderLine.Insert();
-                    until TempStaffListOrderLine.Next = 0;
+                    until TempStaffListOrderLine.Next() = 0;
 
                     Message(Text006, GroupOrderHeader."No.");
                 end;

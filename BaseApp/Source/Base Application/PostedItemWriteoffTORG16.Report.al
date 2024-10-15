@@ -5,11 +5,11 @@ report 14931 "Posted Item Write-off TORG-16"
 
     dataset
     {
-        dataitem(ItemShptHeader; "Item Shipment Header")
+        dataitem(InvtShptHeader; "Invt. Shipment Header")
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
-            dataitem(ItemShptLine1; "Item Shipment Line")
+            dataitem(InvtShptLine1; "Invt. Shipment Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
                 DataItemTableView = SORTING("Document No.", "Line No.");
@@ -22,10 +22,10 @@ report 14931 "Posted Item Write-off TORG-16"
                     ItemTrackingDocManagement.RetrieveEntriesFromPostedInvoice(TempItemLedgerEntry, RowID1());
                     if TempItemLedgerEntry.FindSet() then
                         repeat
-                            Torg16DocHelper.FillWriteOffReasonBody(TempItemLedgerEntry."Applies-to Entry", "Reason Code", ItemShptHeader."Posting Date");
+                            Torg16DocHelper.FillWriteOffReasonBody(TempItemLedgerEntry."Applies-to Entry", "Reason Code", InvtShptHeader."Posting Date");
                         until TempItemLedgerEntry.Next() = 0
                     else
-                        Torg16DocHelper.FillWriteOffReasonBody("Applies-to Entry", "Reason Code", ItemShptHeader."Posting Date");
+                        Torg16DocHelper.FillWriteOffReasonBody("Applies-to Entry", "Reason Code", InvtShptHeader."Posting Date");
                 end;
 
                 trigger OnPostDataItem()
@@ -39,14 +39,14 @@ report 14931 "Posted Item Write-off TORG-16"
                     Torg16DocHelper.FillPageHeader;
                 end;
             }
-            dataitem(ItemShptLine2; "Item Shipment Line")
+            dataitem(InvtShptLine2; "Invt. Shipment Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
                 DataItemTableView = SORTING("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin
-                    Torg16DocHelper.FillItemShptLine("Item No.", "Unit of Measure Code", ItemShptLine2);
+                    Torg16DocHelper.FillInvtShptLine("Item No.", "Unit of Measure Code", InvtShptLine2);
                 end;
 
                 trigger OnPostDataItem()
@@ -62,7 +62,7 @@ report 14931 "Posted Item Write-off TORG-16"
 
             trigger OnAfterGetRecord()
             begin
-                FillHeader(ItemShptHeader);
+                FillHeader(InvtShptHeader);
                 FillHeaderSignatures("No.");
             end;
         }
@@ -146,10 +146,10 @@ report 14931 "Posted Item Write-off TORG-16"
         WriteOffSource := NewWriteOffSource;
     end;
 
-    local procedure FillHeader(ItemShptHeader: Record "Item Shipment Header")
+    local procedure FillHeader(InvtShptHeader: Record "Invt. Shipment Header")
     begin
         Torg16DocHelper.FillHeader(
-          ItemShptHeader."No.", ItemShptHeader."Document Date", ItemShptHeader."Location Code",
+          InvtShptHeader."No.", InvtShptHeader."Document Date", InvtShptHeader."Location Code",
           OrderNo, OrderDate, OperationType);
     end;
 

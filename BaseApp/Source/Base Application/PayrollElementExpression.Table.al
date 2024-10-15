@@ -334,7 +334,7 @@ table 17422 "Payroll Element Expression"
         if PayrollElementExpr.FindSet then
             repeat
                 Expr := Expr + ExprMgt.FormatElementStatement(PayrollElementExpr);
-            until PayrollElementExpr.Next = 0;
+            until PayrollElementExpr.Next() = 0;
 
         ExprMgt.CheckParenthesis(Expr);
         Expression := Expr;

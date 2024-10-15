@@ -47,7 +47,7 @@ codeunit 12411 "VAT Settlement Management"
                     then
                         AppliedAmount += DtldVendLedgEntry."Amount (LCY)";
                 end;
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -157,7 +157,7 @@ codeunit 12411 "VAT Settlement Management"
                             then
                                 Error(Text14705, GenJnlLine.FieldCaption("Object No."), GenJnlLine."Object No.",
                                   VATEntry.FieldCaption("Entry No."), VATEntry."Entry No.");
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
                 end;
         end;
     end;
@@ -194,7 +194,7 @@ codeunit 12411 "VAT Settlement Management"
                     if VendLedgEntry."Document No." = GenJnlLine."Document No." then
                         VendLedgEntryNo := DtldVendLedgEntry."Vendor Ledger Entry No."
                 end;
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
 
         VendLedgEntry.Get(VendLedgEntryNo);
         if VendLedgEntry.Open then
@@ -217,11 +217,11 @@ codeunit 12411 "VAT Settlement Management"
                                                                  (VATEntry."Object No." = GenJnlLine."Object No.") and
                                                                  (not VATEntry.Reversed) and
                                                                  (VATEntry."Unrealized VAT Entry No." <> 0));
-                            until VATEntry.Next = 0;
+                            until VATEntry.Next() = 0;
                         if not FoundRealVAT then
                             exit(false);
                     end;
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
         exit(true);
     end;
 
@@ -251,7 +251,7 @@ codeunit 12411 "VAT Settlement Management"
                         else
                             Error(Text14711, FieldCaption("VAT Settlement Part"), "VAT Settlement Part",
                               FieldCaption("Unrealized VAT Entry No."), "Unrealized VAT Entry No.");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -400,7 +400,7 @@ codeunit 12411 "VAT Settlement Management"
                         AddRealVAT::Deduct:
                             PaidAmount += VATEntry.Base + VATEntry.Amount;
                     end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -420,7 +420,7 @@ codeunit 12411 "VAT Settlement Management"
                     CustLedgEntry.CalcFields("Original Amt. (LCY)");
                     OriginalAmount := CustLedgEntry."Original Amt. (LCY)";
                 end;
-            until (CustLedgEntry.Next = 0) or (LedgerEntryNo <> 0);
+            until (CustLedgEntry.Next() = 0) or (LedgerEntryNo <> 0);
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", LedgerEntryNo);
         if ToDate <> 0D then
@@ -432,7 +432,7 @@ codeunit 12411 "VAT Settlement Management"
             repeat
                 if not DtldCustLedgEntry.Unapplied then
                     PaidAmount += DtldCustLedgEntry."Amount (LCY)";
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -452,7 +452,7 @@ codeunit 12411 "VAT Settlement Management"
                     VendLedgEntry.CalcFields("Original Amt. (LCY)");
                     OriginalAmount := VendLedgEntry."Original Amt. (LCY)";
                 end;
-            until (VendLedgEntry.Next = 0) or (LedgerEntryNo <> 0);
+            until (VendLedgEntry.Next() = 0) or (LedgerEntryNo <> 0);
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", LedgerEntryNo);
         if ToDate <> 0D then
@@ -464,7 +464,7 @@ codeunit 12411 "VAT Settlement Management"
             repeat
                 if not DtldVendLedgEntry.Unapplied then
                     PaidAmount += DtldVendLedgEntry."Amount (LCY)";
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -553,7 +553,7 @@ codeunit 12411 "VAT Settlement Management"
             repeat
                 if DtldVendLedgEntry."Document Type" = DtldVendLedgEntry."Document Type"::"Credit Memo" then
                     exit(true);
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
 
         exit(false);
     end;
@@ -599,8 +599,8 @@ codeunit 12411 "VAT Settlement Management"
                                not VATEntry2."Manual VAT Settlement"
                             then
                                 Error(Text14715);
-                    until VATEntry2.Next = 0;
-            until VATEntry.Next = 0;
+                    until VATEntry2.Next() = 0;
+            until VATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -651,8 +651,8 @@ codeunit 12411 "VAT Settlement Management"
                             if VATEntry2."Prepmt. Diff." and (VATEntry2."VAT Settlement Part" > VATEntry2."VAT Settlement Part"::" ")
                             then
                                 Error(Text14715);
-                    until VATEntry2.Next = 0;
-            until VATEntry.Next = 0;
+                    until VATEntry2.Next() = 0;
+            until VATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -718,7 +718,7 @@ codeunit 12411 "VAT Settlement Management"
                     UnrealVATEntry.Modify();
                     UpdateRealEntries(UnrealVATEntry."Entry No.", CVEntryNo);
                 end;
-            until UnrealVATEntry.Next = 0;
+            until UnrealVATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -815,7 +815,7 @@ codeunit 12411 "VAT Settlement Management"
                                 if Insert then
                                     FillCVEntryNo("Transaction No.", "Entry No.");
                             end;
-                until VATEntry.Next = 0;
+                until VATEntry.Next() = 0;
             Window.Close;
         end;
     end;
@@ -901,7 +901,7 @@ codeunit 12411 "VAT Settlement Management"
                     CalculateAllocation(VATEntry."Entry No.", -AmtToAllocate, PostingDate);
                     VATAmountRnded := VATAmountRnded + AmtToAllocate;
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -910,7 +910,7 @@ codeunit 12411 "VAT Settlement Management"
         VATAllocLine: Record "VAT Allocation Line";
     begin
         VATAllocLine.SetRange("VAT Entry No.", VATEntryNo);
-        if VATAllocLine.IsEmpty then
+        if VATAllocLine.IsEmpty() then
             if not ApplyDefaultAllocation(VATEntryNo) then
                 InsertInitEntry(VATEntryNo);
     end;
@@ -952,7 +952,7 @@ codeunit 12411 "VAT Settlement Management"
         VATEntry.Get(VATEntryNo);
         DefaultVATAlloc.SetRange("VAT Bus. Posting Group", VATEntry."VAT Bus. Posting Group");
         DefaultVATAlloc.SetRange("VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
-        if DefaultVATAlloc.IsEmpty then
+        if DefaultVATAlloc.IsEmpty() then
             exit(false);
 
         InsertVATAlloc(DefaultVATAlloc, VATEntry);
@@ -968,7 +968,7 @@ codeunit 12411 "VAT Settlement Management"
         with VATAllocLine do begin
             SetFilter("Posting Date Filter", VATDocEntryBuffer.GetFilter("Date Filter"));
             LineNo := 0;
-            DefaultVATAlloc.FindSet;
+            DefaultVATAlloc.FindSet();
             repeat
                 LineNo := LineNo + 10000;
                 Init;
@@ -991,7 +991,7 @@ codeunit 12411 "VAT Settlement Management"
                 if VATEntry."Object Type" = VATEntry."Object Type"::"Fixed Asset" then
                     "VAT Settlement Type" := VATEntry."VAT Settlement Type";
                 Insert;
-            until DefaultVATAlloc.Next = 0;
+            until DefaultVATAlloc.Next() = 0;
         end;
     end;
 
@@ -1032,7 +1032,7 @@ codeunit 12411 "VAT Settlement Management"
                 VATAllocLine.Modify();
                 VATAllocLine.CheckVATAllocation;
                 SetDateFormula(MinDateFormula, VATAllocLine."Recurring Frequency");
-            until VATAllocLine.Next = 0;
+            until VATAllocLine.Next() = 0;
         if Format(MinDateFormula) <> '' then
             GetLastRealVATEntryDate(PostingDate, VATEntryNo, MinDateFormula);
     end;
@@ -1070,7 +1070,7 @@ codeunit 12411 "VAT Settlement Management"
                 end;
                 VATAllocLine.Modify();
                 SetDateFormula(MinDateFormula, VATAllocLine."Recurring Frequency");
-            until VATAllocLine.Next = 0;
+            until VATAllocLine.Next() = 0;
         if Format(MinDateFormula) <> '' then
             GetLastRealVATEntryDate(PostingDate, VATEntryNo, MinDateFormula);
     end;
@@ -1116,7 +1116,7 @@ codeunit 12411 "VAT Settlement Management"
         IsCorrection: Boolean;
     begin
         VATDocEntryBuffer.CopyFilters(EntryToPost);
-        EntryToPost.FindSet;
+        EntryToPost.FindSet();
         repeat
             IsCorrection := false;
             if EntryToPost."Document Type" = EntryToPost."Document Type"::"Credit Memo" then
@@ -1171,8 +1171,8 @@ codeunit 12411 "VAT Settlement Management"
                         GenJnlLine.Validate(Amount, -GenJnlLine."Paid Amount");
                     if InsertLine then
                         GenJnlLine.Insert();
-                until VATEntry.Next = 0;
-        until EntryToPost.Next = 0;
+                until VATEntry.Next() = 0;
+        until EntryToPost.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1192,8 +1192,8 @@ codeunit 12411 "VAT Settlement Management"
                             VATAllocLine.DeleteAll(true);
                             InsertVATAlloc(GroupVATAllocLine, VATEntry);
                             RecalculateAllocation(VATEntry."Entry No.", PostingDate);
-                        until VATEntry.Next = 0;
-                until EntryNo.Next = 0;
+                        until VATEntry.Next() = 0;
+                until EntryNo.Next() = 0;
 
                 exit(true);
             end;
@@ -1239,7 +1239,7 @@ codeunit 12411 "VAT Settlement Management"
                           GenJnlLine.TableCaption, GenJnlLine."Journal Template Name",
                           GenJnlLine."Journal Batch Name", GenJnlLine."Line No.",
                           DimMgt.GetDimValuePostingErr)
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1274,7 +1274,7 @@ codeunit 12411 "VAT Settlement Management"
                         "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
                         "Dimension Set ID", DimSetID, GetVATEntryDimSetID(VATEntryNo));
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

@@ -799,7 +799,7 @@ codeunit 144208 "HRP General Unit Tests"
         SetLaborContractLineEndDate(LaborContractLine, TerminationDate);
         LaborContractManagement.TerminateCombination(LaborContractLine);
         EmployeeJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
-        EmployeeJobEntry.FindSet;
+        EmployeeJobEntry.FindSet();
         Assert.AreEqual(
           EmployeeJobEntry."Ending Date", TerminationDate,
           StrSubstNo(FieldValueErr, EmployeeJobEntry."Ending Date"));

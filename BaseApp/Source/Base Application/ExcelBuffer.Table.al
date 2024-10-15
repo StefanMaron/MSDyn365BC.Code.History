@@ -122,6 +122,11 @@ table 370 "Excel Buffer"
             Caption = 'Double Underline';
             DataClassification = SystemMetadata;
         }
+        field(17; "Cell Value as Blob"; Blob)
+        {
+            Caption = 'Cell Value as Blob';
+            DataClassification = SystemMetadata;
+        }
         field(12400; "Font Size"; Integer)
         {
             Caption = 'Font Size';
@@ -281,6 +286,7 @@ table 370 "Excel Buffer"
             FileNameServer := FileName;
         end;
 
+        FileManagement.IsAllowedPath(FileNameServer, false);
         XlWrkBkWriter := XlWrkBkWriter.Create(FileNameServer);
         if IsNull(XlWrkBkWriter) then
             Error(Text037);
@@ -482,7 +488,7 @@ table 370 "Excel Buffer"
         XmlTextWriter.Close;
 
         if UseInfoSheet then
-            if not TempInfoExcelBuf.IsEmpty then begin
+            if not TempInfoExcelBuf.IsEmpty() then begin
                 SelectOrAddSheet(Text023);
                 WriteAllToCurrentSheet(TempInfoExcelBuf);
             end;
@@ -495,7 +501,7 @@ table 370 "Excel Buffer"
         TotalRecNo: Integer;
         LastUpdate: DateTime;
     begin
-        if ExcelBuffer.IsEmpty then
+        if ExcelBuffer.IsEmpty() then
             exit;
         ExcelBufferDialogMgt.Open(Text005);
         LastUpdate := CurrentDateTime;
@@ -511,19 +517,26 @@ table 370 "Excel Buffer"
                     WriteCellValue(ExcelBuffer)
                 else
                     WriteCellFormula(ExcelBuffer)
-            until ExcelBuffer.Next = 0;
+            until ExcelBuffer.Next() = 0;
         ExcelBufferDialogMgt.Close;
     end;
 
     procedure WriteCellValue(ExcelBuffer: Record "Excel Buffer")
     var
         Decorator: DotNet CellDecorator;
+        InStream: Instream;
         CellTextValue: Text;
     begin
         with ExcelBuffer do begin
             GetCellDecorator(Bold, Italic, Underline, "Double Underline", Decorator);
 
             CellTextValue := "Cell Value as Text";
+            CALCFIELDS("Cell Value as Blob");
+            if "Cell Value as Blob".HasValue then begin
+                "Cell Value as Blob".CreateInStream(InStream, TextEncoding::Windows);
+                InStream.Read(CellTextValue);
+            end;
+
             OnWriteCellValueOnBeforeSetCellValue(Rec, CellTextValue);
             case "Cell Type" of
                 "Cell Type"::Number:
@@ -685,6 +698,7 @@ table 370 "Excel Buffer"
 
     local procedure ParseCellValue(Value: Text; FormatString: Text)
     var
+        OutStream: OutStream;
         Decimal: Decimal;
         IsHandled: Boolean;
     begin
@@ -702,9 +716,16 @@ table 370 "Excel Buffer"
 
         NumberFormat := CopyStr(FormatString, 1, 30);
 
+        Clear("Cell Value as Blob");
         if FormatString = '@' then begin
             "Cell Type" := "Cell Type"::Text;
             "Cell Value as Text" := CopyStr(Value, 1, MaxStrLen("Cell Value as Text"));
+
+            if StrLen(Value) <= MaxStrLen("Cell Value as Text") then
+                exit; // No need to store anything in the blob
+
+            "Cell Value as Blob".CreateOutStream(OutStream, TEXTENCODING::Windows);
+            OutStream.Write("Cell Value as Blob");
             exit;
         end;
 
@@ -740,6 +761,7 @@ table 370 "Excel Buffer"
         if FileName = '' then
             Error(Text001);
 
+        FileManagement.IsAllowedPath(FileName, false);
         FileManagement.BLOBImportFromServerFile(TempBlob, FileName);
         TempBlob.CreateInStream(InStr);
         exit(SelectSheetsNameStream(InStr));
@@ -815,7 +837,7 @@ table 370 "Excel Buffer"
             repeat
                 TempExcelBufFormula := ExcelBuf;
                 TempExcelBufFormula.Insert();
-            until ExcelBuf.Next = 0;
+            until ExcelBuf.Next() = 0;
         ExcelBuf.Reset();
 
         with TempExcelBufFormula do
@@ -830,7 +852,7 @@ table 370 "Excel Buffer"
                         repeat
                             if not Get(ExcelBuf."Row No.", "Column No.") then
                                 ExcelBuf.Mark(true);
-                        until ExcelBuf.Next = 0;
+                        until ExcelBuf.Next() = 0;
                     TempExcelBufFormula := TempExcelBufFormula2;
                     ClearFormula;
                     ExcelBuf.SetRange("Cell Value as Text");
@@ -852,7 +874,7 @@ table 370 "Excel Buffer"
                                     if ThisCellHasFormulaError then
                                         SetFormula(ExcelBuf.GetExcelReference(7));
                                 end;
-                        until ThisCellHasFormulaError or (ExcelBuf.Next = 0);
+                        until ThisCellHasFormulaError or (ExcelBuf.Next() = 0);
 
                     if not ThisCellHasFormulaError and (FirstRow <> 0) then begin
                         if FirstRow = LastRow then
@@ -870,7 +892,7 @@ table 370 "Excel Buffer"
                     ExcelBuf.SetFormula(GetFormula);
                     ExcelBuf.Modify();
                     HasFormulaError := HasFormulaError or ThisCellHasFormulaError;
-                until Next = 0;
+                until Next() = 0;
 
         exit(HasFormulaError);
     end;

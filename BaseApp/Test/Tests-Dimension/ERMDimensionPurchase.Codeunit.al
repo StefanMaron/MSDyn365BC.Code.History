@@ -1352,7 +1352,7 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, AmountToApply);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, VendorLedgerEntry2."Document Type"::Invoice, DocumentNo);
-        VendorLedgerEntry2.FindSet;
+        VendorLedgerEntry2.FindSet();
         repeat
             VendorLedgerEntry2.CalcFields("Remaining Amount");
             VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
@@ -1443,7 +1443,7 @@ codeunit 134476 "ERM Dimension Purchase"
         NewDimSetID2 := LibraryDimension.CreateDimSet(NewDimSetID2, Dimension.Code, DimensionValue2.Code);
     end;
 
-    local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Option) ItemNo: Code[20]
+    local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type") ItemNo: Code[20]
     var
         Item: Record Item;
         DefaultDimension: Record "Default Dimension";
@@ -1482,7 +1482,7 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, PurchaseLine."Dimension Set ID");
         CopyDimensionSetEntry(TempDimensionSetEntry, DimensionSetEntry);
         TempDimensionSetEntry.SetFilter("Dimension Code", '<>%1', ShortcutDimensionCode);
-        TempDimensionSetEntry.FindSet;
+        TempDimensionSetEntry.FindSet();
 
         // [WHEN] Change Dimension Value for Purchase Header Shortcut Dimension.
         ChangeDimensionPurchaseHeader(PurchaseHeader, ShortcutDimensionCode);
@@ -1491,7 +1491,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetID := PurchaseLine."Dimension Set ID";
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorDimensionCode: Code[20]; ItemDimensionCode: Code[20]; ValuePosting: Option; DocumentType: Enum "Purchase Document Type")
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorDimensionCode: Code[20]; ItemDimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type"; DocumentType: Enum "Purchase Document Type")
     var
         DefaultDimension: Record "Default Dimension";
     begin
@@ -1534,7 +1534,7 @@ codeunit 134476 "ERM Dimension Purchase"
         CreateSalesLinePurchasingCode(SalesLine, SalesHeader);
     end;
 
-    local procedure CreateVendorWithDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Option; DimensionCode: Code[20]): Code[20]
+    local procedure CreateVendorWithDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Enum "Default Dimension Value Posting Type"; DimensionCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
         DimensionValue: Record "Dimension Value";
@@ -1982,7 +1982,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentnNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.IsTrue(DimensionSetEntry.Get(GLEntry."Dimension Set ID", DimensionCode), 'Dimension Set Entry must found');
         until GLEntry.Next = 0;
@@ -2063,7 +2063,7 @@ codeunit 134476 "ERM Dimension Purchase"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(Open, VendorLedgerEntry.Open, StrSubstNo(VendorLedgerEntryErr, Open, DocumentNo));
         until VendorLedgerEntry.Next = 0;

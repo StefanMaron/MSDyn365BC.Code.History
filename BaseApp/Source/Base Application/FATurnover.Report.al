@@ -235,7 +235,7 @@ report 12466 "FA Turnover"
                     if GlobalDim2Filter <> '' then
                         SetFilter("Global Dimension 2 Filter", GlobalDim2Filter);
 
-                    if IsEmpty then begin
+                    if IsEmpty() then begin
                         "Acquisition Cost" := 0;
                         Depreciation := 0;
                         "Book Value" := 0;

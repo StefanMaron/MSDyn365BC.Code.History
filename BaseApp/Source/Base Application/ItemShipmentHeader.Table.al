@@ -2,7 +2,9 @@ table 12454 "Item Shipment Header"
 {
     Caption = 'Item Shipment Header';
     DataCaptionFields = "No.", "Posting Description";
-    LookupPageID = "Posted Item Shipments";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Inventory Documents feature.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -49,14 +51,6 @@ table 12454 "Item Shipment Header"
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser";
         }
-        field(12; Comment; Boolean)
-        {
-            CalcFormula = Exist ("Inventory Comment Line" WHERE("Document Type" = CONST("Posted Item Shipment"),
-                                                                "No." = FIELD("No.")));
-            Caption = 'Comment';
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(14; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -98,11 +92,6 @@ table 12454 "Item Shipment Header"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
-
-            trigger OnLookup()
-            begin
-                ShowDimensions();
-            end;
         }
     }
 
@@ -117,82 +106,5 @@ table 12454 "Item Shipment Header"
     fieldgroups
     {
     }
-
-    trigger OnDelete()
-    var
-        ItemShptLine: Record "Item Shipment Line";
-        InvtCommentLine: Record "Inventory Comment Line";
-    begin
-        ItemShptLine.SetRange("Document No.", "No.");
-        if ItemShptLine.Find('-') then
-            repeat
-                ItemShptLine.Delete();
-            until ItemShptLine.Next = 0;
-
-        InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Item Shipment");
-        InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.DeleteAll();
-
-        ItemTrackingMgt.DeleteItemEntryRelation(
-          DATABASE::"Item Shipment Line", 0, "No.", '', 0, 0, true);
-    end;
-
-    var
-        DimMgt: Codeunit DimensionManagement;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
-
-    [Scope('OnPrem')]
-    procedure Navigate()
-    var
-        NavigateForm: Page Navigate;
-    begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
-    end;
-
-    [Scope('OnPrem')]
-    procedure PrintRecords(ShowRequestForm: Boolean)
-    var
-        ReportSelection: Record "Report Selections";
-        ItemShptHeader: Record "Item Shipment Header";
-        RepSelectionTmp: Record "Report Selections" temporary;
-    begin
-        with ItemShptHeader do begin
-            Copy(Rec);
-            FindFirst;
-            ReportSelection.SetRange(Usage, ReportSelection.Usage::IS);
-            ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.Find('-');
-            case ReportSelection.Count of
-                1:
-                    REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, ItemShptHeader);
-                else begin
-                        RepSelectionTmp.Reset();
-                        RepSelectionTmp.DeleteAll();
-                        repeat
-                            RepSelectionTmp.Init();
-                            RepSelectionTmp := ReportSelection;
-                            RepSelectionTmp.Insert();
-                        until ReportSelection.Next = 0;
-                        Commit();
-                        RepSelectionTmp.Find('-');
-                        if PAGE.RunModal(PAGE::"Report Selection - Print", RepSelectionTmp) = ACTION::LookupOK then begin
-                            RepSelectionTmp.SetRange(Default, true);
-                            if RepSelectionTmp.Find('-') then
-                                repeat
-                                    REPORT.RunModal(RepSelectionTmp."Report ID", ShowRequestForm, false, ItemShptHeader);
-                                until RepSelectionTmp.Next = 0;
-                            RepSelectionTmp.DeleteAll();
-                        end;
-                    end;
-            end;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
-    end;
 }
 

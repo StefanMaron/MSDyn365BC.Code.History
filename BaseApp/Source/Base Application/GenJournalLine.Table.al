@@ -1019,8 +1019,6 @@
             Caption = 'Recurring Method';
 
             trigger OnValidate()
-            var
-                ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if "Recurring Method" in
                    ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]
@@ -1028,17 +1026,8 @@
                     TestField("Currency Code", '');
                 UpdateSalesPurchLCY;
 
-                if "Recurring Method".AsInteger() < "Recurring Method"::"BD Balance by Dimension".AsInteger() then begin
-                    if DimFilterExists() then
-                        Error(RecurringMethodsDimFilterErr, "Recurring Method");
-                end else
-                    if LineDimExists() then
-                        Error(RecurringMethodsLineDimdErr, "Recurring Method");
-
-                if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
-                    if not HideValidationDialog then
-                        if ConfirmManagement.GetResponse(RecurringSetDimFilterQst, true) then
-                            ShowRecurringDimFilter();
+                CheckRecurringDimensionsAndFilters();
+                ShowSetDimFiltersNotification();
             end;
         }
         field(54; "Expiration Date"; Date)
@@ -2194,12 +2183,10 @@
             Caption = 'Job Unit Of Measure Code';
             TableRelation = "Unit of Measure";
         }
-        field(1009; "Job Line Type"; Option)
+        field(1009; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
 
             trigger OnValidate()
             begin
@@ -2352,7 +2339,7 @@
                     JobPlanningLine.TestField("No.", "Account No.");
                     JobPlanningLine.TestField("Usage Link", true);
                     JobPlanningLine.TestField("System-Created Entry", false);
-                    "Job Line Type" := JobPlanningLine."Line Type" + 1;
+                    "Job Line Type" := JobPlanningLine.ConvertToJobLineType();
                     Validate("Job Remaining Qty.", JobPlanningLine."Remaining Qty." - "Job Quantity");
                 end else
                     Validate("Job Remaining Qty.", 0);
@@ -2699,7 +2686,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAppliesToInvoiceNo;
+                UpdateAppliesToInvoiceNo();
             end;
         }
         field(8004; "Contact Graph Id"; Text[250])
@@ -2717,7 +2704,7 @@
 
             trigger OnValidate()
             begin
-                UpdateJournalBatchName;
+                UpdateJournalBatchName();
             end;
         }
         field(8007; "Payment Method Id"; Guid)
@@ -3608,14 +3595,14 @@
                         TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
                     end;
                 end;
+
+                UpdatePaymentMethodCode();
             end;
         }
         field(8008; "Balance Account Id"; Guid)
         {
             Caption = 'Balance Account Id';
-            TableRelation = IF ("Account Type" = CONST("G/L Account")) "G/L Account".SystemId
-            ELSE
-            IF ("Account Type" = CONST("Bank Account")) "Bank Account".SystemId;
+            TableRelation = "G/L Account".SystemId;
 
             trigger OnValidate()
             begin
@@ -3712,7 +3699,7 @@
         GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-        if not GenJnlAlloc.IsEmpty then
+        if not GenJnlAlloc.IsEmpty() then
             GenJnlAlloc.DeleteAll();
 
         DeferralUtilities.DeferralCodeOnDelete(
@@ -3720,6 +3707,9 @@
             "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
 
         Validate("Incoming Document Entry No.", 0);
+
+        RecallSetDimFiltersNotification();
+        DeleteGenJnlDimFilters();
     end;
 
     trigger OnInsert()
@@ -3739,6 +3729,8 @@
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+
+        ShowSetDimFiltersNotification();
 
         if GenJnlBatch."Bal. Account Type" = GenJnlBatch."Bal. Account Type"::"Bank Account" then
             if BankAcc.Get(GenJnlBatch."Bal. Account No.") then
@@ -3857,9 +3849,11 @@
         SalespersonPurchPrivacyBlockErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         BlockedErr: Label 'The Blocked field must not be %1 for %2 %3.', Comment = '%1=Blocked field value,%2=Account Type,%3=Account No.';
         InvoiceForGivenIDDoesNotExistErr: Label 'Invoice for given Applies-to Invoice Id does not exist.';
-        RecurringSetDimFilterQst: Label 'You can use dimension filters for the selected recurring method. Do you want to set the filters now?';
         RecurringMethodsDimFilterErr: Label 'Recurring method %1 cannot be used for the line with dimension filter setup.', Comment = '%1 - Recurring Method value';
         RecurringMethodsLineDimdErr: Label 'Recurring method %1 cannot be used for the line with dimension setup.', Comment = '%1 - Recurring Method value';
+        DontShowAgainActionTxt: Label 'Don''t show again.';
+        SetDimFiltersActionTxt: Label 'Set dimension filters.';
+        SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
 
     protected var
         Currency: Record Currency;
@@ -4039,7 +4033,7 @@
         repeat
             GenJnlLine.CheckDocNoBasedOnNoSeries(LastDocNo, GenJnlBatch."No. Series", NoSeriesMgt);
             LastDocNo := GenJnlLine."Document No.";
-        until GenJnlLine.Next = 0;
+        until GenJnlLine.Next() = 0;
     end;
 
     procedure CheckDocNoBasedOnNoSeries(LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
@@ -4153,7 +4147,7 @@
                     GenJnlLine3.Modify();
                     First := false;
                     LastGenJnlLine := GenJnlLine2
-                until Next = 0
+                until Next() = 0
             end
         end;
 
@@ -4165,7 +4159,7 @@
         exit('RENUMBERED-000000001');
     end;
 
-    local procedure RenumberAppliesToID(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50])
+    procedure RenumberAppliesToID(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntry2: Record "Cust. Ledger Entry";
@@ -4186,7 +4180,7 @@
                             CustLedgEntry2.Get(CustLedgEntry."Entry No.");
                             CustLedgEntry2."Applies-to ID" := NewAppliesToID;
                             CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry2);
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                 end;
             "Account Type"::Vendor:
                 begin
@@ -4197,7 +4191,7 @@
                             VendLedgEntry2.Get(VendLedgEntry."Entry No.");
                             VendLedgEntry2."Applies-to ID" := NewAppliesToID;
                             CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry2);
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
                 end;
             else
                 exit
@@ -4206,7 +4200,7 @@
         GenJnlLine2.Modify();
     end;
 
-    local procedure RenumberAppliesToDocNo(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToDocNo: Code[20]; NewAppliesToDocNo: Code[20])
+    procedure RenumberAppliesToDocNo(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToDocNo: Code[20]; NewAppliesToDocNo: Code[20])
     begin
         GenJnlLine2.Reset();
         GenJnlLine2.SetRange("Journal Template Name", GenJnlLine2."Journal Template Name");
@@ -4226,7 +4220,7 @@
             if GenJnlAlloc.FindSet then
                 repeat
                     GenJnlAlloc.CheckVAT(Rec);
-                until GenJnlAlloc.Next = 0;
+                until GenJnlAlloc.Next() = 0;
         end;
     end;
 
@@ -4796,24 +4790,24 @@
         if "Applies-to Doc. No." <> '' then begin
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if CustLedgEntry.IsEmpty then begin
+            if CustLedgEntry.IsEmpty() then begin
                 CustLedgEntry.SetRange("Document Type");
                 CustLedgEntry.SetRange("Document No.");
             end;
         end;
         if "Applies-to ID" <> '' then begin
             CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            if CustLedgEntry.IsEmpty then
+            if CustLedgEntry.IsEmpty() then
                 CustLedgEntry.SetRange("Applies-to ID");
         end;
         if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-            if CustLedgEntry.IsEmpty then
+            if CustLedgEntry.IsEmpty() then
                 CustLedgEntry.SetRange("Document Type");
         end;
         if Amount <> 0 then begin
             CustLedgEntry.SetRange(Positive, Amount < 0);
-            if CustLedgEntry.IsEmpty then
+            if CustLedgEntry.IsEmpty() then
                 CustLedgEntry.SetRange(Positive);
         end;
         OnLookUpAppliesToDocCustOnAfterSetFilters(CustLedgEntry, Rec);
@@ -4855,29 +4849,29 @@
         if "Applies-to Doc. No." <> '' then begin
             VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if VendLedgEntry.IsEmpty then begin
+            if VendLedgEntry.IsEmpty() then begin
                 VendLedgEntry.SetRange("Document Type");
                 VendLedgEntry.SetRange("Document No.");
             end;
         end;
         if "Applies-to ID" <> '' then begin
             VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            if VendLedgEntry.IsEmpty then
+            if VendLedgEntry.IsEmpty() then
                 VendLedgEntry.SetRange("Applies-to ID");
         end;
         if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
             VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-            if VendLedgEntry.IsEmpty then
+            if VendLedgEntry.IsEmpty() then
                 VendLedgEntry.SetRange("Document Type");
         end;
         if "Applies-to Doc. No." <> '' then begin
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if VendLedgEntry.IsEmpty then
+            if VendLedgEntry.IsEmpty() then
                 VendLedgEntry.SetRange("Document No.");
         end;
         if Amount <> 0 then begin
             VendLedgEntry.SetRange(Positive, Amount < 0);
-            if VendLedgEntry.IsEmpty then;
+            if VendLedgEntry.IsEmpty() then;
             VendLedgEntry.SetRange(Positive);
         end;
         OnLookUpAppliesToDocVendOnAfterSetFilters(VendLedgEntry, Rec);
@@ -4966,7 +4960,7 @@
                         repeat
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry);
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                 end else
                     if TempGenJnlLine."Applies-to Doc. No." <> '' then begin
                         CustLedgEntry.SetCurrentKey("Document No.");
@@ -4990,7 +4984,7 @@
                         repeat
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry);
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
                 end else
                     if TempGenJnlLine."Applies-to Doc. No." <> '' then begin
                         VendLedgEntry.SetCurrentKey("Document No.");
@@ -5297,7 +5291,8 @@
         Validate("Currency Code");
     end;
 
-    local procedure SetAppliesToFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35])
+    local procedure SetAppliesToFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20];
+                                                    ExtDocNo: Code[35])
     begin
         UpdateDocumentTypeAndAppliesTo(DocType, DocNo);
 
@@ -5369,6 +5364,7 @@
             DocGenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
             DocGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type");
         end;
+        OnGetDocumentBalanceOnBeforeCalcBalance(DocGenJournalLine, GenJnlTemplate);
         DocGenJournalLine.CalcSums("Balance (LCY)");
         exit(DocGenJournalLine."Balance (LCY)");
     end;
@@ -5415,7 +5411,7 @@
         GenJournalLine.SetFilter("Line No.", '<>%1', "Line No.");
         GenJournalLine.SetRange("Document Type", "Applies-to Doc. Type");
         GenJournalLine.SetRange("Document No.", "Applies-to Doc. No.");
-        if not GenJournalLine.IsEmpty then begin
+        if not GenJournalLine.IsEmpty() then begin
             GenJournalLine.ModifyAll("Applied Automatically", false);
             GenJournalLine.ModifyAll("Account Type", GenJournalLine."Account Type"::"G/L Account");
             GenJournalLine.ModifyAll("Account No.", '');
@@ -5638,7 +5634,7 @@
         OnAfterSetJournalLineFieldsFromApplication(Rec, AccType, AccNo, xRec);
     end;
 
-    local procedure GetAccTypeAndNo(GenJnlLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20])
+    procedure GetAccTypeAndNo(GenJnlLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20])
     begin
         if GenJnlLine2."Bal. Account Type" in
            [GenJnlLine2."Bal. Account Type"::Customer, GenJnlLine2."Bal. Account Type"::Vendor]
@@ -5775,7 +5771,7 @@
     begin
         SetRange("Account Type", AccountType);
         SetRange("Account No.", AccountNo);
-        if not IsEmpty then
+        if not IsEmpty() then
             exit(false);
 
         Reset;
@@ -5853,7 +5849,7 @@
                     if GenJnlLine."Applies-to ID" <> '' then
                         VendLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
                     VendLedgerEntry.SetRange("Exported to Payment File", true);
-                    if not VendLedgerEntry.IsEmpty then
+                    if not VendLedgerEntry.IsEmpty() then
                         exit(true);
                 end;
 
@@ -5862,9 +5858,9 @@
                 VendLedgerEntry.SetRange("Applies-to Doc. Type", GenJnlLine."Document Type");
                 VendLedgerEntry.SetRange("Applies-to Doc. No.", GenJnlLine."Document No.");
                 VendLedgerEntry.SetRange("Exported to Payment File", true);
-                if not VendLedgerEntry.IsEmpty then
+                if not VendLedgerEntry.IsEmpty() then
                     exit(true);
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
 
         exit(false);
     end;
@@ -5908,7 +5904,7 @@
                 GenJnlLine.SetPostingDateAsDueDate(GenJnlLine.GetAppliesToDocDueDate, EmptyDateFormula);
                 GenJnlLine.Modify(true);
                 Window.Update(1, GenJnlLine."Document No.");
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
             Window.Close;
         end;
     end;
@@ -6153,7 +6149,10 @@
         "Shortcut Dimension 2 Code" := TempJobJnlLine."Shortcut Dimension 2 Code";
     end;
 
-    procedure CopyDocumentFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
+    procedure CopyDocumentFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20];
+                                              ExtDocNo: Text[35];
+                                              SourceCode: Code[10];
+                                              NoSeriesCode: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -6733,11 +6732,13 @@
             GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
+#if not CLEAN17
     [Obsolete('Replace by enum "Deferral Document Type" value.', '17.0')]
     procedure GetDeferralDocType(): Integer
     begin
         exit(DeferralDocType::"G/L".AsInteger());
     end;
+#endif
 
     procedure IsForPurchase(): Boolean
     begin
@@ -7440,7 +7441,8 @@
         end;
     end;
 
-    local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Enum "Gen. Journal Document Type"; ApplyDocNo: Code[20]; RecordVariant: Variant)
+    local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Enum "Gen. Journal Document Type"; ApplyDocNo: Code[20];
+                                                                                                                                      RecordVariant: Variant)
     var
         IsHandled: Boolean;
     begin
@@ -7771,7 +7773,8 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; xGenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20];
+                                                                                                                            xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -8445,7 +8448,6 @@
     var
         GenJnlDimFilters: Page "Gen. Jnl. Dim. Filters";
     begin
-        Commit();
         GenJnlDimFilters.SetGenJnlLine(Rec);
         GenJnlDimFilters.RunModal();
     end;
@@ -8463,6 +8465,73 @@
     local procedure LineDimExists(): Boolean
     begin
         exit("Dimension Set ID" <> 0);
+    end;
+
+    procedure CheckShortcutDimCodeRecurringMethod(ShortcutDimCode: Code[20])
+    begin
+        if ShortcutDimCode <> '' then
+            if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
+                FieldError("Recurring Method");
+    end;
+
+    local procedure ShowSetDimFiltersNotification()
+    begin
+        if "Line No." <> 0 then
+            if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
+                SendSetDimFiltersNotification()
+            else
+                RecallSetDimFiltersNotification();
+    end;
+
+    local procedure SendSetDimFiltersNotification()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
+        SetDimFiltersNotification: Notification;
+    begin
+        RecallSetDimFiltersNotification();
+
+        if not GenJnlDimFilterMgt.IsNotificationEnabled() or DimFilterExists() then
+            exit;
+
+        SetDimFiltersNotification.Id(CreateGuid());
+        SetDimFiltersNotification.Message(SetDimFiltersMessageTxt);
+        SetDimFiltersNotification.Scope(NotificationScope::LocalScope);
+        SetDimFiltersNotification.AddAction(SetDimFiltersActionTxt, Codeunit::"Gen. Jnl. Dim. Filter Mgt.", 'SetGenJnlDimFilters');
+        SetDimFiltersNotification.AddAction(DontShowAgainActionTxt, Codeunit::"Gen. Jnl. Dim. Filter Mgt.", 'HideNotification');
+        SetDimFiltersNotification.SetData('JournalTemplateName', "Journal Template Name");
+        SetDimFiltersNotification.SetData('JournalBatchName', "Journal Batch Name");
+        SetDimFiltersNotification.SetData('JournalLineNo', Format("Line No."));
+        NotificationLifecycleMgt.SendNotification(SetDimFiltersNotification, RecordId);
+    end;
+
+    local procedure RecallSetDimFiltersNotification()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        NotificationLifecycleMgt.RecallNotificationsForRecord(RecordId, true);
+    end;
+
+    local procedure DeleteGenJnlDimFilters()
+    var
+        GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
+    begin
+        GenJnlDimFilter.SetRange("Journal Template Name", "Journal Template Name");
+        GenJnlDimFilter.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJnlDimFilter.SetRange("Journal Line No.", "Line No.");
+        if not GenJnlDimFilter.IsEmpty then
+            GenJnlDimFilter.DeleteAll();
+    end;
+
+    local procedure CheckRecurringDimensionsAndFilters()
+    begin
+        if not ("Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"]) then begin
+            if "Line No." <> 0 then
+                if DimFilterExists() then
+                    Error(RecurringMethodsDimFilterErr, "Recurring Method");
+        end else
+            if LineDimExists() then
+                Error(RecurringMethodsLineDimdErr, "Recurring Method");
     end;
 
     [IntegrationEvent(false, false)]
@@ -8582,6 +8651,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookUpAppliesToDocVend(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentBalanceOnBeforeCalcBalance(var GenJournalLine: Record "Gen. Journal Line"; GenJnlTemplate: Record "Gen. Journal Template")
     begin
     end;
 }

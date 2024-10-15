@@ -255,13 +255,13 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReserveSalesLine.DeleteLineConfirm(Rec) then
+            if not SalesLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReserveSalesLine.DeleteLine(Rec);
+            SalesLineReserve.DeleteLine(Rec);
         end;
     end;
 

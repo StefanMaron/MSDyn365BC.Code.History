@@ -149,8 +149,8 @@ page 17440 "Timesheet Status"
                                     repeat
                                         if not TimesheetStatus.Get(PayrollPeriod.Code, Employee2."No.") then
                                             TimesheetMgt.CreateTimesheet(Employee2, PayrollPeriod);
-                                    until Employee2.Next = 0;
-                            until PayrollPeriod.Next = 0;
+                                    until Employee2.Next() = 0;
+                            until PayrollPeriod.Next() = 0;
                     end;
                 }
                 action(Update)
@@ -170,7 +170,7 @@ page 17440 "Timesheet Status"
                             repeat
                                 TimesheetStatus.Calculate;
                                 TimesheetStatus.Modify();
-                            until TimesheetStatus.Next = 0;
+                            until TimesheetStatus.Next() = 0;
                     end;
                 }
                 separator(Action1210044)
@@ -193,7 +193,7 @@ page 17440 "Timesheet Status"
                         if TimesheetStatus.FindSet then
                             repeat
                                 TimesheetStatus.Release;
-                            until TimesheetStatus.Next = 0;
+                            until TimesheetStatus.Next() = 0;
                     end;
                 }
                 action(Reopen)
@@ -209,7 +209,7 @@ page 17440 "Timesheet Status"
                         if TimesheetStatus.FindSet then
                             repeat
                                 TimesheetStatus.Reopen;
-                            until TimesheetStatus.Next = 0;
+                            until TimesheetStatus.Next() = 0;
                     end;
                 }
             }

@@ -25,7 +25,7 @@ report 9001 "Copy User Group"
                         NewUserGroupPermissionSet := UserGroupPermissionSet;
                         NewUserGroupPermissionSet."User Group Code" := NewUserGroup.Code;
                         NewUserGroupPermissionSet.Insert();
-                    until UserGroupPermissionSet.Next = 0;
+                    until UserGroupPermissionSet.Next() = 0;
             end;
         }
     }

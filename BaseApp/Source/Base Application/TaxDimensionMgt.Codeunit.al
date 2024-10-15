@@ -251,7 +251,7 @@ codeunit 17202 "Tax Dimension Mgt."
                             exit(false);
                     until TaxRegDimFilter.Next(1) = 0;
                 end;
-            until TempDimBuf1.Next = 0;
+            until TempDimBuf1.Next() = 0;
 
         TaxRegDimFilter.SetRange("Dimension Code");
         if TaxRegDimFilter.FindSet then
@@ -318,7 +318,7 @@ codeunit 17202 "Tax Dimension Mgt."
                 TempDimBuf1."Dimension Code" := TempDimSetEntry."Dimension Code";
                 TempDimBuf1."Dimension Value Code" := TempDimSetEntry."Dimension Value Code";
                 TempDimBuf1.Insert();
-            until TempDimSetEntry.Next = 0;
+            until TempDimSetEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -672,7 +672,7 @@ codeunit 17202 "Tax Dimension Mgt."
                                     NextRecord := true;
                                 end;
                             end;
-                    until NextRecord or (TempDimBuf0.Next = 0);
+                    until NextRecord or (TempDimBuf0.Next() = 0);
             if not NextRecord then begin
                 TempDimBuf2."Dimension Code" := CurrentDimCode;
                 TempDimBuf2."Dimension Value Code" := CurrentDimValCode;

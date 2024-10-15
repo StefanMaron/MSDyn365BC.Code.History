@@ -42,7 +42,7 @@ page 17328 "Tax Calc. Create"
                         TaxCalcMgt.SelectPeriod(Text, CalendarPeriod);
                         DatePeriod.Copy(CalendarPeriod);
                         TaxCalcMgt.PeriodSetup(DatePeriod);
-                        CurrPage.Update;
+                        CurrPage.Update();
                         exit(true);
                     end;
 

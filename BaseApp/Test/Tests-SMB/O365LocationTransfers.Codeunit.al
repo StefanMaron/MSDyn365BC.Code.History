@@ -22,6 +22,7 @@ codeunit 137281 "O365 Location Transfers"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         WrongInventoryErr: Label 'The amount of inventory transfered is incorrect.';
+        DirectTransferMustBeEditableErr: Label 'Direct Transfer must be editable.';
 
     [Test]
     [Scope('OnPrem')]
@@ -248,10 +249,9 @@ codeunit 137281 "O365 Location Transfers"
         // [GIVEN] Item "I" with stock on BLUE location
         CreateAndPostItem(Item, LocationBlue.Code, LibraryRandom.RandIntInRange(100, 200));
 
-        LibraryLowerPermissions.SetO365INVCreate;
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddWhseMgtActivities;
-        LibraryLowerPermissions.AddInvtPickPutawayMovement;
+        LibraryLowerPermissions.SetO365INVCreate();
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddO365WhseEdit();
 
         // [GIVEN] Direct transfer order for item "I" from BLUE to SILVER location. Bin code for the transfer receipt is not filled
         CreateDirectTransferHeader(TransferHeader, LocationBlue.Code, LocationSilver.Code);
@@ -274,7 +274,7 @@ codeunit 137281 "O365 Location Transfers"
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         Item: Record Item;
-        DirectTransferHeader: Record "Direct Transfer Header";
+        TransferReceiptHeader: Record "Transfer Receipt Header";
     begin
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 278532] Direct transfer order can be posted with "Location Mandatory" enabled
@@ -299,8 +299,8 @@ codeunit 137281 "O365 Location Transfers"
         LibraryInventory.PostDirectTransferOrder(TransferHeader);
 
         // [THEN] Order is successfully posted
-        DirectTransferHeader.SetRange("Transfer Order No.", TransferHeader."No.");
-        Assert.RecordIsNotEmpty(DirectTransferHeader);
+        TransferReceiptHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        Assert.RecordIsNotEmpty(TransferReceiptHeader);
     end;
 
     [Test]
@@ -397,9 +397,18 @@ codeunit 137281 "O365 Location Transfers"
         TransferOrder.OpenEdit;
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
 
-        // [THEN] "Direct Transfer" is not editable
-        // RU specific. Transfer Order page has SourceTableView=WHERE(Direct Transfer=CONST(No))
-        Assert.IsFalse(TransferOrder."Direct Transfer".Editable, 'Direct Transfer must not be editable');
+        // [THEN] "Direct Transfer" is editable
+        Assert.IsTrue(TransferOrder."Direct Transfer".Editable, DirectTransferMustBeEditableErr);
+        // [WHEN] "Direct Transfer" is being changed to No
+        TransferOrder."Direct Transfer".SetValue(false);
+
+        // [THEN] "Direct Transfer" is still editable
+        Assert.IsTrue(TransferOrder."Direct Transfer".Editable, DirectTransferMustBeEditableErr);
+
+        // [THEN] Transfer order line has "Direct Transfer" = No
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.FindFirst;
+        TransferLine.TestField("Direct Transfer", false);
     end;
 
     [Test]
@@ -491,7 +500,7 @@ codeunit 137281 "O365 Location Transfers"
 
         LibraryUtility.GenerateGUID;
 
-        UpdatePostedDirectTransfersNoSeries;
+        UpdatePostedDirectTransfersNoSeries();
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
@@ -558,7 +567,7 @@ codeunit 137281 "O365 Location Transfers"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateDirectTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10])
+    local procedure CreateDirectTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10])
     begin
         Clear(TransferHeader);
         TransferHeader.Init();
@@ -570,7 +579,7 @@ codeunit 137281 "O365 Location Transfers"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
+    local procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
     begin
         Clear(TransferRoute);
         TransferRoute.Init();
@@ -580,7 +589,7 @@ codeunit 137281 "O365 Location Transfers"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAndUpdateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10]; InTransitCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
+    local procedure CreateAndUpdateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10]; InTransitCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
     begin
         CreateTransferRoute(TransferRoute, TransferFrom, TransferTo);
         TransferRoute.Validate("In-Transit Code", InTransitCode);
@@ -606,7 +615,8 @@ codeunit 137281 "O365 Location Transfers"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
 
         InventorySetup.Get();
-        InventorySetup.Validate("Posted Direct Transfer Nos.", NoSeries.Code);
+        InventorySetup.Validate("Posted Direct Trans. Nos.", NoSeries.Code);
+        InventorySetup.Validate("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Receipt and Shipment");
         InventorySetup.Modify(true);
     end;
 

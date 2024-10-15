@@ -292,7 +292,7 @@ page 61 "Applied Customer Entries"
             if Find('-') then
                 repeat
                     Mark(true);
-                until Next = 0;
+                until Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Closed by Entry No.");
@@ -341,14 +341,14 @@ page 61 "Applied Customer Entries"
                                 if Find('-') then
                                     Mark(true);
                             end;
-                        until DtldCustLedgEntry2.Next = 0;
+                        until DtldCustLedgEntry2.Next() = 0;
                 end else begin
                     SetCurrentKey("Entry No.");
                     SetRange("Entry No.", DtldCustLedgEntry1."Applied Cust. Ledger Entry No.");
                     if Find('-') then
                         Mark(true);
                 end;
-            until DtldCustLedgEntry1.Next = 0;
+            until DtldCustLedgEntry1.Next() = 0;
     end;
 
     procedure SetTempCustLedgEntry(NewTempCustLedgEntryNo: Integer)

@@ -313,7 +313,7 @@ page 7002 "Sales Prices"
                 trigger OnAction()
                 begin
                     CopyPricesToCustomer;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }
@@ -496,7 +496,7 @@ page 7002 "Sales Prices"
         FilterRecordRef.Open(TableNo);
         FilterFieldRef := FilterRecordRef.Field(1);
         FilterFieldRef.SetFilter(FilterTxt);
-        if FilterRecordRef.IsEmpty then
+        if FilterRecordRef.IsEmpty() then
             Error(Text001, FilterRecordRef.Caption, FilterTxt);
     end;
 

@@ -118,7 +118,7 @@ table 12423 "Job Title"
     begin
         Position.Reset();
         Position.SetRange("Job Title Code", Code);
-        if not Position.IsEmpty then
+        if not Position.IsEmpty() then
             Error(Text14700, Code);
     end;
 

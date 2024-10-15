@@ -5,11 +5,11 @@ report 14930 "Item Write-off act TORG-16"
 
     dataset
     {
-        dataitem(ItemDocHeader; "Item Document Header")
+        dataitem(InvtDocHeader; "Invt. Document Header")
         {
             DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Shipment));
             RequestFilterFields = "Document Type", "No.";
-            dataitem(ItemDocLine1; "Item Document Line")
+            dataitem(InvtDocLine1; "Invt. Document Line")
             {
                 DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
                 DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
@@ -18,13 +18,13 @@ report 14930 "Item Write-off act TORG-16"
                 var
                     ReservationEntry: Record "Reservation Entry";
                 begin
-                    ReservationEntry.SetSourceFilter(DATABASE::"Item Document Line", "Document Type", "Document No.", "Line No.", false);
+                    ReservationEntry.SetSourceFilter(DATABASE::"Invt. Document Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
                     if ReservationEntry.FindSet() then
                         repeat
-                            Torg16DocHelper.FillWriteOffReasonBody(ReservationEntry."Appl.-to Item Entry", "Reason Code", ItemDocHeader."Posting Date");
+                            Torg16DocHelper.FillWriteOffReasonBody(ReservationEntry."Appl.-to Item Entry", "Reason Code", InvtDocHeader."Posting Date");
                         until ReservationEntry.Next() = 0
                     else
-                        Torg16DocHelper.FillWriteOffReasonBody("Applies-to Entry", "Reason Code", ItemDocHeader."Posting Date");
+                        Torg16DocHelper.FillWriteOffReasonBody("Applies-to Entry", "Reason Code", InvtDocHeader."Posting Date");
                 end;
 
                 trigger OnPostDataItem()
@@ -38,14 +38,14 @@ report 14930 "Item Write-off act TORG-16"
                     Torg16DocHelper.FillPageHeader;
                 end;
             }
-            dataitem(ItemDocLine2; "Item Document Line")
+            dataitem(InvtDocLine2; "Invt. Document Line")
             {
                 DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
                 DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin
-                    Torg16DocHelper.FillItemLedgerLine("Item No.", "Unit of Measure Code", ItemDocLine2);
+                    Torg16DocHelper.FillItemLedgerLine("Item No.", "Unit of Measure Code", InvtDocLine2);
                 end;
 
                 trigger OnPostDataItem()
@@ -61,7 +61,7 @@ report 14930 "Item Write-off act TORG-16"
 
             trigger OnAfterGetRecord()
             begin
-                FillHeader(ItemDocHeader);
+                FillHeader(InvtDocHeader);
                 FillHeaderSignatures("No.");
             end;
         }
@@ -145,10 +145,10 @@ report 14930 "Item Write-off act TORG-16"
         WriteOffSource := NewWriteOffSource;
     end;
 
-    local procedure FillHeader(ItemDocHeader: Record "Item Document Header")
+    local procedure FillHeader(InvtDocHeader: Record "Invt. Document Header")
     begin
         Torg16DocHelper.FillHeader(
-          ItemDocHeader."No.", ItemDocHeader."Document Date", ItemDocHeader."Location Code",
+          InvtDocHeader."No.", InvtDocHeader."Document Date", InvtDocHeader."Location Code",
           OrderNo, OrderDate, OperationType);
     end;
 

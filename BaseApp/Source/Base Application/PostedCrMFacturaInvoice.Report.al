@@ -35,7 +35,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
 
                         trigger OnPreDataItem()
                         begin
-                            AttachedSalesLine.SetRange("Attached to Line No.", SalesLine1."Line No.");
+                            AttachedSalesLine.SetRange("Attached to Line No.", SalesCrMemoLine."Line No.");
                             SetRange(Number, 1, AttachedSalesLine.Count);
                         end;
                     }
@@ -51,19 +51,19 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                                 CurrReport.Break();
 
                             if Number = 1 then
-                                TrackingSpecBuffer2.FindSet
+                                TempTrackingSpecBuffer2.FindSet()
                             else
-                                TrackingSpecBuffer2.Next;
+                                TempTrackingSpecBuffer2.Next();
 
-                            if CDNoInfo.Get(
-                                 CDNoInfo.Type::Item, TrackingSpecBuffer2."Item No.", TrackingSpecBuffer2."Variant Code", TrackingSpecBuffer2."CD No.")
+                            if PackageNoInfo.Get(
+                                 TempTrackingSpecBuffer2."Item No.", TempTrackingSpecBuffer2."Variant Code", TempTrackingSpecBuffer2."Package No.")
                             then begin
-                                CountryName := CDNoInfo.GetCountryName;
-                                CountryCode := CDNoInfo.GetCountryLocalCode;
+                                CountryName := PackageNoInfo.GetCountryName();
+                                CountryCode := PackageNoInfo.GetCountryLocalCode();
                             end;
 
                             CopyArray(LastTotalAmount, TotalAmount, 1);
-                            FacturaInvoiceHelper.TransferItemTrLineValues(LineValues, TrackingSpecBuffer2, CountryCode, CountryName, Sign);
+                            FacturaInvoiceHelper.TransferItemTrLineValues(LineValues, TempTrackingSpecBuffer2, CountryCode, CountryName, Sign);
                             FillBody(LineValues);
                         end;
 
@@ -81,10 +81,10 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                         LineValues: array[13] of Text;
                     begin
                         if Number = 1 then begin
-                            if not SalesLine1.Find('-') then
+                            if not SalesCrMemoLine.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if SalesLine1.Next(1) = 0 then begin
+                            if SalesCrMemoLine.Next(1) = 0 then begin
                                 FacturaInvoiceHelper.FormatTotalAmounts(
                                   TotalAmountText, TotalAmount, Sign, Header."Prepayment Credit Memo", VATExemptTotal);
                                 CurrReport.Break();
@@ -92,28 +92,30 @@ report 12484 "Posted Cr. M. Factura-Invoice"
 
                         CopyArray(LastTotalAmount, TotalAmount, 1);
 
-                        if SalesLine1.Type <> SalesLine1.Type::" " then begin
-                            if SalesLine1.Quantity = 0 then
+                        if SalesCrMemoLine.Type <> SalesCrMemoLine.Type::" " then begin
+                            if SalesCrMemoLine.Quantity = 0 then
                                 CurrReport.Skip();
                             if AmountInvoiceCurrent = AmountInvoiceCurrent::LCY then begin
-                                SalesLine1.Amount := SalesLine1."Amount (LCY)";
-                                SalesLine1."Amount Including VAT" := SalesLine1."Amount Including VAT (LCY)";
+                                SalesCrMemoLine.Amount := SalesCrMemoLine."Amount (LCY)";
+                                SalesCrMemoLine."Amount Including VAT" := SalesCrMemoLine."Amount Including VAT (LCY)";
                             end;
-                            SalesLine1."Unit Price" :=
-                              Round(SalesLine1.Amount / SalesLine1.Quantity, Currency."Unit-Amount Rounding Precision");
-                            IncrAmount(SalesLine1);
+                            SalesCrMemoLine."Unit Price" :=
+                              Round(SalesCrMemoLine.Amount / SalesCrMemoLine.Quantity, Currency."Unit-Amount Rounding Precision");
+                            IncrAmount(SalesCrMemoLine);
                         end else
-                            SalesLine1."No." := '';
+                            SalesCrMemoLine."No." := '';
 
-                        RetrieveCDSpecification;
+                        OnItemTrackingLineOnBeforeTransferReportValues(
+                            SalesCrMemoLine, TempTrackingSpecBuffer, TempTrackingSpecBuffer2,
+                            MultipleCD, CDNo, CountryCode, CountryName, TrackingSpecCount);
 
                         if Header."Prepayment Credit Memo" then
                             LastTotalAmount[1] := 0;
 
-                        if SalesLine1.Type = SalesLine1.Type::" " then
-                            FacturaInvoiceHelper.TransferLineDescrValues(LineValues, SalesLine1.Description)
+                        if SalesCrMemoLine.Type = SalesCrMemoLine.Type::" " then
+                            FacturaInvoiceHelper.TransferLineDescrValues(LineValues, SalesCrMemoLine.Description)
                         else
-                            TransferReportValues(LineValues, SalesLine1, CountryName, CDNo, CountryCode);
+                            TransferReportValues(LineValues, SalesCrMemoLine, CountryName, CDNo, CountryCode);
 
                         FillBody(LineValues);
                     end;
@@ -152,7 +154,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
 
                 trigger OnPreDataItem()
                 begin
-                    if not SalesLine1.Find('-') then
+                    if not SalesCrMemoLine.Find('-') then
                         CurrReport.Break();
 
                     SetRange(Number, 1, CopiesNumber);
@@ -168,16 +170,16 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                     AmountInvoiceCurrent := AmountInvoiceCurrent::LCY;
 
                 Sign := -1;
-                SalesLine1.Reset();
-                SalesLine1.SetRange("Document No.", "No.");
-                SalesLine1.SetFilter("Attached to Line No.", '<>%1', 0);
-                if SalesLine1.FindSet then
+                SalesCrMemoLine.Reset();
+                SalesCrMemoLine.SetRange("Document No.", "No.");
+                SalesCrMemoLine.SetFilter("Attached to Line No.", '<>%1', 0);
+                if SalesCrMemoLine.FindSet then
                     repeat
-                        AttachedSalesLine := SalesLine1;
+                        AttachedSalesLine := SalesCrMemoLine;
                         AttachedSalesLine.Insert();
-                    until SalesLine1.Next = 0;
+                    until SalesCrMemoLine.Next() = 0;
 
-                SalesLine1.SetRange("Attached to Line No.", 0);
+                SalesCrMemoLine.SetRange("Attached to Line No.", 0);
 
                 if "Currency Code" <> '' then begin
                     if not Currency.Get("Currency Code") then
@@ -206,7 +208,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                     CollectPrepayments(PrepmtDocsLine);
 
                 ItemTrackingDocMgt.RetrieveDocumentItemTracking(
-                  TrackingSpecBuffer, "No.", DATABASE::"Sales Cr.Memo Header", 0);
+                    TempTrackingSpecBuffer, "No.", DATABASE::"Sales Cr.Memo Header", 0);
 
                 if LogInteraction then
                     if not Preview then begin
@@ -311,13 +313,13 @@ report 12484 "Posted Cr. M. Factura-Invoice"
         DollarUSATxt: Label 'US Dollar';
         CompanyInfo: Record "Company Information";
         Customer: Record Customer;
-        SalesLine1: Record "Sales Cr.Memo Line";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
         AttachedSalesLine: Record "Sales Cr.Memo Line" temporary;
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
-        CDNoInfo: Record "CD No. Information";
-        TrackingSpecBuffer: Record "Tracking Specification" temporary;
-        TrackingSpecBuffer2: Record "Tracking Specification" temporary;
+        PackageNoInfo: Record "Package No. Information";
+        TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
+        TempTrackingSpecBuffer2: Record "Tracking Specification" temporary;
         UoM: Record "Unit of Measure";
         LocMgt: Codeunit "Localisation Management";
         StdRepMgt: Codeunit "Local Report Management";
@@ -375,7 +377,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                   PrepmtList + Delimiter +
                   StrSubstNo(PrepaymentTxt, TempCustLedgEntry."External Document No.", TempCustLedgEntry."Posting Date");
                 Delimiter := ', ';
-            until TempCustLedgEntry.Next = 0;
+            until TempCustLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -402,7 +404,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
             ReportValues[4] := Format(Sign * SalesLine2.Quantity);
             ReportValues[5] := StdRepMgt.FormatReportValue(SalesLine2."Unit Price", 2);
             ReportValues[6] := StdRepMgt.FormatReportValue(Sign * SalesLine2.Amount, 2);
-            ReportValues[7] := Format(SalesLine1."VAT %");
+            ReportValues[7] := Format(SalesCrMemoLine."VAT %");
             ReportValues[8] :=
               StdRepMgt.FormatReportValue(Sign * (SalesLine2."Amount Including VAT" - SalesLine2.Amount), 2);
             ReportValues[9] := StdRepMgt.FormatReportValue(Sign * SalesLine2."Amount Including VAT", 2);
@@ -445,63 +447,6 @@ report 12484 "Posted Cr. M. Factura-Invoice"
         SalesInvLine.SetFilter("No.", '<>''''');
         SalesInvLine.SetFilter(Quantity, '<>0');
         exit(SalesInvLine.IsEmpty);
-    end;
-
-    local procedure RetrieveCDSpecification()
-    begin
-        MultipleCD := false;
-        CDNo := '';
-        CountryName := '-';
-        CountryCode := '';
-
-        case SalesLine1.Type of
-            SalesLine1.Type::Item:
-                begin
-                    TrackingSpecBuffer.Reset();
-                    TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
-                      "Source Prod. Order Line", "Source Ref. No.");
-                    TrackingSpecBuffer.SetRange("Source Type", DATABASE::"Sales Cr.Memo Line");
-                    TrackingSpecBuffer.SetRange("Source Subtype", 0);
-                    TrackingSpecBuffer.SetRange("Source ID", SalesLine1."Document No.");
-                    TrackingSpecBuffer.SetRange("Source Ref. No.", SalesLine1."Line No.");
-                    TrackingSpecBuffer2.DeleteAll();
-                    if TrackingSpecBuffer.FindSet then
-                        repeat
-                            TrackingSpecBuffer2.SetRange("CD No.", TrackingSpecBuffer."CD No.");
-                            if TrackingSpecBuffer2.FindFirst then begin
-                                TrackingSpecBuffer2."Quantity (Base)" += TrackingSpecBuffer."Quantity (Base)";
-                                TrackingSpecBuffer2.Modify();
-                            end else begin
-                                TrackingSpecBuffer2.Init();
-                                TrackingSpecBuffer2 := TrackingSpecBuffer;
-                                TrackingSpecBuffer2.TestField("Quantity (Base)");
-                                TrackingSpecBuffer2."Lot No." := '';
-                                TrackingSpecBuffer2."Serial No." := '';
-                                TrackingSpecBuffer2.Insert();
-                            end;
-                        until TrackingSpecBuffer.Next = 0;
-                    TrackingSpecBuffer2.Reset();
-                    TrackingSpecCount := TrackingSpecBuffer2.Count();
-                    case TrackingSpecCount of
-                        1:
-                            begin
-                                TrackingSpecBuffer2.FindFirst;
-                                CDNo := TrackingSpecBuffer2."CD No.";
-                                if CDNoInfo.Get(
-                                     CDNoInfo.Type::Item, TrackingSpecBuffer2."Item No.",
-                                     TrackingSpecBuffer2."Variant Code", TrackingSpecBuffer2."CD No.")
-                                then begin
-                                    CountryName := CDNoInfo.GetCountryName;
-                                    CountryCode := CDNoInfo.GetCountryLocalCode;
-                                end;
-                            end;
-                        else
-                            MultipleCD := true;
-                    end;
-                end;
-            SalesLine1.Type::"Fixed Asset":
-                FacturaInvoiceHelper.GetFAInfo(SalesLine1."No.", CDNo, CountryName);
-        end;
     end;
 
     local procedure FillDocHeader(var DocNo: Code[20]; var DocDate: Text; var RevNo: Code[20]; var RevDate: Text)
@@ -556,6 +501,11 @@ report 12484 "Posted Cr. M. Factura-Invoice"
     procedure SetFileNameSilent(NewFileName: Text)
     begin
         FileName := NewFileName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackingLineOnBeforeTransferReportValues(SalesCrMemoLine: Record "Sales Cr.Memo Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempTrackingSpecification2: Record "Tracking Specification" temporary; var MultipleCD: Boolean; var CDNo: Text; var CountryCode: Code[10]; var CountryName: Text; var TrackingSpecCount: Integer);
+    begin
     end;
 }
 

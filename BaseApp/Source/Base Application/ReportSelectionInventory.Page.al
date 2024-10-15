@@ -15,7 +15,6 @@ page 5754 "Report Selection - Inventory"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Usage';
-                OptionCaption = 'Transfer Order,Transfer Shipment,Transfer Receipt,Inventory Period Test,Assembly Order,Posted Assembly Order,Phys. Invt. Order Test,Phys. Invt. Order,Posted Phys. Invt. Order,Phys. Invt. Recording,Posted Phys. Invt. Recording,Direct Transfer';
                 ToolTip = 'Specifies which type of document the report is used for.';
 
                 trigger OnValidate()
@@ -26,18 +25,18 @@ page 5754 "Report Selection - Inventory"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -72,7 +71,7 @@ page 5754 "Report Selection - Inventory"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -81,41 +80,55 @@ page 5754 "Report Selection - Inventory"
     end;
 
     var
-        ReportUsage2: Option "Transfer Order","Transfer Shipment","Transfer Receipt","Inventory Period Test","Assembly Order","Posted Assembly Order","Phys. Invt. Order Test","Phys. Invt. Order","Posted Phys. Invt. Order","Phys. Invt. Recording","Posted Phys. Invt. Recording","Direct Transfer";
+        ReportUsage2: Enum "Report Selection Usage Inventory";
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
-        FilterGroup(2);
+            if Rec.Modify() then;
+        Rec.FilterGroup(2);
         case ReportUsage2 of
-            ReportUsage2::"Transfer Order":
-                SetRange(Usage, Usage::Inv1);
-            ReportUsage2::"Transfer Shipment":
-                SetRange(Usage, Usage::Inv2);
-            ReportUsage2::"Transfer Receipt":
-                SetRange(Usage, Usage::Inv3);
-            ReportUsage2::"Inventory Period Test":
-                SetRange(Usage, Usage::"Invt.Period Test");
-            ReportUsage2::"Assembly Order":
-                SetRange(Usage, Usage::"Asm.Order");
-            ReportUsage2::"Posted Assembly Order":
-                SetRange(Usage, Usage::"P.Asm.Order");
-            ReportUsage2::"Phys. Invt. Order":
-                SetRange(Usage, Usage::"Phys.Invt.Order");
-            ReportUsage2::"Phys. Invt. Order Test":
-                SetRange(Usage, Usage::"Phys.Invt.Order Test");
-            ReportUsage2::"Phys. Invt. Recording":
-                SetRange(Usage, Usage::"Phys.Invt.Rec.");
-            ReportUsage2::"Posted Phys. Invt. Order":
-                SetRange(Usage, Usage::"P.Phys.Invt.Order");
-            ReportUsage2::"Posted Phys. Invt. Recording":
-                SetRange(Usage, Usage::"P.Phys.Invt.Rec.");
-            ReportUsage2::"Direct Transfer":
-                SetRange(Usage, Usage::DT);
+            "Report Selection Usage Inventory"::"Transfer Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::Inv1);
+            "Report Selection Usage Inventory"::"Transfer Shipment":
+                Rec.SetRange(Usage, "Report Selection Usage"::Inv2);
+            "Report Selection Usage Inventory"::"Transfer Receipt":
+                Rec.SetRange(Usage, "Report Selection Usage"::Inv3);
+            "Report Selection Usage Inventory"::"Inventory Period Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Invt.Period Test");
+            "Report Selection Usage Inventory"::"Assembly Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Asm.Order");
+            "Report Selection Usage Inventory"::"Posted Assembly Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Asm.Order");
+            "Report Selection Usage Inventory"::"Phys. Invt. Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Phys.Invt.Order");
+            "Report Selection Usage Inventory"::"Phys. Invt. Order Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Phys.Invt.Order Test");
+            "Report Selection Usage Inventory"::"Phys. Invt. Recording":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Phys.Invt.Rec.");
+            "Report Selection Usage Inventory"::"Posted Phys. Invt. Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Phys.Invt.Order");
+            "Report Selection Usage Inventory"::"Posted Phys. Invt. Recording":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Phys.Invt.Rec.");
+            "Report Selection Usage Inventory"::"Direct Transfer":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Direct Transfer");
+            "Report Selection Usage Inventory"::"Inventory Receipt":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Inventory Receipt");
+            "Report Selection Usage Inventory"::"Inventory Shipment":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Inventory Shipment");
+            "Report Selection Usage Inventory"::"Posted Inventory Receipt":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Inventory Receipt");
+            "Report Selection Usage Inventory"::"Posted Inventory Shipment":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Inventory Shipment");
         end;
-        FilterGroup(0);
-        CurrPage.Update;
+        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
+        Rec.FilterGroup(0);
+        CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Inventory")
+    begin
     end;
 }
 

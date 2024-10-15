@@ -26,7 +26,7 @@ page 12449 "Item G/L Turnover"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -390,7 +390,7 @@ page 12449 "Item G/L Turnover"
                    ((Show = Show::Credit) and not TempValueEntry.IsDebit)
                 then
                     if TempValueEntry.Insert() then;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -415,7 +415,7 @@ page 12449 "Item G/L Turnover"
                         CreditCost := CreditCost - "Cost Amount (Actual)";
                         CreditQty := CreditQty - "Invoiced Quantity";
                     end;
-                until Next = 0;
+                until Next() = 0;
     end;
 }
 

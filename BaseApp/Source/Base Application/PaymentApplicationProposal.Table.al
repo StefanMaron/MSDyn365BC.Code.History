@@ -1,4 +1,4 @@
-table 1293 "Payment Application Proposal"
+﻿table 1293 "Payment Application Proposal"
 {
     Caption = 'Payment Application Proposal';
 
@@ -455,7 +455,7 @@ table 1293 "Payment Application Proposal"
                   AppliedPaymentEntry."Account Type", AppliedPaymentEntry."Account No.",
                   AppliedPaymentEntry."Applies-to Entry No.");
                 Unapply;
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
 
         Rec := CurrentTempPaymentApplicationProposal;
     end;

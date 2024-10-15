@@ -183,11 +183,11 @@ codeunit 17203 "Create Tax Register GL Entry"
                                                     end;
                                             end;
                                     end;
-                                until TaxRegLineSetup.Next = 0;
+                                until TaxRegLineSetup.Next() = 0;
                         end;
 
                         TempTaxRegTemplate.Insert();
-                    until TaxRegTemplate.Next = 0;
+                    until TaxRegTemplate.Next() = 0;
 
                 if TempTaxRegTemplate.FindSet then
                     repeat
@@ -223,10 +223,10 @@ codeunit 17203 "Create Tax Register GL Entry"
                             TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
                             TaxRegAccumulation.Modify();
                         end;
-                    until TempTaxRegTemplate.Next = 0;
+                    until TempTaxRegTemplate.Next() = 0;
 
                 TempTaxRegTemplate.DeleteAll();
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -294,16 +294,16 @@ codeunit 17203 "Create Tax Register GL Entry"
                             TaxRegGLCorresp."Debit Account No." := DebitGLAcc."No.";
                             InsertTaxRegGLCorrespondLine(
                               TaxRegGLCorresp, TmpTaxRegDimCorrFilter, TaxRegLineSetup."Tax Register No.", TaxRegLineSetup."Line No.");
-                        until DebitGLAcc.Next = 0;
+                        until DebitGLAcc.Next() = 0;
                     TaxRegGLCorresp."Debit Account No." := '';
                     if CreditGLAcc.FindSet then
                         repeat
                             TaxRegGLCorresp."Credit Account No." := CreditGLAcc."No.";
                             InsertTaxRegGLCorrespondLine(
                               TaxRegGLCorresp, TmpTaxRegDimCorrFilter, TaxRegLineSetup."Tax Register No.", TaxRegLineSetup."Line No.");
-                        until CreditGLAcc.Next = 0;
-                until TaxRegLineSetup.Next = 0;
-        until TaxReg.Next = 0;
+                        until CreditGLAcc.Next() = 0;
+                until TaxRegLineSetup.Next() = 0;
+        until TaxReg.Next() = 0;
         Window.Close;
     end;
 
@@ -476,7 +476,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                     TaxRegGLEntry.Insert();
                     EntryNo += 1;
                 end;
-            until GLCorrEntry.Next = 0;
+            until GLCorrEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -525,8 +525,8 @@ codeunit 17203 "Create Tax Register GL Entry"
 
                             EntryNo += 1;
                         end;
-                    until TempGLCorrEntry.Next = 0;
-            until GLCorrAnalysisViewEntry.Next = 0;
+                    until TempGLCorrEntry.Next() = 0;
+            until GLCorrAnalysisViewEntry.Next() = 0;
     end;
 
     local procedure CheckTaxRegGLEntryPresence(TaxRegID: Code[20]; LedgerEntryNo: Integer): Boolean

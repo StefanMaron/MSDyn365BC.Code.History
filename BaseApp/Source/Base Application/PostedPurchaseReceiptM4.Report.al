@@ -99,7 +99,7 @@ report 12483 "Posted Purchase Receipt M-4"
                                     InventoryReportsHelper.InsertBuffer(InvPostBuffer, VendPostingGroup."Payables Account", AccNo);
                                 end;
                         end;
-                    until PurchInvLine.Next = 0;
+                    until PurchInvLine.Next() = 0;
 
                 if "Currency Code" <> '' then
                     Currency.Get("Currency Code")

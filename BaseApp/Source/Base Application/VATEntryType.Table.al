@@ -133,7 +133,7 @@ table 14949 "VAT Entry Type"
             repeat
                 SetOfVATEntryType += Delimiter + Code;
                 Delimiter := ';';
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

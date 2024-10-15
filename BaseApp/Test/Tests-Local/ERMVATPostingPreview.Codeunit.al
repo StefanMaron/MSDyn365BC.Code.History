@@ -51,7 +51,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         GLEntry.FindLast;
         LastEntryNo := GLEntry."Entry No.";
 
-        asserterror LibraryPurchase.PreviewPurchaseDocument(PurchHeader);
+        asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchHeader);
 
         GLEntry.FindLast;
         Assert.IsTrue(
@@ -74,7 +74,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         GLEntry.FindLast;
         LastEntryNo := GLEntry."Entry No.";
 
-        asserterror LibraryPurchase.PreviewPurchaseDocument(PurchHeader);
+        asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchHeader);
 
         GLEntry.FindLast;
         Assert.IsTrue(
@@ -329,7 +329,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         LastEntryNo := GLEntry."Entry No.";
 
         // [WHEN] Run Posting Preview for Advance Statement
-        asserterror LibraryPurchase.PreviewPurchaseDocument(PurchaseHeader);
+        asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
 
         // [THEN] Preview G/L Entry generated for Advance STatement
         GLEntry.FindLast;
@@ -348,7 +348,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         Initialize;
 
         LibraryPurchase.CreatePurchaseInvoiceWithGLAcc(PurchaseHeader, PurchaseLine, '', '');
-        asserterror LibraryPurchase.PreviewPurchaseDocument(PurchaseHeader);
+        asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
         Assert.IsFalse(PurchInvHeader.Get(PurchaseHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, PurchInvHeader.TableCaption));
     end;
 
@@ -363,7 +363,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         Initialize;
 
         LibraryPurchase.CreatePurchaseCrMemoWithGLAcc(PurchaseHeader, PurchaseLine, '', '');
-        asserterror LibraryPurchase.PreviewPurchaseDocument(PurchaseHeader);
+        asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
         Assert.IsFalse(PurchCrMemoHdr.Get(PurchaseHeader."Posting No."), StrSubstNo(PreviewDocExistsErr, PurchCrMemoHdr.TableCaption));
     end;
 

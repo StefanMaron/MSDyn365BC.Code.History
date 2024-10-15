@@ -152,7 +152,7 @@ table 5640 "Main Asset Component"
                     "Main Asset/Component" := FA."Main Asset/Component";
                     "Component of Main Asset" := FA."Component of Main Asset";
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

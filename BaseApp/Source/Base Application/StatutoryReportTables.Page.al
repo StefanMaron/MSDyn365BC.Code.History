@@ -387,7 +387,7 @@ page 26552 "Statutory Report Tables"
                     PageIndicationForXML := PageIndicationXMLElement."XML Element Name"
                 else
                     PageIndicationForXML := PageIndicationForXML + '|' + PageIndicationXMLElement."XML Element Name";
-            until PageIndicationXMLElement.Next = 0;
+            until PageIndicationXMLElement.Next() = 0;
     end;
 }
 

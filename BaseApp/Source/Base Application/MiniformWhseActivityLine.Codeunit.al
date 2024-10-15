@@ -239,9 +239,7 @@ codeunit 7711 "Miniform Whse. Activity Line"
                 repeat
                     SetRange("Item No.", "Item No.");
                     SetRange("Variant Code", "Variant Code");
-                    SetRange("Serial No.", "Serial No.");
-                    SetRange("Lot No.", "Lot No.");
-                    SetRange("CD No.", "CD No.");
+                    SetTrackingFilterFromWhseActivityLine(WhseActLine);
 
                     if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Take) or
                        (WhseActivLine2.GetFilter("Action Type") = '')
@@ -250,7 +248,7 @@ codeunit 7711 "Miniform Whse. Activity Line"
                         if Find('-') then
                             repeat
                                 QtyToPick := QtyToPick + "Qty. to Handle (Base)";
-                            until Next = 0;
+                            until Next() = 0;
                     end;
 
                     if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Place) or
@@ -260,7 +258,7 @@ codeunit 7711 "Miniform Whse. Activity Line"
                         if Find('-') then
                             repeat
                                 QtyToPutAway := QtyToPutAway + "Qty. to Handle (Base)";
-                            until Next = 0;
+                            until Next() = 0;
                     end;
 
                     if QtyToPick <> QtyToPutAway then
@@ -270,12 +268,10 @@ codeunit 7711 "Miniform Whse. Activity Line"
                     Find('+');
                     SetRange("Item No.");
                     SetRange("Variant Code");
-                    SetRange("Serial No.");
-                    SetRange("Lot No.");
-                    SetRange("CD No.");
+                    ClearTrackingFilter();
                     QtyToPick := 0;
                     QtyToPutAway := 0;
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(true);
     end;

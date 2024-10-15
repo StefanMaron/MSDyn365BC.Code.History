@@ -19,8 +19,6 @@
         Text002: Label 'This document can only be released when the approval process is complete.';
         Text003: Label 'The approval process must be cancelled or completed to reopen this document.';
         Text005: Label 'There are unpaid prepayment invoices that are related to the document of type %1 with the number %2.';
-        Text046: Label 'The %1 does not match the quantity defined in item tracking.';
-        Text12401: Label 'Item Tracking does not match for line %1, %2 %3, %4 %5';
         UnpostedPrepaymentAmountsErr: Label 'There are unposted prepayment amounts on the document of type %1 with the number %2.', Comment = '%1 - Document Type; %2 - Document No.';
         PreviewMode: Boolean;
         SkipCheckReleaseRestrictions: Boolean;
@@ -64,7 +62,7 @@
                     repeat
                         if PurchLine.IsInventoriableItem then
                             PurchLine.TestField("Location Code");
-                    until PurchLine.Next = 0;
+                    until PurchLine.Next() = 0;
                 PurchLine.SetFilter(Type, '>0');
             end;
 
@@ -72,8 +70,9 @@
 
             PurchLine.SetRange("Drop Shipment", false);
             NotOnlyDropShipment := PurchLine.Find('-');
-            PurchLine.SetRange("Drop Shipment");
-            TestTrackingSpecification(PurchaseHeader, PurchLine);
+
+            OnCodeOnCheckTracking(PurchaseHeader, PurchLine);
+
             PurchLine.Reset();
 
             OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode);
@@ -210,157 +209,6 @@
         end;
     end;
 
-    [Scope('OnPrem')]
-    procedure TestTrackingSpecification(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
-    var
-        PurchLineToCheck: Record "Purchase Line";
-        ReservationEntry: Record "Reservation Entry";
-        Item: Record Item;
-        ItemTrackingCode: Record "Item Tracking Code";
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        CDTrackingSetup: Record "CD Tracking Setup";
-        CreateReservEntry: Codeunit "Create Reserv. Entry";
-        ItemTrackingManagement: Codeunit "Item Tracking Management";
-        ErrorFieldCaption: Text[250];
-        SignFactor: Integer;
-        PurchLineQtyHandled: Decimal;
-        PurchLineQtyToHandle: Decimal;
-        TrackingQtyHandled: Decimal;
-        TrackingQtyToHandle: Decimal;
-        Inbound: Boolean;
-        CheckPurchLine: Boolean;
-    begin
-        // if a PurchaseLine is posted with ItemTracking then the whole quantity of
-        // the regarding PurchaseLine has to be post with Item-Tracking
-
-        if not
-          ((PurchHeader."Document Type" = PurchHeader."Document Type"::Order) or
-           (PurchHeader."Document Type" = PurchHeader."Document Type"::"Return Order"))
-        then
-            exit;
-
-        TrackingQtyToHandle := 0;
-        TrackingQtyHandled := 0;
-
-        PurchLineToCheck.Copy(PurchLine);
-        PurchLineToCheck.SetRange(Type, PurchLineToCheck.Type::Item);
-        if PurchHeader."Document Type" = PurchHeader."Document Type"::Order then begin
-            PurchLineToCheck.SetFilter("Qty. to Receive", '<>%1', 0);
-            ErrorFieldCaption := PurchLineToCheck.FieldCaption("Qty. to Receive");
-        end else begin
-            PurchLineToCheck.SetFilter("Return Qty. to Ship", '<>%1', 0);
-            ErrorFieldCaption := PurchLineToCheck.FieldCaption("Return Qty. to Ship");
-        end;
-
-        if PurchLineToCheck.FindSet then begin
-            ReservationEntry."Source Type" := DATABASE::"Purchase Line";
-            ReservationEntry."Source Subtype" := PurchHeader."Document Type".AsInteger();
-            SignFactor := CreateReservEntry.SignFactor(ReservationEntry);
-            repeat
-                // Only Item where no SerialNo or LotNo is required
-                Item.Get(PurchLineToCheck."No.");
-                if Item."Item Tracking Code" <> '' then begin
-                    Inbound := (PurchLineToCheck.Quantity * SignFactor) > 0;
-                    ItemTrackingCode.Code := Item."Item Tracking Code";
-                    if CDTrackingSetup.Get(Item."Item Tracking Code", PurchLineToCheck."Location Code") then;
-                    ItemTrackingManagement.GetItemTrackingSetup(ItemTrackingCode, CDTrackingSetup, 0, Inbound, ItemTrackingSetup);
-                    CheckPurchLine := ItemTrackingSetup."CD No. Required" and CDTrackingSetup."CD Purchase Check on Release";
-                    if CheckPurchLine then
-                        if not GetTrackingQuantities(PurchLineToCheck, 0, TrackingQtyToHandle, TrackingQtyHandled) then
-                            if PurchHeader."Document Type" = PurchHeader."Document Type"::Order then
-                                Error(Text12401,
-                                  PurchLineToCheck."Line No.", Format(PurchLineToCheck.Type), PurchLineToCheck."No.",
-                                  PurchLineToCheck.FieldCaption("Qty. to Receive"), PurchLineToCheck."Qty. to Receive")
-                            else
-                                Error(Text12401,
-                                  PurchLineToCheck."Line No.", Format(PurchLineToCheck.Type), PurchLineToCheck."No.",
-                                  PurchLineToCheck.FieldCaption("Qty. to Receive"), PurchLineToCheck."Return Qty. to Ship")
-                end else
-                    CheckPurchLine := false;
-
-                TrackingQtyToHandle := 0;
-                TrackingQtyHandled := 0;
-
-                if CheckPurchLine then begin
-                    GetTrackingQuantities(PurchLineToCheck, 1, TrackingQtyToHandle, TrackingQtyHandled);
-                    TrackingQtyToHandle := TrackingQtyToHandle * SignFactor;
-                    TrackingQtyHandled := TrackingQtyHandled * SignFactor;
-                    if PurchHeader."Document Type" = PurchHeader."Document Type"::Order then begin
-                        PurchLineQtyToHandle := PurchLineToCheck."Qty. to Receive (Base)";
-                        PurchLineQtyHandled := PurchLineToCheck."Qty. Received (Base)";
-                    end else begin
-                        PurchLineQtyToHandle := PurchLineToCheck."Return Qty. to Ship (Base)";
-                        PurchLineQtyHandled := PurchLineToCheck."Return Qty. Shipped (Base)";
-                    end;
-                    if ((TrackingQtyHandled + TrackingQtyToHandle) <> (PurchLineQtyHandled + PurchLineQtyToHandle)) or
-                       (TrackingQtyToHandle <> PurchLineQtyToHandle)
-                    then
-                        Error(Text046, ErrorFieldCaption);
-                end;
-            until PurchLineToCheck.Next = 0;
-        end;
-    end;
-
-    local procedure GetTrackingQuantities(PurchLine: Record "Purchase Line"; FunctionType: Option CheckTrackingExists,GetQty; var TrackingQtyToHandle: Decimal; var TrackingQtyHandled: Decimal): Boolean
-    var
-        TrackingSpecification: Record "Tracking Specification";
-        ReservEntry: Record "Reservation Entry";
-    begin
-        with TrackingSpecification do begin
-            SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
-              "Source Prod. Order Line", "Source Ref. No.");
-            SetRange("Source Type", DATABASE::"Purchase Line");
-            SetRange("Source Subtype", PurchLine."Document Type");
-            SetRange("Source ID", PurchLine."Document No.");
-            SetRange("Source Batch Name", '');
-            SetRange("Source Prod. Order Line", 0);
-            SetRange("Source Ref. No.", PurchLine."Line No.");
-        end;
-        with ReservEntry do begin
-            SetCurrentKey(
-              "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
-              "Source Batch Name", "Source Prod. Order Line");
-            SetRange("Source ID", PurchLine."Document No.");
-            SetRange("Source Ref. No.", PurchLine."Line No.");
-            SetRange("Source Type", DATABASE::"Purchase Line");
-            SetRange("Source Subtype", PurchLine."Document Type");
-            SetRange("Source Batch Name", '');
-            SetRange("Source Prod. Order Line", 0);
-        end;
-
-        case FunctionType of
-            FunctionType::CheckTrackingExists:
-                begin
-                    TrackingSpecification.SetRange(Correction, false);
-                    if not TrackingSpecification.IsEmpty then
-                        exit(true);
-                    ReservEntry.SetFilter("Serial No.", '<>%1', '');
-                    if not ReservEntry.IsEmpty then
-                        exit(true);
-                    ReservEntry.SetRange("Serial No.");
-                    ReservEntry.SetFilter("Lot No.", '<>%1', '');
-                    if not ReservEntry.IsEmpty then
-                        exit(true);
-                    ReservEntry.SetRange("Lot No.");
-                    ReservEntry.SetFilter("CD No.", '<>%1', '');
-                    if not ReservEntry.IsEmpty then
-                        exit(true);
-                end;
-            FunctionType::GetQty:
-                begin
-                    TrackingSpecification.CalcSums("Quantity Handled (Base)");
-                    TrackingQtyHandled := TrackingSpecification."Quantity Handled (Base)";
-                    if ReservEntry.FindSet then
-                        repeat
-                            if (ReservEntry."Lot No." <> '') or (ReservEntry."Serial No." <> '') or
-                              (ReservEntry."CD No." <> '')
-                            then
-                                TrackingQtyToHandle := TrackingQtyToHandle + ReservEntry."Qty. to Handle (Base)";
-                        until ReservEntry.Next = 0;
-                end;
-        end;
-    end;
-
     procedure ReleasePurchaseHeader(var PurchHdr: Record "Purchase Header"; Preview: Boolean) LinesWereModified: Boolean
     begin
         PreviewMode := Preview;
@@ -459,6 +307,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeModifyHeader(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PreviewMode: Boolean; var LinesWereModified: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnCheckTracking(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line");
     begin
     end;
 

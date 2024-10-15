@@ -39,7 +39,7 @@ codeunit 6721 "Booking Manager"
                     if ("Invoice No." = '') and ("Invoice Status" = "Invoice Status"::draft) then
                         if GetStartDate < Now then
                             TempBookingItem.Insert();
-            until BookingItem.Next = 0;
+            until BookingItem.Next() = 0;
     end;
 
     procedure GetBookingMailboxes(var TempBookingMailbox: Record "Booking Mailbox" temporary)
@@ -78,7 +78,7 @@ codeunit 6721 "Booking Manager"
     [TryFunction]
     local procedure TryFindAppointments(var BookingItem: Record "Booking Item")
     begin
-        BookingItem.FindSet;
+        BookingItem.FindSet();
     end;
 
     local procedure CanHandleHeader(var SalesHeader: Record "Sales Header"): Boolean
@@ -183,14 +183,14 @@ codeunit 6721 "Booking Manager"
                         CreateSalesLine(SalesHeader, NewTempBookingItem);
                     BookingItemSource.Get(NewTempBookingItem.SystemId);
                     BookingItemSource.Delete();
-                until NewTempBookingItem.Next = 0;
+                until NewTempBookingItem.Next() = 0;
                 InvoiceCreated := true;
                 Session.LogMessage('0000ACI', InvoicingBookingsTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
             end;
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesHeader(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; RunTrigger: Boolean)
     var
         InvoicedBookingItem: Record "Invoiced Booking Item";
@@ -203,7 +203,7 @@ codeunit 6721 "Booking Manager"
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     var
         InvoicedBookingItem: Record "Invoiced Booking Item";
@@ -216,9 +216,8 @@ codeunit 6721 "Booking Manager"
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1638, 'OnAfterInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterInsertInvoicedBookingItem(var Rec: Record "Invoiced Booking Item"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Invoiced Booking Item", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterInsertInvoicedBookingItem(var Rec: Record "Invoiced Booking Item"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
             exit;
@@ -229,7 +228,7 @@ codeunit 6721 "Booking Manager"
         SetBookingItemInvoiced(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesLine(var Rec: Record "Sales Line"; var xRec: Record "Sales Line"; RunTrigger: Boolean)
     var
         InvoicedBookingItem: Record "Invoiced Booking Item";
@@ -242,7 +241,7 @@ codeunit 6721 "Booking Manager"
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterPostSalesDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
     local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
     var
         InvoicedBookingItem: Record "Invoiced Booking Item";
@@ -251,7 +250,7 @@ codeunit 6721 "Booking Manager"
             exit;
 
         InvoicedBookingItem.SetRange("Document No.", SalesHeader."No.");
-        if InvoicedBookingItem.IsEmpty then
+        if InvoicedBookingItem.IsEmpty() then
             exit;
 
         InvoicedBookingItem.ModifyAll(Posted, true);
@@ -261,7 +260,7 @@ codeunit 6721 "Booking Manager"
             SetBookingItemInvoiced(InvoicedBookingItem);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure OnDeleteSalesInvoice(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         InvoicedBookingItem: Record "Invoiced Booking Item";

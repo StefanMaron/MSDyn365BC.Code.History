@@ -36,9 +36,9 @@ report 17459 "Suggest Income Tax Payments"
                                             TempPayrollAEBuffer.Amount := PostedPayrollDocLine."Payroll Amount";
                                             TempPayrollAEBuffer.Insert();
                                         end;
-                                until PostedPayrollDocLine.Next = 0;
+                                until PostedPayrollDocLine.Next() = 0;
                         end;
-                    until PostedPayrollDoc.Next = 0;
+                    until PostedPayrollDoc.Next() = 0;
             end;
 
             trigger OnPostDataItem()
@@ -47,7 +47,7 @@ report 17459 "Suggest Income Tax Payments"
                 if TempPayrollAEBuffer.FindSet then
                     repeat
                         CreateJnlLine(TempPayrollAEBuffer);
-                    until TempPayrollAEBuffer.Next = 0;
+                    until TempPayrollAEBuffer.Next() = 0;
 
                 TempPayrollAEBuffer.DeleteAll();
             end;

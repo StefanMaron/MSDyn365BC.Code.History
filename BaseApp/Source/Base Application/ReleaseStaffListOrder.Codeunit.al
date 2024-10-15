@@ -19,7 +19,7 @@ codeunit 17366 "Release Staff List Order"
         TestField("HR Order Date");
 
         StaffListOrderLine.SetRange("Document No.", "No.");
-        if StaffListOrderLine.IsEmpty then
+        if StaffListOrderLine.IsEmpty() then
             Error(Text001, "No.");
 
         Status := Status::Released;

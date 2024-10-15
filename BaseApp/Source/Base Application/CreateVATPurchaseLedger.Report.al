@@ -100,7 +100,7 @@ report 12455 "Create VAT Purchase Ledger"
                                 if DtldVendLedgEntry.Find('-') then
                                     repeat
                                         GetRealVATDate(PurchVATEntry, DtldVendLedgEntry."Transaction No.", RealVATEntryDate);
-                                    until DtldVendLedgEntry.Next = 0;
+                                    until DtldVendLedgEntry.Next() = 0;
                             end;
                         end;
                     end;
@@ -127,7 +127,7 @@ report 12455 "Create VAT Purchase Ledger"
                                 repeat
                                     if not DtldVendLedgEntry.Unapplied then
                                         GetPurchPaymentDateDocNo(DtldVendLedgEntry."Transaction No.", PaymentDate, PaymentDocNo);
-                                until DtldVendLedgEntry.Next = 0;
+                                until DtldVendLedgEntry.Next() = 0;
                         end;
                     end;
 
@@ -928,7 +928,7 @@ report 12455 "Create VAT Purchase Ledger"
                             "Excise Amount" := "Excise Amount" + AmountBuffer."Excise Amount";
                             Modify;
                         end;
-            until PrepmtDiffVATEntry.Next = 0;
+            until PrepmtDiffVATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1159,7 +1159,7 @@ report 12455 "Create VAT Purchase Ledger"
                     VATLedgerConnBuffer.SetRange("Purch. Ledger Line No.", VATLedgerLineBuffer."Line No.");
                     VATLedgerConnBuffer.DeleteAll();
                 end;
-            until VATLedgerLineBuffer.Next = 0;
+            until VATLedgerLineBuffer.Next() = 0;
 
         VATLedgerConnBuffer.Reset();
         if VATLedgerConnBuffer.Find('-') then
@@ -1168,7 +1168,7 @@ report 12455 "Create VAT Purchase Ledger"
                 ChangeNoBuf.Get(VATLedgerConnBuffer."Purch. Ledger Line No.");
                 VATLedgerConnection."Purch. Ledger Line No." := ChangeNoBuf."Closed by Entry No.";
                 VATLedgerConnection.Insert();
-            until VATLedgerConnBuffer.Next = 0;
+            until VATLedgerConnBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1201,7 +1201,7 @@ report 12455 "Create VAT Purchase Ledger"
                     if RealVATDate < TempDate then
                         RealVATDate := TempDate;
                 end;
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

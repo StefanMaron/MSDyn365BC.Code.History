@@ -84,7 +84,7 @@ report 17360 "Form 2-NDFL"
                                         if RowNo > GetCurrentBlockStartPosition + EarningsOffset + 1 then
                                             ExpandingOffset += 1;
                                     end;
-                                until Next = 0;
+                                until Next() = 0;
                             DeleteAll();
                         end;
                     end;
@@ -246,7 +246,7 @@ report 17360 "Form 2-NDFL"
                                                 if EmplLedgEntry."External Document Issued By" <> '' then
                                                     ExcelMgt.FillCell('CY' + Format(RowNo + 2), EmplLedgEntry."External Document Issued By");
                                             end;
-                                        until PayrollElement.Next = 0;
+                                        until PayrollElement.Next() = 0;
                                 end;
                             end;
                         end;
@@ -725,7 +725,7 @@ report 17360 "Form 2-NDFL"
             if FindSet then
                 repeat
                     TotalAmount += "Tax Deduction Amount";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -759,7 +759,7 @@ report 17360 "Form 2-NDFL"
             if FindSet then
                 repeat
                     TotalBaseAmount += Base;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -796,7 +796,7 @@ report 17360 "Form 2-NDFL"
                     else
                         if TaxPersent = TaxPersent::"13" then // not linked added to total in 13% case
                             AddToFilter(TaxDeductionsFilter, "Tax Deduction Code");
-                until Next = 0;
+                until Next() = 0;
 
             if TaxDeductionsFilter = '' then
                 exit(0);
@@ -808,7 +808,7 @@ report 17360 "Form 2-NDFL"
             if FindSet then
                 repeat
                     TotalTaxDeductionAmount += "Tax Deduction Amount";
-                until Next = 0;
+                until Next() = 0;
         end
     end;
 
@@ -834,7 +834,7 @@ report 17360 "Form 2-NDFL"
             if FindSet then
                 repeat
                     TotalAmount += Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -859,7 +859,7 @@ report 17360 "Form 2-NDFL"
             if FindSet then
                 repeat
                     TotalAmount += Base;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -884,7 +884,7 @@ report 17360 "Form 2-NDFL"
             if FindSet then
                 repeat
                     TotalAmount += Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

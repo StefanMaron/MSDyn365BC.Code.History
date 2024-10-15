@@ -40,6 +40,8 @@ codeunit 136208 "Marketing Interaction"
         FirstContentBodyTxt: Label 'First Content Body Text';
         AttachmentExportQst: Label 'Do you want to export attachment to view or edit it externaly?';
         FilePathsAreNotEqualErr: Label 'Export file path is not equal to file path of the attachment.';
+        TitleFromLbl: Label '%1 - from %2', Comment = '%1 - document description, %2 - name';
+        TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
 
     [Test]
     [Scope('OnPrem')]
@@ -694,7 +696,11 @@ codeunit 136208 "Marketing Interaction"
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for empty record
         Initialize;
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+#else
         TempSegmentLine.LoadAttachment(false);
+#endif  
         Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
     end;
 
@@ -711,7 +717,11 @@ codeunit 136208 "Marketing Interaction"
         LibraryMarketing.CreateAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
 
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+#else
         TempSegmentLine.LoadAttachment(false);
+#endif  
 
         Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
     end;
@@ -729,7 +739,11 @@ codeunit 136208 "Marketing Interaction"
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
 
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+#else
         TempSegmentLine.LoadAttachment(false);
+#endif  
 
         Assert.IsTrue(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
 
@@ -750,9 +764,14 @@ codeunit 136208 "Marketing Interaction"
         Initialize;
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+        TempSegmentLine.PreviewSegLineHTMLContent();
+#else
         TempSegmentLine.LoadAttachment(false);
+        TempSegmentLine.PreviewHTMLContent();
+#endif  
 
-        TempSegmentLine.PreviewHTMLContent;
 
         // Verify "Content Preview" page is opened in ContentPreviewMPH handler
 
@@ -773,7 +792,11 @@ codeunit 136208 "Marketing Interaction"
         Initialize;
         ContentBodyText := LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+#else
         TempSegmentLine.LoadAttachment(false);
+#endif  
 
         Assert.AreEqual(
           ContentBodyText,
@@ -798,7 +821,11 @@ codeunit 136208 "Marketing Interaction"
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         NewContentBodyText := LibraryUtility.GenerateRandomAlphabeticText(LibraryRandom.RandIntInRange(2000, 3000), 0);
         TempSegmentLine."Attachment No." := Attachment."No.";
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+#else
         TempSegmentLine.LoadAttachment(false);
+#endif  
 
         TempSegmentLine.UpdateContentBodyTextInCustomLayoutAttachment(NewContentBodyText);
 
@@ -830,7 +857,11 @@ codeunit 136208 "Marketing Interaction"
         TempSegmentLine."Attachment No." := Attachment[2]."No.";
 
         // [WHEN] Load attachment to "SL" with optimization (check if attachment already exists).
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+#else
         TempSegmentLine.LoadAttachment(false);
+#endif  
 
         // [THEN] Attachment was not loaded ("SL" Attachment = "A1")
         Assert.AreEqual(
@@ -863,7 +894,11 @@ codeunit 136208 "Marketing Interaction"
         TempSegmentLine."Attachment No." := Attachment[2]."No.";
 
         // [WHEN] Load attachment to "SL" with Reload forcing
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(true);
+#else
         TempSegmentLine.LoadAttachment(true);
+#endif  
 
         // [THEN] Attachment was loaded ("SL" Attachment = "A2")
         Assert.AreEqual(
@@ -892,7 +927,11 @@ codeunit 136208 "Marketing Interaction"
         CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
 
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+#else
         TempSegmentLine.LoadAttachment(false);
+#endif  
 
         LibraryVariableStorage.Enqueue(TempSegmentLine."Interaction Template Code");
         LibraryVariableStorage.Enqueue(TempSegmentLine."Language Code");
@@ -915,7 +954,11 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO] SegmentLine.FinishWizard(FALSE): asks for confirm action
         Initialize;
 
+#if CLEAN17
+        TempSegmentLine.FinishSegLineWizard(false);
+#else
         TempSegmentLine.FinishWizard(false);
+#endif
 
         // Verify finish later confirm question in ConfirmHandlerNo handler
     end;
@@ -931,7 +974,11 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO] SegmentLine.FinishWizard(FALSE): "Contact No." field is mandatory for empty Segment Line
         Initialize;
 
+#if CLEAN17
+        asserterror TempSegmentLine.FinishSegLineWizard(false);
+#else
         asserterror TempSegmentLine.FinishWizard(false);
+#endif
 
         // Verify finish later confirm question in ConfirmHandlerNo handler
         Assert.ExpectedErrorCode('Dialog');
@@ -952,7 +999,11 @@ codeunit 136208 "Marketing Interaction"
 
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
 
+#if CLEAN17
+        asserterror TempSegmentLine.FinishSegLineWizard(true);
+#else
         asserterror TempSegmentLine.FinishWizard(true);
+#endif
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(SelectContactErr);
     end;
@@ -971,7 +1022,11 @@ codeunit 136208 "Marketing Interaction"
 
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), '', 0D, '');
 
+#if CLEAN17
+        asserterror TempSegmentLine.FinishSegLineWizard(true);
+#else
         asserterror TempSegmentLine.FinishWizard(true);
+#endif
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption("Salesperson Code")));
     end;
@@ -990,7 +1045,11 @@ codeunit 136208 "Marketing Interaction"
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), MockSalesPersonCode, 0D, '');
 
+#if CLEAN17
+        asserterror TempSegmentLine.FinishSegLineWizard(true);
+#else
         asserterror TempSegmentLine.FinishWizard(true);
+#endif
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption(Date)));
     end;
@@ -1011,7 +1070,11 @@ codeunit 136208 "Marketing Interaction"
         ContactCode := MockContactNo('');
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, ContactCode, MockSalesPersonCode, WorkDate, '');
 
+#if CLEAN17
+        asserterror TempSegmentLine.FinishSegLineWizard(true);
+#else
         asserterror TempSegmentLine.FinishWizard(true);
+#endif
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption(Description)));
     end;
@@ -1033,7 +1096,11 @@ codeunit 136208 "Marketing Interaction"
           MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID);
 
         InteractionLogEntry.FindLast;
+#if CLEAN17
+        TempSegmentLine.FinishSegLineWizard(true);
+#else
         TempSegmentLine.FinishWizard(true);
+#endif
 
         VerifyInteractionLogEntryDetails(InteractionLogEntry."Entry No." + 1, TempSegmentLine);
     end;
@@ -1146,96 +1213,6 @@ codeunit 136208 "Marketing Interaction"
 
         // Validate and preview html content in CreateInteraction_ValidateHTMLContent_MPH
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('InteractionSaveMergedDocumentPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('WordDocumentTakeValue will always throw an error.', '17.3')]
-    procedure InteractionSaveMergedDocumentToDisk()
-    var
-        Contact: Record Contact;
-        InteractionGroup: Record "Interaction Group";
-        InteractionTemplate: Record "Interaction Template";
-        MarketingSetup: Record "Marketing Setup";
-        Attachment: Record Attachment;
-        TempServerDirectory: Text;
-        MergedFieldValue: Text[250];
-        TemplateCode: Code[10];
-    begin
-        // [SCENARIO 380114] Test that document saved in Storage Path is merged.
-
-        Initialize;
-
-        TempServerDirectory := FileMgt.ServerCreateTempSubDirectory;
-
-        // [GIVEN] Storage Path is Disk File
-        UpdateMarketingSetup(MarketingSetup, MarketingSetup."Attachment Storage Type"::"Disk File", TempServerDirectory);
-
-        // [GIVEN] Interaction Group, Create Interaction Template, Create Contact
-        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-        TemplateCode := CreateAndUpdateTemplate(InteractionGroup.Code);
-
-        // [GIVEN] MEMO template for Interaction
-        CreateInteractionTmplLanguageWithAttachmentNo(TemplateCode, 7); // Memo
-        InteractionTemplate.Get(TemplateCode);
-
-        // [GIVEN] Contact with Name = "X"
-        LibraryMarketing.CreateCompanyContact(Contact);
-
-        // [WHEN] Create Interaction
-        LibraryVariableStorage.Enqueue(TemplateCode);
-        Contact.CreateInteraction;
-
-        // [THEN] Verify that 4th control of merged word document contains "X"
-        AttachmentFromInteractionLogEntry(Attachment, Contact."No.", InteractionGroup.Code, TemplateCode);
-        MergedFieldValue := WordDocumentTakeValue(Attachment, 4); // Contact_Name
-        Assert.AreEqual(Contact."No.", MergedFieldValue, StrSubstNo(MergedFieldErr, MergedFieldValue, Contact."No."));
-
-        // Tear Down
-        FileMgt.ServerRemoveDirectory(TempServerDirectory, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('InteractionSaveMergedDocumentPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('WordDocumentTakeValue will always throw an error.', '17.3')]
-    procedure InteractionSaveMergedDocumentToBLOB()
-    var
-        Contact: Record Contact;
-        InteractionGroup: Record "Interaction Group";
-        MarketingSetup: Record "Marketing Setup";
-        Attachment: Record Attachment;
-        MergedFieldValue: Text[250];
-        TemplateCode: Code[10];
-    begin
-        // [SCENARIO 380114] Test that document saved in BLOB field is merged.
-
-        Initialize;
-
-        // [GIVEN] Storage Path is Embedded
-        UpdateMarketingSetup(MarketingSetup, MarketingSetup."Attachment Storage Type"::Embedded, '');
-
-        // [GIVEN] Interaction Group, Create Interaction Template
-        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-        TemplateCode := CreateAndUpdateTemplate(InteractionGroup.Code);
-
-        // [GIVEN] MEMO template for Interaction
-        CreateInteractionTmplLanguageWithAttachmentNo(TemplateCode, 7); // Memo
-
-        // [GIVEN] Contact with Name = "X"
-        LibraryMarketing.CreateCompanyContact(Contact);
-
-        // [WHEN] Create Interaction
-        LibraryVariableStorage.Enqueue(TemplateCode);
-        Contact.CreateInteraction;
-
-        // [THEN] Verify that 4th control of merged word document contains "X"
-        AttachmentFromInteractionLogEntry(Attachment, Contact."No.", InteractionGroup.Code, TemplateCode);
-        MergedFieldValue := WordDocumentTakeValue(Attachment, 4); // Contact_Name
-        Assert.AreEqual(Contact."No.", MergedFieldValue, StrSubstNo(MergedFieldErr, MergedFieldValue, Contact."No."));
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
@@ -1906,77 +1883,6 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('InteractionSaveMergedDocumentPageHandler,ConfirmHandlerExportAttachment')]
-    [Scope('OnPrem')]
-    procedure InteractionAttachmentWithoutWordApp()
-    var
-        Contact: Record Contact;
-        InteractionGroup: Record "Interaction Group";
-        MarketingInteraction: Codeunit "Marketing Interaction";
-        TemplateCode: Code[10];
-    begin
-        // [FEATURE] [UI] [Word Application]
-        // [SCENARIO 230955] Create Interaction with Word attachment when no Word application installed
-        Initialize;
-
-        // [GIVEN] Word application is not installed
-        MarketingInteraction.SetWordAppExists(false);
-
-        // [GIVEN] Interaction Template "X"
-        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-        TemplateCode := CreateAndUpdateTemplate(InteractionGroup.Code);
-        CreateInteractionTmplLanguageWithAttachmentNo(TemplateCode, 7);
-
-        // [GIVEN] Contact with Name = "C"
-        LibraryMarketing.CreateCompanyContact(Contact);
-
-        // [WHEN] Create Interaction using Template "X" for Contact "C"
-        BindSubscription(MarketingInteraction);
-        CreateInteractionFromContact(Contact, TemplateCode);
-        UnbindSubscription(MarketingInteraction);
-
-        // [THEN] Confirmation Dialog asking to save file for later processing appears
-        LibraryVariableStorage.DequeueText; // Dequeue not needed boolean variable
-        Assert.ExpectedMessage(AttachmentExportQst, LibraryVariableStorage.DequeueText);
-    end;
-
-    [Test]
-    [HandlerFunctions('InteractionSaveMergedDocumentPageHandler')]
-    [Scope('OnPrem')]
-    procedure InteractionAttachmentWithWordApp()
-    var
-        Contact: Record Contact;
-        InteractionGroup: Record "Interaction Group";
-        InteractionLogEntry: Record "Interaction Log Entry";
-        MarketingInteraction: Codeunit "Marketing Interaction";
-        TemplateCode: Code[10];
-    begin
-        // [FEATURE] [UI] [Word Application]
-        // [SCENARIO 230955] Create Interaction with Word attachment when Word application installed
-        Initialize;
-
-        // [GIVEN] Word application is installed
-        MarketingInteraction.SetWordAppExists(true);
-
-        // [GIVEN] Interaction Template "X"
-        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-        TemplateCode := CreateAndUpdateTemplate(InteractionGroup.Code);
-        CreateInteractionTmplLanguageWithAttachmentNo(TemplateCode, 7);
-
-        // [GIVEN] Contact with Name = "C"
-        LibraryMarketing.CreateCompanyContact(Contact);
-
-        // [WHEN] Create Interaction using Template "X" for Contact "C"
-        BindSubscription(MarketingInteraction);
-        CreateInteractionFromContact(Contact, TemplateCode);
-        UnbindSubscription(MarketingInteraction);
-
-        // [THEN] Interaction Log Entry created with Attachment
-        FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, TemplateCode);
-        Assert.AreNotEqual(0, InteractionLogEntry."Attachment No.", AttachmentErr);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure UT_PopulateInterLogEntryToMergeSource()
     var
@@ -2042,6 +1948,377 @@ codeunit 136208 "Marketing Interaction"
 
         // [THEN] The path of exported file is equal to path stored in attachment of Interaction Tmpl. Language.
         Assert.AreEqual(FilePath, ExportFilePath, FilePathsAreNotEqualErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InboundFlowEntryTitle()
+    var
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 390586] Contact Interaction Subform shows title for Inbound interaction template
+        Initialize;
+
+        // [GIVEN] Interaction Template "X" with "Information Flow" = Inbound and Description "TD"
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate."Information Flow" := InteractionTemplate."Information Flow"::Inbound;
+        InteractionTemplate.Modify();
+
+        // [GIVEN] Contact with Name = "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Mock interaction log entry for contact "C" and template "X"
+        MockInterLogEntry(InteractionLogEntry);
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Contact Company No." := Contact."Company No.";
+        InteractionLogEntry."Interaction Template Code" := InteractionTemplate.Code;
+        InteractionLogEntry.Modify();
+
+        // [WHEN] GetEntryTitle function run for interaction entry
+        // [THEN] Contact Interaction Subform shows "Title" = "TD - from C"
+        Assert.AreEqual(StrSubstNo(TitleFromLbl, InteractionTemplate.Description, Contact.Name), InteractionLogEntry.GetEntryTitle(), 'Invalid Title');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutboundFlowEntryTitle()
+    var
+        Contact: Record Contact;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 390586] Contact Interaction Subform shows title for Outbound interaction template
+        Initialize;
+
+        // [GIVEN] Interaction Template "X" with "Information Flow" = Outbound and Description "TD"
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate."Information Flow" := InteractionTemplate."Information Flow"::Outbound;
+        InteractionTemplate.Modify();
+
+        // [GIVEN] Salespersone with Name = "S"
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+
+        // [GIVEN] Contact with Name = "C" and salespersone "S"
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact."Salesperson Code" := SalespersonPurchaser.Code;
+        Contact.Modify();
+
+        // [GIVEN] Mock interaction log entry for contact "C" and template "X"
+        MockInterLogEntry(InteractionLogEntry);
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Contact Company No." := Contact."Company No.";
+        InteractionLogEntry."Salesperson Code" := SalespersonPurchaser.Code;
+        InteractionLogEntry."Interaction Template Code" := InteractionTemplate.Code;
+        InteractionLogEntry.Modify();
+
+        // [WHEN] GetEntryTitle function run for interaction entry
+        // [THEN] Contact Interaction Subform shows "Title" = "TD - by S"
+        Assert.AreEqual(StrSubstNo(TitleByLbl, InteractionTemplate.Description, SalespersonPurchaser.Name), InteractionLogEntry.GetEntryTitle(), 'Invalid Title');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EmptyFlowEntryTitle()
+    var
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 390586] Contact Interaction Subform shows title for Empty flow interaction template
+        Initialize;
+
+        // [GIVEN] Interaction Template "X" with "Information Flow" = " " and Description "TD"
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate."Information Flow" := InteractionTemplate."Information Flow"::" ";
+        InteractionTemplate.Modify();
+
+        // [GIVEN] Contact with Name = "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Mock interaction log entry for contact "C" and template "X"
+        MockInterLogEntry(InteractionLogEntry);
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Contact Company No." := Contact."Company No.";
+        InteractionLogEntry."Interaction Template Code" := InteractionTemplate.Code;
+        InteractionLogEntry.Modify();
+
+        // [WHEN] GetEntryTitle function run for interaction entry
+        // [THEN] Contact Interaction Subform shows "Title" = "TD"
+        Assert.AreEqual(InteractionTemplate.Description, InteractionLogEntry.GetEntryTitle(), 'Invalid Title');
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreateOpportunityForInteractionLogEntry()
+    var
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [UI] [Contact Interaction Subform]
+        // [SCENARIO 386492] Action "Create Opportunity" of Contact Interaction Subform
+        Initialize;
+
+        // [GIVEN] Contact "C"
+        LibraryMarketing.CreatePersonContact(Contact);
+        // [GIVEN] Interaction Log Entry, where "Opportunity No." is <blank>
+        InteractionLogEntry.DeleteAll();
+        InteractionLogEntry.Init();
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Salesperson Code" := Contact."Salesperson Code";
+        InteractionLogEntry.Insert();
+
+        // [GIVEN] Open contact card for Contact "C"
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Run "Create opportunity" from Contact Interaction Subform
+        ContactCard.ContactIntEntriesSubform.CreateOpportunity.Invoke();
+
+        // [THEN] Interaction Log Entry, where "Opportunity No." is defined
+        InteractionLogEntry.Find();
+        InteractionLogEntry.TestField("Opportunity No.");
+        // [THEN] New opportunity is created
+        VerifyOpportunity(Contact, InteractionLogEntry."Opportunity No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ContentPreviewMPH')]
+    [Scope('OnPrem')]
+    procedure ContactInteractionSubformShowAttachments()
+    var
+        Contact: Record Contact;
+        Attachment: Record Attachment;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [UI] [Contact Interaction Subform]
+        // [SCENARIO 386492] Action "Show Attachments" of Contact Interaction Subform opens entry attachment
+        Initialize;
+
+        // [GIVEN] Contact "C"
+        LibraryMarketing.CreatePersonContact(Contact);
+        // [GIVEN] Mock Interaction Log Entry with Attachment
+        LibraryMarketing.CreateEmailMergeAttachment(Attachment);
+        InteractionLogEntry.DeleteAll();
+        InteractionLogEntry.Init();
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Salesperson Code" := Contact."Salesperson Code";
+        InteractionLogEntry."Attachment No." := Attachment."No.";
+        InteractionLogEntry.Insert();
+
+        // [GIVEN] Open contact card for Contact "C"
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Run "Show Attachments" from Contact Interaction Subform
+        ContactCard.ContactIntEntriesSubform."Show Attachments".Invoke();
+
+        // [THEN] "Content Preview" page opened
+
+        Attachment.Delete();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ContactInteractionSubformShowDocument()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        SalesOrderCard: TestPage "Sales Order";
+        SegMgt: Codeunit SegManagement;
+    begin
+        // [FEATURE] [UI] [Contact Interaction Subform]
+        // [SCENARIO 386492] Action "Show Attachments" of Contact Interaction Subform opens related document
+        Initialize;
+
+        // [GIVEN] Customer "CUST" with Contact "C"
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+
+        // [GIVEN] Sales order "SO" with customer "S"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Mock interaction log entry for sales order "SO"
+        SegMgt.LogDocument(3, SalesHeader."No.", 0, 0, Database::Customer, SalesHeader."Bill-to Customer No.", SalesHeader."Salesperson Code",
+                        '', SalesHeader."Posting Description", '');
+
+        // [GIVEN] Open contact card for Contact "C"
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Run "Show Attachments" from Contact Interaction Subform
+        SalesOrderCard.Trap();
+        ContactCard.ContactIntEntriesSubform."Show Attachments".Invoke();
+
+        // [THEN] "Sales Order Card" page opened with sales order "SO"
+        SalesOrderCard."No.".AssertEquals(SalesHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ContactInteractionSubformShowDocumentFromTitle()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        SalesOrderCard: TestPage "Sales Order";
+        SegMgt: Codeunit SegManagement;
+    begin
+        // [FEATURE] [UI] [Contact Interaction Subform]
+        // [SCENARIO 386492] AssistEdit for "Title" field of Contact Interaction Subform opens related document
+        Initialize;
+
+        // [GIVEN] Customer "CUST" with Contact "C"
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+
+        // [GIVEN] Sales order "SO" with customer "S"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Mock interaction log entry for sales order "SO"
+        SegMgt.LogDocument(3, SalesHeader."No.", 0, 0, Database::Customer, SalesHeader."Bill-to Customer No.", SalesHeader."Salesperson Code",
+                        '', SalesHeader."Posting Description", '');
+
+        // [GIVEN] Open contact card for Contact "C"
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Run AssistEdit for "Title" field from Contact Interaction Subform
+        SalesOrderCard.Trap();
+        ContactCard.ContactIntEntriesSubform.Title.AssistEdit();
+
+        // [THEN] "Sales Order Card" page opened with sales order "SO"
+        SalesOrderCard."No.".AssertEquals(SalesHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('EvaluateInteractionHandler')]
+    procedure ContactInteractionSubformEvaluateInteraction()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [UI] [Contact Interaction Subform]
+        // [SCENARIO 386492] Action "Evaluate Interaction" of Contact Interaction Subform 
+        Initialize;
+
+        // [GIVEN] Contact "C"
+        LibraryMarketing.CreatePersonContact(Contact);
+        // [GIVEN] Interaction Log Entry
+        InteractionLogEntry.DeleteAll();
+        InteractionLogEntry.Init();
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Salesperson Code" := Contact."Salesperson Code";
+        InteractionLogEntry.Insert();
+
+        // [GIVEN] Open contact card for Contact "C"
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Run "Evaluate Interaction" action from Contact Interaction Subform and press "Positive"
+        LibraryVariableStorage.Enqueue(2);
+        ContactCard.ContactIntEntriesSubform."Evaluate Interaction".Invoke();
+
+        // [THEN] Interaction log entry has "Evaluation" = "Positive"
+        InteractionLogEntry.Find();
+        InteractionLogEntry.TestField(Evaluation, InteractionLogEntry.Evaluation::Positive);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ContactInteractionSubformToggleCanceled()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [UI] [Contact Interaction Subform]
+        // [SCENARIO 386492] Action "Switch Checkmark in Canceled" of Contact Interaction Subform 
+        Initialize;
+
+        // [GIVEN] Contact "C"
+        LibraryMarketing.CreatePersonContact(Contact);
+        // [GIVEN] Interaction Log Entry
+        InteractionLogEntry.DeleteAll();
+        InteractionLogEntry.Init();
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Salesperson Code" := Contact."Salesperson Code";
+        InteractionLogEntry.Insert();
+
+        // [GIVEN] Open contact card for Contact "C"
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Run action "Switch Checkmark in Canceled" from Contact Interaction Subform and press "Positive"
+        ContactCard.ContactIntEntriesSubform."Switch Check&mark in Canceled".Invoke();
+
+        // [THEN] Interaction log entry has "Canceled" = "Yes"
+        InteractionLogEntry.Find();
+        InteractionLogEntry.TestField(Canceled, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CreateInteraction_GetContactName_MPH,ConfirmHandlerNo')]
+    procedure ContactInteractionSubformCreateInteractionPersonContact()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [UI] [Contact Interaction Subform]
+        // [SCENARIO 390586] Action "Create Interaction" of Contact Interaction Subform for person contact
+        Initialize;
+
+        // [GIVEN] Contact "C"
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] Open contact card for Contact "C"
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Run action "Create Interaction" from Contact Interaction Subform and press "Positive"
+        ContactCard.ContactIntEntriesSubform."Create &Interaction".Invoke();
+
+        // [THEN] Create Interaction Wizard has "Contact Name" = "C"
+        Assert.AreEqual(Contact.Name, LibraryVariableStorage.DequeueText, 'Invalid contact name');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CreateInteraction_GetContactName_MPH,ConfirmHandlerNo')]
+    procedure ContactInteractionSubformCreateInteractionCompanyContact()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [UI] [Contact Interaction Subform]
+        // [SCENARIO 390586] Action "Create Interaction" of Contact Interaction Subform for company contact
+        Initialize;
+
+        // [GIVEN] Contact "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Open contact card for Contact "C"
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Run action "Create Interaction" from Contact Interaction Subform and press "Positive"
+        ContactCard.ContactIntEntriesSubform."Create &Interaction".Invoke();
+
+        // [THEN] Create Interaction Wizard has "Contact Name" = "C"
+        Assert.AreEqual(Contact.Name, LibraryVariableStorage.DequeueText, 'Invalid contact name');
     end;
 
     local procedure Initialize()
@@ -2236,7 +2513,11 @@ codeunit 136208 "Marketing Interaction"
     begin
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
+#if CLEAN17
+        TempSegmentLine.LoadSegLineAttachment(false);
+#else
         TempSegmentLine.LoadAttachment(false);
+#endif  
         TempSegmentLine.UpdateContentBodyTextInCustomLayoutAttachment(ContentBodyText);
     end;
 
@@ -2308,7 +2589,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         RlshpMgtCommentLine.SetRange("Table Name", RlshpMgtCommentLine."Table Name"::Opportunity);
         RlshpMgtCommentLine.SetRange("No.", OpportunityNo);
-        RlshpMgtCommentLine.FindSet;
+        RlshpMgtCommentLine.FindSet();
     end;
 
     local procedure FindContactInteractionLogEntry(var InteractionLogEntry: Record "Interaction Log Entry"; ContactNo: Code[20])
@@ -2565,7 +2846,7 @@ codeunit 136208 "Marketing Interaction"
         InteractionTemplate.Modify(true);
     end;
 
-    local procedure UpdateMarketingSetup(MarketingSetup: Record "Marketing Setup"; StorageType: Option; StorageLocation: Text)
+    local procedure UpdateMarketingSetup(MarketingSetup: Record "Marketing Setup"; StorageType: Enum "Setup Attachment Storage Type"; StorageLocation: Text)
     begin
         MarketingSetup.Get();
         MarketingSetup."Attachment Storage Type" := StorageType;
@@ -2573,38 +2854,6 @@ codeunit 136208 "Marketing Interaction"
           CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Location"));
         MarketingSetup.Modify();
     end;
-
-#if not CLEAN17
-    local procedure WordDocumentTakeValue(var Attachment: Record Attachment; MergeFieldNo: Integer) MergedFieldValue: Text[250]
-    var
-        [RunOnClient]
-        WordApplication: DotNet ApplicationClass;
-        [RunOnClient]
-        WordDocument: DotNet Document;
-        [RunOnClient]
-        WordFields: DotNet "Microsoft.Office.Interop.Word.Fields";
-        [RunOnClient]
-        WordRange: DotNet "Microsoft.Office.Interop.Word.Range";
-        [RunOnClient]
-        WordHelper: DotNet WordHelper;
-        FileName: Text;
-    begin
-        WordApplication := WordApplication.ApplicationClass;
-
-        Attachment.CalcFields("Attachment File");
-        FileName := Attachment.ConstFilename;
-        Attachment.ExportAttachmentToClientFile(FileName);
-        WordDocument := WordHelper.CallOpen(WordApplication, FileName, false, false);
-
-        WordFields := WordDocument.Fields;
-        WordRange := WordFields.Item(MergeFieldNo).Result;
-        MergedFieldValue := WordRange.Text;
-
-        Clear(WordDocument);
-        WordHelper.CallQuit(WordApplication, false);
-        Clear(WordApplication);
-    end;
-#endif
 
     local procedure VerifyInteractionLogEntry(ContactNo: Code[20]; InteractionTemplateCode: Code[10])
     var
@@ -2736,7 +2985,11 @@ codeunit 136208 "Marketing Interaction"
         end;
 
         TempSegmentLine.CheckStatus;
+#if CLEAN17
+        TempSegmentLine.FinishSegLineWizard(true);
+#else
         TempSegmentLine.FinishWizard(true);
+#endif
     end;
 
     [ModalPageHandler]
@@ -2782,26 +3035,6 @@ codeunit 136208 "Marketing Interaction"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure InteractionSaveMergedDocumentPageHandler(var CreateInteraction: Page "Create Interaction"; var Response: Action)
-    var
-        TempSegmentLine: Record "Segment Line" temporary;
-        TemplateCode: Code[10];
-    begin
-        TempSegmentLine.Init();
-        CreateInteraction.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert();
-
-        TemplateCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TemplateCode));
-        TempSegmentLine.Validate("Interaction Template Code", TemplateCode);
-        TempSegmentLine.Validate(Description, TemplateCode);  // Validating Description as TemplateCode as using for contact search.
-        TempSegmentLine.Modify();
-
-        TempSegmentLine.CheckStatus;
-        TempSegmentLine.FinishWizard(true);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure InteractTmplLanguagesMPH(var InteractTmplLanguages: TestPage "Interact. Tmpl. Languages")
     begin
         InteractTmplLanguages."Interaction Template Code".AssertEquals(LibraryVariableStorage.DequeueText);
@@ -2843,8 +3076,14 @@ codeunit 136208 "Marketing Interaction"
     [Scope('OnPrem')]
     procedure MakePhoneCall_MPH(var MakePhoneCall: TestPage "Make Phone Call")
     begin
+        // OpenCommentsPage action is visible on all three steps
+        Assert.IsTrue(MakePhoneCall.OpenCommentsPage.Visible(), 'OpenCommentsPage. not Visible #1');
         MakePhoneCall.OpenCommentsPage.Invoke;
-        MakePhoneCall.OK.Invoke;
+        MakePhoneCall.Next.Invoke(); // step 2
+        Assert.IsTrue(MakePhoneCall.OpenCommentsPage.Visible(), 'OpenCommentsPage. not Visible #2');
+        MakePhoneCall.Next.Invoke(); // step 3
+        Assert.IsTrue(MakePhoneCall.OpenCommentsPage.Visible(), 'OpenCommentsPage. not Visible #3');
+        MakePhoneCall.Finish.Invoke;
     end;
 
     [ModalPageHandler]
@@ -2896,6 +3135,13 @@ codeunit 136208 "Marketing Interaction"
         Choice := 1;
     end;
 
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure EvaluateInteractionHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := LibraryVariableStorage.DequeueInteger();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CreateInteraction_Cancel_MPH(var CreateInteraction: TestPage "Create Interaction")
@@ -2907,6 +3153,14 @@ codeunit 136208 "Marketing Interaction"
         LibraryVariableStorage.Enqueue(CreateInteraction.FILTER.GetFilter("Salesperson Code"));
         LibraryVariableStorage.Enqueue(CreateInteraction.FILTER.GetFilter("Campaign No."));
         LibraryVariableStorage.Enqueue(CreateInteraction.FILTER.GetFilter("Opportunity No."));
+        CreateInteraction.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInteraction_GetContactName_MPH(var CreateInteraction: TestPage "Create Interaction")
+    begin
+        LibraryVariableStorage.Enqueue(CreateInteraction."Wizard Contact Name".Value);
         CreateInteraction.Cancel.Invoke;
     end;
 
@@ -2979,6 +3233,16 @@ codeunit 136208 "Marketing Interaction"
         RlshpMgtCommentLine.TestField(Comment, InterLogEntryCommentLine.Comment);
     end;
 
+    local procedure VerifyOpportunity(Contact: Record Contact; OpportunityNo: Code[20])
+    var
+        Opportunity: Record Opportunity;
+    begin
+        Opportunity.SetRange("Contact No.", Contact."No.");
+        Opportunity.SetRange("Salesperson Code", Contact."Salesperson Code");
+        Opportunity.FindLast;
+        Opportunity.TestField("No.", OpportunityNo);
+    end;
+
     local procedure VerifyILEHTMLMergeFile(Attachment: Record Attachment; InteractionLogEntryNo: Integer; ShouldFindValue: Text; ShouldNotFindValue: Text)
     var
         WordManagement: Codeunit WordManagement;
@@ -3021,7 +3285,7 @@ codeunit 136208 "Marketing Interaction"
         ActiveDirectoryMockEvents.Enable;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5054, 'OnBeforeCheckCanRunWord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WordManagement", 'OnBeforeCheckCanRunWord', '', false, false)]
     local procedure SetCanRunWord(var CanRunWord: Boolean; var CanRunWordModified: Boolean)
     begin
         CanRunWord := WordAppExist;
@@ -3037,7 +3301,7 @@ codeunit 136208 "Marketing Interaction"
         SMTPMailSetup.Modify();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     var
         NameValueBuffer: Record "Name/Value Buffer";
@@ -3047,6 +3311,12 @@ codeunit 136208 "Marketing Interaction"
         NameValueBuffer.Value := FromFileName;
         NameValueBuffer.Insert(true);
         IsHandled := true;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 }
 

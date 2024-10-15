@@ -74,7 +74,7 @@ codeunit 17383 "Employee Journal - Post Batch"
                 LineCount := LineCount + 1;
                 Window.Update(2, LineCount);
                 EmplJnlCheckLine.Run(EmplJnlLine);
-                if Next = 0 then
+                if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
@@ -125,7 +125,7 @@ codeunit 17383 "Employee Journal - Post Batch"
                             LastPostedDocNo := "Document No.";
                         end;
                 EmplJnlPostLine.RunWithCheck(EmplJnlLine);
-            until Next = 0;
+            until Next() = 0;
 
             // Copy register no. and current journal batch name to the Employee journal
             if not PayrollReg.FindLast or (PayrollReg."No." < PayrollRegNo) then
@@ -143,7 +143,7 @@ codeunit 17383 "Employee Journal - Post Batch"
                 if EmplJnlLine3.FindSet(true, false) then
                     repeat
                         EmplJnlLine3.Delete();
-                    until EmplJnlLine3.Next = 0;
+                    until EmplJnlLine3.Next() = 0;
                 EmplJnlLine3.Reset();
                 EmplJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                 EmplJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -172,7 +172,7 @@ codeunit 17383 "Employee Journal - Post Batch"
                 repeat
                     Evaluate(PostingNoSeriesNo, NoSeries.Description);
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next = 0;
+                until NoSeries.Next() = 0;
 
             Commit();
         end;

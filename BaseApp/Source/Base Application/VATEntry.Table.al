@@ -863,7 +863,7 @@ table 254 "VAT Entry"
                     PayDocNo := VendLedgEntry."External Document No.";
                     exit;
                 end;
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -893,7 +893,7 @@ table 254 "VAT Entry"
                     if PayDate < TempDate then
                         PayDate := TempDate;
                 end;
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -970,7 +970,7 @@ table 254 "VAT Entry"
         if VATEntry.FindSet then
             repeat
                 TotalBase := TotalBase + VATEntry.Base;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
         exit(TotalBase = "Unrealized Base");
     end;
 

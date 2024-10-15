@@ -314,7 +314,7 @@ page 12402 "G/L Correspondence Analysis"
                     SetFilter(
                       "Date Filter", GetFilter("Date Filter") + '&<>%1',
                       ClosingDate(AccountingPeriod."Starting Date" - 1));
-                until AccountingPeriod.Next = 0;
+                until AccountingPeriod.Next() = 0;
         end else
             SetRange(
               "Date Filter",
@@ -324,7 +324,7 @@ page 12402 "G/L Correspondence Analysis"
 
     local procedure ClosingEntryFilterOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DayPeriodTypeOnPush()

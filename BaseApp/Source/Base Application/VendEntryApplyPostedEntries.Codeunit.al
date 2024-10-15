@@ -87,7 +87,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             repeat
                 if ApplyToVendLedgEntry."Posting Date" > ApplicationDate then
                     ApplicationDate := ApplyToVendLedgEntry."Posting Date";
-            until ApplyToVendLedgEntry.Next = 0;
+            until ApplyToVendLedgEntry.Next() = 0;
         end;
     end;
 
@@ -187,7 +187,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                     then
                         if "Entry No." > ApplicationEntryNo then
                             ApplicationEntryNo := "Entry No.";
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(ApplicationEntryNo);
     end;
@@ -207,7 +207,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                 repeat
                     if LastTransactionNo < "Transaction No." then
                         LastTransactionNo := "Transaction No.";
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(LastTransactionNo);
     end;
@@ -302,7 +302,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                 CheckReversal(DtldVendLedgEntry."Vendor Ledger Entry No.");
                 if DtldVendLedgEntry."Transaction No." <> 0 then
                     CheckUnappliedEntries(DtldVendLedgEntry);
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
 
@@ -449,7 +449,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                 repeat
                     TempVendorLedgerEntry."Entry No." := "Vendor Ledger Entry No.";
                     if TempVendorLedgerEntry.Insert() then;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -469,7 +469,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                 then
                     if (DtldVendLedgEntry."Transaction No." > LastTransactionNo) and not DtldVendLedgEntry.Unapplied then
                         LastTransactionNo := DtldVendLedgEntry."Transaction No.";
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
         exit(LastTransactionNo);
     end;
 
@@ -546,7 +546,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             Error(LatestEntryMustBeApplicationErr, DtldVendLedgEntry."Vendor Ledger Entry No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";

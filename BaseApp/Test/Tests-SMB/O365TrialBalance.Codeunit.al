@@ -65,7 +65,7 @@ codeunit 138029 "O365 Trial Balance"
         Assert.IsFalse(TrialBalanceCacheInfo.IsEmpty, 'Trial Balance Info record is not added.');
         Assert.IsFalse(TrialBalanceCache.IsEmpty, 'Trial Balance Info record is not added.');
         TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, 2);
-        TrialBalanceCache.FindSet;
+        TrialBalanceCache.FindSet();
         I := 1;
         repeat
             Assert.AreEqual(Descriptions[I], TrialBalanceCache.Description, 'Description is not set correctly.');

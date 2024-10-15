@@ -250,7 +250,7 @@ codeunit 17387 "Absence Order-Post"
                                           AbsenceLine2."Calendar Days",
                                           AbsenceLine2."Payment Days", AbsenceLine2."Payment Percent", 0);
                                 end;
-                            until PayrollPeriod.Next = 0;
+                            until PayrollPeriod.Next() = 0;
                     end else
                         case "Document Type" of
                             "Document Type"::Vacation,
@@ -273,7 +273,7 @@ codeunit 17387 "Absence Order-Post"
                     if VacationRequest.Get(AbsenceLine."Vacation Request No.") then
                         VacationRequest.MarkUsed;
 
-                until AbsenceLine.Next = 0;
+                until AbsenceLine.Next() = 0;
 
             // Delete posted order
             AbsenceLine.DeleteAll();
@@ -391,7 +391,7 @@ codeunit 17387 "Absence Order-Post"
             repeat
                 CheckDimComb(AbsenceLine2);
                 CheckDimValuePosting(AbsenceLine2);
-            until AbsenceLine2.Next = 0;
+            until AbsenceLine2.Next() = 0;
     end;
 
     local procedure CheckDimComb(AbsenceLine: Record "Absence Line")
@@ -449,7 +449,7 @@ codeunit 17387 "Absence Order-Post"
                     HROrderComment2."Table Name" := HROrderComment2."Table Name"::"P.Absence Order";
                 HROrderComment2."No." := ToNumber;
                 HROrderComment2.Insert();
-            until HROrderComment.Next = 0;
+            until HROrderComment.Next() = 0;
             HROrderComment.DeleteAll();
         end;
     end;
@@ -481,7 +481,7 @@ codeunit 17387 "Absence Order-Post"
                             InsertEmplAbsenceEntry(AbsenceLine, RemainingDays, 0, EmplAbsenceEntry2."Entry No.");
                             DaysToUse := DaysToUse - RemainingDays;
                         end;
-                until (EmplAbsenceEntry2.Next = 0) or (DaysToUse = 0);
+                until (EmplAbsenceEntry2.Next() = 0) or (DaysToUse = 0);
                 if DaysToUse <> 0 then
                     repeat
                         if EmplAbsenceEntry2.Get(InsertVacationAccrual(AbsenceLine)) then begin
@@ -666,7 +666,7 @@ codeunit 17387 "Absence Order-Post"
                     CurrentDate := CalcDate('<1D>', CurrentDate);
                 end;
 
-            until PostedAbsenceLine.Next = 0;
+            until PostedAbsenceLine.Next() = 0;
 
         CopyCommentLines(PostedAbsenceHeader."No.", AbsenceHeader."No.", true);
 

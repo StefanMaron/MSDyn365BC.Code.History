@@ -513,7 +513,7 @@ table 14902 "Customer Agreement"
             repeat
                 if CustAgrmt."Customer No." <> "Customer No." then
                     Error(Text12403, FieldCaption("No."), CustAgrmt."Customer No.");
-            until CustAgrmt.Next = 0;
+            until CustAgrmt.Next() = 0;
 
         CustTransferFields;
         CustTransferDimensions;
@@ -712,7 +712,7 @@ table 14902 "Customer Agreement"
                 DefaultDim2."Dimension Value Code" := DefaultDim."Dimension Value Code";
                 DefaultDim2."Value Posting" := DefaultDim."Value Posting";
                 DefaultDim2.Insert();
-            until DefaultDim.Next = 0;
+            until DefaultDim.Next() = 0;
     end;
 
     [Scope('OnPrem')]

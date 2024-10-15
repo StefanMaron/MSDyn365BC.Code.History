@@ -74,7 +74,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 if TaxDiffLedgerEntry.FindSet then
                     repeat
                         UpdateTaxDiffPostBuf(TaxDiffLedgerEntry."Tax Diff. Code");
-                    until TaxDiffLedgerEntry.Next = 0;
+                    until TaxDiffLedgerEntry.Next() = 0;
 
                 TaxDiffFAPostingBuffer.Reset();
                 if TaxDiffFAPostingBuffer.FindSet then begin
@@ -99,7 +99,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                                   false,
                                   1);
                         end;
-                    until TaxDiffFAPostingBuffer.Next = 0;
+                    until TaxDiffFAPostingBuffer.Next() = 0;
                 end;
 
                 if AccBookValueOnDisposal <> TaxBookValueOnDisposal then begin

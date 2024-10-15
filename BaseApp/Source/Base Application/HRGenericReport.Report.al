@@ -200,7 +200,7 @@ report 17357 "HR Generic Report"
                 xFieldRef := xRelatedRecordRef.Field(FieldId);
                 PrintValue(CellColumn, RowCounter, xFieldRef);
                 RowCounter += 1;
-            until xRelatedRecordRef.Next = 0;
+            until xRelatedRecordRef.Next() = 0;
 
         if RowCounter - 1 > LastLinePointer then
             LastLinePointer := RowCounter - 1;
@@ -221,12 +221,12 @@ report 17357 "HR Generic Report"
                     repeat
                         PrintFieldGroupLine(HRFieldGroupLine, PrintEmployeeInfo);
                         RowCellColumn := ExcelMgt.GetNextColumn(RowCellColumn, 1);
-                    until HRFieldGroupLine.Next = 0;
+                    until HRFieldGroupLine.Next() = 0;
 
                 if RecordCounter > LastLinePointer then
                     LastLinePointer := RecordCounter;
 
-            until HRFieldGroup.Next = 0;
+            until HRFieldGroup.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -282,7 +282,7 @@ report 17357 "HR Generic Report"
 
                     xFieldRef.SetRange(xBaseFieldRef.Value);
                 end;
-            until FieldTable.Next = 0
+            until FieldTable.Next() = 0
         else
             exit(false);
 
@@ -353,8 +353,8 @@ report 17357 "HR Generic Report"
                             ExcelMgt.CopyCellRangeTo(ColumnCode + Format(SourceRow),
                               ColumnCode + Format(DestStartingRow), ColumnCode + Format(DestEndingRow));
                         ColumnCode := ExcelMgt.GetNextColumn(ColumnCode, 1);
-                    until HRFieldGroupLine.Next = 0;
-            until HRFieldGroup.Next = 0;
+                    until HRFieldGroupLine.Next() = 0;
+            until HRFieldGroup.Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -567,7 +567,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Balance Sheet';
                             RunObject = codeunit "Run Acc. Sched. Balance Sheet";
                             Tooltip = 'Run the Balance Sheet codeunit.';
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Income Statement")
                         {
@@ -575,7 +575,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Income Statement';
                             RunObject = codeunit "Run Acc. Sched. Income Stmt.";
                             Tooltip = 'Run the Income Statement codeunit.';
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Cashflows")
                         {
@@ -583,7 +583,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Cash Flow Statement';
                             RunObject = codeunit "Run Acc. Sched. CashFlow Stmt.";
                             Tooltip = 'Run the Cash Flow Statement codeunit.';
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Retained Earnings")
                         {
@@ -591,7 +591,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
                             Tooltip = 'Run the Retained Earnings Statement codeunit.';
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                     }
                     group("Group10")
@@ -696,7 +696,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'G/L Account Categories';
                         RunObject = page "G/L Account Categories";
                         Tooltip = 'Open the G/L Account Categories page.';
-                        AccessByPermission = tabledata 570 = R;
+                        AccessByPermission = TableData "G/L Account Category" = R;
                     }
                     action("XBRL Taxonomies")
                     {
@@ -1889,18 +1889,11 @@ page 8901 "Finance Manager Role Center"
                     RunObject = page "Incoming Documents";
                     Tooltip = 'Open the Incoming Documents page.';
                 }
-                action("Custom Declarations")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Custom Declarations';
-                    RunObject = page "Customs Declaration List";
-                    Tooltip = 'Open the Custom Declarations page.';
-                }
                 action("Advance Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Advance Statements';
-                    RunObject = page "PBI Aged Inventory Chart";
+                    RunObject = page "Advance Statement";
                     Tooltip = 'Open the Advance Statements page.';
                 }
                 action("Letters of Attorney")
@@ -1975,7 +1968,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Archived Return Orders")
                     {
-                         ApplicationArea = Basic, Suite;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Archived Return Orders';
                         RunObject = page "Purchase Return Order List";
                         Tooltip = 'Open the Archived Return Orders page.';
@@ -2936,7 +2929,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
                         Tooltip = 'Open the Rounding Methods page.';
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Analysis Types")
                     {

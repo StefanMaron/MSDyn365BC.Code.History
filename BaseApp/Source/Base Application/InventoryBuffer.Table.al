@@ -50,16 +50,30 @@ table 307 "Inventory Buffer"
             Caption = 'Lot No.';
             DataClassification = SystemMetadata;
         }
-        field(14900; "CD No."; Code[30])
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            DataClassification = SystemMetadata;
+        }
+        field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 
     keys
     {
-        key(Key1; "Item No.", "Variant Code", "Dimension Entry No.", "Location Code", "Bin Code", "Lot No.", "Serial No.", "CD No.")
+        key(Key1; "Item No.", "Variant Code", "Dimension Entry No.", "Location Code", "Bin Code", "Lot No.", "Serial No.", "Package No.")
         {
             Clustered = true;
         }

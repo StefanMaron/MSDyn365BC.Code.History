@@ -48,19 +48,19 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                             LineValues: array[13] of Text;
                         begin
                             if Number = 1 then
-                                TrackingSpecBuffer2.FindSet
+                                TempTrackingSpecBuffer2.FindSet()
                             else
-                                TrackingSpecBuffer2.Next;
+                                TempTrackingSpecBuffer2.Next();
 
-                            if CDNoInfo.Get(
-                                 CDNoInfo.Type::Item, TrackingSpecBuffer2."Item No.", TrackingSpecBuffer2."Variant Code", TrackingSpecBuffer2."CD No.")
+                            if PackageNoInfo.Get(
+                                 TempTrackingSpecBuffer2."Item No.", TempTrackingSpecBuffer2."Variant Code", TempTrackingSpecBuffer2."Package No.")
                             then begin
-                                CountryName := CDNoInfo.GetCountryName;
-                                CountryCode := CDNoInfo.GetCountryLocalCode;
+                                CountryName := PackageNoInfo.GetCountryName();
+                                CountryCode := PackageNoInfo.GetCountryLocalCode();
                             end;
 
                             CopyArray(LastTotalAmount, TotalAmount, 1);
-                            FacturaInvoiceHelper.TransferItemTrLineValues(LineValues, TrackingSpecBuffer2, CountryCode, CountryName, Sign);
+                            FacturaInvoiceHelper.TransferItemTrLineValues(LineValues, TempTrackingSpecBuffer2, CountryCode, CountryName, Sign);
                             FillBody(LineValues);
                         end;
 
@@ -102,7 +102,9 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                         end else
                             PurchInvLine."No." := '';
 
-                        RetrieveCDSpecification;
+                        OnItemTrackingLineOnBeforeTransferReportValues(
+                            PurchInvLine, TempTrackingSpecBuffer, TempTrackingSpecBuffer2,
+                            MultipleCD, CDNo, CountryCode, CountryName, TrackingSpecCount);
 
                         if Header."Prepayment Invoice" then
                             LastTotalAmount[1] := 0;
@@ -177,7 +179,7 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                     repeat
                         AttachedPurchInvLine := PurchInvLine;
                         AttachedPurchInvLine.Insert();
-                    until PurchInvLine.Next = 0;
+                    until PurchInvLine.Next() = 0;
 
                 PurchInvLine.SetRange("Attached to Line No.", 0);
 
@@ -286,9 +288,9 @@ report 14939 "Pstd. Purch. Factura-Invoice"
         PurchInvLine: Record "Purch. Inv. Line";
         AttachedPurchInvLine: Record "Purch. Inv. Line" temporary;
         Currency: Record Currency;
-        CDNoInfo: Record "CD No. Information";
-        TrackingSpecBuffer: Record "Tracking Specification" temporary;
-        TrackingSpecBuffer2: Record "Tracking Specification" temporary;
+        PackageNoInfo: Record "Package No. Information";
+        TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
+        TempTrackingSpecBuffer2: Record "Tracking Specification" temporary;
         UoM: Record "Unit of Measure";
         SalesSetup: Record "Sales & Receivables Setup";
         LocMgt: Codeunit "Localisation Management";
@@ -481,61 +483,9 @@ report 14939 "Pstd. Purch. Factura-Invoice"
         ResponsiblePerson[2] := StdRepMgt.GetAccountantName(true, 112, 0, Header."No.");
     end;
 
-    local procedure RetrieveCDSpecification()
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackingLineOnBeforeTransferReportValues(PurchInvLine: Record "Purch. Inv. Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempTrackingSpecification2: Record "Tracking Specification" temporary; var MultipleCD: Boolean; var CDNo: Text; var CountryCode: Code[10]; var CountryName: Text; var TrackingSpecCount: Integer);
     begin
-        MultipleCD := false;
-        CDNo := '';
-        CountryName := '-';
-        CountryCode := '';
-
-        case PurchInvLine.Type of
-            PurchInvLine.Type::Item:
-                begin
-                    TrackingSpecBuffer.Reset();
-                    TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
-                      "Source Prod. Order Line", "Source Ref. No.");
-                    TrackingSpecBuffer.SetRange("Source Type", DATABASE::"Purch. Inv. Line");
-                    TrackingSpecBuffer.SetRange("Source Subtype", 0);
-                    TrackingSpecBuffer.SetRange("Source ID", PurchInvLine."Document No.");
-                    TrackingSpecBuffer.SetRange("Source Ref. No.", PurchInvLine."Line No.");
-                    TrackingSpecBuffer2.DeleteAll();
-                    if TrackingSpecBuffer.FindSet then
-                        repeat
-                            TrackingSpecBuffer2.SetRange("CD No.", TrackingSpecBuffer."CD No.");
-                            if TrackingSpecBuffer2.FindFirst then begin
-                                TrackingSpecBuffer2."Quantity (Base)" += TrackingSpecBuffer."Quantity (Base)";
-                                TrackingSpecBuffer2.Modify();
-                            end else begin
-                                TrackingSpecBuffer2.Init();
-                                TrackingSpecBuffer2 := TrackingSpecBuffer;
-                                TrackingSpecBuffer2.TestField("Quantity (Base)");
-                                TrackingSpecBuffer2."Lot No." := '';
-                                TrackingSpecBuffer2."Serial No." := '';
-                                TrackingSpecBuffer2.Insert();
-                            end;
-                        until TrackingSpecBuffer.Next = 0;
-                    TrackingSpecBuffer2.Reset();
-                    TrackingSpecCount := TrackingSpecBuffer2.Count();
-                    case TrackingSpecCount of
-                        1:
-                            begin
-                                TrackingSpecBuffer2.FindFirst;
-                                CDNo := TrackingSpecBuffer2."CD No.";
-                                if CDNoInfo.Get(
-                                     CDNoInfo.Type::Item, TrackingSpecBuffer2."Item No.",
-                                     TrackingSpecBuffer2."Variant Code", TrackingSpecBuffer2."CD No.")
-                                then begin
-                                    CountryName := CDNoInfo.GetCountryName;
-                                    CountryCode := CDNoInfo.GetCountryLocalCode;
-                                end;
-                            end;
-                        else
-                            MultipleCD := true;
-                    end;
-                end;
-            PurchInvLine.Type::"Fixed Asset":
-                FacturaInvoiceHelper.GetFAInfo(PurchInvLine."No.", CDNo, CountryName);
-        end;
     end;
 }
 

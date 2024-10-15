@@ -17,11 +17,9 @@ table 952 "Time Sheet Detail"
         {
             Caption = 'Date';
         }
-        field(4; Type; Option)
+        field(4; Type; Enum "Time Sheet Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Resource,Job,Service,Absence,Assembly Order';
-            OptionMembers = " ",Resource,Job,Service,Absence,"Assembly Order";
         }
         field(5; "Resource No."; Code[20])
         {

@@ -292,97 +292,97 @@ codeunit 170 "Standard Codes Mgt."
         exit(not StandardVendorPurchaseCode.IsEmpty);
     end;
 
-    [EventSubscriber(ObjectType::Page, 41, 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Quote", 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
     local procedure OnAfterValidateSalesQuoteSellToCustomerName(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
     begin
         CheckCreateSalesRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 41, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Quote", 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
     local procedure OnAfterValidateSalesQuoteSellToCustomerNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
     begin
         CheckCreateSalesRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 42, 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Order", 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
     local procedure OnAfterValidateSalesOrderSellToCustomerName(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
     begin
         CheckCreateSalesRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 42, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Order", 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
     local procedure OnAfterValidateSalesOrderSellToCustomerNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
     begin
         CheckCreateSalesRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 43, 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Invoice", 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
     local procedure OnAfterValidateSalesInvoiceSellToCustomerName(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
     begin
         CheckCreateSalesRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 43, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Invoice", 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
     local procedure OnAfterValidateSalesInvoiceSellToCustomerNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
     begin
         CheckCreateSalesRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 44, 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Credit Memo", 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
     local procedure OnAfterValidateSalesCreditMemoSellToCustomerName(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
     begin
         CheckCreateSalesRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 44, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Credit Memo", 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
     local procedure OnAfterValidateSalesCreditMemoSellToCustomerNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
     begin
         CheckCreateSalesRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 49, 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Quote", 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
     local procedure OnAfterValidatePurchaseQuoteSellToVendorName(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
     begin
         CheckCreatePurchRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 49, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Quote", 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
     local procedure OnAfterValidatePurchaseQuoteSellToVendorNo(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
     begin
         CheckCreatePurchRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 51, 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Invoice", 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
     local procedure OnAfterValidatePurchaseInvoiceSellToVendorName(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
     begin
         CheckCreatePurchRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 51, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Invoice", 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
     local procedure OnAfterValidatePurchaseInvoiceSellToVendorNo(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
     begin
         CheckCreatePurchRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 50, 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Order", 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
     local procedure OnAfterValidatePurchaseOrderSellToVendorName(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
     begin
         CheckCreatePurchRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 50, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Order", 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
     local procedure OnAfterValidatePurchaseOrderSellToVendorNo(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
     begin
         CheckCreatePurchRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 52, 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Credit Memo", 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
     local procedure OnAfterValidatePurchaseCreditMemoSellToVendorName(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
     begin
         CheckCreatePurchRecurringLines(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 52, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Credit Memo", 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
     local procedure OnAfterValidatePurchaseCreditMemoSellToVendorNo(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
     begin
         CheckCreatePurchRecurringLines(Rec);

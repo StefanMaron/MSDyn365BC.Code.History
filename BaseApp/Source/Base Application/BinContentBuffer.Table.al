@@ -2,6 +2,9 @@ table 7330 "Bin Content Buffer"
 {
     Caption = 'Bin Content Buffer';
     ReplicateData = false;
+#pragma warning disable AS0034
+    TableType = Temporary;
+#pragma warning restore AS0034
 
     fields
     {
@@ -89,7 +92,13 @@ table 7330 "Bin Content Buffer"
             Caption = 'Serial No.';
             DataClassification = SystemMetadata;
         }
-        field(14900; "CD No."; Code[30])
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            DataClassification = SystemMetadata;
+        }
+        field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
             DataClassification = SystemMetadata;
@@ -98,7 +107,7 @@ table 7330 "Bin Content Buffer"
 
     keys
     {
-        key(Key1; "Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "CD No.")
+        key(Key1; "Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.")
         {
             Clustered = true;
         }

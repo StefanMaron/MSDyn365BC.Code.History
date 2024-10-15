@@ -111,7 +111,7 @@ page 17430 "Payroll Calendar Subform"
                     CalendarLine.Release;
                     CalendarLine.Modify();
                 end;
-            until CalendarLine.Next = 0;
+            until CalendarLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -126,7 +126,7 @@ page 17430 "Payroll Calendar Subform"
                     CalendarLine.Reopen;
                     CalendarLine.Modify();
                 end;
-            until CalendarLine.Next = 0;
+            until CalendarLine.Next() = 0;
     end;
 }
 

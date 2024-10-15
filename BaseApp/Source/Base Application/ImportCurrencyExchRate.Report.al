@@ -269,9 +269,9 @@ report 14900 "Import Currency Exch. Rate"
                                     end;
                                 end;
                             end;
-                        until Currency.Next = 0;
+                        until Currency.Next() = 0;
                 end;
-            until Company.Next = 0;
+            until Company.Next() = 0;
     end;
 }
 

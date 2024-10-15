@@ -320,7 +320,7 @@ page 5601 "Fixed Asset List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 RunObject = Page "Fixed Asset G/L Journal";
-                ToolTip = 'Post fixed asset transactions, such as acquisition and depreciation, in integration with the general ledger. The FA G/L Journal is a general journal, which is integrated into the general ledger.';
+                ToolTip = 'Post fixed asset transactions with a depreciation book that is integrated with the general ledger for financial reporting. Both fixed asset ledger entries and general ledger entries are created. ';
             }
             action("Fixed Asset Reclassification Journal")
             {

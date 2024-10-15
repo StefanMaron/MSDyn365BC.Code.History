@@ -49,10 +49,24 @@ table 6521 "Item Tracing History Buffer"
             OptionCaption = 'No,Item-tracked only,All';
             OptionMembers = No,"Item-tracked only",All;
         }
+        field(16; "Package No. Filter"; Code[250])
+        {
+            Caption = 'Package No. Filter';
+            CaptionClass = '6,3';
+            DataClassification = SystemMetadata;
+        }
         field(14900; "CD No. Filter"; Code[250])
         {
             Caption = 'CD No. Filter';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'Replaced by W1 field Package No. Filter.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 

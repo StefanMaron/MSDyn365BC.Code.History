@@ -54,7 +54,7 @@ codeunit 17408 "Copy Payroll Document Mgt."
             end else begin
                 ToPayrollDocLine.SetRange("Document No.", "No.");
                 if IncludeHeader then
-                    if not ToPayrollDocLine.IsEmpty then begin
+                    if not ToPayrollDocLine.IsEmpty() then begin
                         Commit();
                         if not Confirm(Text002 + Text003, true, "No.") then
                             exit;
@@ -100,7 +100,7 @@ codeunit 17408 "Copy Payroll Document Mgt."
                         if FromPayrollDocLine.FindSet then
                             repeat
                                 CopyDocLine(ToPayrollDoc, ToPayrollDocLine, FromPayrollDocLine, NextLineNo);
-                            until FromPayrollDocLine.Next = 0;
+                            until FromPayrollDocLine.Next() = 0;
                     end;
                 DocType::"Posted Payroll Document":
                     begin
@@ -111,7 +111,7 @@ codeunit 17408 "Copy Payroll Document Mgt."
                             repeat
                                 FromPayrollDocLine.TransferFields(FromPostedPayrollDocLine);
                                 CopyDocLine(ToPayrollDoc, ToPayrollDocLine, FromPayrollDocLine, NextLineNo);
-                            until FromPostedPayrollDocLine.Next = 0;
+                            until FromPostedPayrollDocLine.Next() = 0;
                     end;
             end;
         end;

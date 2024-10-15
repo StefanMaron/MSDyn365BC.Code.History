@@ -87,14 +87,12 @@ table 17317 "Tax Calc. Item Entry"
             CaptionClass = TaxCalcMgt.GetDimCaptionClass("Section Code", 4);
             Caption = 'Dimension 4 Value Code';
         }
-        field(35; "Item Ledger Source Type"; Option)
+        field(35; "Item Ledger Source Type"; Enum "Analysis Source Type")
         {
             CalcFormula = Lookup("Item Ledger Entry"."Source Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
             Caption = 'Item Ledger Source Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(36; "Sales/Purch. Account No."; Code[20])
         {
@@ -335,7 +333,7 @@ table 17317 "Tax Calc. Item Entry"
         TaxCalcHeader.SetFilter("Register ID", DelChr(GetFilter("Where Used Register IDs"), '=', '~'));
         FilterGroup(0);
         if TaxCalcHeader.FindSet then
-            if TaxCalcHeader.Next = 0 then
+            if TaxCalcHeader.Next() = 0 then
                 exit(TaxCalcHeader.Description);
     end;
 }

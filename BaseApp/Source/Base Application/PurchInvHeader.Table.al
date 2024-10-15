@@ -934,8 +934,8 @@ table 122 "Purch. Inv. Header"
                                 else
                                     Error(Text12400);
                         end;
-                    until ValueEntry.Next = 0;
-            until PurchInvLine.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until PurchInvLine.Next() = 0;
         if DocNoFilter = '' then
             DocNoFilter := '.';
         PurchRcptHeader.Reset();
@@ -960,7 +960,7 @@ table 122 "Purch. Inv. Header"
                 VendLedgEntry."Vendor Receipts No." := PurchInvHeader."Vendor Receipts No.";
                 VendLedgEntry."Vendor Receipts Date" := PurchInvHeader."Vendor Receipts Date";
                 VendLedgEntry.Modify();
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     procedure ShowCanceledOrCorrCrMemo()

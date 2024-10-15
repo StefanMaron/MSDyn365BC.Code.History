@@ -19,7 +19,7 @@ page 17350 "Person Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Last Name"; "Last Name")

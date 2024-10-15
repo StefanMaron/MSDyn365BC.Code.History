@@ -202,7 +202,7 @@ codeunit 143018 "Library - VAT Ledger"
     end;
 
     [Scope('OnPrem')]
-    procedure MockVendorVATLedgerLineWithCDNo(var VATLedgerLine: Record "VAT Ledger Line"; var CDNo: Code[30])
+    procedure MockVendorVATLedgerLineWithCDNo(var VATLedgerLine: Record "VAT Ledger Line"; var CDNo: Code[50])
     begin
         CDNo := GenerateCDNoValue;
         MockVATLedgerLineWithCDNo(
@@ -210,7 +210,7 @@ codeunit 143018 "Library - VAT Ledger"
     end;
 
     [Scope('OnPrem')]
-    procedure MockCustomerVATLedgerLineWithCDNo(var VATLedgerLine: Record "VAT Ledger Line"; var CDNo: Code[30])
+    procedure MockCustomerVATLedgerLineWithCDNo(var VATLedgerLine: Record "VAT Ledger Line"; var CDNo: Code[50])
     begin
         CDNo := GenerateCDNoValue;
         MockVATLedgerLineWithCDNo(
@@ -336,7 +336,7 @@ codeunit 143018 "Library - VAT Ledger"
         with ItemLedgerEntry do begin
             Init;
             "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
-            "CD No." := CDNo;
+            "Package No." := CDNo;
             Insert;
             exit("Entry No.");
         end;

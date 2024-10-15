@@ -120,7 +120,7 @@ page 279 "Source Code Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted from Consolidation.';
                 }
-             }
+            }
             group(Sales)
             {
                 Caption = 'Sales';
@@ -287,15 +287,15 @@ page 279 "Source Code Setup"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code that is linked to entries that are posted with assembly orders.';
                 }
-                field("Item Receipt"; "Item Receipt")
+                field("Invt. Receipt"; "Invt. Receipt")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the item receipt.';
+                    ToolTip = 'Specifies the number of the inventory receipt.';
                 }
-                field("Item Shipment"; "Item Shipment")
+                field("Invt. Shipment"; "Invt. Shipment")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the item shipment.';
+                    ToolTip = 'Specifies the number of the inventory shipment.';
                 }
             }
             group(Resources)

@@ -337,7 +337,7 @@ report 17485 "Report FP to Excel"
                 AvgAmount := AvgAmount / MonthStartQuarter;
 
                 AverageList := AverageList + AvgAmount;
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 
     [Scope('OnPrem')]

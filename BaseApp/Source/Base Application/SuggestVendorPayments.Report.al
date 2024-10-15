@@ -48,7 +48,7 @@ report 393 "Suggest Vendor Payments"
                                 CheckAmounts(false);
                                 ClearNegative;
                             end;
-                        until (Next = 0) or StopPayments;
+                        until (Next() = 0) or StopPayments;
                 end;
 
                 if UsePaymentDisc and not StopPayments then begin
@@ -68,13 +68,13 @@ report 393 "Suggest Vendor Payments"
                                 CheckAmounts(true);
                                 ClearNegative;
                             end;
-                        until (Next = 0) or StopPayments;
+                        until (Next() = 0) or StopPayments;
                     Window2.Close;
                 end else
                     if FindSet then
                         repeat
                             ClearNegative;
-                        until Next = 0;
+                        until Next() = 0;
 
                 DimSetEntry.LockTable();
                 GenJnlLine.LockTable();
@@ -468,12 +468,12 @@ report 393 "Suggest Vendor Payments"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         Commit();
-        if not VendorLedgEntryTemp.IsEmpty then
+        if not VendorLedgEntryTemp.IsEmpty() then
             if ConfirmManagement.GetResponse(Text024, true) then
                 PAGE.RunModal(0, VendorLedgEntryTemp);
 
         if CheckOtherJournalBatches then
-            if not TempErrorMessage.IsEmpty then
+            if not TempErrorMessage.IsEmpty() then
                 if ConfirmManagement.GetResponse(ReviewNotSuggestedLinesQst, true) then
                     TempErrorMessage.ShowErrorMessages(false);
     end;
@@ -636,7 +636,7 @@ report 393 "Suggest Vendor Payments"
                         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                     end;
                 end;
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     local procedure SaveAmount()
@@ -711,7 +711,7 @@ report 393 "Suggest Vendor Payments"
                     CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
                 else
                     PayableVendLedgEntry.Delete();
-            until PayableVendLedgEntry.Next = 0;
+            until PayableVendLedgEntry.Next() = 0;
             if OriginalAmtAvailable > 0 then
                 AmountAvailable := AmountAvailable - CurrencyBalance;
             if (OriginalAmtAvailable > 0) and (AmountAvailable <= 0) then
@@ -800,7 +800,7 @@ report 393 "Suggest Vendor Payments"
                         RemovePaymentsAboveLimit(PayableVendLedgEntry, RemainingAmtAvailable);
                     end;
 
-                until not PayableVendLedgEntry.FindSet;
+                until not PayableVendLedgEntry.FindSet();
                 PayableVendLedgEntry.DeleteAll();
                 PayableVendLedgEntry.SetRange("Vendor No.");
             until not PayableVendLedgEntry.Find('-');
@@ -814,7 +814,7 @@ report 393 "Suggest Vendor Payments"
         if TempPaymentBuffer.Find('-') then
             repeat
                 InsertGenJournalLine;
-            until TempPaymentBuffer.Next = 0;
+            until TempPaymentBuffer.Next() = 0;
     end;
 
     local procedure InsertGenJournalLine()
@@ -920,7 +920,7 @@ report 393 "Suggest Vendor Payments"
                         TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
                         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
                         TempDimSetEntry.Insert();
-                    until DimBuf.Next = 0;
+                    until DimBuf.Next() = 0;
                 NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 "Dimension Set ID" := NewDimensionID;
             end;
@@ -984,7 +984,7 @@ report 393 "Suggest Vendor Payments"
                         repeat
                             TmpPayableVendLedgEntry2 := TmpPayableVendLedgEntry;
                             TmpPayableVendLedgEntry2.Insert();
-                        until TmpPayableVendLedgEntry.Next = 0;
+                        until TmpPayableVendLedgEntry.Next() = 0;
 
                     TmpPayableVendLedgEntry2.SetFilter("Currency Code", '<>%1', BankAcc."Currency Code");
                     SeveralCurrencies := SeveralCurrencies or TmpPayableVendLedgEntry2.FindFirst;
@@ -1017,7 +1017,7 @@ report 393 "Suggest Vendor Payments"
                 PayableVendLedgEntry.SetRange("Currency Code", PayableVendLedgEntry."Currency Code");
                 repeat
                     CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
-                until PayableVendLedgEntry.Next = 0;
+                until PayableVendLedgEntry.Next() = 0;
                 if CurrencyBalance < 0 then begin
                     PayableVendLedgEntry.DeleteAll();
                     AmountAvailable += CurrencyBalance;
@@ -1102,7 +1102,7 @@ report 393 "Suggest Vendor Payments"
                     TempDimSetEntry2.TransferFields(TempDimSetEntry, true);
                     TempDimSetEntry2.Insert();
                 end;
-            until SelectedDim.Next = 0;
+            until SelectedDim.Next() = 0;
             exit(true);
         end;
         exit(false);
@@ -1120,7 +1120,7 @@ report 393 "Suggest Vendor Payments"
                 repeat
                     if DimSetEntry.Get(VendLedgEntry."Dimension Set ID", SelectedDim."Dimension Code") then
                         InsertDimBuf(DimBuf, DATABASE::"Dimension Buffer", 0, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
-                until SelectedDim.Next = 0;
+                until SelectedDim.Next() = 0;
             EntryNo := DimBufMgt.FindDimensions(DimBuf);
             if EntryNo = 0 then
                 EntryNo := DimBufMgt.InsertDimensions(DimBuf);
@@ -1183,7 +1183,7 @@ report 393 "Suggest Vendor Payments"
             SetRange("Account No.", VendorLedgerEntry."Vendor No.");
             SetRange("Applies-to Doc. Type", VendorLedgerEntry."Document Type");
             SetRange("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
-            if IsEmpty then
+            if IsEmpty() then
                 exit(true);
 
             if FindSet then begin
@@ -1192,7 +1192,7 @@ report 393 "Suggest Vendor Payments"
                        ("Journal Template Name" <> GenJournalLine."Journal Template Name")
                     then
                         LogNotSuggestedPaymentMessage(PaymentGenJournalLine);
-                until Next = 0;
+                until Next() = 0;
                 exit(TempErrorMessage.IsEmpty);
             end;
         end;

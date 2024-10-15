@@ -75,14 +75,14 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         // [SCENARIO ID.3] Sales Book Basic - VAT 10%
         Initialize;
 
-        // [GIVEN] Create and post sales invoice with new customer VAT 10% ("CD No." = "A","B" "Tariff No." = "Y")
+        // [GIVEN] Create and post sales invoice with new customer VAT 10% ("Package No." = "A","B" "Tariff No." = "Y")
         InvNo := CreateAndPostSalesInvoice(SalesHeader, '', 10, false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         VATLedgerCode := RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
 
         // [THEN] Document Date, Amount Including VAT, Full VAT Amount exported to the proper Excel cells
-        // [THEN] Column 3a = "A;B" ("CD No.", TFS 231729, 251086)
+        // [THEN] Column 3a = "A;B" ("Package No.", TFS 231729, 251086)
         // [THEN] Column 3b = "Y" ("Tariff No.", TFS 231729)
         VerifyVATLedgExportBasic10(InvNo, VATLedgerCode);
     end;
@@ -697,7 +697,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
         end;
     end;
 

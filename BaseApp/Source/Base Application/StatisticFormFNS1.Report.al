@@ -190,7 +190,7 @@ report 17356 "Statistic Form FNS-1"
             repeat
                 if ValidEmployee(Employee, StartDate, EndDate, HiredDate, FiredDate) then
                     SaveSummaryAmountInfo(Round(GetEmployeeSalaryAmount(StartDate, Employee."No."), 0.1), EmployeeStatisticalBuffer);
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -369,7 +369,7 @@ report 17356 "Statistic Form FNS-1"
                        (LaborContract."Contract Type" = LaborContract."Contract Type"::"Labor Contract")
                     then
                         AverageList += AverageHeadcountCalculation.CalcAvgCount(Employee."No.", EndDate);
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -421,7 +421,7 @@ report 17356 "Statistic Form FNS-1"
                 repeat
                     Salary += PayrollDocCalc.CalcElementByPostedEntries(HumResSetup."FSN-1 Salary Element Code", "Employee No.",
                         StartingDate, EndingDate, '');
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(Salary);
@@ -443,7 +443,7 @@ report 17356 "Statistic Form FNS-1"
                 repeat
                     Salary += PayrollDocCalc.CalcElementByPostedEntries(HumResSetup."FSN-1 Bonus Element Code", "Employee No.",
                         StartingDate, EndingDate, '');
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(Salary);

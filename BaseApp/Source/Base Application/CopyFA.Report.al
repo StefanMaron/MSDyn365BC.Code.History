@@ -53,7 +53,7 @@ report 12487 "Copy FA"
                             FABook2.Description := FABook.Description;
                             FABook2."Initial Acquisition" := false;
                             FABook2.Insert();
-                        until FABook.Next = 0;
+                        until FABook.Next() = 0;
                 end;
             end;
         }

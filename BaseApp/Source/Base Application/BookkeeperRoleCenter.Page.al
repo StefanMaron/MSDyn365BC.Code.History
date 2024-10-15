@@ -690,17 +690,17 @@ page 9004 "Bookkeeper Role Center"
                     RunPageView = WHERE("Document Type" = CONST(Movement));
                     ToolTip = 'Open the list of posted fixed asset movements.';
                 }
-                action("Posted Item Receipts")
+                action("Posted Invt. Receipts")
                 {
-                    Caption = 'Posted Item Receipts';
-                    RunObject = Page "Posted Item Receipts";
-                    ToolTip = 'Open the list of posted receipts.';
+                    Caption = 'Posted Inventory Receipts';
+                    RunObject = Page "Posted Invt. Receipts";
+                    ToolTip = 'Open the list of posted inventory receipts.';
                 }
-                action("Posted Item Shipment")
+                action("Posted Invt. Shipment")
                 {
-                    Caption = 'Posted Item Shipment';
-                    RunObject = Page "Posted Item Shipments";
-                    ToolTip = 'Open the list of posted shipments.';
+                    Caption = 'Posted Inventory Shipment';
+                    RunObject = Page "Posted Invt. Shipments";
+                    ToolTip = 'Open the list of posted inventory shipments.';
                 }
             }
             group(Action22)
@@ -787,19 +787,19 @@ page 9004 "Bookkeeper Role Center"
                     RunObject = Page "Item Journal Batches";
                     ToolTip = 'View the journal batches, personalized journal layouts, that users use to post item transactions.';
                 }
-                action("Item Receipts")
+                action("Inventory Receipts")
                 {
-                    Caption = 'Item Receipts';
-                    RunObject = Page "Item Document List";
+                    Caption = 'Inventory Receipts';
+                    RunObject = Page "Invt. Document List";
                     RunPageView = WHERE("Document Type" = CONST(Receipt));
-                    ToolTip = 'View the list of completed receipts.';
+                    ToolTip = 'View the list of inventory receipts.';
                 }
-                action("Item Shipments")
+                action("Inventory Shipments")
                 {
-                    Caption = 'Item Shipments';
-                    RunObject = Page "Item Document List";
+                    Caption = 'Inventory Shipments';
+                    RunObject = Page "Invt. Document List";
                     RunPageView = WHERE("Document Type" = CONST(Shipment));
-                    ToolTip = 'View the list of completed shipments.';
+                    ToolTip = 'View the list of inventory shipments.';
                 }
             }
         }

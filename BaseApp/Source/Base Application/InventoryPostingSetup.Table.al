@@ -146,7 +146,7 @@ table 5813 "Inventory Posting Setup"
     begin
         ValueEntry.SetRange("Location Code", "Location Code");
         ValueEntry.SetRange("Inventory Posting Group", "Invt. Posting Group Code");
-        if not ValueEntry.IsEmpty then
+        if not ValueEntry.IsEmpty() then
             Error(YouCannotDeleteErr, "Location Code", "Invt. Posting Group Code");
     end;
 

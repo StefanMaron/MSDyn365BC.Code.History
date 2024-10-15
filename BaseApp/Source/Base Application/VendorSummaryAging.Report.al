@@ -200,7 +200,7 @@ report 305 "Vendor - Summary Aging"
                     if Number = 1 then
                         Currency2.Find('-')
                     else
-                        if Currency2.Next = 0 then
+                        if Currency2.Next() = 0 then
                             CurrReport.Break();
                     Currency2.CalcFields("Vendor Ledg. Entries in Filter");
                     if not Currency2."Vendor Ledg. Entries in Filter" then
@@ -276,7 +276,7 @@ report 305 "Vendor - Summary Aging"
                     repeat
                         Currency2 := Currency;
                         Currency2.Insert();
-                    until Currency.Next = 0;
+                    until Currency.Next() = 0;
             end;
         }
     }

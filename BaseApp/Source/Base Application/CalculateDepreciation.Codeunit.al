@@ -54,6 +54,8 @@ codeunit 5610 "Calculate Depreciation"
               DeprAmount, NumberOfDays, FANo, DeprBookCode, UntilDate,
               EntryAmounts, DateFromProjection, DaysInPeriod, DeprPeriod);
         end;
+
+        OnAfterCalcDeprYearCalculateAdditionalDepr2ndYear(DeprAmount, FANo, DeprBookCode);
     end;
 
     local procedure CheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date)
@@ -100,5 +102,9 @@ codeunit 5610 "Calculate Depreciation"
     local procedure OnBeforeCheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDeprYearCalculateAdditionalDepr2ndYear(var DeprAmount: Decimal; FANo: code[20]; DepreBookCode: code[10])
+    begin
+    end;
+}

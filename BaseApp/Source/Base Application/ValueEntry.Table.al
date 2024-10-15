@@ -128,11 +128,9 @@ table 5802 "Value Entry"
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
         }
-        field(41; "Source Type"; Option)
+        field(41; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(43; "Cost Amount (Actual)"; Decimal)
         {
@@ -679,7 +677,7 @@ table 5802 "Value Entry"
                     CostAmtExpected := CostAmtExpected + "Cost Amount (Expected)";
                     CostAmtExpectedACY := CostAmtExpectedACY + "Cost Amount (Expected) (ACY)";
                 end;
-            until Next = 0;
+            until Next() = 0;
 
         "Item Ledger Entry Quantity" := ItemLedgEntryQty;
         "Cost Amount (Actual)" := CostAmtActual;
@@ -734,7 +732,7 @@ table 5802 "Value Entry"
                 TempGLEntry.Init();
                 TempGLEntry := GLEntry;
                 TempGLEntry.Insert();
-            until GLItemLedgRelation.Next = 0;
+            until GLItemLedgRelation.Next() = 0;
 
         PAGE.RunModal(0, TempGLEntry);
     end;
@@ -788,7 +786,7 @@ table 5802 "Value Entry"
         PrevAccountingPeriod: Record "Accounting Period";
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
-        if PrevAccountingPeriod.IsEmpty then begin
+        if PrevAccountingPeriod.IsEmpty() then begin
             AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, ToDate);
             FromDate := 0D;
             exit;

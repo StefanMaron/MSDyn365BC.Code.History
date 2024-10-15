@@ -1015,6 +1015,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
           InventorySetup."Average Cost Period");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure RequisitionWorksheetDescriptionFromItemCrossReference()
@@ -1048,6 +1049,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [THEN] New requisition line is created with "Description" = "D"
         VerifyDescriptionsOnRequisitionLine(Item."No.", ItemCrossReference.Description, '');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1083,6 +1085,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         VerifyDescriptionsOnRequisitionLine(Item."No.", ItemReference.Description, '');
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ReqWorksheetDescriptionFromItemCrossRefForDropShipment()
@@ -1113,6 +1116,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [THEN] New requisition line is created with Description = "Desc-CR" and "Description 2" = blank.
         VerifyDescriptionsOnRequisitionLine(Item."No.", ItemCrossReference.Description, '');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1173,6 +1177,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         VerifyDescriptionsOnRequisitionLine(Item."No.", SalesLine.Description, SalesLine."Description 2");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ItemCrossReferenceGetItemDescriptionCrossRefExists()
@@ -1199,6 +1204,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         Assert.AreEqual(ItemCrossReference.Description, Description, '');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2093,6 +2099,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryWarehouse.PostTransferOrder(TransferHeader, false, true);
     end;
 
+#if not CLEAN16
     local procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; VendorNo: Code[20])
     var
         StrLen: Integer;
@@ -2102,6 +2109,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         ItemCrossReference.Description := CopyStr(LibraryUtility.GenerateRandomText(StrLen), 1, StrLen);
         ItemCrossReference.Modify(true);
     end;
+#endif
 
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; VendorNo: Code[20])
     var
@@ -2535,7 +2543,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             ActualAmount := GLEntry.Amount;
         until GLEntry.Next = 0;

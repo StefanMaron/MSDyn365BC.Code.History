@@ -1,10 +1,10 @@
-page 14982 "Posted Direct Transfers"
+page 6783 "Posted Direct Transfers"
 {
     Caption = 'Posted Direct Transfers';
     CardPageID = "Posted Direct Transfer";
     Editable = false;
     PageType = List;
-    SourceTable = "Direct Transfer Header";
+    SourceTable = "Direct Trans. Header";
 
     layout
     {
@@ -13,12 +13,12 @@ page 14982 "Posted Direct Transfers"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Transfer-from Code"; "Transfer-from Code")
+                field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the location that items are transferred from.';
@@ -28,17 +28,17 @@ page 14982 "Posted Direct Transfers"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the location that the items are transferred to.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
@@ -85,16 +85,22 @@ page 14982 "Posted Direct Transfers"
                     RunObject = Page "Inventory Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Posted Transfer Shipment"),
                                   "No." = FIELD("No.");
+                    ToolTip = 'View or add comments for the record.';
                 }
                 action(Dimensions)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedOnly = true;
+                    ShortCutKey = 'Alt+D';
+                    ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
             }
@@ -109,11 +115,13 @@ page 14982 "Posted Direct Transfers"
                 Image = Print;
                 Promoted = true;
                 PromotedCategory = Process;
+                PromotedOnly = true;
+                ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
                 begin
-                    CurrPage.SetSelectionFilter(TransMvmtHeader);
-                    TransMvmtHeader.PrintRecords(true);
+                    CurrPage.SetSelectionFilter(DirectTransHeader);
+                    DirectTransHeader.PrintRecords(true);
                 end;
             }
             action("&Navigate")
@@ -123,16 +131,18 @@ page 14982 "Posted Direct Transfers"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Rec.Navigate();
                 end;
             }
         }
     }
 
     var
-        TransMvmtHeader: Record "Direct Transfer Header";
+        DirectTransHeader: Record "Direct Trans. Header";
 }
 

@@ -429,7 +429,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     var
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
         repeat
             DimensionSetEntry.Get(DimensionSetID, DefaultDimension."Dimension Code");
             Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DefaultDimension."Dimension Value Code", DimValueMismatchErr);
@@ -440,7 +440,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     begin
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.SetRange("No.", No);
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
     end;
 
     local procedure VerifyFALedgerEntryDim(FAChargeNo: Code[20])
@@ -462,7 +462,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     begin
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::"Fixed Asset");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         FindDefaultDimension(DefaultDimension, DATABASE::"FA Charge", FAChargeNo);
         repeat
             VerifyDimensionSetID(DefaultDimension, GLEntry."Dimension Set ID");

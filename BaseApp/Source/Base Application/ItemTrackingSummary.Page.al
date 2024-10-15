@@ -1,4 +1,4 @@
-﻿page 6500 "Item Tracking Summary"
+page 6500 "Item Tracking Summary"
 {
     Caption = 'Item Tracking Summary';
     DeleteAllowed = false;
@@ -14,37 +14,40 @@
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the lot number for which availability is presented in the Item Tracking Summary window.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the serial number for which availability is presented in the Item Tracking Summary window.';
                 }
-                field("CD No."; "CD No.")
+                field("Package No."; Rec."Package No.")
                 {
-                    ToolTip = 'Specifies the customs declaration number.';
+                    ApplicationArea = ItemTracking;
+                    Editable = false;
+                    Visible = PackageTrackingVisible;
+                    ToolTip = 'Specifies the package number for which availability is presented in the Item Tracking Summary window.';
                 }
-                field("Warranty Date"; "Warranty Date")
+                field("Warranty Date"; Rec."Warranty Date")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the warranty expiration date, if any, of the item carrying the item tracking number.';
                     Visible = false;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the expiration date, if any, of the item carrying the item tracking number.';
                     Visible = false;
                 }
-                field("Total Quantity"; "Total Quantity")
+                field("Total Quantity"; Rec."Total Quantity")
                 {
                     ApplicationArea = ItemTracking;
                     DrillDown = true;
@@ -53,10 +56,10 @@
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownEntries(FieldNo("Total Quantity"));
+                        DrillDownEntries(Rec.FieldNo("Total Quantity"));
                     end;
                 }
-                field("Total Requested Quantity"; "Total Requested Quantity")
+                field("Total Requested Quantity"; Rec."Total Requested Quantity")
                 {
                     ApplicationArea = ItemTracking;
                     DrillDown = true;
@@ -65,36 +68,36 @@
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownEntries(FieldNo("Total Requested Quantity"));
+                        DrillDownEntries(Rec.FieldNo("Total Requested Quantity"));
                     end;
                 }
-                field("Current Pending Quantity"; "Current Pending Quantity")
+                field("Current Pending Quantity"; Rec."Current Pending Quantity")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the quantity from the item tracking line that is selected on the document but not yet committed to the database.';
                 }
-                field("Total Available Quantity"; "Total Available Quantity")
+                field("Total Available Quantity"; Rec."Total Available Quantity")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the quantity available for the user to request, in entries of the type on the line.';
                 }
-                field("Current Reserved Quantity"; "Current Reserved Quantity")
+                field("Current Reserved Quantity"; Rec."Current Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the quantity of items in the entry that are reserved for the line that the Reservation window is opened from.';
                     Visible = false;
                 }
-                field("Total Reserved Quantity"; "Total Reserved Quantity")
+                field("Total Reserved Quantity"; Rec."Total Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies the total quantity of the relevant item that is reserved on documents or entries of the type on the line.';
                     Visible = false;
                 }
-                field("Bin Content"; "Bin Content")
+                field("Bin Content"; Rec."Bin Content")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item in the bin specified in the document line.';
@@ -102,10 +105,10 @@
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownBinContent(FieldNo("Bin Content"));
+                        DrillDownBinContent(Rec.FieldNo("Bin Content"));
                     end;
                 }
-                field("Selected Quantity"; "Selected Quantity")
+                field("Selected Quantity"; Rec."Selected Quantity")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = SelectedQuantityEditable;
@@ -116,7 +119,7 @@
 
                     trigger OnValidate()
                     begin
-                        SelectedQuantityOnAfterValidat;
+                        SelectedQuantityOnAfterValidate();
                     end;
                 }
             }
@@ -177,7 +180,7 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateIfFiltersHaveChanged;
+        UpdateIfFiltersHaveChanged();
     end;
 
     trigger OnInit()
@@ -190,9 +193,11 @@
 
     trigger OnOpenPage()
     begin
-        UpdateSelectedQuantity;
+        UpdateSelectedQuantity();
 
         BinContentVisible := CurrBinCode <> '';
+
+        SetPackageTrackingVisibility();
     end;
 
     var
@@ -217,6 +222,8 @@
         Undefined1Visible: Boolean;
         [InDataSet]
         SelectedQuantityEditable: Boolean;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     procedure SetSources(var ReservEntry: Record "Reservation Entry"; var EntrySummary: Record "Entry Summary")
     var
@@ -228,20 +235,20 @@
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
 
-        xEntrySummary.SetView(GetView);
-        Reset;
-        DeleteAll();
-        if EntrySummary.FindSet then
+        xEntrySummary.SetView(Rec.GetView());
+        Rec.Reset;
+        Rec.DeleteAll();
+        if EntrySummary.FindSet() then
             repeat
                 if EntrySummary.HasQuantity then begin
                     Rec := EntrySummary;
-                    Insert;
+                    Rec.Insert();
                 end;
-            until EntrySummary.Next = 0;
-        SetView(xEntrySummary.GetView);
-        UpdateSelectedQuantity;
+            until EntrySummary.Next() = 0;
+        Rec.SetView(xEntrySummary.GetView());
+        UpdateSelectedQuantity();
     end;
 
     procedure SetSelectionMode(SelectionMode: Boolean)
@@ -282,18 +289,18 @@
             exit;
 
         SelectedQty := MaxQuantity;
-        if FindSet then
+        if Rec.FindSet() then
             repeat
-                AvailableQty := "Total Available Quantity";
-                if "Bin Active" then
-                    AvailableQty := MinValueAbs(QtyAvailableToSelectFromBin, "Total Available Quantity");
+                AvailableQty := Rec."Total Available Quantity";
+                if Rec."Bin Active" then
+                    AvailableQty := MinValueAbs(QtyAvailableToSelectFromBin, Rec."Total Available Quantity");
 
                 if AvailableQty > 0 then begin
-                    "Selected Quantity" := MinValueAbs(AvailableQty, SelectedQty);
-                    SelectedQty -= "Selected Quantity";
-                    Modify;
+                    Rec."Selected Quantity" := MinValueAbs(AvailableQty, SelectedQty);
+                    SelectedQty -= Rec."Selected Quantity";
+                    Rec.Modify();
                 end;
-            until (Next = 0) or (SelectedQty <= 0);
+            until (Rec.Next() = 0) or (SelectedQty <= 0);
     end;
 
     local procedure MinValueAbs(Value1: Decimal; Value2: Decimal): Decimal
@@ -310,10 +317,10 @@
     begin
         if not SelectedQuantityVisible then
             exit;
-        if Modify then; // Ensure that changes to current rec are included in CALCSUMS
+        if Rec.Modify then; // Ensure that changes to current rec are included in CALCSUMS
         xEntrySummary := Rec;
-        CalcSums("Selected Quantity");
-        SelectedQuantity := "Selected Quantity";
+        Rec.CalcSums("Selected Quantity");
+        SelectedQuantity := Rec."Selected Quantity";
         Rec := xEntrySummary;
     end;
 
@@ -321,12 +328,12 @@
     begin
         EntrySummary.Reset();
         EntrySummary.DeleteAll();
-        SetFilter("Selected Quantity", '<>%1', 0);
-        if FindSet then
+        Rec.SetFilter("Selected Quantity", '<>%1', 0);
+        if Rec.FindSet() then
             repeat
                 EntrySummary := Rec;
                 EntrySummary.Insert();
-            until Next = 0;
+            until Rec.Next() = 0;
     end;
 
     protected procedure DrillDownEntries(FieldNumber: Integer)
@@ -338,16 +345,11 @@
           "Item No.", "Source Type", "Source Subtype", "Reservation Status",
           "Location Code", "Variant Code", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.");
 
-        if "Lot No." <> '' then
-            TempReservEntry.SetRange("Lot No.", "Lot No.");
-        if "Serial No." <> '' then
-            TempReservEntry.SetRange("Serial No.", "Serial No.");
-        if "CD No." <> '' then
-            TempReservEntry.SetRange("CD No.", "CD No.");
+        TempReservEntry.SetTrackingFilterFromEntrySummaryIfNotBlank(Rec);
         OnDrillDownEntriesOnAfterTempReservEntrySetFilters(TempReservEntry, Rec);
 
         case FieldNumber of
-            FieldNo("Total Quantity"):
+            Rec.FieldNo("Total Quantity"):
                 begin
                     // An Item Ledger Entry will in itself be represented with a surplus TempReservEntry. Order tracking
                     // and reservations against Item Ledger Entries are therefore kept out, as these quantities would
@@ -355,7 +357,7 @@
 
                     TempReservEntry.SetRange(Positive, true);
                     TempReservEntry2.Copy(TempReservEntry);  // Copy key
-                    if TempReservEntry.FindSet then
+                    if TempReservEntry.FindSet() then
                         repeat
                             TempReservEntry2 := TempReservEntry;
                             if TempReservEntry."Source Type" = DATABASE::"Item Ledger Entry" then begin
@@ -363,11 +365,11 @@
                                     TempReservEntry2.Insert();
                             end else
                                 TempReservEntry2.Insert();
-                        until TempReservEntry.Next = 0;
+                        until TempReservEntry.Next() = 0;
                     TempReservEntry2.Ascending(false);
                     PAGE.RunModal(PAGE::"Avail. - Item Tracking Lines", TempReservEntry2);
                 end;
-            FieldNo("Total Requested Quantity"):
+            Rec.FieldNo("Total Requested Quantity"):
                 begin
                     TempReservEntry.SetRange(Positive, false);
                     TempReservEntry.Ascending(false);
@@ -376,14 +378,15 @@
         end;
     end;
 
-    local procedure DrillDownBinContent(FieldNumber: Integer)
+    protected procedure DrillDownBinContent(FieldNumber: Integer)
     var
         BinContent: Record "Bin Content";
+        ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         if CurrBinCode = '' then
             exit;
         TempReservEntry.Reset();
-        if not TempReservEntry.FindFirst then
+        if not TempReservEntry.FindFirst() then
             exit;
 
         CurrItemTrackingCode.TestField(Code);
@@ -391,17 +394,11 @@
         BinContent.SetRange("Location Code", TempReservEntry."Location Code");
         BinContent.SetRange("Item No.", TempReservEntry."Item No.");
         BinContent.SetRange("Variant Code", TempReservEntry."Variant Code");
-        if CurrItemTrackingCode."Lot Warehouse Tracking" then
-            if "Lot No." <> '' then
-                BinContent.SetRange("Lot No. Filter", "Lot No.");
-        if CurrItemTrackingCode."SN Warehouse Tracking" then
-            if "Serial No." <> '' then
-                BinContent.SetRange("Serial No. Filter", "Serial No.");
-        if CurrItemTrackingCode."CD Warehouse Tracking" then
-            if "CD No." <> '' then
-                BinContent.SetRange("CD No. Filter", "CD No.");
+        ItemTrackingSetup.CopyTrackingFromItemTrackingCodeWarehouseTracking(CurrItemTrackingCode);
+        ItemTrackingSetup.CopyTrackingFromEntrySummary(Rec);
+        BinContent.SetTrackingFilterFromItemTrackingSetupIfWhseRequiredIfNotBlank(ItemTrackingSetup);
 
-        if FieldNumber = FieldNo("Bin Content") then
+        if FieldNumber = Rec.FieldNo("Bin Content") then
             BinContent.SetRange("Bin Code", CurrBinCode);
 
         OnDrillDownBinContentOnAfterBinContentSetFilters(BinContent, Rec);
@@ -411,17 +408,24 @@
     local procedure UpdateIfFiltersHaveChanged()
     begin
         // In order to update Selected Quantity when filters have been changed on the form.
-        if GetFilters = xFilterRec.GetFilters then
+        if Rec.GetFilters() = xFilterRec.GetFilters() then
             exit;
 
-        UpdateSelectedQuantity;
+        UpdateSelectedQuantity();
         xFilterRec.Copy(Rec);
     end;
 
-    local procedure SelectedQuantityOnAfterValidat()
+    protected procedure SelectedQuantityOnAfterValidate()
     begin
-        UpdateSelectedQuantity;
-        CurrPage.Update;
+        UpdateSelectedQuantity();
+        CurrPage.Update();
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

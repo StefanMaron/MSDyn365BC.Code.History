@@ -18,8 +18,8 @@ codeunit 12462 "Item Report Management"
         PurchaseHeaderTemp: Record "Purchase Header" temporary;
         PurchaseLineTemp: Record "Purchase Line" temporary;
         PurchaseHeader: Record "Purchase Header";
-        ItemDocumentHeader: Record "Item Document Header";
-        ItemReceiptHeader: Record "Item Receipt Header";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtReceiptHeader: Record "Invt. Receipt Header";
     begin
         PurchSetup.Get();
 
@@ -32,23 +32,23 @@ codeunit 12462 "Item Report Management"
                     PurchaseHeaderTemp.TransferFields(PurchaseHeader);
                     PurchaseHeaderTemp.Insert();
                 end;
-            DATABASE::"Item Document Header":
+            DATABASE::"Invt. Document Header":
                 begin
-                    ItemDocumentHeader.Get(DocPrintBuffer."Document Type", DocPrintBuffer."Document No.");
-                    ItemDocumentHeader.TestField(Status, ItemDocumentHeader.Status::Released);
+                    InvtDocumentHeader.Get(DocPrintBuffer."Document Type", DocPrintBuffer."Document No.");
+                    InvtDocumentHeader.TestField(Status, InvtDocumentHeader.Status::Released);
                     PurchaseHeaderTemp.Init();
-                    PurchaseHeaderTemp."Location Code" := ItemDocumentHeader."Location Code";
-                    PurchaseHeaderTemp."No." := ItemDocumentHeader."No.";
-                    PurchaseHeaderTemp."Document Date" := ItemDocumentHeader."Document Date";
+                    PurchaseHeaderTemp."Location Code" := InvtDocumentHeader."Location Code";
+                    PurchaseHeaderTemp."No." := InvtDocumentHeader."No.";
+                    PurchaseHeaderTemp."Document Date" := InvtDocumentHeader."Document Date";
                     PurchaseHeaderTemp.Insert();
                 end;
-            DATABASE::"Item Receipt Header":
+            DATABASE::"Invt. Receipt Header":
                 begin
-                    ItemReceiptHeader.Get(DocPrintBuffer."Document No.");
+                    InvtReceiptHeader.Get(DocPrintBuffer."Document No.");
                     PurchaseHeaderTemp.Init();
-                    PurchaseHeaderTemp."Location Code" := ItemReceiptHeader."Location Code";
-                    PurchaseHeaderTemp."No." := ItemReceiptHeader."No.";
-                    PurchaseHeaderTemp."Document Date" := ItemReceiptHeader."Document Date";
+                    PurchaseHeaderTemp."Location Code" := InvtReceiptHeader."Location Code";
+                    PurchaseHeaderTemp."No." := InvtReceiptHeader."No.";
+                    PurchaseHeaderTemp."Document Date" := InvtReceiptHeader."Document Date";
                     PurchaseHeaderTemp.Insert();
                 end;
         end;
@@ -252,7 +252,7 @@ codeunit 12462 "Item Report Management"
                                                 TotalAccomQtyToReceive := TotalAccomQtyToReceive + PurchaseLineBuffer.Quantity;
                                                 TotalNetWeight := TotalNetWeight + PurchaseLineBuffer."Net Weight" * PurchaseLineBuffer.Quantity;
                                             end;
-                                        until PurchaseLineBuffer.Next = 0;
+                                        until PurchaseLineBuffer.Next() = 0;
                                     DecimalArray[3] := DecimalArray[2] + "Gross Weight" * Quantity;
                                     DecimalArray[7] := DecimalArray[7] + "Qty. to Receive (Base)";
                                 end else begin
@@ -287,7 +287,7 @@ codeunit 12462 "Item Report Management"
 
                         FillLineToExcel(DecimalArray, TextArray);
                     end;
-                until Next = 0;
+                until Next() = 0;
             FillTotalsToExcel(TotalAccomQty, TotalAccomQtyToReceive, TotalGrossWeight, TotalNetWeight);
         end;
     end;
@@ -303,7 +303,7 @@ codeunit 12462 "Item Report Management"
 
         ExcelReportBuilderMgr.SetSheet('Sheet3');
         ExcelReportBuilderMgr.AddSection('PAGE3');
-        if DocPrintBuffer."Table ID" = DATABASE::"Item Receipt Header" then begin
+        if DocPrintBuffer."Table ID" = DATABASE::"Invt. Receipt Header" then begin
             if PostedDocumentSignature.Get(
                  DocPrintBuffer."Table ID",
                  DocPrintBuffer."Document Type",
@@ -434,15 +434,15 @@ codeunit 12462 "Item Report Management"
                             Number := Number + 1;
                     end else
                         Number := Number + 1;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
     local procedure CopyDocLinesToTempDocLines(DocPrintBuffer: Record "Document Print Buffer"; var PurchaseLineBuffer: Record "Purchase Line" temporary)
     var
         PurchaseLine2: Record "Purchase Line";
-        ItemDocumentLine2: Record "Item Document Line";
-        ItemReceiptLine2: Record "Item Receipt Line";
+        InvtDocumentLine2: Record "Invt. Document Line";
+        InvtReceiptLine2: Record "Invt. Receipt Line";
     begin
         case DocPrintBuffer."Table ID" of
             DATABASE::"Purchase Header":
@@ -455,38 +455,38 @@ codeunit 12462 "Item Report Management"
                             PurchaseLineBuffer.Init();
                             PurchaseLineBuffer.TransferFields(PurchaseLine2);
                             PurchaseLineBuffer.Insert();
-                        until PurchaseLine2.Next = 0;
+                        until PurchaseLine2.Next() = 0;
                 end;
-            DATABASE::"Item Document Header":
+            DATABASE::"Invt. Document Header":
                 begin
-                    ItemDocumentLine2.SetRange("Document Type", DocPrintBuffer."Document Type");
-                    ItemDocumentLine2.SetRange("Document No.", DocPrintBuffer."Document No.");
-                    if ItemDocumentLine2.FindSet then
+                    InvtDocumentLine2.SetRange("Document Type", DocPrintBuffer."Document Type");
+                    InvtDocumentLine2.SetRange("Document No.", DocPrintBuffer."Document No.");
+                    if InvtDocumentLine2.FindSet then
                         repeat
                             PurchaseLineBuffer.Init();
-                            PurchaseLineBuffer."Line No." := ItemDocumentLine2."Line No.";
-                            PurchaseLineBuffer."No." := ItemDocumentLine2."Item No.";
-                            PurchaseLineBuffer.Description := ItemDocumentLine2.Description;
-                            PurchaseLineBuffer.Quantity := ItemDocumentLine2.Quantity;
-                            PurchaseLineBuffer."Direct Unit Cost" := ItemDocumentLine2."Unit Cost";
-                            PurchaseLineBuffer."Quantity (Base)" := ItemDocumentLine2."Quantity (Base)";
+                            PurchaseLineBuffer."Line No." := InvtDocumentLine2."Line No.";
+                            PurchaseLineBuffer."No." := InvtDocumentLine2."Item No.";
+                            PurchaseLineBuffer.Description := InvtDocumentLine2.Description;
+                            PurchaseLineBuffer.Quantity := InvtDocumentLine2.Quantity;
+                            PurchaseLineBuffer."Direct Unit Cost" := InvtDocumentLine2."Unit Cost";
+                            PurchaseLineBuffer."Quantity (Base)" := InvtDocumentLine2."Quantity (Base)";
                             PurchaseLineBuffer.Insert();
-                        until ItemDocumentLine2.Next = 0;
+                        until InvtDocumentLine2.Next() = 0;
                 end;
-            DATABASE::"Item Receipt Header":
+            DATABASE::"Invt. Receipt Header":
                 begin
-                    ItemReceiptLine2.SetRange("Document No.", DocPrintBuffer."Document No.");
-                    if ItemReceiptLine2.FindSet then
+                    InvtReceiptLine2.SetRange("Document No.", DocPrintBuffer."Document No.");
+                    if InvtReceiptLine2.FindSet then
                         repeat
                             PurchaseLineBuffer.Init();
-                            PurchaseLineBuffer."Line No." := ItemReceiptLine2."Line No.";
-                            PurchaseLineBuffer."No." := ItemReceiptLine2."Item No.";
-                            PurchaseLineBuffer.Description := ItemReceiptLine2.Description;
-                            PurchaseLineBuffer.Quantity := ItemReceiptLine2.Quantity;
-                            PurchaseLineBuffer."Direct Unit Cost" := ItemReceiptLine2."Unit Cost";
-                            PurchaseLineBuffer."Quantity (Base)" := ItemReceiptLine2."Quantity (Base)";
+                            PurchaseLineBuffer."Line No." := InvtReceiptLine2."Line No.";
+                            PurchaseLineBuffer."No." := InvtReceiptLine2."Item No.";
+                            PurchaseLineBuffer.Description := InvtReceiptLine2.Description;
+                            PurchaseLineBuffer.Quantity := InvtReceiptLine2.Quantity;
+                            PurchaseLineBuffer."Direct Unit Cost" := InvtReceiptLine2."Unit Cost";
+                            PurchaseLineBuffer."Quantity (Base)" := InvtReceiptLine2."Quantity (Base)";
                             PurchaseLineBuffer.Insert();
-                        until ItemReceiptLine2.Next = 0;
+                        until InvtReceiptLine2.Next() = 0;
                 end;
         end;
     end;

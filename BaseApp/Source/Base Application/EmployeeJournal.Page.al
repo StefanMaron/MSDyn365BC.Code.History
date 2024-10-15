@@ -355,7 +355,7 @@ page 17391 "Employee Journal"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

@@ -63,7 +63,7 @@ report 17204 "Create Tax Registers"
                                                     EntryNoAmountBuffer.DeleteAll();
                                                 end;
                                             end;
-                                        until TaxReg.Next = 0;
+                                        until TaxReg.Next() = 0;
                                         CycleLevel += 1;
                                     end;
                                 end;

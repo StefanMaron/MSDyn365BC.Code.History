@@ -393,7 +393,7 @@ codeunit 144712 "ERM TORG-29 Report"
         RowShift := 0;
 
         with TempValueEntryRcpt do begin
-            FindSet;
+            FindSet();
             repeat
                 VerifyLineValue(
                   RowShift, Format("Posting Date"), "Document No.", Format("Cost Amount (Actual)"), Format(-"Cost Amount (Actual)"));
@@ -407,7 +407,7 @@ codeunit 144712 "ERM TORG-29 Report"
 
         RowShift += 9;
         with TempValueEntryShpt do begin
-            FindSet;
+            FindSet();
             repeat
                 VerifyLineValue(
                   RowShift, Format("Posting Date"), "Document No.", Format(-"Cost Amount (Actual)"), Format(-"Cost Amount (Actual)"));
@@ -438,7 +438,7 @@ codeunit 144712 "ERM TORG-29 Report"
         Assert.AreEqual(2, ErrorsCount, WrongErrorsCountErr);
         i := 0;
         with ValueEntry do begin
-            FindSet;
+            FindSet();
             repeat
                 i += 1;
                 ErrorBuffer.Get(i);

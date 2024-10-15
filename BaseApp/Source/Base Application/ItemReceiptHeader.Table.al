@@ -2,7 +2,9 @@ table 12451 "Item Receipt Header"
 {
     Caption = 'Item Receipt Header';
     DataCaptionFields = "No.", "Posting Description";
-    LookupPageID = "Posted Item Receipts";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Inventory Documents feature.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -49,14 +51,6 @@ table 12451 "Item Receipt Header"
             Caption = 'Purchaser Code';
             TableRelation = "Salesperson/Purchaser";
         }
-        field(12; Comment; Boolean)
-        {
-            CalcFormula = Exist ("Inventory Comment Line" WHERE("Document Type" = CONST("Posted Item Receipt"),
-                                                                "No." = FIELD("No.")));
-            Caption = 'Comment';
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(14; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -98,11 +92,6 @@ table 12451 "Item Receipt Header"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
-
-            trigger OnLookup()
-            begin
-                ShowDimensions();
-            end;
         }
     }
 
@@ -117,51 +106,5 @@ table 12451 "Item Receipt Header"
     fieldgroups
     {
     }
-
-    trigger OnDelete()
-    var
-        ItemRcptLine: Record "Item Receipt Line";
-        InvtCommentLine: Record "Inventory Comment Line";
-    begin
-        ItemRcptLine.SetRange("Document No.", "No.");
-        if ItemRcptLine.Find('-') then
-            repeat
-                ItemRcptLine.Delete();
-            until ItemRcptLine.Next = 0;
-
-        InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Item Receipt");
-        InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.DeleteAll();
-
-        ItemTrackingMgt.DeleteItemEntryRelation(
-          DATABASE::"Item Receipt Line", 0, "No.", '', 0, 0, true);
-    end;
-
-    var
-        DimMgt: Codeunit DimensionManagement;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
-
-    [Scope('OnPrem')]
-    procedure Navigate()
-    var
-        NavigateForm: Page Navigate;
-    begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
-    end;
-
-    [Scope('OnPrem')]
-    procedure PrintRecords(ShowRequestForm: Boolean)
-    var
-        DocumentPrint: Codeunit "Document-Print";
-    begin
-        DocumentPrint.PrintItemReceipt(Rec, ShowRequestForm);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
-    end;
 }
 

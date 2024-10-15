@@ -141,7 +141,7 @@ codeunit 17208 "Create Tax Register PR Entry"
                         TempTaxRegTemplate := TaxRegTemplate;
                         TempTaxRegTemplate.Value := 0;
                         TempTaxRegTemplate.Insert();
-                    until TaxRegTemplate.Next = 0;
+                    until TaxRegTemplate.Next() = 0;
 
                 TaxRegPREntry.Reset();
                 TaxRegPREntry.SetCurrentKey("Section Code", "Ending Date");
@@ -226,7 +226,7 @@ codeunit 17208 "Create Tax Register PR Entry"
                             TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
                             TaxRegAccumulation.Modify();
                         end;
-                    until TempTaxRegTemplate.Next = 0;
+                    until TempTaxRegTemplate.Next() = 0;
             end;
         until TaxReg.Next(1) = 0;
         TempTaxRegTemplate.DeleteAll();

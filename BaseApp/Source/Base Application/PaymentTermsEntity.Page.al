@@ -7,6 +7,9 @@ page 5490 "Payment Terms Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Payment Terms";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -100,7 +103,7 @@ page 5490 "Payment Terms Entity"
         RecRef: RecordRef;
     begin
         PaymentTerms.SetRange(Code, Code);
-        if not PaymentTerms.IsEmpty then
+        if not PaymentTerms.IsEmpty() then
             Insert;
 
         Insert(true);

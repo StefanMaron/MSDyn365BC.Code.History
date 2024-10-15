@@ -155,7 +155,7 @@ table 17210 "Tax Register CV Entry"
         TaxRegName.SetFilter("Register ID", DelChr(GetFilter("Where Used Register IDs"), '=', '~'));
         FilterGroup(0);
         if TaxRegName.Find('-') then
-            if TaxRegName.Next = 0 then
+            if TaxRegName.Next() = 0 then
                 exit(TaxRegName.Description);
     end;
 

@@ -365,10 +365,10 @@ table 26552 "Statutory Report Table"
                 AccScheduleLine.Description := StatReportTableRow.Description;
                 AccScheduleLine.Bold := StatReportTableRow.Bold;
                 AccScheduleLine.Insert();
-            until StatReportTableRow.Next = 0;
+            until StatReportTableRow.Next() = 0;
 
         ColumnLayout.SetRange("Column Layout Name", ColLayoutName);
-        if ColumnLayout.IsEmpty then begin
+        if ColumnLayout.IsEmpty() then begin
             LineNo := 0;
             StatReportTableColumn.SetRange("Report Code", "Report Code");
             StatReportTableColumn.SetRange("Table Code", Code);
@@ -382,7 +382,7 @@ table 26552 "Statutory Report Table"
                         1,
                         MaxStrLen(ColumnLayout."Column Header"));
                     ColumnLayout.Insert();
-                until StatReportTableColumn.Next = 0;
+                until StatReportTableColumn.Next() = 0;
         end;
 
         Message(Text023);
@@ -413,7 +413,7 @@ table 26552 "Statutory Report Table"
                 StatReportTableRow := StatReportTableRowFrom;
                 StatReportTableRow."Report Code" := "Report Code";
                 StatReportTableRow.Insert();
-            until StatReportTableRowFrom.Next = 0;
+            until StatReportTableRowFrom.Next() = 0;
 
         StatReportTableColumnFrom.SetRange("Report Code", ReportFromCode);
         StatReportTableColumnFrom.SetRange("Table Code", TableFromCode);
@@ -422,7 +422,7 @@ table 26552 "Statutory Report Table"
                 StatReportTableColumn := StatReportTableColumnFrom;
                 StatReportTableColumn."Report Code" := "Report Code";
                 StatReportTableColumn.Insert();
-            until StatReportTableColumnFrom.Next = 0;
+            until StatReportTableColumnFrom.Next() = 0;
 
         TableIndividualRequisiteFrom.SetRange("Report Code", ReportFromCode);
         TableIndividualRequisiteFrom.SetRange("Table Code", TableFromCode);
@@ -431,7 +431,7 @@ table 26552 "Statutory Report Table"
                 TableIndividualRequisite := TableIndividualRequisiteFrom;
                 TableIndividualRequisite."Report Code" := "Report Code";
                 TableIndividualRequisite.Insert();
-            until TableIndividualRequisiteFrom.Next = 0;
+            until TableIndividualRequisiteFrom.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -524,7 +524,7 @@ table 26552 "Statutory Report Table"
                         exit(false);
                     StatutoryReportDataValue.Insert();
                 end;
-            until XMLElementLine.Next = 0;
+            until XMLElementLine.Next() = 0;
 
         UpdatePageIndicReqValue(DataHeaderNo, ExcelSheetName, StatReportExcelSheet);
 
@@ -615,7 +615,7 @@ table 26552 "Statutory Report Table"
                             exit(false);
                         StatutoryReportDataValue.Insert();
                     end;
-                until StatReportTableColumn.Next = 0;
+                until StatReportTableColumn.Next() = 0;
 
             CurrRowNo := CurrRowNo + "Scalable Table Row Step";
         end;
@@ -650,7 +650,7 @@ table 26552 "Statutory Report Table"
         if (not "Vertical Table") and (not "Multipage Table") then begin
             PageIndicationXMLElement.SetRange("Report Code", "Report Code");
             PageIndicationXMLElement.SetRange("Table Code", Code);
-            if not PageIndicationXMLElement.IsEmpty then begin
+            if not PageIndicationXMLElement.IsEmpty() then begin
                 if not Confirm(Text018) then
                     Error('');
                 PageIndicationXMLElement.DeleteAll();
@@ -709,9 +709,9 @@ table 26552 "Statutory Report Table"
                                     StatReportTableMapping."Int. Source Row Description" := AccScheduleLine.Description;
                                     StatReportTableMapping."Int. Source Column Header" := ColumnLayout."Column Header";
                                     StatReportTableMapping.Insert();
-                                until (ColumnLayout.Next = 0) or (StatReportTableColumn.Next = 0);
+                                until (ColumnLayout.Next() = 0) or (StatReportTableColumn.Next() = 0);
                             end;
-                        until (AccScheduleLine.Next = 0) or (StatReportTableRow.Next = 0);
+                        until (AccScheduleLine.Next() = 0) or (StatReportTableRow.Next() = 0);
                     end;
                 end;
             "Int. Source Type"::"Tax Register":
@@ -741,7 +741,7 @@ table 26552 "Statutory Report Table"
                             StatReportTableMapping."Int. Source Row Description" := TaxRegisterTemplate.Description;
                             StatReportTableMapping."Int. Source Column Header" := TaxRegisterAccumulation.FieldCaption(Amount);
                             StatReportTableMapping.Insert();
-                        until (TaxRegisterTemplate.Next = 0) or (StatReportTableRow.Next = 0);
+                        until (TaxRegisterTemplate.Next() = 0) or (StatReportTableRow.Next() = 0);
                     end;
                 end;
             "Int. Source Type"::"Tax Difference":
@@ -771,7 +771,7 @@ table 26552 "Statutory Report Table"
                             StatReportTableMapping."Int. Source Row Description" := TaxCalcLine.Description;
                             StatReportTableMapping."Int. Source Column Header" := TaxRegisterAccumulation.FieldCaption(Amount);
                             StatReportTableMapping.Insert();
-                        until (TaxCalcLine.Next = 0) or (StatReportTableRow.Next = 0);
+                        until (TaxCalcLine.Next() = 0) or (StatReportTableRow.Next() = 0);
                     end;
                 end;
             "Int. Source Type"::"Payroll Analysis Report":
@@ -803,9 +803,9 @@ table 26552 "Statutory Report Table"
                                     StatReportTableMapping."Int. Source Row Description" := PayrollAnalysisLine.Description;
                                     StatReportTableMapping."Int. Source Column Header" := PayrollAnalysisColumn."Column Header";
                                     StatReportTableMapping.Insert();
-                                until (PayrollAnalysisColumn.Next = 0) or (StatReportTableColumn.Next = 0);
+                                until (PayrollAnalysisColumn.Next() = 0) or (StatReportTableColumn.Next() = 0);
                             end;
-                        until (PayrollAnalysisLine.Next = 0) or (StatReportTableRow.Next = 0);
+                        until (PayrollAnalysisLine.Next() = 0) or (StatReportTableRow.Next() = 0);
                     end;
                 end;
         end;
@@ -819,7 +819,7 @@ table 26552 "Statutory Report Table"
         StatReportTableMapping.SetRange("Report Code", "Report Code");
         StatReportTableMapping.SetRange("Table Code", Code);
         StatReportTableMapping.SetFilter("Table Column No.", '<>0');
-        if not StatReportTableMapping.IsEmpty then
+        if not StatReportTableMapping.IsEmpty() then
             if Confirm(Text019) then
                 StatReportTableMapping.DeleteAll
             else
@@ -841,7 +841,7 @@ table 26552 "Statutory Report Table"
                 RequisiteValue := GetXMLElementValue(XMLElementLine, DataHeaderNo, ExcelSheetName);
                 if RequisiteValue <> '' then
                     StatReportExcelSheet."Page Indic. Requisite Value" := StatReportExcelSheet."Page Indic. Requisite Value" + RequisiteValue;
-            until PageIndicationXMLElement.Next = 0;
+            until PageIndicationXMLElement.Next() = 0;
 
             StatReportExcelSheet.Modify();
         end;

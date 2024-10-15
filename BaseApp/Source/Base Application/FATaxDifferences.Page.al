@@ -251,12 +251,12 @@ page 17337 "FA Tax Differences"
                     Filter := DepreciationBook.Code
                 else
                     Filter := Filter + '|' + DepreciationBook.Code;
-            until DepreciationBook.Next = 0;
+            until DepreciationBook.Next() = 0;
     end;
 
     local procedure DateFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

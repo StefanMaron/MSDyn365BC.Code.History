@@ -182,7 +182,7 @@ page 624 "Unapply Vendor Entries"
                     VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
                     ConfirmManagement: Codeunit "Confirm Management";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         Error(Text010);
                     if not ConfirmManagement.GetResponseOrDefault(Text011, true) then
                         exit;
@@ -210,7 +210,7 @@ page 624 "Unapply Vendor Entries"
                 var
                     VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         Error(Text010);
 
                     VendEntryApplyPostedEntries.PreviewUnapply(DtldVendLedgEntry2, DocNo, PostingDate);
@@ -265,7 +265,7 @@ page 624 "Unapply Vendor Entries"
                     OnBeforeRecInsert(Rec, DtldVendLedgEntry, DtldVendLedgEntry2);
                     Insert;
                 end;
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     local procedure GetDocumentNo(): Code[20]

@@ -62,7 +62,7 @@ codeunit 8610 "Questionnaire Management"
                     ConfigQuestion.Insert();
                     NextQuestionNo := NextQuestionNo + 1;
                 end;
-            until Field.Next = 0;
+            until Field.Next() = 0;
     end;
 
     local procedure UpdateQuestion(var ConfigQuestion: Record "Config. Question")
@@ -95,7 +95,7 @@ codeunit 8610 "Questionnaire Management"
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 UpdateQuestions(ConfigQuestionArea);
-            until ConfigQuestionArea.Next = 0;
+            until ConfigQuestionArea.Next() = 0;
             ConfigProgressBar.Close;
             exit(true);
         end;
@@ -152,7 +152,7 @@ codeunit 8610 "Questionnaire Management"
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 ApplyAnswer(ConfigQuestionArea);
-            until ConfigQuestionArea.Next = 0;
+            until ConfigQuestionArea.Next() = 0;
             ConfigProgressBar.Close;
             exit(true);
         end;
@@ -227,7 +227,7 @@ codeunit 8610 "Questionnaire Management"
                     if ErrorText <> '' then
                         Error(ErrorText);
                 end;
-            until ConfigQuestion.Next = 0;
+            until ConfigQuestion.Next() = 0;
         RecRef.Modify(true);
     end;
 
@@ -282,7 +282,7 @@ codeunit 8610 "Questionnaire Management"
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 CreateQuestionNodes(QuestionnaireXML, ConfigQuestionArea);
-            until ConfigQuestionArea.Next = 0;
+            until ConfigQuestionArea.Next() = 0;
             ConfigProgressBar.Close;
         end;
     end;
@@ -442,7 +442,7 @@ codeunit 8610 "Questionnaire Management"
 
                 QuestionRecRef.GetTable(ConfigQuestion);
                 CreateFieldSubtree(QuestionRecRef, QuestionNode);
-            until ConfigQuestion.Next = 0;
+            until ConfigQuestion.Next() = 0;
     end;
 
     procedure GetElementName(NameIn: Text): Text
@@ -642,7 +642,7 @@ codeunit 8610 "Questionnaire Management"
                 if FieldNodeExists(RecordNode, GetElementName(FieldRef.Name)) then
                     ConfigValidateMgt.ValidateFieldValue(
                       RecRef, FieldRef, GetNodeValue(RecordNode, GetElementName(FieldRef.Name)), false, GlobalLanguage)
-            until Field.Next = 0;
+            until Field.Next() = 0;
     end;
 
     local procedure ValidateRecordFields(RecRef: RecordRef; RecordNode: DotNet XmlNode)

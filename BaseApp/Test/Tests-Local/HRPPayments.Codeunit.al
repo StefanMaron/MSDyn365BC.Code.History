@@ -209,7 +209,7 @@ codeunit 144202 "HRP Payments"
 
         // EXERCISE - suggest payments for 3 months one by one
         PayrollPeriod.SetRange("Starting Date", StartingDate, PayrollPeriod."Starting Date");
-        PayrollPeriod.FindSet;
+        PayrollPeriod.FindSet();
         InitGenJnlLine(GenJnlLine);
         repeat
             LibraryHRP.SuggestPersonPayments(GenJnlLine, EmployeeNo,
@@ -289,7 +289,7 @@ codeunit 144202 "HRP Payments"
         i: Integer;
     begin
         i := 1;
-        GenJnlLine.FindSet;
+        GenJnlLine.FindSet();
         repeat
             Assert.AreEqual(ExpectedAmount[i], GenJnlLine.Amount, IncorrectPaymentAmountErr);
             i := i + 1;

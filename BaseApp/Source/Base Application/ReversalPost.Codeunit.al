@@ -7,7 +7,6 @@ codeunit 179 "Reversal-Post"
         GLReg: Record "G/L Register";
         GenJnlTemplate: Record "Gen. Journal Template";
         PostedDeferralHeader: Record "Posted Deferral Header";
-        DeferralUtilities: Codeunit "Deferral Utilities";
         GenJnlPostReverse: Codeunit "Gen. Jnl.-Post Reverse";
         Txt: Text[1024];
         WarningText: Text[250];
@@ -15,16 +14,16 @@ codeunit 179 "Reversal-Post"
         Handled: Boolean;
         VATAllocOnCost: Boolean;
     begin
-        Reset;
-        SetRange("Entry Type", "Entry Type"::"Fixed Asset");
-        if FindFirst then
+        Rec.Reset();
+        Rec.SetRange("Entry Type", Rec."Entry Type"::"Fixed Asset");
+        if Rec.FindFirst() then
             WarningText := Text007;
-        SetRange("Entry Type");
+        Rec.SetRange("Entry Type");
         if PrintRegister then
             Txt := Text004 + WarningText + '\' + Text005
         else
             Txt := Text004 + WarningText + '\' + Text002;
-        if not FindFirst then
+        if not Rec.FindFirst() then
             Error(Text006);
 
         if not HideDialog then
@@ -36,11 +35,11 @@ codeunit 179 "Reversal-Post"
         If Handled then
             exit;
 
-        if "Reversal Type" = "Reversal Type"::Register then begin
+        if Rec."Reversal Type" = Rec."Reversal Type"::Register then begin
             TempGLReg.DeleteAll();
             FromRegNo := 0;
             repeat
-                TempGLReg."No." := "G/L Register No.";
+                TempGLReg."No." := Rec."G/L Register No.";
                 if TempGLReg.Insert() then;
                 if FromRegNo = 0 then
                     FromRegNo := TempGLReg."No."
@@ -52,57 +51,57 @@ codeunit 179 "Reversal-Post"
                 else
                     if ToRegNo < TempGLReg."No." then
                         ToRegNo := TempGLReg."No.";
-            until Next = 0;
+            until Next() = 0;
 
-            if TempGLReg.FindSet then
+            if TempGLReg.FindSet() then
                 repeat
                     SetRange("G/L Register No.", TempGLReg."No.");
                     SetRange("VAT Allocation", true);
                     VATAllocOnCost := not IsEmpty;
                     ReversalEntry := Rec;
-                    ReversalEntry.SetReverseFilter(TempGLReg."No.", "Reversal Type");
+                    ReversalEntry.SetReverseFilter(TempGLReg."No.", Rec."Reversal Type");
                     ReversalEntry.CheckEntries(VATAllocOnCost);
-                    Get(1);
-                    if "Reversal Type" = "Reversal Type"::Register then
+                    Rec.Get(1);
+                    if Rec."Reversal Type" = Rec."Reversal Type"::Register then
                         Number := TempGLReg."No."
                     else
-                        Number := "Transaction No.";
+                        Number := Rec."Transaction No.";
                     if FromRegNo = ToRegNo then
-                        if not ReversalEntry.VerifyReversalEntries(Rec, Number, "Reversal Type") then
+                        if not ReversalEntry.VerifyReversalEntries(Rec, Number, Rec."Reversal Type") then
                             Error(Text008);
                     GenJnlPostReverse.Reverse(ReversalEntry, Rec);
-                until TempGLReg.Next = 0;
+                until TempGLReg.Next() = 0;
         end else begin
             SetRange("G/L Register No.", TempGLReg."No.");
             SetRange("VAT Allocation", true);
-            VATAllocOnCost := not IsEmpty;
+            VATAllocOnCost := not Rec.IsEmpty;
             ReversalEntry := Rec;
             if "Reversal Type" = "Reversal Type"::Transaction then
-                ReversalEntry.SetReverseFilter("Transaction No.", "Reversal Type")
+                ReversalEntry.SetReverseFilter("Transaction No.", Rec."Reversal Type")
             else
-                ReversalEntry.SetReverseFilter("G/L Register No.", "Reversal Type");
+                ReversalEntry.SetReverseFilter("G/L Register No.", Rec."Reversal Type");
             ReversalEntry.CheckEntries(VATAllocOnCost);
-            Get(1);
-            if "Reversal Type" = "Reversal Type"::Register then
-                Number := "G/L Register No."
+            Rec.Get(1);
+            if Rec."Reversal Type" = Rec."Reversal Type"::Register then
+                Number := Rec."G/L Register No."
             else
-                Number := "Transaction No.";
-            if not ReversalEntry.VerifyReversalEntries(Rec, Number, "Reversal Type") then
+                Number := Rec."Transaction No.";
+            if not ReversalEntry.VerifyReversalEntries(Rec, Number, Rec."Reversal Type") then
                 Error(Text008);
             GenJnlPostReverse.Reverse(ReversalEntry, Rec);
             if PrintRegister then begin
                 GenJnlTemplate.Validate(Type);
                 if GenJnlTemplate."Posting Report ID" <> 0 then
-                    if GLReg.FindLast then begin
-                        GLReg.SetRecFilter;
+                    if GLReg.FindLast() then begin
+                        GLReg.SetRecFilter();
                         OnBeforeGLRegPostingReportPrint(GenJnlTemplate."Posting Report ID", false, false, GLReg, Handled);
                         if not Handled then
                             REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
                     end;
             end;
         end;
-        DeleteAll();
-        PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetGLDeferralDocType, ReversalEntry."Document No.", '', 0, '');
+        Rec.DeleteAll();
+        PostedDeferralHeader.DeleteForDoc("Deferral Document Type"::"G/L".AsInteger(), ReversalEntry."Document No.", '', 0, '');
         if not HideDialog then
             Message(Text003);
     end;

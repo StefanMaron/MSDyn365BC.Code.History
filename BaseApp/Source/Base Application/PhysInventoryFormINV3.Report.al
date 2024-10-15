@@ -248,7 +248,7 @@ report 12481 "Phys. Inventory Form INV-3"
                     if Location."Responsible Employee No." <> RespEmployeeNo then
                         Error(RespEmployeeDoesNotMatchErr, Location.Code, Location."Responsible Employee No.");
                 end;
-            until ItemJnlLine.Next = 0;
+            until ItemJnlLine.Next() = 0;
         end;
     end;
 

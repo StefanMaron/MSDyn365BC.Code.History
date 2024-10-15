@@ -25,7 +25,7 @@ codeunit 353 "Item Availability Forms Mgt"
               Inventory,
               "Net Change",
               "Scheduled Receipt (Qty.)",
-              "Scheduled Need (Qty.)",
+              "Qty. on Component Lines",
               "Planned Order Receipt (Qty.)",
               "FP Order Receipt (Qty.)",
               "Rel. Order Receipt (Qty.)",
@@ -70,7 +70,7 @@ codeunit 353 "Item Availability Forms Mgt"
                 TransOrdReceiptQty := "Trans. Ord. Receipt (Qty.)";
             end;
             GrossRequirement :=
-                "Qty. on Sales Order" + "Qty. on Service Order" + "Qty. on Job Order" + "Scheduled Need (Qty.)" +
+                "Qty. on Sales Order" + "Qty. on Service Order" + "Qty. on Job Order" + "Qty. on Component Lines" +
                 TransOrdShipmentQty + "Planning Issues (Qty.)" + "Qty. on Asm. Component" + "Qty. on Purch. Return";
             PlannedOrderReceipt :=
                 "Planned Order Receipt (Qty.)" + "Purch. Req. Receipt (Qty.)";
@@ -773,37 +773,54 @@ codeunit 353 "Item Availability Forms Mgt"
         end;
     end;
 
-    [Scope('OnPrem')]
-    procedure ShowItemAvailFromItemDocLine(var ItemDocLine: Record "Item Document Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromInvtDocLine(var InvtDocLine: Record "Invt. Document Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        CaptionText: Text[80];
     begin
-        with ItemDocLine do begin
-            TestField("Item No.");
-            Item.Reset();
-            Item.Get("Item No.");
-            FilterItem(Item, "Location Code", "Variant Code", "Posting Date");
+        InvtDocLine.TestField("Item No.");
+        Item.Reset();
+        Item.Get(InvtDocLine."Item No.");
+        FilterItem(Item, InvtDocLine."Location Code", InvtDocLine."Variant Code", InvtDocLine."Posting Date");
 
-            case AvailabilityType of
-                AvailabilityType::Date:
-                    if ShowItemAvailByDate(Item, FieldCaption("Posting Date"), "Posting Date", NewDate) then
-                        Validate("Posting Date", NewDate);
-                AvailabilityType::Variant:
-                    if ShowItemAvailVariant(Item, FieldCaption("Variant Code"), "Variant Code", NewVariantCode) then
-                        Validate("Variant Code", NewVariantCode);
-                AvailabilityType::Location:
-                    if ShowItemAvailByLoc(Item, FieldCaption("Location Code"), "Location Code", NewLocationCode) then
-                        Validate("Location Code", NewLocationCode);
-                AvailabilityType::"Event":
-                    if ShowItemAvailByEvent(Item, FieldCaption("Posting Date"), "Posting Date", NewDate, false) then
-                        Validate("Posting Date", NewDate);
-                AvailabilityType::BOM:
-                    if ShowItemAvailByBOMLevel(Item, FieldCaption("Posting Date"), "Posting Date", NewDate) then
-                        Validate("Posting Date", NewDate);
-            end;
+        case AvailabilityType of
+            AvailabilityType::Date:
+                begin
+                    CaptionText := CopyStr(InvtDocLine.FieldCaption("Posting Date"), 1, 80);
+                    if ShowItemAvailByDate(Item, CaptionText, InvtDocLine."Posting Date", NewDate) then
+                        InvtDocLine.Validate("Posting Date", NewDate);
+                end;
+            AvailabilityType::Variant:
+                begin
+                    CaptionText := CopyStr(InvtDocLine.FieldCaption("Variant Code"), 1, 80);
+#pragma warning disable AA0139 // required fix
+                    if ShowItemAvailVariant(Item, CaptionText, InvtDocLine."Variant Code", NewVariantCode) then
+                        InvtDocLine.Validate("Variant Code", NewVariantCode);
+#pragma warning restore AA0139
+                end;
+            AvailabilityType::Location:
+                begin
+                    CaptionText := CopyStr(InvtDocLine.FieldCaption("Location Code"), 1, 80);
+#pragma warning disable AA0139 // required fix
+                    if ShowItemAvailByLoc(Item, CaptionText, InvtDocLine."Location Code", NewLocationCode) then
+                        InvtDocLine.Validate("Location Code", NewLocationCode);
+#pragma warning restore AA0139
+                end;
+            AvailabilityType::"Event":
+                begin
+                    CaptionText := CopyStr(InvtDocLine.FieldCaption("Posting Date"), 1, 80);
+                    if ShowItemAvailByEvent(Item, CaptionText, InvtDocLine."Posting Date", NewDate, false) then
+                        InvtDocLine.Validate("Posting Date", NewDate);
+                end;
+            AvailabilityType::BOM:
+                begin
+                    CaptionText := CopyStr(InvtDocLine.FieldCaption("Posting Date"), 1, 80);
+                    if ShowItemAvailByBOMLevel(Item, CaptionText, InvtDocLine."Posting Date", NewDate) then
+                        InvtDocLine.Validate("Posting Date", NewDate);
+                end;
         end;
     end;
 

@@ -153,7 +153,7 @@ report 750 "Save as Standard Gen. Journal"
                 OnBeforeStandardGenJnlLineInsert(StdGenJnlLine, GenJnlLine);
                 StdGenJnlLine.Insert(true);
                 CopyGenJnlLineDims(GenJnlLine, StdGenJnlLine);
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
 
         StdJournalCreated := true;
     end;

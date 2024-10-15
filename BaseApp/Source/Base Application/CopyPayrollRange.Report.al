@@ -22,7 +22,7 @@ report 17406 "Copy Payroll Range"
                         RangeLine2.TransferFields(RangeLine);
                         RangeLine2."Period Code" := NewPeriodCode;
                         RangeLine2.Insert();
-                    until RangeLine.Next = 0;
+                    until RangeLine.Next() = 0;
 
                 RangeHeader."Period Code" := NewPeriodCode;
                 RangeHeader.Insert();

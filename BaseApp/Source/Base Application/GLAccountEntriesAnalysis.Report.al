@@ -125,11 +125,11 @@ report 12438 "G/L Account Entries Analysis"
                     GLAcc1.Get(VirtualCrossReference."G/L Account");
                     DebitAmountText := '';
                     CreditAmountText := '';
-                    if VirtualCrossReference.Type = 0 then begin
+                    if VirtualCrossReference.Type = "Invoice Posting Line Type"::"Prepmt. Exch. Rate Difference" then begin
                         NetChangeDebit += VirtualCrossReference.Amount;
                         DebitAmountText := Format(VirtualCrossReference.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                         VirtualCrossReference1.Copy(VirtualCrossReference);
-                        VirtualCrossReference1.Type := 1;
+                        VirtualCrossReference1.Type := "Invoice Posting Line Type"::"G/L Account";
                         if VirtualCrossReference1.Find then begin
                             NetChangeCredit += VirtualCrossReference1.Amount;
                             CreditAmountText := Format(VirtualCrossReference1.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
@@ -137,11 +137,11 @@ report 12438 "G/L Account Entries Analysis"
                             VirtualCrossReference1.Modify();
                         end;
                     end else
-                        if VirtualCrossReference.Type = 1 then begin
+                        if VirtualCrossReference.Type = "Invoice Posting Line Type"::"G/L Account" then begin
                             NetChangeCredit += VirtualCrossReference.Amount;
                             CreditAmountText := Format(VirtualCrossReference.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                             VirtualCrossReference1.Copy(VirtualCrossReference);
-                            VirtualCrossReference1.Type := 0;
+                            VirtualCrossReference1.Type := "Invoice Posting Line Type"::"Prepmt. Exch. Rate Difference";
                             if VirtualCrossReference1.Find then begin
                                 NetChangeDebit += VirtualCrossReference1.Amount;
                                 DebitAmountText := Format(VirtualCrossReference1.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');

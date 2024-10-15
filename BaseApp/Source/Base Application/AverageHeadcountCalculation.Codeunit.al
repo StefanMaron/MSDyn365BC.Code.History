@@ -58,7 +58,7 @@ codeunit 17351 "Average Headcount Calculation"
                         if StandardCalendarWorkHours <> 0 then
                             AvgAmt += ActualWorkHours / StandardCalendarWorkHours;
                     end;
-            until EmplJobEntry.Next = 0;
+            until EmplJobEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -88,7 +88,7 @@ codeunit 17351 "Average Headcount Calculation"
                     then
                         AdjAmount += 1;
                 end;
-            until TimesheetLine.Next = 0;
+            until TimesheetLine.Next() = 0;
     end;
 }
 

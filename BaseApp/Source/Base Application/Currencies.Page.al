@@ -415,7 +415,7 @@ page 5 Currencies
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Dataverse transaction currency.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse Transaction Currency.';
 
                         trigger OnAction()
                         var
@@ -426,12 +426,12 @@ page 5 Currencies
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dataverse transaction currency.';
+                        ToolTip = 'Delete the coupling to a Dataverse Transaction Currency.';
 
                         trigger OnAction()
                         var

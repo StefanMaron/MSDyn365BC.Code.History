@@ -410,7 +410,7 @@ page 17449 "Payroll Payment Journal"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -560,7 +560,7 @@ page 17449 "Payroll Payment Journal"
                                 repeat
                                     GenJnlLine2 := GenJnlLine;
                                     CheckManagement.VoidCheck(GenJnlLine2);
-                                until GenJnlLine.Next = 0;
+                                until GenJnlLine.Next() = 0;
                         end;
                     end;
                 }
@@ -616,7 +616,7 @@ page 17449 "Payroll Payment Journal"
                         CopyDocument.SetJournalLine(Rec);
                         CopyDocument.RunModal;
                         Clear(CopyDocument);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

@@ -187,10 +187,12 @@ page 498 Reservation
                     Editable = false;
                     ToolTip = 'Specifies the lot number for the reservation.';
                 }
-                field("ReservEntry.""CD No."""; ReservEntry."CD No.")
+                field("Reserv. Package No."; ReservEntry."Package No.")
                 {
-                    Caption = 'CD No.';
+                    ApplicationArea = ItemTracking;
+                    Caption = 'Package No.';
                     Editable = false;
+                    ToolTip = 'Specifies the package number for the reservation.';
                 }
             }
         }
@@ -421,6 +423,7 @@ page 498 Reservation
         end;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line")
     begin
@@ -491,7 +494,6 @@ page 498 Reservation
         SetReservSource(SourceRecRef, "Transfer Direction".FromInteger(Direction));
     end;
 
-
     [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetServiceLine(var CurrentServiceLine: Record "Service Line")
     begin
@@ -505,13 +507,7 @@ page 498 Reservation
         SourceRecRef.GetTable(CurrentJobPlanningLine);
         SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
     end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetItemDocLine(var CurrentItemDocLine: Record "Item Document Line")
-    begin
-        SourceRecRef.GetTable(CurrentItemDocLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
+#endif
 
     procedure SetReservEntry(ReservEntry2: Record "Reservation Entry")
     begin

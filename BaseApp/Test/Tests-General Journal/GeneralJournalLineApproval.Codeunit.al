@@ -1658,7 +1658,7 @@ codeunit 134322 "General Journal Line Approval"
     begin
         ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
-        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type".AsInteger();
+        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type";
         ApprovalCommentLine."Document No." := ApprovalEntry."Document No.";
         ApprovalCommentLine."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
         ApprovalCommentLine.Comment := 'Test';

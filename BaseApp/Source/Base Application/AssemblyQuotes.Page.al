@@ -277,6 +277,17 @@ page 932 "Assembly Quotes"
                         ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation);
                     end;
                 }
+                action(Lot)
+                {
+                    ApplicationArea = ItemTracking;
+                    Caption = 'Lot';
+                    Image = LotInfo;
+                    RunObject = Page "Item Availability by Lot No.";
+                    RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                    ToolTip = 'View the current and projected quantity of the item in each lot.';
+                }
                 action("BOM Level")
                 {
                     ApplicationArea = Assembly;

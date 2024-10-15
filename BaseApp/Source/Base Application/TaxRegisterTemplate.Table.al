@@ -565,7 +565,7 @@ table 17202 "Tax Register Template"
             repeat
                 if TaxRegGLEntry.SetFieldFilter(Field."No.") then
                     FilterText := StrSubstNo('%1|%2', FilterText, Field."No.");
-            until Field.Next = 0;
+            until Field.Next() = 0;
             FilterText := DelChr(FilterText, '<>', '|');
         end;
     end;

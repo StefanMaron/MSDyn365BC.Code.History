@@ -1,4 +1,4 @@
-﻿table 113 "Sales Invoice Line"
+table 113 "Sales Invoice Line"
 {
     Caption = 'Sales Invoice Line';
     DrillDownPageID = "Posted Sales Invoice Lines";
@@ -465,11 +465,18 @@
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
@@ -726,7 +733,7 @@
         SalesDocLineComments.SetRange("Document Type", SalesDocLineComments."Document Type"::"Posted Invoice");
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not SalesDocLineComments.IsEmpty then
+        if not SalesDocLineComments.IsEmpty() then
             SalesDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(
@@ -777,7 +784,7 @@
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesInvLine(Rec);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure GetLineAmountExclVAT(): Decimal
@@ -864,7 +871,7 @@
                         TempSalesShptLine := SalesShptLine;
                         if TempSalesShptLine.Insert() then;
                     end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure CalcShippedSaleNotReturned(var ShippedQtyNotReturned: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
@@ -890,7 +897,7 @@
                       TotalCostLCY + TempItemLedgEntry."Cost Amount (Expected)" + TempItemLedgEntry."Cost Amount (Actual)";
                     TotalQtyBase := TotalQtyBase + TempItemLedgEntry.Quantity;
                 end;
-            until TempItemLedgEntry.Next = 0;
+            until TempItemLedgEntry.Next() = 0;
 
         if ExactCostReverse and (ShippedQtyNotReturned <> 0) and (TotalQtyBase <> 0) then
             RevUnitCostLCY := Abs(TotalCostLCY / TotalQtyBase) * "Qty. per Unit of Measure"
@@ -941,7 +948,7 @@
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
                 if TempItemLedgEntry.Insert() then;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
@@ -1002,7 +1009,7 @@
                 TempVATAmountLine."VAT Amount" :=
                   TempVATAmountLine."VAT Amount" + "Amount Including VAT (LCY)" - "Amount (LCY)";
                 TempVATAmountLine.Modify();
-            until Next = 0;
+            until Next() = 0;
 
         if FindSet then
             repeat
@@ -1023,7 +1030,7 @@
                     "Amount Including VAT (LCY)" := NewAmount + Round(NewVATAmount);
                     Modify;
                 end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])

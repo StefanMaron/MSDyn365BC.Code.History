@@ -257,7 +257,7 @@ table 5746 "Transfer Receipt Header"
         if TransRcptLine.Find('-') then
             repeat
                 TransRcptLine.Delete();
-            until TransRcptLine.Next = 0;
+            until TransRcptLine.Next() = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Transfer Receipt");
         InvtCommentLine.SetRange("No.", "No.");
@@ -276,7 +276,6 @@ table 5746 "Transfer Receipt Header"
     var
         DimMgt: Codeunit DimensionManagement;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        DocSignMgt: Codeunit "Doc. Signature Management";
 
     procedure Navigate()
     var

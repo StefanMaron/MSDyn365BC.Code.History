@@ -8,23 +8,17 @@ codeunit 143017 "ERM Dimension Subscriber - RU"
     var
         LibraryDim: Codeunit "Library - Dimension";
 
-    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]
-    [Scope('OnPrem')]
-    procedure GetCountOfLocalTablesWithDimSetIDValidationIgnored(var CountOfTablesIgnored: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]
+    local procedure GetCountOfLocalTablesWithDimSetIDValidationIgnored(var CountOfTablesIgnored: Integer)
     begin
         // Specifies how many tables with "Dimension Set ID" field related to "Dimension Set Entry" table should not have OnValidate trigger which updates shortcut dimensions
 
-        CountOfTablesIgnored += 14;
+        CountOfTablesIgnored += 18;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal', '', false, false)]
-    [Scope('OnPrem')]
-    procedure VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(var TempAllObj: Record AllObj temporary; DimSetID: Integer; GlobalDim1ValueCode: Code[20]; GlobalDim2ValueCode: Code[20])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal', '', false, false)]
+    local procedure VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(var TempAllObj: Record AllObj temporary; DimSetID: Integer; GlobalDim1ValueCode: Code[20]; GlobalDim2ValueCode: Code[20])
     var
-        ItemDocumentHeader: Record "Item Document Header";
-        ItemDocumentLine: Record "Item Document Line";
-        DirectTransferHeader: Record "Direct Transfer Header";
-        DirectTransferLine: Record "Direct Transfer Line";
         FADocumentHeader: Record "FA Document Header";
         FADocumentLine: Record "FA Document Line";
         VATAllocationLine: Record "VAT Allocation Line";
@@ -38,22 +32,6 @@ codeunit 143017 "ERM Dimension Subscriber - RU"
     begin
         // Verifies local tables with "Dimension Set ID" field related to "Dimension Set Entry" and OnValidate trigger which updates shortcut dimensions
 
-        LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
-          TempAllObj, ItemDocumentHeader, ItemDocumentHeader.FieldNo("Dimension Set ID"),
-          ItemDocumentHeader.FieldNo("Shortcut Dimension 1 Code"), ItemDocumentHeader.FieldNo("Shortcut Dimension 2 Code"),
-          DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
-        LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
-          TempAllObj, ItemDocumentLine, ItemDocumentLine.FieldNo("Dimension Set ID"),
-          ItemDocumentLine.FieldNo("Shortcut Dimension 1 Code"), ItemDocumentLine.FieldNo("Shortcut Dimension 2 Code"),
-          DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
-        LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
-          TempAllObj, DirectTransferHeader, DirectTransferHeader.FieldNo("Dimension Set ID"),
-          DirectTransferHeader.FieldNo("Shortcut Dimension 1 Code"), DirectTransferHeader.FieldNo("Shortcut Dimension 2 Code"),
-          DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
-        LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
-          TempAllObj, DirectTransferLine, DirectTransferLine.FieldNo("Dimension Set ID"),
-          DirectTransferLine.FieldNo("Shortcut Dimension 1 Code"), DirectTransferLine.FieldNo("Shortcut Dimension 2 Code"),
-          DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
         LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
           TempAllObj, FADocumentHeader, FADocumentHeader.FieldNo("Dimension Set ID"),
           FADocumentHeader.FieldNo("Shortcut Dimension 1 Code"), FADocumentHeader.FieldNo("Shortcut Dimension 2 Code"),
@@ -96,7 +74,7 @@ codeunit 143017 "ERM Dimension Subscriber - RU"
           DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnGetTableNosWithGlobalDimensionCode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetTableNosWithGlobalDimensionCode', '', false, false)]
     local procedure AddingLocalTable(var TableBuffer: Record "Integer" temporary)
     begin
         AddTable(TableBuffer, DATABASE::"Vendor Agreement");

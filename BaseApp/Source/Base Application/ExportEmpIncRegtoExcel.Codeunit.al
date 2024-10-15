@@ -79,7 +79,7 @@ codeunit 17373 "Export Emp. Inc. Reg. to Excel"
                 ExcelMgt.FillCell('BW' + Format(CurrRowNo), Format(Employee."Birth Date"));
 
                 CurrRowNo := CurrRowNo + 1;
-            until TempEmployee.Next = 0;
+            until TempEmployee.Next() = 0;
     end;
 
     [Scope('OnPrem')]

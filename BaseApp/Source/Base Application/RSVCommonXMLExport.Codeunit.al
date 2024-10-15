@@ -113,7 +113,7 @@ codeunit 17472 "RSV Common XML Export"
         XmlDoc: DotNet XmlDocument;
         FileName: Text[250];
     begin
-        if Person.IsEmpty then
+        if Person.IsEmpty() then
             exit;
 
         FileName := GetXMLFileName(StartDate, 0, 0);
@@ -369,7 +369,7 @@ codeunit 17472 "RSV Common XML Export"
             repeat
                 FillPackInfo(InfoAboutPackTxt, false, PersonifiedPayrollReportingBuffer,
                   PackPayrollReportingBuffer."File Name", PackPayrollReportingBuffer."Entry No.");
-            until PackPayrollReportingBuffer.Next = 0;
+            until PackPayrollReportingBuffer.Next() = 0;
         FillPackInfo(TotalInfoByPacksTxt, true, PersonifiedPayrollReportingBuffer, '', 0);
 
         XMLBackToParent;

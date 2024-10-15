@@ -57,6 +57,7 @@ enum 77 "Report Selection Usage"
     value(51; "Asm.Order") { Caption = 'Asm.Order'; }
     value(52; "P.Asm.Order") { Caption = 'P.Asm.Order'; }
     value(53; "S.Order Pick Instruction") { Caption = 'S.Order Pick Instruction'; }
+    value(60; "Posted Payment Reconciliation") { Caption = 'Posted Payment Reconciliation'; }
     value(84; "P.V.Remit.") { Caption = 'P.V.Remit.'; }
     value(85; "C.Statement") { Caption = 'C.Statement'; }
     value(86; "V.Remittance") { Caption = 'V.Remittance'; }
@@ -79,10 +80,11 @@ enum 77 "Report Selection Usage"
     value(103; "CO") { Caption = 'Cash Outgoing Order'; }
     value(104; "UAS") { Caption = 'Unposted Advance Statement'; }
     value(105; "AS") { Caption = 'Advance Statement'; }
-    value(106; "UIS") { Caption = 'Unposted Item Shipment'; }
-    value(107; "UIR") { Caption = 'Unposted Item Receipt'; }
-    value(109; "IS") { Caption = 'Item Shipment'; }
-    value(110; "IR") { Caption = 'Item Receipt'; }
+    value(106; "Inventory Shipment") { Caption = 'Inventory Shipment'; }
+    value(107; "Inventory Receipt") { Caption = 'Inventory Receipt'; }
+    value(109; "P.Inventory Shipment") { Caption = 'Inventory Shipment'; }
+    value(110; "P.Inventory Receipt") { Caption = 'Inventory Receipt'; }
+    value(111; "P.Direct Transfer") { Caption = 'P.Direct Transfer'; }
     value(112; "UFAW") { Caption = 'Unposted FA Withdraw'; }
     value(113; "UFAR") { Caption = 'Unposted FA Release'; }
     value(114; "UFAM") { Caption = 'Unposted FA Movement'; }
@@ -95,7 +97,6 @@ enum 77 "Report Selection Usage"
     value(121; "UPI") { Caption = 'Unposted Purchase Invoice'; }
     value(122; "IRJ") { Caption = 'Item Reclassification Journal'; }
     value(123; "UPCM") { Caption = 'Unposted Purchase Credit Memo'; }
-    value(124; "DT") { Caption = 'Direct Transfer'; }
     value(125; "SOPI") { Caption = 'SOPI'; }
     value(126; "UCSD") { Caption = 'Unposted Corrective Sales Document'; }
     value(127; "CSI") { Caption = 'Corrective Sales Invoice'; }

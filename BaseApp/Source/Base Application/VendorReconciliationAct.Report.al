@@ -1074,7 +1074,7 @@ report 14911 "Vendor - Reconciliation Act"
                             OtherCurrApplAmount += Amount;
                         exit;
                     end;
-                until DtldCustLedgEntry.Next = 0;
+                until DtldCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1094,7 +1094,7 @@ report 14911 "Vendor - Reconciliation Act"
                             OtherCurrApplAmount += Amount;
                         exit;
                     end;
-                until DetailedVendLedgEntry.Next = 0;
+                until DetailedVendLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1124,7 +1124,7 @@ report 14911 "Vendor - Reconciliation Act"
                 repeat
                     CustLedgEntry.Positive := false;
                     GetCustApplicationEntry(DtldCustLedgEntry, ApplDtldCustLedgEntry, false, CustLedgEntry, OtherCurrApplAmount);
-                until DtldCustLedgEntry.Next = 0;
+                until DtldCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1145,7 +1145,7 @@ report 14911 "Vendor - Reconciliation Act"
             if DetailedVendLedgEntry.FindSet then
                 repeat
                     GetVendApplicationEntry(DetailedVendLedgEntry, ApplDetailedVendLedgEntry, false, VendLedgEntry, OtherCurrApplAmount);
-                until DetailedVendLedgEntry.Next = 0;
+                until DetailedVendLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1505,7 +1505,7 @@ report 14911 "Vendor - Reconciliation Act"
                                     if not AppliedDetailedVendLedgEntry."Prepmt. Diff." then
                                         if AppldVendLedgEntryTmp.Insert() then;
                                 end;
-                        until AppliedDetailedVendLedgEntry.Next = 0;
+                        until AppliedDetailedVendLedgEntry.Next() = 0;
                     end;
                 end else
                     if AppliedVendLedgEntry.Get(SrcDetailedVendLedgEntry."Applied Vend. Ledger Entry No.") then begin
@@ -1513,7 +1513,7 @@ report 14911 "Vendor - Reconciliation Act"
                         AppldVendLedgEntryTmp."Vendor Ledger Entry No." := AppldVendLedgEntryTmp."Applied Vend. Ledger Entry No.";
                         if AppldVendLedgEntryTmp.Insert() then;
                     end;
-            until SrcDetailedVendLedgEntry.Next = 0;
+            until SrcDetailedVendLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1579,11 +1579,11 @@ report 14911 "Vendor - Reconciliation Act"
                         HandleInitialDebitCreditBal("Entry Type", Amount, InitialDebitAmount, InitialCreditAmount)
                     else
                         HandleInitialDebitCreditBal("Entry Type", "Amount (LCY)", InitialDebitAmount, InitialCreditAmount);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
-    local procedure HandleInitialDebitCreditBal(EntryType: Option; Amount: Decimal; var InitialDebitAmount: Decimal; var InitialCreditAmount: Decimal)
+    local procedure HandleInitialDebitCreditBal(EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal; var InitialDebitAmount: Decimal; var InitialCreditAmount: Decimal)
     var
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

@@ -606,7 +606,7 @@ report 12469 "Item Turnover (Qty.)"
                         CreditQuantity := CreditQuantity - "Invoiced Quantity";
                         CreditCost := CreditCost - "Cost Amount (Actual)";
                     end;
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
     end;
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[1024]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean)

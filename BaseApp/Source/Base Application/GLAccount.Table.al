@@ -1,4 +1,4 @@
-﻿table 15 "G/L Account"
+table 15 "G/L Account"
 {
     Caption = 'G/L Account';
     DataCaptionFields = "No.", Name;
@@ -54,12 +54,12 @@
                    (xRec."Account Type" = xRec."Account Type"::Posting)
                 then begin
                     GLEntry.SetRange("G/L Account No.", "No.");
-                    if not GLEntry.IsEmpty then
+                    if not GLEntry.IsEmpty() then
                         Error(
                           Text000,
                           FieldCaption("Account Type"));
                     GLBudgetEntry.SetRange("G/L Account No.", "No.");
-                    if not GLBudgetEntry.IsEmpty then
+                    if not GLBudgetEntry.IsEmpty() then
                         Error(
                           Text001,
                           FieldCaption("Account Type"));
@@ -619,7 +619,7 @@
                     exit;
                 GLAccountCategory.Get("Account Subcategory Entry No.");
                 TestField("Income/Balance", GLAccountCategory."Income/Balance");
-                "Account Category" := GLAccountCategory."Account Category";
+                "Account Category" := "G/L Account Category".FromInteger(GLAccountCategory."Account Category");
             end;
         }
         field(81; "Account Subcategory Descript."; Text[80])
@@ -655,13 +655,13 @@
         }
         field(9000; "API Account Type"; Enum "G/L Account Type")
         {
-            Caption = 'Account Type';
+            Caption = 'API Account Type';
             Editable = false;
         }
         field(12402; "Credit Amount at Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Credit Amount" WHERE("G/L Account No." = FIELD("No."),
+            CalcFormula = Sum("G/L Entry"."Credit Amount" WHERE("G/L Account No." = FIELD("No."),
                                                                  "G/L Account No." = FIELD(FILTER(Totaling)),
                                                                  "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                  "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -676,7 +676,7 @@
         field(12403; "Debit Amount at Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Debit Amount" WHERE("G/L Account No." = FIELD("No."),
+            CalcFormula = Sum("G/L Entry"."Debit Amount" WHERE("G/L Account No." = FIELD("No."),
                                                                 "G/L Account No." = FIELD(FILTER(Totaling)),
                                                                 "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -715,7 +715,7 @@
         }
         field(12407; "Credit Amount at Date (ACY)"; Decimal)
         {
-            CalcFormula = Sum ("G/L Entry"."Add.-Currency Credit Amount" WHERE("G/L Account No." = FIELD("No."),
+            CalcFormula = Sum("G/L Entry"."Add.-Currency Credit Amount" WHERE("G/L Account No." = FIELD("No."),
                                                                                "G/L Account No." = FIELD(FILTER(Totaling)),
                                                                                "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                                "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -728,7 +728,7 @@
         }
         field(12408; "Debit Amount at Date (ACY)"; Decimal)
         {
-            CalcFormula = Sum ("G/L Entry"."Add.-Currency Debit Amount" WHERE("G/L Account No." = FIELD("No."),
+            CalcFormula = Sum("G/L Entry"."Add.-Currency Debit Amount" WHERE("G/L Account No." = FIELD("No."),
                                                                               "G/L Account No." = FIELD(FILTER(Totaling)),
                                                                               "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -980,7 +980,7 @@
             if GLAccountCategory.Get("Account Subcategory Entry No.") then
                 GLAccountCategories.SetRecord(GLAccountCategory);
         GLAccountCategory.SetRange("Income/Balance", "Income/Balance");
-        if "Account Category" <> 0 then
+        if "Account Category" <> "Account Category"::" " then
             GLAccountCategory.SetRange("Account Category", "Account Category");
         GLAccountCategories.SetTableView(GLAccountCategory);
         GLAccountCategories.LookupMode(true);
@@ -1015,7 +1015,7 @@
 
             GLAccountSubAccount.Validate("Account Category", "Account Category");
             GLAccountSubAccount.Modify
-        until GLAccountSubAccount.Next = 0;
+        until GLAccountSubAccount.Next() = 0;
     end;
 
     procedure GetCurrencyCode(): Code[10]

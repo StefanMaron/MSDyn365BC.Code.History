@@ -1123,10 +1123,6 @@ codeunit 134421 "Report Selections Tests"
         Assert.AreEqual(ReportSelections.Usage::"CO", 103, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"UAS", 104, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"AS", 105, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"UIS", 106, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"UIR", 107, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"IS", 109, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"IR", 110, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"UFAW", 112, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"UFAR", 113, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"UFAM", 114, 'Wrong Usage option value.');
@@ -1139,7 +1135,6 @@ codeunit 134421 "Report Selections Tests"
         Assert.AreEqual(ReportSelections.Usage::"UPI", 121, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"IRJ", 122, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"UPCM", 123, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"DT", 124, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"SOPI", 125, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"UCSD", 126, 'Wrong Usage option value.');
         Assert.AreEqual(ReportSelections.Usage::"CSI", 127, 'Wrong Usage option value.');
@@ -1773,9 +1768,12 @@ codeunit 134421 "Report Selections Tests"
         ContactBusinessRelation: Record "Contact Business Relation";
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
         // [FEATURE] [Email] [Purchase]
         // [SCENARIO 372081] Purchase document Send suggests E-mail of "Buy-from Contact No.".
+
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         Initialize();
         SetupReportSelectionsVendor(true, true);
 
@@ -2004,7 +2002,7 @@ codeunit 134421 "Report Selections Tests"
         ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, CustomerNo);
         InteractionLogEntry.SetRange("Contact No.", ContactBusinessRelation."Contact No.");
         InteractionLogEntry.SetRange("Document Type", DocumentType);
-        InteractionLogEntry.FindSet;
+        InteractionLogEntry.FindSet();
     end;
 
     local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")

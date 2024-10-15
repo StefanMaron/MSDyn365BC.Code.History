@@ -182,7 +182,7 @@ page 17479 "Payroll Status"
                                     UpdateCalculated(PayrollStatus);
                                     UpdatePosted(PayrollStatus);
                                     Modify;
-                                until Next = 0;
+                                until Next() = 0;
                         end;
                     end;
                 }

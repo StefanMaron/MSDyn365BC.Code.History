@@ -341,7 +341,7 @@ codeunit 144103 "ERM Currency Adjustment"
         with GLEntry do begin
             SetRange("Posting Date", PostingDate);
             SetRange("Source No.", SourceNo);
-            FindSet;
+            FindSet();
             repeat
                 LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, "Dimension Set ID");
                 Assert.AreEqual(

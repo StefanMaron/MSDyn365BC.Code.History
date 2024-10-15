@@ -25,7 +25,7 @@ report 17458 "Employee Paysheet"
                                 TotalDays += AddBuffer."Actual Days";
                                 TotalHours += AddBuffer."Actual Hours";
                             end;
-                        until AddBuffer.Next = 0;
+                        until AddBuffer.Next() = 0;
 
                     if DeductBuffer.FindSet then
                         repeat
@@ -35,7 +35,7 @@ report 17458 "Employee Paysheet"
                                 TotalDays += DeductBuffer."Actual Days";
                                 TotalHours += DeductBuffer."Actual Hours";
                             end;
-                        until DeductBuffer.Next = 0;
+                        until DeductBuffer.Next() = 0;
 
                     if OtherGainBuffer.FindSet then
                         repeat
@@ -44,7 +44,7 @@ report 17458 "Employee Paysheet"
                                 TotalDays += DeductBuffer."Actual Days";
                                 TotalHours += DeductBuffer."Actual Hours";
                             end;
-                        until OtherGainBuffer.Next = 0;
+                        until OtherGainBuffer.Next() = 0;
 
                     if IncomeTaxBuffer.FindSet then
                         repeat
@@ -52,7 +52,7 @@ report 17458 "Employee Paysheet"
                                 FillBody(IncomeTaxBuffer);
                                 TotalDeducted += IncomeTaxBuffer."Payroll Amount";
                             end;
-                        until IncomeTaxBuffer.Next = 0;
+                        until IncomeTaxBuffer.Next() = 0;
 
                     FillTotals;
                     ExcelReportBuilderMgr.AddSection('DueTaxRedemptionSection');
@@ -304,7 +304,7 @@ report 17458 "Employee Paysheet"
                                             IncomeTaxBuffer.Insert();
                                         end;
                                 end;
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             DataSource::"Payroll Documents":
                 with PayrollDocLine do begin
@@ -340,7 +340,7 @@ report 17458 "Employee Paysheet"
                                             IncomeTaxBuffer.Insert();
                                         end;
                                 end;
-                        until Next = 0;
+                        until Next() = 0;
                 end;
         end;
     end;

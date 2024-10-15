@@ -109,9 +109,9 @@ codeunit 144704 "ERM INV-17 Report"
     begin
         LibraryERM.FindGLAccount(GLAccount);
         Customer.SetFilter(Name, '<>%1', '');
-        Customer.FindSet;
+        Customer.FindSet();
         for i := 1 to 2 do begin
-            CustomerPostingGroup.FindSet;
+            CustomerPostingGroup.FindSet();
             for j := 1 to 2 do begin
                 MockGroupInvtActLine(
                   TempInvtActLine, ActNo, TempInvtActLine."Contractor Type"::Customer, Customer."No.", GLAccount."No.",
@@ -132,9 +132,9 @@ codeunit 144704 "ERM INV-17 Report"
     begin
         LibraryERM.FindGLAccount(GLAccount);
         Vendor.SetFilter(Name, '<>%1', '');
-        Vendor.FindSet;
+        Vendor.FindSet();
         for i := 1 to 2 do begin
-            VendorPostingGroup.FindSet;
+            VendorPostingGroup.FindSet();
             for j := 1 to 2 do begin
                 MockGroupInvtActLine(
                   TempInvtActLine, ActNo, TempInvtActLine."Contractor Type"::Vendor, Vendor."No.", GLAccount."No.",
@@ -507,7 +507,7 @@ codeunit 144704 "ERM INV-17 Report"
         TempInvtActLine.Reset();
         for CategoryType := TempInvtActLine.Category::Debts to TempInvtActLine.Category::Liabilities do begin
             TempInvtActLine.SetRange(Category, CategoryType);
-            TempInvtActLine.FindSet;
+            TempInvtActLine.FindSet();
             with TempInvtActLine do begin
                 repeat
                     VerifyLineValue(
@@ -552,7 +552,7 @@ codeunit 144704 "ERM INV-17 Report"
         LiabilitiesAmount: Decimal;
     begin
         with CustLedgEntry do begin
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Remaining Amt. (LCY)");
                 TestField("Remaining Amt. (LCY)");
@@ -573,7 +573,7 @@ codeunit 144704 "ERM INV-17 Report"
         LiabilitiesAmount: Decimal;
     begin
         with VendLedgEntry do begin
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Remaining Amt. (LCY)");
                 TestField("Remaining Amt. (LCY)");

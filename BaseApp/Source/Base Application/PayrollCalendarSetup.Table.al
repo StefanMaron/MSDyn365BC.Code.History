@@ -244,7 +244,7 @@ table 17429 "Payroll Calendar Setup"
             repeat
                 if PayrollCalendarSetup."Day No." > MaxShiftDay then
                     MaxShiftDay := PayrollCalendarSetup."Day No.";
-            until PayrollCalendarSetup.Next = 0;
+            until PayrollCalendarSetup.Next() = 0;
 
         exit(MaxShiftDay);
     end;

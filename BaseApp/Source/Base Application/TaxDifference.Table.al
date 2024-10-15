@@ -102,7 +102,7 @@ table 17300 "Tax Difference"
             begin
                 TaxDiffLedgerEntry.SetCurrentKey("Tax Diff. Code");
                 TaxDiffLedgerEntry.SetRange("Tax Diff. Code", Code);
-                if not TaxDiffLedgerEntry.IsEmpty then
+                if not TaxDiffLedgerEntry.IsEmpty() then
                     Error(Text1002);
             end;
         }

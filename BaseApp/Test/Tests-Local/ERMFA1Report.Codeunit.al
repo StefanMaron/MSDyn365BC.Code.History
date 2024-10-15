@@ -540,7 +540,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         MockFixedAsset(FixedAsset);
         FADeprBook.SetRange("FA No.", FixedAsset."No.");
-        FADeprBook.FindSet;
+        FADeprBook.FindSet();
         repeat
             LibraryRUReports.MockFADepreciationBook(FADeprBook);
         until FADeprBook.Next = 0;
@@ -553,7 +553,7 @@ codeunit 144711 "ERM FA-1 Report"
         MockFixedAsset(FixedAsset);
         with FADeprBook do begin
             SetRange("FA No.", FixedAsset."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Depreciation Starting Date", CalcDate('<-CY>', WorkDate));
                 Validate("No. of Depreciation Years", LibraryRandom.RandInt(10));

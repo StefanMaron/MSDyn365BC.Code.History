@@ -431,7 +431,7 @@ codeunit 144010 "ERM Future Expences"
         with VATEntry do begin
             SetRange("Object Type", "Object Type"::"Fixed Asset");
             SetRange("Object No.", FANo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual("VAT Settlement Type"::"Future Expenses", "VAT Settlement Type", FieldCaption("VAT Settlement Type"));
             until Next = 0;
@@ -445,7 +445,7 @@ codeunit 144010 "ERM Future Expences"
     begin
         FilterFALedgerEntries(FALedgerEntry, FANo);
         with FALedgerEntry do begin
-            FindSet;
+            FindSet();
             repeat
                 i += 1;
                 Assert.AreEqual(DeprAmounts[i], Amount, FieldCaption(Amount));

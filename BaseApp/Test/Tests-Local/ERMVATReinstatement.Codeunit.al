@@ -703,7 +703,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATEntry.SetCurrentKey(Type, "Bill-to/Pay-to No.");
         VATEntry.SetRange("Bill-to/Pay-to No.", VendNo);
         VATEntry.SetFilter("Unrealized Base", '<>0');
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             LibraryERM.CreateVATSettlementJnlLine(VATEntry."Entry No.", PostingDate, -VATEntry."Remaining Unrealized Amount", true);
         until VATEntry.Next = 0;
@@ -839,7 +839,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         TempVATDocEntryBuffer.SetRange("Document No.", DocumentNo);
         TempVATDocEntryBuffer.Next(0); // Needed to trick preCAL
         VATSettlementMgt.Generate(TempVATDocEntryBuffer, VATSettlType::Purchase);
-        TempVATDocEntryBuffer.FindSet;
+        TempVATDocEntryBuffer.FindSet();
         VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
         FilterVATGenJnlLine(GenJnlLine, VATPostingSetup."VAT Settlement Template", VATPostingSetup."VAT Settlement Batch", DocumentNo);
     end;

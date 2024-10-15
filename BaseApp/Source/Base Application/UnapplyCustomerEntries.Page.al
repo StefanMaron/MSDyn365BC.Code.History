@@ -183,7 +183,7 @@ page 623 "Unapply Customer Entries"
                     CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
                     ConfirmManagement: Codeunit "Confirm Management";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         Error(Text010);
                     if not ConfirmManagement.GetResponseOrDefault(Text011, true) then
                         exit;
@@ -211,7 +211,7 @@ page 623 "Unapply Customer Entries"
                 var
                     CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         Error(Text010);
 
                     CustEntryApplyPostedEntries.PreviewUnapply(DtldCustLedgEntry2, DocNo, PostingDate);
@@ -267,7 +267,7 @@ page 623 "Unapply Customer Entries"
                     OnBeforeRecInsert(Rec, DtldCustLedgEntry, DtldCustLedgEntry2);
                     Insert;
                 end;
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure GetDocumentNo(): Code[20]

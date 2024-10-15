@@ -10,13 +10,15 @@ report 7391 "Whse. Get Bin Content"
             RequestFilterFields = "Location Code", "Zone Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code";
 
             trigger OnAfterGetRecord()
+            var
+                DummyItemTrackingSetup: Record "Item Tracking Setup";
             begin
                 if BinType.Code <> "Bin Type Code" then
                     BinType.Get("Bin Type Code");
                 if BinType.Receive and not "Cross-Dock Bin" then
                     CurrReport.Skip();
 
-                QtyToEmptyBase := GetQtyToEmptyBase('', '', '');
+                QtyToEmptyBase := GetQtyToEmptyBase(DummyItemTrackingSetup);
                 if QtyToEmptyBase <= 0 then
                     CurrReport.Skip();
 
@@ -309,11 +311,12 @@ report 7391 "Whse. Get Bin Content"
 
     procedure GetSerialNoAndLotNo()
     var
+        ItemTrackingSetup: Record "Item Tracking Setup";
         WarehouseEntry: Record "Warehouse Entry";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
-        ReserveTransferLine: Codeunit "Transfer Line-Reserve";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
         Direction: Enum "Transfer Direction";
         TrackedQtyToEmptyBase: Decimal;
         TotalTrackedQtyBase: Decimal;
@@ -333,15 +336,11 @@ report 7391 "Whse. Get Bin Content"
             SetRange("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
             if FindSet then
                 repeat
-                    if TrackingExists then begin
-                        if "Lot No." <> '' then
-                            SetRange("Lot No.", "Lot No.");
-                        if "Serial No." <> '' then
-                            SetRange("Serial No.", "Serial No.");
-                        if "CD No." <> '' then
-                            SetRange("CD No.", "CD No.");
+                    if TrackingExists() then begin
+                        ItemTrackingSetup.CopyTrackingFromWhseEntry(WarehouseEntry);
+                        SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
 
-                        TrackedQtyToEmptyBase := GetQtyToEmptyBase("Lot No.", "Serial No.", "CD No.");
+                        TrackedQtyToEmptyBase := GetQtyToEmptyBase(ItemTrackingSetup);
                         TotalTrackedQtyBase += TrackedQtyToEmptyBase;
 
                         if TrackedQtyToEmptyBase > 0 then begin
@@ -363,20 +362,20 @@ report 7391 "Whse. Get Bin Content"
                             end;
                         end;
                         Find('+');
-                        SetRange("Lot No.");
-                        SetRange("Serial No.");
-                        SetRange("CD No.");
+                        ClearTrackingFilter();
                     end;
                     if DestinationType2 in [DestinationType2::ItemJournalLine, DestinationType2::TransferHeader] then
                         InsertTempTrackingSpec(WarehouseEntry, TrackedQtyToEmptyBase, TempTrackingSpecification);
-                until Next = 0;
+                until Next() = 0;
+
             if TotalTrackedQtyBase > QtyToEmptyBase then
                 exit;
+
             case DestinationType2 of
                 DestinationType2::ItemJournalLine:
-                    ReserveItemJnlLine.RegisterBinContentItemTracking(ItemJournalLine, TempTrackingSpecification);
+                    ItemJnlLineReserve.RegisterBinContentItemTracking(ItemJournalLine, TempTrackingSpecification);
                 DestinationType2::TransferHeader:
-                    ReserveTransferLine.RegisterBinContentItemTracking(TransferLine, TempTrackingSpecification);
+                    TransferLineReserve.RegisterBinContentItemTracking(TransferLine, TempTrackingSpecification);
             end;
         end;
     end;
@@ -402,7 +401,7 @@ report 7391 "Whse. Get Bin Content"
             TempTrackingSpecification."New Serial No." := "Serial No.";
             TempTrackingSpecification.Validate("Lot No.", "Lot No.");
             TempTrackingSpecification."New Lot No." := "Lot No.";
-            TempTrackingSpecification.Validate("CD No.", "CD No.");
+            OnInsertTempTrackingSpecOnAfterAssignTracking(TempTrackingSpecification, WarehouseEntry);
             TempTrackingSpecification."Quantity Handled (Base)" := 0;
             TempTrackingSpecification."Expiration Date" := "Expiration Date";
             TempTrackingSpecification."New Expiration Date" := "Expiration Date";
@@ -421,24 +420,17 @@ report 7391 "Whse. Get Bin Content"
         exit(Round(QtyBase / QtyPerUOM, UOMMgt.QtyRndPrecision));
     end;
 
-    local procedure GetQtyToEmptyBase(LotNo: Code[50]; SerialNo: Code[50]; CDNo: Code[30]): Decimal
+    local procedure GetQtyToEmptyBase(ItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
         BinContent: Record "Bin Content";
     begin
-        with BinContent do begin
-            Init;
-            Copy("Bin Content");
-            FilterGroup(8);
-            if LotNo <> '' then
-                SetRange("Lot No. Filter", LotNo);
-            if SerialNo <> '' then
-                SetRange("Serial No. Filter", SerialNo);
-            if CDNo <> '' then
-                SetRange("CD No. Filter", CDNo);
-            if DestinationType2 = DestinationType2::TransferHeader then
-                exit(CalcQtyAvailToPick(0));
-            exit(CalcQtyAvailToTake(0));
-        end;
+        BinContent.Init();
+        BinContent.Copy("Bin Content");
+        BinContent.FilterGroup(8);
+        BinContent.SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
+        if DestinationType2 = DestinationType2::TransferHeader then
+            exit(BinContent.CalcQtyAvailToPick(0));
+        exit(BinContent.CalcQtyAvailToTake(0));
     end;
 
     [IntegrationEvent(false, false)]
@@ -448,6 +440,11 @@ report 7391 "Whse. Get Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTempTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempTrackingSpecOnAfterAssignTracking(var TempTrackingSpecification: Record "Tracking Specification" temporary; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 

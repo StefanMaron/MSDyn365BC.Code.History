@@ -16,7 +16,7 @@ report 17470 "Export RSV form"
                 Employee: Record Employee;
             begin
                 Employee.SetRange("Person No.", "No.");
-                if Employee.IsEmpty then
+                if Employee.IsEmpty() then
                     CurrReport.Skip();
 
                 TempPerson := Person;

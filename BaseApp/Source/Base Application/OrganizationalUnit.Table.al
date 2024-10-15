@@ -313,7 +313,7 @@ table 12422 "Organizational Unit"
             Type::Heading:
                 begin
                     OrganizationalUnit.SetRange("Parent Code", Code);
-                    if not OrganizationalUnit.IsEmpty then
+                    if not OrganizationalUnit.IsEmpty() then
                         Error('');
                 end;
             Type::Unit:
@@ -383,7 +383,7 @@ table 12422 "Organizational Unit"
 
             Position.Reset();
             Position.SetRange("Org. Unit Code", Code);
-            if not Position.IsEmpty then
+            if not Position.IsEmpty() then
                 Error(Text14700, Code);
         end;
 
@@ -403,7 +403,7 @@ table 12422 "Organizational Unit"
             Position.Reset();
             Position.SetRange("Org. Unit Code", Code);
             Position.SetFilter(Status, '<>%1', Position.Status::Closed);
-            if not Position.IsEmpty then
+            if not Position.IsEmpty() then
                 Error(Text14701, Code);
         end;
 

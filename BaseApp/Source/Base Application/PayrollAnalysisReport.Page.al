@@ -433,7 +433,7 @@ page 14965 "Payroll Analysis Report"
             repeat
                 MatrixColumnCaptions[i] := PayrollAnalysisColumn2."Column Header";
                 i := i + 1;
-            until (PayrollAnalysisColumn2.Next = 0) or (i > ArrayLen(MatrixColumnCaptions));
+            until (PayrollAnalysisColumn2.Next() = 0) or (i > ArrayLen(MatrixColumnCaptions));
     end;
 
     [Scope('OnPrem')]

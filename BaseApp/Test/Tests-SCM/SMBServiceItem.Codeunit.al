@@ -2510,7 +2510,7 @@ codeunit 137510 "SMB Service Item"
             SetRange("Document No.", PurchReceiptNo);
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -2535,7 +2535,7 @@ codeunit 137510 "SMB Service Item"
 
         // Check item Ledger Entries
         ItemLedgEntry.SetRange("Item No.", Item."No.");
-        ItemLedgEntry.FindSet;
+        ItemLedgEntry.FindSet();
         repeat
             if Item.Type = Item.Type::Service then begin
                 Assert.IsFalse(ItemLedgEntry."Applied Entry to Adjust", '');

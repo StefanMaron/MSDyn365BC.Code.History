@@ -1,4 +1,4 @@
-codeunit 2 "Company-Initialize"
+﻿codeunit 2 "Company-Initialize"
 {
     Permissions = TableData "Company Information" = i,
                   TableData "General Ledger Setup" = i,
@@ -183,6 +183,8 @@ codeunit 2 "Company-Initialize"
         Text116: Label 'Cost Allocation';
         Text117: Label 'TRABUD', Comment = 'Uppercase of the translation of Transfer Budget to Actual with a max of 10 char';
         Text118: Label 'Transfer Budget to Actual';
+        InvtReceiptsTxt: Label 'INVTRCPT', Comment = 'INVENTORY RECEIPTS';
+        InvtShipmentsTxt: Label 'INVTSHPT', Comment = 'INVENTORY SHIPMENTS';
         InvtOrderTxt: Label 'INVTORDER', Comment = 'INVENTORY ORDERS';
         Text12400: Label 'ADVSTMT';
         Text12402: Label 'DEFVAT';
@@ -190,8 +192,6 @@ codeunit 2 "Company-Initialize"
         Text12404: Label 'VENDADV';
         Text12407: Label 'CASHORDER';
         Text12408: Label 'VATREINST';
-        Text12450: Label 'ITEMRCPT';
-        Text12452: Label 'ITEMSHPT';
         Text12470: Label 'FARELEASE';
         Text12471: Label 'FAMOVEMENT';
         Text12472: Label 'FAWRITEOFF';
@@ -477,14 +477,14 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("Cost Allocation", Text115, Text116);
                 InsertSourceCode("Transfer Budget to Actual", Text117, Text118);
                 InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
+                InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
+                InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
                 InsertSourceCode("Advance Statements", Text12400, PageName(PAGE::"Advance Statement"));
                 InsertSourceCode("Deferred VAT Settlement", Text12402, PageName(PAGE::"VAT Settlement Journal"));
                 InsertSourceCode("Customer Prepayments", Text12403, SourceCodeSetup.FieldCaption("Customer Prepayments"));
                 InsertSourceCode("Vendor Prepayments", Text12404, SourceCodeSetup.FieldCaption("Vendor Prepayments"));
                 InsertSourceCode("Cash Order Payments", Text12407, SourceCodeSetup.FieldCaption("Cash Order Payments"));
                 InsertSourceCode("Tax Difference Journal", Text17300, PageName(PAGE::"Tax Difference Journal Batches"));
-                InsertSourceCode("Item Receipt", Text12450, SourceCodeSetup.FieldCaption("Item Receipt"));
-                InsertSourceCode("Item Shipment", Text12452, SourceCodeSetup.FieldCaption("Item Shipment"));
                 InsertSourceCode("FA Release", Text12470, SourceCodeSetup.FieldCaption("FA Release"));
                 InsertSourceCode("FA Movement", Text12471, SourceCodeSetup.FieldCaption("FA Movement"));
                 InsertSourceCode("FA Writeoff", Text12472, SourceCodeSetup.FieldCaption("FA Writeoff"));
@@ -500,7 +500,7 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("Other Absence Order", Text14808, PageName(PAGE::"Other Absence Order"));
                 InsertSourceCode("VAT Reinstatement", Text12408, PageName(PAGE::"VAT Reinstatement Journal"));
                 InsertSourceCode("VAT Allocation on Cost", Text14809, SourceCodeSetup.FieldCaption("VAT Allocation on Cost"));
-                Insert;
+                Insert();
             end;
     end;
 
@@ -690,7 +690,7 @@ codeunit 2 "Company-Initialize"
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.FlowIntegration', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Power Automate Integration control add-in',
+          'Power Automate Integration control add-in',
           ApplicationPath + 'Add-ins\FlowIntegration\Microsoft.Dynamics.Nav.Client.FlowIntegration.zip');
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.RoleCenterSelector', '31bf3856ad364e35', '',
@@ -796,7 +796,7 @@ codeunit 2 "Company-Initialize"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000006, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Company", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterCompanyDeleteRemoveReferences(var Rec: Record Company; RunTrigger: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";

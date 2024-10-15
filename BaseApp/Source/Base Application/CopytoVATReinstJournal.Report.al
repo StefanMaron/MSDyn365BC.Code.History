@@ -90,7 +90,7 @@ report 14973 "Copy to VAT Reinst. Journal"
             repeat
                 EntryToPost := NewEntryToPost;
                 EntryToPost.Insert();
-            until NewEntryToPost.Next = 0;
+            until NewEntryToPost.Next() = 0;
 
         EntryToPost.CopyFilters(NewEntryToPost);
         VATEntry.CopyFilters(NewVATEntry);

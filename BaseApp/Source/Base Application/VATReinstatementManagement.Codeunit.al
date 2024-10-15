@@ -58,8 +58,8 @@ codeunit 12418 "VAT Reinstatement Management"
                           VATEntry,
                           PostedFADocHeader."Posting Date",
                           Round(VATEntry.Amount * BookValueAmount / AcqCostAmount));
-                    until VATEntry.Next = 0;
-            until PostedFADocLine.Next = 0;
+                    until VATEntry.Next() = 0;
+            until PostedFADocLine.Next() = 0;
 
         VATReinstJnlForm.Run;
     end;
@@ -161,7 +161,7 @@ codeunit 12418 "VAT Reinstatement Management"
                                 if Insert then;
                             end;
                         end;
-                until VATEntry.Next = 0;
+                until VATEntry.Next() = 0;
             Window.Close;
         end;
     end;
@@ -176,7 +176,7 @@ codeunit 12418 "VAT Reinstatement Management"
         IsCorrection: Boolean;
     begin
         VATDocEntryBuffer.CopyFilters(LineToCopy);
-        LineToCopy.FindSet;
+        LineToCopy.FindSet();
         repeat
             IsCorrection := false;
             if LineToCopy."Document Type" = LineToCopy."Document Type"::"Credit Memo" then
@@ -190,7 +190,7 @@ codeunit 12418 "VAT Reinstatement Management"
                 end;
             CreateVATReinstJnlLinesExclDuplicatedEntriesByUnrealVATEntryNo(
               GenJnlLine, VATEntry, LineToCopy."Entry No.", PostingDate, VATAmountFactor, PostingDescription);
-        until LineToCopy.Next = 0;
+        until LineToCopy.Next() = 0;
 
         VATReinstJnlForm.Run;
     end;
@@ -277,7 +277,7 @@ codeunit 12418 "VAT Reinstatement Management"
                 TempVATEntry.Delete();
             TempVATEntry := VATEntry;
             TempVATEntry.Insert();
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
         TempVATEntry.SetRange("Unrealized VAT Entry No.");
 
         if TempVATEntry.FindSet then
@@ -291,7 +291,7 @@ codeunit 12418 "VAT Reinstatement Management"
                     GenJnlLine.Description := PostingDescription;
                     GenJnlLine.Modify();
                 end;
-            until TempVATEntry.Next = 0;
+            until TempVATEntry.Next() = 0;
     end;
 }
 

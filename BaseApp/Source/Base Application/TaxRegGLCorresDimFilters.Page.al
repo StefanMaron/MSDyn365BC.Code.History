@@ -77,7 +77,7 @@ page 17242 "Tax Reg G/L Corres Dim Filters"
                     Rec := TaxRegDimFilter;
                     Insert;
                 end;
-            until TaxRegDimCorrFilter.Next = 0;
+            until TaxRegDimCorrFilter.Next() = 0;
     end;
 }
 

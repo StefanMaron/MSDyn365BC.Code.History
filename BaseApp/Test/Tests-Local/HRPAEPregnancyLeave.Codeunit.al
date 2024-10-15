@@ -214,7 +214,7 @@ codeunit 144204 "HRP AE Pregnancy Leave"
             LibraryHRP.GetMROT(PayrollPeriod.Code), Round(LibraryHRP.GetFSILimit(PayrollPeriod.Code) / 12, 1), 2);
         InitCommonScenario(EmployeeNo, PayrollPeriod, 25, SalaryAmt);
 
-        PayrollPeriod.FindSet;
+        PayrollPeriod.FindSet();
         repeat
             PeriodCounter += 1;
             if PeriodCounter = 25 then begin
@@ -251,7 +251,7 @@ codeunit 144204 "HRP AE Pregnancy Leave"
         SickLeaveDays[1] := 7; // first sick leave length
         SickLeaveDays[2] := 12; // second sick leave length
 
-        PayrollPeriod.FindSet;
+        PayrollPeriod.FindSet();
         repeat
             PeriodCounter += 1;
             case PeriodCounter of
@@ -359,7 +359,7 @@ codeunit 144204 "HRP AE Pregnancy Leave"
 
         // prepare payroll period for loop
         PayrollPeriod.SetFilter(Code, PeriodCodeFilter);
-        PayrollPeriod.FindSet;
+        PayrollPeriod.FindSet();
     end;
 
     local procedure AECalcForPregnIncome(Mode: Option)
@@ -522,7 +522,7 @@ codeunit 144204 "HRP AE Pregnancy Leave"
         // loop through the all paid sick leaves
         TimeActivity.SetRange("Time Activity Type", TimeActivity."Time Activity Type"::"Sick Leave");
         TimeActivity.SetRange("Paid Activity", true);
-        TimeActivity.FindSet;
+        TimeActivity.FindSet();
         repeat
             if TimeActivityFilter."Activity Code Filter" = '' then
                 TimeActivityFilter."Activity Code Filter" := TimeActivity.Code
@@ -577,7 +577,7 @@ codeunit 144204 "HRP AE Pregnancy Leave"
         with CalendarLine do begin
             SetRange("Calendar Code", CalendarCode);
             SetRange(Date, DateFrom, DateTo);
-            FindSet;
+            FindSet();
             repeat
                 if Status = Status::Open then
                     Release;
@@ -630,7 +630,7 @@ codeunit 144204 "HRP AE Pregnancy Leave"
     begin
         with PostedPayrollDocumentLine do begin
             FilterPostedPayrollDocLine(PostedPayrollDocumentLine, EmployeeNo, Translate.ElementCode(PaySLPregDaysTxt), PeriodCode);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("AE Total Days");
                 Assert.AreEqual(ExpectedDays, "AE Total Days", WrongAEDaysErr);
@@ -644,7 +644,7 @@ codeunit 144204 "HRP AE Pregnancy Leave"
     begin
         with PostedPayrollDocumentLine do begin
             FilterPostedPayrollDocLine(PostedPayrollDocumentLine, EmployeeNo, Translate.ElementCode(PaySLPregDaysTxt), PeriodCode);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(ExpectedDays, "Excluded Days", WrongAEDaysErr);
             until Next = 0;

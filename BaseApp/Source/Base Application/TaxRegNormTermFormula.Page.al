@@ -209,7 +209,7 @@ page 17283 "Tax Reg. Norm Term Formula"
         if not (Count = 3) then
             exit(true);
         ExternReportFormula1.Copy(Rec);
-        ExternReportFormula1.FindSet;
+        ExternReportFormula1.FindSet();
         if ExternReportFormula1."Account No." = '' then begin
             Rec := ExternReportFormula1;
             CurrPage.Update(false);
@@ -221,7 +221,7 @@ page 17283 "Tax Reg. Norm Term Formula"
                 CurrPage.Update(false);
                 ExternReportFormula1.TestField("Bal. Account No.");
             end;
-        until ExternReportFormula1.Next = 0;
+        until ExternReportFormula1.Next() = 0;
     end;
 
     var

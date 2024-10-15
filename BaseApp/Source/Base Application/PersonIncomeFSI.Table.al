@@ -133,11 +133,11 @@ table 17396 "Person Income FSI"
                                         repeat
                                             if PstdPayrollDocLine."FSI Base" or PstdPayrollDocLine."FSI Injury Base" then
                                                 PersonIncomeMgt.CreateSocialTaxLine(PstdPayrollDocLine);
-                                        until PstdPayrollDocLine.Next = 0;
+                                        until PstdPayrollDocLine.Next() = 0;
                                 end;
-                            until PstdPayrollDocHeader.Next = 0;
-                    until PayrollPeriod.Next = 0;
-            until Employee.Next = 0;
+                            until PstdPayrollDocHeader.Next() = 0;
+                    until PayrollPeriod.Next() = 0;
+            until Employee.Next() = 0;
     end;
 }
 

@@ -102,7 +102,7 @@ page 6504 "Serial No. Information Card"
                     RunPageLink = Type = CONST("Serial No."),
                                   "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
-                                  "Serial/Lot/CD No." = FIELD("Serial No.");
+                                  "Serial/Lot No." = FIELD("Serial No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 separator(Action24)
@@ -183,9 +183,11 @@ page 6504 "Serial No. Information Card"
 
                 trigger OnAction()
                 var
+                    ItemTrackingSetup: Record "Item Tracking Setup";
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetTracking("Serial No.", '', '');
+                    ItemTrackingSetup."Serial No." := Rec."Serial No.";
+                    Navigate.SetTracking(ItemTrackingSetup);
                     Navigate.Run;
                 end;
             }

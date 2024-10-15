@@ -31,7 +31,7 @@ table 17436 "Vacation Schedule Line"
                             then
                                 Error(Text001,
                                   VacationScheduleLine."Start Date", VacationScheduleLine."End Date", VacationScheduleLine."Line No.");
-                        until VacationScheduleLine.Next = 0;
+                        until VacationScheduleLine.Next() = 0;
 
                     Employee.GetJobEntry("Employee No.", "Start Date", EmployeeJobEntry);
                     "Calendar Days" :=
@@ -184,7 +184,7 @@ table 17436 "Vacation Schedule Line"
                     VacationScheduleLine2.Reset();
                     VacationScheduleLine2.SetRange(Year, Year);
                     VacationScheduleLine2.SetRange("Employee No.", Employee."No.");
-                    if VacationScheduleLine2.IsEmpty then begin
+                    if VacationScheduleLine2.IsEmpty() then begin
                         VacationScheduleLine2.Init();
                         VacationScheduleLine2.Validate(Year, Year);
                         VacationScheduleLine2.Validate("Employee No.", Employee."No.");
@@ -194,7 +194,7 @@ table 17436 "Vacation Schedule Line"
                         LineNo += 10000;
                     end;
                 end;
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 }
 

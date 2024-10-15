@@ -21,7 +21,7 @@ page 17459 "Other Absence Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("HR Order No."; "HR Order No.")
@@ -105,7 +105,7 @@ page 17459 "Other Absence Order"
                     trigger OnAction()
                     begin
                         ShowDocDim;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Co&mments")

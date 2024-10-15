@@ -193,7 +193,7 @@ table 12471 "Posted FA Doc. Header"
             repeat
                 Index += 1;
                 Comment[Index] := PostedFAComment.Comment
-            until (PostedFAComment.Next = 0) or (Index = ArrayLen(Comment));
+            until (PostedFAComment.Next() = 0) or (Index = ArrayLen(Comment));
     end;
 
     [Scope('OnPrem')]

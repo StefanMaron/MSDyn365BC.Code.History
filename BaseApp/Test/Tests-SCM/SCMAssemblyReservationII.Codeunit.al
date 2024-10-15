@@ -169,6 +169,17 @@ codeunit 137925 "SCM Assembly Reservation II"
           AssemblyHeader, IDcode20('asm'), Item."No.", LocationCode, VariantCode, AvailabilityDate, AvailableToReserve, AvailableToReserve, 1);
 
         // Create Reservation Entry
+#if CLEAN17
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Sales Line",
+          SalesLine."Document Type".AsInteger(),
+          SalesLine."Document No.",
+          '',
+          0, SalesLine."Line No.",
+          SalesLine."Variant Code",
+          SalesLine."Location Code",
+          SalesLine."Qty. per Unit of Measure");
+#else
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Sales Line",
           SalesLine."Document Type".AsInteger(),
@@ -178,6 +189,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           SalesLine."Variant Code",
           SalesLine."Location Code", '', '', '',
           SalesLine."Qty. per Unit of Measure");
+#endif
         AsmHeaderReserve.CreateReservationSetFrom(TrackingSpecification);
         asserterror
           AsmHeaderReserve.CreateReservation(
@@ -233,9 +245,15 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         // Create Reservation Entry
         SalesLineReserve.SetBinding(ReservEntry2.Binding::"Order-to-Order");
+#if CLEAN17
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
+          AssemblyHeader."Variant Code", AssemblyHeader."Location Code", AssemblyHeader."Qty. per Unit of Measure");
+#else
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
           AssemblyHeader."Variant Code", AssemblyHeader."Location Code", '', '', '', AssemblyHeader."Qty. per Unit of Measure");
+#endif
         SalesLineReserve.CreateReservationSetFrom(TrackingSpecification);
         SalesLineReserve.CreateReservation(
           SalesLine, AssemblyHeader.Description, AssemblyHeader."Due Date", 0, QtyToReserve, '', '', '');
@@ -678,9 +696,15 @@ codeunit 137925 "SCM Assembly Reservation II"
           AssemblyLine, IDcode20('asm'), Item."No.", LocationCode, VariantCode, AvailabilityDate, QtyToReserve, QtyToReserve, 1, 10000);
 
         // Create Reservation Entry
+#if CLEAN17
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
+          AssemblyHeader."Variant Code", AssemblyHeader."Location Code", AssemblyHeader."Qty. per Unit of Measure");
+#else
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
           AssemblyHeader."Variant Code", AssemblyHeader."Location Code", '', '', '', AssemblyHeader."Qty. per Unit of Measure");
+#endif
         AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
         AssemblyLineReserve.CreateReservation(
           AssemblyLine, AssemblyHeader.Description, AssemblyHeader."Due Date", 0, QtyToReserve, '', '', '');
@@ -1355,6 +1379,17 @@ codeunit 137925 "SCM Assembly Reservation II"
           AssemblyLine, IDcode20('asm'), Item."No.", LocationCode, VariantCode, AvailabilityDate, QtyToReserve, QtyToReserve, 1, 10000);
 
         // Create Reservation Entry
+#if CLEAN17
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Purchase Line",
+          PurchLine."Document Type".AsInteger(),
+          PurchLine."Document No.",
+          '',
+          0, PurchLine."Line No.",
+          PurchLine."Variant Code",
+          PurchLine."Location Code",
+          PurchLine."Qty. per Unit of Measure");
+#else
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Purchase Line",
           PurchLine."Document Type".AsInteger(),
@@ -1364,6 +1399,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           PurchLine."Variant Code",
           PurchLine."Location Code", '', '', '',
           PurchLine."Qty. per Unit of Measure");
+#endif
         AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
         AssemblyLineReserve.CreateReservation(
           AssemblyLine,
@@ -1400,6 +1436,17 @@ codeunit 137925 "SCM Assembly Reservation II"
           AssemblyHeader, IDcode20('asm'), Item."No.", LocationCode, VariantCode, AvailabilityDate, QtyToReserve, QtyToReserve, 1);
 
         // Create Reservation Entry
+#if CLEAN17
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Sales Line",
+          SalesLine."Document Type".AsInteger(),
+          SalesLine."Document No.",
+          '',
+          0, SalesLine."Line No.",
+          SalesLine."Variant Code",
+          SalesLine."Location Code",
+          SalesLine."Qty. per Unit of Measure");
+#else
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Sales Line",
           SalesLine."Document Type".AsInteger(),
@@ -1409,6 +1456,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           SalesLine."Variant Code",
           SalesLine."Location Code", '', '', '',
           SalesLine."Qty. per Unit of Measure");
+#endif
         AsmHeaderReserve.CreateReservationSetFrom(TrackingSpecification);
         AsmHeaderReserve.CreateReservation(
           AssemblyHeader,

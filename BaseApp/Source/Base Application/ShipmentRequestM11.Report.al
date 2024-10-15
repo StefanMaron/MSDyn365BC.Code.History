@@ -119,7 +119,7 @@ report 12471 "Shipment Request M-11"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    HeaderBuffer.FindSet;
+                    HeaderBuffer.FindSet();
                     FillReportHeader1;
                 end else
                     HeaderBuffer.Next;
@@ -157,7 +157,7 @@ report 12471 "Shipment Request M-11"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    LineBuffer.FindSet;
+                    LineBuffer.FindSet();
                     InventoryReportsHelper.FillM11PageHeader;
                 end else
                     LineBuffer.Next;
@@ -385,7 +385,7 @@ report 12471 "Shipment Request M-11"
                       InventoryPostingSetup."Inventory Account");
 
                     LineBuffer.Insert();
-                until TransferLine.Next = 0;
+                until TransferLine.Next() = 0;
         end;
     end;
 
@@ -428,7 +428,7 @@ report 12471 "Shipment Request M-11"
                       InventoryPostingSetup."Inventory Account");
 
                     LineBuffer.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -474,7 +474,7 @@ report 12471 "Shipment Request M-11"
                       InventoryPostingSetup."Inventory Account");
 
                     LineBuffer.Insert();
-                until TransferReceiptLine.Next = 0;
+                until TransferReceiptLine.Next() = 0;
         end;
     end;
 
@@ -517,7 +517,7 @@ report 12471 "Shipment Request M-11"
                       InventoryPostingSetup."Inventory Account");
 
                     LineBuffer.Insert();
-                until TransferShipmentLine.Next = 0;
+                until TransferShipmentLine.Next() = 0;
         end;
     end;
 

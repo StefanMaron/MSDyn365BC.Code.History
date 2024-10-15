@@ -111,7 +111,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                                 if DtldVendLedgEntry.FindSet then
                                     repeat
                                         GetRealVATDate(PurchVATEntryAdd, DtldVendLedgEntry."Transaction No.", RealVATEntryDate);
-                                    until DtldVendLedgEntry.Next = 0;
+                                    until DtldVendLedgEntry.Next() = 0;
                             end;
                         end;
                     end else
@@ -134,7 +134,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                                 if DtldVendLedgEntry.FindSet then
                                     repeat
                                         GetPurchPaymentDateDocNo(DtldVendLedgEntry."Transaction No.", PaymentDate, PaymentDocNo);
-                                    until DtldVendLedgEntry.Next = 0;
+                                    until DtldVendLedgEntry.Next() = 0;
                             end;
                         end;
                     end;
@@ -325,7 +325,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                                 if DtldVendLedgEntry.FindSet then
                                     repeat
                                         GetRealVATDate(PurchVATEntry, DtldVendLedgEntry."Transaction No.", RealVATEntryDate);
-                                    until DtldVendLedgEntry.Next = 0;
+                                    until DtldVendLedgEntry.Next() = 0;
                             end;
                         end;
                     end else
@@ -356,7 +356,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                                     repeat
                                         if not DtldVendLedgEntry.Unapplied then
                                             GetPurchPaymentDateDocNo(DtldVendLedgEntry."Transaction No.", PaymentDate, PaymentDocNo);
-                                    until DtldVendLedgEntry.Next = 0;
+                                    until DtldVendLedgEntry.Next() = 0;
                             end;
 
                             ADinTA := false;
@@ -370,7 +370,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                             Base := Base + VATEntry.Base;
                             Amount := Amount + VATEntry.Amount;
                             MakePurchLedger(PurchVATEntry, VATLedgerLineBuffer);
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
                 end;
 
                 trigger OnPostDataItem()
@@ -397,9 +397,9 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                CustDeclLineBuffer.Find('-')
+                                PackageNoInfo.Find('-')
                             else
-                                CustDeclLineBuffer.Next;
+                                PackageNoInfo.Next();
                         end;
 
                         trigger OnPreDataItem()
@@ -418,7 +418,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                             if not VATLedgerLineBuffer.FindFirst then
                                 CurrReport.Break();
                         end else
-                            if VATLedgerLineBuffer.Next = 0 then
+                            if VATLedgerLineBuffer.Next() = 0 then
                                 CurrReport.Break();
 
                         VATLedgerLineBuffer."Sales Tax Amount" := VATLedgerLineBuffer."Sales Tax Amount" + VATLedgerLineBuffer."Full Sales Tax Amount";
@@ -459,15 +459,15 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                             repeat
                                 ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.");
                                 if CDNo = '' then begin
-                                    CDNo := ItemLedgerEntry."CD No.";
+                                    CDNo := ItemLedgerEntry."Package No.";
                                     // CountryCode := ItemLedgerEntry."Country/Region of Origin Code";
                                 end else begin
-                                    if ItemLedgerEntry."CD No." <> CDNo then
+                                    if ItemLedgerEntry."Package No." <> CDNo then
                                         CDNo := Text12403;
                                     //IF ItemLedgerEntry."Country/Region of Origin Code" <> CountryCode THEN
                                     //  CountryCode := Text12403;
                                 end;
-                            until ValueEntry.Next = 0;
+                            until ValueEntry.Next() = 0;
 
                         ChangeNoBuf.Get(VATLedgerLineBuffer."Line No.");
                         VATLedgerLine.Get(VATLedgerLineBuffer.Type, VATLedgerLineBuffer.Code, ChangeNoBuf."Closed by Entry No.");
@@ -725,7 +725,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
         VATLedgerConnBuffer: Record "VAT Ledger Connection" temporary;
         AmountBuffer: Record "VAT Ledger Line" temporary;
         TotalBuffer: Record "VAT Ledger Line" temporary;
-        CustDeclLineBuffer: Record "CD No. Information" temporary;
+        PackageNoInfo: Record "Package No. Information" temporary;
         ChangeNoBuf: Record "VAT Entry" temporary;
         VATLedgMgt: Codeunit "VAT Ledger Management";
         CorrDocMgt: Codeunit "Corrective Document Mgt.";
@@ -740,7 +740,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
         DocPostingDate: Date;
         OtherPercents: Option "Not Select",Total,Detail;
         UseExternal: Boolean;
-        CDNo: Code[30];
+        CDNo: Code[50];
         CountryCode: Code[10];
         OrigDocNo: Code[20];
         Text12400: Label 'cannot be %1 if Tax Invoice Amount Type is %2';
@@ -963,7 +963,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                 LedgerBuffer.SetRange("Revision of Corr. No.", '');
             end;
 
-            if LedgerBuffer.IsEmpty then begin
+            if LedgerBuffer.IsEmpty() then begin
                 LedgerBuffer.Init();
                 LineNo := LineNo + 1;
                 LedgerBuffer.Type := VATLedgerName.Type;
@@ -1119,7 +1119,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                     VATLedgerConnBuffer.SetRange("Purch. Ledger Line No.", VATLedgerLineBuffer."Line No.");
                     VATLedgerConnBuffer.DeleteAll();
                 end;
-            until VATLedgerLineBuffer.Next = 0;
+            until VATLedgerLineBuffer.Next() = 0;
 
         VATLedgerConnBuffer.Reset();
         if VATLedgerConnBuffer.FindSet then
@@ -1128,7 +1128,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                 ChangeNoBuf.Get(VATLedgerConnBuffer."Purch. Ledger Line No.");
                 VATLedgerConnection."Purch. Ledger Line No." := ChangeNoBuf."Closed by Entry No.";
                 VATLedgerConnection.Insert();
-            until VATLedgerConnBuffer.Next = 0;
+            until VATLedgerConnBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1162,7 +1162,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                     if RealVATDate < TempDate then
                         RealVATDate := TempDate;
                 end;
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

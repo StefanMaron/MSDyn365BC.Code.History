@@ -924,7 +924,7 @@ codeunit 144008 "ERM VAT Allocation"
         with VATAllocLine do begin
             SetRange(Type, Type::VAT);
             SetRange("Account No.", AccNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(DimSetID, "Dimension Set ID", WrongDimSetIDErr);
             until Next = 0;

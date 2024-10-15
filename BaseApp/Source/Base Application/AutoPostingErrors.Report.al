@@ -804,7 +804,7 @@
         GenJnlLine := "Gen. Journal Line";
         LastLineNo := "Gen. Journal Line"."Line No.";
         NextGenJnlLine := "Gen. Journal Line";
-        if NextGenJnlLine.Next = 0 then;
+        if NextGenJnlLine.Next() = 0 then;
         MakeRecurringTexts(NextGenJnlLine);
         with GenJnlLine do
             if not EmptyLine then begin
@@ -1687,7 +1687,7 @@
             end;
             DimensionText := DimensionText + Separator + DimValue;
             Separator := '; ';
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
         exit(DimensionText);
     end;
 

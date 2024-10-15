@@ -78,7 +78,7 @@ report 14972 "Suggest VAT Reinst. Lines"
             repeat
                 NewVATDocumentEntryBuffer := VATDocumentEntryBuffer;
                 NewVATDocumentEntryBuffer.Insert();
-            until VATDocumentEntryBuffer.Next = 0;
+            until VATDocumentEntryBuffer.Next() = 0;
     end;
 }
 

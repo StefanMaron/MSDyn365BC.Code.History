@@ -1517,7 +1517,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
         // 3.Verify: Verify G/L Budget Entry.
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
-        GLBudgetEntry.FindSet;
+        GLBudgetEntry.FindSet();
         repeat
             Assert.IsTrue(GLBudgetEntry."Global Dimension 1 Code" <> '', CopyDimToBudgetEntryErr);
             Assert.IsTrue(GLBudgetEntry."Global Dimension 2 Code" <> '', CopyDimToBudgetEntryErr);
@@ -2074,7 +2074,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         with GenJournalLine do begin
             SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
             SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-            FindSet;
+            FindSet();
             GenJournalBatch.Get("Journal Template Name", "Journal Batch Name");
             if CountPostDepreciationNumber <= 1 then begin
                 GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
@@ -2425,6 +2425,8 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     [Scope('OnPrem')]
     procedure RHFixedAssetGLAnalysis(var FixedAssetGLAnalysis: TestRequestPage "Fixed Asset - G/L Analysis")
     var
+        FileName: Text;
+        ParametersFileName: Text;
         FixedAssetNo: Variant;
         DepreciationBookCode: Variant;
         StartingDate: Variant;
@@ -2462,7 +2464,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FixedAssetGLAnalysis.Period1.SetValue(Period);
         FixedAssetGLAnalysis.GroupTotals.SetValue(GroupTotals);
         FixedAssetGLAnalysis.OnlySoldAssets.SetValue(OnlySoldAssets);
-        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ParametersFileName := LibraryReportDataset.GetParametersFileName();
+        FileName := LibraryReportDataset.GetFileName();
+        FixedAssetGLAnalysis.SaveAsXml(ParametersFileName, FileName);
     end;
 
     [RequestPageHandler]
@@ -2497,6 +2501,8 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     [Scope('OnPrem')]
     procedure RHFAGLAnalysis(var FixedAssetGLAnalysis: TestRequestPage "Fixed Asset - G/L Analysis")
     var
+        FileName: Text;
+        ParametersFileName: Text;
         StartingDate: Variant;
         EndingDate: Variant;
         DateField1: Variant;
@@ -2533,7 +2539,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FixedAssetGLAnalysis.GroupTotals.SetValue(GroupTotals);
         FixedAssetGLAnalysis.PrintperFixedAsset.SetValue(PrintperFixedAsset);
         FixedAssetGLAnalysis.OnlySoldAssets.SetValue(OnlySoldAssets);
-        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ParametersFileName := LibraryReportDataset.GetParametersFileName();
+        FileName := LibraryReportDataset.GetFileName();
+        FixedAssetGLAnalysis.SaveAsXml(ParametersFileName, FileName);
     end;
 
     [RequestPageHandler]

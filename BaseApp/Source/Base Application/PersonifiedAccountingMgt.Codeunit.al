@@ -229,7 +229,7 @@ codeunit 17460 "Personified Accounting Mgt."
             repeat
                 Counter += 1;
                 AddEmployeeForm(Counter, Employee, FillingDate);
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
 
         if not TestMode then
             SaveXMLFile(XmlDoc, FileName);
@@ -322,7 +322,7 @@ codeunit 17460 "Personified Accounting Mgt."
                 FillExcelRow('J58', 25, CopyStr(PersonDocument."Issue Authority", 1, 25));
                 FillExcelRow('J60', 25, CopyStr(PersonDocument."Issue Authority", 26, 25));
                 FillADV1Date('B65', FillingDate);
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
 
         if TestMode then
             ExcelMgt.CloseBook
@@ -351,7 +351,7 @@ codeunit 17460 "Personified Accounting Mgt."
         EmployeePeriodStartDate: Date;
         EmployeePeriodEndDate: Date;
     begin
-        if Employee.IsEmpty then
+        if Employee.IsEmpty() then
             exit;
 
         CompanyInfo.Get();
@@ -385,7 +385,7 @@ codeunit 17460 "Personified Accounting Mgt."
                             FitPeriodToLaborContract(Employee, EmployeePeriodStartDate, EmployeePeriodEndDate);
                             GetDisabilityPeriods(Employee, EmployeePeriodStartDate, EmployeePeriodEndDate, TempPersonMedicalInfoDisability);
                             DisabilityPeriodBufferCounter := 0;
-                            TempPersonMedicalInfoDisability.FindSet;
+                            TempPersonMedicalInfoDisability.FindSet();
                             repeat
                                 DisabilityPeriodBufferCounter += 1;
                                 if DisabilityPeriodBufferCounter > 1 then begin
@@ -413,8 +413,8 @@ codeunit 17460 "Personified Accounting Mgt."
                                           TempPersonMedicalInfoDisability."Starting Date", TempPersonMedicalInfoDisability."Ending Date",
                                           InfoType, TempPersonMedicalInfoDisability."Disability Group", AnalysisReportName);
                                 end;
-                            until TempPersonMedicalInfoDisability.Next = 0;
-                        until Employee.Next = 0;
+                            until TempPersonMedicalInfoDisability.Next() = 0;
+                        until Employee.Next() = 0;
                     if not TestMode then
                         ExcelMgt.DeleteSheet(TemplateSheetName);
                 end;
@@ -516,7 +516,7 @@ codeunit 17460 "Personified Accounting Mgt."
                     TempPersonMedicalInfoDisability.Reset();
                     TempPersonMedicalInfoDisability.SetRange("Employee No.", Employee."No.");
                     TempPersonMedicalInfoDisability.SetRange("Disability Group", CategoryType);
-                    TempPersonMedicalInfoDisability.FindSet;
+                    TempPersonMedicalInfoDisability.FindSet();
                     j := 0;
                     repeat
                         j += 1;
@@ -535,8 +535,8 @@ codeunit 17460 "Personified Accounting Mgt."
                         ExcelMgt.FillCellWithTextFormat('ER' + Format(RowNo), FormatDate(TempPersonMedicalInfoDisability."Starting Date"));
                         ExcelMgt.FillCellWithTextFormat('FH' + Format(RowNo), FormatDate(TempPersonMedicalInfoDisability."Ending Date"));
                         RowNo += 1;
-                    until TempPersonMedicalInfoDisability.Next = 0;
-                until Employee.Next = 0;
+                    until TempPersonMedicalInfoDisability.Next() = 0;
+                until Employee.Next() = 0;
 
             if i > 0 then
                 FillInsAndAccumAmounts(
@@ -787,7 +787,7 @@ codeunit 17460 "Personified Accounting Mgt."
                 RowNo += 1;
                 if (i > RowCount) and (i < ExperienceBuffer.Count) then
                     ExcelMgt.CopyRow(RowNo - 1);
-            until ExperienceBuffer.Next = 0;
+            until ExperienceBuffer.Next() = 0;
         end;
     end;
 
@@ -844,14 +844,14 @@ codeunit 17460 "Personified Accounting Mgt."
     var
         CategoryType: Option WithoutDisability,WithDisability;
     begin
-        if not EmpWithoutDisabilityBuffer.IsEmpty then begin
+        if not EmpWithoutDisabilityBuffer.IsEmpty() then begin
             CreateSVFormXML(
               FormType, EmpWithoutDisabilityBuffer, DisabilityPeriodBuffer, StartDate, EndDate, CreationDate,
               InfoType, CompanyPackNo, DepartmentNo, DepartmentPackNo, CategoryType::WithoutDisability, TemplateName);
             CompanyPackNo += 1;
         end;
 
-        if not EmpWithDisabilityBuffer.IsEmpty then begin
+        if not EmpWithDisabilityBuffer.IsEmpty() then begin
             CreateSVFormXML(
               FormType, EmpWithDisabilityBuffer, DisabilityPeriodBuffer, StartDate, EndDate, CreationDate,
               InfoType, CompanyPackNo, DepartmentNo, DepartmentPackNo, CategoryType::WithDisability, TemplateName);
@@ -873,7 +873,7 @@ codeunit 17460 "Personified Accounting Mgt."
                         EmplCivilBuffer.Copy(EmplBuffer);
                         EmplCivilBuffer.Insert();
                     end;
-            until EmplBuffer.Next = 0;
+            until EmplBuffer.Next() = 0;
     end;
 
     local procedure CreateSVFormXML(FormType: Option SPV_1,SZV_6_1,SZV_6_2,SZV_6_3,SZV_6_4; var Employee: Record Employee; var TempPersonMedicalInfoDisability: Record "Person Medical Info" temporary; StartDate: Date; EndDate: Date; CreationDate: Date; InfoType: Option Initial,Corrective,Cancel; CompanyPackNo: Integer; DepartmentNo: Integer; DepartmentPackNo: Integer; CategoryType: Option WithoutDisability,WithDisability; TemplateName: Code[10])
@@ -936,8 +936,8 @@ codeunit 17460 "Personified Accounting Mgt."
                         TotalInsurAmount += InsurAmount;
                         TotalAccumAmount += AccumAmount;
                         DocCounter += 1;
-                    until TempPersonMedicalInfoDisability.Next = 0;
-            until Employee.Next = 0;
+                    until TempPersonMedicalInfoDisability.Next() = 0;
+            until Employee.Next() = 0;
 
         AddIncomingListInfo(
           FormType, Counter, DocCounter, CompanyPackNo, Employee, CreationDate, StartDate, EndDate,
@@ -974,8 +974,8 @@ codeunit 17460 "Personified Accounting Mgt."
                                   TempPersonMedicalInfoDisability."Starting Date", TempPersonMedicalInfoDisability."Ending Date",
                                   CreationDate, InfoType, CategoryType, TemplateName);
                         end;
-                    until TempPersonMedicalInfoDisability.Next = 0;
-            until Employee.Next = 0;
+                    until TempPersonMedicalInfoDisability.Next() = 0;
+            until Employee.Next() = 0;
 
         if not TestMode then
             SaveXMLFile(XmlDoc, FileName);
@@ -1277,7 +1277,7 @@ codeunit 17460 "Personified Accounting Mgt."
                 XMLAddSimpleElement(PeriodStartDateTxt, FormatDate(ExperienceBuffer."Starting Date"));
                 XMLAddSimpleElement(PeriodEndDateTxt, FormatDate(ExperienceBuffer."Ending Date"));
                 XMLBackToParent;
-            until ExperienceBuffer.Next = 0;
+            until ExperienceBuffer.Next() = 0;
     end;
 
     local procedure AddPeriodInfo(StartDate: Date; EndDate: Date)
@@ -1916,7 +1916,7 @@ codeunit 17460 "Personified Accounting Mgt."
                 TimeActivity.Get(EmployeeAbsenceEntry."Time Activity Code");
                 if TimeActivity."PF Reporting Absence Code" <> '' then
                     exit(SZVType::"SZV-6-1");
-            until EmployeeAbsenceEntry.Next = 0;
+            until EmployeeAbsenceEntry.Next() = 0;
 
         FilterLaborContract(LaborContract, Employee."No.", StartDate, EndDate);
         LaborContract.SetRange("Contract Type", LaborContract."Contract Type"::"Civil Contract");
@@ -1934,7 +1934,7 @@ codeunit 17460 "Personified Accounting Mgt."
                 repeat
                     if LaborContractLine.HasSpecialWorkConditions then
                         exit(SZVType::"SZV-6-1");
-                until LaborContractLine.Next = 0;
+                until LaborContractLine.Next() = 0;
         end;
 
         exit(SZVType::"SZV-6-2");
@@ -2063,12 +2063,12 @@ codeunit 17460 "Personified Accounting Mgt."
             LaborContractLine.SetRange(Status, LaborContractLine.Status::Approved);
             LaborContractLine.SetFilter("Starting Date", '..%1', EndDate);
             LaborContractLine.SetFilter("Ending Date", '..%1|%2', EndDate, 0D);
-            LaborContractLine.FindSet;
+            LaborContractLine.FindSet();
             repeat
                 if LaborContract.Status = LaborContract.Status::Closed then
                     LaborContractLine."Ending Date" := LaborContract."Ending Date";
                 AddPeriod(ExperienceBuffer, LaborContractLine, StartDate, EndDate);
-            until LaborContractLine.Next = 0;
+            until LaborContractLine.Next() = 0;
         end;
 
         LaborContract.SetRange("Contract Type", LaborContract."Contract Type"::"Civil Contract");
@@ -2094,7 +2094,7 @@ codeunit 17460 "Personified Accounting Mgt."
                     LaborContractLine."Record of Service Additional" := TimeActivity."PF Reporting Absence Code";
                     AddPeriod(ExperienceBuffer, LaborContractLine, StartDate, EndDate);
                 end;
-            until EmployeeAbsenceEntry.Next = 0;
+            until EmployeeAbsenceEntry.Next() = 0;
     end;
 
     local procedure AddPeriod(var ExperienceBuffer: Record "Labor Contract Line"; Period: Record "Labor Contract Line"; StartDate: Date; EndDate: Date)
@@ -2188,7 +2188,7 @@ codeunit 17460 "Personified Accounting Mgt."
                             NewExperienceBuffer.Insert();
                         end;
                         end;
-            until ExperienceBuffer.Next = 0
+            until ExperienceBuffer.Next() = 0
         else begin
             NewExperienceBuffer."Starting Date" := Period."Starting Date";
             NewExperienceBuffer."Supplement No." := FormatDateSupplement(NewExperienceBuffer."Starting Date");
@@ -2204,7 +2204,7 @@ codeunit 17460 "Personified Accounting Mgt."
             repeat
                 ExperienceBuffer := NewExperienceBuffer;
                 ExperienceBuffer.Insert();
-            until NewExperienceBuffer.Next = 0;
+            until NewExperienceBuffer.Next() = 0;
     end;
 
     local procedure CopyPeriodSpecialConditions(PeriodFrom: Record "Labor Contract Line"; var PeriodTo: Record "Labor Contract Line")
@@ -2290,7 +2290,7 @@ codeunit 17460 "Personified Accounting Mgt."
                     TempPersonMedicalInfoDisability."Disability Group" := TempPersonMedicalInfoDisability."Disability Group"::"1";
                     TempPersonMedicalInfoDisability.Insert();
                 end;
-            until PersonMedicalInfo.Next = 0;
+            until PersonMedicalInfo.Next() = 0;
 
             if PeriodEndDate < EndDate then begin
                 TempPersonMedicalInfoDisability.Init();
@@ -2351,7 +2351,7 @@ codeunit 17460 "Personified Accounting Mgt."
                             WithoutDisabilityPeriod := true
                         else
                             WithDisabilityPeriod := true;
-                    until TempPersonMedicalInfoPeriod.Next = 0;
+                    until TempPersonMedicalInfoPeriod.Next() = 0;
 
                 if WithDisabilityPeriod then begin
                     TempEmployeeWithDisability := Employee;
@@ -2362,7 +2362,7 @@ codeunit 17460 "Personified Accounting Mgt."
                     TempEmployeeWithoutDisability := Employee;
                     TempEmployeeWithoutDisability.Insert();
                 end;
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 
     local procedure GetCategoryCode(CategoryType: Option): Code[10]
@@ -2421,7 +2421,7 @@ codeunit 17460 "Personified Accounting Mgt."
                 if Person."Birthplace Type" = Person."Birthplace Type"::Standard then
                     if not GetAddressByType(Person."No.", AddressType::Birthplace, AlternativeAddress) then
                         Error(Text014, Text016, Person."No.");
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 
     local procedure GetHRSetup()

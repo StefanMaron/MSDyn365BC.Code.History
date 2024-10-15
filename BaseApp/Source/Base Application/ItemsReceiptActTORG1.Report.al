@@ -131,10 +131,10 @@ report 14918 "Items Receipt Act TORG-1"
                     CurrReport.Break();
             end;
         }
-        dataitem("Item Document Header"; "Item Document Header")
+        dataitem("Invt. Document Header"; "Invt. Document Header")
         {
             DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Receipt));
-            dataitem("Item Document Line"; "Item Document Line")
+            dataitem("Invt. Document Line"; "Invt. Document Line")
             {
                 DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
                 DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
@@ -178,8 +178,8 @@ report 14918 "Items Receipt Act TORG-1"
             trigger OnAfterGetRecord()
             begin
                 FillHeaderBuffer(
-                  DATABASE::"Item Document Header",
-                  "Document Type",
+                  DATABASE::"Invt. Document Header",
+                  "Document Type".AsInteger(),
                   "No.",
                   "Document Date",
                   "Posting Date",
@@ -198,10 +198,10 @@ report 14918 "Items Receipt Act TORG-1"
                     CurrReport.Break();
             end;
         }
-        dataitem("Item Receipt Header"; "Item Receipt Header")
+        dataitem("Invt. Receipt Header"; "Invt. Receipt Header")
         {
             DataItemTableView = SORTING("No.");
-            dataitem("Item Receipt Line"; "Item Receipt Line")
+            dataitem("Invt. Receipt Line"; "Invt. Receipt Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
                 DataItemTableView = SORTING("Document No.", "Line No.");
@@ -246,7 +246,7 @@ report 14918 "Items Receipt Act TORG-1"
             trigger OnAfterGetRecord()
             begin
                 FillHeaderBuffer(
-                  DATABASE::"Item Document Header",
+                  DATABASE::"Invt. Document Header",
                   "Purchase Document Type"::Quote.AsInteger(),
                   "No.",
                   "Document Date",
@@ -802,7 +802,7 @@ report 14918 "Items Receipt Act TORG-1"
                         TempPurchLine.Quantity := TempPurchLine."Qty. to Receive";
                     TempPurchLine.Insert();
 
-                until PurchLine.Next = 0;
+                until PurchLine.Next() = 0;
             PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmtToReceive, TempPurchLine, 0,
               TotalAmount, TotalAmountInclVAT, TotalAmountLCY, TotalAmountInclVATLCY);
         end;

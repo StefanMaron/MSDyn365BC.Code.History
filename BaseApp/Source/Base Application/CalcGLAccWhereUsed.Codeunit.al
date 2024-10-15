@@ -274,7 +274,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         if FillTableBuffer(TableBuffer) then
             repeat
                 CheckTable(GLAccNo, TableBuffer.Number);
-            until TableBuffer.Next = 0;
+            until TableBuffer.Next() = 0;
 
         OnAfterCheckPostingGroups(GLAccWhereUsed, GLAccNo);
     end;
@@ -342,7 +342,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                 Field.Get(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.");
                 if (Field.Class = Field.Class::Normal) and (Field.ObsoleteState <> Field.ObsoleteState::Removed) then
                     CheckField(RecRef, TableRelationsMetadata, GLAccNo);
-            until TableRelationsMetadata.Next = 0;
+            until TableRelationsMetadata.Next() = 0;
     end;
 
     local procedure CheckField(var RecRef: RecordRef; TableRelationsMetadata: Record "Table Relations Metadata"; GLAccNo: Code[20])
@@ -356,7 +356,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         if RecRef.FindSet then
             repeat
                 InsertGroupFromRecRef(RecRef, FieldRef.Caption);
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
     end;
 
     local procedure SetConditionFilter(var RecRef: RecordRef; TableRelationsMetadata: Record "Table Relations Metadata")

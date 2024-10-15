@@ -114,12 +114,20 @@ page 9888 "SmartList Mgmt"
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     Scope = Repeater;
-                    ToolTip = 'Delete a SmartList query.';
+                    ToolTip = 'Delete selected SmartList queries.';
 
                     trigger OnAction()
+                    var
+                        QueryManagement: Record "Designed Query Management";
                     begin
-                        if Confirm(ConfirmDeleteQueryTxt, false, Rec."Object ID", Rec."Object Name") then
-                            Rec.Delete();
+                        CurrPage.SetSelectionFilter(QueryManagement);
+                        if QueryManagement.IsEmpty() then
+                            exit;
+
+                        if QueryManagement.FindSet() and Confirm(ConfirmDeleteQueryTxt, false, Rec."Object ID", Rec."Object Name") then
+                            repeat
+                                QueryManagement.Delete();
+                            until QueryManagement.Next() = 0;
                     end;
                 }
 
@@ -190,13 +198,13 @@ page 9888 "SmartList Mgmt"
                         Filename := ExportDialog.GetFilename() + '.sld';
 
                         CurrPage.SetSelectionFilter(QueryManagement);
-                        if QueryManagement.IsEmpty then
+                        if QueryManagement.IsEmpty() then
                             exit;
                         Management.ExportQueries(QueryManagement, Filename);
 
                         // The results are populated by the export process
                         ResultsRec.Init();
-                        if not ResultsRec.IsEmpty then
+                        if not ResultsRec.IsEmpty() then
                             Page.Run(Page::"SmartList Export Results", ResultsRec);
 
                         UpdateFactBoxes();
@@ -232,7 +240,7 @@ page 9888 "SmartList Mgmt"
 
                         // The results are populated by the import process
                         ResultsRec.Init();
-                        if not ResultsRec.IsEmpty then
+                        if not ResultsRec.IsEmpty() then
                             Page.Run(Page::"SmartList Import Results", ResultsRec);
 
                         UpdateFactBoxes();
@@ -377,7 +385,7 @@ page 9888 "SmartList Mgmt"
     var
         SmartListDesigner: Codeunit "SmartList Designer";
         SmartListManagement: Codeunit "SmartList Mgmt";
-        ConfirmDeleteQueryTxt: Label 'Delete SmartList %1 - %2?', Comment = '%1 = SmartList Object Id, %2 = SmartList Name';
+        ConfirmDeleteQueryTxt: Label 'Delete selected SmartList Queries?';
         UserDoesNotHaveManagementAccessErr: Label 'You do not have permission to manage SmartLists. Contact your system administrator.';
         UserDoesNotHaveImportExportAccessErr: Label 'You do not have permission to import or export SmartLists. Contact your system administrator.';
         UserDoesNotHaveDeleteAccessErr: Label 'You do not have permission to delete a SmartList. Contact your system administrator.';

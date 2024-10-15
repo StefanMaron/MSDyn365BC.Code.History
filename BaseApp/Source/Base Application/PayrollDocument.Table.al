@@ -19,7 +19,7 @@ table 17414 "Payroll Document"
             begin
                 TestField(Status, Status::Open);
                 PayrollDocLine.SetRange("Document No.", "No.");
-                if not PayrollDocLine.IsEmpty then
+                if not PayrollDocLine.IsEmpty() then
                     Error(Text000, FieldCaption("Employee No."));
 
                 CreateDim(DATABASE::Employee, "Employee No.");
@@ -242,7 +242,7 @@ table 17414 "Payroll Document"
 
         PayrollDocLine.Reset();
         PayrollDocLine.SetRange("Document No.", "No.");
-        if not PayrollDocLine.IsEmpty then
+        if not PayrollDocLine.IsEmpty() then
             PayrollDocLine.DeleteAll(true);
     end;
 
@@ -378,7 +378,7 @@ table 17414 "Payroll Document"
                       PayrollDocLine."Dimension Set ID", PayrollDocLine."Shortcut Dimension 1 Code", PayrollDocLine."Shortcut Dimension 2 Code");
                     PayrollDocLine.Modify();
                 end;
-            until PayrollDocLine.Next = 0;
+            until PayrollDocLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

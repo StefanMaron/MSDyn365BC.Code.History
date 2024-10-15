@@ -152,7 +152,7 @@ page 5353 "CRM Sales Order List"
                     var
                         CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     begin
-                        if IsEmpty then
+                        if IsEmpty() then
                             exit;
                         HyperLink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(DATABASE::"CRM Salesorder", SalesOrderId));
                     end;
@@ -177,7 +177,7 @@ page 5353 "CRM Sales Order List"
                         SalesHeader: Record "Sales Header";
                         CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
                     begin
-                        if IsEmpty then
+                        if IsEmpty() then
                             exit;
 
                         Session.LogMessage('0000DFA', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);

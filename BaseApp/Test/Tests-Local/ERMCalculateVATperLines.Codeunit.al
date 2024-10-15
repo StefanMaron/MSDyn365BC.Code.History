@@ -173,7 +173,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
             with SalesLine do begin
                 SetRange("Document Type", SalesHeader."Document Type");
                 SetRange("Document No.", SalesHeader."No.");
-                FindSet;
+                FindSet();
                 repeat
                     Assert.AreEqual(LCYFieldValues[Counter], "Amount (LCY)",
                       StrSubstNo(IncorrectFieldValueErr, FieldCaption("Amount (LCY)")));
@@ -204,7 +204,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
             SetLCYFieldValues(LCYFieldValues);
             with SalesInvoiceLine do begin
                 SetRange("Document No.", DocumentNo);
-                FindSet;
+                FindSet();
                 repeat
                     Assert.AreEqual(LCYFieldValues[Counter], "Amount (LCY)",
                       StrSubstNo(IncorrectFieldValueErr, FieldCaption("Amount (LCY)")));

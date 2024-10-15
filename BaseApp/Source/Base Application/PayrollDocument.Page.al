@@ -19,7 +19,7 @@ page 17414 "Payroll Document"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Employee No."; "Employee No.")
@@ -112,7 +112,7 @@ page 17414 "Payroll Document"
                     trigger OnAction()
                     begin
                         ShowDocDim;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Co&mments")

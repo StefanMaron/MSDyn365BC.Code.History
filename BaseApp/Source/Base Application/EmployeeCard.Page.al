@@ -659,6 +659,36 @@ page 5200 "Employee Card"
             {
                 Caption = '&Functions';
                 Image = "Action";
+                action(ApplyTemplate)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Apply Template';
+                    Ellipsis = true;
+                    Image = ApplyTemplate;
+                    ToolTip = 'Apply a template to update the entity with your standard settings for a certain type of entity.';
+
+                    trigger OnAction()
+                    var
+                        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+                    begin
+                        EmployeeTemplMgt.UpdateEmployeeFromTemplate(Rec);
+                    end;
+                }
+                action(SaveAsTemplate)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Save as Template';
+                    Ellipsis = true;
+                    Image = Save;
+                    ToolTip = 'Save the employee card as a template that can be reused to create new employee cards. Employee templates contain preset information to help you fill fields on employee cards.';
+
+                    trigger OnAction()
+                    var
+                        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+                    begin
+                        EmployeeTemplMgt.SaveAsTemplate(Rec);
+                    end;
+                }
                 action("Create Resp. Employee")
                 {
                     Caption = 'Create Resp. Employee';

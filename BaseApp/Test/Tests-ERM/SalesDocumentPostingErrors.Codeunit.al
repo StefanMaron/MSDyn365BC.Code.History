@@ -73,7 +73,7 @@ codeunit 132501 "Sales Document Posting Errors"
 
         // [WHEN] DrillDown on "Description"
         SalesInvoicePage.Trap;
-        LibraryErrorMessage.DrillDownOnDescription;
+        LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Sales Invoice" page.
         SalesInvoicePage."Posting Date".AssertEquals(WorkDate);
     end;
@@ -123,7 +123,7 @@ codeunit 132501 "Sales Document Posting Errors"
 
         // [WHEN] DrillDown on "Description"
         SalesInvoicePage.Trap;
-        LibraryErrorMessage.DrillDownOnDescription;
+        LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Sales Invoice" page.
         SalesInvoicePage."Posting Date".AssertEquals(WorkDate);
 

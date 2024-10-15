@@ -140,7 +140,7 @@ codeunit 144721 "ERM Tax Register Report"
         with TaxRegAccum do begin
             SetRange("Section Code", TaxRegister."Section Code");
             SetRange("Tax Register No.", TaxRegister."No.");
-            FindSet;
+            FindSet();
             repeat
                 VerifyLineValue(i, Description, StdRepMgt.FormatReportValue(Amount, 2));
                 i += 1;

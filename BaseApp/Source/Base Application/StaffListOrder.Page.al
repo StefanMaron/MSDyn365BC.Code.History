@@ -19,7 +19,7 @@ page 17385 "Staff List Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("HR Manager No."; "HR Manager No.")

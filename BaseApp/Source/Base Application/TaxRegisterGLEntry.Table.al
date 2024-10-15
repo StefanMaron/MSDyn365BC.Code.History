@@ -283,7 +283,7 @@ table 17209 "Tax Register G/L Entry"
         TaxRegName.SetRange("Section Code", "Section Code");
         TaxRegName.SetFilter("Register ID", DelChr(GetFilter("Where Used Register IDs"), '=', '~'));
         if TaxRegName.Find('-') then
-            if TaxRegName.Next = 0 then
+            if TaxRegName.Next() = 0 then
                 exit(TaxRegName.Description);
     end;
 

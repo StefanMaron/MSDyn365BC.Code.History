@@ -78,10 +78,10 @@ codeunit 1901 "Report Selection Mgt."
         InitReportSelection("Report Selection Usage"::"P.Phys.Invt.Rec.");
         InitReportSelection("Report Selection Usage"::"Asm.Order");
         InitReportSelection("Report Selection Usage"::"P.Asm.Order");
-        InitReportSelection("Report Selection Usage"::UIS);
-        InitReportSelection("Report Selection Usage"::IS);
-        InitReportSelection("Report Selection Usage"::UIR);
-        InitReportSelection("Report Selection Usage"::IR);
+        InitReportSelection("Report Selection Usage"::"Inventory Shipment");
+        InitReportSelection("Report Selection Usage"::"P.Inventory Shipment");
+        InitReportSelection("Report Selection Usage"::"Inventory Receipt");
+        InitReportSelection("Report Selection Usage"::"P.Inventory Receipt");
         InitReportSelection("Report Selection Usage"::PIJ);
         InitReportSelection("Report Selection Usage"::IRJ);
 
@@ -95,6 +95,7 @@ codeunit 1901 "Report Selection Mgt."
         InitReportSelection("Report Selection Usage"::"B.Stmt");
         InitReportSelection("Report Selection Usage"::"B.Recon.Test");
         InitReportSelection("Report Selection Usage"::"B.Check");
+        InitReportSelection("Report Selection Usage"::"Posted Payment Reconciliation");
         InitReportSelection("Report Selection Usage"::CB);
         InitReportSelection("Report Selection Usage"::UCI);
         InitReportSelection("Report Selection Usage"::UCO);
@@ -174,11 +175,13 @@ codeunit 1901 "Report Selection Mgt."
         InitReportSelection("Report Selection Usage"::FAJ);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by InitReportSelection().', '17.0')]
     procedure InitReportUsage(ReportUsage: Integer)
     begin
         InitReportSelection("Report Selection Usage".FromInteger(ReportUsage));
     end;
+#endif
 
     procedure InitReportSelection(ReportUsage: Enum "Report Selection Usage")
     begin
@@ -357,6 +360,8 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::"S.Order Pick Instruction", '1', REPORT::"Pick Instruction", true, false, true);
             "Report Selection Usage"::"C.Statement":
                 InsertRepSelection("Report Selection Usage"::"C.Statement", '1', REPORT::"Standard Statement", true, false, true);
+            "Report Selection Usage"::"Posted Payment Reconciliation":
+                InsertRepSelection("Report Selection Usage"::"Posted Payment Reconciliation", '1', REPORT::"Posted Payment Reconciliation", true, false, true);
             "Report Selection Usage"::USI:
                 begin
                     InsertRepSelection("Report Selection Usage"::USI, '1', REPORT::"Order Proforma-Invoice (A)", true, false, true);
@@ -386,21 +391,21 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::UAS, '1', REPORT::"Advance Statement", true, false, false);
             "Report Selection Usage"::AS:
                 InsertRepSelection("Report Selection Usage"::AS, '1', REPORT::"Posted Advance Statement", true, false, false);
-            "Report Selection Usage"::UIS:
-                InsertRepSelection("Report Selection Usage"::UIS, '1', REPORT::"Item Write-off act TORG-16", false, false, false);
-            "Report Selection Usage"::IS:
-                InsertRepSelection("Report Selection Usage"::IS, '1', REPORT::"Posted Item Write-off TORG-16", false, false, false);
-            "Report Selection Usage"::UIR:
+            "Report Selection Usage"::"Inventory Shipment":
+                InsertRepSelection("Report Selection Usage"::"Inventory Shipment", '1', REPORT::"Item Write-off act TORG-16", false, false, false);
+            "Report Selection Usage"::"P.Inventory Shipment":
+                InsertRepSelection("Report Selection Usage"::"P.Inventory Shipment", '1', REPORT::"Posted Item Write-off TORG-16", false, false, false);
+            "Report Selection Usage"::"Inventory Receipt":
                 begin
-                    InsertRepSelection("Report Selection Usage"::UIR, '1', REPORT::"Act Items Receipt M-7", true, false, true);
-                    InsertRepSelection("Report Selection Usage"::UIR, '2', REPORT::"Items Receipt Act TORG-1", false, false, true);
-                    InsertRepSelection("Report Selection Usage"::UIR, '3', REPORT::"Receipt Deviations TORG-2", false, true, true);
+                    InsertRepSelection("Report Selection Usage"::"Inventory Receipt", '1', REPORT::"Act Items Receipt M-7", true, false, true);
+                    InsertRepSelection("Report Selection Usage"::"Inventory Receipt", '2', REPORT::"Items Receipt Act TORG-1", false, false, true);
+                    InsertRepSelection("Report Selection Usage"::"Inventory Receipt", '3', REPORT::"Receipt Deviations TORG-2", false, true, true);
                 end;
-            "Report Selection Usage"::IR:
+            "Report Selection Usage"::"P.Inventory Receipt":
                 begin
-                    InsertRepSelection("Report Selection Usage"::IR, '1', REPORT::"Act Items Receipt M-7", true, false, true);
-                    InsertRepSelection("Report Selection Usage"::IR, '2', REPORT::"Items Receipt Act TORG-1", false, false, true);
-                    InsertRepSelection("Report Selection Usage"::IR, '3', REPORT::"Receipt Deviations TORG-2", false, true, true);
+                    InsertRepSelection("Report Selection Usage"::"P.Inventory Receipt", '1', REPORT::"Act Items Receipt M-7", true, false, true);
+                    InsertRepSelection("Report Selection Usage"::"P.Inventory Receipt", '2', REPORT::"Items Receipt Act TORG-1", false, false, true);
+                    InsertRepSelection("Report Selection Usage"::"P.Inventory Receipt", '3', REPORT::"Receipt Deviations TORG-2", false, true, true);
                 end;
             "Report Selection Usage"::PIJ:
                 begin
@@ -465,11 +470,13 @@ codeunit 1901 "Report Selection Mgt."
         end;
     end;
 
-    [Obsolete('Replaced by InitReportSelectionWhse().','17.0')]
+#if not CLEAN17
+    [Obsolete('Replaced by InitReportSelectionWhse().', '17.0')]
     procedure InitReportUsageWhse(ReportUsage: Integer)
     begin
         InitReportSelectionWhse("Report Selection Warehouse Usage".FromInteger(ReportUsage));
     end;
+#endif
 
     procedure InitReportSelectionWhse(ReportUsage: Enum "Report Selection Warehouse Usage")
     begin
@@ -515,11 +522,13 @@ codeunit 1901 "Report Selection Mgt."
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by InsertReportSelectionWhse().', '17.0')]
     procedure InsertRepSelectionWhse(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
     begin
         InsertReportSelectionWhse("Report Selection Warehouse Usage".FromInteger(ReportUsage), Sequence, ReportID);
     end;
+#endif
 
     procedure InsertReportSelectionWhse(ReportUsage: Enum "Report Selection Warehouse Usage"; Sequence: Code[10]; ReportID: Integer)
     var

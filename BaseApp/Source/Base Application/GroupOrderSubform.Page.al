@@ -71,7 +71,7 @@ page 17375 "Group Order Subform"
         GroupOrderLine.Copy(Rec);
         if "Line No." = 0 then begin
             GroupOrderLine := xRec;
-            if GroupOrderLine.Next = 0 then
+            if GroupOrderLine.Next() = 0 then
                 GroupOrderLine."Line No." := xRec."Line No." + 10000;
         end;
         LaborContractMgt.InsertContracts(GroupOrderLine);

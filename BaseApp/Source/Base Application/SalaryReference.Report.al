@@ -251,7 +251,7 @@ report 17362 "Salary Reference"
                 if AbsenceLineNo = 0 then
                     AbsenceLineNo := 1;
                 RowNo += (AbsenceLineNo + 1) * 2;
-            until DateRec.Next = 0;
+            until DateRec.Next() = 0;
         end;
     end;
 
@@ -262,12 +262,12 @@ report 17362 "Salary Reference"
         FillPersonPreviousJobInfo(PersonNo, StartYear, EndYear, JobHistoryBuff);
         FillLaborContractInfo(PersonNo, StartYear, EndYear, JobHistoryBuff);
 
-        JobHistoryBuff.FindSet;
+        JobHistoryBuff.FindSet();
         DuplicateExcelLines(RowNo, RowNo, JobHistoryBuff.Count - 1);
         if JobHistoryBuff.FindSet then
             repeat
                 FillJobHistoryDates(RowNo, JobHistoryBuff."Starting Date", JobHistoryBuff."Ending Date");
-            until JobHistoryBuff.Next = 0;
+            until JobHistoryBuff.Next() = 0;
     end;
 
     local procedure FillLaborContractInfo(PersonNo: Code[20]; StartYear: Integer; EndYear: Integer; var JobHistoryBuff: Record "Person Job History" temporary)
@@ -284,7 +284,7 @@ report 17362 "Salary Reference"
                 if LaborContractLine.FindSet then
                     ExcelMgt.FillCell('N9', LaborContract."No.");
                 FillJobHistoryBuff(JobHistoryBuff, PersonNo, LaborContract."Starting Date", LaborContract."Ending Date");
-            until LaborContract.Next = 0;
+            until LaborContract.Next() = 0;
     end;
 
     local procedure FillPersonPreviousJobInfo(PersonNo: Code[20]; StartYear: Integer; EndYear: Integer; var JobHistoryBuff: Record "Person Job History" temporary)
@@ -299,7 +299,7 @@ report 17362 "Salary Reference"
             repeat
                 FillJobHistoryBuff(
                   JobHistoryBuff, PersonNo, PersonJobHistory."Starting Date", PersonJobHistory."Ending Date");
-            until PersonJobHistory.Next = 0;
+            until PersonJobHistory.Next() = 0;
     end;
 
     local procedure FillJobHistoryBuff(var JobHistoryBuff: Record "Person Job History" temporary; PersonNo: Code[20]; StartingDate: Date; EndingDate: Date)
@@ -372,7 +372,7 @@ report 17362 "Salary Reference"
                   'E' + Format(RowNo),
                   StrSubstNo(SalaryRefFormatTxt, Format(PersonIncomeFSI.Amount), LocMgt.Amount2Text('', PersonIncomeFSI.Amount)));
                 RowNo += 2;
-            until DateRec.Next = 0;
+            until DateRec.Next() = 0;
 
             RowNo += AddShift;
         end;

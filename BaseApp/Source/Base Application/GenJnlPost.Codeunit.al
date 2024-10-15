@@ -162,7 +162,7 @@ codeunit 231 "Gen. Jnl.-Post"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         GenJournalLine: Record "Gen. Journal Line";

@@ -90,7 +90,7 @@ table 1500 "Workflow Buffer"
         TempWorkflowBuffer.Copy(Rec, true);
         TempWorkflowBuffer.SetRange("Category Code", "Category Code");
         TempWorkflowBuffer.SetFilter("Workflow Code", '<>%1&<>%2', '', "Workflow Code");
-        if TempWorkflowBuffer.IsEmpty then begin
+        if TempWorkflowBuffer.IsEmpty() then begin
             TempWorkflowBuffer.Get("Category Code", '');
             TempWorkflowBuffer.Delete(false);
         end;
@@ -109,7 +109,7 @@ table 1500 "Workflow Buffer"
                 if not TempWorkflowBuffer.Get(Workflow.Category, '') then
                     AddCategory(TempWorkflowBuffer, Workflow.Category);
                 AddWorkflow(TempWorkflowBuffer, Workflow.Category, Workflow.Code);
-            until Workflow.Next = 0;
+            until Workflow.Next() = 0;
     end;
 
     procedure InitBufferForWorkflows(var TempWorkflowBuffer: Record "Workflow Buffer" temporary)

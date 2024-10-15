@@ -115,9 +115,9 @@ xmlport 17202 "Norm Jurisdiction"
                             repeat
                                 "Tax Register Norm Detail" := NormDetail;
                                 "Tax Register Norm Detail".Insert();
-                            until NormDetail.Next = 0;
-                    until NormGroup.Next = 0;
-            until NormJurisdiction.Next = 0;
+                            until NormDetail.Next() = 0;
+                    until NormGroup.Next() = 0;
+            until NormJurisdiction.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -135,7 +135,7 @@ xmlport 17202 "Norm Jurisdiction"
                         NormJurisdiction := "Tax Register Norm Jurisdiction";
                     end;
                     NormJurisdiction.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with "Tax Register Norm Group" do begin
@@ -148,7 +148,7 @@ xmlport 17202 "Norm Jurisdiction"
                         NormGroup := "Tax Register Norm Group";
                     end;
                     NormGroup.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with "Tax Register Norm Detail" do begin
@@ -161,7 +161,7 @@ xmlport 17202 "Norm Jurisdiction"
                         NormDetail := "Tax Register Norm Detail";
                     end;
                     NormDetail.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 }

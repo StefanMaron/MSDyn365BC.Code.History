@@ -75,7 +75,7 @@ table 17445 "Time Activity Filter"
                     if TimeActivityFilterCode.FindSet then
                         repeat
                             "Activity Code Filter" := "Activity Code Filter" + TimeActivityFilterCode."Activity Code" + '|';
-                        until TimeActivityFilterCode.Next = 0;
+                        until TimeActivityFilterCode.Next() = 0;
                     "Activity Code Filter" := DelChr("Activity Code Filter", '>', '|');
                 end;
             TimeActivityFilterCode.Type::"Timesheet Code":
@@ -84,7 +84,7 @@ table 17445 "Time Activity Filter"
                     if TimeActivityFilterCode.FindSet then
                         repeat
                             "Timesheet Code Filter" := "Timesheet Code Filter" + TimeActivityFilterCode."Activity Code" + '|';
-                        until TimeActivityFilterCode.Next = 0;
+                        until TimeActivityFilterCode.Next() = 0;
                     "Timesheet Code Filter" := DelChr("Timesheet Code Filter", '>', '|');
                 end;
         end;

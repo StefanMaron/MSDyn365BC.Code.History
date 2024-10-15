@@ -137,7 +137,7 @@ page 17465 "Posted Sick Leave Order"
                     begin
                         Clear(AbsenceOrderPostYesNo);
                         AbsenceOrderPostYesNo.CancelOrder(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

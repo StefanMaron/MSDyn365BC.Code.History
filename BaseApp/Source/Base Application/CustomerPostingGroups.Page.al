@@ -38,7 +38,7 @@ page 110 "Customer Posting Groups"
                             UpdateAccountVisibilityBasedOnFinChargeTerms(InterestAccountVisible, AddFeeAccountVisible);
                         end;
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

@@ -21,7 +21,7 @@ page 17380 "Position Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Parent Position No."; "Parent Position No.")

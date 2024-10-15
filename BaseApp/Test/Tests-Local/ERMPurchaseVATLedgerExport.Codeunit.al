@@ -798,12 +798,11 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     local procedure CopyDocument(PurchHeader: Record "Purchase Header"; DocNo: Code[20])
     var
         CopyPurchDocument: Report "Copy Purchase Document";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         CopyPurchDocument.SetPurchHeader(PurchHeader);
-        CopyPurchDocument.InitializeRequest(DocType::"Posted Invoice", DocNo, false, false);
+        CopyPurchDocument.SetParameters("Purchase Document Type From"::"Posted Invoice", DocNo, false, false);
         CopyPurchDocument.UseRequestPage(false);
-        CopyPurchDocument.Run;
+        CopyPurchDocument.Run();
     end;
 
     local procedure RunVATLedgerExportReport(VendorNo: Code[20]; AddSheet: Boolean; UseExternalDocNo: Boolean)
@@ -1349,7 +1348,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
             SetRange("Document Type", "Document Type"::Payment);
-            FindSet;
+            FindSet();
             repeat
                 ExpectedValue += "External Document No." + SemicolonTok + Format("Posting Date") + SemicolonTok;
             until Next = 0;

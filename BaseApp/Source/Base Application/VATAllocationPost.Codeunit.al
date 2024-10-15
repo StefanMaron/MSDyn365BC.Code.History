@@ -97,7 +97,7 @@ codeunit 12417 "VAT Allocation-Post"
               DATABASE::"Purch. Inv. Line", 0, PurchInvLine."Document No.",
               '', 0, PurchInvLine."Line No.", PurchInvLine."Quantity (Base)");
         end else
-            TempItemLedgEntry.FindSet;
+            TempItemLedgEntry.FindSet();
 
         if DistributeCharge then
             if TempItemLedgEntry.FindSet then begin
@@ -121,7 +121,7 @@ codeunit 12417 "VAT Allocation-Post"
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
                           NonDistrAmountToAssign * Sign, NonDistrQtyToAssign, PurchInvLine."Indirect Cost %",
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
-                until TempItemLedgEntry.Next = 0;
+                until TempItemLedgEntry.Next() = 0;
             end else
                 Error(Text000)
         else
@@ -157,7 +157,7 @@ codeunit 12417 "VAT Allocation-Post"
               DATABASE::"Purch. Inv. Line", 0, PurchCrMemoLine."Document No.",
               '', 0, PurchCrMemoLine."Line No.", PurchInvLine."Quantity (Base)");
         end else
-            TempItemLedgEntry.FindSet;
+            TempItemLedgEntry.FindSet();
 
         if DistributeCharge then
             if TempItemLedgEntry.FindSet then begin
@@ -181,7 +181,7 @@ codeunit 12417 "VAT Allocation-Post"
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
                           NonDistrAmountToAssign * Sign, NonDistrQtyToAssign, PurchCrMemoLine."Indirect Cost %",
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
-                until TempItemLedgEntry.Next = 0;
+                until TempItemLedgEntry.Next() = 0;
             end else
                 Error(Text000)
         else
@@ -217,7 +217,7 @@ codeunit 12417 "VAT Allocation-Post"
               DATABASE::"Sales Invoice Line", 0, SalesInvLine."Document No.",
               '', 0, SalesInvLine."Line No.", SalesInvLine."Quantity (Base)");
         end else
-            TempItemLedgEntry.FindSet;
+            TempItemLedgEntry.FindSet();
 
         if DistributeCharge then
             if TempItemLedgEntry.FindSet then begin
@@ -241,7 +241,7 @@ codeunit 12417 "VAT Allocation-Post"
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
                           NonDistrAmountToAssign * Sign, NonDistrQtyToAssign,
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
-                until TempItemLedgEntry.Next = 0;
+                until TempItemLedgEntry.Next() = 0;
             end else
                 Error(Text000)
         else
@@ -276,7 +276,7 @@ codeunit 12417 "VAT Allocation-Post"
               DATABASE::"Purch. Inv. Line", 0, SalesCrMemoLine."Document No.",
               '', 0, SalesCrMemoLine."Line No.", SalesInvLine."Quantity (Base)");
         end else
-            TempItemLedgEntry.FindSet;
+            TempItemLedgEntry.FindSet();
 
         if DistributeCharge then
             if TempItemLedgEntry.FindSet then begin
@@ -300,7 +300,7 @@ codeunit 12417 "VAT Allocation-Post"
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
                           NonDistrAmountToAssign * Sign, NonDistrQtyToAssign,
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
-                until TempItemLedgEntry.Next = 0;
+                until TempItemLedgEntry.Next() = 0;
             end else
                 Error(Text000)
         else
@@ -609,7 +609,7 @@ codeunit 12417 "VAT Allocation-Post"
             repeat
                 if ReversalEntry."Entry No." = ValueEntry."Entry No." then
                     ValueEntry.Description := ReversalEntry.Description;
-            until ReversalEntry.Next = 0;
+            until ReversalEntry.Next() = 0;
     end;
 
     local procedure InsertItemReg(ValueEntryNo: Integer; SourceCode: Code[10])
@@ -770,7 +770,7 @@ codeunit 12417 "VAT Allocation-Post"
                         repeat
                             TotalAmount := TotalAmount + InsertItemChargeAssgntPurch(NextLineNo, TotalAmount, "Document No.", "Line No.",
                                 "No.", Description, "Unit Cost (LCY)", "Line Amount");
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             GenJnlLine."Document Type"::"Credit Memo":
                 with PurchCrMemoLine do begin
@@ -783,7 +783,7 @@ codeunit 12417 "VAT Allocation-Post"
                         repeat
                             TotalAmount := TotalAmount + InsertItemChargeAssgntPurch(NextLineNo, TotalAmount, "Document No.", "Line No.",
                                 "No.", Description, "Unit Cost (LCY)", "Line Amount");
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             else
                 GenJnlLine.FieldError("Document Type");
@@ -816,7 +816,7 @@ codeunit 12417 "VAT Allocation-Post"
                 TempItemChargeAssgntPurch."Amount to Assign" :=
                   Round(TempItemChargeAssgntPurch."Amount to Assign", RoundingPrecision);
                 TempItemChargeAssgntPurch.Modify();
-            until TempItemChargeAssgntPurch.Next = 0;
+            until TempItemChargeAssgntPurch.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -832,7 +832,7 @@ codeunit 12417 "VAT Allocation-Post"
                             PurchInvLine.Get(
                               TempItemChargeAssgntPurch."Applies-to Doc. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
                             PostItemChargePerPurchInvLine(GenJnlLine, PurchInvHeader, PurchInvLine);
-                        until TempItemChargeAssgntPurch.Next = 0;
+                        until TempItemChargeAssgntPurch.Next() = 0;
                 end;
             GenJnlLine."Document Type"::"Credit Memo":
                 begin
@@ -843,7 +843,7 @@ codeunit 12417 "VAT Allocation-Post"
                             PurchCrMemoLine.Get(
                               TempItemChargeAssgntPurch."Applies-to Doc. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
                             PostItemChargePerPurchCrMLine(GenJnlLine, PurchCrMemoHeader, PurchCrMemoLine);
-                        until TempItemChargeAssgntPurch.Next = 0;
+                        until TempItemChargeAssgntPurch.Next() = 0;
                 end;
         end;
     end;
@@ -866,7 +866,7 @@ codeunit 12417 "VAT Allocation-Post"
                               InsertItemChargeAssgntSales(
                                 NextLineNo, TotalAmount, "Document No.", "Line No.",
                                 "No.", Description, "Unit Cost (LCY)", "Line Amount");
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             GenJnlLine."Document Type"::"Credit Memo":
                 with SalesCrMemoLine do begin
@@ -879,7 +879,7 @@ codeunit 12417 "VAT Allocation-Post"
                         repeat
                             TotalAmount := TotalAmount + InsertItemChargeAssgntSales(NextLineNo, TotalAmount, "Document No.", "Line No.",
                                 "No.", Description, "Unit Cost (LCY)", "Line Amount");
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             else
                 GenJnlLine.FieldError("Document Type");
@@ -912,7 +912,7 @@ codeunit 12417 "VAT Allocation-Post"
                 TempItemChargeAssgntSales."Amount to Assign" :=
                   Round(TempItemChargeAssgntSales."Amount to Assign", RoundingPrecision);
                 TempItemChargeAssgntSales.Modify();
-            until TempItemChargeAssgntSales.Next = 0;
+            until TempItemChargeAssgntSales.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -928,7 +928,7 @@ codeunit 12417 "VAT Allocation-Post"
                             SalesInvLine.Get(
                               TempItemChargeAssgntSales."Applies-to Doc. No.", TempItemChargeAssgntSales."Applies-to Doc. Line No.");
                             PostItemChargePerSalesInvLine(GenJnlLine, SalesInvHeader, SalesInvLine);
-                        until TempItemChargeAssgntSales.Next = 0;
+                        until TempItemChargeAssgntSales.Next() = 0;
                 end;
             GenJnlLine."Document Type"::"Credit Memo":
                 begin
@@ -939,7 +939,7 @@ codeunit 12417 "VAT Allocation-Post"
                             SalesCrMemoLine.Get(
                               TempItemChargeAssgntSales."Applies-to Doc. No.", TempItemChargeAssgntSales."Applies-to Doc. Line No.");
                             PostItemChargePerSalesCrMLine(GenJnlLine, SalesCrMemoHeader, SalesCrMemoLine);
-                        until TempItemChargeAssgntSales.Next = 0;
+                        until TempItemChargeAssgntSales.Next() = 0;
                 end;
         end;
     end;

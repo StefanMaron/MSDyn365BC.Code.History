@@ -160,7 +160,7 @@ codeunit 17409 "Person Income Management"
                 NextLineNo := 10000;
             SetRange("Period Code", PeriodCode);
             SetRange(Calculation, true);
-            if IsEmpty then begin
+            if IsEmpty() then begin
                 Init;
                 "Document No." := NewPersonIncomeHeader."No.";
                 "Person No." := NewPersonIncomeHeader."Person No.";
@@ -224,7 +224,7 @@ codeunit 17409 "Person Income Management"
                                               DtldVendLedgEntry2."Posting Date", DtldVendLedgEntry2."Posting Date",
                                               DtldVendLedgEntry2."Vendor Ledger Entry No.", PostedPayrollDocLine."Employee Ledger Entry No.",
                                               DtldVendLedgEntry2."Posting Date" <> DtldVendLedgEntry."Posting Date", false);
-                                    until DtldVendLedgEntry2.Next = 0;
+                                    until DtldVendLedgEntry2.Next() = 0;
                             end else
                                 if VendLedgEntry2.Get(DtldVendLedgEntry."Applied Vend. Ledger Entry No.") then
                                     InsertPersonIncomeEntry(
@@ -233,9 +233,9 @@ codeunit 17409 "Person Income Management"
                                       VendLedgEntry2."Posting Date", VendLedgEntry2."Posting Date",
                                       DtldVendLedgEntry."Applied Vend. Ledger Entry No.", PostedPayrollDocLine."Employee Ledger Entry No.",
                                       DtldVendLedgEntry."Posting Date" <> VendLedgEntry2."Posting Date", false);
-                        until DtldVendLedgEntry.Next = 0;
+                        until DtldVendLedgEntry.Next() = 0;
                 end;
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -261,7 +261,7 @@ codeunit 17409 "Person Income Management"
                       '', 0, "Amount (LCY)", 0, 0, '', 0,
                       "Posting Date", "Posting Date",
                       0, 0, "Posting Date" < PayrollPeriod."Ending Date", false);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -346,7 +346,7 @@ codeunit 17409 "Person Income Management"
                 if PersonIncomeEntry.FindSet then
                     repeat
                         BaseAmount := BaseAmount - PersonIncomeEntry.Base;
-                    until PersonIncomeEntry.Next = 0;
+                    until PersonIncomeEntry.Next() = 0;
             end;
 
             InsertPersonIncomeEntry(
@@ -382,7 +382,7 @@ codeunit 17409 "Person Income Management"
                     PersonExcludedDays."Calendar Days" := "Days To Exclude";
                     PersonExcludedDays.Description := Description;
                     PersonExcludedDays.Insert();
-                until PersonIncomeLine.Next = 0;
+                until PersonIncomeLine.Next() = 0;
         end;
     end;
 }

@@ -391,10 +391,6 @@ codeunit 134093 "ERM G/L Account Where-Used"
         // [THEN] Bank Account Posting Group is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
           BankAccountPostingGroup.TableCaption,
-          BankAccountPostingGroup.FieldCaption("G/L Bank Account No."),
-          StrSubstNo('%1=%2', BankAccountPostingGroup.FieldCaption(Code), BankAccountPostingGroup.Code));
-        ValidateWhereUsedRecord(
-          BankAccountPostingGroup.TableCaption,
           BankAccountPostingGroup.FieldCaption("G/L Account No."),
           StrSubstNo('%1=%2', BankAccountPostingGroup.FieldCaption(Code), BankAccountPostingGroup.Code));
     end;
@@ -910,14 +906,14 @@ codeunit 134093 "ERM G/L Account Where-Used"
         GLAccountWhereUsedList.ShowDetails.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 100, 'OnAfterFillTableBuffer', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. G/L Acc. Where-Used", 'OnAfterFillTableBuffer', '', false, false)]
     local procedure OnAfterFillTableBuffer(var TableBuffer: Record "Integer")
     begin
         TableBuffer.Number := DATABASE::"Table With Link To G/L Account";
         TableBuffer.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 100, 'OnShowExtensionPage', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. G/L Acc. Where-Used", 'OnShowExtensionPage', '', false, false)]
     local procedure OnShowExtensionPage(GLAccountWhereUsed: Record "G/L Account Where-Used")
     var
         TableWithLinkToGLAccount: Record "Table With Link To G/L Account";

@@ -392,7 +392,7 @@ table 17434 "Vacation Request"
 
         AbsenceLine.Reset();
         AbsenceLine.SetRange("Vacation Request No.", "No.");
-        if not AbsenceLine.IsEmpty then
+        if not AbsenceLine.IsEmpty() then
             Error(Text001);
 
         Status := Status::Open;

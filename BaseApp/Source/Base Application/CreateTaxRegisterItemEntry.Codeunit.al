@@ -211,8 +211,8 @@ codeunit 17206 "Create Tax Register Item Entry"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        ItemRcptHeader: Record "Item Receipt Header";
-        ItemShptHeader: Record "Item Shipment Header";
+        ItemRcptHeader: Record "Invt. Receipt Header";
+        ItemShptHeader: Record "Invt. Shipment Header";
         ReturnShptHeader: Record "Return Shipment Header";
         ReturnRcptHeader: Record "Return Receipt Header";
     begin
@@ -427,7 +427,7 @@ codeunit 17206 "Create Tax Register Item Entry"
 
         Clear(TaxDimMgt);
 
-        TaxReg.FindSet;
+        TaxReg.FindSet();
         repeat
             TaxRegLineSetup.SetRange("Tax Register No.", TaxReg."No.");
             if TaxRegLineSetup.FindFirst then begin
@@ -439,7 +439,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                         TempTaxRegTemplate := TaxRegTemplate;
                         TempTaxRegTemplate.Value := 0;
                         TempTaxRegTemplate.Insert();
-                    until TaxRegTemplate.Next = 0;
+                    until TaxRegTemplate.Next() = 0;
 
                 TaxRegItemEntry.Reset();
                 TaxRegItemEntry.SetCurrentKey("Section Code", "Ending Date");
@@ -454,7 +454,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                         TempGLCorrEntry."Debit Account No." := TaxRegItemEntry."Debit Account No.";
                         TempGLCorrEntry."Credit Account No." := TaxRegItemEntry."Credit Account No.";
                         TempGLCorrEntry.Modify();
-                        TaxRegLineSetup.FindSet;
+                        TaxRegLineSetup.FindSet();
                         repeat
                             if (TaxRegLineSetup."Account No." <> '') or
                                (TaxRegLineSetup."Bal. Account No." <> '')
@@ -547,7 +547,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                             TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
                             TaxRegAccumulation.Modify();
                         end;
-                    until TempTaxRegTemplate.Next = 0;
+                    until TempTaxRegTemplate.Next() = 0;
             end;
         until TaxReg.Next(1) = 0;
         TempTaxRegTemplate.DeleteAll();

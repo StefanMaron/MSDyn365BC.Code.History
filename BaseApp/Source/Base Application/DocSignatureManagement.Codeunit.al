@@ -38,7 +38,7 @@ codeunit 12420 "Doc. Signature Management"
                     ToPostedDocSign."Warrant No." := "Warrant No.";
                     ToPostedDocSign."Warrant Date" := "Warrant Date";
                     ToPostedDocSign.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -50,7 +50,7 @@ codeunit 12420 "Doc. Signature Management"
         DocSign.SetRange("Table ID", TableID);
         DocSign.SetRange("Document Type", DocType);
         DocSign.SetRange("Document No.", DocNo);
-        if not DocSign.IsEmpty then
+        if not DocSign.IsEmpty() then
             exit;
         with DefaultSignSetup do begin
             SetRange("Table ID", TableID);
@@ -68,7 +68,7 @@ codeunit 12420 "Doc. Signature Management"
                     DocSign."Warrant No." := "Warrant No.";
                     DocSign."Warrant Date" := "Warrant Date";
                     DocSign.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -155,7 +155,7 @@ codeunit 12420 "Doc. Signature Management"
                       DocumentSignature.TableCaption,
                       DocumentSignature.FieldCaption("Employee Type"),
                       DefaultSignSetup."Employee Type");
-            until DefaultSignSetup.Next = 0;
+            until DefaultSignSetup.Next() = 0;
     end;
 
     [Scope('OnPrem')]

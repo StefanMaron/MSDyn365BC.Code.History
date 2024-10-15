@@ -77,7 +77,7 @@ page 12446 "Outgoing Cash Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Currency Code"; "Currency Code")

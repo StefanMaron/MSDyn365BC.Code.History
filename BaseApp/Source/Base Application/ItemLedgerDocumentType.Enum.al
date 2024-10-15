@@ -18,7 +18,7 @@ enum 79 "Item Ledger Document Type"
     value(12; "Service Invoice") { Caption = 'Service Invoice'; }
     value(13; "Service Credit Memo") { Caption = 'Service Credit Memo'; }
     value(14; "Posted Assembly") { Caption = 'Posted Assembly'; }
-    value(19; "Item Receipt") { Caption = 'Item Receipt'; }
-    value(20; "Item Shipment") { Caption = 'Item Shipment'; }
+    value(19; "Inventory Receipt") { Caption = 'Inventory Receipt'; }
+    value(20; "Inventory Shipment") { Caption = 'Inventory Shipment'; }
     value(21; "Direct Transfer") { Caption = 'Direct Transfer'; }
 }

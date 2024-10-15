@@ -328,7 +328,7 @@ codeunit 144012 "ERM RU Sales Unrealized VAT"
         with CustLedgerEntryTo do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetFilter("Document No.", '%1|%2', InvNo[1], InvNo[2]);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", "Remaining Amount");

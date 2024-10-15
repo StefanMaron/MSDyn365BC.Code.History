@@ -1,4 +1,4 @@
-﻿codeunit 5611 "Calculate Normal Depreciation"
+codeunit 5611 "Calculate Normal Depreciation"
 {
     Permissions = TableData "FA Ledger Entry" = r,
                   TableData "FA Posting Type Setup" = r;
@@ -76,6 +76,10 @@
         i: Integer;
         OK: Boolean;
         IsHandled: Boolean;
+        StorageDecimal: Dictionary of [Text, Decimal];
+        StorageInteger: Dictionary of [Text, Integer];
+        StorageDate: Dictionary of [Text, Date];
+        StorageCode: Dictionary of [Text, Code[10]];
     begin
         IsHandled := false;
         OnBeforeCalculate(DeprAmount, NumberOfDays4, FANo, DeprBookCode2, UntilDate2, EntryAmounts2, DateFromProjection2, DaysInPeriod2, IsHandled);
@@ -112,13 +116,22 @@
                 end;
         DeprPeriod := Period;
 
-        TransferValues;
+        TransferValues();
         if BookValue + SalvageValue <= 0 then
             SkipOnZero := true;
         if (SalvageValue >= 0) and (BookValue <= EndingBookValue) then
             SkipOnZero := true;
 
-        if not SkipRecord then begin
+        OnBeforeCalcTransferValueSetVariables(FirstDeprDate, Year365Days, UseDeprStartingDate, NumberOfDays2, UseHalfYearConvention);
+
+        AssignVariablesToStoage(StorageDecimal, StorageInteger, StorageDate, StorageCode, DeprBookCode2, DateFromProjection2, UntilDate2, DaysInPeriod2, NumberOfDays4, DeprAmount);
+        IsHandled := false;
+        OnBeforeCalculateTransferValue(FANo, StorageDecimal, StorageInteger, StorageDate, StorageCode, EntryAmounts2, EntryAmounts, DeprMethod, Year365Days, IsHandled);
+        if IsHandled then
+            AssignStoageToVariables(StorageDecimal, StorageInteger, StorageDate, StorageCode, DeprBookCode2, DateFromProjection2, UntilDate2, DaysInPeriod2, NumberOfDays4, DeprAmount)
+        else
+            TransferValues();
+        if not SkipRecord() then begin
             if (DeprMethod = DeprMethod::SLRU) or
                (DeprMethod = DeprMethod::DBSLRU) or
                (DeprMethod = DeprMethod::DBSLRUTaxGroup)
@@ -178,19 +191,48 @@
                 if SkipOnZero then
                     DeprMethod := DeprMethod::BelowZero;
                 if not DeprBonus then
-                    DeprAmount := Sign * CalculateDeprAmount
+                    DeprAmount := Sign * CalculateDeprAmount()
                 else
                     DeprAmount := Sign * CalculateDeprBonusAmount(
                       FANo, DeprBookCode, 0D, CalcDate('<-CM-1D>', UntilDate), true, DeprBonus);
-                if Sign * DeprAmount > 0 then
-                    DeprAmount := 0;
+                IsHandled := false;
+                OnAfterSkipOnZeroValue(DeprBook, SkipOnZero, IsHandled);
+
+                IsHandled := false;
+                OnAfterCalcFinalDeprAmount(FANo, FADeprBook, DeprBook, Sign, BookValue, DeprAmount, IsHandled);
+                IsHandled := false;
+                OnAfterCalcFinalDeprAmount(FANo, FADeprBook, DeprBook, Sign, BookValue, DeprAmount, IsHandled);
+                if not IsHandled then
+                    if Sign * DeprAmount > 0 then
+                        DeprAmount := 0;
                 NumberOfDays4 := NumberOfDays2;
             end;
         end;
     end;
 
     local procedure SkipRecord(): Boolean
+    var
+        IsHandled: Boolean;
+        ExitValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSkipRecord(
+            FA,
+            DeprBook,
+            DisposalDate,
+            AcquisitionDate,
+            UntilDate,
+            DeprMethod,
+            BookValue,
+            DeprBasis,
+            SalvageValue,
+            MinusBookValue,
+            ExitValue,
+            IsHandled);
+
+        if IsHandled then
+            exit(ExitValue);
+
         exit(
           (DisposalDate > 0D) or
           (AcquisitionDate = 0D) or
@@ -205,6 +247,7 @@
     local procedure CalculateDeprAmount(): Decimal
     var
         Amount: Decimal;
+        IsHandled: Boolean;
     begin
         with FA do begin
             if DateFromProjection > 0D then
@@ -219,7 +262,11 @@
             end;
             if FirstDeprDate < DeprStartingDate then
                 FirstDeprDate := DeprStartingDate;
-            NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
+
+            IsHandled := false;
+            OnBeforeNumberofDayCalculateNumberofDays(FA, DeprBook, NumberofDays, FirstDeprDate, UntilDate, Year365Days, IsHandled);
+            if not IsHandled then
+                NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
             Factor := 1;
             if NumberOfDays <= 0 then
                 exit(0);
@@ -256,7 +303,10 @@
                         NumberOfDays := DaysInPeriod;
                     end;
             end;
-            UseHalfYearConvention := SetHalfYearConventionMethod;
+            UseHalfYearConvention := SetHalfYearConventionMethod();
+
+            UpdateDaysInFiscalYear(FA, DeprBook, NumberOfDays, DaysInFiscalYear, IsHandled);
+
             // Method Last Entry
             if UseDeprStartingDate or
                (DateFromProjection > 0D) or
@@ -269,29 +319,29 @@
                 else
                     case DeprMethod of
                         DeprMethod::StraightLine:
-                            Amount := CalcSLAmount;
+                            Amount := CalcSLAmount();
                         DeprMethod::DB1:
-                            Amount := CalcDB1Amount;
+                            Amount := CalcDB1Amount();
                         DeprMethod::DB2:
-                            Amount := CalcDB2Amount;
+                            Amount := CalcDB2Amount();
                         DeprMethod::DB1SL,
                         DeprMethod::DB2SL:
-                            Amount := CalcDBSLAmount;
+                            Amount := CalcDBSLAmount();
                         DeprMethod::Manual:
                             Amount := 0;
                         DeprMethod::"User-Defined":
                             Amount := CalcUserDefinedAmount(UntilDate);
                         DeprMethod::BelowZero:
-                            Amount := DepreciationCalc.CalcRounding(DeprBookCode, CalcBelowZeroAmount);
+                            Amount := DepreciationCalc.CalcRounding(DeprBookCode, CalcBelowZeroAmount());
                         DeprMethod::SLRU:
-                            Amount := CalcSLAmount;
+                            Amount := CalcSLAmount();
                         DeprMethod::DBSLRU:
                             Amount := CalcDBSLRUAmount;
                         DeprMethod::DBSLRUTaxGroup:
                             Amount := CalcDBSLRUTaxGroupAmount;
                         else
                             OnCalculateDeprAmountOnDeprMethodCaseLastEntry(
-                                FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount);
+                                FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount, DateFromProjection, UntilDate);
                     end;
             end
             // Method Last Depreciation Entry
@@ -316,18 +366,18 @@
                         exit(0);
                     case DeprMethod of
                         DeprMethod::StraightLine:
-                            Amount := Amount + CalcSLAmount;
+                            Amount := Amount + CalcSLAmount();
                         DeprMethod::DB1:
-                            Amount := Amount + CalcDB1Amount;
+                            Amount := Amount + CalcDB1Amount();
                         DeprMethod::DB2:
-                            Amount := Amount + CalcDB2Amount;
+                            Amount := Amount + CalcDB2Amount();
                         DeprMethod::Manual:
                             Amount := 0;
                         DeprMethod::"User-Defined":
                             Amount := Amount + CalcUserDefinedAmount(EndingDate);
                         else
                             OnCalculateDeprAmountOnDeprMethodCaseLastDeprEntry(
-                                FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount);
+                                FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount, DateFromProjection, UntilDate);
 
                     end;
                     DepreciationCalc.GetDeprPeriod(
@@ -336,8 +386,13 @@
                 end;
             end;
         end;
-        if Amount >= 0 then
-            exit(0);
+
+        IsHandled := false;
+        OnAfterCalculateFinalAmount(DeprBook, Amount, IsHandled);
+        if not IsHandled then
+            if Amount >= 0 then
+                exit(0);
+
         if not SkipOnZero then
             DepreciationCalc.AdjustDepr(
               DeprBookCode, Amount, Abs(BookValue2), -Abs(SalvageValue2),
@@ -359,32 +414,32 @@
               Text006,
               FADeprBook.FieldCaption("Temp. Ending Date"),
               UntilDate,
-              FAName);
+              FAName());
         if FADeprBook."Temp. Ending Date" >= UntilDate then begin
             if FADeprBook."Use Half-Year Convention" then
                 Error(
                   Text005,
                   FADeprBook.FieldCaption("Temp. Ending Date"),
-                  FAName);
+                  FAName());
             if FADeprBook."Use DB% First Fiscal Year" then
                 Error(
                   Text007,
                   FADeprBook.FieldCaption("Temp. Ending Date"),
                   FADeprBook.FieldCaption("Use DB% First Fiscal Year"),
-                  FAName);
+                  FAName());
             if FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"User-Defined" then
                 Error(
                   Text008,
                   FADeprBook.FieldCaption("Temp. Ending Date"),
                   FADeprBook.FieldCaption("Depreciation Method"),
                   FADeprBook."Depreciation Method",
-                  FAName);
+                  FAName());
             if DeprMethod = DeprMethod::BelowZero then
                 Error(
                   Text007,
                   FADeprBook.FieldCaption("Temp. Ending Date"),
                   DeprBook.FieldCaption("Allow Depr. below Zero"),
-                  FAName);
+                  FAName());
             DeprBook.TestField(
               "Periodic Depr. Date Calc.", DeprBook."Periodic Depr. Date Calc."::"Last Entry");
             DeprAmount := -(NumberOfDays / DaysInFiscalYear) * FADeprBook."Temp. Fixed Depr. Amount";
@@ -420,7 +475,7 @@
                 exit(-BookValue);
 
             IsHandled := false;
-            OnAfterCalcSL(FA, FADeprBook, UntilDate, BookValue, DeprBasis, DeprYears, NumberOfDays, DaysInFiscalYear, Result, IsHandled);
+            OnAfterCalcSL(FA, FADeprBook, UntilDate, BookValue, DeprBasis, DeprYears, NumberOfDays, DaysInFiscalYear, Result, IsHandled, RemainingLife);
             if IsHandled then
                 exit(Result);
 
@@ -464,15 +519,15 @@
         DBAmount: Decimal;
     begin
         if DeprMethod = DeprMethod::DB1SL then
-            DBAmount := CalcDB1Amount
+            DBAmount := CalcDB1Amount()
         else
-            DBAmount := CalcDB2Amount;
+            DBAmount := CalcDB2Amount();
         if FADeprBook."Use DB% First Fiscal Year" then
             if FADateCalc.GetFiscalYear(DeprBookCode, UntilDate) =
                FADateCalc.GetFiscalYear(DeprBookCode, DeprStartingDate)
             then
                 exit(DBAmount);
-        SLAmount := CalcSLAmount;
+        SLAmount := CalcSLAmount();
         if SLAmount < DBAmount then
             exit(SLAmount);
 
@@ -505,6 +560,8 @@
     end;
 
     local procedure TransferValues()
+    var
+        IsHandled: Boolean;
     begin
         with FADeprBook do begin
             EmptyStartingDate := ("Depreciation Starting Date" = 0D);
@@ -520,7 +577,7 @@
               "Depreciation Method"::"DB1/SL",
               "Depreciation Method"::"DB2/SL":
                     if "Declining-Balance %" >= 100 then
-                        Error(Text001, FAName, FieldCaption("Declining-Balance %"));
+                        Error(Text001, FAName(), FieldCaption("Declining-Balance %"));
             end;
             if (DeprBook."Periodic Depr. Date Calc." = DeprBook."Periodic Depr. Date Calc."::"Last Depr. Entry") and
                ("Depreciation Method" <> "Depreciation Method"::"Straight-Line")
@@ -528,7 +585,7 @@
                 "Depreciation Method" := "Depreciation Method"::"Straight-Line";
                 Error(
                   Text002,
-                  FAName,
+                  FAName(),
                   FieldCaption("Depreciation Method"),
                   "Depreciation Method",
                   DeprBook.TableCaption,
@@ -553,6 +610,9 @@
             CalcFields("Depreciable Basis", "Salvage Value");
             DeprBasis := "Depreciable Basis";
             SalvageValue := "Salvage Value";
+
+            OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date");
+
             BookValue2 := BookValue;
             SalvageValue2 := SalvageValue;
             DeprStartingDate := "Depreciation Starting Date";
@@ -563,15 +623,19 @@
             then
                 Error(
                   Text003,
-                  FAName, FieldCaption("First User-Defined Depr. Date"), FieldCaption("Depreciation Starting Date"));
+                  FAName(), FieldCaption("First User-Defined Depr. Date"), FieldCaption("Depreciation Starting Date"));
+
             SLPercent := "Straight-Line %";
             DBPercent := "Declining-Balance %";
+
+            OnAfterBookValueCheckAddedDeprApplicable(FADeprBook, DeprBook, FALedgEntry, UntilDate, DBPercent, SLPercent);
+
             DeprYears := "No. of Depreciation Years";
             if "Depreciation Ending Date" > 0D then begin
                 if "Depreciation Starting Date" > "Depreciation Ending Date" then
                     Error(
                       Text003,
-                      FAName, FieldCaption("Depreciation Starting Date"), FieldCaption("Depreciation Ending Date"));
+                      FAName(), FieldCaption("Depreciation Starting Date"), FieldCaption("Depreciation Ending Date"));
                 DeprYears :=
                   DepreciationCalc.DeprDays(
                     "Depreciation Starting Date", "Depreciation Ending Date", false) / 360;
@@ -591,13 +655,20 @@
             if DaysInFiscalYear = 0 then
                 DaysInFiscalYear := 360;
             Year365Days := DeprBook."Fiscal Year 365 Days";
+
+            IsHandled := false;
+            OnAfterDaysinFYRecalculateDaysInFiscalYear(FADeprBook, DeprBook, UntilDate, DaysInFiscalYear, Year365Days, IsHandled);
+
             if Year365Days then begin
-                DaysInFiscalYear := 365;
+                if not IsHandled then
+                    DaysInFiscalYear := 365;
+
                 DeprYears :=
                   DepreciationCalc.DeprDays(
                     "Depreciation Starting Date", "Depreciation Ending Date", true) / DaysInFiscalYear;
             end;
         end;
+        OnAfterTransferValuesCalculation(FA, FADeprBook, Year365Days, DeprYears, DeprBasis, BookValue, DeprMethod);
 
         OnAfterTransferValues(FA, FADeprBook, Year365Days, DeprYears, DeprMethod);
     end;
@@ -619,14 +690,14 @@
             exit(false);
         if DeprMethod = DeprMethod::BelowZero then
             exit(false);
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(false);
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1',
           DepreciationCalc.ToMorrow(FADeprBook."Depreciation Starting Date", Year365Days));
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         NewYearDate := AccountingPeriod."Starting Date";
         if FirstDeprDate >= NewYearDate then
             exit(false);
@@ -642,7 +713,7 @@
               Text004,
               FADeprBook.FieldCaption("Depreciation Method"),
               FADeprBook."Depreciation Method",
-              FAName);
+              FAName());
         exit(true);
     end;
 
@@ -699,11 +770,11 @@
             BookValue := BookValue + DeprAmount;
             case DeprMethod of
                 DeprMethod::StraightLine:
-                    DeprAmount := DeprAmount + CalcSLAmount;
+                    DeprAmount := DeprAmount + CalcSLAmount();
                 DeprMethod::DB1:
-                    DeprAmount := DeprAmount + CalcDB1Amount;
+                    DeprAmount := DeprAmount + CalcDB1Amount();
                 DeprMethod::DB1SL:
-                    DeprAmount := DeprAmount + CalcDBSLAmount;
+                    DeprAmount := DeprAmount + CalcDBSLAmount();
             end;
         end;
         NumberOfDays := OriginalNumberOfDays;
@@ -721,7 +792,7 @@
     begin
         DBAmount := 2 * DBPercent / 100 * (BookValue - MinusBookValue);
         if (BookValue - MinusBookValue) <= (0.2 * DeprBasis) then
-            exit(CalcSLAmount)
+            exit(CalcSLAmount())
         else
             exit(-DBAmount);
     end;
@@ -791,8 +862,282 @@
         exit(-DBSLTaxAmount);
     end;
 
+    local procedure AssignVariablesToStoage(
+        var StorageDecimal: Dictionary of [Text, Decimal];
+        var StorageInteger: Dictionary of [Text, Integer];
+        var StorageDate: Dictionary of [Text, Date];
+        var StorageCode: Dictionary of [Text, Code[10]];
+        DeprBookCode2: Code[10];
+        DateFromProjection2: Date;
+        UntilDate2: Date;
+        DaysInPeriod2: Integer;
+        NumberOfDays4: Integer;
+        DeprAmount: Decimal)
+    var
+        DeprBookCodeLbl: label 'DeprBookCode';
+        DeprTableCodeLbl: Label 'DeprTableCode';
+        DateFromProjectionLbl: Label 'DateFromProjection';
+        EndDateDateLbl: Label 'EndDate';
+        DeprStartingDateLbl: Label 'DeprStartingDate';
+        FirstUserDefinedDeprDateLbl: Label 'FirstUserDefinedDeprDate';
+        AcquisitionDateLbl: Label 'AcquisitionDate';
+        DisposalDateLbl: Label 'DisposalDate';
+        DaysInPeriodLbl: Label 'DaysInPeriod';
+        NumberOfDays4Lbl: Label 'NumberOfDays4';
+        DaysInFiscalYearLbl: Label 'DaysInFiscalYear';
+        DeprAmountLbl: Label 'DeprAmount';
+        BookValueLbl: Label 'BookValue';
+        MinusBookValueLbl: Label 'MinusBookValue';
+        DeprBasisLbl: Label 'DeprBasis';
+        SalvageValueLbl: Label 'SalvageValue';
+        CopyBookValueLbl: Label 'CopyBookValue';
+        SLPercentLbl: Label 'SLPercent';
+        DBPercentLbl: Label 'DBPercent';
+        DeprYearsLbl: Label 'DeprYears';
+        FixedAmountLbl: Label 'FixedAmount';
+        FinalRoundingAmountLbl: Label 'FinalRoundingAmount';
+        EndingBookValueLbl: Label 'EndingBookValue';
+        PercentBelowZeroLbl: Label 'PercentBelowZero';
+        AmountBelowZeroLbl: Label 'AmountBelowZero';
+    begin
+        Clear(StorageCode);
+        Clear(StorageDate);
+        Clear(StorageDecimal);
+        Clear(StorageInteger);
+
+        StorageCode.Set(DeprBookCodeLbl, DeprBookCode2);
+        StorageCode.Set(DeprTableCodeLbl, DeprTableCode);
+
+        StorageDate.Set(DateFromProjectionLbl, DateFromProjection2);
+        StorageDate.Set(EndDateDateLbl, UntilDate2);
+        StorageDate.Set(DeprStartingDateLbl, DeprStartingDate);
+        StorageDate.Set(FirstUserDefinedDeprDateLbl, FirstUserDefinedDeprDate);
+        StorageDate.Set(AcquisitionDateLbl, AcquisitionDate);
+        StorageDate.Set(DisposalDateLbl, DisposalDate);
+
+        StorageInteger.Set(DaysInPeriodLbl, DaysInPeriod2);
+        StorageInteger.Set(NumberOfDays4Lbl, NumberOfDays4);
+        StorageInteger.Set(DaysInFiscalYearLbl, DaysInFiscalYear);
+
+        StorageDecimal.Set(DeprAmountLbl, DeprAmount);
+        StorageDecimal.Set(BookValueLbl, BookValue);
+        StorageDecimal.Set(MinusBookValueLbl, MinusBookValue);
+        StorageDecimal.Set(DeprBasisLbl, DeprBasis);
+        StorageDecimal.Set(SalvageValueLbl, SalvageValue);
+        StorageDecimal.set(CopyBookValueLbl, BookValue2);
+        StorageDecimal.set(SLPercentLbl, SLPercent);
+        StorageDecimal.Set(DBPercentLbl, DBPercent);
+        StorageDecimal.Set(DeprYearsLbl, DeprYears);
+        StorageDecimal.Set(FixedAmountLbl, FixedAmount);
+        StorageDecimal.Set(FinalRoundingAmountLbl, FinalRoundingAmount);
+        StorageDecimal.Set(EndingBookValueLbl, EndingBookValue);
+        StorageDecimal.Set(PercentBelowZeroLbl, PercentBelowZero);
+        StorageDecimal.Set(AmountBelowZeroLbl, AmountBelowZero);
+    end;
+
+    local procedure AssignStoageToVariables(
+        var StorageDecimal: Dictionary of [Text, Decimal];
+        var StorageInteger: Dictionary of [Text, Integer];
+        var StorageDate: Dictionary of [Text, Date];
+        var StorageCode: Dictionary of [Text, Code[10]];
+        var DeprBookCode2: Code[10];
+        var DateFromProjection2: Date;
+        var UntilDate2: Date;
+        var DaysInPeriod2: Integer;
+        var NumberOfDays4: Integer;
+        var DeprAmount: Decimal)
+    var
+        DeprBookCodeLbl: label 'DeprBookCode';
+        DeprTableCodeLbl: Label 'DeprTableCode';
+        DateFromProjectionLbl: Label 'DateFromProjection';
+        EndDateLbl: Label 'EndDate';
+        DeprStartingDateLbl: Label 'DeprStartingDate';
+        FirstUserDefinedDeprDateLbl: Label 'FirstUserDefinedDeprDate';
+        AcquisitionDateLbl: Label 'AcquisitionDate';
+        DisposalDateLbl: Label 'DisposalDate';
+        DaysInPeriodLbl: Label 'DaysInPeriod';
+        NumberOfDays4Lbl: Label 'NumberOfDays4';
+        DaysInFiscalYearLbl: Label 'DaysInFiscalYear';
+        DeprAmountLbl: Label 'DeprAmount';
+        BookValueLbl: Label 'BookValue';
+        MinusBookValueLbl: Label 'MinusBookValue';
+        DeprBasisLbl: Label 'DeprBasis';
+        SalvageValueLbl: Label 'SalvageValue';
+        CopyBookValueLbl: Label 'CopyBookValue';
+        SLPercentLbl: Label 'SLPercent';
+        DBPercentLbl: Label 'DBPercent';
+        DeprYearsLbl: Label 'DeprYears';
+        FixedAmountLbl: Label 'FixedAmount';
+        FinalRoundingAmountLbl: Label 'FinalRoundingAmount';
+        EndingBookValueLbl: Label 'EndingBookValue';
+        PercentBelowZeroLbl: Label 'PercentBelowZero';
+        AmountBelowZeroLbl: Label 'AmountBelowZero';
+    begin
+        DeprBookCode2 := StorageCode.Get(DeprBookCodeLbl);
+        DeprTableCode := StorageCode.Get(DeprTableCodeLbl);
+
+        DateFromProjection2 := StorageDate.Get(DateFromProjectionLbl);
+        UntilDate2 := StorageDate.Get(EndDateLbl);
+        DeprStartingDate := StorageDate.Get(DeprStartingDateLbl);
+        FirstUserDefinedDeprDate := StorageDate.Get(FirstUserDefinedDeprDateLbl);
+        AcquisitionDate := StorageDate.Get(AcquisitionDateLbl);
+        DisposalDate := StorageDate.Get(DisposalDateLbl);
+
+        DaysInPeriod2 := StorageInteger.Get(DaysInPeriodLbl);
+        NumberOfDays4 := StorageInteger.Get(NumberOfDays4Lbl);
+        DaysInFiscalYear := StorageInteger.Get(DaysInFiscalYearLbl);
+
+        DeprAmount := StorageDecimal.Get(DeprAmountLbl);
+        BookValue := StorageDecimal.Get(BookValueLbl);
+        MinusBookValue := StorageDecimal.Get(MinusBookValueLbl);
+        DeprBasis := StorageDecimal.Get(DeprBasisLbl);
+        SalvageValue := StorageDecimal.Get(SalvageValueLbl);
+        BookValue2 := StorageDecimal.Get(CopyBookValueLbl);
+        SLPercent := StorageDecimal.Get(SLPercentLbl);
+        DBPercent := StorageDecimal.Get(DBPercentLbl);
+        DeprYears := StorageDecimal.Get(DeprYearsLbl);
+        FixedAmount := StorageDecimal.Get(FixedAmountLbl);
+        FinalRoundingAmount := StorageDecimal.Get(FinalRoundingAmountLbl);
+        EndingBookValue := StorageDecimal.Get(EndingBookValueLbl);
+        PercentBelowZero := StorageDecimal.Get(PercentBelowZeroLbl);
+        AmountBelowZero := StorageDecimal.Get(AmountBelowZeroLbl);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculate(var DeprAmount: Decimal; var NumberOfDays4: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, true)]
+    local procedure OnBeforeCalculateTransferValue(
+        FANo: Code[20];
+        var StorageDecimal: Dictionary of [Text, Decimal];
+        var StorageInteger: Dictionary of [Text, Integer];
+        var StorageDate: Dictionary of [Text, Date];
+        var StorageCode: Dictionary of [Text, Code[10]];
+        var EntryAmounts2: array[4] of Decimal;
+        var EntryAmounts: array[4] of Decimal;
+        var DeprMethod: Option StraightLine,DB1,DB2,DB1SL,DB2SL,"User-Defined",Manual,BelowZero;
+        var Year365Days: Boolean;
+        var IsHandled: Boolean)
+    begin
+
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSkipRecord(
+        FixedAsset: Record "Fixed Asset";
+        DeprBook: Record "Depreciation Book";
+        DisposalDate: date;
+        AcquisitionDate: date;
+        UntilDate: Date;
+        FADeprMethod: Enum "FA Depreciation Method";
+                          BookValue: Decimal;
+                          DeprBasis: Decimal;
+                          SalvageValue: Decimal;
+                          MinusBookValue: Decimal;
+        var ReturnValue: Boolean;
+        var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTransferValueSetVariables(
+        var FirstDate: date;
+        var Year365Days: Boolean;
+        var UseDeprStartingDate: Boolean;
+        var NumberOfDays2: integer;
+        var UseHalfYearConvention: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNumberofDayCalculateNumberofDays(
+        FixedAsset: Record "Fixed Asset";
+        DeprBook: Record "Depreciation Book";
+        var NumberofDays: Integer;
+        FirstDeprDate: date;
+        UntilDate: Date;
+        Year365Days: Boolean;
+        var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure UpdateDaysInFiscalYear(
+        FixedAsset: Record "Fixed Asset";
+        DeprBook: Record "Depreciation Book";
+        var NumberofDays: Integer;
+        var DaysInFiscalYear: Integer;
+        var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBookValueRecalculateBookValue(
+        FixedAsset: Record "Fixed Asset";
+        DeprBook: Record "Depreciation Book";
+        FAledgEntry2: Record "FA Ledger Entry";
+        var DeprBasis: Decimal;
+        var BookValue: Decimal;
+        var DeprEndingDate: Date;
+        DisposalDate: date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBookValueCheckAddedDeprApplicable(
+        FADepBook: Record "FA Depreciation Book";
+        DeprBook: Record "Depreciation Book";
+        FALedgerEntry: Record "FA Ledger Entry";
+        UntilDate: Date;
+        var DBPercent: Decimal;
+        var SlPercent: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDaysinFYRecalculateDaysInFiscalYear(
+        FADepBook: Record "FA Depreciation Book";
+        DeprBook: Record "Depreciation Book";
+        UntilDate: Date;
+        var DaysInFiscalYear: Integer;
+        Year365Days: Boolean;
+        var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferValuesCalculation(
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        var Year365Days: Boolean;
+        var DeprYears: Decimal;
+        var DeprBasis: Decimal;
+        var BookValue: Decimal;
+        var DeprMethod: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateFinalAmount(DepreBook: Record "Depreciation Book"; var Amount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSkipOnZeroValue(DepreBook: Record "Depreciation Book"; var SkipOnZero: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcFinalDeprAmount(
+        FANo: Code[20];
+        FADeprBook: Record "FA Depreciation Book";
+        DepreBook: Record "Depreciation Book";
+        Sign: Integer;
+        BookValue: Decimal;
+        var DeprAmount: Decimal;
+        var IsHandled: Boolean)
     begin
     end;
 
@@ -802,7 +1147,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcSL(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var ExitValue: Decimal; var IsHandled: Boolean)
+    local procedure OnAfterCalcSL(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var ExitValue: Decimal; var IsHandled: Boolean; var RemainingLife: Decimal)
     begin
     end;
 
@@ -817,12 +1162,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateDeprAmountOnDeprMethodCaseLastEntry(FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; var Amount: Decimal)
+    local procedure OnCalculateDeprAmountOnDeprMethodCaseLastEntry(FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; var Amount: Decimal; DateFromProjection: Date; UntilDate: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateDeprAmountOnDeprMethodCaseLastDeprEntry(FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; var Amount: Decimal)
+    local procedure OnCalculateDeprAmountOnDeprMethodCaseLastDeprEntry(FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; var Amount: Decimal; DateFromProjection: Date; UntilDate: Date)
     begin
     end;
 }

@@ -1,4 +1,4 @@
-﻿codeunit 249 "VAT Registration Log Mgt."
+codeunit 249 "VAT Registration Log Mgt."
 {
     Permissions = TableData "VAT Registration Log" = rimd;
 
@@ -143,28 +143,28 @@
         VATRegistrationLog: Record "VAT Registration Log";
     begin
         Customer.SetFilter("VAT Registration No.", '<>%1', '');
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 VATRegistrationLog.SetRange("VAT Registration No.", Customer."VAT Registration No.");
-                if VATRegistrationLog.IsEmpty then
+                if VATRegistrationLog.IsEmpty() then
                     LogCustomer(Customer);
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         Vendor.SetFilter("VAT Registration No.", '<>%1', '');
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 VATRegistrationLog.SetRange("VAT Registration No.", Vendor."VAT Registration No.");
-                if VATRegistrationLog.IsEmpty then
+                if VATRegistrationLog.IsEmpty() then
                     LogVendor(Vendor);
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
 
         Contact.SetFilter("VAT Registration No.", '<>%1', '');
-        if Contact.FindSet then
+        if Contact.FindSet() then
             repeat
                 VATRegistrationLog.SetRange("VAT Registration No.", Contact."VAT Registration No.");
-                if VATRegistrationLog.IsEmpty then
+                if VATRegistrationLog.IsEmpty() then
                     LogContact(Contact);
-            until Contact.Next = 0;
+            until Contact.Next() = 0;
 
         Commit();
     end;
@@ -174,7 +174,7 @@
         VATRegistrationLog: Record "VAT Registration Log";
     begin
         with VATRegistrationLog do begin
-            Init;
+            Init();
             "VAT Registration No." := VATRegNo;
             "Country/Region Code" := CountryCode;
             "Account Type" := AccountType;
@@ -193,7 +193,7 @@
         with VATRegistrationLog do begin
             SetRange("Account Type", "Account Type"::Customer);
             SetRange("Account No.", Customer."No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 DeleteAll();
         end;
     end;
@@ -205,7 +205,7 @@
         with VATRegistrationLog do begin
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", Vendor."No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 DeleteAll();
         end;
     end;
@@ -217,7 +217,7 @@
         with VATRegistrationLog do begin
             SetRange("Account Type", "Account Type"::Contact);
             SetRange("Account No.", Contact."No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 DeleteAll();
         end;
     end;
@@ -287,7 +287,7 @@
         CountryRegion: Record "Country/Region";
         CompanyInformation: Record "Company Information";
     begin
-        if (CountryCode = '') and CompanyInformation.Get then
+        if (CountryCode = '') and CompanyInformation.Get() then
             CountryCode := CompanyInformation."Country/Region Code";
 
         if CountryCode <> '' then
@@ -330,7 +330,7 @@
         if not CountryRegion.IsEUCountry(CountryCode) then
             exit; // VAT Reg. check Srv. is only available for EU countries.
 
-        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
             DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
             if not DataTypeManagement.FindFieldByName(RecordRef, VatRegNoFieldRef, Customer.FieldName("VAT Registration No.")) then
                 exit;
@@ -372,9 +372,9 @@
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
         VATLookupExtDataHndl: Codeunit "VAT Lookup Ext. Data Hndl";
     begin
-        if not VATRegNoSrvConfig.FindFirst then begin
+        if not VATRegNoSrvConfig.FindFirst() then begin
             VATRegNoSrvConfig.Init();
-            VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL;
+            VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL();
             VATRegNoSrvConfig.Enabled := false;
             VATRegNoSrvConfig.Insert();
         end;
@@ -384,18 +384,18 @@
     var
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
-        if VATRegNoSrvConfig.FindFirst then
+        if VATRegNoSrvConfig.FindFirst() then
             exit;
-        InitServiceSetup;
+        InitServiceSetup();
     end;
 
     procedure EnableService()
     var
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
-        if not VATRegNoSrvConfig.FindFirst then begin
-            InitServiceSetup;
-            VATRegNoSrvConfig.FindFirst;
+        if not VATRegNoSrvConfig.FindFirst() then begin
+            InitServiceSetup();
+            VATRegNoSrvConfig.FindFirst();
         end;
 
         VATRegNoSrvConfig.Enabled := true;
@@ -408,7 +408,7 @@
     begin
         CheckVIESForVATNo(RecordRef, VATRegistrationLog, RecordVariant, EntryNo, CountryCode, AccountType);
 
-        if VATRegistrationLog.Find then // Only update if the log was created
+        if VATRegistrationLog.Find() then // Only update if the log was created
             UpdateRecordFromVATRegLog(RecordRef, RecordVariant, VATRegistrationLog);
     end;
 
@@ -423,8 +423,8 @@
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
         RecRef: RecordRef;
     begin
-        SetupService;
-        VATRegNoSrvConfig.FindFirst;
+        SetupService();
+        VATRegNoSrvConfig.FindFirst();
 
         RecRef.GetTable(VATRegNoSrvConfig);
 

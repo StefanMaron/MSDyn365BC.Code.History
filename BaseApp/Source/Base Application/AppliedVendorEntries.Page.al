@@ -284,7 +284,7 @@ page 62 "Applied Vendor Entries"
             if Find('-') then
                 repeat
                     Mark(true);
-                until Next = 0;
+                until Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Closed by Entry No.");
@@ -333,14 +333,14 @@ page 62 "Applied Vendor Entries"
                                 if Find('-') then
                                     Mark(true);
                             end;
-                        until DtldVendLedgEntry2.Next = 0;
+                        until DtldVendLedgEntry2.Next() = 0;
                 end else begin
                     SetCurrentKey("Entry No.");
                     SetRange("Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
                     if Find('-') then
                         Mark(true);
                 end;
-            until DtldVendLedgEntry1.Next = 0;
+            until DtldVendLedgEntry1.Next() = 0;
     end;
 
     local procedure SetControlVisibility()

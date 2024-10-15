@@ -74,7 +74,7 @@ table 381 "VAT Registration No. Format"
             repeat
                 AppendString(TextString, Finish, Format);
                 Check := Compare(VATRegNo, Format);
-            until Check or (Next = 0);
+            until Check or (Next() = 0);
 
         if not Check then begin
             if EnvInfoProxy.IsInvoicing then
@@ -134,7 +134,7 @@ table 381 "VAT Registration No. Format"
                     CustomerIdentification := Cust."No.";
 
                 AppendString(TextString, Finish, CustomerIdentification);
-            until (Cust.Next = 0) or Finish;
+            until (Cust.Next() = 0) or Finish;
         end;
         if not Check then begin
             Message(StrSubstNo(Text002, TextString));
@@ -167,7 +167,7 @@ table 381 "VAT Registration No. Format"
             Finish := false;
             repeat
                 AppendString(TextString, Finish, Vend."No.");
-            until (Vend.Next = 0) or Finish;
+            until (Vend.Next() = 0) or Finish;
         end;
         if not Check then begin
             Message(StrSubstNo(Text003, TextString));
@@ -200,7 +200,7 @@ table 381 "VAT Registration No. Format"
             Finish := false;
             repeat
                 AppendString(TextString, Finish, Cont."No.");
-            until (Cont.Next = 0) or Finish;
+            until (Cont.Next() = 0) or Finish;
         end;
         if not Check then begin
             Message(StrSubstNo(Text004, TextString));
@@ -228,7 +228,7 @@ table 381 "VAT Registration No. Format"
             Finish := false;
             repeat
                 AppendString(t, Finish, Person."No.");
-            until (Person.Next = 0) or Finish;
+            until (Person.Next() = 0) or Finish;
         end;
         if Check = false then
             Message(StrSubstNo(Text17350, t));

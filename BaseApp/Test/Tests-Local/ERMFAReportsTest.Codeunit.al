@@ -631,7 +631,7 @@ codeunit 144714 "ERM FA Reports Test"
         with ReportSelections do begin
             Ascending(false);
             SetRange(Usage, DocUsage);
-            FindSet;
+            FindSet();
             repeat
                 LibraryVariableStorage.Enqueue("Report ID");
             until Next = 0;
@@ -651,7 +651,7 @@ codeunit 144714 "ERM FA Reports Test"
         FilterFALedgerEntries(FALedgEntry, FADeprBook);
         with FALedgEntry do begin
             SetRange("Initial Acquisition", InitialAcquisition);
-            FindSet;
+            FindSet();
             repeat
                 Quantity := LibraryRandom.RandDecInRange(2, 5, 2);
                 "Reclassification Entry" := not InitialAcquisition;
@@ -674,7 +674,7 @@ codeunit 144714 "ERM FA Reports Test"
             SetRange("Initial Acquisition", false);
             SetFilter(Quantity, '>0');
             SetRange("Reclassification Entry", true);
-            FindSet;
+            FindSet();
             repeat
                 i += 1;
                 LibraryReportValidation.VerifyCellValue(58 + i, 39, FormatAmount(FADeprBook."Acquisition Cost" + FADeprBook.Depreciation));

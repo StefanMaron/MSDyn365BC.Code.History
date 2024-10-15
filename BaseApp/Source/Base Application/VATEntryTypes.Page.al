@@ -47,7 +47,7 @@ page 14977 "VAT Entry Types"
                     SetOfVATEntryType := VATEntryType.Code
                 else
                     SetOfVATEntryType := SetOfVATEntryType + ';' + VATEntryType.Code;
-            until VATEntryType.Next = 0;
+            until VATEntryType.Next() = 0;
     end;
 }
 

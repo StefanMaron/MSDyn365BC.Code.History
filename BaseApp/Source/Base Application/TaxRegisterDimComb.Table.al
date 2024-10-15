@@ -75,7 +75,7 @@ table 17215 "Tax Register Dim. Comb."
             TaxRegDimValueComb.SetRange("Dimension 1 Code", "Dimension 2 Code");
             TaxRegDimValueComb.SetRange("Dimension 2 Code", "Dimension 1 Code");
         end;
-        if not TaxRegDimValueComb.IsEmpty then
+        if not TaxRegDimValueComb.IsEmpty() then
             TaxRegDimValueComb.DeleteAll(true);
     end;
 

@@ -987,19 +987,19 @@ page 14970 "Payroll Analysis by Dimensions"
 
     local procedure Dim2FilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
     end;
 
     local procedure Dim1FilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
     end;
 
     local procedure Dim3FilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
     end;
 
@@ -1012,12 +1012,12 @@ page 14970 "Payroll Analysis by Dimensions"
 
     local procedure DateFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure Dim4FilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
     end;
 

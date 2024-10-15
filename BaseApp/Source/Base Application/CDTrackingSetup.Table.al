@@ -1,7 +1,9 @@
 table 12410 "CD Tracking Setup"
 {
     Caption = 'CD Tracking Setup';
-    LookupPageID = "CD Tracking Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to CD Tracking extension table CD Number Header.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -50,45 +52,5 @@ table 12410 "CD Tracking Setup"
     fieldgroups
     {
     }
-
-    trigger OnDelete()
-    begin
-        TestDelete;
-    end;
-
-    trigger OnInsert()
-    begin
-        TestInsert;
-    end;
-
-    var
-        Item: Record Item;
-        ItemLedgEntry: Record "Item Ledger Entry";
-        Text002: Label 'You cannot delete setup because it is used on one or more items.';
-
-    [Scope('OnPrem')]
-    procedure TestDelete()
-    begin
-        Item.Reset();
-        Item.SetRange("Item Tracking Code", "Item Tracking Code");
-        if Item.Find('-') then
-            repeat
-                ItemLedgEntry.Reset();
-                ItemLedgEntry.SetCurrentKey("Item No.");
-                ItemLedgEntry.SetRange("Item No.", Item."No.");
-                ItemLedgEntry.SetRange("Location Code", "Location Code");
-                if ItemLedgEntry.FindFirst then
-                    Error(Text002);
-            until Item.Next = 0;
-    end;
-
-    [Scope('OnPrem')]
-    procedure TestInsert()
-    var
-        ItemTrackingCode: Record "Item Tracking Code";
-    begin
-        ItemTrackingCode.Get("Item Tracking Code");
-        ItemTrackingCode.TestField("CD Specific Tracking");
-    end;
 }
 

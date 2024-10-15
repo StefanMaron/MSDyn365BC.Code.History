@@ -218,7 +218,7 @@ codeunit 144205 "HRP Personified Reporting"
         // for the 3 month of the first quarter calculate and post salary
         PayrollPeriod.Reset();
         PayrollPeriod.SetRange("Starting Date", PayrollPeriod."Starting Date", CalcDate('<+2M>', PayrollPeriod."Starting Date"));
-        PayrollPeriod.FindSet;
+        PayrollPeriod.FindSet();
         repeat
             Counter += 1;
 

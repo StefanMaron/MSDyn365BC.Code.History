@@ -121,7 +121,7 @@ page 6508 "Lot No. Information List"
                     RunPageLink = Type = CONST("Lot No."),
                                   "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
-                                  "Serial/Lot/CD No." = FIELD("Lot No.");
+                                  "Serial/Lot No." = FIELD("Lot No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 separator(Action1102601003)
@@ -164,10 +164,12 @@ page 6508 "Lot No. Information List"
 
                 trigger OnAction()
                 var
+                    ItemTrackingSetup: Record "Item Tracking Setup";
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetTracking('', "Lot No.", '');
-                    Navigate.Run;
+                    ItemTrackingSetup."Lot No." := Rec."Lot No.";
+                    Navigate.SetTracking(ItemTrackingSetup);
+                    Navigate.Run();
                 end;
             }
         }

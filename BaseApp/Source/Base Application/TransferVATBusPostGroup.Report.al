@@ -42,7 +42,7 @@ report 14971 "Transfer VAT Bus. Post. Group"
                         NewVATPostingSetup."Unrealized VAT Type" := 0;
                         NewVATPostingSetup."Manual VAT Settlement" := false;
                         NewVATPostingSetup.Insert();
-                    until VATPostingSetup.Next = 0;
+                    until VATPostingSetup.Next() = 0;
             end;
 
             trigger OnPreDataItem()

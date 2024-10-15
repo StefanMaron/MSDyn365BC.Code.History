@@ -23,6 +23,7 @@ codeunit 5624 "Cancel FA Ledger Entries"
         FAJnlUsedOnce: Boolean;
         FAJnlDocumentNo: Code[20];
         GenJnlDocumentNo: Code[20];
+        HideValidationDialog: Boolean;
 
     procedure TransferLine(var FALedgEntry: Record "FA Ledger Entry"; BalAccount: Boolean; NewPostingDate: Date)
     var
@@ -55,7 +56,9 @@ codeunit 5624 "Cancel FA Ledger Entries"
                             InsertFAJnlLine(FALedgEntry);
                 until Next(-1) = 0;
         end;
-        Message(Text003);
+
+        if not HideValidationDialog AND GuiAllowed then
+            Message(Text003);
     end;
 
     local procedure CheckType(var FALedgEntry: Record "FA Ledger Entry")
@@ -99,10 +102,7 @@ codeunit 5624 "Cancel FA Ledger Entries"
             "FA Error Entry No." := FALedgEntry."Entry No.";
             "Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
             Quantity := -Quantity;
-            if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
-                Validate(Amount, Amount)
-            else
-                Validate(Amount, -Amount);
+            Validate(Amount, -Amount);
             Validate(Correction, DeprBook."Mark Errors as Corrections");
             "Line No." := "Line No." + 10000;
             "Depr. Bonus" := FALedgEntry."Depr. Bonus";
@@ -135,10 +135,7 @@ codeunit 5624 "Cancel FA Ledger Entries"
             "Dimension Set ID" := FALedgEntry."Dimension Set ID";
             "FA Error Entry No." := FALedgEntry."Entry No.";
             Quantity := -Quantity;
-            if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
-                Validate(Amount, Amount)
-            else
-                Validate(Amount, -Amount);
+            Validate(Amount, -Amount);
             Validate(Correction, DeprBook."Mark Errors as Corrections");
             "Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
             "Line No." := "Line No." + 10000;
@@ -150,6 +147,11 @@ codeunit 5624 "Cancel FA Ledger Entries"
         end;
 
         OnAfterInsertGenJnlLine(GenJnlLine, FALedgEntry, BalAccount);
+    end;
+
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    begin
+        HideValidationDialog := NewHideValidationDialog;
     end;
 
     [IntegrationEvent(false, false)]

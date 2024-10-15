@@ -51,9 +51,21 @@ table 6509 "Whse. Item Entry Relation"
         {
             Caption = 'Order Line No.';
         }
-        field(14900; "CD No."; Code[30])
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+        }
+        field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 

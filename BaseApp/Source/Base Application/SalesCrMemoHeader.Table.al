@@ -503,11 +503,9 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Document Exchange Identifier';
         }
-        field(711; "Document Exchange Status"; Option)
+        field(711; "Document Exchange Status"; Enum "Sales Document Exchange Status")
         {
             Caption = 'Document Exchange Status';
-            OptionCaption = 'Not Sent,Sent to Document Exchange Service,Delivered to Recipient,Delivery Failed,Pending Connection to Recipient';
-            OptionMembers = "Not Sent","Sent to Document Exchange Service","Delivered to Recipient","Delivery Failed","Pending Connection to Recipient";
         }
         field(712; "Doc. Exch. Original Identifier"; Text[50])
         {
@@ -1015,8 +1013,8 @@ table 114 "Sales Cr.Memo Header"
                                 else
                                     Error(Text12400);
                         end;
-                    until ValueEntry.Next = 0;
-            until SalesCrMemoLine.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until SalesCrMemoLine.Next() = 0;
         if DocNoFilter = '' then
             DocNoFilter := '.';
         ReturnReceiptHeader.Reset();

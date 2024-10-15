@@ -46,7 +46,7 @@ codeunit 12423 "VAT Ledger Management"
                         VendFilter := VendFilter + Delimiter + Customer."Vendor No.";
                         Delimiter := '|';
                     end;
-                until Customer.Next = 0;
+                until Customer.Next() = 0;
         end;
     end;
 
@@ -66,7 +66,7 @@ codeunit 12423 "VAT Ledger Management"
                         CustFilter := CustFilter + Delimiter + Vendor."Customer No.";
                         Delimiter := '|';
                     end;
-                until Vendor.Next = 0;
+                until Vendor.Next() = 0;
         end;
     end;
 
@@ -362,7 +362,7 @@ codeunit 12423 "VAT Ledger Management"
         VATLedgerLine: Record "VAT Ledger Line";
         ValueEntry: Record "Value Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        CDNo: Code[30];
+        CDNo: Code[50];
     begin
         CDNo := '';
         if VATLedgerLineBuf."C/V Type" = VATLedgerLineBuf."C/V Type"::Customer then
@@ -375,15 +375,15 @@ codeunit 12423 "VAT Ledger Management"
         if ValueEntry.FindSet then
             repeat
                 ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgerEntry."CD No." <> '' then begin
-                    InsertVATLedgerLineCDNo(VATLedgerLineBuf, ItemLedgerEntry."CD No.");
+                if ItemLedgerEntry."Package No." <> '' then begin
+                    InsertVATLedgerLineCDNo(VATLedgerLineBuf, ItemLedgerEntry."Package No.");
                     if CDNo = '' then
-                        CDNo := ItemLedgerEntry."CD No."
+                        CDNo := ItemLedgerEntry."Package No."
                     else
-                        if CDNo <> ItemLedgerEntry."CD No." then
+                        if CDNo <> ItemLedgerEntry."Package No." then
                             CDNo := MultipleCDNoTxt;
                 end;
-            until (ValueEntry.Next = 0);
+            until (ValueEntry.Next() = 0);
 
         if CDNo <> '' then begin
             VATLedgerLine.Get(VATLedgerLineBuf.Type, VATLedgerLineBuf.Code, VATLedgerLineBuf."Line No.");
@@ -392,7 +392,7 @@ codeunit 12423 "VAT Ledger Management"
         end;
     end;
 
-    local procedure InsertVATLedgerLineCDNo(VATLedgerLine: Record "VAT Ledger Line"; CDNo: Code[30])
+    local procedure InsertVATLedgerLineCDNo(VATLedgerLine: Record "VAT Ledger Line"; CDNo: Code[50])
     var
         VATLedgerLineCDNo: Record "VAT Ledger Line CD No.";
     begin

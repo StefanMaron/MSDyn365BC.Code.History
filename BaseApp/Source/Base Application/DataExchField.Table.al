@@ -124,7 +124,7 @@ table 1221 "Data Exch. Field"
     begin
         SetRange("Data Exch. No.", DataExchNo);
         SetRange("Line No.", LineNo);
-        if not IsEmpty then
+        if not IsEmpty() then
             DeleteAll(true);
     end;
 

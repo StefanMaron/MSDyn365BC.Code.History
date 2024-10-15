@@ -5,6 +5,8 @@ page 9807 "User Card"
     DelayedInsert = true;
     PageType = Card;
     SourceTable = User;
+    AboutTitle = 'About user account details';
+    AboutText = 'Here, you manage an individual user''s account information. You choose the permissions that a user has by assigning permission sets and user groups. You can view the user''s license information, but you cannot change it.';
 
     layout
     {
@@ -24,7 +26,7 @@ page 9807 "User Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Name';
-					Importance = Promoted;
+                    Importance = Promoted;
                     ToolTip = 'Specifies the user''s name. If the user is required to present credentials when starting the client, this is the name that the user must present.';
 
                     trigger OnValidate()
@@ -37,22 +39,25 @@ page 9807 "User Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Full Name';
-					Editable = not IsSaaS;
+                    Editable = not IsSaaS;
                     ToolTip = 'Specifies the full name of the user.';
                 }
                 field("License Type"; "License Type")
                 {
                     ApplicationArea = All;
                     Caption = 'License Type';
-					ToolTip = 'Specifies the type of license that applies to the user.';
+                    ToolTip = 'Specifies the type of license that applies to the user.';
                     Visible = not IsSaaS;
                 }
                 field(State; State)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'State';
-					Importance = Promoted;
+                    Caption = 'Status';
+                    Importance = Promoted;
                     ToolTip = 'Specifies if the user''s login is enabled.';
+                    AboutTitle = 'Control the user''s access';
+                    AboutText = 'You can temporarily prevent a user from signing in by disabling their user account. This does not remove the license from the user.';
+
                     trigger OnValidate()
                     begin
                         ValidateState();
@@ -62,14 +67,93 @@ page 9807 "User Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Expiry Date';
-					ToolTip = 'Specifies a date past which the user will no longer be authorized to log on to the Windows client.';
+                    ToolTip = 'Specifies a date past which the user will no longer be authorized to log on to the Windows client.';
                     Visible = not IsSaaS;
                 }
                 field("Contact Email"; "Contact Email")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact Email';
-					ToolTip = 'Specifies the user''s email address.';
+                    ToolTip = 'Specifies the user''s email address.';
+                }
+                group("Office 365 Authentication")
+                {
+                    Caption = 'Microsoft 365', Comment = '{Locked="Microsoft 365"}';
+
+                    field("Authentication Email"; "Authentication Email")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Authentication Email';
+                        Importance = Promoted;
+                        Editable = not IsSaaS;
+                        AboutTitle = 'Microsoft 365 accounts';
+                        AboutText = 'For Microsoft 365 accounts, go to the Microsoft 365 Admin center when you want to manage settings.';
+                        ToolTip = 'Specifies the account that this user signs into Microsoft 365 or SharePoint with.';
+
+                        trigger OnValidate()
+                        begin
+                            IdentityManagement.SetAuthenticationEmail("User Security ID", "Authentication Email");
+                            CurrPage.SaveRecord;
+                            AuthenticationStatus := IdentityManagement.GetAuthenticationStatus("User Security ID");
+                        end;
+                    }
+                    field(ApplicationID; ApplicationID)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Application ID';
+                        ToolTip = 'Specifies the client ID of the Microsoft Azure Active Directory application when authenticating web-service calls. This field is only relevant when the Business Central user is used for web services.';
+                        Visible = not IsSaaS;
+
+                        trigger OnValidate()
+                        var
+                            ZeroGUID: Guid;
+                        begin
+                            if ApplicationID = '' then
+                                Validate("Application ID", ZeroGUID)
+                            else
+                                Validate("Application ID", ApplicationID);
+                        end;
+                    }
+                    field(MappedToExchangeIdentifier; HasExchangeIdentifier)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mapped To Exchange Identifier';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies whether the user is mapped to a Microsoft Exchange identifier, which enables the user to access Business Central from Exchange applications (such as Outlook) without having to sign-in.';
+                    }
+                    field(AuthenticationStatus; AuthenticationStatus)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Authentication Status';
+                        Editable = false;
+                        ToolTip = 'Specifies the user''s status for Microsoft 365 authentication. When you start to create a user, the status is Disabled. After you specify an authentication email address for the user, the status changes to Inactive. After the user logs on successfully, the status changes to Active.';
+                    }
+                }
+                group("Web Service Access")
+                {
+                    Caption = 'Web Service';
+                    field(WebServiceID; WebServiceID)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        AssistEdit = true;
+                        Caption = 'Web Service Access Key';
+                        Editable = false;
+                        ToolTip = 'Specifies a generated key that Dynamics 365 web service applications can use to authenticate to Dynamics 365 services. Choose the AssistEdit button to generate a key.';
+
+                        trigger OnAssistEdit()
+                        begin
+                            EditWebServiceID;
+                        end;
+                    }
+                    field(WebServiceExpiryDate; WebServiceExpiryDate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Web Service Expiry Date';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an expiration date for the web services access key.';
+                    }
                 }
             }
             group("Windows Authentication")
@@ -80,7 +164,7 @@ page 9807 "User Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Windows Security ID';
-					ToolTip = 'Specifies the Windows Security ID of the user. This is only relevant for Windows authentication.';
+                    ToolTip = 'Specifies the Windows Security ID of the user. This is only relevant for Windows authentication.';
                     Visible = false;
                 }
                 field("Windows User Name"; WindowsUserName)
@@ -90,28 +174,6 @@ page 9807 "User Card"
                     Caption = 'Windows User Name';
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of a valid Active Directory user, using the format domain\username.';
-
-                    trigger OnValidate()
-                    begin
-                        ValidateWindowsUserName;
-                    end;
-                }
-                field("Windows User Name Desktop"; WindowsUserName)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Windows Client only functionality. Will be removed. Use "Windows User Name" instead.';
-                    ObsoleteTag = '15.3';
-                    ApplicationArea = Basic, Suite;
-                    AssistEdit = true;
-                    Caption = 'Windows User Name';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the name of a valid Active Directory user, using the format domain\username.';
-                    Visible = false;
-
-                    trigger OnAssistEdit()
-                    begin
-                        error(''); // client side DLL not supported.
-                    end;
 
                     trigger OnValidate()
                     begin
@@ -166,81 +228,24 @@ page 9807 "User Card"
                     ToolTip = 'Specifies if the user will be prompted to change the password at next login.';
                 }
             }
-            group("Web Service Access")
-            {
-                Caption = 'Web Service Access';
-                field(WebServiceID; WebServiceID)
-                {
-                    ApplicationArea = Basic, Suite;
-                    AssistEdit = true;
-                    Caption = 'Web Service Access Key';
-                    Editable = false;
-                    ToolTip = 'Specifies a generated key that Dynamics 365 web service applications can use to authenticate to Dynamics 365 services. Choose the AssistEdit button to generate a key.';
 
-                    trigger OnAssistEdit()
-                    begin
-                        EditWebServiceID;
-                    end;
-                }
-                field(WebServiceExpiryDate; WebServiceExpiryDate)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Web Service Expiry Date';
-                    Editable = false;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies an expiration date for the web services access key.';
-                }
+            part(UserGroups; "User Groups User SubPage")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'User Group Memberships';
+                SubPageLink = "User Security ID" = field("User Security ID");
+                UpdatePropagation = Both;
+                AboutTitle = 'Assigning group memberships';
+                AboutText = 'You add or remove memberships by updating the lines here. The user inherits permission sets from all the assigned user groups.';
             }
-            group("Office 365 Authentication")
+            part(Permissions; "User Subform")
             {
-                Caption = 'Office 365 Authentication', Comment = '{Locked="Office 365"}';
-                field("Authentication Email"; "Authentication Email")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Authentication Email';
-					Editable = not IsSaaS;
-                    ToolTip = 'Specifies the Microsoft account that this user signs into Office 365 or SharePoint Online with.';
+                ApplicationArea = Basic, Suite;
+                Caption = 'User Permission Sets';
+                SubPageLink = "User Security ID" = field("User Security ID");
+                AboutTitle = 'Assigning permissions';
+                AboutText = 'You add or remove permissions by updating the lines here. If you leave the Company field blank on a line, the assignment applies to all companies.';
 
-                    trigger OnValidate()
-                    begin
-                        IdentityManagement.SetAuthenticationEmail("User Security ID", "Authentication Email");
-                        CurrPage.SaveRecord;
-                        AuthenticationStatus := IdentityManagement.GetAuthenticationStatus("User Security ID");
-                    end;
-                }
-                field(ApplicationID; ApplicationID)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Application ID';
-                    ToolTip = 'Specifies the client ID of the Microsoft Azure Active Directory application when authenticating web-service calls. This field is only relevant when the Business Central user is used for web services.';
-                    Visible = not IsSaaS;
-
-                    trigger OnValidate()
-                    var
-                        ZeroGUID: Guid;
-                    begin
-                        if ApplicationID = '' then
-                            Validate("Application ID", ZeroGUID)
-                        else
-                            Validate("Application ID", ApplicationID);
-                    end;
-                }
-                field(MappedToExchangeIdentifier; HasExchangeIdentifier)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Mapped To Exchange Identifier';
-                    Editable = false;
-                    Style = StandardAccent;
-                    StyleExpr = TRUE;
-                    ToolTip = 'Specifies whether the user is mapped to a Microsoft Exchange identifier, which enables the user to access Business Central from Exchange applications (such as Outlook) without having to sign-in.';
-                }
-                field(AuthenticationStatus; AuthenticationStatus)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Authentication Status';
-                    Editable = false;
-                    ToolTip = 'Specifies the user''s status for Office 365 authentication. When you start to create a user, the status is Disabled. After you specify an authentication email address for the user, the status changes to Inactive. After the user logs on successfully, the status changes to Active.';
-                }
             }
             part(Plans; "User Plans FactBox")
             {
@@ -248,20 +253,6 @@ page 9807 "User Card"
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "User Security ID" = field("User Security ID");
                 Visible = IsSaaS;
-            }
-
-            part(UserGroups; "User Groups User SubPage")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'User Groups';
-                SubPageLink = "User Security ID" = field("User Security ID");
-                UpdatePropagation = Both;
-            }
-            part(Permissions; "User Subform")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'User Permission Sets';
-                SubPageLink = "User Security ID" = field("User Security ID");
             }
         }
         area(factboxes)
@@ -322,7 +313,7 @@ page 9807 "User Card"
                     Caption = 'Update user from Office 365';
                     ToolTip = 'Update user''s name, authentication email address, and contact email address from Office 365';
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'Use the ''Update users from Office'' action on the ''Users'' page instead.';
+                    ObsoleteReason = 'Use the ''Update users from Microsoft 365'' action on the ''Users'' page instead.';
                     Visible = IsSaaS;
                     ObsoleteTag = '16.0';
 
@@ -340,9 +331,6 @@ page 9807 "User Card"
                     Caption = 'Change &Web Service Key';
                     Enabled = AllowChangeWebServiceAccessKey;
                     Image = ServiceCode;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Set up the key that web services use to access your data, and then specify the key on the user card for the relevant user accounts.';
 
                     trigger OnAction()
@@ -415,8 +403,10 @@ page 9807 "User Card"
 
         if UserSecurityId() <> Rec."User Security ID" then
             WebServiceID := '*************************************'
-        else
+        else begin
             WebServiceID := IdentityManagement.GetWebServicesKey(Rec."User Security ID");
+            Session.LogSecurityAudit(ReadWebServiceKeyTxt, SecurityOperationResult::Success, StrSubstNo(ReadWebServiceKeyForUserTxt, "User Name"), AuditCategory::KeyManagement);
+        end;
 
         AllowChangeWebServiceAccessKey := (UserSecurityId() = Rec."User Security ID") or UserPermissions.CanManageUsersOnTenant(UserSecurityId());
     end;
@@ -498,13 +488,17 @@ page 9807 "User Card"
         ConfirmRemoveExchangeIdentifierQst: Label 'If you delete the Exchange Identifier Mapping, the user will no longer automatically be signed in when they use Exchange applications.\Do you want to continue?';
         IsSaaS: Boolean;
         ApplicationID: Text;
-        CannotManageUsersQst: Label 'You cannot add or delete users on this page. Administrators can manage users in the Office 365 admin center.\\Do you want to go there now?';
+        CannotManageUsersQst: Label 'You cannot add or delete users on this page. Administrators can manage users in the Microsoft 365 admin center.\\Do you want to go there now?';
         [InDataSet]
         AllowChangeWebServiceAccessKey: Boolean;
         InitialState: Option;
         CreateFirstUserQst: Label 'You will be locked out after creating first user. Would you first like to create a SUPER user for %1?', Comment = 'USERID';
         InfoUpToDateMsg: Label 'The information about this user is up to date.';
         CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
+        ReadWebServiceKeyTxt: Label 'Read web service key', Locked = true;
+        ReadWebServiceKeyForUserTxt: Label 'Read web service key for user %1', Locked = true;
+        NewWebSeriveKeyTxt: label 'New web service key', Locked = true;
+        NewWebSeriveKeyForUserTxt: Label 'New web service key was created for user %1', Locked = true;
 
     local procedure ValidateSid()
     var
@@ -518,7 +512,7 @@ page 9807 "User Card"
 
         User.SetFilter("Windows Security ID", "Windows Security ID");
         User.SetFilter("User Security ID", '<>%1', "User Security ID");
-        if not User.IsEmpty then
+        if not User.IsEmpty() then
             Error(Text002Err, User."User Name");
     end;
 
@@ -555,7 +549,7 @@ page 9807 "User Card"
         UserMgt: Codeunit "User Management";
     begin
         UserMgt.ValidateUserName(Rec, xRec, WindowsUserName);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ValidateState()
@@ -582,8 +576,10 @@ page 9807 "User Card"
             SetWebServiceAccessKey.SetRecord(UserSecID);
             SetWebServiceAccessKey.SetTableView(UserSecID);
 
-            if SetWebServiceAccessKey.RunModal() = Action::OK then
+            if SetWebServiceAccessKey.RunModal() = Action::OK then begin
                 CurrPage.Update();
+                Session.LogSecurityAudit(NewWebSeriveKeyTxt, SecurityOperationResult::Success, StrSubstNo(NewWebSeriveKeyForUserTxt, "User Name"), AuditCategory::KeyManagement);
+            end;
         end;
     end;
 
@@ -617,7 +613,7 @@ page 9807 "User Card"
         UserACSSetup.SetRecord(UserSecID);
         UserACSSetup.SetTableView(UserSecID);
         if UserACSSetup.RunModal = Action::OK then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     procedure DeleteUserIsAllowed(User: Record User): Boolean
@@ -686,7 +682,7 @@ page 9807 "User Card"
             exit;
 
         // Users already exist
-        if not User.IsEmpty then
+        if not User.IsEmpty() then
             exit;
 
         if Confirm(CreateFirstUserQst, true, UserId) then

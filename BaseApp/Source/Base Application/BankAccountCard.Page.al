@@ -23,7 +23,7 @@ page 370 "Bank Account Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Bank BIC"; "Bank BIC")
@@ -155,6 +155,17 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date when the Bank Account card was last modified.';
+                }
+                group("Payment Matching")
+                {
+                    Caption = 'Payment Matching';
+                    field("Disable Automatic Pmt Matching"; "Disable Automatic Pmt Matching")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Disable Automatic Payment Matching';
+                        Importance = Additional;
+                        ToolTip = 'Specifies whether to disable automatic payment matching after importing bank transactions for this bank account.';
+                    }
                 }
                 group("Payment Match Tolerance")
                 {

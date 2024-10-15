@@ -259,8 +259,6 @@ codeunit 134626 "Person and Company Contacts"
         MiddleName := LibraryUtility.GenerateGUID;
         Surname := LibraryUtility.GenerateGUID;
 
-        LibraryVariableStorage.Enqueue(true);
-
         ContactCard.OpenNew;
         ContactCard.Type.SetValue(Contact.Type::Person);
         ContactCard.Name.SetValue(StrSubstNo('%1 %2 %3', FirstName, MiddleName, Surname));
@@ -291,8 +289,6 @@ codeunit 134626 "Person and Company Contacts"
 
         // [GIVEN] New Contact Card page opened with "Type" set to 'Company' and "Name" field set to 'X'
         CompanyName := LibraryUtility.GenerateGUID();
-
-        LibraryVariableStorage.Enqueue(true);
 
         ContactCard.OpenNew();
         ContactCard.Type.SetValue(Contact.Type::Company);
@@ -456,8 +452,6 @@ codeunit 134626 "Person and Company Contacts"
         ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", PersonContact."No.");
 
-        LibraryVariableStorage.Enqueue(false);
-
         // [WHEN] Invoke Assist Edit on a 'Company Name' field
         ContactCard."Company Name".AssistEdit();
 
@@ -480,14 +474,10 @@ codeunit 134626 "Person and Company Contacts"
         // [SCENARIO 349009] Stan can't update person contact's name on name details page when Stan hasn't modify permissions
         Initialize();
 
-        LibraryVariableStorage.Enqueue(true);
-
         LibraryMarketing.CreatePersonContact(Contact);
         ContactBackup := Contact;
 
-        LibraryLowerPermissions.SetO365Basic();
-        LibraryLowerPermissions.AddRMCont();
-        LibraryLowerPermissions.AddRMTodo();
+        LibraryLowerPermissions.SetOppMGT();
 
         ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", Contact."No.");
@@ -526,9 +516,7 @@ codeunit 134626 "Person and Company Contacts"
 
         LibraryMarketing.CreatePersonContact(Contact);
 
-        LibraryLowerPermissions.SetO365Basic();
-        LibraryLowerPermissions.AddRMContEdit();
-        LibraryLowerPermissions.AddRMTodoEdit();
+        LibraryLowerPermissions.SetOppMGT();
 
         ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", Contact."No.");
@@ -558,14 +546,10 @@ codeunit 134626 "Person and Company Contacts"
         // [SCENARIO 349009] Stan can't update company contact's name on company details page when Stan hasn't modify permissions
         Initialize();
 
-        LibraryVariableStorage.Enqueue(true);
-
         LibraryMarketing.CreateCompanyContact(Contact);
         ContactBackup := Contact;
 
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddRMCont;
-        LibraryLowerPermissions.AddRMTodo;
+        LibraryLowerPermissions.SetOppMGT();
 
         ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", Contact."No.");
@@ -598,9 +582,7 @@ codeunit 134626 "Person and Company Contacts"
 
         LibraryMarketing.CreateCompanyContact(Contact);
 
-        LibraryLowerPermissions.SetO365Basic();
-        LibraryLowerPermissions.AddRMContEdit();
-        LibraryLowerPermissions.AddRMTodoEdit();
+        LibraryLowerPermissions.SetOppMGT();
 
         ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", Contact."No.");
@@ -627,8 +609,6 @@ codeunit 134626 "Person and Company Contacts"
         // [SCENARIO 349009] Stan can view person contact's company name on company details page when Stan hasn't modify permissions
         Initialize();
 
-        LibraryVariableStorage.Enqueue(false);
-
         // [GIVEN] New contact with "Company Name" = "Name"
         LibraryMarketing.CreatePersonContact(ContactPerson);
         LibraryMarketing.CreateCompanyContact(ContactCompany);
@@ -636,9 +616,7 @@ codeunit 134626 "Person and Company Contacts"
         ContactPerson.Modify(true);
 
         // [GIVEN] User without Contact editing permisions
-        LibraryLowerPermissions.SetO365Basic();
-        LibraryLowerPermissions.AddRMCont();
-        LibraryLowerPermissions.AddRMTodo();
+        LibraryLowerPermissions.SetOppMGT();
 
         // [GIVEN] Open its Card
         ContactCard.OpenEdit();
@@ -667,16 +645,12 @@ codeunit 134626 "Person and Company Contacts"
         // [SCENARIO 349009] Stan can view person contact's company name on company details page when Stan hasn't modify permissions
         Initialize();
 
-        LibraryVariableStorage.Enqueue(false);
-
         LibraryMarketing.CreatePersonContact(ContactPerson);
         LibraryMarketing.CreateCompanyContact(ContactCompany);
         ContactPerson.Validate("Company No.", ContactCompany."No.");
         ContactPerson.Modify(true);
 
-        LibraryLowerPermissions.SetO365Basic();
-        LibraryLowerPermissions.AddRMContEdit();
-        LibraryLowerPermissions.AddRMTodoEdit();
+        LibraryLowerPermissions.SetOppMGT();
 
         ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", ContactPerson."No.");
@@ -869,7 +843,6 @@ codeunit 134626 "Person and Company Contacts"
     [Scope('OnPrem')]
     procedure NameDetailsModalPageHandler(var NameDetails: TestPage "Name Details")
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueBoolean(), NameDetails."First Name".Editable, '');
         LibraryVariableStorage.Enqueue(NameDetails."First Name".Value);
         LibraryVariableStorage.Enqueue(NameDetails."Middle Name".Value);
         LibraryVariableStorage.Enqueue(NameDetails.Surname.Value);
@@ -880,7 +853,6 @@ codeunit 134626 "Person and Company Contacts"
     [Scope('OnPrem')]
     procedure CompanyDetailsModalPageHandler(var CompanyDetails: TestPage "Company Details")
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueBoolean(), CompanyDetails.Name.Editable, '');
         LibraryVariableStorage.Enqueue(CompanyDetails.Name.Value);
         CompanyDetails.OK.Invoke();
     end;

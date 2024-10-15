@@ -121,7 +121,7 @@ report 17456 "Paysheet T-51"
                                     PayrollDocLine.SetRange("Element Type", PayrollDocLine."Element Type"::Deduction);
                                     PayrollDocLine.CalcSums("Payroll Amount");
                                     DeductionAmount += PayrollDocLine."Payroll Amount";
-                                until PayrollDoc.Next = 0;
+                                until PayrollDoc.Next() = 0;
                         end;
                 end;
 
@@ -286,7 +286,7 @@ report 17456 "Paysheet T-51"
                                 EmployeeBuffer."No." := PostedPayrollDoc."Employee No.";
                                 EmployeeBuffer.Insert();
                             end;
-                        until PostedPayrollDoc.Next = 0;
+                        until PostedPayrollDoc.Next() = 0;
                 end;
             DataSource::"Payroll Documents":
                 begin
@@ -297,7 +297,7 @@ report 17456 "Paysheet T-51"
                                 EmployeeBuffer."No." := PayrollDoc."Employee No.";
                                 EmployeeBuffer.Insert();
                             end;
-                        until PayrollDoc.Next = 0;
+                        until PayrollDoc.Next() = 0;
                 end;
         end;
 
@@ -309,7 +309,7 @@ report 17456 "Paysheet T-51"
                 EmployeeList."Last Name & Initials" := Employee."Last Name" + ' ' + Employee.Initials;
                 EmployeeList."Appointment Name" := Employee."Job Title";
                 EmployeeList.Insert();
-            until EmployeeBuffer.Next = 0;
+            until EmployeeBuffer.Next() = 0;
 
         if PreviewMode then
             DocNo := 'XXXXXXXXXX'

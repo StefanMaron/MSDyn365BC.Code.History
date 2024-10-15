@@ -12,37 +12,39 @@ page 6511 "Posted Item Tracking Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a serial number if the posted item carries such a number.';
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a lot number if the posted item carries such a number.';
                 }
-                field("CD No."; "CD No.")
+                field("Package No."; Rec."Package No.")
                 {
-                    ToolTip = 'Specifies the customs declaration number.';
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies a package number if the posted item carries such a number.';
+                    Visible = PackageTrackingVisible;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number of units of the item in the item entry.';
                 }
-                field("Shipped Qty. Not Returned"; "Shipped Qty. Not Returned")
+                field("Shipped Qty. Not Returned"; Rec."Shipped Qty. Not Returned")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the quantity for this item ledger entry that was shipped and has not yet been returned.';
                     Visible = false;
                 }
-                field("Warranty Date"; "Warranty Date")
+                field("Warranty Date"; Rec."Warranty Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the last day of warranty for the item on the line.';
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the last date that the item on the line can be used.';
@@ -73,14 +75,25 @@ page 6511 "Posted Item Tracking Lines"
         CaptionText1: Text[100];
         CaptionText2: Text[100];
     begin
-        CaptionText1 := "Item No.";
+        CaptionText1 := Rec."Item No.";
         if CaptionText1 <> '' then begin
             CaptionText2 := CurrPage.Caption;
             CurrPage.Caption := StrSubstNo(Text001, CaptionText1, CaptionText2);
         end;
+
+        SetPackageTrackingVisibility();
     end;
 
     var
         Text001: Label '%1 - %2', Locked = true;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
+    end;
 }
 

@@ -120,7 +120,7 @@ page 17471 "Posted Other Absence Order"
                     begin
                         Clear(AbsenceOrderPostYesNo);
                         AbsenceOrderPostYesNo.CancelOrder(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

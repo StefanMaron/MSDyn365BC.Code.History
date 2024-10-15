@@ -148,7 +148,7 @@ table 17415 "Payroll Document Line"
                         PayrollCalcTypeLine.SetRange("Element Code", "Element Code");
                         if PayrollCalcTypeLine.FindFirst then
                             AvailabilityIndex := true;
-                    until PayrollCalcGroupLine.Next = 0;
+                    until PayrollCalcGroupLine.Next() = 0;
 
                 CreateDim(DATABASE::"Payroll Element", "Element Code");
 

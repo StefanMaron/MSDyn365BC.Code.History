@@ -23,7 +23,7 @@ codeunit 17350 "Record of Service Management"
                     TotalDays += "Ending Date" - "Starting Date";
                     if "Insured Period Starting Date" <> 0D then
                         TotalDays := TotalDays + 1;
-                until Next = 0;
+                until Next() = 0;
 
             CalcServicePeriod(TotalDays, ServicePeriod);
         end;
@@ -48,7 +48,7 @@ codeunit 17350 "Record of Service Management"
                           "Insured Period Starting Date", "Insured Period Ending Date",
                           PrevStartDate, PrevEndDate, ServicePeriod);
                     end;
-                until Next = 0;
+                until Next() = 0;
 
             if PrevStartDate <> 0D then
                 AddToServicePeriod(PrevStartDate, PrevEndDate, ServicePeriod);
@@ -120,7 +120,7 @@ codeunit 17350 "Record of Service Management"
                     if "Starting Date" <> 0D then
                         ProcessISEntry(
                           "Starting Date", "Ending Date", PrevStartDate, PrevEndDate, ServicePeriod);
-                until Next = 0;
+                until Next() = 0;
 
             if PrevStartDate <> 0D then
                 AddToServicePeriod(PrevStartDate, PrevEndDate, ServicePeriod);
@@ -157,7 +157,7 @@ codeunit 17350 "Record of Service Management"
                         ProcessISEntry(
                           "Insured Period Starting Date", "Insured Period Ending Date",
                           PrevStartDate, PrevEndDate, ServicePeriod);
-                until Next = 0;
+                until Next() = 0;
 
             if PrevStartDate <> 0D then
                 AddToServicePeriod(PrevStartDate, PrevEndDate, ServicePeriod);

@@ -307,7 +307,7 @@ table 17400 "Payroll Element"
         PayrollLedgerEntry.SetCurrentKey("Element Code");
         PayrollLedgerEntry.SetRange("Element Code", Code);
         PayrollLedgerEntry.SetRange("Posting Date", DMY2Date(1, 1, Date2DMY(WorkDate, 3)), 99991231D);
-        if not PayrollLedgerEntry.IsEmpty then
+        if not PayrollLedgerEntry.IsEmpty() then
             Error(Text007, Code, PayrollLedgerEntry.TableCaption);
         PayrollLedgerEntry.SetRange("Posting Date");
         PayrollLedgerEntry.ModifyAll("Element Code", '');
@@ -325,7 +325,7 @@ table 17400 "Payroll Element"
         PayrollDocLine.Reset();
         PayrollDocLine.SetCurrentKey("Element Code");
         PayrollDocLine.SetRange("Element Code", Code);
-        if not PayrollDocLine.IsEmpty then
+        if not PayrollDocLine.IsEmpty() then
             Error(Text007, Code, PayrollDocLine.TableCaption);
         PayrollDocLine.DeleteAll();
 

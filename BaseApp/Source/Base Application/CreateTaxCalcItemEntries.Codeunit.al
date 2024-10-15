@@ -141,9 +141,9 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                                                 end;
                                             end;
                                     end;
-                                until ItemApplEntry.Next = 0;
+                                until ItemApplEntry.Next() = 0;
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         CreateTaxCalcAccumulation(StartDate, EndDate, TaxCalcSectionCode);
@@ -174,8 +174,8 @@ codeunit 17306 "Create Tax Calc. Item Entries"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        ItemRcptHeader: Record "Item Receipt Header";
-        ItemShptHeader: Record "Item Shipment Header";
+        InvtRcptHeader: Record "Invt. Receipt Header";
+        InvtShptHeader: Record "Invt. Shipment Header";
         ReturnShptHeader: Record "Return Shipment Header";
         ReturnRcptHeader: Record "Return Receipt Header";
     begin
@@ -254,13 +254,13 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                                 exit(TaxCalcItemEntry."Document Type"::"Return Rcpt.");
                         end;
                 "Entry Type"::"Positive Adjmt.":
-                    if ItemRcptHeader.Get("Document No.") and
-                       (ItemRcptHeader."Posting Date" = "Posting Date")
+                    if InvtRcptHeader.Get("Document No.") and
+                       (InvtRcptHeader."Posting Date" = "Posting Date")
                     then
                         exit(TaxCalcItemEntry."Document Type"::"Positive Adj.");
                 "Entry Type"::"Negative Adjmt.":
-                    if ItemShptHeader.Get("Document No.") and
-                       (ItemShptHeader."Posting Date" = "Posting Date")
+                    if InvtShptHeader.Get("Document No.") and
+                       (InvtShptHeader."Posting Date" = "Posting Date")
                     then
                         exit(TaxCalcItemEntry."Document Type"::"Negative Adj.");
             end;
@@ -368,7 +368,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
     begin
         TaxCalcHeader.SetRange("Section Code", TaxCalcSectionCode);
         TaxCalcHeader.SetRange("Table ID", DATABASE::"Tax Calc. Item Entry");
-        if TaxCalcHeader.IsEmpty then
+        if TaxCalcHeader.IsEmpty() then
             exit;
 
         GLCorrespondEntryTmp.SetCurrentKey("Debit Account No.", "Credit Account No.");
@@ -389,7 +389,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
 
         Clear(TaxDimMgt);
 
-        TaxCalcHeader.FindSet;
+        TaxCalcHeader.FindSet();
         repeat
             TaxCalcSelectionSetup.SetRange("Register No.", TaxCalcHeader."No.");
             if TaxCalcSelectionSetup.FindFirst then begin
@@ -401,7 +401,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                         TaxCalcLineTmp := TaxCalcLine;
                         TaxCalcLineTmp.Value := 0;
                         TaxCalcLineTmp.Insert();
-                    until TaxCalcLine.Next = 0;
+                    until TaxCalcLine.Next() = 0;
 
                 TaxCalcItemEntry.Reset();
                 TaxCalcItemEntry.SetCurrentKey("Section Code", "Ending Date");
@@ -416,7 +416,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                         GLCorrespondEntryTmp."Debit Account No." := TaxCalcItemEntry."Debit Account No.";
                         GLCorrespondEntryTmp."Credit Account No." := TaxCalcItemEntry."Credit Account No.";
                         GLCorrespondEntryTmp.Modify();
-                        TaxCalcSelectionSetup.FindSet;
+                        TaxCalcSelectionSetup.FindSet();
                         repeat
                             if (TaxCalcSelectionSetup."Account No." <> '') or
                                (TaxCalcSelectionSetup."Bal. Account No." <> '')
@@ -457,11 +457,11 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                                                     TaxCalcLineTmp.Modify();
                                                 end;
                                             end;
-                                        until TaxCalcLineTmp.Next = 0;
+                                        until TaxCalcLineTmp.Next() = 0;
                                 end;
                             end;
-                        until TaxCalcSelectionSetup.Next = 0;
-                    until TaxCalcItemEntry.Next = 0;
+                        until TaxCalcSelectionSetup.Next() = 0;
+                    until TaxCalcItemEntry.Next() = 0;
 
                 TaxCalcLineTmp.Reset();
                 if TaxCalcLineTmp.FindSet then
@@ -499,9 +499,9 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                             TaxCalcAccumul.Amount := TaxCalcAccumul0."Amount Period";
                             TaxCalcAccumul.Modify();
                         end;
-                    until TaxCalcLineTmp.Next = 0;
+                    until TaxCalcLineTmp.Next() = 0;
             end;
-        until TaxCalcHeader.Next = 0;
+        until TaxCalcHeader.Next() = 0;
         TaxCalcLineTmp.DeleteAll();
     end;
 
@@ -520,7 +520,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                 ItemCharge.Get(ValueEntry."Item Charge No.");
                 if ItemCharge."Exclude Cost for TA" then
                     FineAmount -= ValueEntry."Cost Amount (Actual)";
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 }
 

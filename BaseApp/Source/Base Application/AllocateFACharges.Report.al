@@ -27,14 +27,14 @@ report 14912 "Allocate FA Charges"
                 if SourcePurchLine.FindSet then begin
                     repeat
                         SourceDocAmount += SourcePurchLine."Direct Unit Cost";
-                    until SourcePurchLine.Next = 0;
+                    until SourcePurchLine.Next() = 0;
 
                     PurchLine.SetRange("Document Type", "Document Type");
                     PurchLine.SetRange("Document No.", "No.");
                     if PurchLine.FindLast then;
                     LineNo := PurchLine."Line No." + 10000;
 
-                    SourcePurchLine.FindSet;
+                    SourcePurchLine.FindSet();
                     repeat
                         PurchLine.Init();
                         PurchLine := SourcePurchLine;
@@ -50,7 +50,7 @@ report 14912 "Allocate FA Charges"
 
                         LineNo += 10000;
                         TotalAmount += PurchLine."Direct Unit Cost";
-                    until SourcePurchLine.Next = 0;
+                    until SourcePurchLine.Next() = 0;
 
                     if TotalAmount <> AmountToAllocate then begin
                         PurchLine.FindLast;
@@ -262,7 +262,7 @@ report 14912 "Allocate FA Charges"
                         repeat
                             SourcePurchLine := PurchaseLine;
                             SourcePurchLine.Insert();
-                        until PurchaseLine.Next = 0;
+                        until PurchaseLine.Next() = 0;
                 end;
             SourceDocType::"Posted Receipt":
                 begin
@@ -273,7 +273,7 @@ report 14912 "Allocate FA Charges"
                             repeat
                                 SourcePurchLine.TransferFields(PurchRcptLine);
                                 SourcePurchLine.Insert();
-                            until Next = 0;
+                            until Next() = 0;
                     end
                 end;
             SourceDocType::"Posted Invoice":
@@ -285,7 +285,7 @@ report 14912 "Allocate FA Charges"
                             repeat
                                 SourcePurchLine.TransferFields(PurchInvLine);
                                 SourcePurchLine.Insert();
-                            until Next = 0;
+                            until Next() = 0;
                     end
                 end;
             SourceDocType::"Posted Return Shipment":
@@ -297,7 +297,7 @@ report 14912 "Allocate FA Charges"
                             repeat
                                 SourcePurchLine.TransferFields(ReturnShipmentLine);
                                 SourcePurchLine.Insert();
-                            until Next = 0;
+                            until Next() = 0;
                     end
                 end;
             SourceDocType::"Posted Credit Memo":
@@ -309,7 +309,7 @@ report 14912 "Allocate FA Charges"
                             repeat
                                 SourcePurchLine.TransferFields(PurchCrMemoLine);
                                 SourcePurchLine.Insert();
-                            until Next = 0;
+                            until Next() = 0;
                     end
                 end;
         end;

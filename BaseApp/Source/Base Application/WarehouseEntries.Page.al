@@ -17,176 +17,178 @@ page 7318 "Warehouse Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the entry type, which can be Negative Adjmt., Positive Adjmt., or Movement.';
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';
                     Visible = false;
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the line number of the warehouse document line or warehouse journal line that was registered.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location to which the entry is linked.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number.';
                     Visible = false;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the lot number assigned to the warehouse entry.';
                     Visible = false;
                 }
-                field("CD No."; "CD No.")
+                field("Package No."; Rec."Package No.")
                 {
-                    ToolTip = 'Specifies the customs declaration number.';
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number assigned to the warehouse entry.';
+                    Visible = PackageTrackingVisible;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the expiration date of the serial number.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone to which the entry is linked.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item in the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the warehouse entry.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of units of the item in the warehouse entry.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the entry, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure that are in the unit of measure specified for the item on the line.';
                     Visible = false;
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the table number that is the source of the entry line, for example, 39 for a purchase line, 37 for a sales line.';
                     Visible = false;
                 }
-                field("Source Subtype"; "Source Subtype")
+                field("Source Subtype"; Rec."Source Subtype")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the source subtype of the document to which the warehouse entry line relates.';
                     Visible = false;
                 }
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Source Line No."; "Source Line No.")
+                field("Source Line No."; Rec."Source Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the line number of the source document that the entry originates from.';
                 }
-                field("Source Subline No."; "Source Subline No.")
+                field("Source Subline No."; Rec."Source Subline No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the source subline number of the document from which the entry originates.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                     Visible = false;
                 }
-                field(Cubage; Cubage)
+                field(Cubage; Rec.Cubage)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the total cubage of the items on the warehouse entry line.';
                     Visible = false;
                 }
-                field(Weight; Weight)
+                field(Weight; Rec.Weight)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the weight of one item unit when measured in the specified unit of measure.';
                     Visible = false;
                 }
-                field("Journal Template Name"; "Journal Template Name")
+                field("Journal Template Name"; Rec."Journal Template Name")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the name of the journal template, the basis of the journal batch, that the entries were posted from.';
                     Visible = false;
                 }
-                field("Whse. Document Type"; "Whse. Document Type")
+                field("Whse. Document Type"; Rec."Whse. Document Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of the document from which this entry originated.';
                 }
-                field("Whse. Document No."; "Whse. Document No.")
+                field("Whse. Document No."; Rec."Whse. Document No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the warehouse document from which this entry originated.';
                 }
-                field("Registering Date"; "Registering Date")
+                field("Registering Date"; Rec."Registering Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date the entry was registered.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -196,10 +198,10 @@ page 7318 "Warehouse Entries"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -224,5 +226,21 @@ page 7318 "Warehouse Entries"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    begin
+        SetPackageTrackingVisibility();
+    end;
+
+    var
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
+    end;
 }
 

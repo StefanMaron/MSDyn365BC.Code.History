@@ -77,7 +77,7 @@ page 17330 "Tax Calc. Cor. Dim. Filters"
                     Rec := TemplateDimFilter;
                     Insert;
                 end;
-            until TemplateDimCorrespFilter.Next = 0;
+            until TemplateDimCorrespFilter.Next() = 0;
     end;
 }
 

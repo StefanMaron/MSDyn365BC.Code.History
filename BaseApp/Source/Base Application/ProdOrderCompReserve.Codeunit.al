@@ -1,4 +1,4 @@
-﻿codeunit 99000838 "Prod. Order Comp.-Reserve"
+codeunit 99000838 "Prod. Order Comp.-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Action Message Entry" = rm;
@@ -58,6 +58,7 @@
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(ProdOrderComponent, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(ProdOrderComp: Record "Prod. Order Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
     var
@@ -65,9 +66,10 @@
     begin
         ForReservEntry."Serial No." := ForSerialNo;
         ForReservEntry."Lot No." := ForLotNo;
-        ForReservEntry."CD No." := ForCDNo;
+        ForReservEntry."Package No." := ForCDNo;
         CreateReservation(ProdOrderComp, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     local procedure CreateBindingReservation(ProdOrderComp: Record "Prod. Order Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
@@ -86,11 +88,13 @@
         CreateReservEntry.SetBinding(Binding);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by ProdOrderComp.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component")
     begin
         ProdOrderComp.SetReservationFilters(FilterReservEntry);
     end;
+#endif
 
     procedure Caption(ProdOrderComp: Record "Prod. Order Component") CaptionText: Text
     begin
@@ -101,7 +105,7 @@
     begin
         ReservEntry.InitSortingAndFilters(false);
         ProdOrderComp.SetReservationFilters(ReservEntry);
-        if not ReservEntry.IsEmpty then
+        if not ReservEntry.IsEmpty() then
             exit(ReservEntry.FindLast);
     end;
 
@@ -110,7 +114,7 @@
         ReservEntry: Record "Reservation Entry";
     begin
         ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        FilterReservFor(ReservEntry, ProdOrderComp);
+        ProdOrderComp.SetReservationFilters(ReservEntry);
         exit(not ReservEntry.IsEmpty);
     end;
 
@@ -286,7 +290,7 @@
                 CreateReservEntry.SetNewTrackingFromItemJnlLine(NewItemJnlLine);
                 // Try to match against Item Tracking on the prod. order line:
                 OldReservEntry.SetTrackingFilterFromItemJnlLine(NewItemJnlLine);
-                if OldReservEntry.IsEmpty then
+                if OldReservEntry.IsEmpty() then
                     OldReservEntry.ClearTrackingFilter
                 else
                     ItemTrackingFilterIsSet := true;
@@ -302,9 +306,13 @@
             repeat
                 OldReservEntry.TestItemFields(OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code");
 
+                OnTransferPOCompToItemJnlLineCheckILEOnBeforeTransferReservEntry(NewItemJnlLine, OldReservEntry);
+
                 TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
                     NewItemJnlLine."Entry Type".AsInteger(), NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name", 0,
                     NewItemJnlLine."Line No.", NewItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+
+                OnTransferPOCompToItemJnlLineCheckILEOnAfterTransferReservEntry(NewItemJnlLine, OldReservEntry);
 
                 EndLoop := TransferQty = 0;
                 if not EndLoop then
@@ -504,12 +512,15 @@
 
     local procedure EntryStartNo(): Integer
     begin
-        exit(71);
+        exit("Reservation Summary Type"::"Simulated Prod. Order Comp.".AsInteger());
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo in [71, 72, 73, 74]);
+        exit(EntryNo in ["Reservation Summary Type"::"Simulated Prod. Order Comp.".AsInteger(),
+                         "Reservation Summary Type"::"Planned Prod. Order Comp.".AsInteger(),
+                         "Reservation Summary Type"::"Firm Planned Prod. Order Comp.".AsInteger(),
+                         "Reservation Summary Type"::"Released Prod. Order Comp.".AsInteger()]);
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -664,7 +675,7 @@
                 ProdOrderComp.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= ProdOrderComp."Reserved Qty. (Base)";
                 TotalQuantity += ProdOrderComp."Remaining Qty. (Base)";
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
 
         if TotalQuantity = 0 then
             exit;
@@ -688,7 +699,9 @@
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]
     local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
     begin
-        if ReservSummEntry."Entry No." in [73, 74] then
+        if ReservSummEntry."Entry No." in ["Reservation Summary Type"::"Firm Planned Prod. Order Comp.".AsInteger(),
+                                           "Reservation Summary Type"::"Released Prod. Order Comp.".AsInteger()]
+        then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, "Production Order Status".FromInteger(ReservSummEntry."Entry No." - 71), Positive, TotalQuantity);
     end;
@@ -715,6 +728,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewProdOrderComp: Record "Prod. Order Component"; OldProdOrderComp: Record "Prod. Order Component"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferPOCompToItemJnlLineCheckILEOnAfterTransferReservEntry(NewItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferPOCompToItemJnlLineCheckILEOnBeforeTransferReservEntry(NewItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry")
     begin
     end;
 }

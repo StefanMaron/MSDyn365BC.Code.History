@@ -152,7 +152,7 @@ report 14966 "Sales Corr. Factura-Invoice"
                     repeat
                         AttachedSalesLine := SalesLine1;
                         AttachedSalesLine.Insert();
-                    until SalesLine1.Next = 0;
+                    until SalesLine1.Next() = 0;
 
                 SalesLine1.SetRange("Attached to Line No.");
 

@@ -296,7 +296,7 @@
 
                     trigger OnAction()
                     begin
-                        Find;
+                        Find();
                         ShowReservation();
                     end;
                 }
@@ -357,6 +357,16 @@
                         begin
                             ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
+                    }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("Item No."),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
                     }
                     action("BOM Level")
                     {
@@ -427,12 +437,12 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveTransferLine: Codeunit "Transfer Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
     begin
         Commit();
-        if not ReserveTransferLine.DeleteLineConfirm(Rec) then
+        if not TransferLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveTransferLine.DeleteLine(Rec);
+        TransferLineReserve.DeleteLine(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

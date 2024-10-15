@@ -566,7 +566,7 @@ codeunit 144017 "ERM Corrective Documents"
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]

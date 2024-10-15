@@ -52,7 +52,6 @@ codeunit 134328 "ERM Purchase Invoice"
         PayToAddressFieldsNotEditableErr: Label 'Pay-to address fields should not be editable.';
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
         ConfirmCreateEmptyPostedInvMsg: Label 'Deleting this document will cause a gap in the number series for posted invoices. An empty posted invoice %1 will be created', Comment = '%1 - Invoice No.';
-        PAndPqoircPermissionSetTxt: Label 'P&P-Q/O/I/R/C';
         PurchaseAccountIsMissingTxt: Label 'Purch. Account is missing in General Posting Setup.';
         PurchaseVatAccountIsMissingTxt: Label 'Purchase VAT Account is missing in VAT Posting Setup.';
         CannotAllowInvDiscountErr: Label 'The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".';
@@ -2172,7 +2171,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [GIVEN] Purchase header.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(''));
         // [GIVEN] Permisson to create purchase invoices.
-        LibraryLowerPermissions.PushPermissionSet(PAndPqoircPermissionSetTxt);
+        LibraryLowerPermissions.SetPurchDocsCreate();
 
         // [WHEN] Add Purchase Line with standard text, but without type.
         PurchaseLine.Init();
@@ -3555,7 +3554,7 @@ codeunit 134328 "ERM Purchase Invoice"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetFilter(Amount, '>0');
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalGLAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -3572,7 +3571,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         GeneralLedgerSetup.Get();
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             PurchaseAmount += ValueEntry."Purchase Amount (Actual)";
         until ValueEntry.Next = 0;
@@ -3834,7 +3833,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         JobTaskDimension.SetRange("Job No.", JobNo);
         JobTaskDimension.SetRange("Job Task No.", JobTaskNo);
-        JobTaskDimension.FindSet;
+        JobTaskDimension.FindSet();
     end;
 
     local procedure LineDiscInInvWithDiffPricesInclVATThenSourceOrder(PurchHeader: Record "Purchase Header"; var InvoicePurchaseHeader: Record "Purchase Header"; InvPricesInclVAT: Boolean)

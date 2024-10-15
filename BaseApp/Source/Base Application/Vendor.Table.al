@@ -1,4 +1,4 @@
-﻿table 23 Vendor
+table 23 Vendor
 {
     Caption = 'Vendor';
     DataCaptionFields = "No.", Name;
@@ -608,11 +608,9 @@
             Editable = false;
             FieldClass = FlowField;
         }
-        field(80; "Application Method"; Option)
+        field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';
-            OptionCaption = 'Manual,Apply to Oldest';
-            OptionMembers = Manual,"Apply to Oldest";
         }
         field(82; "Prices Including VAT"; Boolean)
         {
@@ -653,9 +651,9 @@
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(90; GLN; Code[13])
         {
@@ -1138,8 +1136,10 @@
                     if Cont."Company No." <> ContBusRel."Contact No." then
                         Error(Text004, Cont."No.", Cont.Name, "No.", Name);
 
-                    if Cont.Type = Cont.Type::Person then
+                    if Cont.Type = Cont.Type::Person then begin
                         Contact := Cont.Name;
+                        exit;
+                    end;
 
                     if Cont."Phone No." <> '' then
                         "Phone No." := Cont."Phone No.";
@@ -1474,7 +1474,7 @@
                 if "Employee No." <> xRec."Employee No." then begin
                     VendLedgerEntry.SetCurrentKey("Vendor No.");
                     VendLedgerEntry.SetRange("Vendor No.", "No.");
-                    if not VendLedgerEntry.IsEmpty then
+                    if not VendLedgerEntry.IsEmpty() then
                         Error(Text012, FieldCaption("Employee No."));
                 end;
             end;
@@ -1728,18 +1728,18 @@
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Vendor);
         CommentLine.SetRange("No.", "No.");
-        if not CommentLine.IsEmpty then
+        if not CommentLine.IsEmpty() then
             CommentLine.DeleteAll();
 
         VendBankAcc.SetRange("Vendor No.", "No.");
-        if not VendBankAcc.IsEmpty then
+        if not VendBankAcc.IsEmpty() then
             VendBankAcc.DeleteAll();
 
         VendAgrmt.SetRange("Vendor No.", "No.");
         VendAgrmt.DeleteAll(true);
 
         OrderAddr.SetRange("Vendor No.", "No.");
-        if not OrderAddr.IsEmpty then
+        if not OrderAddr.IsEmpty() then
             OrderAddr.DeleteAll();
 
         CheckOutstandingPurchaseDocuments();
@@ -1749,22 +1749,22 @@
         DimMgt.DeleteDefaultDim(DATABASE::Vendor, "No.");
 
         ItemVendor.SetRange("Vendor No.", "No.");
-        if not ItemVendor.IsEmpty then
+        if not ItemVendor.IsEmpty() then
             ItemVendor.DeleteAll(true);
 
-        if not SocialListeningSearchTopic.IsEmpty then begin
+        if not SocialListeningSearchTopic.IsEmpty() then begin
             SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Vendor, "No.");
             SocialListeningSearchTopic.DeleteAll();
         end;
 
         CustomReportSelection.SetRange("Source Type", DATABASE::Vendor);
         CustomReportSelection.SetRange("Source No.", "No.");
-        if not CustomReportSelection.IsEmpty then
+        if not CustomReportSelection.IsEmpty() then
             CustomReportSelection.DeleteAll();
 
         PurchPrepmtPct.SetCurrentKey("Vendor No.");
         PurchPrepmtPct.SetRange("Vendor No.", "No.");
-        if not PurchPrepmtPct.IsEmpty then
+        if not PurchPrepmtPct.IsEmpty() then
             PurchPrepmtPct.DeleteAll(true);
 
         VATRegistrationLogMgt.DeleteVendorLog(Rec);
@@ -2345,17 +2345,17 @@
                 if Abs(VendorTextLenght - StrLen(Vendor.Name)) <= Treshold then
                     if TypeHelper.TextDistance(UpperCase(VendorText), UpperCase(Vendor.Name)) <= Treshold then
                         Vendor.Mark(true);
-            until Vendor.Mark or (Vendor.Next = 0) or (VendorCount > 1000);
+            until Vendor.Mark or (Vendor.Next() = 0) or (VendorCount > 1000);
         Vendor.MarkedOnly(true);
     end;
 
     local procedure CreateNewVendor(VendorName: Text[100]; ShowVendorCard: Boolean): Code[20]
     var
         Vendor: Record Vendor;
-        MiniVendorTemplate: Record "Mini Vendor Template";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
         VendorCard: Page "Vendor Card";
     begin
-        if not MiniVendorTemplate.NewVendorFromTemplate(Vendor) then
+        if not VendorTemplMgt.InsertVendorFromTemplate(Vendor) then
             Error(SelectVendorErr);
 
         Vendor.Name := VendorName;
@@ -2417,7 +2417,7 @@
         if Vendor.FindSet then
             repeat
                 Vendor.Mark(true);
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
         if Vendor.FindFirst then;
         Vendor.MarkedOnly := true;
     end;
@@ -2522,6 +2522,14 @@
     begin
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
+    end;
+
+    procedure ToPriceSource(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := "Price Type"::Purchase;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Vendor);
+        PriceSource.Validate("Source No.", "No.");
     end;
 
     local procedure VATRegistrationValidation()

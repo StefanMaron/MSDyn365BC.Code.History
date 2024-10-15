@@ -138,7 +138,7 @@ report 12452 "Advance Statement"
                         Poluch[PaymentNo] := VendLedgerEntry."Document No.";
                         if PaymentNo = 4 then
                             Error(AdvanceErrorErr);
-                    until VendLedgerEntry.Next = 0;
+                    until VendLedgerEntry.Next() = 0;
                 VendLedgerEntry.SetRange(Positive, true);
 
                 PurchaseLine.Reset();
@@ -158,7 +158,7 @@ report 12452 "Advance Statement"
                                 AccountNo := GetVATDebitAccount(PurchaseLine);
                                 CheckDebitAccount(AccountNo, PurchaseLine."Outstanding Amount (LCY)" - LineAmount);
                             end;
-                    until PurchaseLine.Next = 0;
+                    until PurchaseLine.Next() = 0;
 
                 VendorPostingGroup.Get("Vendor Posting Group");
                 CtAccount := VendorPostingGroup."Payables Account";

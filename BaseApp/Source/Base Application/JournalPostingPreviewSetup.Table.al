@@ -64,7 +64,7 @@ table 14929 "Journal Posting Preview Setup"
                         if not FAJnlBatch.Get(JnlPostPreviewSetup."Journal Template Name", JnlPostPreviewSetup."Journal Batch Name") then
                             JnlPostPreviewSetup.Delete();
                 end;
-            until JnlPostPreviewSetup.Next = 0;
+            until JnlPostPreviewSetup.Next() = 0;
 
         GenJnlBatch.Reset();
         if GenJnlBatch.FindSet then
@@ -75,7 +75,7 @@ table 14929 "Journal Posting Preview Setup"
                 JnlPostPreviewSetup."Journal Template Name" := GenJnlBatch."Journal Template Name";
                 JnlPostPreviewSetup."Journal Batch Name" := GenJnlBatch.Name;
                 if JnlPostPreviewSetup.Insert() then;
-            until GenJnlBatch.Next = 0;
+            until GenJnlBatch.Next() = 0;
 
         FAJnlBatch.Reset();
         if FAJnlBatch.FindSet then
@@ -86,7 +86,7 @@ table 14929 "Journal Posting Preview Setup"
                 JnlPostPreviewSetup."Journal Template Name" := FAJnlBatch."Journal Template Name";
                 JnlPostPreviewSetup."Journal Batch Name" := FAJnlBatch.Name;
                 if JnlPostPreviewSetup.Insert() then;
-            until FAJnlBatch.Next = 0;
+            until FAJnlBatch.Next() = 0;
     end;
 }
 

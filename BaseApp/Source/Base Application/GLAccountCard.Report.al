@@ -230,7 +230,7 @@ report 12437 "G/L Account Card"
                             repeat
                                 DebetAmount := DebetAmount + GLEntry1."Debit Amount";
                                 CreditAmount := CreditAmount + GLEntry1."Credit Amount";
-                            until GLEntry1.Next = 0;
+                            until GLEntry1.Next() = 0;
 
                         if ("Posting Date" = ClosingDate("Posting Date")) and
                            not PrintClosingEntries

@@ -15,31 +15,33 @@ page 6502 "Item Tracking Codes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the code of the record.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a description of the item tracking code.';
                 }
-                field("SN Specific Tracking"; "SN Specific Tracking")
+                field("SN Specific Tracking"; Rec."SN Specific Tracking")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies that when handling an outbound unit of the item in question, you must always specify which existing serial number to handle.';
                     Visible = false;
                 }
-                field("Lot Specific Tracking"; "Lot Specific Tracking")
+                field("Lot Specific Tracking"; Rec."Lot Specific Tracking")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies that when handling an outbound unit, always specify which existing lot number to handle.';
                     Visible = false;
                 }
-                field("CD Tracking Exists"; "CD Tracking Exists")
+                field("Package Specific Tracking"; Rec."Package Specific Tracking")
                 {
-                    ToolTip = 'Specifies if any customs declaration numbers exist for the item.';
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies that when handling an outbound unit, always specify which existing package number to handle.';
+                    Visible = PackageTrackingVisible;
                 }
             }
         }
@@ -60,17 +62,21 @@ page 6502 "Item Tracking Codes"
 
     actions
     {
-        area(processing)
-        {
-            action("CD Tracking Setup")
-            {
-                Caption = 'CD Tracking Setup';
-                Image = Track;
-                RunObject = Page "CD Tracking Setup";
-                RunPageLink = "Item Tracking Code" = FIELD(Code);
-                ToolTip = 'Set up custom declaration specific tracking for the item.';
-            }
-        }
     }
+
+    trigger OnOpenPage()
+    begin
+        SetPackageTrackingVisibility();
+    end;
+
+    var
+        PackageTrackingVisible: Boolean;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
+    end;
 }
 

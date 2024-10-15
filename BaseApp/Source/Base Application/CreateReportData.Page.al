@@ -83,7 +83,7 @@ page 26574 "Create Report Data"
                         ExternReportManagement.PeriodSetup(DatePeriod, ProgressiveTotal);
                         StartDate := DatePeriod."Period Start";
                         EndDate := DatePeriod."Period End";
-                        CurrPage.Update;
+                        CurrPage.Update();
                         exit(true);
                     end;
 

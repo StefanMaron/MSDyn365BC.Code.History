@@ -96,7 +96,7 @@ page 17458 "Travel Orders"
                     trigger OnAction()
                     begin
                         ShowDocDim;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Co&mments")

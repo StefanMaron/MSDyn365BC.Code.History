@@ -460,7 +460,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
         end;
     end;
 

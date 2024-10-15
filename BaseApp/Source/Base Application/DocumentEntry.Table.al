@@ -1,6 +1,9 @@
 table 265 "Document Entry"
 {
     Caption = 'Document Entry';
+#pragma warning disable AS0034
+    TableType = Temporary;
+#pragma warning restore AS0034
 
     fields
     {
@@ -35,11 +38,9 @@ table 265 "Document Entry"
         {
             Caption = 'No. of Records 2';
         }
-        field(8; "Document Type"; Option)
+        field(8; "Document Type"; Enum "Document Entry Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order, ';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"," ";
         }
         field(9; "Lot No. Filter"; Code[50])
         {
@@ -49,6 +50,11 @@ table 265 "Document Entry"
         field(10; "Serial No. Filter"; Code[50])
         {
             Caption = 'Serial No. Filter';
+            FieldClass = FlowFilter;
+        }
+        field(11; "Package No. Filter"; Code[50])
+        {
+            Caption = 'Package No. Filter';
             FieldClass = FlowFilter;
         }
         field(14900; "CD No. Filter"; Code[30])
@@ -69,5 +75,21 @@ table 265 "Document Entry"
     fieldgroups
     {
     }
-}
 
+    procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No." <> '' then
+            SetRange("Serial No. Filter", ItemTrackingSetup."Serial No.");
+        if ItemTrackingSetup."Lot No." <> '' then
+            SetRange("Lot No. Filter", ItemTrackingSetup."Lot No.");
+        if ItemTrackingSetup."Package No." <> '' then
+            SetRange("Package No. Filter", ItemTrackingSetup."Package No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var DocumentEntry: Record "Document Entry"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+}

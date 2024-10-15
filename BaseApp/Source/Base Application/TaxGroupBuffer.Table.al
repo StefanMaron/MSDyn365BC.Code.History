@@ -146,7 +146,7 @@ table 5480 "Tax Group Buffer"
         repeat
             UpdateFromTaxGroup(TaxGroup);
             Insert;
-        until TaxGroup.Next = 0;
+        until TaxGroup.Next() = 0;
     end;
 
     local procedure LoadFromVATProductPostingGroup()
@@ -159,7 +159,7 @@ table 5480 "Tax Group Buffer"
         repeat
             UpdateFromVATProductPostingGroup(VATProductPostingGroup);
             Insert;
-        until VATProductPostingGroup.Next = 0;
+        until VATProductPostingGroup.Next() = 0;
     end;
 
     procedure GetCodesFromTaxGroupId(TaxGroupID: Guid; var SalesTaxGroupCode: Code[20]; var VATProductPostingGroupCode: Code[20])

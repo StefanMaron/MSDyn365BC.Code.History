@@ -24,7 +24,7 @@ page 12470 "FA Writeoff Act"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Posting Description"; "Posting Description")
@@ -238,7 +238,7 @@ page 12470 "FA Writeoff Act"
 
     local procedure PostingDateOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -148,7 +148,7 @@ report 12454 "Posted Advance Statement"
                     repeat
                         VendLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                         AddPayment(VendLedgerEntry."Remaining Amt. (LCY)", VendLedgerEntry."Document No.");
-                    until VendLedgerEntry.Next = 0;
+                    until VendLedgerEntry.Next() = 0;
                 VendLedgerEntry.SetRange(Positive, true);
 
                 PurchaseLine.Reset();
@@ -169,7 +169,7 @@ report 12454 "Posted Advance Statement"
                                 AccountNo := GetVATDebitAccount(PurchaseLine);
                                 CheckDebitAccount(AccountNo, LineAmountInclVAT - LineAmount);
                             end;
-                    until PurchaseLine.Next = 0;
+                    until PurchaseLine.Next() = 0;
 
                 VendorPostingGroup.Get("Vendor Posting Group");
                 CtAccount := VendorPostingGroup."Payables Account";
@@ -405,7 +405,7 @@ report 12454 "Posted Advance Statement"
             repeat
                 VendorLedgerEntry.CalcFields("Amount (LCY)");
                 AddPayment(VendorLedgerEntry."Amount (LCY)", VendorLedgerEntry."Document No.");
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -450,7 +450,7 @@ report 12454 "Posted Advance Statement"
                                 if VendLedgerEntry.FindFirst then
                                     VendLedgerEntry.Mark(true);
                             end;
-                        until DtldVendLedgerEntry2.Next = 0;
+                        until DtldVendLedgerEntry2.Next() = 0;
                     end;
                 end else begin
                     VendLedgerEntry.SetCurrentKey("Entry No.");
@@ -458,7 +458,7 @@ report 12454 "Posted Advance Statement"
                     if VendLedgerEntry.FindFirst then
                         VendLedgerEntry.Mark(true);
                 end;
-            until DtldVendLedgerEntry1.Next = 0;
+            until DtldVendLedgerEntry1.Next() = 0;
         end;
         VendLedgerEntry.SetCurrentKey("Entry No.");
         VendLedgerEntry.SetRange("Entry No.");
@@ -471,7 +471,7 @@ report 12454 "Posted Advance Statement"
         if VendLedgerEntry.FindSet then
             repeat
                 VendLedgerEntry.Mark(true);
-            until VendLedgerEntry.Next = 0;
+            until VendLedgerEntry.Next() = 0;
         VendLedgerEntry.SetCurrentKey("Entry No.");
         VendLedgerEntry.SetRange("Closed by Entry No.");
         VendLedgerEntry.MarkedOnly(true);

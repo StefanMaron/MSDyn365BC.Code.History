@@ -241,14 +241,14 @@ table 17372 "Staff List"
                           TempStaffList, OrganizationalUnit.Code, Position."Job Title Code", OrganizationalUnit.Level,
                           OrganizationalUnit."Parent Code", OrganizationalUnit.Type);
                         if TempStaffList.Insert() then;
-                    until Position.Next = 0
+                    until Position.Next() = 0
                 else begin
                     InitRecord(
                       TempStaffList, OrganizationalUnit.Code, '', OrganizationalUnit.Level, OrganizationalUnit."Parent Code",
                       OrganizationalUnit.Type);
                     TempStaffList.Insert();
                 end;
-            until OrganizationalUnit.Next = 0;
+            until OrganizationalUnit.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -328,7 +328,7 @@ table 17372 "Staff List"
                         Position.CalcFields("Filled Rate");
                         StaffListLineArchive."Occupied Staff Positions" :=
                           StaffListLineArchive."Occupied Staff Positions" + Position."Filled Rate";
-                    until Position.Next = 0;
+                    until Position.Next() = 0;
                 StaffListLineArchive."Vacant Staff Positions" :=
                   StaffListLineArchive."Staff Positions" - StaffListLineArchive."Occupied Staff Positions";
                 // Out-of-Staff positions
@@ -352,12 +352,12 @@ table 17372 "Staff List"
                         Position.CalcFields("Filled Rate");
                         StaffListLineArchive."Occup. Out-of-Staff Positions" :=
                           StaffListLineArchive."Occup. Out-of-Staff Positions" + Position."Filled Rate";
-                    until Position.Next = 0;
+                    until Position.Next() = 0;
                 StaffListLineArchive."Vacant Out-of-Staff Positions" :=
                   StaffListLineArchive."Out-of-Staff Positions" - StaffListLineArchive."Occup. Out-of-Staff Positions";
                 TempStaffListBuffer.SetRange("Out-of-Staff Filter");
                 StaffListLineArchive.Insert();
-            until TempStaffListBuffer.Next = 0;
+            until TempStaffListBuffer.Next() = 0;
     end;
 }
 

@@ -232,6 +232,13 @@ codeunit 130512 "Library - Purchase"
         PurchaseLine.Insert(true);
     end;
 
+    procedure CreatePurchaseLineWithUnitCost(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; UnitCost: Decimal; Quantity: Decimal)
+    begin
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Modify();
+    end;
+
     procedure CreatePurchaseQuote(var PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
@@ -283,6 +290,30 @@ codeunit 130512 "Library - Purchase"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
+    end;
+
+    procedure CreatePurchaseOrderWithLocation(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Location Code", LocationCode);
+        PurchaseHeader.Modify();
+    end;
+
+    procedure CreatePurchaseReturnOrderWithLocation(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Location Code", LocationCode);
+        PurchaseHeader.Modify();
+    end;
+
+    procedure CreatePurchaseCreditMemoWithLocation(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Location Code", LocationCode);
+        PurchaseHeader.Modify();
     end;
 
     procedure CreatePurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header")
@@ -776,13 +807,6 @@ codeunit 130512 "Library - Purchase"
             DocumentNo :=
               NoSeriesManagement.GetNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesPurchaseDate(NoSeriesCode), false);
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
-    end;
-
-    procedure PreviewPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
-    var
-        PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
-    begin
-        PurchPostYesNo.Preview(PurchaseHeader);
     end;
 
     procedure QuoteMakeOrder(var PurchaseHeader: Record "Purchase Header"): Code[20]

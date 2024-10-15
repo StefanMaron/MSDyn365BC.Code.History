@@ -527,7 +527,7 @@ codeunit 147110 "SCM Item Charge Assignment"
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
             SetRange("Document Line No.", ItemChargeLineNo);
-            FindSet;
+            FindSet();
             i := 1;
             repeat
                 Assert.AreNearlyEqual(QtyToAssign[i], "Qty. to Assign", 0.01, '');
@@ -564,7 +564,7 @@ codeunit 147110 "SCM Item Charge Assignment"
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
             SetRange("Document Line No.", ItemChargeLineNo);
-            FindSet;
+            FindSet();
             i := 1;
             repeat
                 Assert.AreEqual(QtyToAssign[i], "Qty. to Assign", '');

@@ -54,7 +54,7 @@ report 17410 "Suggest Salary Setup Lines"
                 EmplJnlLine.SetRange("Journal Template Name", EmplJnlLine."Journal Template Name");
                 EmplJnlLine.SetRange("Journal Batch Name", EmplJnlLine."Journal Batch Name");
                 if ClearLine then begin
-                    if not EmplJnlLine.IsEmpty then
+                    if not EmplJnlLine.IsEmpty() then
                         EmplJnlLine.DeleteAll
                 end else
                     if EmplJnlLine.FindLast then

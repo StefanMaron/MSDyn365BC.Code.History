@@ -85,7 +85,7 @@ codeunit 12472 "Copy FA Document Mgt."
                 ToFADocLine.SetRange("Document Type", "Document Type");
                 ToFADocLine.SetRange("Document No.", "No.");
                 if IncludeHeader then
-                    if not ToFADocLine.IsEmpty then begin
+                    if not ToFADocLine.IsEmpty() then begin
                         Commit();
                         if not
                            Confirm(
@@ -137,7 +137,7 @@ codeunit 12472 "Copy FA Document Mgt."
                         if FromFADocLine.FindSet then
                             repeat
                                 CopyFADocLine(ToFADocHeader, ToFADocLine, FromFADocLine, NextLineNo, LinesNotCopied);
-                            until FromFADocLine.Next = 0;
+                            until FromFADocLine.Next() = 0;
                     end;
                 FADocType::"Posted Writeoff",
                 FADocType::"Posted Release",
@@ -153,7 +153,7 @@ codeunit 12472 "Copy FA Document Mgt."
                                 CopyFADocLine(
                                   ToFADocHeader, ToFADocLine, FromFADocLine,
                                   NextLineNo, LinesNotCopied);
-                            until FromPostedFADocLine.Next = 0;
+                            until FromPostedFADocLine.Next() = 0;
                     end;
             end;
         end;

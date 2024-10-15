@@ -332,7 +332,7 @@ table 17438 "Payroll Document Line Expr."
                               Format(PayrollDocLineExpr."Right Bracket"),
                               Format(PayrollDocLineExpr.Operator)));
                 end;
-            until PayrollDocLineExpr.Next = 0;
+            until PayrollDocLineExpr.Next() = 0;
 
         ExprMgt.CheckParenthesis(Expr);
         Expression := Expr;

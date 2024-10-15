@@ -1,7 +1,7 @@
 page 1881 "Sandbox Environment"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Sandbox Environment (Preview)';
+    Caption = 'Sandbox Environment';
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -36,17 +36,17 @@ page 1881 "Sandbox Environment"
             group(Control8)
             {
                 Caption = '';
-                InstructionalText = 'A new sandbox environment (preview) only contains the CRONUS demonstration company. Actions that you perform in the sandbox environment (preview) do not affect data or settings in your production environment.';
+                InstructionalText = 'A new sandbox environment only contains the CRONUS demonstration company. Actions that you perform in the sandbox environment do not affect data or settings in your production environment.';
             }
             group(Control12)
             {
                 Caption = '';
-                InstructionalText = 'This Sandbox environment feature is provided as a free preview solely for testing, development and evaluation. You will not use the Sandbox in a live operating environment. Microsoft may, in its sole discretion, change the Sandbox environment or subject it to a fee for a final, commercial version, if any, or may elect not to release one.';
+                InstructionalText = 'This Sandbox environment feature is provided solely for testing, development and evaluation. You will not use the Sandbox in a live operating environment. Microsoft may, in its sole discretion, change the Sandbox environment or subject it to a fee for a final, commercial version, if any, or may elect not to release one.';
             }
             group(Control9)
             {
                 Caption = '';
-                InstructionalText = 'Choose Create to start a new sandbox environment (preview).';
+                InstructionalText = 'Choose Create to start a new sandbox environment.';
             }
             group(Control10)
             {
@@ -55,7 +55,7 @@ page 1881 "Sandbox Environment"
                 ObsoleteTag = '17.0';
                 Visible = false;
                 Caption = '';
-                InstructionalText = 'Choose Reset to clean and restart the sandbox environment (preview).';
+                InstructionalText = 'Choose Reset to clean and restart the sandbox environment.';
             }
         }
     }
@@ -80,7 +80,7 @@ page 1881 "Sandbox Environment"
             {
                 ObsoleteState = Pending;
                 ObsoleteReason = 'This functionality is now available from the Business Central Admin Center.';
-                ObsoleteTag = '17.0';                
+                ObsoleteTag = '17.0';
                 Visible = false;
                 InFooterBar = true;
                 trigger OnAction()

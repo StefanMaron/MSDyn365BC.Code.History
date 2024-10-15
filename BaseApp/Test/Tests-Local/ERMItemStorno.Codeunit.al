@@ -97,10 +97,10 @@ codeunit 144006 "ERM Item Storno"
     [Scope('OnPrem')]
     procedure CorrShipmentWithShipmentRedStorno()
     var
-        ItemDocHeader: Record "Item Document Header";
+        InvtDocHeader: Record "Invt. Document Header";
     begin
         // Correction for Item Shipment as Red Storno
-        CorrectionForItemDocuments(ItemDocHeader."Document Type"::Shipment, ItemDocHeader."Document Type"::Shipment, true);
+        CorrectionForInvtDocuments(InvtDocHeader."Document Type"::Shipment, InvtDocHeader."Document Type"::Shipment, true);
     end;
 
     [Test]
@@ -108,10 +108,10 @@ codeunit 144006 "ERM Item Storno"
     [Scope('OnPrem')]
     procedure CorrShipmentWithReceiptReverse()
     var
-        ItemDocHeader: Record "Item Document Header";
+        InvtDocHeader: Record "Invt. Document Header";
     begin
         // Correction for Item Shipment as Reverse
-        CorrectionForItemDocuments(ItemDocHeader."Document Type"::Shipment, ItemDocHeader."Document Type"::Receipt, false);
+        CorrectionForInvtDocuments(InvtDocHeader."Document Type"::Shipment, InvtDocHeader."Document Type"::Receipt, false);
     end;
 
     [Test]
@@ -119,10 +119,10 @@ codeunit 144006 "ERM Item Storno"
     [Scope('OnPrem')]
     procedure CorrReceiptWithReceiptRedStorno()
     var
-        ItemDocHeader: Record "Item Document Header";
+        InvtDocHeader: Record "Invt. Document Header";
     begin
         // Correction for Item Receipt as Red Storno
-        CorrectionForItemDocuments(ItemDocHeader."Document Type"::Receipt, ItemDocHeader."Document Type"::Receipt, true);
+        CorrectionForInvtDocuments(InvtDocHeader."Document Type"::Receipt, InvtDocHeader."Document Type"::Receipt, true);
     end;
 
     [Test]
@@ -130,10 +130,10 @@ codeunit 144006 "ERM Item Storno"
     [Scope('OnPrem')]
     procedure CorrReceiptWithShipmentReverse()
     var
-        ItemDocHeader: Record "Item Document Header";
+        InvtDocHeader: Record "Invt. Document Header";
     begin
         // Correction for Item Receipt as Reverse
-        CorrectionForItemDocuments(ItemDocHeader."Document Type"::Receipt, ItemDocHeader."Document Type"::Shipment, false);
+        CorrectionForInvtDocuments(InvtDocHeader."Document Type"::Receipt, InvtDocHeader."Document Type"::Shipment, false);
     end;
 
     [Test]
@@ -142,15 +142,15 @@ codeunit 144006 "ERM Item Storno"
     procedure VerifyErrorForItemDocument()
     var
         Item: Record Item;
-        ItemDocHeader: Record "Item Document Header";
+        InvtDocHeader: Record "Invt. Document Header";
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Error on posting Red Storno with "Applies-from Entry" = 0 in Item Documents
         Initialize;
         LibraryInventory.CreateItem(Item);
 
-        asserterror CreateAndPostItemDocument(
-            ItemDocHeader."Document Type"::Shipment, ItemDocHeader."Document Type"::Shipment, Item."No.", WorkDate,
+        asserterror CreateAndPostInvtDocument(
+            InvtDocHeader."Document Type"::Shipment, InvtDocHeader."Document Type"::Shipment, Item."No.", WorkDate,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2), 0, true);
 
         Assert.ExpectedError(StrSubstNo(ApplyEntryNoExpectedErr, ItemJournalLine.FieldCaption("Applies-from Entry")));
@@ -345,7 +345,7 @@ codeunit 144006 "ERM Item Storno"
         Commit();
     end;
 
-    local procedure CorrectionForItemDocuments(DocType: Option; CorrDocType: Option; RedStorno: Boolean)
+    local procedure CorrectionForInvtDocuments(DocType: Enum "Invt. Doc. Document Type"; CorrDocType: Enum "Invt. Doc. Document Type"; RedStorno: Boolean)
     var
         ItemNo: Code[20];
         CorrEntryType: Option;
@@ -357,12 +357,12 @@ codeunit 144006 "ERM Item Storno"
         Initialize;
 
         ItemNo := CreateItemWithStartingData(Quantity, UnitAmt);
-        CreateAndPostItemDocument(DocType, 0, ItemNo, WorkDate, Quantity, UnitAmt, 0, false);
+        CreateAndPostInvtDocument(DocType, "Invt. Doc. Document Type"::Receipt, ItemNo, WorkDate, Quantity, UnitAmt, 0, false);
 
-        CreateAndPostItemDocument(CorrDocType, DocType, ItemNo, WorkDate, Quantity, 0,
+        CreateAndPostInvtDocument(CorrDocType, DocType, ItemNo, WorkDate, Quantity, 0,
           FindLastItemLedgerEntryNo(ItemNo, WorkDate), RedStorno);
 
-        CalcTypeAndSignForItemDoc(CorrEntryType, ExpectedSign, Sorting, DocType, CorrDocType);
+        CalcTypeAndSignForInvtDoc(CorrEntryType, ExpectedSign, Sorting, DocType, CorrDocType);
 
         VerifyValueEntries(ItemNo, WorkDate, ExpectedSign * Round(UnitAmt * Quantity), RedStorno);
         VerifyItemLedgerEntries(ItemNo, WorkDate, CorrEntryType, ExpectedSign * Quantity);
@@ -565,14 +565,14 @@ codeunit 144006 "ERM Item Storno"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostItemDocument(DocumentType: Option; CorrectedDocType: Option; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal; UnitCost: Decimal; ApplyEntryNo: Integer; Correction: Boolean)
+    local procedure CreateAndPostInvtDocument(DocumentType: Enum "Invt. Doc. Document Type"; CorrectedDocType: Enum "Invt. Doc. Document Type"; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal; UnitCost: Decimal; ApplyEntryNo: Integer; Correction: Boolean)
     var
-        ItemDocumentHeader: Record "Item Document Header";
+        InvtDocumentHeader: Record "Invt. Document Header";
     begin
-        CreateItemDocumentHeader(ItemDocumentHeader, DocumentType, PostingDate, Correction);
-        CreateItemDocumentLine(ItemDocumentHeader, ItemNo, Qty, UnitCost, CorrectedDocType, ApplyEntryNo);
+        CreateInvtDocumentHeader(InvtDocumentHeader, DocumentType, PostingDate, Correction);
+        CreateInvtDocumentLine(InvtDocumentHeader, ItemNo, Qty, UnitCost, CorrectedDocType, ApplyEntryNo);
 
-        CODEUNIT.Run(CODEUNIT::"Item Doc.-Post (Yes/No)", ItemDocumentHeader);
+        CODEUNIT.Run(CODEUNIT::"Invt. Doc.-Post (Yes/No)", InvtDocumentHeader);
     end;
 
     local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal): Code[20]
@@ -670,9 +670,9 @@ codeunit 144006 "ERM Item Storno"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemDocumentHeader(var ItemDocumentHeader: Record "Item Document Header"; DocumentType: Option; PostingDate: Date; NewCorrection: Boolean)
+    local procedure CreateInvtDocumentHeader(var InvtDocumentHeader: Record "Invt. Document Header"; DocumentType: Enum "Invt. Doc. Document Type"; PostingDate: Date; NewCorrection: Boolean)
     begin
-        with ItemDocumentHeader do begin
+        with InvtDocumentHeader do begin
             Init;
             "Document Type" := DocumentType;
             Insert(true);
@@ -682,14 +682,14 @@ codeunit 144006 "ERM Item Storno"
         end;
     end;
 
-    local procedure CreateItemDocumentLine(ItemDocumentHeader: Record "Item Document Header"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; CorrectedDocType: Option; ApplyEntryNo: Integer)
+    local procedure CreateInvtDocumentLine(InvtDocumentHeader: Record "Invt. Document Header"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; CorrectedDocType: Enum "Invt. Doc. Document Type"; ApplyEntryNo: Integer)
     var
-        ItemDocumentLine: Record "Item Document Line";
+        InvtDocumentLine: Record "Invt. Document Line";
     begin
-        with ItemDocumentLine do begin
+        with InvtDocumentLine do begin
             Init;
-            Validate("Document Type", ItemDocumentHeader."Document Type");
-            Validate("Document No.", ItemDocumentHeader."No.");
+            Validate("Document Type", InvtDocumentHeader."Document Type");
+            Validate("Document No.", InvtDocumentHeader."No.");
             Validate("Item No.", ItemNo);
             Validate(Quantity, Qty);
             Validate("Unit Cost", UnitCost);
@@ -1062,7 +1062,7 @@ codeunit 144006 "ERM Item Storno"
             SetFilter("G/L Account No.", AccountNoFilter);
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", "Document Type"::" ");
-            FindSet;
+            FindSet();
             VerifyGLDebitCredit(GLEntry, 0, ExpectedAmount);
             Next;
             VerifyGLDebitCredit(GLEntry, ExpectedAmount, 0);
@@ -1103,21 +1103,21 @@ codeunit 144006 "ERM Item Storno"
         exit(1);
     end;
 
-    local procedure CalcTypeAndSignForItemDoc(var CorrEntryType: Option; var ExpectedSign: Integer; var Sorting: Boolean; DocType: Option; CorrDocType: Option)
+    local procedure CalcTypeAndSignForInvtDoc(var CorrEntryType: Option; var ExpectedSign: Integer; var Sorting: Boolean; DocType: Enum "Invt. Doc. Document Type"; CorrDocType: Enum "Invt. Doc. Document Type")
     var
-        ItemDocHeader: Record "Item Document Header";
+        InvtDocHeader: Record "Invt. Document Header";
         ItemJournalLine: Record "Item Journal Line";
     begin
         case DocType of
-            ItemDocHeader."Document Type"::Receipt:
+            InvtDocHeader."Document Type"::Receipt:
                 ExpectedSign := -1;
-            ItemDocHeader."Document Type"::Shipment:
+            InvtDocHeader."Document Type"::Shipment:
                 ExpectedSign := 1;
         end;
         case CorrDocType of
-            ItemDocHeader."Document Type"::Receipt:
+            InvtDocHeader."Document Type"::Receipt:
                 CorrEntryType := ItemJournalLine."Entry Type"::"Positive Adjmt.".AsInteger();
-            ItemDocHeader."Document Type"::Shipment:
+            InvtDocHeader."Document Type"::Shipment:
                 CorrEntryType := ItemJournalLine."Entry Type"::"Negative Adjmt.".AsInteger();
         end;
         Sorting := CorrEntryType = ItemJournalLine."Entry Type"::"Negative Adjmt.".AsInteger();

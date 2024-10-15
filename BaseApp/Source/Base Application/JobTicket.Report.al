@@ -231,7 +231,7 @@ report 14950 "Job Ticket"
                 Quantity += SalesLine."Qty. to Ship";
                 Weight += SalesLine."Qty. to Ship" * SalesLine."Net Weight";
                 Volume += SalesLine."Qty. to Ship" * SalesLine."Unit Volume";
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -246,7 +246,7 @@ report 14950 "Job Ticket"
                 Quantity += SalesInvoiceLine.Quantity;
                 Weight += SalesInvoiceLine.Quantity * SalesInvoiceLine."Net Weight";
                 Volume += SalesInvoiceLine.Quantity * SalesInvoiceLine."Unit Volume";
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -261,7 +261,7 @@ report 14950 "Job Ticket"
                 Quantity += SalesShipmentLine.Quantity;
                 Weight += SalesShipmentLine.Quantity * SalesShipmentLine."Net Weight";
                 Volume += SalesShipmentLine.Quantity * SalesShipmentLine."Unit Volume";
-            until SalesShipmentLine.Next = 0;
+            until SalesShipmentLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

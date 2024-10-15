@@ -361,7 +361,7 @@ report 17441 "Timesheet T-13"
             end;
 
             AbsenceRowNo += 1;
-        until (AbsenceBuffer.Next = 0) or (AbsenceRowNo >= 8);
+        until (AbsenceBuffer.Next() = 0) or (AbsenceRowNo >= 8);
     end;
 
     [Scope('OnPrem')]

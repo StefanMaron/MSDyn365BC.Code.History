@@ -135,7 +135,7 @@ codeunit 17204 "Create Tax Register CV Entry"
                     end;
                 end;
 
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         Window.Update(4, Vendor.TableCaption);
         if Vendor.FindSet then
@@ -205,7 +205,7 @@ codeunit 17204 "Create Tax Register CV Entry"
                         CVCreditBalance[2] += TaxRegCVEntry."CV Credit Balance Amnt 2";
                     end;
                 end;
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
 
         TaxRegAccumulation.Reset();
         if not TaxRegAccumulation.FindLast then
@@ -256,8 +256,8 @@ codeunit 17204 "Create Tax Register CV Entry"
                             TaxRegTemplate.Period);
                         TaxRegAccumulation."Entry No." += 1;
                         TaxRegAccumulation.Insert();
-                    until TaxRegTemplate.Next = 0;
-            until TaxReg.Next = 0;
+                    until TaxRegTemplate.Next() = 0;
+            until TaxReg.Next() = 0;
     end;
 }
 

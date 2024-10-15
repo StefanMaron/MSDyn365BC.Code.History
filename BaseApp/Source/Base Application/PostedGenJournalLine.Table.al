@@ -738,12 +738,10 @@ table 181 "Posted Gen. Journal Line"
             Caption = 'Job Unit Of Measure Code';
             TableRelation = "Unit of Measure";
         }
-        field(1009; "Job Line Type"; Option)
+        field(1009; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1010; "Job Unit Price"; Decimal)
         {

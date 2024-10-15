@@ -34,9 +34,9 @@ codeunit 137099 "SCM Kitting Reservation"
         StartingDateError: Label 'You have modified the Starting Date from ';
         ReservationEntryShouldBeBlank: Label 'Reservation Entry should be blank';
         ReleasedProdOrderLine: Label 'Released Prod. Order Line';
-        BindingOrderToOrderError: Label 'You cannot state Serial No. or Lot No. or CD No. on a demand when it is linked to a supply by Binding = Order-to-Order.';
+        BindingOrderToOrderError: Label 'You cannot state item tracking on a demand when it is linked to a supply by Binding = Order-to-Order.';
         ReservedQuantityBaseError: Label 'Reserved Qty. (Base) must be equal to ''%1''  in Assembly Header: Document Type=Order, No.=';
-        AvailabilityWarningsConfirmMessage: Label 'There are availability warnings on one or more lines.\Close the form anyway?';
+        AvailabilityWarningsConfirmMessage: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         NotAffectExistingEntriesMsg: Label 'The change will not affect existing entries.';
         BeforeWorkDateMsg: Label 'is before work date %1 in one or more of the assembly lines';
         ItemInPickWorksheetLinesErr: Label 'Item in Pick Worksheet is not correct.';
@@ -1841,7 +1841,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         FindAssemblyHeader(AssemblyHeader, ItemNo);
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindSet;
+        AssemblyLine.FindSet();
     end;
 
     local procedure AssignItemTrackingAndReserveATO(SalesLine: Record "Sales Line"; CompItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
@@ -2077,7 +2077,7 @@ codeunit 137099 "SCM Kitting Reservation"
         SignFactor: Integer;
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             SignFactor := 1;
             if ReservationEntry."Quantity (Base)" < 0 then

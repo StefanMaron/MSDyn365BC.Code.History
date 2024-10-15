@@ -244,7 +244,7 @@ report 14951 "Bill of Lading"
                 Quantity += SalesLine."Qty. to Ship";
                 Weight += SalesLine."Qty. to Ship" * SalesLine."Net Weight";
                 Volume += SalesLine."Qty. to Ship" * SalesLine."Unit Volume";
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -259,7 +259,7 @@ report 14951 "Bill of Lading"
                 Quantity += SalesInvoiceLine.Quantity;
                 Weight += SalesInvoiceLine.Quantity * SalesInvoiceLine."Net Weight";
                 Volume += SalesInvoiceLine.Quantity * SalesInvoiceLine."Unit Volume";
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -274,7 +274,7 @@ report 14951 "Bill of Lading"
                 Quantity += SalesShipmentLine.Quantity;
                 Weight += SalesShipmentLine.Quantity * SalesShipmentLine."Net Weight";
                 Volume += SalesShipmentLine.Quantity * SalesShipmentLine."Unit Volume";
-            until SalesShipmentLine.Next = 0;
+            until SalesShipmentLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -316,7 +316,7 @@ report 14951 "Bill of Lading"
         if SalesInvoiceLine.FindSet then
             repeat
                 AmountLCY += SalesInvoiceLine."Amount Including VAT (LCY)";
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -329,7 +329,7 @@ report 14951 "Bill of Lading"
         if SalesShipmentLine.FindSet then
             repeat
                 AmountLCY += SalesShipmentLine."Amount Including VAT (LCY)";
-            until SalesShipmentLine.Next = 0;
+            until SalesShipmentLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

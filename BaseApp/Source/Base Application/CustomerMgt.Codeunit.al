@@ -39,7 +39,7 @@ codeunit 1302 "Customer Mgt."
                                     UpdateDaysToPay(CustLedgEntry2."Posting Date" - "Posting Date", TotalDaysToPay, TotalNoOfInv);
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         if TotalNoOfInv <> 0 then

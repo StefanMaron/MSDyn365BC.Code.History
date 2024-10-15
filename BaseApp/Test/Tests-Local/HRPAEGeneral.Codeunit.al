@@ -703,7 +703,7 @@ codeunit 144201 "HRP AE General"
         YearShift := Date2DMY(PayrollPeriod."Starting Date", 3) - 2009; // year shift for date adjustment
         EmployeeNo := LibraryHRP.CreateNewEmployee(PayrollPeriod."Starting Date", PayrollAmount);
         PreparePayrollPeriod(PayrollPeriod, AdjustPeriod(StartPeriodCode), AdjustPeriod(EndPeriodCode), AdjustPeriod(EndLoopPeriodCode));
-        PayrollPeriod.FindSet;
+        PayrollPeriod.FindSet();
     end;
 
     local procedure PreparePayrollPeriod(var PayrollPeriod: Record "Payroll Period"; StartPeriodCode: Code[10]; EndPeriodCode: Code[10]; EndLoopPeriodCode: Code[10])
@@ -820,7 +820,7 @@ codeunit 144201 "HRP AE General"
         PostedPayrollPeriodAE.SetRange("Document No.", PostedPayrollDocumentLine."Document No.");
         PostedPayrollPeriodAE.SetRange("Line No.", PostedPayrollDocumentLine."Line No.");
         PostedPayrollPeriodAE.SetRange("Period Code", AdjustPeriod('1002'), AdjustPeriod('1004'));
-        PostedPayrollPeriodAE.FindSet;
+        PostedPayrollPeriodAE.FindSet();
         repeat
             Assert.AreEqual(0, PostedPayrollPeriodAE."Average Days", AverageDaysAEErr);
         until PostedPayrollPeriodAE.Next = 0;
@@ -936,7 +936,7 @@ codeunit 144201 "HRP AE General"
     begin
         Employee.Get(EmployeeNo);
         PayrollPeriod.SetRange(Code, PeriodCodeFrom, PeriodCodeTo);
-        PayrollPeriod.FindSet;
+        PayrollPeriod.FindSet();
         repeat
             LibraryHRP.CreatePersonIncomeFSI(Employee."Person No.", PayrollPeriod.Code, Amount);
         until PayrollPeriod.Next = 0;

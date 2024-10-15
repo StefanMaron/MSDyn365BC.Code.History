@@ -15,7 +15,6 @@ page 99000917 "Report Selection - Prod. Order"
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Usage';
-                OptionCaption = 'Job Card,Mat. & Requisition,Shortage List,Gantt Chart,Prod. Order';
                 ToolTip = 'Specifies which type of document the report is used for.';
 
                 trigger OnValidate()
@@ -26,18 +25,18 @@ page 99000917 "Report Selection - Prod. Order"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Manufacturing;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDown = false;
@@ -70,7 +69,7 @@ page 99000917 "Report Selection - Prod. Order"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -79,27 +78,33 @@ page 99000917 "Report Selection - Prod. Order"
     end;
 
     var
-        ReportUsage2: Option "Job Card","Mat. & Requisition","Shortage List","Gantt Chart","Prod. Order";
+        ReportUsage2: Enum "Report Selection Usage Prod.";
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
-        FilterGroup(2);
+            if Rec.Modify() then;
+        Rec.FilterGroup(2);
         case ReportUsage2 of
-            ReportUsage2::"Job Card":
-                SetRange(Usage, Usage::M1);
-            ReportUsage2::"Mat. & Requisition":
-                SetRange(Usage, Usage::M2);
-            ReportUsage2::"Shortage List":
-                SetRange(Usage, Usage::M3);
-            ReportUsage2::"Gantt Chart":
-                SetRange(Usage, Usage::M4);
-            ReportUsage2::"Prod. Order":
-                SetRange(Usage, Usage::"Prod.Order");
+            "Report Selection Usage Prod."::"Job Card":
+                Rec.SetRange(Usage, "Report Selection Usage"::M1);
+            "Report Selection Usage Prod."::"Mat. & Requisition":
+                Rec.SetRange(Usage, "Report Selection Usage"::M2);
+            "Report Selection Usage Prod."::"Shortage List":
+                Rec.SetRange(Usage, "Report Selection Usage"::M3);
+            "Report Selection Usage Prod."::"Gantt Chart":
+                Rec.SetRange(Usage, "Report Selection Usage"::M4);
+            "Report Selection Usage Prod."::"Prod. Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Prod.Order");
         end;
-        FilterGroup(0);
-        CurrPage.Update;
+        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
+        Rec.FilterGroup(0);
+        CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Prod.")
+    begin
     end;
 }
 

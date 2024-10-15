@@ -112,9 +112,9 @@ report 17306 "Calculate Tax Diff. for FA"
                                                   FALedgerEntry."Tax Difference Code",
                                                   FALedgerEntry.Amount);
                                         end;
-                                    until FALedgerEntry.Next = 0;
+                                    until FALedgerEntry.Next() = 0;
                             end;
-                        until DepreciationBook.Next = 0;
+                        until DepreciationBook.Next() = 0;
 
                     FALedgerEntry.SetRange("Tax Difference Code");
                     FALedgerEntry.SetRange("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
@@ -127,7 +127,7 @@ report 17306 "Calculate Tax Diff. for FA"
                               TaxDiffFAPostingBuffer.Type::"Depreciation Bonus",
                               TaxRegisterSetup."Depr. Bonus TD Code",
                               FALedgerEntry.Amount);
-                        until FALedgerEntry.Next = 0;
+                        until FALedgerEntry.Next() = 0;
                 end;
 
                 TaxDiffFAPostingBuffer.Reset();
@@ -193,7 +193,7 @@ report 17306 "Calculate Tax Diff. for FA"
                                           "No.");
                                 end;
                         end;
-                    until TaxDiffFAPostingBuffer.Next = 0;
+                    until TaxDiffFAPostingBuffer.Next() = 0;
                 end;
 
                 TaxDiffPeriodDeprAmount := AccDeprAmount - BufferedAccDeprAmount - DiffAccDeprBonusAmountToPost;

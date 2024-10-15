@@ -101,11 +101,9 @@ table 5773 "Registered Whse. Activity Line"
             Caption = 'Qty. (Base)';
             DecimalPlaces = 0 : 5;
         }
-        field(31; "Shipping Advice"; Option)
+        field(31; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(34; "Due Date"; Date)
         {
@@ -178,6 +176,16 @@ table 5773 "Registered Whse. Activity Line"
         field(6503; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
         }
         field(7300; "Bin Code"; Code[20])
         {
@@ -273,14 +281,17 @@ table 5773 "Registered Whse. Activity Line"
             Caption = 'Special Equipment Code';
             TableRelation = "Special Equipment";
         }
-        field(14900; "CD No."; Code[30])
+        field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
-
-            trigger OnLookup()
-            begin
-                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"CD No.", "CD No.");
-            end;
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 
@@ -303,18 +314,6 @@ table 5773 "Registered Whse. Activity Line"
         {
             MaintainSIFTIndex = false;
             SumIndexFields = "Qty. (Base)";
-        }
-        key(Key6; "Lot No.")
-        {
-            Enabled = false;
-        }
-        key(Key7; "Serial No.")
-        {
-            Enabled = false;
-        }
-        key(Key8; "CD No.")
-        {
-            Enabled = false;
         }
     }
 
@@ -476,13 +475,15 @@ table 5773 "Registered Whse. Activity Line"
         OnAfterClearTrackingFilter(Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
     begin
         SetRange("Serial No.", SerialNo);
         SetRange("Lot No.", LotNo);
-        SetRange("CD No.", CDNo);
+        SetRange("Package No.", CDNo);
     end;
+#endif
 
     procedure SetTrackingFilterFromRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation")
     begin

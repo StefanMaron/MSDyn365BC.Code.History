@@ -1,4 +1,4 @@
-﻿table 7319 "Posted Whse. Receipt Line"
+table 7319 "Posted Whse. Receipt Line"
 {
     Caption = 'Posted Whse. Receipt Line';
     LookupPageID = "Posted Whse. Receipt Lines";
@@ -231,9 +231,23 @@
         {
             Caption = 'Expiration Date';
         }
-        field(14900; "CD No."; Code[30])
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            Editable = false;
+        }
+        field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 
@@ -253,18 +267,6 @@
         }
         key(Key4; "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Posted Source Document", "Posted Source No.")
         {
-        }
-        key(Key5; "Lot No.")
-        {
-            Enabled = false;
-        }
-        key(Key6; "Serial No.")
-        {
-            Enabled = false;
-        }
-        key(Key7; "CD No.")
-        {
-            Enabled = false;
         }
     }
 
@@ -360,6 +362,7 @@
         OnAfterCopyTrackingFromWhseItemTrackingLine(rec, WhseItemTrackingLine);
     end;
 
+#if not CLEAN17
     [Obsolete('Reference SetSourceFilterForPostedWhseRcptLine function from codeunit Whse. Management instead', '17.0')]
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     var
@@ -373,10 +376,11 @@
     begin
         "Serial No." := SerialNo;
         "Lot No." := LotNo;
-        "CD No." := CDNo;
+        "Package No." := CDNo;
         "Warranty Date" := WarrantyDate;
         "Expiration Date" := ExpirationDate;
     end;
+#endif
 
     procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin

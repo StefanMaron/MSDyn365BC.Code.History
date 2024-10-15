@@ -99,7 +99,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
-        InventorySetup."Posted Direct Transfer Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        InventorySetup."Posted Direct Trans. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         InventorySetup.Modify();
     end;
 
@@ -389,7 +389,7 @@ codeunit 131305 "Library - ERM Country Data"
         GLAccount: Record "G/L Account";
     begin
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        if VATPostingSetup.IsEmpty then begin
+        if VATPostingSetup.IsEmpty() then begin
             LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
             VATProductPostingGroup.Code := VATPostingSetup."VAT Prod. Posting Group" + 'R';
             VATProductPostingGroup.Insert();

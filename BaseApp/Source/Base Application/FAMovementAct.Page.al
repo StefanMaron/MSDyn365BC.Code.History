@@ -24,7 +24,7 @@ page 12478 "FA Movement Act"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Posting Description"; "Posting Description")
@@ -240,7 +240,7 @@ page 12478 "FA Movement Act"
 
     local procedure NewFALocationCodeOnAfterValida()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

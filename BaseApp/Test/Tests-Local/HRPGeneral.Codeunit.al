@@ -884,7 +884,7 @@ codeunit 144200 "HRP General"
 
         with PayrollCalendarLine do begin
             SetRange(Status, Status::Open);
-            FindSet;
+            FindSet();
             repeat
                 Release;
                 Modify;
@@ -1201,7 +1201,7 @@ codeunit 144200 "HRP General"
             SetRange("Document No.", PostedPayrollDocument."No.");
             SetRange("Element Type", "Element Type"::Funds);
             SetFilter("Payroll Amount", '<>0');
-            FindSet;
+            FindSet();
             repeat
                 FindVerifyAccuralLines(PostedPayrollDocument."No.", FindFundVendorNo("Element Code"));
             until Next = 0;
@@ -1277,7 +1277,7 @@ codeunit 144200 "HRP General"
         with PayrollDocumentLineAE do begin
             SetRange("Document No.", PayrollDocumentLine."Document No.");
             SetRange("Document Line No.", PayrollDocumentLine."Line No.");
-            FindSet;
+            FindSet();
             repeat
                 TotalEarnings += Amount;
             until Next = 0;
@@ -1321,7 +1321,7 @@ codeunit 144200 "HRP General"
               FundPostedPayrollDocumentLine."Element Type"::Wage,
               FundPostedPayrollDocumentLine."Element Type"::Bonus);
             SetFilter("Payroll Amount", '<>0');
-            FindSet;
+            FindSet();
             repeat
                 FindAndVerifyFundGLEntry(DocumentNo, SourceNo, "Dimension Set ID");
             until Next = 0;

@@ -15,28 +15,28 @@ report 6529 "Item Tracking Navigate"
             column(CompanyName; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(Head3View; SerialNoFilter <> '')
+            column(Head3View; ItemFilters.GetFilter("Serial No. Filter") <> '')
             {
             }
-            column(Head4View; LotNoFilter <> '')
+            column(Head4View; ItemFilters.GetFilter("Lot No. Filter") <> '')
             {
             }
-            column(Head5View; ItemNoFilter <> '')
+            column(Head5View; ItemFilters.GetFilter("No.") <> '')
             {
             }
-            column(Head6View; VariantFilter <> '')
+            column(Head6View; ItemFilters.GetFilter("Variant Filter") <> '')
             {
             }
-            column(FormatedSerialNoFilter; Text001 + Format(SerialNoFilter))
+            column(FormatedSerialNoFilter; Text001 + Format(ItemFilters.GetFilter("Serial No. Filter")))
             {
             }
-            column(FormatedLotNoFilter; Text002 + Format(LotNoFilter))
+            column(FormatedLotNoFilter; Text002 + Format(ItemFilters.GetFilter("Lot No. Filter")))
             {
             }
-            column(FormatedtemNoFilter; Text003 + Format(ItemNoFilter))
+            column(FormatedtemNoFilter; Text003 + Format(ItemFilters.GetFilter("No.")))
             {
             }
-            column(FormatedVariantFilter; Text004 + Format(VariantFilter))
+            column(FormatedVariantFilter; Text004 + Format(ItemFilters.GetFilter("Variant Filter")))
             {
             }
             column(ItemTrackingNavigateCaption; ItemTrackingNavigateCaptionLbl)
@@ -91,7 +91,7 @@ report 6529 "Item Tracking Navigate"
                         if not TempRecordBuffer.Find('-') then
                             CurrReport.Break();
                     end else
-                        if TempRecordBuffer.Next = 0 then
+                        if TempRecordBuffer.Next() = 0 then
                             CurrReport.Break();
                 end;
 
@@ -109,7 +109,7 @@ report 6529 "Item Tracking Navigate"
                     if not TempDocEntry.Find('-') then
                         CurrReport.Break();
                 end else
-                    if TempDocEntry.Next = 0 then
+                    if TempDocEntry.Next() = 0 then
                         CurrReport.Break();
             end;
 
@@ -154,13 +154,9 @@ report 6529 "Item Tracking Navigate"
         Text002: Label 'Lot No. : ';
         TempDocEntry: Record "Document Entry" temporary;
         TempRecordBuffer: Record "Record Buffer" temporary;
-        SerialNoFilter: Text;
-        LotNoFilter: Text;
-        ItemNoFilter: Text;
-        VariantFilter: Text;
+        ItemFilters: Record Item;
         Text003: Label 'Item No. : ';
         Text004: Label 'Variant Code. : ';
-        CDNoFilter: Text;
         PrintOnlyOnePerPage: Boolean;
         RecordCounter: Integer;
         ItemTrackingNavigateCaptionLbl: Label 'Item Tracking Navigate';
@@ -181,7 +177,7 @@ report 6529 "Item Tracking Navigate"
             repeat
                 TempDocEntry := NewDocEntry;
                 TempDocEntry.Insert();
-            until NewDocEntry.Next = 0;
+            until NewDocEntry.Next() = 0;
         NewDocEntry := TempDocumentEntry;
     end;
 
@@ -192,16 +188,21 @@ report 6529 "Item Tracking Navigate"
             repeat
                 TempRecordBuffer := NewRecordBuffer;
                 TempRecordBuffer.Insert();
-            until NewRecordBuffer.Next = 0;
+            until NewRecordBuffer.Next() = 0;
     end;
 
-    procedure TransferFilters(NewSerialNoFilter: Text; NewLotNoFilter: Text; NewCDNoFilter: Text; NewItemNoFilter: Text; NewVariantFilter: Text)
+    [Obsolete('Replaced by SetItemFilters().', '18.0')]
+    procedure TransferFilters(NewSerialNoFilter: Text; NewLotNoFilter: Text; NewItemNoFilter: Text; NewVariantFilter: Text)
     begin
-        SerialNoFilter := NewSerialNoFilter;
-        LotNoFilter := NewLotNoFilter;
-        CDNoFilter := NewCDNoFilter;
-        ItemNoFilter := NewItemNoFilter;
-        VariantFilter := NewVariantFilter;
+        ItemFilters.SetFilter("Serial No. Filter", NewSerialNoFilter);
+        ItemFilters.SetFilter("Lot No. Filter", NewLotNoFilter);
+        ItemFilters.SetFilter("No.", NewItemNoFilter);
+        ItemFilters.SetFilter("Variant Filter", NewVariantFilter);
+    end;
+
+    procedure SetTrackingFilters(var NewItemFilters: Record Item)
+    begin
+        ItemFilters.CopyFilters(NewItemFilters);
     end;
 }
 

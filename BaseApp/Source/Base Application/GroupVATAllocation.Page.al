@@ -79,7 +79,7 @@ page 14928 "Group VAT Allocation"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -94,7 +94,7 @@ page 14928 "Group VAT Allocation"
             repeat
                 GroupVATAllocLine := Rec;
                 GroupVATAllocLine.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

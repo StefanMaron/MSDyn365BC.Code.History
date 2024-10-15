@@ -57,7 +57,7 @@ table 26554 "Stat. Report Table Column"
         StatReportTableMapping.SetRange("Report Code", "Report Code");
         StatReportTableMapping.SetRange("Table Code", "Table Code");
         StatReportTableMapping.SetRange("Table Column No.", "Line No.");
-        if not StatReportTableMapping.IsEmpty then
+        if not StatReportTableMapping.IsEmpty() then
             StatReportTableMapping.DeleteAll();
     end;
 

@@ -26,6 +26,7 @@ codeunit 134100 "ERM Prepayment"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         GLEntryAmountErr: Label 'Amount must be same.';
+        SpecifyInvNoSerieErr: Label 'Specify the code for the number series that will be used to assign numbers to posted sales prepayment invoices.';
         PrepaymentAmountErr: Label '%1 must be same.';
         PrepaymentPercentErr: Label '%1 must not be zero.';
         UnknownErr: Label 'Unknown error.';
@@ -594,7 +595,7 @@ codeunit 134100 "ERM Prepayment"
         asserterror PostSalesPrepaymentInvoice(SalesHeader);
 
         // [THEN] Verify the Posted Sales Invoice No with No Series.
-        Assert.IsTrue(StrPos(GetLastErrorText, SalesHeader."No.") > 0, UnknownErr);
+        Assert.IsTrue(GetLastErrorText = SpecifyInvNoSerieErr, UnknownErr);
     end;
 
     [Test]
@@ -3212,7 +3213,7 @@ codeunit 134100 "ERM Prepayment"
           CrMemoSalesHeader, CrMemoSalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
 
         // [WHEN] Open "Get Posted Document Lines to Reverse"
-        CrMemoSalesHeader.GetPstdDocLinesToRevere;
+        CrMemoSalesHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Posted Sales Prepayment Invoice "Y" does not shown on page "Posted Sales Document Lines"
         // Verification done in GetPostedSalesDocLinesToReverseWithoutPrepmtInv
@@ -3245,7 +3246,7 @@ codeunit 134100 "ERM Prepayment"
           CrMemoPurchHeader, CrMemoPurchHeader."Document Type"::"Credit Memo", PurchHeader."Buy-from Vendor No.");
 
         // [WHEN] Open "Get Posted Document Lines to Reverse"
-        CrMemoPurchHeader.GetPstdDocLinesToRevere;
+        CrMemoPurchHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Posted Purchase Prepayment Invoice "Y" does not shown on page "Posted Purchase Document Lines"
         // Verification done in GetPostedPurchDocLinesToReverseWithoutPrepmtInv
@@ -3281,7 +3282,7 @@ codeunit 134100 "ERM Prepayment"
           CrMemoSalesHeader, CrMemoSalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
 
         // [WHEN] Open "Get Posted Document Lines to Reverse" from Cr. Memo
-        CrMemoSalesHeader.GetPstdDocLinesToRevere;
+        CrMemoSalesHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Posted Sales Prepayment Credit Memo "Y" does not shown on page "Posted Sales Document Lines"
         // Verification done in GetPostedSalesDocLinesToReverseWithoutPrepmtCrMemo
@@ -3318,7 +3319,7 @@ codeunit 134100 "ERM Prepayment"
           CrMemoPurchHeader, CrMemoPurchHeader."Document Type"::"Credit Memo", PurchHeader."Buy-from Vendor No.");
 
         // [WHEN] Open "Get Posted Document Lines to Reverse" from Cr. Memo
-        CrMemoPurchHeader.GetPstdDocLinesToRevere;
+        CrMemoPurchHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Posted Purchase Prepayment Credit Memo "Y" does not shown on page "Posted Purchase Document Lines"
         // Verification done in GetPostedPurchDocLinesToReverseWithoutPrepmtCrMemo
@@ -3747,7 +3748,7 @@ codeunit 134100 "ERM Prepayment"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
         repeat
             SalesInvoiceLineAmount += SalesInvoiceLine."Line Amount";
         until SalesInvoiceLine.Next = 0;
@@ -4698,13 +4699,13 @@ codeunit 134100 "ERM Prepayment"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure FindSalesInvoiceLines(var SalesInvoiceLine: Record "Sales Invoice Line"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
     end;
 
     local procedure FindShipmentLineNo(DocumentNo: Code[20]): Integer
@@ -4906,7 +4907,7 @@ codeunit 134100 "ERM Prepayment"
 
     local procedure PrepaymentPercentInSalesLine(var SalesLine: Record "Sales Line"; PrepaymentPercent: Decimal)
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.Validate("Prepayment %", SalesLine."Prepayment %" + PrepaymentPercent);
             SalesLine.Modify(true);
@@ -5177,7 +5178,7 @@ codeunit 134100 "ERM Prepayment"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
 
         VATBusinessPostingGroup.Get(VATPostingSetup."VAT Bus. Posting Group");
         VATBusinessPostingGroup.Delete();
@@ -5383,10 +5384,10 @@ codeunit 134100 "ERM Prepayment"
     var
         SalesLine2: Record "Sales Line";
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         SalesLine2.SetRange("Document Type", SalesLine2."Document Type"::Order);
         SalesLine2.SetRange("Document No.", OrderNo);
-        SalesLine2.FindSet;
+        SalesLine2.FindSet();
         repeat
             SalesLine2.TestField("Prepmt. Line Amount", SalesLine."Prepmt. Line Amount");
             SalesLine2.TestField("Prepmt Amt to Deduct", SalesLine."Prepmt Amt to Deduct");
@@ -5463,8 +5464,8 @@ codeunit 134100 "ERM Prepayment"
 
     local procedure VerifyPrepaymentPercentInLines(var TempSalesLine: Record "Sales Line" temporary; var SalesLine: Record "Sales Line"; PrepaymentPercent: Decimal)
     begin
-        SalesLine.FindSet;
-        TempSalesLine.FindSet;
+        SalesLine.FindSet();
+        TempSalesLine.FindSet();
         repeat
             SalesLine.TestField("Prepayment %", TempSalesLine."Prepayment %" + PrepaymentPercent);
             SalesLine.Next;
@@ -5479,11 +5480,11 @@ codeunit 134100 "ERM Prepayment"
         // Verify Prepayment fields` values between 2 Sales Documents
         SalesOrderLine.SetRange("Document Type", SalesOrderLine."Document Type"::Order);
         SalesOrderLine.SetRange("Document No.", SalesOrderNo);
-        SalesOrderLine.FindSet;
+        SalesOrderLine.FindSet();
         SalesInvoiceLine.SetRange("Document Type", SalesOrderLine."Document Type"::Invoice);
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceNo);
         SalesInvoiceLine.SetRange(Type, SalesOrderLine.Type::Item);
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
         repeat
             Assert.AreNearlyEqual(
               SalesOrderLine."Prepmt. Amt. Incl. VAT", SalesInvoiceLine."Prepmt. Amt. Incl. VAT", 0.01,
@@ -5511,11 +5512,11 @@ codeunit 134100 "ERM Prepayment"
         // Verify Prepayment fields` values between 2 Purchase Documents
         PurchOrderLine.SetRange("Document Type", PurchOrderLine."Document Type"::Order);
         PurchOrderLine.SetRange("Document No.", PurchOrderNo);
-        PurchOrderLine.FindSet;
+        PurchOrderLine.FindSet();
         PurchInvoiceLine.SetRange("Document Type", PurchOrderLine."Document Type"::Invoice);
         PurchInvoiceLine.SetRange("Document No.", PurchInvoiceNo);
         PurchInvoiceLine.SetRange(Type, PurchInvoiceLine.Type::Item);
-        PurchInvoiceLine.FindSet;
+        PurchInvoiceLine.FindSet();
         repeat
             Assert.AreNearlyEqual(
               PurchOrderLine."Prepmt. Amt. Incl. VAT", PurchInvoiceLine."Prepmt. Amt. Incl. VAT", 0.01,
@@ -5752,7 +5753,7 @@ codeunit 134100 "ERM Prepayment"
     begin
         with GLEntry do begin
             SetRange("Document No.", DocNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(NoSeries, "No. Series", StrSubstNo(WrongPostingNoSeriesErr, TableCaption));
             until Next = 0;
@@ -5765,7 +5766,7 @@ codeunit 134100 "ERM Prepayment"
     begin
         with VATEntry do begin
             SetRange("Document No.", DocNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(NoSeries, "No. Series", StrSubstNo(WrongPostingNoSeriesErr, TableCaption));
             until Next = 0;
@@ -5841,7 +5842,7 @@ codeunit 134100 "ERM Prepayment"
         with DetailedCustLedgEntry do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreNotEqual(0, "Transaction No.", DtldCustLedgEntryErr);
             until Next = 0;
@@ -5855,7 +5856,7 @@ codeunit 134100 "ERM Prepayment"
         with DetailedVendorLedgEntry do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreNotEqual(0, "Transaction No.", DtldVendLedgEntryErr);
             until Next = 0;

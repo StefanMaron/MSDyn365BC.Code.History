@@ -42,7 +42,7 @@ page 17236 "Tax Register Create"
                         TaxRegMgt.SelectPeriod(Text, CalendarPeriod);
                         DatePeriod.Copy(CalendarPeriod);
                         TaxRegMgt.PeriodSetup(DatePeriod);
-                        CurrPage.Update;
+                        CurrPage.Update();
                         exit(true);
                     end;
 

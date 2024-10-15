@@ -50,7 +50,7 @@ table 17217 "Tax Register Dim. Def. Value"
                     TaxRegDimDefValue.SetRange("Dimension 2 Code", "Dimension 2 Code");
                     TaxRegDimDefValue.SetRange("Dimension 2 Value Code", "Dimension 2 Value Code");
                     TaxRegDimDefValue.SetRange("Dimension Code", Dimension.Code);
-                    if TaxRegDimDefValue.IsEmpty then
+                    if TaxRegDimDefValue.IsEmpty() then
                         "Dimension Code" := Dimension.Code;
                 end;
             end;

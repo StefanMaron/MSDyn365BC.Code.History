@@ -2032,6 +2032,81 @@ codeunit 134141 "ERM Bank Reconciliation"
         Assert.ExpectedError(StrSubstNo(StatementAlreadyExistsErr, BankAccReconciliation[1]."Statement No."));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure InitReportSelectionPostedPaymentReconciliation()
+    var
+        ReportSelections: Record "Report Selections";
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
+    begin
+        // [FEATURE] [Posted Payment Reconciliation] [UT]
+        // [SCENARIO 315205] Report "Posted Payment Reconciliation" defined for bank report selection with option "Posted Payment Reconciliation"
+        Initialize();
+
+        // [WHEN] Run InitReportSelectionBank
+        ReportSelections.DeleteAll();
+        ReportSelectionMgt.InitReportSelectionBank();
+
+        // [THEN] Record created for report "Posted Payment Reconciliation"
+        ReportSelections.Get("Report Selection Usage"::"Posted Payment Reconciliation", '1');
+        ReportSelections.TestField("Report ID", Report::"Posted Payment Reconciliation");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedPaymentReconciliationReportRequestPageHandler')]
+    procedure PrintPostedPaymentReconciliation()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
+        DocPrint: Codeunit "Document-Print";
+    begin
+        // [FEATURE] [Posted Payment Reconciliation] [UT]
+        // [SCENARIO 315205] Print report "Posted Payment Reconciliation" 
+        Initialize();
+        Clear(LibraryReportDataset);
+
+        // [GIVEN] Create and post payment reconciliation journal for "Bank Account" = "B", "Statement No."= "S", "G/L Account" = "A", Amount = 100
+        CreateBankReconciliationWithGLAccount(BankAccReconciliation, BankAccReconciliationLine, LibraryERM.CreateGLAccountNo());
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+        PostedPaymentReconHdr.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+
+        // [WHEN] Report "Posted Payment Reconciliation" is being printed
+        DocPrint.PrintPostedPaymentReconciliation(PostedPaymentReconHdr);
+
+        // [THEN] Report printed with  "Bank Account" = "B", "Statement No."= "S", "Description" = "A", Amount = 100
+        VerifyPostedPaymentReconciliationReport(BankAccReconciliationLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedPaymentReconciliationReportRequestPageHandler')]
+    procedure PrintPostedPaymentReconciliationFromCard()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PostedPaymentReconciliation: TestPage "Posted Payment Reconciliation";
+    begin
+        // [FEATURE] [Posted Payment Reconciliation] [UI]
+        // [SCENARIO 315205] Report "Posted Payment Reconciliation" can be printed from pate "Posted Payment Reconciliation"
+        Initialize();
+        Clear(LibraryReportDataset);
+
+        // [GIVEN] Create and post payment reconciliation journal for "Bank Account" = "B", "Statement No."= "S", "G/L Account" = "A", Amount = 100
+        CreateBankReconciliationWithGLAccount(BankAccReconciliation, BankAccReconciliationLine, LibraryERM.CreateGLAccountNo());
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [WHEN] Report "Posted Payment Reconciliation" is being printed
+        PostedPaymentReconciliation.OpenView();
+        PostedPaymentReconciliation.Filter.SetFilter("Statement No.", BankAccReconciliation."Statement No.");
+        PostedPaymentReconciliation.Filter.SetFilter("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        PostedPaymentReconciliation.Print.Invoke();
+
+        // [THEN] Report printed with  "Bank Account" = "B", "Statement No."= "S", "Description" = "A", Amount = 100
+        VerifyPostedPaymentReconciliationReport(BankAccReconciliationLine);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Reconciliation");
@@ -2367,7 +2442,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Modify(true);
     end;
 
-    local procedure CreateApplyBankAccReconcilationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20]; StatementAmount: Decimal; BankAccountNo: Code[20])
+    local procedure CreateApplyBankAccReconcilationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; StatementAmount: Decimal; BankAccountNo: Code[20])
     begin
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
@@ -2807,6 +2882,15 @@ codeunit 134141 "ERM Bank Reconciliation"
         Assert.RecordIsNotEmpty(GLEntry);
     end;
 
+    local procedure VerifyPostedPaymentReconciliationReport(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('BankAccNo_PostedPaymentReconciliation', BankAccReconciliationLine."Bank Account No.");
+        LibraryReportDataset.AssertElementWithValueExists('StmtNo_PostedPaymentReconciliation', BankAccReconciliationLine."Statement No.");
+        LibraryReportDataset.AssertElementWithValueExists('Desc_PostedPaymentReconciliationLine', BankAccReconciliationLine.Description);
+        LibraryReportDataset.AssertElementWithValueExists('AppliedAmt1_PostedPaymentReconciliationLine', BankAccReconciliationLine."Applied Amount");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -2911,5 +2995,12 @@ codeunit 134141 "ERM Bank Reconciliation"
     begin
         ChangeBankRecStatementNo.NewStatementNumber.SetValue(LibraryVariableStorage.DequeueText());
         ChangeBankRecStatementNo.OK().Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPaymentReconciliationReportRequestPageHandler(var PostedPaymentReconciliation: TestRequestPage "Posted Payment Reconciliation")
+    begin
+        PostedPaymentReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
     end;
 }

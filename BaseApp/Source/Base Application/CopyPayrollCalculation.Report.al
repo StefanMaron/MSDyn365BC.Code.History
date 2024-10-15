@@ -22,7 +22,7 @@ report 17408 "Copy Payroll Calculation"
                         PayrollCalcLine2."Element Code" := PayrollCalculation."Element Code";
                         PayrollCalcLine2."Period Code" := PayrollCalculation."Period Code";
                         PayrollCalcLine2.Insert();
-                    until PayrollCalcLine.Next = 0;
+                    until PayrollCalcLine.Next() = 0;
 
                 PayrollElementExpr.Reset();
                 PayrollElementExpr.SetRange("Element Code", FromElementCode);
@@ -34,7 +34,7 @@ report 17408 "Copy Payroll Calculation"
                         PayrollElementExpr2."Element Code" := PayrollCalculation."Element Code";
                         PayrollElementExpr2."Period Code" := PayrollCalculation."Period Code";
                         PayrollElementExpr2.Insert();
-                    until PayrollElementExpr.Next = 0;
+                    until PayrollElementExpr.Next() = 0;
 
                 PayrollElementVar.Reset();
                 PayrollElementVar.SetRange("Element Code", FromElementCode);
@@ -46,7 +46,7 @@ report 17408 "Copy Payroll Calculation"
                         PayrollElementVar2."Element Code" := PayrollCalculation."Element Code";
                         PayrollElementVar2."Period Code" := PayrollCalculation."Period Code";
                         PayrollElementVar2.Insert();
-                    until PayrollElementExpr.Next = 0;
+                    until PayrollElementExpr.Next() = 0;
             end;
         }
     }

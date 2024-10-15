@@ -809,16 +809,16 @@ page 9001 "Accounting Manager Role Center"
                     RunPageView = WHERE("Document Type" = CONST(Movement));
                     ToolTip = 'Open the list of posted fixed asset movements.';
                 }
-                action("Posted Item Receipts")
+                action("Posted Invt. Receipts")
                 {
-                    Caption = 'Posted Item Receipts';
-                    RunObject = Page "Posted Item Receipts";
+                    Caption = 'Posted Invt. Receipts';
+                    RunObject = Page "Posted Invt. Receipts";
                     ToolTip = 'Open the list of posted receipts.';
                 }
-                action("Posted Item Shipment")
+                action("Posted Invt. Shipment")
                 {
-                    Caption = 'Posted Item Shipment';
-                    RunObject = Page "Posted Item Shipments";
+                    Caption = 'Posted Invy. Shipment';
+                    RunObject = Page "Posted Invt. Shipments";
                     ToolTip = 'Open the list of posted shipments.';
                 }
                 action("Tax Difference Registers")

@@ -68,7 +68,7 @@ codeunit 12422 "Corrective Document Mgt."
             ItemChargeAssgntSales."Line No." := GetItemChargeAssgntLineNo(SalesLine);
             ItemChargeAssgntSales."Unit Cost" := "Unit Price";
 
-            TempSalesShptLine.FindSet;
+            TempSalesShptLine.FindSet();
             AssignItemChargeSales.CreateShptChargeAssgnt(TempSalesShptLine, ItemChargeAssgntSales);
         end;
     end;
@@ -87,7 +87,7 @@ codeunit 12422 "Corrective Document Mgt."
             ItemChargeAssgntSales."Line No." := GetItemChargeAssgntLineNo(SalesLine);
             ItemChargeAssgntSales."Unit Cost" := "Unit Price";
 
-            TempSalesReturnRcptLine.FindSet;
+            TempSalesReturnRcptLine.FindSet();
             AssignItemChargeSales.CreateRcptChargeAssgnt(TempSalesReturnRcptLine, ItemChargeAssgntSales);
         end;
     end;
@@ -96,10 +96,10 @@ codeunit 12422 "Corrective Document Mgt."
     var
         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
     begin
-        if not TempSalesShptLine.IsEmpty then
+        if not TempSalesShptLine.IsEmpty() then
             ItemShptChargeAssgnt(SalesLine, TempSalesShptLine);
 
-        if not TempSalesReturnRcptLine.IsEmpty then
+        if not TempSalesReturnRcptLine.IsEmpty() then
             ItemRcptChargeAssgnt(SalesLine, TempSalesReturnRcptLine);
 
         AssignItemChargeSales.AssignItemCharges(
@@ -150,7 +150,7 @@ codeunit 12422 "Corrective Document Mgt."
                           GetSalesInvHeaderPostingDate(SalesInvLine."Document No."),
                           SalesInvLine."Original No.",
                           SalesInvLine."Line No.");
-                until SalesInvLine.Next = 0;
+                until SalesInvLine.Next() = 0;
 
             if SalesCrMemoLine.FindSet then
                 repeat
@@ -161,7 +161,7 @@ codeunit 12422 "Corrective Document Mgt."
                           GetSalesCrMHeaderPostingDate(SalesCrMemoLine."Document No."),
                           SalesCrMemoLine."Original No.",
                           SalesCrMemoLine."Line No.");
-                until SalesCrMemoLine.Next = 0;
+                until SalesCrMemoLine.Next() = 0;
         end;
 
         SalesItemChargeAssgnt(SalesLine, TempSalesShptLine, TempReturnRcptLine);
@@ -190,7 +190,7 @@ codeunit 12422 "Corrective Document Mgt."
                             if TempSalesShptLine.Insert() then;
                         end;
                 end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure GetSalesRcptLines(var TempReturnReceiptLine: Record "Return Receipt Line"; DocNo: Code[20]; PostingDate: Date; ItemNo: Code[20]; LineNo: Integer)
@@ -216,7 +216,7 @@ codeunit 12422 "Corrective Document Mgt."
                             if TempReturnReceiptLine.Insert() then;
                         end;
                 end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -267,7 +267,7 @@ codeunit 12422 "Corrective Document Mgt."
                 if SalesLine.Type = SalesLine.Type::Item then
                     CreateItemTracking(SalesLine, TempSalesLine);
                 LineNo := LineNo + 10000;
-            until SalesInvLine.Next = 0;
+            until SalesInvLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -311,7 +311,7 @@ codeunit 12422 "Corrective Document Mgt."
                 if SalesLine.Type = SalesLine.Type::Item then
                     CreateItemTracking(SalesLine, TempSalesLine);
                 LineNo := LineNo + 10000;
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     local procedure GetSalesLineNo(DocType: Enum "Sales Document Type"; DocNo: Code[20]): Integer
@@ -466,7 +466,7 @@ codeunit 12422 "Corrective Document Mgt."
                 CorrSalesLine.SetRange("Corrected Doc. Line No.", CorrLineNo);
                 if CorrSalesLine.FindFirst then
                     Error(Text001, CorrLineNo, CorrSalesLine."Document Type", CorrSalesLine."Document No.");
-            until CorrSalesHeader.Next = 0;
+            until CorrSalesHeader.Next() = 0;
     end;
 
     local procedure CheckSalesLineCorrected(CorrLineNo: Integer)
@@ -579,14 +579,14 @@ codeunit 12422 "Corrective Document Mgt."
     local procedure IsCopyItemTrkg(var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     begin
         with ItemLedgEntry do begin
-            if IsEmpty then
+            if IsEmpty() then
                 exit(true);
             SetFilter("Lot No.", '<>%1', '');
-            if not IsEmpty then
+            if not IsEmpty() then
                 exit(true);
             SetRange("Lot No.");
             SetFilter("Serial No.", '<>%1', '');
-            if not IsEmpty then
+            if not IsEmpty() then
                 exit(true);
             SetRange("Serial No.");
         end;

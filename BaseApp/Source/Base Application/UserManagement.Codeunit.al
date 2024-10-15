@@ -204,6 +204,7 @@ codeunit 418 "User Management"
         MyJob: Record "My Job";
         MyTimeSheets: Record "My Time Sheets";
         CuesAndKpis: Codeunit "Cues and KPIs";
+        Checklist: Codeunit Checklist;
     begin
         if NumberOfPrimaryKeyFields = 1 then
             RecRef.Rename(UserName)
@@ -312,6 +313,10 @@ codeunit 418 "User Management"
                         RecRef.SetTable(MyTimeSheets);
                         MyTimeSheets.Rename(UserName, MyTimeSheets."Time Sheet No.");
                     end;
+                1993: //Checklist Item User
+                    Checklist.UpdateUserName(RecRef, Company, UserName, 1993);
+                1994: //User Checklist Status
+                    Checklist.UpdateUserName(RecRef, Company, UserName, 1994);
             end;
         OnAfterRenameRecord(RecRef, TableNo, NumberOfPrimaryKeyFields, UserName, Company);
     end;
@@ -360,7 +365,6 @@ codeunit 418 "User Management"
         Hyperlink('https://go.microsoft.com/fwlink/?linkid=2144416');
     end;
 
-
     procedure RenameUser(OldUserName: Code[50]; NewUserName: Code[50])
     var
         User: Record User;
@@ -386,7 +390,7 @@ codeunit 418 "User Management"
         Field.SetFilter(Type, '%1|%2', Field.Type::Code, Field.Type::Text);
         if Field.FindSet then
             repeat
-                Company.FindSet;
+                Company.FindSet();
                 repeat
                     IsHandled := false;
                     OnRenameUserOnBeforeProcessField(Field.TableNo, Field."No.", OldUserName, NewUserName, IsHandled);
@@ -404,7 +408,7 @@ codeunit 418 "User Management"
                                         FieldRef2.Value := CopyStr(NewUserName, 1, Field.Len);
                                         RecRef.Modify();
                                     end;
-                                until RecRef.Next = 0;
+                                until RecRef.Next() = 0;
                         end else begin
                             TableInformation.SetFilter("Company Name", '%1|%2', '', Company.Name);
                             TableInformation.SetRange("Table No.", Field.TableNo);
@@ -414,8 +418,8 @@ codeunit 418 "User Management"
                         end;
                         RecRef.Close;
                     end;
-                until Company.Next = 0;
-            until Field.Next = 0;
+                until Company.Next() = 0;
+            until Field.Next() = 0;
 
         if OldUserName = UserId then begin
             SessionSetting.Init();

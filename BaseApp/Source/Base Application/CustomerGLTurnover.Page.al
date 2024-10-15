@@ -26,7 +26,7 @@ page 12406 "Customer G/L Turnover"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

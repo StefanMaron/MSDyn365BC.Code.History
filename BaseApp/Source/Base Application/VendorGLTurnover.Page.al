@@ -27,7 +27,7 @@ page 12407 "Vendor G/L Turnover"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

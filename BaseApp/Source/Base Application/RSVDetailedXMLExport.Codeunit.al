@@ -100,7 +100,7 @@ codeunit 17473 "RSV Detailed XML Export"
         TempTotalPaidPayrollReportingBuffer: Record "Payroll Reporting Buffer" temporary;
         PackNo: Integer;
     begin
-        if Person.IsEmpty then
+        if Person.IsEmpty() then
             exit;
 
         CompanyInfo.Get();
@@ -222,7 +222,7 @@ codeunit 17473 "RSV Detailed XML Export"
                             LineCounter += 1;
                             AddPackageDetailLine(PersonifiedPayrollReportingBuffer, LineCounter, EndDate);
                         end;
-                    until PersonifiedPayrollReportingBuffer.Next = 0;
+                    until PersonifiedPayrollReportingBuffer.Next() = 0;
 
                 PersonifiedPayrollReportingBuffer.SetFilter("Code 2", '<>%1', '0');
                 PersonifiedPayrollReportingBuffer.CalcSums("Amount 4");
@@ -233,7 +233,7 @@ codeunit 17473 "RSV Detailed XML Export"
                 XMLAddSimpleElement(FillDateTxt, FormatDate(CreationDate));
                 XMLBackToParent;
                 Counter += 1;
-            until ReportingPersonPayrollReportingBuffer.Next = 0;
+            until ReportingPersonPayrollReportingBuffer.Next() = 0;
     end;
 
     local procedure AddPackageDetailLine(var PersonifiedPayrollReportingBuffer: Record "Payroll Reporting Buffer"; LineCounter: Integer; EndDate: Date)
@@ -362,7 +362,7 @@ codeunit 17473 "RSV Detailed XML Export"
                 end else
                     XMLAddSimpleElement(NumberOfBenefitsTxt, '0');
                 XMLBackToParent;
-            until TempExperienceLaborContractLine.Next = 0;
+            until TempExperienceLaborContractLine.Next() = 0;
     end;
 
     local procedure AddDetailExperienceBuf(GeneralDirectory: Record "General Directory")

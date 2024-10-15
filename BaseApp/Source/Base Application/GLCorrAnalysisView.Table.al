@@ -64,7 +64,7 @@ table 14940 "G/L Corr. Analysis View"
                         repeat
                             TempBusUnit := BusUnit;
                             TempBusUnit.Insert();
-                        until BusUnit.Next = 0;
+                        until BusUnit.Next() = 0;
                     TempBusUnit.Init();
                     TempBusUnit.Code := '';
                     TempBusUnit.Insert();
@@ -76,7 +76,7 @@ table 14940 "G/L Corr. Analysis View"
                             GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", Code);
                             GLCorrAnalysisViewEntry.SetRange("Business Unit Code", TempBusUnit.Code);
                             GLCorrAnalysisViewEntry.DeleteAll();
-                        until TempBusUnit.Next = 0
+                        until TempBusUnit.Next() = 0
                 end;
                 if ("Last Entry No." <> 0) and (xRec."Business Unit Filter" <> '') and
                    ("Business Unit Filter" <> xRec."Business Unit Filter")
@@ -121,7 +121,7 @@ table 14940 "G/L Corr. Analysis View"
                     if GLAcc.FindSet then
                         repeat
                             GLAcc.Mark := true;
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                     GLAcc.SetRange("No.");
                     if GLAcc.FindSet then
                         repeat
@@ -130,7 +130,7 @@ table 14940 "G/L Corr. Analysis View"
                                 GLCorrAnalysisViewEntry.SetRange("Debit Account No.", GLAcc."No.");
                                 GLCorrAnalysisViewEntry.DeleteAll();
                             end;
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                 end;
                 if ("Last Entry No." <> 0) and ("Debit Account Filter" <> xRec."Debit Account Filter") and
                    (xRec."Debit Account Filter" <> '')
@@ -162,7 +162,7 @@ table 14940 "G/L Corr. Analysis View"
                     if GLAcc.FindSet then
                         repeat
                             GLAcc.Mark := true;
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                     GLAcc.SetRange("No.");
                     if GLAcc.FindSet then
                         repeat
@@ -171,7 +171,7 @@ table 14940 "G/L Corr. Analysis View"
                                 GLCorrAnalysisViewEntry.SetRange("Credit Account No.", GLAcc."No.");
                                 GLCorrAnalysisViewEntry.DeleteAll();
                             end;
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                 end;
                 if ("Last Entry No." <> 0) and ("Credit Account Filter" <> xRec."Credit Account Filter") and
                    (xRec."Credit Account Filter" <> '')
@@ -356,7 +356,7 @@ table 14940 "G/L Corr. Analysis View"
                                 NewGLCorrAnalysisViewEntry."Credit Dimension 3 Value Code" := '';
                         end;
                         InsertAnalysisViewEntry;
-                    until GLCorrAnalysisViewEntry.Next = 0;
+                    until GLCorrAnalysisViewEntry.Next() = 0;
             end;
         end;
     end;
@@ -447,7 +447,7 @@ table 14940 "G/L Corr. Analysis View"
                                 exit(true);
                         end;
                 end;
-            until GLCorrAnalysisView.Next = 0;
+            until GLCorrAnalysisView.Next() = 0;
         end;
 
         exit(false);

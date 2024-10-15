@@ -82,7 +82,7 @@ report 17364 "Vacation Calculation T-60"
                                             ExcelMgt.FillCell('AF' + Format(RowNo),
                                               Format(PostedPayrollPeriodAE."Salary Amount" + PostedPayrollPeriodAE."Bonus Amount"));
                                             RowNo += 1;
-                                        until PostedPayrollPeriodAE.Next = 0;
+                                        until PostedPayrollPeriodAE.Next() = 0;
                                     // çá ÔÑ¬ÒÚ¿® ¼Ñß´µ
                                     ExcelMgt.FillCell('K67', LocMgt.GetMonthName("Start Date", true));
                                     if "End Date" <= CalcDate('<CM>', "Posted Absence Line"."Start Date") then
@@ -102,7 +102,7 @@ report 17364 "Vacation Calculation T-60"
                                 // éßÑú« ¡áþ¿ß½Ñ¡«
                                 TotalAmt += PostedPayrollDocLine."Payroll Amount";
                             end;
-                        until PostedPayrollDocLine.Next = 0;
+                        until PostedPayrollDocLine.Next() = 0;
 
                         PayrollDocLine."Element Code" := HRSetup."Income Tax 13%";
                         PayrollDocLine."Period Code" := PostedPayrollDocLine."Period Code";
@@ -256,7 +256,7 @@ report 17364 "Vacation Calculation T-60"
                     ExcelMgt.FillCell('CQ' + Format(RowNo), Description);
 
                     RowNo += 1;
-                until Next = 0;
+                until Next() = 0;
             end
         end
     end;

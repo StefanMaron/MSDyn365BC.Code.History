@@ -177,11 +177,6 @@
         end;
 
         FALedgEntry.Insert(true);
-        if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then begin
-            TempFALedgerEntryReverse := FALedgEntry;
-            TempFALedgerEntryReverse.Insert();
-            ReverseFALedgerEntryAmounts(FALedgEntry);
-        end;
 
         if ErrorEntryNo > 0 then begin
             if not FALedgEntry2.Get(ErrorEntryNo) then
@@ -640,7 +635,7 @@
         end;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Reverted FA Disposal Entries sign', '18.0')]
     procedure FinalizeInsertFA()
     var
         FALedgerEntry: Record "FA Ledger Entry";
@@ -847,7 +842,7 @@
                         if FALedgEntry1.FindSet then
                             repeat
                                 Amount := Amount + FALedgEntry1.Amount;
-                            until FALedgEntry1.Next = 0;
+                            until FALedgEntry1.Next() = 0;
                         if Amount <> FALedgEntry.Amount then
                             FALedgerEntryLocal.Amount := Amount;
                         // PS35578.end
@@ -994,9 +989,9 @@
                                 PostingDate := FALedgEntry."Posting Date";
                                 exit(FALedgEntry."Entry No.");
                             end;
-                        until FALedgEntry.Next = 0;
+                        until FALedgEntry.Next() = 0;
                 end;
-            until FADeprBook.Next = 0;
+            until FADeprBook.Next() = 0;
         exit(0);
         // PS24220.end
     end;
@@ -1089,7 +1084,7 @@
         if FALedgEntryGainLoss.FindSet then
             repeat
                 FALedgEntryGainLoss.Amount := FALedgEntryGainLoss.Amount;
-            until FALedgEntryGainLoss.Next = 0;
+            until FALedgEntryGainLoss.Next() = 0;
         FALedgEntryGainLoss.CalcSums(Amount);
         if FALedgEntryGainLoss.Amount + FALedgEntry.Amount >= 0 then
             FALedgEntry."Sales Loss Amount" := FALedgEntryGainLoss.Amount + FALedgEntry.Amount
@@ -1103,6 +1098,7 @@
         GLRegisterNo := NewGLRegisterNo;
     end;
 
+    [Obsolete('Reverted FA Disposal Entries sign', '18.0')]
     procedure ReverseFALedgerEntryAmounts(var FALedgerEntry: Record "FA Ledger Entry")
     begin
         FALedgerEntry.Amount := -FALedgerEntry.Amount;

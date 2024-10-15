@@ -1236,7 +1236,7 @@ codeunit 137022 "SCM Planning Parameters"
     local procedure ValidatePlanningLineCount(var RequisitionLine: Record "Requisition Line"; Item: Record Item; "Count": Integer)
     begin
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         Assert.IsTrue(RequisitionLine.Count >= Count,
           StrSubstNo('Missing planning lines. Expected: %1. Actual: %2', Count, RequisitionLine.Count));
         Assert.IsTrue(RequisitionLine.Count <= Count,
@@ -1263,7 +1263,7 @@ codeunit 137022 "SCM Planning Parameters"
         Clear(UntrackedPlanningElement);
         UntrackedPlanningElement.SetRange("Item No.", Item."No.");
         UntrackedPlanningElement.SetRange("Worksheet Line No.", RequisitionLineNo);
-        UntrackedPlanningElement.FindSet;
+        UntrackedPlanningElement.FindSet();
         Assert.IsTrue(Count >= UntrackedPlanningElement.Count,
           StrSubstNo('Missing tracking lines. Expected: %1. Actual: %2', Count, UntrackedPlanningElement.Count));
         Assert.IsTrue(Count <= UntrackedPlanningElement.Count,

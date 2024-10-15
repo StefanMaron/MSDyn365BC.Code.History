@@ -432,7 +432,7 @@ page 12438 "Cash Order Journal"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -544,7 +544,7 @@ page 12438 "Cash Order Journal"
                                 repeat
                                     GenJnlLine2 := GenJnlLine;
                                     CheckManagement.VoidCheck(GenJnlLine2);
-                                until GenJnlLine.Next = 0;
+                                until GenJnlLine.Next() = 0;
                         end;
                     end;
                 }

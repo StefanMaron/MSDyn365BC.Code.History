@@ -24,7 +24,7 @@ page 12429 "Tax Authority/Fund Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("VAT Registration No."; "VAT Registration No.")

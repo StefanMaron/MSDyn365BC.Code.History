@@ -77,7 +77,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         RequisitionLine.SetRange("Demand Subtype", SalesHeader."Document Type"::Order);
         RequisitionLine.SetRange(Level);
         RequisitionLine.SetFilter(Quantity, '>%1', 0);
-        if not RequisitionLine.IsEmpty then
+        if not RequisitionLine.IsEmpty() then
             MakeSupplyOrders(TempManufacturingUserTemplate, TempDocumentEntry, RequisitionLine);
 
         TempDocumentEntry.SetRange("Table ID", DATABASE::"Purchase Header");
@@ -85,7 +85,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
             repeat
                 if PurchaseHeader.Get(TempDocumentEntry."Document Type", TempDocumentEntry."Document No.") then
                     BuildFilter(NoFilter, PurchaseHeader."No.");
-            until TempDocumentEntry.Next = 0;
+            until TempDocumentEntry.Next() = 0;
 
         if NoFilter = '' then
             Error(NoPurchaseOrdersCreatedErr);
@@ -162,7 +162,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
                 OnCopySalesLinesToPurchaseLinesOnBeforeInsert(PurchaseLine, SalesLine);
                 PurchaseLine.Insert(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure SelectVendor(var Vendor: Record Vendor; var SelectedSalesLine: Record "Sales Line"): Boolean

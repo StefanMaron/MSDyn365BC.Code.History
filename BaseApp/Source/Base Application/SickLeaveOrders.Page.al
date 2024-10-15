@@ -96,7 +96,7 @@ page 17455 "Sick Leave Orders"
                     trigger OnAction()
                     begin
                         ShowDocDim;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Co&mments")

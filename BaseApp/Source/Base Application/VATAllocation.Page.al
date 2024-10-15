@@ -113,7 +113,7 @@ page 14926 "VAT Allocation"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(Allocations)
@@ -224,7 +224,7 @@ page 14926 "VAT Allocation"
                 AllocationAmount := TempVATAlloc.Amount;
                 TempVATAlloc.CopyFilters(Rec);
                 TempVATAlloc := xRec;
-                if TempVATAlloc.Next = 0 then
+                if TempVATAlloc.Next() = 0 then
                     AllocationAmount := AllocationAmount + xRec.Amount;
             end;
         end;

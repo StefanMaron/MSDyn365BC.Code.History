@@ -86,7 +86,7 @@ codeunit 17368 "Staff List Order-Post"
                                 end;
                             end;
                     end;
-                until StaffOrderLine.Next = 0;
+                until StaffOrderLine.Next() = 0;
 
             // Delete posted order
             StaffOrderLine.DeleteAll();
@@ -122,7 +122,7 @@ codeunit 17368 "Staff List Order-Post"
                 HROrderComment2."Table Name" := HROrderComment2."Table Name"::"P.SL Order";
                 HROrderComment2."No." := ToNumber;
                 HROrderComment2.Insert();
-            until HROrderComment.Next = 0;
+            until HROrderComment.Next() = 0;
     end;
 }
 

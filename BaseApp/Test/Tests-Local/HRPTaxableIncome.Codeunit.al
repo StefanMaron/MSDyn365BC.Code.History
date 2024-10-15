@@ -678,7 +678,7 @@ codeunit 144203 "HRP Taxable Income"
     begin
         with PayrollPeriod do begin
             SetRange(Code, StartPeriodCode, EndPeriodCode);
-            FindSet;
+            FindSet();
             repeat
                 CalcPostPayrollDoc(EmployeeNo, Code, "Ending Date");
             until Next = 0;
@@ -844,7 +844,7 @@ codeunit 144203 "HRP Taxable Income"
     begin
         with PayrollCalendarLine do begin
             SetRange("Calendar Code", CalendarCode);
-            FindSet;
+            FindSet();
             repeat
                 Release;
             until Next = 0;
@@ -994,7 +994,7 @@ codeunit 144203 "HRP Taxable Income"
             CalcSums(Amount);
             Assert.AreEqual(ExpectedAmt, Amount, IncorrectPersonIncomeFSIAmountErr);
             SetAutoCalcFields("Excluded Days");
-            FindSet;
+            FindSet();
             repeat
                 ExcludedDays += "Excluded Days";
             until Next = 0;
@@ -1023,7 +1023,7 @@ codeunit 144203 "HRP Taxable Income"
         with PostedPayrollDocument do begin
             SetRange("Employee No.", EmployeeNo);
             SetRange("Period Code", PeriodCodeFrom, PeriodCodeTo);
-            FindSet;
+            FindSet();
             repeat
                 PayrollAmount += CalcPayrollAmount;
             until Next = 0;

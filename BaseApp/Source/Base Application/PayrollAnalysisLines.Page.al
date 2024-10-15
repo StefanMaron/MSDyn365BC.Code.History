@@ -325,7 +325,7 @@ page 14962 "Payroll Analysis Lines"
         PayrollAnalysisLine.Copy(Rec);
         if "Line No." = 0 then begin
             PayrollAnalysisLine := xRec;
-            if PayrollAnalysisLine.Next = 0 then
+            if PayrollAnalysisLine.Next() = 0 then
                 PayrollAnalysisLine."Line No." := xRec."Line No." + 10000;
         end;
         case Type of

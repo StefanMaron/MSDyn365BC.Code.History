@@ -281,7 +281,7 @@ xmlport 14960 "Payroll Analysis Reports"
                             repeat
                                 "Payroll Analysis Line" := PayrollAnalysisLine;
                                 "Payroll Analysis Line".Insert();
-                            until PayrollAnalysisLine.Next = 0;
+                            until PayrollAnalysisLine.Next() = 0;
 
                         if PayrollAnalysisLineTemplate."Payroll Analysis View Code" <> '' then
                             if not "Payroll Analysis View".Get(PayrollAnalysisLineTemplate."Payroll Analysis View Code") then
@@ -294,7 +294,7 @@ xmlport 14960 "Payroll Analysis Reports"
                                         repeat
                                             "Payroll Analysis View Filter" := PayrollAnalysisViewFilter;
                                             "Payroll Analysis View Filter".Insert();
-                                        until PayrollAnalysisViewFilter.Next = 0;
+                                        until PayrollAnalysisViewFilter.Next() = 0;
                                 end;
                     end;
 
@@ -308,9 +308,9 @@ xmlport 14960 "Payroll Analysis Reports"
                             repeat
                                 "Payroll Analysis Column" := PayrollAnalysisColumn;
                                 "Payroll Analysis Column".Insert();
-                            until PayrollAnalysisColumn.Next = 0;
+                            until PayrollAnalysisColumn.Next() = 0;
                     end;
-            until TempPayrollAnalysisReportName.Next = 0;
+            until TempPayrollAnalysisReportName.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -326,7 +326,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisReportName := "Payroll Analysis Report Name";
                     end;
                     PayrollAnalysisReportName.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with "Payroll Analysis Line Template" do begin
@@ -339,7 +339,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisLineTemplate := "Payroll Analysis Line Template";
                     end;
                     PayrollAnalysisLineTemplate.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with "Payroll Analysis Line" do begin
@@ -352,7 +352,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisLine := "Payroll Analysis Line";
                     end;
                     PayrollAnalysisLine.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with "Payroll Analysis Column Tmpl." do begin
@@ -365,7 +365,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisColumnTmpl := "Payroll Analysis Column Tmpl.";
                     end;
                     PayrollAnalysisColumnTmpl.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with "Payroll Analysis Column" do begin
@@ -378,7 +378,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisColumn := "Payroll Analysis Column";
                     end;
                     PayrollAnalysisColumn.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with "Payroll Analysis View" do begin
@@ -391,7 +391,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisView := "Payroll Analysis View";
                     end;
                     PayrollAnalysisView.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with "Payroll Analysis View Filter" do begin
@@ -404,7 +404,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisViewFilter := "Payroll Analysis View Filter";
                     end;
                     PayrollAnalysisViewFilter.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 }

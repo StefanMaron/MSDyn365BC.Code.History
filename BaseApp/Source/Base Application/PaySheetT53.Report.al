@@ -27,7 +27,7 @@ report 17457 "Pay Sheet T-53"
                     if FindSet then
                         repeat
                             FillRow(Amount);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             end;
 
@@ -256,7 +256,7 @@ report 17457 "Pay Sheet T-53"
                             TempPerson := Person;
                             TempPerson.Insert();
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

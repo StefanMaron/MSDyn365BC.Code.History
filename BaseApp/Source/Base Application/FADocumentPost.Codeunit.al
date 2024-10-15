@@ -70,7 +70,7 @@ codeunit 12471 "FA Document-Post"
 
                 Clear(GenJnlPostLine);
                 Clear(FAJnlPostLine);
-            until FADocLine.Next = 0;
+            until FADocLine.Next() = 0;
 
         if PreviewMode then
             Error('');
@@ -96,7 +96,7 @@ codeunit 12471 "FA Document-Post"
         FA: Record "Fixed Asset";
         FAComment: Record "FA Comment";
         PostedFAComment: Record "Posted FA Comment";
-        ItemDocHeader: Record "Item Document Header";
+        InvtDocHeader: Record "Invt. Document Header";
         TaxRegisterSetup: Record "Tax Register Setup";
         DocSign: Record "Document Signature";
         GLSetup: Record "General Ledger Setup";
@@ -108,7 +108,7 @@ codeunit 12471 "FA Document-Post"
         Text001: Label '%1 must be last Operation.';
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DocSignMgt: Codeunit "Doc. Signature Management";
-        ItemRcptPost: Codeunit "Item Doc.-Post Receipt";
+        InvtRcptPost: Codeunit "Invt. Doc.-Post Receipt";
         ReclassDone: Boolean;
         PreviewMode: Boolean;
         Text005: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
@@ -135,7 +135,7 @@ codeunit 12471 "FA Document-Post"
                 PostedFAComment.TransferFields(FAComment);
                 PostedFAComment."Document No." := ToDocNo;
                 PostedFAComment.Insert();
-            until FAComment.Next = 0;
+            until FAComment.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -154,7 +154,7 @@ codeunit 12471 "FA Document-Post"
                 repeat
                     if "Canceled from FA No." = '' then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
             exit(false);
         end;
     end;
@@ -392,11 +392,11 @@ codeunit 12471 "FA Document-Post"
         FA.Modify();
 
         if FADocLine."Item Receipt No." <> '' then begin
-            ItemDocHeader.Get(ItemDocHeader."Document Type"::Receipt, FADocLine."Item Receipt No.");
-            Clear(ItemRcptPost);
-            ItemRcptPost.SetHideValidationDialog(true);
-            ItemRcptPost.Run(ItemDocHeader);
-            FADocLine."Item Receipt No." := ItemRcptPost.GetPostedItemReceipt;
+            InvtDocHeader.Get(InvtDocHeader."Document Type"::Receipt, FADocLine."Item Receipt No.");
+            Clear(InvtRcptPost);
+            InvtRcptPost.SetHideValidationDialog(true);
+            InvtRcptPost.Run(InvtDocHeader);
+            FADocLine."Item Receipt No." := InvtRcptPost.GetPostedItemReceipt();
         end;
     end;
 
@@ -468,7 +468,7 @@ codeunit 12471 "FA Document-Post"
 
                     GenJnlPostLine.SetPreviewMode(PreviewMode);
                     GenJnlPostLine.RunWithCheck(GenJnlLine);
-                until GenJnlLine.Next = 0;
+                until GenJnlLine.Next() = 0;
                 GenJnlLine.DeleteAll(true);
             end;
 
@@ -480,7 +480,7 @@ codeunit 12471 "FA Document-Post"
                     FAJnlLine."Shortcut Dimension 2 Code" := FADocLine."Shortcut Dimension 2 Code";
                     FAJnlLine."Dimension Set ID" := FADocLine."Dimension Set ID";
                     FAJnlPostLine.FAJnlPostLine(FAJnlLine, true);
-                until FAJnlLine.Next = 0;
+                until FAJnlLine.Next() = 0;
                 FAJnlLine.DeleteAll(true);
             end;
         end else // Just FA Entry posting

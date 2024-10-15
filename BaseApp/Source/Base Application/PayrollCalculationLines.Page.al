@@ -123,7 +123,7 @@ page 17408 "Payroll Calculation Lines"
                     if Indentation > 0 then
                         Indentation := Indentation - 1;
                     Modify;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("Move Right")
@@ -139,7 +139,7 @@ page 17408 "Payroll Calculation Lines"
                 begin
                     Indentation := Indentation + 1;
                     Modify;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

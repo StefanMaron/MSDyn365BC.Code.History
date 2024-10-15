@@ -212,7 +212,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
             repeat
                 TempPayrollAnalysisColumn := PayrollAnalysisColumn;
                 TempPayrollAnalysisColumn.Insert();
-            until PayrollAnalysisColumn.Next = 0;
+            until PayrollAnalysisColumn.Next() = 0;
         if TempPayrollAnalysisColumn.FindFirst then;
     end;
 
@@ -683,7 +683,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
                                     repeat
                                         if PayrollAnalysisLine."Line No." <> PayrollAnalysisLineID then
                                             Result := Result + CalcCellValue(PayrollAnalysisLine, PayrollAnalysisColumn, false);
-                                    until PayrollAnalysisLine.Next = 0
+                                    until PayrollAnalysisLine.Next() = 0
                                 else
                                     if IsFilter or (not Evaluate(Result, Expression)) then
                                         FormulaError := true;
@@ -697,7 +697,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
                                     repeat
                                         if PayrollAnalysisColumn."Line No." <> PayrollAnalysisLineID then
                                             Result := Result + CalcCellValue(PayrollAnalysisLine, PayrollAnalysisColumn, false);
-                                    until PayrollAnalysisColumn.Next = 0
+                                    until PayrollAnalysisColumn.Next() = 0
                                 else
                                     if IsFilter or (not Evaluate(Result, Expression)) then
                                         FormulaError := true;
@@ -865,7 +865,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
                         ResultFilter := ResultFilter + '|';
                     ResultFilter := ResultFilter + DimVal.Totaling;
                 end;
-            until (DimVal.Next = 0) or not DimValTotaling;
+            until (DimVal.Next() = 0) or not DimValTotaling;
 
         if DimValTotaling then
             exit(ResultFilter);
@@ -930,7 +930,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
                         TempEmployee."No." := PayrollLedgerEntry."Employee No.";
                         TempEmployee.Insert();
                     end;
-                until PayrollLedgerEntry.Next = 0;
+                until PayrollLedgerEntry.Next() = 0;
             exit(TempEmployee.Count);
         end;
     end;

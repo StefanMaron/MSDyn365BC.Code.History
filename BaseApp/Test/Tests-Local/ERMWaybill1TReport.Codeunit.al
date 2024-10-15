@@ -324,7 +324,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         RowShift := 0;
         repeat
@@ -363,7 +363,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
           ' ' + SalesShipmentHeader."Bill-to Address" + ' ' + SalesShipmentHeader."Bill-to Address 2");
 
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
 
         RowShift := 0;
         Amount := 0;
@@ -401,7 +401,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
             SalesInvoiceHeader."Bill-to City" + ' ' + SalesInvoiceHeader."Bill-to Address" + ' ' + SalesInvoiceHeader."Bill-to Address 2");
 
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
 
         RowShift := 0;
         Amount := 0;

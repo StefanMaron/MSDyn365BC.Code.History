@@ -126,7 +126,7 @@ report 14933 "Calculate Group Depreciation"
                                     MaxAmountFAJnlLineNo := "Line No.";
                                 end;
 
-                            until FAJnlLineTmp.Next = 0;
+                            until FAJnlLineTmp.Next() = 0;
 
                             if DeprDiff <> 0 then begin
                                 "Line No." := MaxAmountFAJnlLineNo;
@@ -183,7 +183,7 @@ report 14933 "Calculate Group Depreciation"
                                     MaxAmountGenJnlLineNo := "Line No.";
                                     MaxAmountGenJnlBalLineNo := GenJnlNextLineNo;
                                 end;
-                            until GenJnlLineTmp.Next = 0;
+                            until GenJnlLineTmp.Next() = 0;
 
                             if DeprDiff <> 0 then begin
                                 "Line No." := MaxAmountGenJnlLineNo;
@@ -481,7 +481,7 @@ report 14933 "Calculate Group Depreciation"
                 if FADeprBook.Get(FixedAsset."No.", DeprBookCode) then
                     if CheckDeprBook then
                         Amount := Amount + GetBookValue(FixedAsset."No.", StartDate, EndDate);
-            until FixedAsset.Next = 0;
+            until FixedAsset.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -560,7 +560,7 @@ report 14933 "Calculate Group Depreciation"
                                 GenJnlPostLine.RunWithCheck(GenJnlLine);
                             end;
                         end;
-            until FixedAsset.Next = 0;
+            until FixedAsset.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -609,7 +609,7 @@ report 14933 "Calculate Group Depreciation"
                               FALedgerEntry."FA Posting Date",
                               AccountPeriod);
                     end;
-            until FixedAsset.Next = 0;
+            until FixedAsset.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -658,7 +658,7 @@ report 14933 "Calculate Group Depreciation"
                                 Error(Text006 + Text007, CalcDate('<+1M>', Period), FixedAsset."No.", DeprBookCode, DeprGroup);
                         end;
                     end;
-            until FixedAsset.Next = 0;
+            until FixedAsset.Next() = 0;
     end;
 
     [Scope('OnPrem')]

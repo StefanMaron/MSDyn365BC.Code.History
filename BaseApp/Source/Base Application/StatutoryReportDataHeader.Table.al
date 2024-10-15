@@ -422,10 +422,10 @@ table 26563 "Statutory Report Data Header"
                                 ErrorExcelProcessing(ErrorMessage, FileName);
                         Counter := Counter + 1;
                         Window.Update(2, Round(Counter / TotalElementsQty * 10000, 1));
-                    until XMLElementValueBuffer.Next = 0;
+                    until XMLElementValueBuffer.Next() = 0;
 
                 TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer);
-            until ReportSheetBuffer.Next = 0;
+            until ReportSheetBuffer.Next() = 0;
 
         TempExcelBuffer.CloseBook;
 
@@ -548,7 +548,7 @@ table 26563 "Statutory Report Data Header"
                   ReportSheetBuffer,
                   XMLElementValueBuffer."Excel Sheet Name",
                   XMLElementValueBuffer."Table Code");
-            until XMLElementValueBuffer.Next = 0;
+            until XMLElementValueBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -562,7 +562,7 @@ table 26563 "Statutory Report Data Header"
         EntryNo := ReportSheetBuffer."Entry No." + 1;
 
         ReportSheetBuffer.SetRange("Excel Sheet Name", ExcelSheetName);
-        if ReportSheetBuffer.IsEmpty then begin
+        if ReportSheetBuffer.IsEmpty() then begin
             ReportSheetBuffer."Entry No." := EntryNo;
             ReportSheetBuffer."Table Code" := TableCode;
             ReportSheetBuffer."Excel Sheet Name" := ExcelSheetName;
@@ -697,7 +697,7 @@ table 26563 "Statutory Report Data Header"
             repeat
                 TempNameValueBufferValidation := TempNameValueBuffer;
                 TempNameValueBufferValidation.Insert();
-            until TempNameValueBuffer.Next = 0;
+            until TempNameValueBuffer.Next() = 0;
 
         FileMgt.DeleteServerFile(FileName);
 

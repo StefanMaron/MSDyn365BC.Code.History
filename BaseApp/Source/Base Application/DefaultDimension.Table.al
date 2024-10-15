@@ -1,4 +1,4 @@
-﻿table 352 "Default Dimension"
+table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 
@@ -52,7 +52,7 @@
                     exit;
                 RecRef.Open("Table ID");
                 SetRangeToLastFieldInPrimaryKey(RecRef, "No.");
-                if RecRef.IsEmpty then
+                if RecRef.IsEmpty() then
                     Error(NoValidateErr, "No.", RecRef.Caption);
                 RecRef.Close;
             end;
@@ -82,16 +82,18 @@
                 UpdateDimensionValueId;
             end;
         }
-        field(5; "Value Posting"; Option)
+        field(5; "Value Posting"; Enum "Default Dimension Value Posting Type")
         {
             Caption = 'Value Posting';
-            OptionCaption = ' ,Code Mandatory,Same Code,No Code';
-            OptionMembers = " ","Code Mandatory","Same Code","No Code";
 
             trigger OnValidate()
+            var
+                DimValuePerAccount: Record "Dim. Value per Account";
             begin
                 if "Value Posting" = "Value Posting"::"No Code" then
                     TestField("Dimension Value Code", '');
+                if not IsTemporary() then
+                    ClearAllowedValuesFilter(DimValuePerAccount);
             end;
         }
         field(6; "Table Caption"; Text[250])
@@ -124,6 +126,20 @@
                     "Parent Type"::Vendor:
                         "Table ID" := Database::Vendor;
                 end;
+            end;
+        }
+        field(10; "Allowed Values Filter"; Text[250])
+        {
+            Caption = 'Allowed Values Filter';
+
+            trigger OnValidate()
+            var
+                DimValuePerAccount: Record "Dim. Value per Account";
+            begin
+                TestField("Dimension Code");
+                TestField("Value Posting", "Default Dimension Value Posting Type"::"Code Mandatory");
+                if not IsTemporary() then
+                    UpdateDimValuesPerAccountFromAllowedValuesFilter(DimValuePerAccount);
             end;
         }
         field(8000; ParentId; Guid)
@@ -208,6 +224,8 @@
     }
 
     trigger OnDelete()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
     begin
         GLSetup.Get();
         if "Dimension Code" = GLSetup."Global Dimension 1 Code" then
@@ -215,6 +233,11 @@
         if "Dimension Code" = GLSetup."Global Dimension 2 Code" then
             UpdateGlobalDimCode(2, "Table ID", "No.", '');
         DimMgt.DefaultDimOnDelete(Rec);
+
+        DimValuePerAccount.SetRange("Table ID", "Table ID");
+        DimValuePerAccount.SetRange("No.", "No.");
+        DimValuePerAccount.SetRange("Dimension Code", "Dimension Code");
+        DimValuePerAccount.DeleteAll(true);
     end;
 
     trigger OnInsert()
@@ -257,6 +280,8 @@
         NoValidateErr: Label 'The field No. of table Default Dimension contains a value (%1) that cannot be found in the related table (%2).', Comment = '%1 - a master table record key value; %2 - table caption. ';
         MultipleParentsFoundErr: Label 'Multiple parents have been found for the specified criteria.';
         ParentNotFoundErr: Label 'Parent is not found.';
+        InvalidAllowedValuesFilterErr: Label 'There are no dimension values for allowed values filter %1.', Comment = '%1 - allowed values filter';
+        DefaultDimValueErr: Label 'You cannot block dimension value %1 because it is a default value for %2, %3.', Comment = '%1 = dimension value code and %2- table name, %3 - account number';
 
     procedure GetCaption(): Text[250]
     var
@@ -331,8 +356,10 @@
                 UpdateSalesPurchGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             DATABASE::Campaign:
                 UpdateCampaignGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
+#if not CLEAN18
             DATABASE::"Customer Template":
                 UpdateCustTempGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
+#endif
             DATABASE::"Cash Flow Manual Expense":
                 UpdateNeutrPayGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             DATABASE::"Cash Flow Manual Revenue":
@@ -591,6 +618,7 @@
         end;
     end;
 
+#if not CLEAN18
     local procedure UpdateCustTempGlobalDimCode(GlobalDimCodeNo: Integer; CustTemplateNo: Code[20]; NewDimValue: Code[20])
     var
         CustTemplate: Record "Customer Template";
@@ -605,6 +633,7 @@
             CustTemplate.Modify(true);
         end;
     end;
+#endif
 
     local procedure UpdateNeutrPayGlobalDimCode(GlobalDimCodeNo: Integer; CFManualExpenseNo: Code[20]; NewDimValue: Code[20])
     var
@@ -704,6 +733,131 @@
             Error(DimMgt.GetDimErr);
         if "Value Posting" = "Value Posting"::"No Code" then
             TestField("Dimension Value Code", '');
+        CheckDimensionValueAllowedForAccount();
+    end;
+
+    local procedure CheckDimensionValueAllowedForAccount()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        if DimValuePerAccount.Get("Table ID", "No.", "Dimension Code", "Dimension Value Code") then
+            if not DimValuePerAccount.Allowed then
+                Error(DimMgt.GetNotAllowedDimValuePerAccount(Rec, "Dimension Value Code"));
+    end;
+
+    procedure ClearAllowedValuesFilter(var DimValuePerAccount: Record "Dim. Value per Account")
+    begin
+        if (xRec."Value Posting" = "Value Posting"::"Code Mandatory") and ("Value Posting" <> "Value Posting"::"Code Mandatory") then begin
+            DimValuePerAccount.SetRange("Dimension Code", "Dimension Code");
+            DimValuePerAccount.SetRange("Table ID", "Table ID");
+            DimValuePerAccount.SetRange("No.", "No.");
+            if not DimValuePerAccount.IsEmpty() then begin
+                DimValuePerAccount.DeleteAll();
+                "Allowed Values Filter" := '';
+            end;
+        end;
+    end;
+
+    procedure CreateDimValuePerAccountFromDimValue(DimValue: Record "Dimension Value")
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        DimValuePerAccount.Init();
+        DimValuePerAccount."Dimension Code" := DimValue."Dimension Code";
+        DimValuePerAccount."Dimension Value Code" := DimValue.Code;
+        DimValuePerAccount."Table ID" := "Table ID";
+        DimValuePerAccount."No." := "No.";
+        DimValuePerAccount.Insert();
+    end;
+
+    procedure UpdateDimValuesPerAccountFromAllowedValuesFilter(var DimValuePerAccount: Record "Dim. Value per Account")
+    begin
+        if "Allowed Values Filter" = '' then begin
+            DimValuePerAccount.SetRange("Table ID", "Table ID");
+            DimValuePerAccount.SetRange("No.", "No.");
+            DimValuePerAccount.SetRange("Dimension Code", "Dimension Code");
+            DimValuePerAccount.DeleteAll();
+            exit;
+        end;
+
+        DimMgt.SyncDimValuePerAccountWithDimValues(Rec);
+
+        CheckDimensionValuesInFilter();
+
+        SetDimValuesPerAccountByAllowedValuesFilter(DimValuePerAccount);
+
+        if ("Dimension Value Code" <> '') and DimValuePerAccount.Get("Table ID", "No.", "Dimension Code", "Dimension Value Code") then
+            if not DimValuePerAccount.Allowed then
+                CheckDisallowedDimensionValue(DimValuePerAccount);
+    end;
+
+    local procedure SetDimValuesPerAccountByAllowedValuesFilter(var DimValuePerAccount: Record "Dim. Value per Account")
+    begin
+        DimValuePerAccount.Reset();
+        DimValuePerAccount.SetRange("Table ID", "Table ID");
+        DimValuePerAccount.SetRange("No.", "No.");
+        DimValuePerAccount.SetRange("Dimension Code", "Dimension Code");
+        DimValuePerAccount.ModifyAll(Allowed, false);
+        DimValuePerAccount.SetFilter("Dimension Value Code", "Allowed Values Filter");
+        DimValuePerAccount.ModifyAll(Allowed, true);
+    end;
+
+    local procedure CheckDimensionValuesInFilter()
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        DimensionValue.SetRange("Dimension Code", "Dimension Code");
+        DimensionValue.SetFilter(Code, "Allowed Values Filter");
+        if DimensionValue.IsEmpty() then
+            Error(InvalidAllowedValuesFilterErr, "Allowed Values Filter");
+    end;
+
+    procedure CheckDisallowedDimensionValue(DimValuePerAccount: Record "Dim. Value per Account")
+    begin
+        if "Dimension Value Code" = DimValuePerAccount."Dimension Value Code" then
+            Error(DefaultDimValueErr, DimValuePerAccount."Dimension Value Code", DimValuePerAccount.GetTableCaption(), "No.");
+    end;
+
+    procedure UpdateDefaultDimensionAllowedValuesFilter()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+        AllowedValues: Text[250];
+    begin
+        AllowedValues := GetAllowedValuesFilter();
+        if AllowedValues <> "Allowed Values Filter" then begin
+            "Allowed Values Filter" := AllowedValues;
+            if "Allowed Values Filter" = '' then begin
+                DimValuePerAccount.SetRange("Table ID", "Table ID");
+                DimValuePerAccount.SetRange("No.", "No.");
+                DimValuePerAccount.SetRange("Dimension Code", "Dimension Code");
+                DimValuePerAccount.DeleteAll();
+            end else
+                CheckDimensionValuesInFilter();
+            Modify();
+        end;
+    end;
+
+    procedure GetAllowedValuesFilter(): Text[250]
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        exit(CopyStr(GetFullAllowedValuesFilter(DimValuePerAccount), 1, MaxStrLen("Allowed Values Filter")));
+    end;
+
+    procedure GetFullAllowedValuesFilter(var DimValuePerAccount: Record "Dim. Value per Account"): Text
+    var
+        SelectionFilterMgt: Codeunit SelectionFilterManagement;
+        RecRef: RecordRef;
+    begin
+        DimValuePerAccount.SetRange("Dimension Code", "Dimension Code");
+        DimValuePerAccount.SetRange("Table ID", "Table ID");
+        DimValuePerAccount.SetRange("No.", "No.");
+        DimValuePerAccount.Setrange(Allowed, false);
+        if DimValuePerAccount.IsEmpty() then
+            exit('');
+        DimMgt.CheckIfNoAllowedValuesSelected(DimValuePerAccount);
+        RecRef.GetTable(DimValuePerAccount);
+        exit(SelectionFilterMgt.GetSelectionFilter(RecRef, DimValuePerAccount.FieldNo("Dimension Value Code")));
     end;
 
     local procedure SetRangeToLastFieldInPrimaryKey(RecRef: RecordRef; Value: Code[20])

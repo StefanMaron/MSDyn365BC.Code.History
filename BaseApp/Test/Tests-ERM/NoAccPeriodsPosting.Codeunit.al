@@ -489,7 +489,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         Assert.RecordCount(GLEntry, DeferralTemplate."No. of Periods" + 1 + AdditionalRecord);
         GLEntry.SetRange(Description, DeferralTemplate."Period Description");
         PostingDate := FirstEntryPostingDate;
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Posting Date", PostingDate);
             PostingDate := CalcDate('<-CM + 1M>', PostingDate);

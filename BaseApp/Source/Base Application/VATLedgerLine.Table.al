@@ -135,9 +135,9 @@ table 12405 "VAT Ledger Line"
         {
             Caption = 'Country/Region of Origin Code';
         }
-        field(32; "CD No."; Code[30])
+        field(32; "CD No."; Code[50])
         {
-            Caption = 'CD No.';
+            Caption = 'Package No.';
             Editable = false;
 
             trigger OnLookup()
@@ -174,7 +174,7 @@ table 12405 "VAT Ledger Line"
         }
         field(39; "No. of Sales Ledger Lines"; Integer)
         {
-            CalcFormula = Count ("VAT Ledger Connection" WHERE("Connection Type" = CONST(Line),
+            CalcFormula = Count("VAT Ledger Connection" WHERE("Connection Type" = CONST(Line),
                                                                "Purch. Ledger Code" = FIELD(Code),
                                                                "Purch. Ledger Line No." = FIELD("Line No.")));
             Caption = 'No. of Sales Ledger Lines';
@@ -183,7 +183,7 @@ table 12405 "VAT Ledger Line"
         }
         field(40; "No. of Purch. Ledger Lines"; Integer)
         {
-            CalcFormula = Count ("VAT Ledger Connection" WHERE("Connection Type" = CONST(Line),
+            CalcFormula = Count("VAT Ledger Connection" WHERE("Connection Type" = CONST(Line),
                                                                "Sales Ledger Code" = FIELD(Code),
                                                                "Sales Ledger Line No." = FIELD("Line No.")));
             Caption = 'No. of Purch. Ledger Lines';
@@ -192,7 +192,7 @@ table 12405 "VAT Ledger Line"
         }
         field(41; "No. of VAT Sales Entries"; Integer)
         {
-            CalcFormula = Count ("VAT Ledger Connection" WHERE("Connection Type" = CONST(Sales),
+            CalcFormula = Count("VAT Ledger Connection" WHERE("Connection Type" = CONST(Sales),
                                                                "Sales Ledger Code" = FIELD(Code),
                                                                "Sales Ledger Line No." = FIELD("Line No.")));
             Caption = 'No. of VAT Sales Entries';
@@ -201,7 +201,7 @@ table 12405 "VAT Ledger Line"
         }
         field(42; "No. of VAT Purch. Entries"; Integer)
         {
-            CalcFormula = Count ("VAT Ledger Connection" WHERE("Connection Type" = CONST(Purchase),
+            CalcFormula = Count("VAT Ledger Connection" WHERE("Connection Type" = CONST(Purchase),
                                                                "Purch. Ledger Code" = FIELD(Code),
                                                                "Purch. Ledger Line No." = FIELD("Line No.")));
             Caption = 'No. of VAT Purch. Entries';
@@ -412,14 +412,14 @@ table 12405 "VAT Ledger Line"
                                     TempVendorLedgerEntry := VendorLedgerEntryPayment;
                                     TempVendorLedgerEntry.Insert
                                 end;
-                        until DetailedVendorLedgEntryPayment.Next = 0;
+                        until DetailedVendorLedgEntryPayment.Next() = 0;
                     end;
                 end else
                     if VendorLedgerEntryPayment.Get(DetailedVendorLedgEntry."Applied Vend. Ledger Entry No.") then begin
                         TempVendorLedgerEntry := VendorLedgerEntryPayment;
                         TempVendorLedgerEntry.Insert
                     end;
-            until DetailedVendorLedgEntry.Next = 0;
+            until DetailedVendorLedgEntry.Next() = 0;
         end;
     end;
 

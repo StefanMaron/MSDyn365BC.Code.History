@@ -430,7 +430,7 @@ page 35661 "Payroll Analysis Matrix"
                     CachedContainsError[i] := FindError(MatrixData[i], CachedFormattedText[i]);
                 end;
                 i := i + 1;
-            until PayrollAnalysisColumn.Next = 0;
+            until PayrollAnalysisColumn.Next() = 0;
         end;
     end;
 

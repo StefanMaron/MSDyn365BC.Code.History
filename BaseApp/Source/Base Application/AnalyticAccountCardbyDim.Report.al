@@ -568,7 +568,7 @@ report 14940 "Analytic Account Card by Dim."
                     SheetBuffer."Search Name" := GetSheetName(GLAccount."No.");
                     SheetBuffer.Insert();
                 end;
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -612,7 +612,7 @@ report 14940 "Analytic Account Card by Dim."
         SheetName := FormatAccountNo(AccountNo);
         SheetBuffer.SetCurrentKey("Search Name");
         SheetBuffer.SetRange("Search Name", SheetName);
-        if not SheetBuffer.IsEmpty then
+        if not SheetBuffer.IsEmpty() then
             exit(GetSheetName(SheetName + '_'));
     end;
 
@@ -841,7 +841,7 @@ report 14940 "Analytic Account Card by Dim."
                     GLCorrBuffer.Insert();
                     GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", '>%1', GLCorrAnalysisViewEntry."Credit Account No.");
                 end;
-            until GLCorrAnalysisViewEntry.Next = 0;
+            until GLCorrAnalysisViewEntry.Next() = 0;
 
         GLCorrAnalysisViewEntry.SetRange("Debit Account No.");
         GLCorrAnalysisViewEntry.SetRange("Credit Account No.", AccountNo);
@@ -856,7 +856,7 @@ report 14940 "Analytic Account Card by Dim."
                     GLCorrBuffer.Insert();
                     GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", '>%1', GLCorrAnalysisViewEntry."Debit Account No.");
                 end;
-            until GLCorrAnalysisViewEntry.Next = 0;
+            until GLCorrAnalysisViewEntry.Next() = 0;
     end;
 
     local procedure LookUpDimFilter(Dim: Code[20]; var Text: Text[250]): Boolean

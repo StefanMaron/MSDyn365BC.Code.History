@@ -93,7 +93,7 @@ report 5757 "Items with Negative Inventory"
             trigger OnPreDataItem()
             begin
                 ItemLedgEntryBuffer.SetCurrentKey(
-                  "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "CD No.");
+                  "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.");
 
                 ILECounter := ItemLedgEntryBuffer.Count();
                 if ILECounter = 0 then
@@ -209,19 +209,19 @@ report 5757 "Items with Negative Inventory"
 
                                                         Find('+');
                                                         SetRange("Serial No.");
-                                                    until Next = 0;
+                                                    until Next() = 0;
 
                                                 Find('+');
                                                 SetRange("Lot No.");
-                                            until Next = 0;
+                                            until Next() = 0;
 
                                         Find('+');
                                         SetRange("Unit of Measure Code")
-                                    until Next = 0;
+                                    until Next() = 0;
 
                                 Find('+');
                                 SetRange("Variant Code");
-                            until Next = 0;
+                            until Next() = 0;
                     end;
 
                     SetRange(Open);
@@ -229,7 +229,7 @@ report 5757 "Items with Negative Inventory"
                     Find('+');
                     i := i + Count;
                     SetRange("Item No.");
-                until Next = 0;
+                until Next() = 0;
 
                 Window.Close;
             end;

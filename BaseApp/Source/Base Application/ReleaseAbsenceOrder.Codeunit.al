@@ -67,7 +67,7 @@ codeunit 17385 "Release Absence Order"
                     "Document Type"::Travel:
                         ;
                 end;
-            until AbsenceLine.Next = 0
+            until AbsenceLine.Next() = 0
         else
             Error(Text001, "Document Type", "No.");
 

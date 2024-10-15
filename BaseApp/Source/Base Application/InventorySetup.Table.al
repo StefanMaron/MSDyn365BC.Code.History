@@ -1,4 +1,4 @@
-table 313 "Inventory Setup"
+﻿table 313 "Inventory Setup"
 {
     Caption = 'Inventory Setup';
     Permissions = TableData "Inventory Adjmt. Entry (Order)" = m;
@@ -12,22 +12,6 @@ table 313 "Inventory Setup"
         field(2; "Automatic Cost Posting"; Boolean)
         {
             Caption = 'Automatic Cost Posting';
-
-            trigger OnValidate()
-            var
-                GLSetup: Record "General Ledger Setup";
-            begin
-                if "Automatic Cost Posting" then begin
-                    if GLSetup.Get then
-                        if not GLSetup."Use Legacy G/L Entry Locking" then
-                            Message(Text006,
-                              FieldCaption("Automatic Cost Posting"),
-                              "Automatic Cost Posting",
-                              GLSetup.FieldCaption("Use Legacy G/L Entry Locking"),
-                              GLSetup.TableCaption,
-                              GLSetup."Use Legacy G/L Entry Locking");
-                end;
-            end;
         }
         field(3; "Location Mandatory"; Boolean)
         {
@@ -181,6 +165,50 @@ table 313 "Inventory Setup"
                     UpdateAvgCostItemSettings(FieldCaption("Average Cost Period"), Format("Average Cost Period"));
             end;
         }
+        field(5849; "Allow Invt. Doc. Reservation"; Boolean)
+        {
+            Caption = 'Allow Invt. Doc. Reservation';
+        }
+        field(5850; "Invt. Receipt Nos."; Code[20])
+        {
+            Caption = 'Invt. Receipt Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5851; "Posted Invt. Receipt Nos."; Code[20])
+        {
+            Caption = 'Posted Invt. Receipt Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5852; "Invt. Shipment Nos."; Code[20])
+        {
+            Caption = 'Invt. Shipment Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5853; "Posted Invt. Shipment Nos."; Code[20])
+        {
+            Caption = 'Posted Invt. Shipment Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5854; "Copy Comments to Invt. Doc."; Boolean)
+        {
+            Caption = 'Copy Comments to Invt. Doc.';
+        }
+        field(5855; "Direct Transfer Posting"; Option)
+        {
+            Caption = 'Direct Transfer Posting';
+            OptionCaption = 'Receipt and Shipment,Direct Transfer';
+            OptionMembers = "Receipt and Shipment","Direct Transfer";
+        }
+        field(5856; "Posted Direct Trans. Nos."; Code[20])
+        {
+            Caption = 'Posted Direct Trans. Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5860; "Package Nos."; Code[20])
+        {
+            Caption = 'Package Nos.';
+            TableRelation = "No. Series";
+        }
         field(5875; "Phys. Invt. Order Nos."; Code[20])
         {
             AccessByPermission = TableData "Phys. Invt. Order Header" = R;
@@ -192,6 +220,10 @@ table 313 "Inventory Setup"
             AccessByPermission = TableData "Phys. Invt. Order Header" = R;
             Caption = 'Posted Phys. Invt. Order Nos.';
             TableRelation = "No. Series";
+        }
+        field(6500; "Package Caption"; Text[30])
+        {
+            Caption = 'Package Caption';
         }
         field(7101; "Item Group Dimension Code"; Code[20])
         {
@@ -244,31 +276,79 @@ table 313 "Inventory Setup"
         {
             Caption = 'Item Receipt Nos.';
             TableRelation = "No. Series";
+            ObsoleteReason = 'Replaced by Inventory Documents feature.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12401; "Posted Item Receipt Nos."; Code[20])
         {
             Caption = 'Posted Item Receipt Nos.';
             TableRelation = "No. Series";
+            ObsoleteReason = 'Replaced by Inventory Documents feature.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12402; "Item Shipment Nos."; Code[20])
         {
             Caption = 'Item Shipment Nos.';
             TableRelation = "No. Series";
+            ObsoleteReason = 'Replaced by Inventory Documents feature.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12403; "Posted Item Shipment Nos."; Code[20])
         {
             Caption = 'Posted Item Shipment Nos.';
             TableRelation = "No. Series";
+            ObsoleteReason = 'Replaced by Inventory Documents feature.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12404; "CD Header Nos."; Code[20])
         {
             Caption = 'CD Header Nos.';
             TableRelation = "No. Series";
+            ObsoleteReason = 'Replaced by "Package Nos." field.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12405; "Posted Direct Transfer Nos."; Code[20])
         {
             Caption = 'Posted Direct Transfer Nos.';
             TableRelation = "No. Series";
+            ObsoleteReason = 'Replaced by field Posted Direct Trans. Nos. in W1.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12406; "Copy Comments to Item Doc."; Boolean)
         {
@@ -319,6 +399,14 @@ table 313 "Inventory Setup"
         field(12416; "Check CD No. Format"; Boolean)
         {
             Caption = 'Check CD No. Format';
+            ObsoleteReason = 'Moved to RU CD Tracking extension.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12450; "TORG-13 Template Code"; Code[10])
         {
@@ -397,7 +485,6 @@ table 313 "Inventory Setup"
         Text004: Label 'The program has cancelled the change that would have caused an adjustment of all items.';
         Text005: Label '%1 has been changed to %2. You should now run %3.';
         ObjTransl: Record "Object Translation";
-        Text006: Label 'The field %1 should not be set to %2 if field %3 in %4 table is set to %5 because of possibility of deadlocks.';
         ItemEntriesAdjustQst: Label 'If you change the %1, the program must adjust all item entries.The adjustment of all entries can take several hours.\Do you really want to change the %1?', Comment = '%1 - field caption';
         Text12400: Label 'Do you want to enable red storno?';
         Text12401: Label 'Do you want to disable red storno?';
@@ -428,6 +515,15 @@ table 313 "Inventory Setup"
         Message(
           Text005, FieldCaption, FieldValue,
           ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, REPORT::"Adjust Cost - Item Entries"));
+    end;
+
+    procedure OptimGLEntLockForMultiuserEnv(): Boolean
+    begin
+        if Rec.Get() then
+            if Rec."Automatic Cost Posting" then
+                exit(false);
+
+        exit(true);
     end;
 }
 

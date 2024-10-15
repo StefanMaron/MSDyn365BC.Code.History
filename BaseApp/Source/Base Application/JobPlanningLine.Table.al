@@ -1,4 +1,4 @@
-﻿table 1003 "Job Planning Line"
+table 1003 "Job Planning Line"
 {
     Caption = 'Job Planning Line';
     DrillDownPageID = "Job Planning Lines";
@@ -29,7 +29,7 @@
                 if ("Currency Date" = 0D) or ("Currency Date" = xRec."Planning Date") then
                     Validate("Currency Date", "Planning Date");
                 if (Type <> Type::Text) and ("No." <> '') then
-                    UpdateAllAmounts;
+                    UpdateAllAmounts();
                 if "Planning Date" <> 0D then
                     CheckItemAvailable(FieldNo("Planning Date"));
                 if CurrFieldNo = FieldNo("Planned Delivery Date") then
@@ -95,6 +95,14 @@
                     "Gen. Prod. Posting Group" := '';
                     DeleteAmounts;
                     "Cost Factor" := 0;
+                    if Type = Type::Item then begin
+                        "Bin Code" := '';
+                        if ("No." <> '') and ("Location Code" <> '') then begin
+                            GetLocation("Location Code");
+                            if IsDefaultBin() then
+                                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+                        end;
+                    end;
                     if "No." = '' then
                         exit;
                 end;
@@ -177,7 +185,7 @@
                 CheckItemAvailable(FieldNo(Quantity));
                 UpdateReservation(FieldNo(Quantity));
 
-                UpdateAllAmounts;
+                UpdateAllAmounts();
                 BypassQtyValidation := false;
             end;
         }
@@ -202,9 +210,9 @@
                 then
                     UpdateAllAmounts
                 else begin
-                    InitRoundingPrecisions;
+                    InitRoundingPrecisions();
                     "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
-                    UpdateAllAmounts;
+                    UpdateAllAmounts();
                 end;
             end;
         }
@@ -224,9 +232,9 @@
             begin
                 ValidateModification(xRec."Unit Price (LCY)" <> "Unit Price (LCY)");
 
-                InitRoundingPrecisions;
+                InitRoundingPrecisions();
                 "Unit Price" := ConvertAmountToFCY("Unit Price (LCY)", UnitAmountRoundingPrecisionFCY);
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(15; "Total Price (LCY)"; Decimal)
@@ -302,9 +310,13 @@
                 if Type = Type::Item then begin
                     GetLocation("Location Code");
                     Location.TestField("Directed Put-away and Pick", false);
+                    CheckLocationCodeAllowedForItem();
                     CheckItemAvailable(FieldNo("Location Code"));
                     UpdateReservation(FieldNo("Location Code"));
                     Validate(Quantity);
+                    if ("Location Code" <> '') and ("No." <> '') then
+                        if IsDefaultBin() then
+                            WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                 end;
             end;
         }
@@ -366,7 +378,7 @@
             trigger OnValidate()
             begin
                 if (Type = Type::Item) and ("No." <> '') then
-                    UpdateAllAmounts;
+                    UpdateAllAmounts();
             end;
         }
         field(79; "Country/Region Code"; Code[10])
@@ -407,9 +419,9 @@
             begin
                 ValidateModification(xRec."Line Amount (LCY)" <> "Line Amount (LCY)");
 
-                InitRoundingPrecisions;
+                InitRoundingPrecisions();
                 "Line Amount" := ConvertAmountToFCY("Line Amount (LCY)", AmountRoundingPrecisionFCY);
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1002; "Unit Cost"; Decimal)
@@ -422,7 +434,7 @@
             begin
                 ValidateModification(xRec."Unit Cost" <> "Unit Cost");
 
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1003; "Total Cost"; Decimal)
@@ -442,7 +454,7 @@
             begin
                 ValidateModification(xRec."Unit Price" <> "Unit Price");
 
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1005; "Total Price"; Decimal)
@@ -462,7 +474,7 @@
             begin
                 ValidateModification(xRec."Line Amount" <> "Line Amount");
 
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1007; "Line Discount Amount"; Decimal)
@@ -475,7 +487,7 @@
             begin
                 ValidateModification(xRec."Line Discount Amount" <> "Line Discount Amount");
 
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1008; "Line Discount Amount (LCY)"; Decimal)
@@ -488,10 +500,10 @@
             begin
                 ValidateModification(xRec."Line Discount Amount (LCY)" <> "Line Discount Amount (LCY)");
 
-                InitRoundingPrecisions;
+                InitRoundingPrecisions();
                 "Line Discount Amount" :=
                     ConvertAmountToFCY("Line Discount Amount (LCY)", AmountRoundingPrecisionFCY);
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1015; "Cost Factor"; Decimal)
@@ -503,7 +515,7 @@
             begin
                 ValidateModification(xRec."Cost Factor" <> "Cost Factor");
 
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1019; "Serial No."; Code[50])
@@ -526,14 +538,12 @@
             begin
                 ValidateModification(xRec."Line Discount %" <> "Line Discount %");
 
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
-        field(1022; "Line Type"; Option)
+        field(1022; "Line Type"; Enum "Job Planning Line Line Type")
         {
             Caption = 'Line Type';
-            OptionCaption = 'Budget,Billable,Both Budget and Billable';
-            OptionMembers = Budget,Billable,"Both Budget and Billable";
 
             trigger OnValidate()
             begin
@@ -547,7 +557,7 @@
                 if not "Contract Line" and (("Qty. Transferred to Invoice" <> 0) or ("Qty. Invoiced" <> 0)) then
                     Error(LineTypeErr, TableCaption, FieldCaption("Line Type"), "Line Type");
 
-                ControlUsageLink;
+                ControlUsageLink();
             end;
         }
         field(1023; "Currency Code"; Code[10])
@@ -560,8 +570,8 @@
             begin
                 ValidateModification(xRec."Currency Code" <> "Currency Code");
 
-                UpdateCurrencyFactor;
-                UpdateAllAmounts;
+                UpdateCurrencyFactor();
+                UpdateAllAmounts();
             end;
         }
         field(1024; "Currency Date"; Date)
@@ -573,9 +583,9 @@
             begin
                 ValidateModification(xRec."Currency Date" <> "Currency Date");
 
-                UpdateCurrencyFactor;
+                UpdateCurrencyFactor();
                 if (CurrFieldNo <> FieldNo("Planning Date")) and (Type <> Type::Text) and ("No." <> '') then
-                    UpdateFromCurrency;
+                    UpdateFromCurrency();
             end;
         }
         field(1025; "Currency Factor"; Decimal)
@@ -591,7 +601,7 @@
 
                 if ("Currency Code" = '') and ("Currency Factor" <> 0) then
                     FieldError("Currency Factor", StrSubstNo(CurrencyFactorErr, FieldCaption("Currency Code")));
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1026; "Schedule Line"; Boolean)
@@ -690,7 +700,7 @@
                 if "Usage Link" and ("Line Type" = "Line Type"::Billable) then
                     Error(UsageLinkErr, FieldCaption("Usage Link"), TableCaption, FieldCaption("Line Type"), "Line Type");
 
-                ControlUsageLink;
+                ControlUsageLink();
 
                 CheckItemAvailable(FieldNo("Usage Link"));
                 UpdateReservation(FieldNo("Usage Link"));
@@ -914,7 +924,7 @@
                         Item.Get("No.");
                         Description := Item.Description;
                         "Description 2" := Item."Description 2";
-                        GetItemTranslation;
+                        GetItemTranslation();
                     end
                 end else begin
                     TestField(Type, Type::Item);
@@ -938,8 +948,25 @@
                 ValidateModification(xRec."Bin Code" <> "Bin Code");
 
                 TestField("Location Code");
+                if "Bin Code" <> '' then begin
+                    GetLocation("Location Code");
+                    Location.TestField("Bin Mandatory");
+                end;
+                TestField(Type, Type::Item);
                 CheckItemAvailable(FieldNo("Bin Code"));
+                WMSManagement.FindBinContent("Location Code", "Bin Code", "No.", "Variant Code", '');
                 UpdateReservation(FieldNo("Bin Code"));
+            end;
+
+            trigger OnLookup()
+            var
+                BinCode: Code[20];
+            begin
+                TestField("Location Code");
+                TestField(Type, Type::Item);
+                BinCode := WMSManagement.BinContentLookUp("Location Code", "No.", "Variant Code", '', "Bin Code");
+                if BinCode <> '' then
+                    Validate("Bin Code", BinCode);
             end;
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
@@ -1003,6 +1030,12 @@
         {
             Caption = 'Service Order No.';
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            Editable = false;
+        }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
@@ -1011,9 +1044,17 @@
         {
             Caption = 'Cost Calculation Method';
         }
-        field(14900; "CD No."; Code[30])
+        field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
+            ObsoleteReason = 'Replaced by field Package No. Required';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 
@@ -1086,7 +1127,7 @@
             JobUsageLink.SetRange("Job No.", "Job No.");
             JobUsageLink.SetRange("Job Task No.", "Job Task No.");
             JobUsageLink.SetRange("Line No.", "Line No.");
-            if not JobUsageLink.IsEmpty then
+            if not JobUsageLink.IsEmpty() then
                 Error(JobUsageLinkErr, TableCaption);
         end;
 
@@ -1151,6 +1192,7 @@
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
+        WMSManagement: Codeunit "WMS Management";
         CurrencyFactorErr: Label 'cannot be specified without %1', Comment = '%1 = Currency Code field name';
         RecordRenameErr: Label 'You cannot change the %1 or %2 of this %3.', Comment = '%1 = Job Number field name; %2 = Job Task Number field name; %3 = Job Planning Line table name';
         CurrencyDate: Date;
@@ -1192,6 +1234,14 @@
             ItemCheckAvail.RaiseUpdateInterruptedError;
     end;
 
+    local procedure CheckLocationCodeAllowedForItem()
+    begin
+        if "Location Code" = '' then
+            exit;
+        if IsNonInventoriableItem() then
+            Item.TestField(Type, Item.Type::Inventory);
+    end;
+
     local procedure CopyFromResource()
     var
         IsHandled: Boolean;
@@ -1222,7 +1272,7 @@
         Description := Item.Description;
         "Description 2" := Item."Description 2";
         if Job."Language Code" <> '' then
-            GetItemTranslation;
+            GetItemTranslation();
         "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
         Validate("Unit of Measure Code", Item."Base Unit of Measure");
         if "Usage Link" then
@@ -1326,7 +1376,7 @@
         OnAfterGetSKU(Rec, Result);
     end;
 
-    local procedure InitRoundingPrecisions()
+    procedure InitRoundingPrecisions()
     var
         Currency: Record Currency;
     begin
@@ -1375,7 +1425,7 @@
         Validate("Line Type", LastJobPlanningLine."Line Type");
         GetJob;
         "Currency Code" := Job."Currency Code";
-        UpdateCurrencyFactor;
+        UpdateCurrencyFactor();
         if LastJobPlanningLine."Planning Date" <> 0D then
             Validate("Planning Date", LastJobPlanningLine."Planning Date");
         "Price Calculation Method" := Job.GetPriceCalculationMethod();
@@ -1392,7 +1442,7 @@
         if "Planning Date" = 0D then
             Validate("Planning Date", WorkDate);
         "Currency Code" := Job."Currency Code";
-        UpdateCurrencyFactor;
+        UpdateCurrencyFactor();
         "VAT Unit Price" := 0;
         "VAT Line Discount Amount" := 0;
         "VAT Line Amount" := 0;
@@ -1401,7 +1451,7 @@
         "User ID" := UserId;
         "Last Date Modified" := 0D;
         Status := Job.Status.AsInteger();
-        ControlUsageLink;
+        ControlUsageLink();
         "Country/Region Code" := Job."Bill-to Country/Region Code";
 
         OnAfterInitJobPlanningLine(Rec);
@@ -1455,7 +1505,7 @@
 
     local procedure UpdateFromCurrency()
     begin
-        UpdateAllAmounts;
+        UpdateAllAmounts();
     end;
 
     local procedure GetItemTranslation()
@@ -1534,7 +1584,7 @@
         if IsHandled then
             exit;
 
-        InitRoundingPrecisions;
+        InitRoundingPrecisions();
 
         UpdateUnitCost;
         FindPriceAndDiscount(CurrFieldNo);
@@ -1782,7 +1832,7 @@
     procedure Use(PostedQty: Decimal; PostedTotalCost: Decimal; PostedLineAmount: Decimal; PostingDate: Date; CurrencyFactor: Decimal)
     begin
         if "Usage Link" then begin
-            InitRoundingPrecisions;
+            InitRoundingPrecisions();
             // Update Quantity Posted
             Validate("Qty. Posted", "Qty. Posted" + PostedQty);
 
@@ -1823,7 +1873,7 @@
     local procedure UpdateRemainingCostsAndAmounts(PostingDate: Date; CurrencyFactor: Decimal)
     begin
         if "Usage Link" then begin
-            InitRoundingPrecisions;
+            InitRoundingPrecisions();
             "Remaining Total Cost" := Round("Unit Cost" * "Remaining Qty.", AmountRoundingPrecisionFCY);
             "Remaining Total Cost (LCY)" :=
                 ConvertAmountToLCY(
@@ -1857,7 +1907,7 @@
     procedure UpdatePostedTotalCost(AdjustJobCost: Decimal; AdjustJobCostLCY: Decimal)
     begin
         if "Usage Link" then begin
-            InitRoundingPrecisions;
+            InitRoundingPrecisions();
             "Posted Total Cost" += Round(AdjustJobCost, AmountRoundingPrecisionFCY);
             "Posted Total Cost (LCY)" += Round(AdjustJobCostLCY, AmountRoundingPrecision);
         end;
@@ -1887,7 +1937,7 @@
         JobUsageLink.SetRange("Job No.", "Job No.");
         JobUsageLink.SetRange("Job Task No.", "Job Task No.");
         JobUsageLink.SetRange("Line No.", "Line No.");
-        if not JobUsageLink.IsEmpty then
+        if not JobUsageLink.IsEmpty() then
             Error(LinkedJobLedgerErr);
     end;
 
@@ -1931,7 +1981,7 @@
     var
         TotalPrice: Decimal;
     begin
-        InitRoundingPrecisions;
+        InitRoundingPrecisions();
         TotalPrice := Round(Qty * "Unit Price", AmountRoundingPrecisionFCY);
         exit(TotalPrice - Round(TotalPrice * "Line Discount %" / 100, AmountRoundingPrecisionFCY));
     end;
@@ -2126,7 +2176,7 @@
         JobPlanningLineInvoice.SetRange("Job No.", "Job No.");
         JobPlanningLineInvoice.SetRange("Job Task No.", "Job Task No.");
         JobPlanningLineInvoice.SetRange("Job Planning Line No.", "Line No.");
-        if not JobPlanningLineInvoice.IsEmpty then
+        if not JobPlanningLineInvoice.IsEmpty() then
             Error(NotPossibleJobPlanningLineErr);
     end;
 
@@ -2209,6 +2259,16 @@
         exit(Item.IsNonInventoriableType);
     end;
 
+    procedure ConvertToJobLineType(): Enum "Job Line Type"
+    begin
+        exit("Job Line Type".FromInteger("Line Type".AsInteger() + 1));
+    end;
+
+    procedure ConvertFromJobLineType(JobLineType: Enum "Job Line Type"): Enum "Job Planning Line Line Type"
+    begin
+        exit("Job Planning Line Line Type".FromInteger(JobLineType.AsInteger() - 1));
+    end;
+
     procedure CopyTrackingFromJobJnlLine(JobJnlLine: Record "Job Journal Line")
     begin
         "Serial No." := JobJnlLine."Serial No.";
@@ -2223,6 +2283,11 @@
         "Lot No." := JobLedgEntry."Lot No.";
 
         OnAfterCopyTrackingFromJobLedgEntry(Rec, JobLedgEntry);
+    end;
+
+    local procedure IsDefaultBin() Result: Boolean
+    begin
+        Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
     end;
 
     [IntegrationEvent(false, false)]

@@ -346,7 +346,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         with ItemJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -474,7 +474,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
     begin
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 RemQty += Quantity;
                 LibraryReportValidation.VerifyCellValue(25 + i, 22, Format("Entry No."));

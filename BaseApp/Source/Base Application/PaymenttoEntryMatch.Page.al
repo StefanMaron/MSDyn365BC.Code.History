@@ -1,4 +1,4 @@
-page 1288 "Payment-to-Entry Match"
+﻿page 1288 "Payment-to-Entry Match"
 {
     Caption = 'Payment-to-Entry Match';
     PageType = CardPart;

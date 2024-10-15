@@ -36,7 +36,7 @@ table 26550 "Statutory Report"
                 TestField(Header, false);
                 if "Format Version Code" <> xRec."Format Version Code" then begin
                     StatutoryReportDataHeader.SetRange("Report Code", Code);
-                    if not StatutoryReportDataHeader.IsEmpty then
+                    if not StatutoryReportDataHeader.IsEmpty() then
                         Error(Text030,
                           FieldCaption("Format Version Code"),
                           TableCaption,
@@ -274,7 +274,7 @@ table 26550 "Statutory Report"
             StatutoryReportDataHeader.DeleteAll(true);
 
         XMLElementLine.SetRange("Report Code", Code);
-        if not XMLElementLine.IsEmpty then
+        if not XMLElementLine.IsEmpty() then
             XMLElementLine.DeleteAll(true);
 
         StatReportExcelSheet.SetRange("Report Code", Code);
@@ -381,8 +381,8 @@ table 26550 "Statutory Report"
                                           StartDate,
                                           EndDate,
                                           StatReportExcelSheet."Sheet Name");
-                                    until StatReportTableColumn.Next = 0;
-                            until StatReportTableRow.Next = 0;
+                                    until StatReportTableColumn.Next() = 0;
+                            until StatReportTableRow.Next() = 0;
 
                         TableIndividualRequisite.SetRange("Report Code", Code);
                         TableIndividualRequisite.SetRange("Table Code", StatutoryReportTable.Code);
@@ -397,10 +397,10 @@ table 26550 "Statutory Report"
                                   StartDate,
                                   EndDate,
                                   StatReportExcelSheet."Sheet Name");
-                            until TableIndividualRequisite.Next = 0;
+                            until TableIndividualRequisite.Next() = 0;
                     end;
                 end;
-            until StatutoryReportTable.Next = 0;
+            until StatutoryReportTable.Next() = 0;
             exit(true);
         end;
 
@@ -483,8 +483,8 @@ table 26550 "Statutory Report"
                           StartDate,
                           EndDate,
                           StatReportExcelSheet."Sheet Name");
-                    until StatReportTableColumn.Next = 0;
-            until StatReportTableRow.Next = 0;
+                    until StatReportTableColumn.Next() = 0;
+            until StatReportTableRow.Next() = 0;
 
         TableIndividualRequisite.SetRange("Report Code", Code);
         TableIndividualRequisite.SetRange("Table Code", StatutoryReportTable.Code);
@@ -640,7 +640,7 @@ table 26550 "Statutory Report"
                     TempExcelBuffer.ReadSheet;
                     if not StatutoryReportTable.ImportExcelSheet(DataHeaderNo, TempExcelBuffer, XlWrkShtReader.Name, ErrorMessage) then
                         ErrorExcelProcessing(ErrorMessage);
-                until StatutoryReportTable.Next = 0
+                until StatutoryReportTable.Next() = 0
             else begin
                 SectionName := FindSectionName(SectionCellNameBuffer, TempExcelBuffer);
                 if SectionName <> '' then begin
@@ -651,7 +651,7 @@ table 26550 "Statutory Report"
                             if StatutoryReportTable.CheckTableIdentText(TempExcelBuffer) then
                                 if not StatutoryReportTable.ImportExcelSheet(DataHeaderNo, TempExcelBuffer, XlWrkShtReader.Name, ErrorMessage) then
                                     ErrorExcelProcessing(ErrorMessage);
-                        until StatutoryReportTable.Next = 0;
+                        until StatutoryReportTable.Next() = 0;
                 end;
             end;
 
@@ -701,14 +701,14 @@ table 26550 "Statutory Report"
             Error(Text011);
 
         StatutoryReportTable.SetRange("Report Code", Code);
-        if not StatutoryReportTable.IsEmpty then
+        if not StatutoryReportTable.IsEmpty() then
             if Confirm(Text003, false, Code) then
                 StatutoryReportTable.DeleteAll(true)
             else
                 Error('');
 
         XMLElementLine.SetRange("Report Code", Code);
-        if not XMLElementLine.IsEmpty then
+        if not XMLElementLine.IsEmpty() then
             if Confirm(Text029, false, Code) then
                 XMLElementLine.DeleteAll(true)
             else
@@ -737,7 +737,7 @@ table 26550 "Statutory Report"
                 StatutoryReportTable."Report Code" := Code;
                 StatutoryReportTable.Insert();
                 StatutoryReportTable.CopyTableStructure(CopyReportFromCode, StatutoryReportTableFrom.Code);
-            until StatutoryReportTableFrom.Next = 0;
+            until StatutoryReportTableFrom.Next() = 0;
 
         XMLElementLineFrom.SetRange("Report Code", CopyReportFromCode);
         if XMLElementLineFrom.FindSet then
@@ -746,7 +746,7 @@ table 26550 "Statutory Report"
                 XMLElementLine."Report Code" := Code;
                 XMLElementLine.Insert();
                 XMLElementLine.CopyElement(CopyReportFromCode);
-            until XMLElementLineFrom.Next = 0;
+            until XMLElementLineFrom.Next() = 0;
 
         StatReportTableMappingFrom.SetRange("Report Code", CopyReportFromCode);
         if StatReportTableMappingFrom.FindSet then
@@ -754,7 +754,7 @@ table 26550 "Statutory Report"
                 StatReportTableMapping := StatReportTableMappingFrom;
                 StatReportTableMapping."Report Code" := Code;
                 StatReportTableMapping.Insert();
-            until StatReportTableMappingFrom.Next = 0;
+            until StatReportTableMappingFrom.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -783,7 +783,7 @@ table 26550 "Statutory Report"
                         SectionCellNameBuffer.Insert();
                     end;
                 end;
-            until StatutoryReportTable.Next = 0;
+            until StatutoryReportTable.Next() = 0;
 
         SectionCellNameBuffer.Reset();
     end;
@@ -804,7 +804,7 @@ table 26550 "Statutory Report"
                     if StatutoryReportTable.FindFirst then
                         exit;
                 end;
-            until SectionCellNameBuffer.Next = 0;
+            until SectionCellNameBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -826,7 +826,7 @@ table 26550 "Statutory Report"
 
         StatReportExcelSheet.SetRange("Report Code", Code);
         StatReportExcelSheet.SetRange("Report Data No.", '');
-        if not StatReportExcelSheet.IsEmpty then
+        if not StatReportExcelSheet.IsEmpty() then
             if not Confirm(Text028, false) then
                 Error('');
         StatReportExcelSheet.DeleteAll();
@@ -1309,7 +1309,7 @@ table 26550 "Statutory Report"
         XMLElementLine: Record "XML Element Line";
     begin
         XMLElementLine.SetRange("Report Code", Code);
-        if not XMLElementLine.IsEmpty then
+        if not XMLElementLine.IsEmpty() then
             exit(Confirm(Text026, false));
 
         exit(true);

@@ -75,7 +75,7 @@ table 17426 "Payroll Period"
         TimesheetStatus.Reset();
         TimesheetStatus.SetRange("Period Code", Code);
         TimesheetStatus.SetRange(Status, TimesheetStatus.Status::Released);
-        if not TimesheetStatus.IsEmpty then
+        if not TimesheetStatus.IsEmpty() then
             Error(Text004, TableCaption, TimesheetStatus.TableCaption);
         TimesheetStatus.SetRange(Status, TimesheetStatus.Status::Open);
         TimesheetStatus.DeleteAll(true);
@@ -94,7 +94,7 @@ table 17426 "Payroll Period"
         if Employee.FindSet then
             repeat
                 TimesheetMgt.CreateTimesheet(Employee, Rec);
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
     end;
 
     trigger OnRename()

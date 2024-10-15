@@ -41,7 +41,7 @@ table 324 "VAT Product Posting Group"
                 if VATPostingSetup.Find('-') then
                     repeat
                         VATPostingSetup.TestField("VAT %", 0);
-                    until VATPostingSetup.Next = 0;
+                    until VATPostingSetup.Next() = 0;
             end;
         }
     }

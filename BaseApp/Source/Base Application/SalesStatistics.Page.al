@@ -1,4 +1,4 @@
-﻿page 160 "Sales Statistics"
+page 160 "Sales Statistics"
 {
     Caption = 'Sales Statistics';
     DeleteAllowed = false;
@@ -482,7 +482,7 @@
                     TempVATAmountLine."Amount Including VAT" :=
                       TempVATAmountLine."VAT Base" + TempVATAmountLine."VAT Amount";
                 TempVATAmountLine.Modify();
-            until TempVATAmountLine.Next = 0;
+            until TempVATAmountLine.Next() = 0;
         TempVATAmountLine.ModifyAll(Modified, false);
         SetVATSpecification;
 

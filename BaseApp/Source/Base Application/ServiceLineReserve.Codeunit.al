@@ -58,6 +58,7 @@ codeunit 99000842 "Service Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
     var
@@ -65,9 +66,10 @@ codeunit 99000842 "Service Line-Reserve"
     begin
         ForReservEntry."Serial No." := ForSerialNo;
         ForReservEntry."Lot No." := ForLotNo;
-        ForReservEntry."CD No." := ForCDNo;
+        ForReservEntry."Package No." := ForCDNo;
         CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     local procedure CreateBindingReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
@@ -86,11 +88,13 @@ codeunit 99000842 "Service Line-Reserve"
         CreateReservEntry.SetBinding(Binding);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced ServiceLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
     begin
         ServiceLine.SetReservationFilters(FilterReservEntry);
     end;
+#endif
 
     procedure Caption(ServiceLine: Record "Service Line") CaptionText: Text
     begin
@@ -294,7 +298,8 @@ codeunit 99000842 "Service Line-Reserve"
             ItemTrackingLines.SetFormRunMode(2); // Combined shipment/receipt
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ServiceLine."Needed by Date");
         ItemTrackingLines.SetInbound(ServiceLine.IsInbound);
-        ItemTrackingLines.RunModal;
+        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ServiceLine, ItemTrackingLines);
+        ItemTrackingLines.RunModal();
     end;
 
     procedure TransServLineToServLine(var OldServLine: Record "Service Line"; var NewServLine: Record "Service Line"; TransferQty: Decimal)
@@ -322,7 +327,7 @@ codeunit 99000842 "Service Line-Reserve"
                             NewServLine."Document Type".AsInteger(), NewServLine."Document No.", '', 0,
                             NewServLine."Line No.", NewServLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
-                until (OldReservEntry.Next = 0) or (TransferQty = 0);
+                until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end;
     end;
 
@@ -353,7 +358,7 @@ codeunit 99000842 "Service Line-Reserve"
             exit;
         if not FindReservEntry(ServLine, ReservEntry) then
             exit;
-        ReservEntry.FindSet;
+        ReservEntry.FindSet();
         repeat
             ReservEntry.TestField("Reservation Status", ReservEntry."Reservation Status"::Prospect);
             ReservEntry.TestField("Item Ledger Entry No.");
@@ -366,7 +371,7 @@ codeunit 99000842 "Service Line-Reserve"
             TempInvoicingSpecification."Buffer Status" := TempInvoicingSpecification."Buffer Status"::MODIFY;
             TempInvoicingSpecification.Insert();
             ReservEntry.Delete();
-        until ReservEntry.Next = 0;
+        until ReservEntry.Next() = 0;
 
         OK := TempInvoicingSpecification.FindFirst;
     end;
@@ -525,12 +530,12 @@ codeunit 99000842 "Service Line-Reserve"
 
     local procedure EntryStartNo(): Integer
     begin
-        exit(109);
+        exit("Reservation Summary Type"::"Service Order".AsInteger() - 1);
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo = 110);
+        exit(EntryNo = "Reservation Summary Type"::"Service Order".AsInteger());
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -677,7 +682,7 @@ codeunit 99000842 "Service Line-Reserve"
                 ServiceLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= ServiceLine."Reserved Qty. (Base)";
                 TotalQuantity += ServiceLine."Outstanding Qty. (Base)";
-            until ServiceLine.Next = 0;
+            until ServiceLine.Next() = 0;
 
         if TotalQuantity = 0 then
             exit;
@@ -704,6 +709,11 @@ codeunit 99000842 "Service Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewServiceLine: Record "Service Line"; OldServiceLine: Record "Service Line"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var ServiceLine: Record "Service Line"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 }

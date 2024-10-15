@@ -158,7 +158,7 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
                     repeat
                         AttachedSalesLine := SalesLine1;
                         AttachedSalesLine.Insert();
-                    until SalesLine1.Next = 0;
+                    until SalesLine1.Next() = 0;
 
                 SalesLine1.SetRange("Attached to Line No.");
                 if "Corrective Doc. Type" = "Corrective Doc. Type"::Revision then

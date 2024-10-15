@@ -240,7 +240,7 @@ report 17454 "Spreadsheet Addition & Deduct"
                                 else
                                     UpdateBuffer(DeductionBuffer, PayrollElement, PayrollDocLine."Payroll Amount");
 
-                        until PayrollDocLine.Next = 0;
+                        until PayrollDocLine.Next() = 0;
                 end;
             DataSource::"Posted Entries":
                 begin
@@ -258,7 +258,7 @@ report 17454 "Spreadsheet Addition & Deduct"
                                     UpdateBuffer(AdditionBuffer, PayrollElement, PayrollLedgEntry."Payroll Amount")
                                 else
                                     UpdateBuffer(DeductionBuffer, PayrollElement, PayrollLedgEntry."Payroll Amount");
-                        until PayrollLedgEntry.Next = 0;
+                        until PayrollLedgEntry.Next() = 0;
                 end;
         end;
     end;

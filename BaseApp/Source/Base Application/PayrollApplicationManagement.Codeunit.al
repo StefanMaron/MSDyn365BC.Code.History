@@ -42,7 +42,7 @@ codeunit 17416 "Payroll Application Management"
                     RemainingBalance := RemainingBalance + VendLedgEntry."Remaining Amount";
                     ApplyRequired := true;
                 end;
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
 
         if not ApplyRequired then
             exit;
@@ -126,7 +126,7 @@ codeunit 17416 "Payroll Application Management"
                                     if PayrollPostingGr."Account No." = PaymentVendLedgEntry."Vendor No." then
                                         if PstdPayrollDocLine."Payroll Amount" <> 0 then
                                             NDFLAmount += PstdPayrollDocLine."Payroll Amount";
-                        until PstdPayrollDocLine.Next = 0;
+                        until PstdPayrollDocLine.Next() = 0;
                     VendLedgEntry3.Get(VendLedgEntry2."Entry No.");
                     VendLedgEntry3."Applies-to ID" := ApplyingVendLedgEntry."Applies-to ID";
                     VendLedgEntry3.CalcFields("Remaining Amount");
@@ -136,7 +136,7 @@ codeunit 17416 "Payroll Application Management"
                         VendLedgEntry3."Amount to Apply" := NDFLAmount;
                     VendLedgEntry3.Modify();
                 end;
-            until VendLedgEntry2.Next = 0;
+            until VendLedgEntry2.Next() = 0;
 
         PostApply(ApplyingVendLedgEntry);
         Commit();

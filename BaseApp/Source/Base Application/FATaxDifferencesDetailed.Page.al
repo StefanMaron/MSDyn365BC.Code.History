@@ -79,7 +79,7 @@ page 17336 "FA Tax Differences Detailed"
             repeat
                 Rec := TaxDiffFABuffer;
                 Insert;
-            until TaxDiffFABuffer.Next = 0;
+            until TaxDiffFABuffer.Next() = 0;
     end;
 }
 

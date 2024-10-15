@@ -24,7 +24,7 @@ page 12474 "FA Release Act"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Posting Description"; "Posting Description")

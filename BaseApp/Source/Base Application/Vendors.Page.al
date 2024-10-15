@@ -493,7 +493,7 @@ page 35603 Vendors
                     var
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
-                        ItemTrackingDocMgt.ShowItemTrackingForMasterData(2, "No.", '', '', '', '', '', '');
+                        ItemTrackingDocMgt.ShowItemTrackingForEntity(2, "No.", '', '', '');
                     end;
                 }
             }
@@ -819,7 +819,7 @@ page 35603 Vendors
                 LastVend := FirstVend;
                 More := (VendCount > 0);
                 while More do
-                    if Vend.Next = 0 then
+                    if Vend.Next() = 0 then
                         More := false
                     else
                         if not Vend.Mark then

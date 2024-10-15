@@ -61,7 +61,7 @@ page 14939 "Journal Posting Preview Setup"
                             repeat
                                 JnlPostSetup."Enable Posting Preview" := true;
                                 JnlPostSetup.Modify();
-                            until JnlPostSetup.Next = 0;
+                            until JnlPostSetup.Next() = 0;
                     end;
                 }
                 action(Disable)
@@ -77,7 +77,7 @@ page 14939 "Journal Posting Preview Setup"
                             repeat
                                 JnlPostSetup."Enable Posting Preview" := false;
                                 JnlPostSetup.Modify();
-                            until JnlPostSetup.Next = 0;
+                            until JnlPostSetup.Next() = 0;
                     end;
                 }
             }

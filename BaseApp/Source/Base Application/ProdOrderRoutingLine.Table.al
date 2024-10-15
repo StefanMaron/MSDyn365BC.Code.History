@@ -544,8 +544,9 @@ table 5409 "Prod. Order Routing Line"
                     if IsHandled then
                         exit;
 
-                    if not Confirm(Text009, false, FieldCaption("Routing Status"), "Routing Status") then
-                        Error('');
+                    if not HideValidationDialog then
+                        if not ConfirmManagement.GetResponse(StrSubstNo(Text009, FieldCaption("Routing Status"), "Routing Status"), false) then
+                            Error('');
 
                     ProdOrderCapacityNeed.SetCurrentKey(
                       Status, "Prod. Order No.", "Requested Only", "Routing No.", "Routing Reference No.", "Operation No.", "Line No.");
@@ -699,7 +700,7 @@ table 5409 "Prod. Order Routing Line"
             CapLedgEntry.SetRange("Routing Reference No.", "Routing Reference No.");
             CapLedgEntry.SetRange("Routing No.", "Routing No.");
             CapLedgEntry.SetRange("Operation No.", "Operation No.");
-            if not CapLedgEntry.IsEmpty then
+            if not CapLedgEntry.IsEmpty() then
                 Error(
                   Text000,
                   Status, TableCaption, "Operation No.", CapLedgEntry.TableCaption);
@@ -753,6 +754,7 @@ table 5409 "Prod. Order Routing Line"
         PurchLine: Record "Purchase Line";
         TempErrorMessage: Record "Error Message" temporary;
         CalcProdOrder: Codeunit "Calculate Prod. Order";
+        ConfirmManagement: Codeunit "Confirm Management";
         ProdOrderRouteMgt: Codeunit "Prod. Order Route Management";
         Text004: Label 'Some routing lines are referring to the operation just deleted. The references are\in the fields %1 and %2.\\This may have to be corrected as a routing line referring to a non-existent\operation will lead to serious errors in capacity planning.\\Do you want to see a list of the lines in question?\(Access the columns Next Operation No. and Previous Operation No.)';
         Text005: Label 'Routing Lines referring to deleted Operation No. %1';
@@ -767,6 +769,7 @@ table 5409 "Prod. Order Routing Line"
 
     protected var
         Direction: Option Forward,Backward;
+        HideValidationDialog: Boolean;
 
     procedure Caption(): Text
     var
@@ -1287,11 +1290,11 @@ table 5409 "Prod. Order Routing Line"
 
             if TempRemainingProdOrderRoutingLine.Find('-') then begin
                 Commit();
-                if not Confirm(
-                     StrSubstNo(Text004, FieldCaption("Next Operation No."), FieldCaption("Previous Operation No.")),
-                     true)
-                then
-                    exit;
+                if not HideValidationDialog then
+                    if not ConfirmManagement.GetResponse(
+                        StrSubstNo(Text004, FieldCaption("Next Operation No."), FieldCaption("Previous Operation No.")), true)
+                    then
+                        exit;
                 ProdOrderRoutingPage.Initialize(StrSubstNo(Text005, "Operation No."));
                 repeat
                     TempRemainingProdOrderRoutingLine.Mark(true);
@@ -1376,7 +1379,7 @@ table 5409 "Prod. Order Routing Line"
                 PurchLine.SetRange("Prod. Order No.", "Prod. Order No.");
                 PurchLine.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
                 PurchLine.SetRange("Operation No.", "Operation No.");
-                if not PurchLine.IsEmpty then
+                if not PurchLine.IsEmpty() then
                     exit(true);
             until ProdOrderLine.Next() = 0;
 
@@ -1466,7 +1469,7 @@ table 5409 "Prod. Order Routing Line"
                 ProdOrderComponent.SetRange("Prod. Order No.", ParentProdOrderLine."Prod. Order No.");
                 ProdOrderComponent.SetRange("Prod. Order Line No.", ParentProdOrderLine."Line No.");
                 ProdOrderComponent.SetRange("Supplied-by Line No.", ChildProdOrderLine."Line No.");
-                if not ProdOrderComponent.IsEmpty then begin
+                if not ProdOrderComponent.IsEmpty() then begin
                     if GuiAllowed then
                         ShowMessage(TimeShiftedOnParentLineMsg);
                     ParentProdOrderLine.Validate("Starting Date-Time", ChildProdOrderLine."Ending Date-Time");
@@ -1501,6 +1504,11 @@ table 5409 "Prod. Order Routing Line"
         ProdOrderRoutingLine.SetRange("Next Operation No.", '');
         ProdOrderRoutingLine.SetFilter("Operation No.", '<>%1', "Operation No.");
         exit(ProdOrderRoutingLine.IsEmpty);
+    end;
+
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    begin
+        HideValidationDialog := NewHideValidationDialog;
     end;
 
     [Scope('OnPrem')]

@@ -50,10 +50,10 @@ table 17360 "Labor Contract"
                         LaborContract.SetRange("Contract Type", "Contract Type"::"Labor Contract");
                         LaborContract.SetRange(Status, Status::Approved);
                         if "Work Mode" = "Work Mode"::"Internal Co-work" then
-                            if LaborContract.IsEmpty then
+                            if LaborContract.IsEmpty() then
                                 Error(Text14704, "Person No.");
                         if ("Work Mode" = "Work Mode"::"Primary Job") or ("Work Mode" = "Work Mode"::"External Co-work") then
-                            if not LaborContract.IsEmpty then
+                            if not LaborContract.IsEmpty() then
                                 Error(Text14705, "Person No.");
                     end;
             end;
@@ -105,7 +105,7 @@ table 17360 "Labor Contract"
 
                 LaborContractLine.Reset();
                 LaborContractLine.SetRange("Contract No.", "No.");
-                if not LaborContractLine.IsEmpty then
+                if not LaborContractLine.IsEmpty() then
                     Error(Text000, FieldCaption("Person No."));
 
                 Validate("Work Mode");

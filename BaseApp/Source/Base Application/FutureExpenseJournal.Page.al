@@ -273,7 +273,7 @@ page 17333 "Future Expense Journal"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

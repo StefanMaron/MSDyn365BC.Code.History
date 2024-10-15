@@ -1,4 +1,4 @@
-﻿codeunit 570 "G/L Account Category Mgt."
+codeunit 570 "G/L Account Category Mgt."
 {
 
     trigger OnRun()
@@ -75,8 +75,8 @@
         CategoryID: array[3] of Integer;
     begin
         GLAccount.SetFilter("Account Subcategory Entry No.", '<>0');
-        if not GLAccount.IsEmpty then
-            if not GLAccountCategory.IsEmpty then
+        if not GLAccount.IsEmpty() then
+            if not GLAccountCategory.IsEmpty() then
                 exit;
 
         GLAccount.ModifyAll("Account Subcategory Entry No.", 0);
@@ -395,12 +395,12 @@
            (GeneralLedgerSetup."Acc. Sched. for Retained Earn." = ''));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure OnInitializeCompany()
     var
         GLAccountCategory: Record "G/L Account Category";
     begin
-        if not GLAccountCategory.IsEmpty then
+        if not GLAccountCategory.IsEmpty() then
             exit;
 
         OnBeforeInitializeCompany;
@@ -649,7 +649,7 @@
             GLAcc.TestField("Gen. Prod. Posting Group");
         if CheckDirectPosting then
             GLAcc.TestField("Direct Posting", true);
-        if GLAcc."Account Category" = 0 then begin
+        if GLAcc."Account Category" = GLAcc."Account Category"::" " then begin
             GLAcc.Validate("Account Category", AccountCategory);
             if AccountSubcategory <> '' then
                 GLAcc.Validate("Account Subcategory Entry No.", GetSubcategoryEntryNo(AccountCategory, AccountSubcategory));
@@ -676,12 +676,12 @@
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccountCategory.SetRange("Account Category", AccountCategory);
         GLAccountCategory.SetFilter(Description, AccountSubcategoryFilter);
-        if not GLAccountCategory.IsEmpty then begin
+        if not GLAccountCategory.IsEmpty() then begin
             EntryNoFilter := '';
-            GLAccountCategory.FindSet;
+            GLAccountCategory.FindSet();
             repeat
                 EntryNoFilter := EntryNoFilter + Format(GLAccountCategory."Entry No.") + '|';
-            until GLAccountCategory.Next = 0;
+            until GLAccountCategory.Next() = 0;
             EntryNoFilter := CopyStr(EntryNoFilter, 1, StrLen(EntryNoFilter) - 1);
             GLAccount.SetRange("Account Category", GLAccountCategory."Account Category");
             GLAccount.SetFilter("Account Subcategory Entry No.", EntryNoFilter);

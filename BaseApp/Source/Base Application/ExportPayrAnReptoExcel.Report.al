@@ -86,7 +86,7 @@ report 14964 "Export Payr. An. Rep. to Excel"
                               false,
                               false,
                               false);
-                        until PayrollAnalysisColumn.Next = 0;
+                        until PayrollAnalysisColumn.Next() = 0;
                     end;
                     repeat
                         RecNo := RecNo + 1;
@@ -122,9 +122,9 @@ report 14964 "Export Payr. An. Rep. to Excel"
                                       PayrollAnalysisLine.Bold,
                                       PayrollAnalysisLine.Italic,
                                       PayrollAnalysisLine.Underline);
-                            until PayrollAnalysisColumn.Next = 0;
+                            until PayrollAnalysisColumn.Next() = 0;
                         end;
-                    until PayrollAnalysisLine.Next = 0;
+                    until PayrollAnalysisLine.Next() = 0;
                 end;
 
                 Window.Close;

@@ -115,12 +115,12 @@ table 17428 "Payroll Calendar"
     begin
         Employee.Reset();
         Employee.SetRange("Calendar Code", Code);
-        if not Employee.IsEmpty then
+        if not Employee.IsEmpty() then
             Error(Text001, Code, Employee.TableCaption);
 
         EmployeeJobEntry.Reset();
         EmployeeJobEntry.SetRange("Calendar Code", Code);
-        if not EmployeeJobEntry.IsEmpty then
+        if not EmployeeJobEntry.IsEmpty() then
             Error(Text001, Code, EmployeeJobEntry.TableCaption);
 
         PayrollCalendarLine.Reset();

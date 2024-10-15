@@ -324,6 +324,16 @@ table 242 "Source Code Setup"
             Caption = 'Adjust Cost';
             TableRelation = "Source Code";
         }
+        field(5850; "Invt. Receipt"; Code[10])
+        {
+            Caption = 'Item Doc. Receipt';
+            TableRelation = "Source Code";
+        }
+        field(5851; "Invt. Shipment"; Code[10])
+        {
+            Caption = 'Item Doc. Shipment';
+            TableRelation = "Source Code";
+        }
         field(5875; "Phys. Invt. Orders"; Code[10])
         {
             Caption = 'Phys. Invt. Orders';
@@ -438,11 +448,27 @@ table 242 "Source Code Setup"
         {
             Caption = 'Item Receipt';
             TableRelation = "Source Code";
+            ObsoleteReason = 'Replaced by Inventory Documents feature.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12451; "Item Shipment"; Code[10])
         {
             Caption = 'Item Shipment';
             TableRelation = "Source Code";
+            ObsoleteReason = 'Replaced by Inventory Documents feature.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12470; "FA Release"; Code[10])
         {

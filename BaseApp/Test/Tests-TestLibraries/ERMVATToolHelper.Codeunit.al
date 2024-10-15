@@ -1,4 +1,4 @@
-﻿codeunit 131334 "ERM VAT Tool - Helper"
+codeunit 131334 "ERM VAT Tool - Helper"
 {
     // Feature:  VAT Rate Change
     // Contains helper functions for codeunits in this area.
@@ -336,7 +336,7 @@
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetFilter("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             if PurchaseLine."No." = '' then
                 PurchaseLine.Next;
@@ -364,7 +364,7 @@
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetFilter("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             if SalesLine."No." = '' then
                 SalesLine.Next;
@@ -391,7 +391,7 @@
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetFilter("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             if ServiceLine."No." = '' then
                 ServiceLine.Next;
@@ -1208,7 +1208,7 @@
     begin
         WhseReceiptLine.SetFilter("Source No.", PurchaseHeader."No.");
         WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
-        WhseReceiptLine.FindSet;
+        WhseReceiptLine.FindSet();
 
         WhseReceiptHeader.SetFilter("No.", WhseReceiptLine."No.");
         WhseReceiptHeader.FindFirst;
@@ -1230,7 +1230,7 @@
     begin
         WhseShipmentLine.SetFilter("Source No.", SalesHeader."No.");
         WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
-        WhseShipmentLine.FindSet;
+        WhseShipmentLine.FindSet();
 
         WhseShipmentHeader.SetFilter("No.", WhseShipmentLine."No.");
         WhseShipmentHeader.FindFirst;
@@ -1618,7 +1618,7 @@
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetFilter("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
 
         repeat
             UpdateLineQtyToConsumeInvoice(ServiceLine, Consume, Invoice);
@@ -1669,7 +1669,7 @@
         // Update Purchase Lines.
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetFilter("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
 
         repeat
             UpdateLineQtyToReceive(PurchaseLine);
@@ -1683,7 +1683,7 @@
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetFilter("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         repeat
             UpdateLineQtyToShip(SalesLine);
@@ -1697,7 +1697,7 @@
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetFilter("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
 
         repeat
             UpdateLineQtyToShipService(ServiceLine);
@@ -1789,7 +1789,7 @@
     var
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
     begin
-        VATRateChangeLogEntry.FindSet;
+        VATRateChangeLogEntry.FindSet();
         if TempRecRef.FindSet then
             repeat
                 with VATRateChangeLogEntry do begin
@@ -1957,7 +1957,7 @@
 
         // Prepare Temp Record
         TempRecRef.Reset();
-        TempRecRef.FindSet;
+        TempRecRef.FindSet();
 
         // Verify: Existing records updated as expected.
         if TempRecRef.Number <> DATABASE::"Serv. Price Adjustment Detail" then
@@ -2016,7 +2016,7 @@
         with VATRateChangeLogEntry do begin
             SetRange("Table ID", TableId);
             SetRange("Old VAT Prod. Posting Group", VATProdPostingGroup);
-            FindSet;
+            FindSet();
             repeat
                 TestField(Description, LogEntryContentErr);
             until Next = 0;

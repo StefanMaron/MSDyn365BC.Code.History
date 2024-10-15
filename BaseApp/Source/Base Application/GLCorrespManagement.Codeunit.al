@@ -54,7 +54,7 @@ codeunit 12404 "G/L Corresp. Management"
                 TempGLEntry.TransferFields(GLEntry);
                 TempGLEntry."Used in Correspondence" := false;
                 TempGLEntry.Insert();
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
             ClearBuffer(TransNo);
             ProcessTransaction;
             UpdateGLCorrAnalysisView.UpdateAll(true);
@@ -98,7 +98,7 @@ codeunit 12404 "G/L Corresp. Management"
                                             else
                                                 Modify;
                                         end;
-                                until FoundEntry or (Next = 0);
+                                until FoundEntry or (Next() = 0);
                             if FoundEntry and (Level = MaxLevel) then
                                 Level -= 1;
                             TempGLEntry := CurrentTempGLEntry;
@@ -107,13 +107,13 @@ codeunit 12404 "G/L Corresp. Management"
                             else
                                 Modify;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
 
             Reset;
             if Find('-') then
                 repeat
                     UpdateBuffer("Entry No.", Amount);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

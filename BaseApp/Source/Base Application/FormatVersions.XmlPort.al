@@ -87,7 +87,7 @@ xmlport 26551 "Format Versions"
             repeat
                 "Format Version" := TempFormatVersion;
                 "Format Version".Insert();
-            until TempFormatVersion.Next = 0;
+            until TempFormatVersion.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -108,7 +108,7 @@ xmlport 26551 "Format Versions"
                 if FormatVersion."XML Schema File Name" <> '' then
                     FormatVersion.ImportXMLSchema(PathName + FormatVersion."XML Schema File Name");
                 FormatVersion.Insert();
-            until "Format Version".Next = 0;
+            until "Format Version".Next() = 0;
     end;
 }
 

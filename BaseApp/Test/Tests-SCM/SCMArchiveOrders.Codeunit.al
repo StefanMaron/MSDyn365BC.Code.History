@@ -1221,7 +1221,7 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.FilterPurchaseLineArchive(PurchaseLineArchive, PurchaseHeader."Document Type", PurchaseHeader."No.", 1, VersionNo);
 
         // Verify archived lines.
-        PurchaseLineArchive.FindSet;
+        PurchaseLineArchive.FindSet();
         repeat
             TempPurchaseLine.SetRange("Document Type", PurchaseLineArchive."Document Type");
             TempPurchaseLine.SetRange("Document No.", PurchaseLineArchive."Document No.");

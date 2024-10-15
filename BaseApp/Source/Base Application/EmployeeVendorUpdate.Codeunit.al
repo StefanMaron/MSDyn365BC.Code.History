@@ -33,7 +33,7 @@ codeunit 12415 "EmployeeVendor-Update"
                 Vend.TestField("Vendor Type", Vend."Vendor Type"::"Resp. Employee");
                 EmployeeToVendor(Employee, Vend);
                 Vend.Modify(true);
-            until Vend.Next = 0;
+            until Vend.Next() = 0;
     end;
 
     local procedure EmployeeToVendor(var Employee: Record Employee; var Vendor: Record Vendor)

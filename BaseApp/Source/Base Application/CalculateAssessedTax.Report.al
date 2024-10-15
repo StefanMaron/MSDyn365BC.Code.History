@@ -42,7 +42,7 @@ report 14920 "Calculate Assessed Tax"
                                         DeleteSheet[2] := true;
                                         CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCode.Code);
                                         FillChapter2(TempFixedAsset."Property Type", TempFixedAsset."Property Type", AssessedTaxCode.Code);
-                                    until TempFixedAsset.Next = 0;
+                                    until TempFixedAsset.Next() = 0;
                                 end;
 
                                 if ReportingPeriod = 3 then begin
@@ -57,7 +57,7 @@ report 14920 "Calculate Assessed Tax"
                                             CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCode.Code);
                                             TaxAmountAbroad := TaxAmountAbroad + TempFixedAsset."Tax Amount Paid Abroad";
                                             FillChapter2(TempFixedAsset."Property Type", 4, AssessedTaxCode.Code);
-                                        until TempFixedAsset.Next = 0;
+                                        until TempFixedAsset.Next() = 0;
                                     end;
                                     TempFixedAsset.SetRange("Tax Amount Paid Abroad");
                                 end;
@@ -73,9 +73,9 @@ report 14920 "Calculate Assessed Tax"
                                                 DeleteSheet[2] := true;
                                                 CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCodeExempt.Code);
                                                 FillChapter2(TempFixedAsset."Property Type", TempFixedAsset."Property Type", AssessedTaxCodeExempt.Code);
-                                            until TempFixedAsset.Next = 0;
+                                            until TempFixedAsset.Next() = 0;
                                         end;
-                                    until AssessedTaxCodeExempt.Next = 0;
+                                    until AssessedTaxCodeExempt.Next() = 0;
 
                                 // Property Type = 2
                                 TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCode.Code);
@@ -88,7 +88,7 @@ report 14920 "Calculate Assessed Tax"
                                         DeleteSheet[2] := true;
                                         CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCode.Code);
                                         FillChapter2(TempFixedAsset."Property Type", TempFixedAsset."Property Type", AssessedTaxCode.Code);
-                                    until TempFixedAsset.Next = 0;
+                                    until TempFixedAsset.Next() = 0;
                                 end;
 
                                 if ReportingPeriod = 3 then begin
@@ -103,7 +103,7 @@ report 14920 "Calculate Assessed Tax"
                                             CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCode.Code);
                                             TaxAmountAbroad := TaxAmountAbroad + TempFixedAsset."Tax Amount Paid Abroad";
                                             FillChapter2(TempFixedAsset."Property Type", 4, AssessedTaxCode.Code);
-                                        until TempFixedAsset.Next = 0;
+                                        until TempFixedAsset.Next() = 0;
                                     end;
                                     TempFixedAsset.SetRange("Tax Amount Paid Abroad");
                                 end;
@@ -119,9 +119,9 @@ report 14920 "Calculate Assessed Tax"
                                                 DeleteSheet[2] := true;
                                                 CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCodeExempt.Code);
                                                 FillChapter2(TempFixedAsset."Property Type", TempFixedAsset."Property Type", AssessedTaxCodeExempt.Code);
-                                            until TempFixedAsset.Next = 0;
+                                            until TempFixedAsset.Next() = 0;
                                         end;
-                                    until AssessedTaxCodeExempt.Next = 0;
+                                    until AssessedTaxCodeExempt.Next() = 0;
 
                                 // Property Type = 3
                                 TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCode.Code);
@@ -133,7 +133,7 @@ report 14920 "Calculate Assessed Tax"
                                     DeleteSheet[2] := true;
                                     repeat
                                         CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCode.Code);
-                                    until TempFixedAsset.Next = 0;
+                                    until TempFixedAsset.Next() = 0;
                                     FillChapter2(TempFixedAsset."Property Type", TempFixedAsset."Property Type", AssessedTaxCode.Code);
                                     MainSheetName := ExcelMgt.GetSheetName;
                                 end;
@@ -149,7 +149,7 @@ report 14920 "Calculate Assessed Tax"
                                         repeat
                                             CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCode.Code);
                                             TaxAmountAbroad := TaxAmountAbroad + TempFixedAsset."Tax Amount Paid Abroad";
-                                        until TempFixedAsset.Next = 0;
+                                        until TempFixedAsset.Next() = 0;
                                         FillChapter2(TempFixedAsset."Property Type", 4, AssessedTaxCode.Code);
                                     end;
                                     TempFixedAsset.SetRange("Tax Amount Paid Abroad");
@@ -164,11 +164,11 @@ report 14920 "Calculate Assessed Tax"
                                             DeleteSheet[2] := true;
                                             repeat
                                                 CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCodeExempt.Code);
-                                            until TempFixedAsset.Next = 0;
+                                            until TempFixedAsset.Next() = 0;
                                             Exemption := true;
                                             FillChapter2(TempFixedAsset."Property Type", TempFixedAsset."Property Type", AssessedTaxCodeExempt.Code);
                                         end;
-                                    until AssessedTaxCodeExempt.Next = 0;
+                                    until AssessedTaxCodeExempt.Next() = 0;
 
                                 // Property Type = 5
                                 TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCode.Code);
@@ -180,7 +180,7 @@ report 14920 "Calculate Assessed Tax"
                                     DeleteSheet[2] := true;
                                     repeat
                                         CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCode.Code);
-                                    until TempFixedAsset.Next = 0;
+                                    until TempFixedAsset.Next() = 0;
                                     FillChapter2(TempFixedAsset."Property Type", TempFixedAsset."Property Type", AssessedTaxCode.Code);
                                 end;
 
@@ -195,7 +195,7 @@ report 14920 "Calculate Assessed Tax"
                                         repeat
                                             CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCode.Code);
                                             TaxAmountAbroad := TaxAmountAbroad + TempFixedAsset."Tax Amount Paid Abroad";
-                                        until TempFixedAsset.Next = 0;
+                                        until TempFixedAsset.Next() = 0;
                                         FillChapter2(TempFixedAsset."Property Type", 4, AssessedTaxCode.Code);
                                     end;
                                     TempFixedAsset.SetRange("Tax Amount Paid Abroad");
@@ -211,12 +211,12 @@ report 14920 "Calculate Assessed Tax"
                                             DeleteSheet[2] := true;
                                             repeat
                                                 CalcPeriodDeprCost(TempFixedAsset."No.", AssessedTaxCodeExempt.Code);
-                                            until TempFixedAsset.Next = 0;
+                                            until TempFixedAsset.Next() = 0;
                                             FillChapter2(TempFixedAsset."Property Type", TempFixedAsset."Property Type", AssessedTaxCodeExempt.Code);
                                         end;
-                                    until AssessedTaxCodeExempt.Next = 0;
+                                    until AssessedTaxCodeExempt.Next() = 0;
 
-                            until AssessedTaxCode.Next = 0;
+                            until AssessedTaxCode.Next() = 0;
                         CurrReport.Break();
                     end;
                 }
@@ -337,7 +337,7 @@ report 14920 "Calculate Assessed Tax"
                                     TempFixedAsset.TransferFields(FixedAsset);
                                     TempFixedAsset.Insert();
                                 end;
-                            until FixedAsset.Next = 0;
+                            until FixedAsset.Next() = 0;
                         end;
                     end;
 
@@ -1106,8 +1106,8 @@ report 14920 "Calculate Assessed Tax"
                             Error(Text010, AssessedTaxCode.Code, AssessedTaxCodeDublicate.Code);
                         if AssessedTaxCode."Exemption Tax Allowance Code" <> '' then
                             CheckBaseCode;
-                    until AssessedTaxCode.Next = 0;
-            until OKATO1.Next = 0;
+                    until AssessedTaxCode.Next() = 0;
+            until OKATO1.Next() = 0;
     end;
 
     [Scope('OnPrem')]

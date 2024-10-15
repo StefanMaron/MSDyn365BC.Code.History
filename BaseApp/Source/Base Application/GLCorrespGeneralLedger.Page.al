@@ -549,7 +549,7 @@ page 12403 "G/L Corresp. General Ledger"
         GLCorr: Record "G/L Correspondence";
         EntryNo: Integer;
     begin
-        GLAcc.FindSet;
+        GLAcc.FindSet();
         repeat
             EntryNo += 1;
             InsertRec('', '', GLAcc."No.", EntryNo, 0, false);
@@ -563,7 +563,7 @@ page 12403 "G/L Corresp. General Ledger"
                 repeat
                     EntryNo += 1;
                     InsertRec(GLCorr."Debit Account No.", GLCorr."Credit Account No.", GLAcc."No.", EntryNo, 1, true);
-                until GLCorr.Next = 0;
+                until GLCorr.Next() = 0;
 
             GLCorr.Reset();
             if GLAcc.Totaling = '' then
@@ -574,8 +574,8 @@ page 12403 "G/L Corresp. General Ledger"
                 repeat
                     EntryNo += 1;
                     InsertRec(GLCorr."Debit Account No.", GLCorr."Credit Account No.", GLAcc."No.", EntryNo, 1, false);
-                until GLCorr.Next = 0;
-        until GLAcc.Next = 0;
+                until GLCorr.Next() = 0;
+        until GLAcc.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -593,7 +593,7 @@ page 12403 "G/L Corresp. General Ledger"
                     if CalcCorrAmount(false) <> 0 then
                         "Debit Entry No." := 0;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         UpdateView;
     end;
 
@@ -827,7 +827,7 @@ page 12403 "G/L Corresp. General Ledger"
                 "Credit Account No." := GLAccNo;
                 Positive := not Positive;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
 
         UpdateView;
     end;

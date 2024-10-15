@@ -42,7 +42,7 @@ codeunit 12470 "FA Document-Post (Yes/No)"
         GenJnlPostPreview.Preview(FADocumentPostYesNo, FADocumentHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         FADocumentPostYesNo: Codeunit "FA Document-Post (Yes/No)";

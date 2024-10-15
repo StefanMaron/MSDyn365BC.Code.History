@@ -183,7 +183,7 @@ report 12456 "Create VAT Sales Ledger"
                             if DtldCustLedgEntry.Find('-') then
                                 repeat
                                     GetSalesPaymentDate(DtldCustLedgEntry."Transaction No.", PaymentDate);
-                                until DtldCustLedgEntry.Next = 0;
+                                until DtldCustLedgEntry.Next() = 0;
                         end;
 
                         if PaymentDate = 0D then
@@ -824,7 +824,7 @@ report 12456 "Create VAT Sales Ledger"
                             Modify;
                         end;
                     end;
-            until PrepmtDiffVATEntry.Next = 0;
+            until PrepmtDiffVATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -885,14 +885,14 @@ report 12456 "Create VAT Sales Ledger"
                     LedgerConnBuffer.SetRange("Sales Ledger Line No.", LedgerBuffer."Line No.");
                     LedgerConnBuffer.DeleteAll();
                 end;
-            until LedgerBuffer.Next = 0;
+            until LedgerBuffer.Next() = 0;
 
         LedgerConnBuffer.Reset();
         if LedgerConnBuffer.Find('-') then
             repeat
                 LedgerConnection := LedgerConnBuffer;
                 LedgerConnection.Insert();
-            until LedgerConnBuffer.Next = 0;
+            until LedgerConnBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]

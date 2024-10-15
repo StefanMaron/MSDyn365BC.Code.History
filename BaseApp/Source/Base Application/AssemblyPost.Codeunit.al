@@ -1,4 +1,4 @@
-﻿codeunit 900 "Assembly-Post"
+codeunit 900 "Assembly-Post"
 {
     Permissions = TableData "Posted Assembly Header" = im,
                   TableData "Posted Assembly Line" = im,
@@ -62,7 +62,6 @@
         Text005: Label 'The dimensions that are used in %1 %2, line no. %3, are not valid. %4.', Comment = '%1 = Document Type, %2 = Document No.';
         Text006: Label 'There is nothing to post.';
         Text007: Label 'Posting lines              #2######';
-        GLSetupRead: Boolean;
         Text008: Label 'Posting %1';
         Text009: Label '%1 should be blank for comment text: %2.';
         ShowProgress: Boolean;
@@ -211,8 +210,6 @@
                     AssemblyCommentLine.DeleteAll();
             end;
         end;
-
-        OnAfterFinalizePost(AssemblyHeader);
     end;
 
     local procedure OpenWindow(DocType: Enum "Assembly Document Type")
@@ -325,21 +322,13 @@
         exit(not AssemblyLine.IsEmpty);
     end;
 
-    local procedure GetGLSetup()
-    begin
-        if not GLSetupRead then
-            GLSetup.Get();
-        GLSetupRead := true;
-    end;
-
     local procedure LockTables(var AssemblyLine: Record "Assembly Line"; var AssemblyHeader: Record "Assembly Header")
     var
-        GLSetup: Record "General Ledger Setup";
+        InvSetup: Record "Inventory Setup";
     begin
         AssemblyLine.LockTable();
         AssemblyHeader.LockTable();
-        GetGLSetup;
-        if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
+        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             if GLEntry.FindLast then;
         end;
@@ -368,10 +357,9 @@
 
     local procedure SortLines(var AssemblyLine: Record "Assembly Line")
     var
-        GLSetup: Record "General Ledger Setup";
+        InvSetup: Record "Inventory Setup";
     begin
-        GetGLSetup();
-        if GLSetup.OptimGLEntLockForMultiuserEnv then
+        if InvSetup.OptimGLEntLockForMultiuserEnv() then
             AssemblyLine.SetCurrentKey("Document Type", Type, "No.")
         else
             AssemblyLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
@@ -379,10 +367,9 @@
 
     local procedure SortPostedLines(var PostedAsmLine: Record "Posted Assembly Line")
     var
-        GLSetup: Record "General Ledger Setup";
+        InvSetup: Record "Inventory Setup";
     begin
-        GetGLSetup();
-        if GLSetup.OptimGLEntLockForMultiuserEnv then
+        if InvSetup.OptimGLEntLockForMultiuserEnv() then
             PostedAsmLine.SetCurrentKey(Type, "No.")
         else
             PostedAsmLine.SetCurrentKey("Document No.", "Line No.");
@@ -1331,10 +1318,10 @@
                         CreateReservEntry.SetDates("Warranty Date", "Expiration Date");
                         CreateReservEntry.SetQtyToHandleAndInvoice(Quantity, Quantity);
                         CreateReservEntry.SetItemLedgEntryNo("Entry No.");
+                        ReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
                         CreateReservEntry.CreateReservEntryFor(
                           SourceType, DocType, "Order No.", '', 0, "Order Line No.",
-                          "Qty. per Unit of Measure", 0, Abs(Quantity),
-                          "Serial No.", "Lot No.", "CD No.");
+                          "Qty. per Unit of Measure", 0, Abs(Quantity), ReservEntry);
 
                         if IsATOHeader then begin
                             ATOLink.Get(AsmHeader."Document Type", AsmHeader."No.");
@@ -1342,7 +1329,7 @@
                             SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
 
                             CreateReservEntry.SetDisallowCancellation(true);
-                            CreateReservEntry.SetBinding(ReservEntry.Binding::"Order-to-Order");
+                            CreateReservEntry.SetBinding("Reservation Binding"::"Order-to-Order");
 
                             FromTrackingSpecification.InitFromSalesLine(SalesLine);
                             FromTrackingSpecification."Qty. per Unit of Measure" := "Qty. per Unit of Measure";

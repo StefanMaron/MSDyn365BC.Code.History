@@ -20,7 +20,7 @@ codeunit 17302 "Tax Diff.-Post Jnl. Batch"
                             TaxDiffPostJnlLine.RunWithCheck(TaxDiffJnlLine);
                         Delete;
                     end;
-                until Next = 0;
+                until Next() = 0;
                 if FindSet then
                     repeat
                         if "Partial Disposal" then begin
@@ -32,7 +32,7 @@ codeunit 17302 "Tax Diff.-Post Jnl. Batch"
                                 TaxDiffPostJnlLine.RunWithCheck(TaxDiffJnlLine);
                             Delete;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
                 Wnd.Close;
             end;
         end;

@@ -1,4 +1,4 @@
-﻿report 5692 "Calculate Depreciation"
+report 5692 "Calculate Depreciation"
 {
     AdditionalSearchTerms = 'write down fixed asset';
     ApplicationArea = FixedAssets;
@@ -138,7 +138,7 @@
                             OnBeforeFAJnlLineInsert(TempFAJnlLine, FAJnlLine);
                             Insert(true);
                             FAJnlLineCreatedCount += 1;
-                        until TempFAJnlLine.Next = 0;
+                        until TempFAJnlLine.Next() = 0;
                 end;
 
                 with GenJnlLine do begin
@@ -188,7 +188,7 @@
                             if BalAccount then
                                 FAInsertGLAcc.GetBalAcc(GenJnlLine, GenJnlNextLineNo);
                             OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount, TempGenJnlLine);
-                        until TempGenJnlLine.Next = 0;
+                        until TempGenJnlLine.Next() = 0;
                 end;
                 OnAfterPostDataItem();
             end;

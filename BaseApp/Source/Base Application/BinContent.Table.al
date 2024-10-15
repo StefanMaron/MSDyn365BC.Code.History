@@ -1,4 +1,4 @@
-﻿table 7302 "Bin Content"
+table 7302 "Bin Content"
 {
     Caption = 'Bin Content';
     DrillDownPageID = "Bin Contents List";
@@ -131,7 +131,7 @@
                                                                 "Unit of Measure Code" = FIELD("Unit of Measure Code"),
                                                                 "Lot No." = FIELD("Lot No. Filter"),
                                                                 "Serial No." = FIELD("Serial No. Filter"),
-                                                                "CD No." = FIELD("CD No. Filter")));
+                                                                "Package No." = FIELD("Package No. Filter")));
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -162,7 +162,7 @@
                                                                                 "Unit of Measure Code" = FIELD("Unit of Measure Code"),
                                                                                 "Lot No." = FIELD("Lot No. Filter"),
                                                                                 "Serial No." = FIELD("Serial No. Filter"),
-                                                                                "CD No." = FIELD("CD No. Filter")));
+                                                                                "Package No." = FIELD("Package No. Filter")));
             Caption = 'Neg. Adjmt. Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -192,7 +192,7 @@
                                                                                 "Unit of Measure Code" = FIELD("Unit of Measure Code"),
                                                                                 "Lot No." = FIELD("Lot No. Filter"),
                                                                                 "Serial No." = FIELD("Serial No. Filter"),
-                                                                                "CD No." = FIELD("CD No. Filter")));
+                                                                                "Package No." = FIELD("Package No. Filter")));
             Caption = 'Pos. Adjmt. Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -228,7 +228,7 @@
                                                                      "Unit of Measure Code" = FIELD("Unit of Measure Code"),
                                                                      "Lot No." = FIELD("Lot No. Filter"),
                                                                      "Serial No." = FIELD("Serial No. Filter"),
-                                                                     "CD No." = FIELD("CD No. Filter")));
+                                                                     "Package No." = FIELD("Package No. Filter")));
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -259,7 +259,7 @@
                                                                                       "Unit of Measure Code" = FIELD("Unit of Measure Code"),
                                                                                       "Lot No." = FIELD("Lot No. Filter"),
                                                                                       "Serial No." = FIELD("Serial No. Filter"),
-                                                                                      "CD No." = FIELD("CD No. Filter")));
+                                                                                      "Package No." = FIELD("Package No. Filter")));
             Caption = 'Negative Adjmt. Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -289,7 +289,7 @@
                                                                                       "Unit of Measure Code" = FIELD("Unit of Measure Code"),
                                                                                       "Lot No." = FIELD("Lot No. Filter"),
                                                                                       "Serial No." = FIELD("Serial No. Filter"),
-                                                                                      "CD No." = FIELD("CD No. Filter")));
+                                                                                      "Package No." = FIELD("Package No. Filter")));
             Caption = 'Positive Adjmt. Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -373,6 +373,12 @@
             Caption = 'Serial No. Filter';
             FieldClass = FlowFilter;
         }
+        field(6515; "Package No. Filter"; Code[50])
+        {
+            Caption = 'Package No. Filter';
+            CaptionClass = '6,3';
+            FieldClass = FlowFilter;
+        }
         field(6502; Dedicated; Boolean)
         {
             Caption = 'Dedicated';
@@ -383,11 +389,6 @@
             Caption = 'Unit of Measure Filter';
             FieldClass = FlowFilter;
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
-        }
-        field(14900; "CD No. Filter"; Code[30])
-        {
-            Caption = 'CD No. Filter';
-            FieldClass = FlowFilter;
         }
     }
 
@@ -600,19 +601,20 @@
         SerialNoInfo: Record "Serial No. Information";
         LotNoInfo: Record "Lot No. Information";
         XBinContent: Record "Bin Content";
-        CDNoInfo: Record "CD No. Information";
         QtySNBlocked: Decimal;
         QtyLNBlocked: Decimal;
-        QtyCDBlocked: Decimal;
         QtySNAndLNBlocked: Decimal;
-        QtySNAndCDBlocked: Decimal;
-        QtyLNAndCDBlocked: Decimal;
-        QtySNAndLNAndCDBlocked: Decimal;
+        QtyWithBlockedItemTracking: Decimal;
         SNGiven: Boolean;
         LNGiven: Boolean;
         NoITGiven: Boolean;
-        CDGiven: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyWithBlockedItemTracking(Rec, QtyWithBlockedItemTracking);
+        if IsHandled then
+            exit(QtyWithBlockedItemTracking);
+
         SerialNoInfo.SetRange("Item No.", "Item No.");
         SerialNoInfo.SetRange("Variant Code", "Variant Code");
         CopyFilter("Serial No. Filter", SerialNoInfo."Serial No.");
@@ -623,23 +625,16 @@
         CopyFilter("Lot No. Filter", LotNoInfo."Lot No.");
         LotNoInfo.SetRange(Blocked, true);
 
-        CDNoInfo.SetRange(Type, CDNoInfo.Type::Item);
-        CDNoInfo.SetRange("No.", "Item No.");
-        CDNoInfo.SetRange("Variant Code", "Variant Code");
-        CopyFilter("CD No. Filter", CDNoInfo."CD No.");
-        CDNoInfo.SetRange(Blocked, true);
-
-        if SerialNoInfo.IsEmpty and LotNoInfo.IsEmpty and CDNoInfo.IsEmpty then
+        if SerialNoInfo.IsEmpty and LotNoInfo.IsEmpty() then
             exit;
 
         SNGiven := not (GetFilter("Serial No. Filter") = '');
         LNGiven := not (GetFilter("Lot No. Filter") = '');
-        CDGiven := not (GetFilter("CD No. Filter") = '');
 
         XBinContent.Copy(Rec);
         ClearTrackingFilters;
 
-        NoITGiven := not SNGiven and not LNGiven and not CDGiven;
+        NoITGiven := not SNGiven and not LNGiven;
         if SNGiven or NoITGiven then
             if SerialNoInfo.FindSet then
                 repeat
@@ -647,7 +642,7 @@
                     CalcFields("Quantity (Base)");
                     QtySNBlocked += "Quantity (Base)";
                     SetRange("Serial No. Filter");
-                until SerialNoInfo.Next = 0;
+                until SerialNoInfo.Next() = 0;
 
         if LNGiven or NoITGiven then
             if LotNoInfo.FindSet then
@@ -656,16 +651,7 @@
                     CalcFields("Quantity (Base)");
                     QtyLNBlocked += "Quantity (Base)";
                     SetRange("Lot No. Filter");
-                until LotNoInfo.Next = 0;
-
-        if CDGiven or NoITGiven then
-            if CDNoInfo.FindSet then
-                repeat
-                    SetRange("CD No. Filter", CDNoInfo."CD No.");
-                    CalcFields("Quantity (Base)");
-                    QtyCDBlocked += "Quantity (Base)";
-                    SetRange("CD No. Filter");
-                until CDNoInfo.Next = 0;
+                until LotNoInfo.Next() = 0;
 
         if (SNGiven and LNGiven) or NoITGiven then
             if SerialNoInfo.FindSet then
@@ -676,51 +662,11 @@
                             SetRange("Lot No. Filter", LotNoInfo."Lot No.");
                             CalcFields("Quantity (Base)");
                             QtySNAndLNBlocked += "Quantity (Base)";
-                        until LotNoInfo.Next = 0;
-                until SerialNoInfo.Next = 0;
-
-        if (SNGiven and CDGiven) or NoITGiven then
-            if SerialNoInfo.FindSet then
-                repeat
-                    if CDNoInfo.FindSet then
-                        repeat
-                            SetRange("Serial No. Filter", SerialNoInfo."Serial No.");
-                            SetRange("CD No. Filter", CDNoInfo."CD No.");
-                            CalcFields("Quantity (Base)");
-                            QtySNAndCDBlocked += "Quantity (Base)";
-                        until CDNoInfo.Next = 0;
-                until SerialNoInfo.Next = 0;
-
-        if (LNGiven and CDGiven) or NoITGiven then
-            if LotNoInfo.FindSet then
-                repeat
-                    if CDNoInfo.FindSet then
-                        repeat
-                            SetRange("Lot No. Filter", LotNoInfo."Lot No.");
-                            SetRange("CD No. Filter", CDNoInfo."CD No.");
-                            CalcFields("Quantity (Base)");
-                            QtyLNAndCDBlocked += "Quantity (Base)";
-                        until CDNoInfo.Next = 0;
-                until LotNoInfo.Next = 0;
-
-        if SNGiven and LNGiven and CDGiven then
-            if SerialNoInfo.FindSet then
-                repeat
-                    if LotNoInfo.FindSet then
-                        repeat
-                            if CDNoInfo.FindSet then
-                                repeat
-                                    SetRange("Serial No. Filter", SerialNoInfo."Serial No.");
-                                    SetRange("Lot No. Filter", LotNoInfo."Lot No.");
-                                    SetRange("CD No. Filter", CDNoInfo."CD No.");
-                                    CalcFields("Quantity (Base)");
-                                    QtySNAndLNAndCDBlocked += "Quantity (Base)";
-                                until CDNoInfo.Next = 0;
-                        until LotNoInfo.Next = 0;
-                until SerialNoInfo.Next = 0;
+                        until LotNoInfo.Next() = 0;
+                until SerialNoInfo.Next() = 0;
 
         Copy(XBinContent);
-        exit(QtySNBlocked + QtyLNBlocked + QtyCDBlocked - QtySNAndLNBlocked - QtySNAndCDBlocked - QtyLNAndCDBlocked - QtySNAndLNAndCDBlocked);
+        exit(QtySNBlocked + QtyLNBlocked - QtySNAndLNBlocked);
     end;
 
     procedure CalcQtyAvailToPutAway(ExcludeQtyBase: Decimal): Decimal
@@ -783,7 +729,7 @@
                           BinContent."Max. Qty.", Cubage, Weight);
                     TotalCubage := TotalCubage + Cubage;
                     TotalWeight := TotalWeight + Weight;
-                until BinContent.Next = 0;
+                until BinContent.Next() = 0;
 
             if (Bin."Maximum Cubage" > 0) and (Bin."Maximum Cubage" - TotalCubage < 0) then
                 if not Confirm(
@@ -994,7 +940,7 @@
             OnBeforeGetWhseLocation(CurrentLocationCode, CurrentZoneCode, IsHandled);
             if not IsHandled then begin
                 WhseEmployee.SetRange("User ID", UserId);
-                if WhseEmployee.IsEmpty then
+                if WhseEmployee.IsEmpty() then
                     Error(Text009, UserId);
             end;
             if CurrentLocationCode <> '' then begin
@@ -1007,7 +953,7 @@
                         CurrentZoneCode := '';
                     end else begin
                         WhseEmployee.SetRange("Location Code", CurrentLocationCode);
-                        if WhseEmployee.IsEmpty then begin
+                        if WhseEmployee.IsEmpty() then begin
                             CurrentLocationCode := '';
                             CurrentZoneCode := '';
                         end;
@@ -1097,11 +1043,11 @@
               Round("Quantity (Base)" / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision));
     end;
 
-    procedure GetCaption(): Text[250]
+    procedure GetCaption(): Text
     var
         ObjTransl: Record "Object Translation";
         ReservEntry: Record "Reservation Entry";
-        FormCaption: Text[250];
+        FormCaption: Text;
         "Filter": Text;
     begin
         FormCaption :=
@@ -1115,8 +1061,8 @@
                 GetPageCaption(FormCaption, FieldNo("Serial No. Filter"), Filter, -1, ReservEntry.FieldCaption("Serial No."));
             GetFieldFilter(GetFilter("Lot No. Filter"), Filter):
                 GetPageCaption(FormCaption, FieldNo("Lot No. Filter"), Filter, -1, ReservEntry.FieldCaption("Lot No."));
-            GetFieldFilter(GetFilter("CD No. Filter"), Filter):
-                GetPageCaption(FormCaption, FieldNo("CD No. Filter"), Filter, -1, ReservEntry.FieldCaption("CD No."));
+            GetFieldFilter(GetFilter("Package No. Filter"), Filter):
+                GetPageCaption(FormCaption, FieldNo("Package No. Filter"), Filter, -1, ReservEntry.FieldCaption("Package No."));
             GetFieldFilter(GetFilter("Bin Code"), Filter):
                 GetPageCaption(FormCaption, FieldNo("Bin Code"), Filter, DATABASE::"Registered Invt. Movement Line", '');
             GetFieldFilter(GetFilter("Variant Code"), Filter):
@@ -1206,7 +1152,7 @@
                     WhseItemTrackingLine.SetRange("Source Ref. No.", WarehouseJournalLine."Line No.");
                     WhseItemTrackingLine.CalcSums("Quantity (Base)");
                     TotalNegativeAdjmtQtyBase += WhseItemTrackingLine."Quantity (Base)";
-                until WarehouseJournalLine.Next = 0;
+                until WarehouseJournalLine.Next() = 0;
         end;
     end;
 
@@ -1302,6 +1248,16 @@
         OnAfterSetTrackingFilterFromWhseItemTrackingSetup(Rec, WhseItemTrackingSetup);
     end;
 
+    procedure SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No." <> '' then
+            SetRange("Serial No. Filter", WhseItemTrackingSetup."Serial No.");
+        if WhseItemTrackingSetup."Lot No." <> '' then
+            SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, WhseItemTrackingSetup);
+    end;
+
     procedure SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
         if WhseItemTrackingSetup."Serial No. Required" then
@@ -1336,6 +1292,18 @@
             SetFilter("Lot No. Filter", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(Rec, WhseItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfWhseRequiredIfNotBlank(ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+        if ItemTrackingSetup."Serial No. Required" then
+            if ItemTrackingSetup."Serial No." <> '' then
+                SetRange("Serial No. Filter", ItemTrackingSetup."Serial No.");
+        if ItemTrackingSetup."Lot No. Required" then
+            if ItemTrackingSetup."Lot No." <> '' then
+                SetRange("Lot No. Filter", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfWhseRequiredIfNotBlank(Rec, ItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromBinContentBufferIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup"; BinContentBuffer: Record "Bin Content Buffer")
@@ -1385,6 +1353,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
@@ -1396,6 +1369,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfWhseRequiredIfNotBlank(var BinContent: Record "Bin Content"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 
@@ -1481,6 +1459,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBinMaxCubageAndWeight(var BinContent: Record "Bin Content"; var Bin: Record Bin; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyWithBlockedItemTracking(BinContent: Record "Bin Content"; var QtyWithBlockedItemTracking: Decimal)
     begin
     end;
 

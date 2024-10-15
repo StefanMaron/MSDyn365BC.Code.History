@@ -22,7 +22,7 @@ page 17382 "Budgeted Position Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Parent Position No."; "Parent Position No.")
@@ -326,7 +326,7 @@ page 17382 "Budgeted Position Card"
                         CreatefromBudget.Run;
                         Clear(CreatefromBudget);
                         CalcFields("Used Rate");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

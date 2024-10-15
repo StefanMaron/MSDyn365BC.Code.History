@@ -24,7 +24,7 @@ page 52 "Purchase Credit Memo"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -38,7 +38,7 @@ page 52 "Purchase Credit Memo"
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor Name"; "Buy-from Vendor Name")
@@ -62,7 +62,7 @@ page 52 "Purchase Credit Memo"
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -1316,12 +1316,12 @@ page 52 "Purchase Credit Memo"
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     Image = Flow;
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category5;
@@ -1341,7 +1341,7 @@ page 52 "Purchase Credit Memo"
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category5;
@@ -1586,6 +1586,7 @@ page 52 "Purchase Credit Memo"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsScheduledPosting: Boolean;
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
@@ -1598,6 +1599,11 @@ page 52 "Purchase Credit Memo"
         if IsScheduledPosting then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, Navigate, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
@@ -1646,17 +1652,17 @@ page 52 "Purchase Credit Memo"
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetDocNoVisible()
@@ -1746,6 +1752,11 @@ page 52 "Purchase Credit Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -123,7 +123,7 @@ report 17375 "Average Headcount by Org. Unit"
                     if Employee.FindSet then
                         repeat
                             AccrualPrint[J] += Round(AverageHeadcountCalculation.CalcAvgCount(Employee."No.", StartDate));
-                        until Employee.Next = 0;
+                        until Employee.Next() = 0;
 
                     StartDate := CalcDate('<1M>', StartDate);
                     EndDate := CalcDate('<CM>', StartDate);

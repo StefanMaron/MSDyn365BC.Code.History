@@ -17,7 +17,7 @@
 
     trigger OnRun()
     begin
-        GetGLSetup;
+        GetGLSetup();
         RunWithCheck(Rec);
     end;
 
@@ -58,10 +58,8 @@
         DirCostValueEntry: Record "Value Entry";
         SKU: Record "Stockkeeping Unit";
         CurrExchRate: Record "Currency Exchange Rate";
-        ItemTrackingCode: Record "Item Tracking Code";
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        CDTrackingSetup: Record "CD Tracking Setup";
-        NewCDTrackingSetup: Record "CD Tracking Setup";
+        GlobalItemTrackingCode: Record "Item Tracking Code";
+        GlobalItemTrackingSetup: Record "Item Tracking Setup";
         TempSplitItemJnlLine: Record "Item Journal Line" temporary;
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         TempValueEntryRelation: Record "Value Entry Relation" temporary;
@@ -75,9 +73,9 @@
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         ItemJnlCheckLine: Codeunit "Item Jnl.-Check Line";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
-        ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
+        ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         InventoryPostingToGL: Codeunit "Inventory Posting To G/L";
@@ -122,13 +120,9 @@
         Text031: Label 'You cannot invoice the item %1 with item tracking number %2 %3 in this purchase order before the associated sales order %4 has been invoiced.', Comment = '%2 = Lot No. %3 = Serial No. Both are tracking numbers.';
         Text032: Label 'You cannot invoice item %1 in this purchase order before the associated sales order %2 has been invoiced.';
         Text033: Label 'Quantity must be -1, 0 or 1 when Serial No. is stated.';
-        CDNoRequired: Boolean;
         Text12400: Label '%1 must not be greater than %2 in %3 %4=%5';
-        Text12405: Label 'Item in CD No. %1 CD Line No. %2 for Item No. %3 Variant %4 cannot be fully applied.';
         Text12410: Label '%1 with %2 %3 must be posted to %4';
         Text12411: Label '%1 with %2 %3 must be posted to G/L.';
-        CDNoRequiredErr: Label 'You must assign a CD number for item %1.', Comment = '%1 - Item No.';
-        Text12418: Label 'Item Tracking Serial No. %1 Lot No. %2 CD No. %3 for Item No. %4 Variant %5 cannot be fully applied.';
         PreviewMode: Boolean;
         SkipApplicationCheck: Boolean;
         CalledFromApplicationWorksheet: Boolean;
@@ -171,8 +165,8 @@
         OnBeforePostItemJnlLine(ItemJnlLine, CalledFromAdjustment, CalledFromInvtPutawayPick);
 
         with ItemJnlLine do begin
-            if EmptyLine and not Correction and not Adjustment then
-                if not IsValueEntryForDeletedItem then
+            if EmptyLine() and not Correction and not Adjustment then
+                if not IsValueEntryForDeletedItem() then
                     exit;
 
             ItemJnlCheckLine.SetCalledFromInvtPutawayPick(CalledFromInvtPutawayPick);
@@ -188,9 +182,9 @@
                 ItemLedgEntryNo := GlobalItemLedgEntry.GetLastEntryNo();
                 GlobalItemLedgEntry."Entry No." := ItemLedgEntryNo;
             end;
-            InitValueEntryNo;
+            InitValueEntryNo();
 
-            GetInvtSetup;
+            GetInvtSetup();
             if not CalledFromAdjustment then
                 PostToGL := InvtSetup."Automatic Cost Posting";
             OnCheckPostingCostToGL(PostToGL);
@@ -198,7 +192,7 @@
             IsHandled := false;
             OnCodeOnBeforeCheckItemTracking(ItemJnlLine, DisableItemTracking, IsHandled);
             if not IsHandled then
-                if ItemTrackingSetup.TrackingRequired() and ("Quantity (Base)" <> 0) and
+                if GlobalItemTrackingSetup.TrackingRequired() and ("Quantity (Base)" <> 0) and
                    ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
                    not DisableItemTracking and not Adjustment and
                    not Subcontracting and not IsAssemblyResourceConsumpLine
@@ -320,7 +314,8 @@
 
         while SplitItemJnlLine(ItemJnlLine, PostItemJnlLine) do
             if PostItemJnlLine then
-                Code;
+                Code();
+
         OnPostSplitJnlLineOnAfterCode(ItemJnlLine, ItemJnlLineToPost, PostItemJnlLine, TempTrackingSpecification);
         Clear(PrevAppliedItemLedgEntry);
         ItemJnlLineToPost := ItemJnlLine;
@@ -370,14 +365,8 @@
                     TempHandlingSpecification.SetTrackingFilterFromItemJnlLine(ItemJnlLine);
                     LastLoop := false;
                 end else
-                    if ReservationExists(ItemJnlLine) then begin
-                        if ItemTrackingSetup."Serial No. Required" and (ItemJnlLine."Serial No." = '') then
-                            Error(SerialNoRequiredErr, ItemJnlLine."Item No.");
-                        if ItemTrackingSetup."Lot No. Required" and (ItemJnlLine."Lot No." = '') then
-                            Error(LotNoRequiredErr, ItemJnlLine."Item No.");
-                        if ItemTrackingSetup."CD No. Required" then
-                            Error(CDNoRequiredErr, ItemJnlLine."Item No.");
-                    end;
+                    if ReservationExists(ItemJnlLine) then
+                        ItemJnlLine.CheckTrackingIfRequiredNotBlank(GlobalItemTrackingSetup);
 
                 repeat
                     IsHandled := false;
@@ -443,7 +432,7 @@
                     end;
 
                     if UseItemTrackingApplication then begin
-                        if Next = 0 then begin
+                        if Next() = 0 then begin
                             EndLoop := LastLoop;
                             LastLoop := true;
                             FindFirst;
@@ -591,7 +580,7 @@
                     ReTrack := true
                 else
                     if not CalledFromInvtPutawayPick then
-                        ReserveProdOrderLine.TransferPOLineToItemJnlLine(
+                        ProdOrderLineReserve.TransferPOLineToItemJnlLine(
                           ProdOrderLine, ItemJnlLine, "Output Quantity (Base)");
 
                 PostWhseJnlLine := true;
@@ -727,7 +716,7 @@
                not ("Value Entry Type" in ["Value Entry Type"::Revaluation, "Value Entry Type"::Rounding]) and
                not Adjustment
             then
-                ItemQtyPosting
+                ItemQtyPosting()
             else
                 if ("Invoiced Quantity" <> 0) or Adjustment or
                    IsInterimRevaluation
@@ -773,7 +762,7 @@
             "Prod. Order Comp. Line No." := ProdOrderCompLineNo;
             if ModifyProdOrderComp then begin
                 if not CalledFromInvtPutawayPick then
-                    ReserveProdOrderComp.TransferPOCompToItemJnlLine(ProdOrderComp, ItemJnlLine, QtyBase);
+                    ProdOrderCompReserve.TransferPOCompToItemJnlLine(ProdOrderComp, ItemJnlLine, QtyBase);
                 OnBeforeProdOrderCompModify(ProdOrderComp, ItemJnlLine);
                 ProdOrderComp.Modify();
             end;
@@ -910,7 +899,7 @@
 
         with ProdOrderLine do begin
             if ItemJnlLine."Output Quantity (Base)" > "Remaining Qty. (Base)" then
-                ReserveProdOrderLine.AssignForPlanning(ProdOrderLine);
+                ProdOrderLineReserve.AssignForPlanning(ProdOrderLine);
             "Finished Qty. (Base)" := "Finished Qty. (Base)" + ItemJnlLine."Output Quantity (Base)";
             "Finished Quantity" := "Finished Qty. (Base)" / "Qty. per Unit of Measure";
             if "Finished Qty. (Base)" < 0 then
@@ -1117,7 +1106,7 @@
         OnInsertCapValueEntryOnAfterUpdateCapLedgEntry(ValueEntry, ItemJnlLine);
     end;
 
-    local procedure ItemQtyPosting()
+    procedure ItemQtyPosting()
     var
         IsReserved: Boolean;
         InsertItemLedgEntryNeeded: Boolean;
@@ -1144,7 +1133,7 @@
             if GlobalItemLedgEntry.Quantity > 0 then
                 if GlobalItemLedgEntry."Entry Type" <> GlobalItemLedgEntry."Entry Type"::Transfer then
                     IsReserved :=
-                      ReserveItemJnlLine.TransferItemJnlToItemLedgEntry(
+                      ItemJnlLineReserve.TransferItemJnlToItemLedgEntry(
                         ItemJnlLine, GlobalItemLedgEntry, "Quantity (Base)", true);
 
             OnItemQtyPostingOnBeforeApplyItemLedgEntry(ItemJnlLine, GlobalItemLedgEntry);
@@ -1173,7 +1162,7 @@
         end;
     end;
 
-    local procedure ItemValuePosting()
+    procedure ItemValuePosting()
     var
         IsCostNotTracedDirectly: Boolean;
         IsHandled: Boolean;
@@ -1279,10 +1268,10 @@
             repeat
                 OldTempSplitItemJnlLine := TempSplitItemJnlLine;
                 OldTempSplitItemJnlLine.Insert();
-            until TempSplitItemJnlLine.Next = 0;
+            until TempSplitItemJnlLine.Next() = 0;
 
-        OldItemTrackingSetup := ItemTrackingSetup;
-        OldItemTrackingCode := ItemTrackingCode;
+        OldItemTrackingSetup := GlobalItemTrackingSetup;
+        OldItemTrackingCode := GlobalItemTrackingCode;
         xCalledFromInvtPutawayPick := CalledFromInvtPutawayPick;
         CalledFromInvtPutawayPick := false;
 
@@ -1299,7 +1288,7 @@
                     BlockRetrieveIT := true;
                     repeat
                         PostFlushedConsump(ProdOrder, ProdOrderLine, ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine);
-                    until Next = 0;
+                    until Next() = 0;
                     BlockRetrieveIT := false;
                 end;
             end;
@@ -1311,10 +1300,10 @@
             repeat
                 TempSplitItemJnlLine := OldTempSplitItemJnlLine;
                 TempSplitItemJnlLine.Insert();
-            until OldTempSplitItemJnlLine.Next = 0;
+            until OldTempSplitItemJnlLine.Next() = 0;
 
-        ItemTrackingSetup := OldItemTrackingSetup;
-        ItemTrackingCode := OldItemTrackingCode;
+        GlobalItemTrackingSetup := OldItemTrackingSetup;
+        GlobalItemTrackingCode := OldItemTrackingCode;
         CalledFromInvtPutawayPick := xCalledFromInvtPutawayPick;
 
         OnAfterFlushOperation(ProdOrder, ProdOrderLine, ItemJnlLine);
@@ -1403,8 +1392,8 @@
                 repeat
                     OldTempTrackingSpecification := TempTrackingSpecification;
                     OldTempTrackingSpecification.Insert();
-                until TempTrackingSpecification.Next = 0;
-            ReserveProdOrderComp.TransferPOCompToItemJnlLine(
+                until TempTrackingSpecification.Next() = 0;
+            ProdOrderCompReserve.TransferPOCompToItemJnlLine(
               ProdOrderComp, ItemJnlLine, Round(QtyToPost * ProdOrderComp."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
 
             OnBeforePostFlushedConsumpItemJnlLine(ItemJnlLine);
@@ -1414,12 +1403,7 @@
             PostItemJnlLine := SetupSplitJnlLine(ItemJnlLine, TrackingSpecExists);
 
             while SplitItemJnlLine(ItemJnlLine, PostItemJnlLine) do begin
-                if ItemTrackingSetup."Serial No. Required" and ("Serial No." = '') then
-                    Error(SerialNoRequiredErr, "Item No.");
-                if ItemTrackingSetup."Lot No. Required" and ("Lot No." = '') then
-                    Error(LotNoRequiredErr, "Item No.");
-                if ItemTrackingSetup."CD No. Required" and ("CD No." = '') then
-                    Error(CDNoRequiredErr, "Item No.");
+                ItemJnlLine.CheckTrackingIfRequiredNotBlank(GlobalItemTrackingSetup);
 
                 if not DimsAreTaken then begin
                     "Dimension Set ID" := GetCombinedDimSetID(ProdOrderLine."Dimension Set ID", ProdOrderComp."Dimension Set ID");
@@ -1446,7 +1430,7 @@
                 repeat
                     TempTrackingSpecification := OldTempTrackingSpecification;
                     TempTrackingSpecification.Insert();
-                until OldTempTrackingSpecification.Next = 0;
+                until OldTempTrackingSpecification.Next() = 0;
         end;
 
         OnAfterPostFlushedConsump(ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine);
@@ -1458,6 +1442,7 @@
         LastDirectCost: Decimal;
         TotalAmount: Decimal;
         IsHandled: Boolean;
+        UpdateSKU: Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdateUnitCost(ValueEntry, IsHandled, ItemJnlLine);
@@ -1491,8 +1476,10 @@
                         ItemCostMgt.FindUpdateUnitCostSKU(Item, "Location Code", "Variant Code", true, LastDirectCost);
                     end;
                 end else begin
+                    UpdateSKU := true;
+                    OnUpdateUnitCostOnBeforeUpdateUnitCost(ItemJnlLine, ValueEntry, Item, UpdateSKU);
                     ItemCostMgt.SetProperties(false, "Invoiced Quantity");
-                    ItemCostMgt.UpdateUnitCost(Item, "Location Code", "Variant Code", LastDirectCost, 0, true, true, false, 0);
+                    ItemCostMgt.UpdateUnitCost(Item, "Location Code", "Variant Code", LastDirectCost, 0, UpdateSKU, true, false, 0);
                 end;
             end;
         OnAfterUpdateUnitCost(ValueEntry, LastDirectCost, ItemJnlLine);
@@ -1600,11 +1587,10 @@
         if not InventoryPeriod.IsValidDate(ItemLedgEntry."Posting Date") then
             InventoryPeriod.ShowError(ItemLedgEntry."Posting Date");
 
-        ItemTrackingCode.Code := Item."Item Tracking Code";
-        CDTrackingSetup."Item Tracking Code" := Item."Item Tracking Code";
-        CDTrackingSetup."Location Code" := ItemLedgEntry."Location Code";
+        GlobalItemTrackingCode.Code := Item."Item Tracking Code";
         ItemTrackingMgt.GetItemTrackingSetup(
-            ItemTrackingCode, CDTrackingSetup, ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, ItemTrackingSetup);
+            GlobalItemTrackingCode, ItemJnlLine."Entry Type",
+            ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, GlobalItemTrackingSetup);
 
         TotalAppliedQty := 0;
         CostApplication := false;
@@ -1757,7 +1743,7 @@
                           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
                           "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
                         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
-                        ReserveItemJnlLine.FilterReservFor(ReservEntry, ItemJnlLine);
+                        ItemJnlLine.SetReservationFilters(ReservEntry);
                     end;
 
                 UseReservationApplication := ReservEntry.FindFirst;
@@ -1769,7 +1755,7 @@
                     if ReservEntry.FindSet then
                         repeat
                             ReservEngineMgt.CloseSurplusTrackingEntry(ReservEntry);
-                        until ReservEntry.Next = 0;
+                        until ReservEntry.Next() = 0;
                     StartApplication := true;
                 end;
 
@@ -1807,7 +1793,7 @@
                 end else begin
                     if FirstApplication then begin
                         FirstApplication := false;
-                        ApplyItemLedgEntrySetFilters(ItemLedgEntry2, ItemLedgEntry, ItemTrackingCode);
+                        ApplyItemLedgEntrySetFilters(ItemLedgEntry2, ItemLedgEntry, GlobalItemTrackingCode);
 
                         if Item."Costing Method" = Item."Costing Method"::LIFO then
                             EntryFindMethod := '+'
@@ -1818,7 +1804,7 @@
                     end else
                         case EntryFindMethod of
                             '-':
-                                if ItemLedgEntry2.Next = 0 then
+                                if ItemLedgEntry2.Next() = 0 then
                                     exit;
                             '+':
                                 if ItemLedgEntry2.Next(-1) = 0 then
@@ -1869,7 +1855,7 @@
                                 OldValueEntry."Valued By Average Cost" := false;
                                 OldValueEntry.Modify();
                             end;
-                        until OldValueEntry.Next = 0;
+                        until OldValueEntry.Next() = 0;
                 end;
 
                 CheckApplicationDate(OldItemLedgEntry, ItemLedgEntry);
@@ -1940,11 +1926,11 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPostingDateWithExpirationDate(ItemLedgEntry, ItemTrackingCode, OldItemLedgEntry, IsHandled);
+        OnBeforeCheckPostingDateWithExpirationDate(ItemLedgEntry, GlobalItemTrackingCode, OldItemLedgEntry, IsHandled);
         if IsHandled then
             exit;
 
-        if ItemTrackingCode."Strict Expiration Posting" and (OldItemLedgEntry."Expiration Date" <> 0D) and
+        if GlobalItemTrackingCode."Strict Expiration Posting" and (OldItemLedgEntry."Expiration Date" <> 0D) and
            not ItemLedgEntry.Correction and
            not (ItemLedgEntry."Document Type" in
                 [ItemLedgEntry."Document Type"::"Purchase Return Shipment", ItemLedgEntry."Document Type"::"Purchase Credit Memo"])
@@ -1959,6 +1945,7 @@
     local procedure ApplyItemLedgEntrySetFilters(var ToItemLedgEntry: Record "Item Ledger Entry"; FromItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code")
     var
         Location: Record Location;
+        ItemTrackingSetup2: Record "Item Tracking Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1966,31 +1953,26 @@
         if IsHandled then
             exit;
 
-        with ToItemLedgEntry do begin
-            SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
-            SetRange("Item No.", FromItemLedgEntry."Item No.");
-            SetRange(Open, true);
-            SetRange("Variant Code", FromItemLedgEntry."Variant Code");
-            SetRange(Positive, not FromItemLedgEntry.Positive);
-            SetRange("Location Code", FromItemLedgEntry."Location Code");
-            if FromItemLedgEntry."Job Purchase" then begin
-                SetRange("Job No.", FromItemLedgEntry."Job No.");
-                SetRange("Job Task No.", FromItemLedgEntry."Job Task No.");
-                SetRange("Document Type", FromItemLedgEntry."Document Type");
-                SetRange("Document No.", FromItemLedgEntry."Document No.");
-            end;
-            if ItemTrackingCode."SN Specific Tracking" then
-                SetRange("Serial No.", FromItemLedgEntry."Serial No.");
-            if ItemTrackingCode."Lot Specific Tracking" then
-                SetRange("Lot No.", FromItemLedgEntry."Lot No.");
-            if ItemTrackingCode."CD Specific Tracking" then
-                SetRange("CD No.", FromItemLedgEntry."CD No.");
-            if Location.Get(FromItemLedgEntry."Location Code") then
-                if Location."Use As In-Transit" then begin
-                    SetRange("Order Type", FromItemLedgEntry."Order Type"::Transfer);
-                    SetRange("Order No.", FromItemLedgEntry."Order No.");
-                end;
+        ToItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        ToItemLedgEntry.SetRange("Item No.", FromItemLedgEntry."Item No.");
+        ToItemLedgEntry.SetRange(Open, true);
+        ToItemLedgEntry.SetRange("Variant Code", FromItemLedgEntry."Variant Code");
+        ToItemLedgEntry.SetRange(Positive, not FromItemLedgEntry.Positive);
+        ToItemLedgEntry.SetRange("Location Code", FromItemLedgEntry."Location Code");
+        if FromItemLedgEntry."Job Purchase" then begin
+            ToItemLedgEntry.SetRange("Job No.", FromItemLedgEntry."Job No.");
+            ToItemLedgEntry.SetRange("Job Task No.", FromItemLedgEntry."Job Task No.");
+            ToItemLedgEntry.SetRange("Document Type", FromItemLedgEntry."Document Type");
+            ToItemLedgEntry.SetRange("Document No.", FromItemLedgEntry."Document No.");
         end;
+        ItemTrackingSetup2.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
+        ItemTrackingSetup2.CopyTrackingFromItemLedgerEntry(FromItemLedgEntry);
+        ToItemLedgEntry.SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup2);
+        if Location.Get(FromItemLedgEntry."Location Code") then
+            if Location."Use As In-Transit" then begin
+                ToItemLedgEntry.SetRange("Order Type", FromItemLedgEntry."Order Type"::Transfer);
+                ToItemLedgEntry.SetRange("Order No.", FromItemLedgEntry."Order No.");
+            end;
 
         OnAfterApplyItemLedgEntrySetFilters(ToItemLedgEntry, FromItemLedgEntry, ItemJnlLine);
     end;
@@ -2009,20 +1991,7 @@
                 OldItemLedgEntry.TestField("Order No.", ItemLedgEntry."Order No.");
             end;
 
-        if ItemTrackingCode."SN Specific Tracking" then
-            OldItemLedgEntry.TestField("Serial No.", ItemLedgEntry."Serial No.");
-        if ItemLedgEntry."Drop Shipment" and (OldItemLedgEntry."Serial No." <> '') then
-            OldItemLedgEntry.TestField("Serial No.", ItemLedgEntry."Serial No.");
-
-        if ItemTrackingCode."Lot Specific Tracking" then
-            OldItemLedgEntry.TestField("Lot No.", ItemLedgEntry."Lot No.");
-        if ItemLedgEntry."Drop Shipment" and (OldItemLedgEntry."Lot No." <> '') then
-            OldItemLedgEntry.TestField("Lot No.", ItemLedgEntry."Lot No.");
-
-        if ItemTrackingCode."CD Specific Tracking" then
-            OldItemLedgEntry.TestField("CD No.", ItemLedgEntry."CD No.");
-        if ItemLedgEntry."Drop Shipment" and (OldItemLedgEntry."CD No." <> '') then
-            OldItemLedgEntry.TestField("CD No.", ItemLedgEntry."CD No.");
+        TestFirstApplyItemLedgerEntryTracking(ItemLedgEntry, OldItemLedgEntry, GlobalItemTrackingCode);
 
         if not (OldItemLedgEntry.Open and
                 (Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") >=
@@ -2051,7 +2020,23 @@
                 Error(
                   Text022,
                   ItemLedgEntry."Entry Type", OldItemLedgEntry."Entry Type", OldItemLedgEntry."Item No.", OldItemLedgEntry."Order No.");
+
         CheckApplicationDate(OldItemLedgEntry, ItemLedgEntry);
+    end;
+
+    local procedure TestFirstApplyItemLedgerEntryTracking(ItemLedgEntry: Record "Item Ledger Entry"; OldItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code");
+    begin
+        if ItemTrackingCode."SN Specific Tracking" then
+            OldItemLedgEntry.TestField("Serial No.", ItemLedgEntry."Serial No.");
+        if ItemLedgEntry."Drop Shipment" and (OldItemLedgEntry."Serial No." <> '') then
+            OldItemLedgEntry.TestField("Serial No.", ItemLedgEntry."Serial No.");
+
+        if ItemTrackingCode."Lot Specific Tracking" then
+            OldItemLedgEntry.TestField("Lot No.", ItemLedgEntry."Lot No.");
+        if ItemLedgEntry."Drop Shipment" and (OldItemLedgEntry."Lot No." <> '') then
+            OldItemLedgEntry.TestField("Lot No.", ItemLedgEntry."Lot No.");
+
+        OnAfterTestFirstApplyItemLedgerEntryTracking(ItemLedgEntry, OldItemLedgEntry, ItemTrackingCode);
     end;
 
     local procedure EnsureValueEntryLoaded(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
@@ -2130,7 +2115,7 @@
 
             if NewItemLedgEntry.Quantity > 0 then
                 IsReserved :=
-                  ReserveItemJnlLine.TransferItemJnlToItemLedgEntry(
+                  ItemJnlLineReserve.TransferItemJnlToItemLedgEntry(
                     ItemJnlLine, NewItemLedgEntry, NewItemLedgEntry."Remaining Quantity", true);
 
             ApplyItemLedgEntry(NewItemLedgEntry, ItemLedgEntry2, NewValueEntry, true);
@@ -2246,17 +2231,18 @@
         with ItemJnlLine do begin
             if ItemLedgEntry.Open then begin
                 OnInsertItemLedgEntryOnBeforeVerifyOnInventory(ItemJnlLine, ItemLedgEntry);
-                ItemLedgEntry.VerifyOnInventory;
-                if not (("Document Type" in ["Document Type"::"Purchase Return Shipment", "Document Type"::"Purchase Receipt"]) and
-                        ("Job No." <> ''))
-                then
-                    if (ItemLedgEntry.Quantity < 0) and
-                       (ItemTrackingCode."SN Specific Tracking" or ItemTrackingCode."Lot Specific Tracking" or
-                        ItemTrackingCode."CD Specific Tracking")
-                    then
-                        Error(Text12418, "Serial No.", "Lot No.", "CD No.", "Item No.", "Variant Code");
+                ItemLedgEntry.VerifyOnInventory();
 
-                if ItemTrackingCode."SN Specific Tracking" then begin
+                IsHandled := false;
+                OnInsertItemLedgEntryOnCheckItemTracking(ItemJnlLine, ItemLedgEntry, GlobalItemTrackingCode, IsHandled);
+                if not IsHandled then
+                    if not (("Document Type" in ["Document Type"::"Purchase Return Shipment", "Document Type"::"Purchase Receipt"]) and
+                            ("Job No." <> ''))
+                    then
+                        if (ItemLedgEntry.Quantity < 0) and GlobalItemTrackingCode.IsSpecific() then
+                            Error(Text018, "Serial No.", "Lot No.", "Item No.", "Variant Code");
+
+                if GlobalItemTrackingCode."SN Specific Tracking" then begin
                     if ItemLedgEntry.Quantity > 0 then
                         CheckItemSerialNo(ItemJnlLine);
 
@@ -2579,7 +2565,7 @@
         with ItemApplnEntry do begin
             SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
             SetRange("Output Completely Invd. Date", 0D);
-            if not IsEmpty then
+            if not IsEmpty() then
                 ModifyAll("Output Completely Invd. Date", PostingDate);
         end;
     end;
@@ -3240,53 +3226,48 @@
         AdjCostInvoicedLCY: Decimal;
         AdjCostInvoicedACY: Decimal;
         DiscountAmount: Decimal;
+        IsHandled: Boolean;
     begin
-        with GlobalValueEntry do begin
-            InitValueEntry(ValueEntry, ItemLedgEntry);
-            ValueEntry."Valued Quantity" := ItemLedgEntry.Quantity;
-            ValueEntry."Invoiced Quantity" := ValueEntry."Valued Quantity";
-            ValueEntry."Location Code" := ItemLedgEntry."Location Code";
-            ValueEntry."Valuation Date" := "Valuation Date";
-            if AverageTransfer then begin
-                ValuateAppliedAvgEntry(GlobalValueEntry, Item);
-                if CDNoRequired then begin
-                    ValueEntry."Cost Amount (Actual)" :=
-                      "Cost Amount (Actual)" * ValueEntry."Valued Quantity" / "Valued Quantity";
-                    ValueEntry."Cost Amount (Actual) (ACY)" :=
-                      "Cost Amount (Actual) (ACY)" * ValueEntry."Valued Quantity" / "Valued Quantity";
-                end else begin
-                    ValueEntry."Cost Amount (Actual)" := -"Cost Amount (Actual)";
-                    ValueEntry."Cost Amount (Actual) (ACY)" := -"Cost Amount (Actual) (ACY)";
-                end;
-                ValueEntry."Cost per Unit" := 0;
-                ValueEntry."Cost per Unit (ACY)" := 0;
-                ValueEntry."Valued By Average Cost" :=
-                  not (ItemLedgEntry.Positive or
-                       (ValueEntry."Document Type" = ValueEntry."Document Type"::"Transfer Receipt"));
-            end else begin
-                CalcAdjustedCost(
-                  OldItemLedgEntry, ValueEntry."Valued Quantity",
-                  AdjCostInvoicedLCY, AdjCostInvoicedACY, DiscountAmount);
-                ValueEntry."Cost Amount (Actual)" := AdjCostInvoicedLCY;
-                ValueEntry."Cost Amount (Actual) (ACY)" := AdjCostInvoicedACY;
-                ValueEntry."Cost per Unit" := 0;
-                ValueEntry."Cost per Unit (ACY)" := 0;
-
-                "Cost Amount (Actual)" := "Cost Amount (Actual)" - ValueEntry."Cost Amount (Actual)";
-                if GLSetup."Additional Reporting Currency" <> '' then
-                    "Cost Amount (Actual) (ACY)" :=
-                      CurrExchRate.ExchangeAmtLCYToFCY(
-                        ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                        Round("Cost Amount (Actual)", GLSetup."Amount Rounding Precision"),
-                        CurrExchRate.ExchangeRate(
-                          ValueEntry."Posting Date", GLSetup."Additional Reporting Currency"));
+        InitValueEntry(ValueEntry, ItemLedgEntry);
+        ValueEntry."Valued Quantity" := ItemLedgEntry.Quantity;
+        ValueEntry."Invoiced Quantity" := ValueEntry."Valued Quantity";
+        ValueEntry."Location Code" := ItemLedgEntry."Location Code";
+        ValueEntry."Valuation Date" := GlobalValueEntry."Valuation Date";
+        if AverageTransfer then begin
+            ValuateAppliedAvgEntry(GlobalValueEntry, Item);
+            OnInitTransValueEntryOnBeforeCalcCostAmounts(GlobalValueEntry, ValueEntry, GlobalItemTrackingSetup, IsHandled);
+            if not IsHandled then begin
+                ValueEntry."Cost Amount (Actual)" := -GlobalValueEntry."Cost Amount (Actual)";
+                ValueEntry."Cost Amount (Actual) (ACY)" := -GlobalValueEntry."Cost Amount (Actual) (ACY)";
             end;
+            ValueEntry."Cost per Unit" := 0;
+            ValueEntry."Cost per Unit (ACY)" := 0;
+            ValueEntry."Valued By Average Cost" :=
+                not (ItemLedgEntry.Positive or
+                    (ValueEntry."Document Type" = ValueEntry."Document Type"::"Transfer Receipt"));
+        end else begin
+            CalcAdjustedCost(
+                OldItemLedgEntry, ValueEntry."Valued Quantity",
+                AdjCostInvoicedLCY, AdjCostInvoicedACY, DiscountAmount);
+            ValueEntry."Cost Amount (Actual)" := AdjCostInvoicedLCY;
+            ValueEntry."Cost Amount (Actual) (ACY)" := AdjCostInvoicedACY;
+            ValueEntry."Cost per Unit" := 0;
+            ValueEntry."Cost per Unit (ACY)" := 0;
 
-            "Discount Amount" := 0;
-            ValueEntry."Discount Amount" := 0;
-            "Cost per Unit" := 0;
-            "Cost per Unit (ACY)" := 0;
+            GlobalValueEntry."Cost Amount (Actual)" := GlobalValueEntry."Cost Amount (Actual)" - ValueEntry."Cost Amount (Actual)";
+            if GLSetup."Additional Reporting Currency" <> '' then
+                GlobalValueEntry."Cost Amount (Actual) (ACY)" :=
+                    CurrExchRate.ExchangeAmtLCYToFCY(
+                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
+                    Round(GlobalValueEntry."Cost Amount (Actual)", GLSetup."Amount Rounding Precision"),
+                    CurrExchRate.ExchangeRate(
+                        ValueEntry."Posting Date", GLSetup."Additional Reporting Currency"));
         end;
+
+        GlobalValueEntry."Discount Amount" := 0;
+        ValueEntry."Discount Amount" := 0;
+        GlobalValueEntry."Cost per Unit" := 0;
+        GlobalValueEntry."Cost per Unit (ACY)" := 0;
     end;
 
     local procedure ValuateAppliedAvgEntry(var ValueEntry: Record "Value Entry"; Item: Record Item)
@@ -3353,7 +3334,7 @@
         with PosValueEntry do begin
             SetCurrentKey("Item Ledger Entry No.");
             SetRange("Item Ledger Entry No.", PosItemLedgEntry."Entry No.");
-            FindSet;
+            FindSet();
             repeat
                 if "Partial Revaluation" then begin
                     AdjustedCostLCY := AdjustedCostLCY +
@@ -3365,7 +3346,7 @@
                     AdjustedCostACY := AdjustedCostACY + "Cost Amount (Actual) (ACY)" + "Cost Amount (Expected) (ACY)";
                     DiscountAmount := DiscountAmount - "Discount Amount";
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             AdjustedCostLCY := AdjustedCostLCY * AppliedQty / PosItemLedgEntry.Quantity;
             AdjustedCostACY := AdjustedCostACY * AppliedQty / PosItemLedgEntry.Quantity;
@@ -3453,7 +3434,7 @@
                             UpdateLinkedValuationDate(FromValuationDate, "Item Ledger Entry No.", not FromInbound);
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -3489,7 +3470,7 @@
                             end;
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -3514,7 +3495,7 @@
                     ToValueEntry2."Valuation Date" := FromValuationDate;
                     ToValueEntry2.Modify();
                 end;
-            until ToValueEntry2.Next = 0;
+            until ToValueEntry2.Next() = 0;
     end;
 
     local procedure CreateItemJnlLineFromEntry(ItemLedgEntry: Record "Item Ledger Entry"; NewQuantity: Decimal; var ItemJnlLine: Record "Item Journal Line")
@@ -3702,7 +3683,7 @@
                         CostAmt := CostAmt + OldValueEntry."Cost Amount (Actual)";
                         CostAmtACY := CostAmtACY + OldValueEntry."Cost Amount (Actual) (ACY)";
                     end;
-                until OldValueEntry.Next = 0;
+                until OldValueEntry.Next() = 0;
             if (CostAmt <> 0) or (CostAmtACY <> 0) then begin
                 OldItemLedgEntry.Get("Applies-to Entry");
                 OverheadAmount := Round(
@@ -3798,7 +3779,7 @@
                                     ExpectedPurchAmt := ExpectedPurchAmt + "Purchase Amount (Expected)";
                                 end;
                             end;
-                        until Next = 0;
+                        until Next() = 0;
                         ExpectedCost :=
                           CalcExpCostToBalance(ExpectedCost, InvoicedQty, Quantity, GLSetup."Amount Rounding Precision");
                         ExpectedCostACY :=
@@ -3882,26 +3863,23 @@
         else
             SignFactor := ItemJnlLine2.Signed(1);
 
-        ItemTrackingCode.Code := Item."Item Tracking Code";
-        CDTrackingSetup."Item Tracking Code" := Item."Item Tracking Code";
-        CDTrackingSetup."Location Code" := ItemJnlLine2."Location Code";
+        GlobalItemTrackingCode.Code := Item."Item Tracking Code";
         ItemTrackingMgt.GetItemTrackingSetup(
-            ItemTrackingCode, CDTrackingSetup, ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, ItemTrackingSetup);
+            GlobalItemTrackingCode, ItemJnlLine."Entry Type",
+            ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, GlobalItemTrackingSetup);
 
-        if ItemJnlLine2."New Location Code" <> '' then
-            if NewCDTrackingSetup.Get(Item."Item Tracking Code", ItemJnlLine2."New Location Code") then
-                ItemTrackingSetup."CD No. Info Required" := NewCDTrackingSetup."CD Info. Must Exist";
+        OnSetupSplitJnlLineOnAfterGetItemTrackingSetup(GlobalItemTrackingCode, ItemJnlLine2, GlobalItemTrackingSetup);
 
         if Item."Costing Method" = Item."Costing Method"::Specific then begin
             Item.TestField("Item Tracking Code");
-            ItemTrackingCode.TestField("SN Specific Tracking", true);
+            GlobalItemTrackingCode.TestField("SN Specific Tracking", true);
         end;
 
         OnBeforeSetupSplitJnlLine(ItemJnlLine2, TrackingSpecExists, TempTrackingSpecification);
 
         if not ItemJnlLine2.Correction and (ItemJnlLine2."Quantity (Base)" <> 0) and TrackingSpecExists then begin
             if DisableItemTracking then begin
-                if not TempTrackingSpecification.IsEmpty then
+                if not TempTrackingSpecification.IsEmpty() then
                     Error(Text021, ItemJnlLine2.FieldCaption("Operation No."), ItemJnlLine2."Operation No.");
             end else begin
                 if TempTrackingSpecification.IsEmpty() then
@@ -3909,8 +3887,8 @@
 
                 CheckItemTrackingIsEmpty(ItemJnlLine2);
 
-                if Format(ItemTrackingCode."Warranty Date Formula") <> '' then
-                    CalcWarrantyDate := CalcDate(ItemTrackingCode."Warranty Date Formula", ItemJnlLine2."Document Date");
+                if Format(GlobalItemTrackingCode."Warranty Date Formula") <> '' then
+                    CalcWarrantyDate := CalcDate(GlobalItemTrackingCode."Warranty Date Formula", ItemJnlLine2."Document Date");
 
                 IsHandled := false;
                 OnBeforeCalcExpirationDate(ItemJnlLine2, CalcExpirationDate, IsHandled);
@@ -3918,10 +3896,10 @@
                     if Format(Item."Expiration Calculation") <> '' then
                         CalcExpirationDate := CalcDate(Item."Expiration Calculation", ItemJnlLine2."Document Date");
 
-                OnSetupSplitJnlLineOnBeforeReallocateTrkgSpecification(ItemTrackingCode, TempTrackingSpecification, ItemJnlLine2, SignFactor, IsHandled);
+                OnSetupSplitJnlLineOnBeforeReallocateTrkgSpecification(GlobalItemTrackingCode, TempTrackingSpecification, ItemJnlLine2, SignFactor, IsHandled);
                 if not IsHandled then
                     if SignFactor * ItemJnlLine2.Quantity < 0 then // Demand
-                        if ItemTrackingCode."SN Specific Tracking" or ItemTrackingCode."Lot Specific Tracking" then
+                        if GlobalItemTrackingCode."SN Specific Tracking" or GlobalItemTrackingCode."Lot Specific Tracking" then
                             LateBindingMgt.ReallocateTrkgSpecification(TempTrackingSpecification);
 
                 TempTrackingSpecification.CalcSums(
@@ -3947,15 +3925,16 @@
 
                 OnSetupSplitJnlLineOnBeforeSplitTempLines(TempSplitItemJnlLine, TempTrackingSpecification);
 
-                TempTrackingSpecification.FindSet;
+                TempTrackingSpecification.FindSet();
                 repeat
-                    if ItemTrackingCode."Man. Warranty Date Entry Reqd." then
+                    if GlobalItemTrackingCode."Man. Warranty Date Entry Reqd." then
                         TempTrackingSpecification.TestField("Warranty Date");
 
-                    if ItemTrackingCode."Use Expiration Dates" then
+                    if GlobalItemTrackingCode."Use Expiration Dates" then
                         CheckExpirationDate(ItemJnlLine2, SignFactor, CalcExpirationDate, ExpirationDateChecked);
 
-                    CheckItemTrackingInformation(ItemJnlLine2, TempTrackingSpecification, SignFactor, ItemTrackingCode, ItemTrackingSetup);
+                    CheckItemTrackingInformation(
+                        ItemJnlLine2, TempTrackingSpecification, SignFactor, GlobalItemTrackingCode, GlobalItemTrackingSetup);
 
                     if TempTrackingSpecification."Warranty Date" = 0D then
                         TempTrackingSpecification."Warranty Date" := CalcWarrantyDate;
@@ -3967,7 +3946,7 @@
                       SetupTempSplitItemJnlLine(
                         ItemJnlLine2, SignFactor, NonDistrQuantity, NonDistrAmount,
                         NonDistrAmountACY, NonDistrDiscountAmount, Invoice);
-                until TempTrackingSpecification.Next = 0;
+                until TempTrackingSpecification.Next() = 0;
             end;
         end else
             InsertTempSplitItemJnlLine(ItemJnlLine2);
@@ -4076,7 +4055,7 @@
             repeat
                 TargetTrackingSpecification := TempTrackingSpecification;
                 TargetTrackingSpecification.Insert();
-            until TempTrackingSpecification.Next = 0
+            until TempTrackingSpecification.Next() = 0
         else
             exit(false);
 
@@ -4095,7 +4074,7 @@
                 TargetValueEntryRelation := TempValueEntryRelation;
                 TargetValueEntryRelation."Source RowId" := RowId;
                 TargetValueEntryRelation.Insert();
-            until TempValueEntryRelation.Next = 0
+            until TempValueEntryRelation.Next() = 0
         else
             exit(false);
 
@@ -4113,7 +4092,7 @@
             repeat
                 TargetItemEntryRelation := TempItemEntryRelation;
                 TargetItemEntryRelation.Insert();
-            until TempItemEntryRelation.Next = 0
+            until TempItemEntryRelation.Next() = 0
         else
             exit(false);
 
@@ -4159,7 +4138,7 @@
         // Supply
         if SignFactor * ItemJnlLine2.Quantity > 0 then begin        // Only expiration dates on supply.
             if not (ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer) then
-                if ItemTrackingCode."Man. Expir. Date Entry Reqd." then begin
+                if GlobalItemTrackingCode."Man. Expir. Date Entry Reqd." then begin
                     if ItemJnlLine2."Phys. Inventory" and (ExistingExpirationDate <> 0D) then
                         TempTrackingSpecification."Expiration Date" := ExistingExpirationDate;
                     if not TempTrackingSpecification.Correction then
@@ -4215,7 +4194,7 @@
            ((ItemJnlLine2."Order Type" <> ItemJnlLine2."Order Type"::Transfer) or
             (ItemJnlLine2."Order No." = ''))
         then
-            if ItemTrackingCode."Man. Expir. Date Entry Reqd." then
+            if GlobalItemTrackingCode."Man. Expir. Date Entry Reqd." then
                 TempTrackingSpecification.TestField("New Expiration Date");
     end;
 
@@ -4318,7 +4297,7 @@
 
         if GlobalItemLedgEntry.Quantity > 0 then
             IsReserved :=
-              ReserveItemJnlLine.TransferItemJnlToItemLedgEntry(
+              ItemJnlLineReserve.TransferItemJnlToItemLedgEntry(
                 ItemJnlLine, GlobalItemLedgEntry, ItemJnlLine."Quantity (Base)", true);
 
         if not ItemJnlLine.IsATOCorrection then begin
@@ -4511,7 +4490,7 @@
                     ItemLedgEntry."Applied Entry to Adjust" := true;
                     ItemLedgEntry.Modify();
                 end;
-            until ItemApplEntry.Next = 0;
+            until ItemApplEntry.Next() = 0;
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -4554,41 +4533,34 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckItemTracking(ItemJnlLine, ItemTrackingSetup, IsHandled, TempTrackingSpecification);
+        OnBeforeCheckItemTracking(ItemJnlLine, GlobalItemTrackingSetup, IsHandled, TempTrackingSpecification);
         if IsHandled then
             exit;
 
-        if ItemTrackingSetup."Serial No. Required" and (ItemJnlLine."Serial No." = '') then
+        if GlobalItemTrackingSetup."Serial No. Required" and (ItemJnlLine."Serial No." = '') then
             Error(GetTextStringWithLineNo(SerialNoRequiredErr, ItemJnlLine."Item No.", ItemJnlLine."Line No."));
-        if ItemTrackingSetup."Lot No. Required" and (ItemJnlLine."Lot No." = '') then
+        if GlobalItemTrackingSetup."Lot No. Required" and (ItemJnlLine."Lot No." = '') then
             Error(GetTextStringWithLineNo(LotNoRequiredErr, ItemJnlLine."Item No.", ItemJnlLine."Line No."));
-        if ItemTrackingSetup."CD No. Required" and (ItemJnlLine."CD No." = '') then
-            Error(GetTextStringWithLineNo(CDNoRequiredErr, ItemJnlLine."Item No.", ItemJnlLine."Line No."));
-        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then begin
-            if ItemTrackingSetup."Serial No. Required" then
-                ItemJnlLine.TestField("New Serial No.");
-            if ItemTrackingSetup."Lot No. Required" then
-                ItemJnlLine.TestField("New Lot No.");
-            if ItemTrackingSetup."CD No. Required" then
-                ItemJnlLine.TestField("New CD No.");
-        end;
 
-        OnAfterCheckItemTracking(ItemJnlLine);
+        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
+            ItemJnlLine.CheckNewTrackingIfRequired(GlobalItemTrackingSetup);
+
+        OnAfterCheckItemTracking(ItemJnlLine, GlobalItemTrackingSetup);
     end;
 
     local procedure CheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; SignFactor: Decimal; ItemTrackingCode: Record "Item Tracking Code"; ItemTrackingSetup: Record "Item Tracking Setup")
     var
         SerialNoInfo: Record "Serial No. Information";
         LotNoInfo: Record "Lot No. Information";
-        CDNoInfo: Record "CD No. Information";
+        IsHandled: Boolean;
     begin
-        OnBeforeCheckItemTrackingInformation(ItemJnlLine2, TrackingSpecification, ItemTrackingSetup, SignFactor, ItemTrackingCode);
+        IsHandled := false;
+        OnBeforeCheckItemTrackingInformation(ItemJnlLine2, TrackingSpecification, ItemTrackingSetup, SignFactor, ItemTrackingCode, IsHandled);
+        if IsHandled then
+            exit;
 
-        // Obsoleted
-        OnBeforeCheckItemTrackingInfo(
-              ItemJnlLine2, TrackingSpecification,
-              ItemTrackingSetup."Serial No. Info Required", ItemTrackingSetup."Lot No. Info Required", ItemTrackingSetup."CD No. Info Required",
-              SignFactor, ItemTrackingCode);
+        if ItemTrackingCode."Create SN Info on Posting" then
+            ItemTrackingMgt.CreateSerialNoInformation(TrackingSpecification);
 
         if ItemTrackingSetup."Serial No. Info Required" then begin
             SerialNoInfo.Get(ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."Serial No.");
@@ -4600,11 +4572,13 @@
         end else begin
             if SerialNoInfo.Get(ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."Serial No.") then
                 SerialNoInfo.TestField(Blocked, false);
-            if TrackingSpecification."New Serial No." <> '' then begin
+            if TrackingSpecification."New Serial No." <> '' then
                 if SerialNoInfo.Get(ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."New Serial No.") then
                     SerialNoInfo.TestField(Blocked, false);
-            end;
         end;
+
+        if ItemTrackingCode."Create Lot No. Info on posting" then
+            ItemTrackingMgt.CreateLotNoInformation(TrackingSpecification);
 
         if ItemTrackingSetup."Lot No. Info Required" then begin
             LotNoInfo.Get(ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."Lot No.");
@@ -4616,50 +4590,12 @@
         end else begin
             if LotNoInfo.Get(ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."Lot No.") then
                 LotNoInfo.TestField(Blocked, false);
-            if TrackingSpecification."New Lot No." <> '' then begin
+            if TrackingSpecification."New Lot No." <> '' then
                 if LotNoInfo.Get(ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."New Lot No.") then
                     LotNoInfo.TestField(Blocked, false);
-            end;
         end;
 
-        GetInvtSetup;
-        if ItemTrackingSetup."CD No. Info Required" then begin
-            CDNoInfo.Get(CDNoInfo.Type::Item, ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."CD No.");
-            CDNoInfo.TestField(Blocked, false);
-            if not CDTrackingSetup."Allow Temporary CD No." then
-                CDNoInfo.TestField("Temporary CD No.", false);
-            if TrackingSpecification."New CD No." <> '' then begin
-                CDNoInfo.Get(CDNoInfo.Type::Item, ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."New CD No.");
-                CDNoInfo.TestField(Blocked, false);
-                if not NewCDTrackingSetup."Allow Temporary CD No." then
-                    CDNoInfo.TestField("Temporary CD No.", false);
-            end;
-        end else
-            if ItemTrackingSetup."CD No. Required" then begin
-                if CDNoInfo.Get(CDNoInfo.Type::Item, ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."CD No.") then begin
-                    CDNoInfo.TestField(Blocked, false);
-                    if not CDTrackingSetup."Allow Temporary CD No." then
-                        CDNoInfo.TestField("Temporary CD No.", false);
-                end else
-                    if TrackingSpecification."CD No." <> '' then
-                        CreateCDNoInfo(ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."CD No.");
-                if TrackingSpecification."New CD No." <> '' then begin
-                    if CDNoInfo.Get(CDNoInfo.Type::Item, ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."New CD No.") then begin
-                        CDNoInfo.TestField(Blocked, false);
-                        if not NewCDTrackingSetup."Allow Temporary CD No." then
-                            CDNoInfo.TestField("Temporary CD No.", false);
-                    end else
-                        if TrackingSpecification."New CD No." <> '' then
-                            CreateCDNoInfo(ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", TrackingSpecification."New CD No.");
-                end;
-            end;
-
-        // Obsoleted
-        OnAfterCheckItemTrackingInfo(
-            ItemJnlLine2, TrackingSpecification,
-            ItemTrackingSetup."Serial No. Info Required", ItemTrackingSetup."Lot No. Info Required", ItemTrackingSetup."CD No. Info Required");
-
-        OnAfterCheckItemTrackingInformation(ItemJnlLine2, TrackingSpecification, ItemTrackingSetup);
+        OnAfterCheckItemTrackingInformation(ItemJnlLine2, TrackingSpecification, ItemTrackingSetup, Item);
     end;
 
     local procedure CheckItemTrackingIsEmpty(ItemJnlLine: Record "Item Journal Line")
@@ -4770,7 +4706,7 @@
 
     local procedure SetItemAdjmtProperties(ItemNo: Code[20]; ItemLedgEntryType: Enum "Item Ledger Entry Type"; Adjustment: Boolean; OriginalPostingDate: Date; ValuationDate: Date)
     var
-        Item: Record Item;
+        Item2: Record Item;
         ValueEntry: Record "Value Entry";
         ModifyItem: Boolean;
     begin
@@ -4782,7 +4718,7 @@
             then
                 exit;
 
-        with Item do
+        with Item2 do
             if Get(ItemNo) and ("Allow Online Adjustment" or "Cost is Adjusted") and (Type = Type::Inventory) then begin
                 LockTable();
                 if "Cost is Adjusted" then begin
@@ -4797,7 +4733,7 @@
                     ModifyItem := ModifyItem or not "Allow Online Adjustment";
                 end;
                 if ModifyItem then
-                    Modify;
+                    Modify();
             end;
     end;
 
@@ -4934,7 +4870,7 @@
                         ValueEntry3."Purchase Amount (Expected)" := 0;
                         InsertValueEntry(ValueEntry3, GlobalItemLedgEntry, false);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -4964,7 +4900,7 @@
                 if FindSet then
                     repeat
                         OldExpectedQty := OldExpectedQty - "Invoiced Quantity";
-                    until Next = 0;
+                    until Next() = 0;
 
                 RevExpCostToBalance := Round(RevExpCostToBalance * InvdQty / OldExpectedQty, GLSetup."Amount Rounding Precision");
                 RevExpCostToBalanceACY := Round(RevExpCostToBalanceACY * InvdQty / OldExpectedQty, Currency."Amount Rounding Precision");
@@ -4975,7 +4911,7 @@
                     repeat
                         RevExpCostToBalance := RevExpCostToBalance - "Cost Amount (Expected)";
                         RevExpCostToBalanceACY := RevExpCostToBalanceACY - "Cost Amount (Expected) (ACY)";
-                    until Next = 0;
+                    until Next() = 0;
             end;
         end;
     end;
@@ -5059,7 +4995,7 @@
                               Abs("Remaining Quantity");
                         end else
                             FixedApplication := true;
-                    until (Application.Next = 0) or Enough;
+                    until (Application.Next() = 0) or Enough;
                 end else
                     exit(false); // no applications found that could be undone
                 if not Enough and FixedApplication then
@@ -5133,7 +5069,7 @@
                     ReApply(TouchedItemLedgEntry, 0);
                     TouchedItemLedgEntry.Get(TouchedItemLedgerEntries."Entry No.");
                 end;
-            until TouchedItemLedgerEntries.Next = 0;
+            until TouchedItemLedgerEntries.Next() = 0;
             if AnyTouchedEntries then
                 VerifyTouchedOnInventory;
             TouchedItemLedgerEntries.DeleteAll();
@@ -5237,7 +5173,7 @@
                         ItemLedgerEntry.Get("Inbound Item Entry No.");
                     NewDate := GetMaxValuationDate(ItemLedgerEntry);
                     MaxDate := Max(NewDate, MaxDate);
-                until Next = 0
+                until Next() = 0
             end;
         end;
         exit(MaxDate);
@@ -5267,7 +5203,7 @@
                         "Valuation Date" := ValuationDate;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -5317,13 +5253,12 @@
     end;
 
     local procedure CheckItemTrackingOfComp(TempHandlingSpecification: Record "Tracking Specification"; ItemJnlLine: Record "Item Journal Line")
+    var
+        ItemTrackingSetup2: Record "Item Tracking Setup";
     begin
-        if ItemTrackingSetup."Serial No. Required" then
-            ItemJnlLine.TestField("Serial No.", TempHandlingSpecification."Serial No.");
-        if ItemTrackingSetup."Lot No. Required" then
-            ItemJnlLine.TestField("Lot No.", TempHandlingSpecification."Lot No.");
-        if ItemTrackingSetup."CD No. Required" then
-            ItemJnlLine.TestField("CD No.", TempHandlingSpecification."CD No.");
+        ItemTrackingSetup2 := GlobalItemTrackingSetup;
+        ItemTrackingSetup2.CopyTrackingFromTrackingSpec(TempHandlingSpecification);
+        ItemJnlLine.CheckTrackingIfRequired(ItemTrackingSetup2);
     end;
 
     local procedure MaxConsumptionValuationDate(ItemLedgerEntry: Record "Item Ledger Entry"): Date
@@ -5370,7 +5305,7 @@
             repeat
                 TempValueEntry := ValueEntry;
                 TempValueEntry.Insert();
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
 
         UpdateOutputEntryAndChain(TempValueEntry, ValuationDate);
     end;
@@ -5395,7 +5330,7 @@
                     if ValueEntry."Entry No." = DirCostValueEntry."Entry No." then
                         DirCostValueEntry := ValueEntry;
                 end;
-            until TempValueEntry.Next = 0;
+            until TempValueEntry.Next() = 0;
     end;
 
     local procedure GetSourceNo(ItemJnlLine: Record "Item Journal Line"): Code[20]
@@ -5454,7 +5389,7 @@
             repeat
                 ItemLedgEntry2.Get(ItemApplnEntry."Item Ledger Entry No.");
                 TotalInvoicedQty += ItemLedgEntry2."Invoiced Quantity";
-            until ItemApplnEntry.Next = 0;
+            until ItemApplnEntry.Next() = 0;
             if ItemLedgerEntry."Invoiced Quantity" > Abs(TotalInvoicedQty) then begin
                 SalesShipmentHeader.Get(ItemLedgEntry2."Document No.");
                 IsHandled := false;
@@ -5838,13 +5773,13 @@
                                 ValueEntry.Get(GLItemLedgRelation."Value Entry No.");
                                 ValueEntry."Red Storno" := true;
                                 ValueEntry.Modify();
-                            until GLItemLedgRelation.Next = 0;
+                            until GLItemLedgRelation.Next() = 0;
                     end;
 
                     ProgressCounter := ProgressCounter + TempVar;
                     Window.Update(1, Format(GLEntry."Entry No."));
                     Window.Update(2, Round(ProgressCounter, 1));
-                until GLEntry.Next = 0;
+                until GLEntry.Next() = 0;
 
                 Window.Close;
             end;
@@ -5877,7 +5812,7 @@
             repeat
                 ValueEntry."Red Storno" := false;
                 ValueEntry.Modify();
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
 
         Commit();
     end;
@@ -5897,20 +5832,6 @@
         exit(-1);
     end;
 
-    [Scope('OnPrem')]
-    procedure CreateCDNoInfo(ItemNo: Code[20]; VariantCode: Code[20]; CDNo: Code[30])
-    var
-        CDNoInfo: Record "CD No. Information";
-    begin
-        CDNoInfo.Init();
-        CDNoInfo.Type := CDNoInfo.Type::Item;
-        CDNoInfo."No." := ItemNo;
-        CDNoInfo."Variant Code" := VariantCode;
-        CDNoInfo.Validate("CD No.", CDNo);
-        CDNoInfo.Insert();
-    end;
-
-    [Scope('OnPrem')]
     procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;
@@ -5928,12 +5849,12 @@
         ItemLedgEntryApplied: Record "Item Ledger Entry";
     begin
         with TouchedItemLedgerEntries do begin
-            FindSet;
+            FindSet();
             repeat
                 ItemLedgEntryApplied.Get("Entry No.");
                 ItemLedgEntryApplied.VerifyOnInventory(
                     StrSubstNo(CannotUnapplyItemLedgEntryErr, ItemLedgEntryApplied."Item No.", ItemLedgEntryApplied."Entry No."));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -6005,14 +5926,16 @@
     begin
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by event OnBeforeCheckItemTrackingInformation', '16.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemTrackingInfo(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var SNInfoRequired: Boolean; var LotInfoRequired: Boolean; var CDInfoRequired: Boolean; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code")
+    local procedure OnBeforeCheckItemTrackingInfo(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var SNInfoRequired: Boolean; var LotInfoRequired: Boolean; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var ItemTrackingSetup: Record "Item Tracking Setup"; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code")
+    local procedure OnBeforeCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var ItemTrackingSetup: Record "Item Tracking Setup"; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6022,18 +5945,20 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckItemTracking(ItemJournalLine: Record "Item Journal Line")
+    local procedure OnAfterCheckItemTracking(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by event OnAfterCheckItemTrackingInformation', '16.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckItemTrackingInfo(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; SNInfoRequired: Boolean; LotInfoRequired: Boolean; CDInfoRequired: Boolean)
+    local procedure OnAfterCheckItemTrackingInfo(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; SNInfoRequired: Boolean; LotInfoRequired: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup")
+    local procedure OnAfterCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup"; Item: Record Item)
     begin
     end;
 
@@ -6234,6 +6159,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSetupSplitJnlLineOnBeforeSplitTempLines(var TempSplitItemJournalLine: Record "Item Journal Line" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetupSplitJnlLineOnAfterGetItemTrackingSetup(ItemTrackingCode: Record "Item Tracking Code"; ItemJnlLine: Record "Item Journal Line"; var ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 
@@ -6696,6 +6626,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterTestFirstApplyItemLedgerEntryTracking(ItemLedgEntry: Record "Item Ledger Entry"; OldItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTouchItemEntryCostOnAfterAfterSetAdjmtProp(var ItemLedgerEntry: Record "Item Ledger Entry"; IsAdjustment: Boolean)
     begin
     end;
@@ -6712,6 +6647,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateUnitCostOnBeforeCalculateLastDirectCost(var TotalAmount: Decimal; ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitCostOnBeforeUpdateUnitCost(ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; Item: Record Item; var UpdateSKU: Boolean)
     begin
     end;
 
@@ -6812,7 +6752,7 @@
                         SetSkipApplicationCheck(true);
                         ReApply(ItemLedgEntry, "Inbound Item Entry No.");
                     end;
-                until Next = 0;
+                until Next() = 0;
             ClearApplicationLog;
             Ascending(true);
         end;
@@ -6883,7 +6823,7 @@
                     ItemLedgerEntry.Get("Item Ledger Entry No.");
                     TempItem."No." := ItemLedgerEntry."Item No.";
                     if TempItem.Insert() then;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -6963,7 +6903,7 @@
             SetRange(Positive, true);
             SetRange(Open, true);
             SetFilter("Remaining Quantity", '>=%1', -ItemJournalLine."Output Quantity (Base)");
-            if not IsEmpty then
+            if not IsEmpty() then
                 if Count = 1 then begin
                     FindFirst;
                     exit("Entry No.");
@@ -7058,12 +6998,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitTransValueEntryOnBeforeCalcCostAmounts(GlobalValueEntry: Record "Value Entry"; var ValueEntry: Record "Value Entry"; ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertValueEntryOnBeforeCalcExpectedCost(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemLedgEntryOnBeforeVerifyOnInventory(ItemJnlLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemLedgEntryOnCheckItemTracking(ItemJnlLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean)
     begin
     end;
 

@@ -114,12 +114,12 @@ page 17315 "Tax Calc. Subform"
 
     local procedure TaxDiffAmountTaxOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure TaxDiffAmountBaseOnAfterValida()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DescriptionOnFormat()

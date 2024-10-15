@@ -140,7 +140,7 @@ table 17308 "Tax Calc. Header"
                     end;
                     TaxDiffGLCorrDimFilter.SetRange("Section Code", "Section Code");
                     TaxDiffGLCorrDimFilter.SetRange("Tax Calc. No.", "No.");
-                    if not TaxDiffGLCorrDimFilter.IsEmpty then
+                    if not TaxDiffGLCorrDimFilter.IsEmpty() then
                         if Confirm(Text1002, true) then
                             TaxDiffGLCorrDimFilter.DeleteAll
                         else
@@ -315,7 +315,7 @@ table 17308 "Tax Calc. Header"
                         GLCorrespondenceEntry.SetFilter("Credit Account No.", TaxCalcSelectionSetup."Bal. Account No.");
                     AddGLCorrEntries2Buffer(GLCorrespondenceEntry, TempGLCorrespondenceEntry);
                 end;
-            until TaxCalcSelectionSetup.Next = 0;
+            until TaxCalcSelectionSetup.Next() = 0;
 
         if "G/L Corr. Analysis View Code" <> '' then
             PAGE.RunModal(PAGE::"G/L Corr. Analysis View Entr.", TempGLCorrAnalysisViewEntry)
@@ -330,7 +330,7 @@ table 17308 "Tax Calc. Header"
             repeat
                 TempGLCorrespondenceEntry := GLCorrespondenceEntry;
                 if not TempGLCorrespondenceEntry.Insert() then;
-            until GLCorrespondenceEntry.Next = 0;
+            until GLCorrespondenceEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -340,7 +340,7 @@ table 17308 "Tax Calc. Header"
             repeat
                 TempGLCorrAnalysisViewEntry := GLCorrAnalysisViewEntry;
                 if not TempGLCorrAnalysisViewEntry.Insert() then;
-            until GLCorrAnalysisViewEntry.Next = 0;
+            until GLCorrAnalysisViewEntry.Next() = 0;
     end;
 }
 

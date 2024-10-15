@@ -166,10 +166,10 @@ page 17381 "Position List"
                         SelectedPositions := Position2.Count();
                         if SelectedPositions > 0 then
                             if Confirm(Text14700, true, SelectedPositions) then begin
-                                Position2.FindSet;
+                                Position2.FindSet();
                                 repeat
                                     Position2.Approve(false);
-                                until Position2.Next = 0;
+                                until Position2.Next() = 0;
                             end;
                     end;
                 }
@@ -186,10 +186,10 @@ page 17381 "Position List"
                         SelectedPositions := Position2.Count();
                         if SelectedPositions > 0 then
                             if Confirm(Text14701, true, SelectedPositions) then begin
-                                Position2.FindSet;
+                                Position2.FindSet();
                                 repeat
                                     Position2.Reopen(false);
-                                until Position2.Next = 0;
+                                until Position2.Next() = 0;
                             end;
                     end;
                 }
@@ -205,10 +205,10 @@ page 17381 "Position List"
                         SelectedPositions := Position2.Count();
                         if SelectedPositions > 0 then
                             if Confirm(Text14702, true, SelectedPositions) then begin
-                                Position2.FindSet;
+                                Position2.FindSet();
                                 repeat
                                     Position2.Close(false);
-                                until Position2.Next = 0;
+                                until Position2.Next() = 0;
                             end;
                     end;
                 }

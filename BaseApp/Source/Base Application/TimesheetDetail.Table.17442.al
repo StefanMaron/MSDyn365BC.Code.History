@@ -35,7 +35,7 @@ table 17442 "Timesheet Detail"
                     TimesheetDetail.SetRange(Date, Date);
                     TimesheetDetail.SetFilter("Time Activity Code", '<>%1&<>%2', '', "Time Activity Code");
                     if not TimeActivity."Allow Combination" then begin
-                        if not TimesheetDetail.IsEmpty then
+                        if not TimesheetDetail.IsEmpty() then
                             Error(Text002, "Time Activity Code")
                     end
                 end else

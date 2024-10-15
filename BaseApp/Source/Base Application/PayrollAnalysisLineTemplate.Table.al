@@ -66,7 +66,7 @@ table 14961 "Payroll Analysis Line Template"
         if "Payroll Analysis View Code" = '' then begin
             PayrollAnalysisLine.SetRange("Analysis Line Template Name", Name);
             PayrollAnalysisLine.SetFilter("Calc Group Filter", '<>%1', '');
-            if not PayrollAnalysisLine.IsEmpty then
+            if not PayrollAnalysisLine.IsEmpty() then
                 Error(CalcGroupFilterNotEmptyErr, Name);
         end;
     end;

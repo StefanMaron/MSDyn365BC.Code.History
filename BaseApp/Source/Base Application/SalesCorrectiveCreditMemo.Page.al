@@ -23,7 +23,7 @@ page 14973 "Sales Corrective Credit Memo"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -33,7 +33,7 @@ page 14973 "Sales Corrective Credit Memo"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Contact No."; "Sell-to Contact No.")
@@ -138,7 +138,7 @@ page 14973 "Sales Corrective Credit Memo"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Bill-to Contact No."; "Bill-to Contact No.")
@@ -229,7 +229,7 @@ page 14973 "Sales Corrective Credit Memo"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
@@ -317,7 +317,7 @@ page 14973 "Sales Corrective Credit Memo"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -671,7 +671,7 @@ page 14973 "Sales Corrective Credit Memo"
 
                     trigger OnAction()
                     begin
-                        GetPstdDocLinesToRevere;
+                        GetPstdDocLinesToReverse();
                     end;
                 }
                 separator(Action141)

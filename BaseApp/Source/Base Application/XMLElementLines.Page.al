@@ -530,7 +530,7 @@ page 26587 "XML Element Lines"
                     XMLElementLine."Parent Line No." := 0;
                     XMLElementLine.Modify();
                 end;
-            until XMLElementLine.Next = 0;
+            until XMLElementLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -553,7 +553,7 @@ page 26587 "XML Element Lines"
         if "Table Code" <> '' then begin
             CurrPage.SaveRecord;
             UpdateTableCode("Table Code");
-            CurrPage.Update;
+            CurrPage.Update();
         end;
     end;
 

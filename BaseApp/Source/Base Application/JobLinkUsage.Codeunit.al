@@ -1,4 +1,4 @@
-﻿codeunit 1026 "Job Link Usage"
+codeunit 1026 "Job Link Usage"
 {
     Permissions = TableData "Job Usage Link" = rimd;
 
@@ -88,9 +88,7 @@
             UOMMgt.CalcQtyFromBase(
                 JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
                 TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
-        JobPlanningLine.Validate("Serial No.", JobLedgerEntry."Serial No.");
-        JobPlanningLine.Validate("Lot No.", JobLedgerEntry."Lot No.");
-        JobPlanningLine.Validate("CD No.", JobLedgerEntry."CD No.");
+        JobPlanningLine.CopyTrackingFromJobLedgEntry(JobLedgerEntry);
         JobPlanningLine.Use(
             UOMMgt.CalcQtyFromBase(
                 JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",

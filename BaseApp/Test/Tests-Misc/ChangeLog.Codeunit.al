@@ -16,7 +16,6 @@ codeunit 139031 "Change Log"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryCDTracking: Codeunit "Library - CD Tracking";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryPermissions: Codeunit "Library - Permissions";
         Assert: Codeunit Assert;
@@ -864,7 +863,7 @@ codeunit 139031 "Change Log"
         if not ChangeLogEntry.FindFirst then
             exit;
 
-        Assert.AreNotEqual('', ChangeLogEntry.GetFullPrimaryKeyFriendlyName(), 'PrimaryKeyFriendlyName should not be blank.');
+        Assert.AreNotEqual('', ChangeLogEntry.GetFullPrimaryKeyFriendlyName, 'PrimaryKeyFriendlyName should not be blank.');
 
         ChangeLogEntry.TestField("Record ID");
         case TypeOfChange of
@@ -1670,76 +1669,6 @@ codeunit 139031 "Change Log"
 
         // [THEN] No additional entries records created in Change Log Entries for Serial No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
-
-        TearDown;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CommentsActionOnCDNoInformationCardDoesNotCreateOnInsertLogEntries()
-    var
-        DummyCDNoHeader: Record "CD No. Header";
-        CDNoInformation: Record "CD No. Information";
-        CDNoInformationCard: TestPage "CD No. Information Card";
-        ItemTrackingComments: TestPage "Item Tracking Comments";
-        RecRef: RecordRef;
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from CD No. Information Card
-        Initialize;
-
-        // [GIVEN] Insert option is activated in Change Log Setup for CD No. Information table
-        SetTableForChangeLog(DATABASE::"CD No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
-
-        // [GIVEN] CD No. Information with Item = "X" and 3 entries in Change Log
-        LibraryCDTracking.CreateCDInfo(DummyCDNoHeader, CDNoInformation, 0, LibraryInventory.CreateItemNo, LibraryUtility.GenerateGUID);
-        RecRef.GetTable(CDNoInformation);
-        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
-
-        // [WHEN] Open Item Tracking Comments from CD No. Information Card for Item "X"
-        CDNoInformationCard.OpenView;
-        CDNoInformationCard.GotoRecord(CDNoInformation);
-        ItemTrackingComments.Trap;
-        CDNoInformationCard.Comment.Invoke;
-        ItemTrackingComments.Close;
-
-        // [THEN] No additional entries records created in Change Log Entries for CD No. Information with Item = "X"
-        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
-
-        TearDown;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CommentsActionOnCDNoInformationListDoesNotCreateOnInsertLogEntries()
-    var
-        DummyCDNoHeader: Record "CD No. Header";
-        CDNoInformation: Record "CD No. Information";
-        CDNoInformationList: TestPage "CD No. Information List";
-        ItemTrackingComments: TestPage "Item Tracking Comments";
-        RecRef: RecordRef;
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from CD No. Information List
-        Initialize;
-
-        // [GIVEN] Insert option is activated in Change Log Setup for CD No. Information table
-        SetTableForChangeLog(DATABASE::"CD No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
-
-        // [GIVEN] CD No. Information with Item = "X" and 3 entries in Change Log
-        LibraryCDTracking.CreateCDInfo(DummyCDNoHeader, CDNoInformation, 0, LibraryInventory.CreateItemNo, LibraryUtility.GenerateGUID);
-        RecRef.GetTable(CDNoInformation);
-        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
-
-        // [WHEN] Open Item Tracking Comments from CD No. Information List for Item "X"
-        CDNoInformationList.OpenView;
-        CDNoInformationList.GotoRecord(CDNoInformation);
-        ItemTrackingComments.Trap;
-        CDNoInformationList.Comment.Invoke;
-        ItemTrackingComments.Close;
-
-        // [THEN] No additional entries records created in Change Log Entries for CD No. Information with Item = "X"
-        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
 
         TearDown;
     end;

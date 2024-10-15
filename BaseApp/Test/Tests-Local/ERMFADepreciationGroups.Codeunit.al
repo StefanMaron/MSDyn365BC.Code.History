@@ -39,7 +39,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         FixedAsset.SetRange("Depreciation Group", FADeprGroupCode);
         Assert.AreEqual(NoOfFA, FixedAsset.Count, '');
 
-        FixedAsset.FindSet;
+        FixedAsset.FindSet();
         repeat
             VerifyFAGLJournal(
               DeprDate, DocumentNo, FixedAsset."No.", ReleaseDeprBookCode, CalcFADeprBookAmount(FixedAsset, ReleaseDeprBookCode));
@@ -72,7 +72,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         Assert.AreEqual(NoOfFA, FALedgerEntry.Count, '');
 
         FixedAsset.SetRange("Depreciation Group", FADeprGroupCode);
-        FixedAsset.FindSet;
+        FixedAsset.FindSet();
         repeat
             VerifyFALedgerEntry(
               DeprDate, DocumentNo, FixedAsset."No.", ReleaseDeprBookCode, CalcFADeprBookAmount(FixedAsset, ReleaseDeprBookCode));

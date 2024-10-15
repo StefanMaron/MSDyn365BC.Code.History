@@ -228,7 +228,7 @@ page 404 "Check Preview"
         if GenJnlLine.Find('-') then
             repeat
                 CheckAmount := CheckAmount + GenJnlLine.Amount;
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
 
         if CheckAmount < 0 then
             CheckAmount := 0;

@@ -785,8 +785,8 @@ table 124 "Purch. Cr. Memo Hdr."
                                 else
                                     Error(Text12400);
                         end;
-                    until ValueEntry.Next = 0;
-            until PurchCrMemoLine.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until PurchCrMemoLine.Next() = 0;
         if DocNoFilter = '' then
             DocNoFilter := '.';
         ReturnShipmentHeader.Reset();

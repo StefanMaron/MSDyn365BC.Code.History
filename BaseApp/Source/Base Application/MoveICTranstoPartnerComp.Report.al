@@ -216,7 +216,7 @@ report 513 "Move IC Trans. to Partner Comp"
                       Text002, TempICInboxTransaction.FieldCaption("Transaction No."),
                       TempICInboxTransaction."Transaction No.",
                       TempICInboxTransaction."IC Partner Code");
-            until TempICInboxTransaction.Next = 0;
+            until TempICInboxTransaction.Next() = 0;
 
         PartnerInboxJnlLine.ChangeCompany(CurrentPartner."Inbox Details");
         if TempICInboxJnlLine.Find('-') then
@@ -227,7 +227,7 @@ report 513 "Move IC Trans. to Partner Comp"
                 if PartnerInboxJnlLine."Currency Code" = CurrentPartner."Currency Code" then
                     PartnerInboxJnlLine."Currency Code" := '';
                 PartnerInboxJnlLine.Insert();
-            until TempICInboxJnlLine.Next = 0;
+            until TempICInboxJnlLine.Next() = 0;
 
         PartnerInboxPurchHeader.ChangeCompany(CurrentPartner."Inbox Details");
         if TempInboxPurchHeader.Find('-') then
@@ -237,14 +237,14 @@ report 513 "Move IC Trans. to Partner Comp"
                 PartnerInboxPurchHeader."Pay-to Vendor No." := PartnerICPartner."Vendor No.";
                 OnBeforePartnerInboxPurchHeaderInsert(PartnerInboxPurchHeader, CurrentPartner);
                 PartnerInboxPurchHeader.Insert();
-            until TempInboxPurchHeader.Next = 0;
+            until TempInboxPurchHeader.Next() = 0;
 
         PartnerInboxPurchLine.ChangeCompany(CurrentPartner."Inbox Details");
         if TempInboxPurchLine.Find('-') then
             repeat
                 PartnerInboxPurchLine := TempInboxPurchLine;
                 PartnerInboxPurchLine.Insert();
-            until TempInboxPurchLine.Next = 0;
+            until TempInboxPurchLine.Next() = 0;
 
         PartnerInboxSalesHeader.ChangeCompany(CurrentPartner."Inbox Details");
         if TempInboxSalesHeader.Find('-') then
@@ -254,28 +254,28 @@ report 513 "Move IC Trans. to Partner Comp"
                 PartnerInboxSalesHeader."Bill-to Customer No." := PartnerICPartner."Customer No.";
                 OnBeforePartnerInboxSalesHeaderInsert(PartnerInboxSalesHeader, CurrentPartner);
                 PartnerInboxSalesHeader.Insert();
-            until TempInboxSalesHeader.Next = 0;
+            until TempInboxSalesHeader.Next() = 0;
 
         PartnerInboxSalesLine.ChangeCompany(CurrentPartner."Inbox Details");
         if TempInboxSalesLine.Find('-') then
             repeat
                 PartnerInboxSalesLine := TempInboxSalesLine;
                 PartnerInboxSalesLine.Insert();
-            until TempInboxSalesLine.Next = 0;
+            until TempInboxSalesLine.Next() = 0;
 
         PartnerInboxOutboxJnlLineDim.ChangeCompany(CurrentPartner."Inbox Details");
         if TempInboxOutboxJnlLineDim.Find('-') then
             repeat
                 PartnerInboxOutboxJnlLineDim := TempInboxOutboxJnlLineDim;
                 PartnerInboxOutboxJnlLineDim.Insert();
-            until TempInboxOutboxJnlLineDim.Next = 0;
+            until TempInboxOutboxJnlLineDim.Next() = 0;
 
         PartnerICDocDim.ChangeCompany(CurrentPartner."Inbox Details");
         if TempICDocDim.Find('-') then
             repeat
                 PartnerICDocDim := TempICDocDim;
                 PartnerICDocDim.Insert();
-            until TempICDocDim.Next = 0;
+            until TempICDocDim.Next() = 0;
 
         OnICInboxTransactionCreated(PartnerInboxTransaction, CurrentPartner."Inbox Details");
 
@@ -332,7 +332,7 @@ report 513 "Move IC Trans. to Partner Comp"
                 ICCommentLine."Table Name" := ICCommentLine."Table Name"::"IC Inbox Transaction";
                 ICCommentLine.Insert();
                 HandledICCommentLine.Delete();
-            until HandledICCommentLine.Next = 0;
+            until HandledICCommentLine.Next() = 0;
 
         with HandledICInboxJnlLine do begin
             SetRange("Transaction No.", ICInboxTrans."Transaction No.");
@@ -351,9 +351,9 @@ report 513 "Move IC Trans. to Partner Comp"
                             ICInboxOutboxJnlLineDim."Table ID" := DATABASE::"IC Inbox Jnl. Line";
                             ICInboxOutboxJnlLineDim.Insert();
                             HandledICInboxOutboxJnlLineDim.Delete();
-                        until HandledICInboxOutboxJnlLineDim.Next = 0;
+                        until HandledICInboxOutboxJnlLineDim.Next() = 0;
                     Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with HandledICInboxSalesHdr do begin
@@ -380,10 +380,10 @@ report 513 "Move IC Trans. to Partner Comp"
                               "IC Transaction No.", "IC Partner Code");
                             OnBeforeHandledICInboxSalesLineDelete(HandledICInboxSalesLine);
                             HandledICInboxSalesLine.Delete();
-                        until HandledICInboxSalesLine.Next = 0;
+                        until HandledICInboxSalesLine.Next() = 0;
                     OnBeforeHandledICInboxSalesHdrDelete(HandledICInboxSalesHdr);
                     Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with HandledICInboxPurchHdr do begin
@@ -410,10 +410,10 @@ report 513 "Move IC Trans. to Partner Comp"
                               "IC Transaction No.", "IC Partner Code");
                             OnBeforeHandledICInboxPurchLineDelete(HandledICInboxPurchLine);
                             HandledICInboxPurchLine.Delete();
-                        until HandledICInboxPurchLine.Next = 0;
+                        until HandledICInboxPurchLine.Next() = 0;
                     OnBeforeHandledICInboxPurchHdrDelete(HandledICInboxPurchHdr);
                     Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -431,7 +431,7 @@ report 513 "Move IC Trans. to Partner Comp"
                 ICDocDim."Table ID" := ToTableID;
                 ICDocDim.Insert();
                 HandledICDocDim.Delete();
-            until HandledICDocDim.Next = 0;
+            until HandledICDocDim.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -64,7 +64,7 @@ codeunit 17207 "Create Tax Register FE Entry"
                         TaxRegFEEntry.CalcFields(
                           "Acquisition Cost", "Valuation Changes", "Depreciation Amount");
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         CreateTaxRegAccumulation(StartDate, EndDate, SectionCode);
@@ -95,8 +95,8 @@ codeunit 17207 "Create Tax Register FE Entry"
                     TempTaxRegTemplate := TaxRegTemplate;
                     TempTaxRegTemplate.Value := 0;
                     TempTaxRegTemplate.Insert();
-                until TaxRegTemplate.Next = 0;
-        until TaxReg.Next = 0;
+                until TaxRegTemplate.Next() = 0;
+        until TaxReg.Next() = 0;
 
         TaxRegFEEntry.SetCurrentKey("Section Code", "Ending Date");
         TaxReg.SetRange("Section Code", SectionCode);
@@ -123,9 +123,9 @@ codeunit 17207 "Create Tax Register FE Entry"
                             TempTaxRegTemplate.Value += AddValue;
                             TempTaxRegTemplate.Modify();
                         end;
-                    until TempTaxRegTemplate.Next = 0;
+                    until TempTaxRegTemplate.Next() = 0;
                 end;
-            until TaxRegFEEntry.Next = 0;
+            until TaxRegFEEntry.Next() = 0;
 
         TaxRegAccumulation.Reset();
         if not TaxRegAccumulation.FindLast then
@@ -168,7 +168,7 @@ codeunit 17207 "Create Tax Register FE Entry"
                     TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
                     TaxRegAccumulation.Modify();
                 end;
-            until TempTaxRegTemplate.Next = 0;
+            until TempTaxRegTemplate.Next() = 0;
     end;
 }
 

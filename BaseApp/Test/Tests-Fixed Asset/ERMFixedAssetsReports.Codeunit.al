@@ -2352,7 +2352,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
         GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
         GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             GenJournalLine.Validate("Document No.", DocumentNo);
             GenJournalLine.Modify(true);
@@ -2511,6 +2511,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetBookValue02.EndingDate.SetValue(WorkDate);
         LibraryReportValidation.SetFileName(CreateGuid);
         FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]
@@ -2521,6 +2522,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetList."Fixed Asset".SetFilter("No.", LibraryVariableStorage.DequeueText);
         LibraryReportValidation.SetFileName(CreateGuid);
         FixedAssetList.SaveAsExcel(LibraryReportValidation.GetFileName);
+        Sleep(200);
     end;
 }
 

@@ -24,10 +24,11 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Connection");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD No. Format");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD No. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD No. Information");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Directory");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD Tracking Setup");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Directory");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Line CD No.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Line Tariff No.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Signature");
@@ -40,6 +41,12 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Default Signature Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Taxpayer Document Type");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Account Details");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Document Header");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Receipt Header");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Receipt Line");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Document Line");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Shipment Header");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invt. Shipment Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Document Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Receipt Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Receipt Line");
@@ -66,7 +73,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FA Charge");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invent. Act Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Invent. Act Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CD No. Format");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Order Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Excel Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Assessed Tax Allowance");
@@ -370,7 +376,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetFieldToSensitive(TableNo, DummyEmployee.FieldNo("Union Code"));
         DataClassificationMgt.SetFieldToSensitive(TableNo, DummyEmployee.FieldNo("Social Security No."));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo("Birth Date"));
-        DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo(Picture));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo("E-Mail"));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo("Mobile Phone No."));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo("Phone No."));

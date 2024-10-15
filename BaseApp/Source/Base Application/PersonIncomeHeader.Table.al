@@ -292,11 +292,11 @@ table 17392 "Person Income Header"
                                         PersonIncomeMgt.SetDocNo("No.");
                                         PersonIncomeMgt.CreateIncomeTaxLine(
                                           PstdPayrollDocLine, PstdPayrollDocHeader."Posting Date", PstdPayrollDocHeader.Correction);
-                                    until PstdPayrollDocLine.Next = 0;
+                                    until PstdPayrollDocLine.Next() = 0;
                                 PersonIncomeMgt.CreatePaidToPerson("Person No.", PayrollPeriod);
-                            until PstdPayrollDocHeader.Next = 0;
-                    until PayrollPeriod.Next = 0;
-            until Employee.Next = 0;
+                            until PstdPayrollDocHeader.Next() = 0;
+                    until PayrollPeriod.Next() = 0;
+            until Employee.Next() = 0;
     end;
 }
 

@@ -200,6 +200,16 @@
         {
             Caption = 'Expiration Date';
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
+        }
         field(7380; "Phys Invt Counting Period Code"; Code[10])
         {
             Caption = 'Phys Invt Counting Period Code';
@@ -218,14 +228,17 @@
             Caption = 'Dedicated';
             Editable = false;
         }
-        field(14900; "CD No."; Code[30])
+        field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
-
-            trigger OnLookup()
-            begin
-                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"CD No.", "CD No.");
-            end;
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 
@@ -246,11 +259,15 @@
             Enabled = false;
             SumIndexFields = "Qty. (Base)";
         }
-        key(Key5; "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "CD No.", "Entry Type", Dedicated)
+#pragma warning disable AS0009
+        key(Key5; "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.")
+#pragma warning restore AS0009
         {
             SumIndexFields = "Qty. (Base)", Cubage, Weight, Quantity;
         }
-        key(Key6; "Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code", "Lot No.", "Serial No.", "CD No.", Dedicated)
+#pragma warning disable AS0009
+        key(Key6; "Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code", "Lot No.", "Serial No.", Dedicated, "Package No.")
+#pragma warning restore AS0009
         {
             SumIndexFields = "Qty. (Base)", Cubage, Weight;
         }
@@ -267,18 +284,6 @@
             MaintainSIFTIndex = false;
             MaintainSQLIndex = false;
             SumIndexFields = "Qty. (Base)";
-        }
-        key(Key10; "Lot No.")
-        {
-            Enabled = false;
-        }
-        key(Key11; "Serial No.")
-        {
-            Enabled = false;
-        }
-        key(Key12; "CD No.")
-        {
-            Enabled = false;
         }
     }
 
@@ -392,7 +397,6 @@
         OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
-
     procedure SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
         if WhseItemTrackingSetup."Serial No." <> '' then
@@ -407,6 +411,18 @@
                 SetFilter("Lot No.", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfRequiredIfNotBlank(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            if WhseItemTrackingSetup."Serial No." <> '' then
+                SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
+        if WhseItemTrackingSetup."Lot No. Required" then
+            if WhseItemTrackingSetup."Lot No." <> '' then
+                SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfRequiredIfNotBlank(Rec, WhseItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromWhseEntry(FromWhseEntry: Record "Warehouse Entry")
@@ -425,6 +441,14 @@
             SetRange("Lot No.", ReservEntry."Lot No.");
 
         OnAfterSetTrackingFilterFromReservEntryIfNotBlank(Rec, ReservEntry);
+    end;
+
+    procedure SetTrackingFIlterFromItemFilters(var Item: Record Item)
+    begin
+        Item.CopyFilter("Lot No. Filter", "Lot No.");
+        Item.CopyFilter("Serial No. Filter", "Serial No.");
+
+        OnAfterSetTrackingFilterFromItemFilters(Rec, Item);
     end;
 
     procedure SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -479,6 +503,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemFilters(var WarehouseEntry: Record "Warehouse Entry"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
@@ -490,6 +519,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequiredIfNotBlank(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

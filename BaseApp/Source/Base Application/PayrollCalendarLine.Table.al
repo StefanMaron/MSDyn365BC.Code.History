@@ -150,7 +150,7 @@ table 17430 "Payroll Calendar Line"
         TimesheetLine.SetCurrentKey("Calendar Code", Date);
         TimesheetLine.SetRange("Calendar Code", "Calendar Code");
         TimesheetLine.SetRange(Date, Date);
-        if not TimesheetLine.IsEmpty then
+        if not TimesheetLine.IsEmpty() then
             Error('');
     end;
 
@@ -273,7 +273,7 @@ table 17430 "Payroll Calendar Line"
                         TimesheetStatus.TestField(Status, TimesheetStatus.Status::Open);
                         TimesheetMgt.UpdateTimesheet(Employee, Date, Date, "Calendar Code", false);
                     end;
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
 
         Status := Status::Released;
         Modify;
@@ -296,7 +296,7 @@ table 17430 "Payroll Calendar Line"
                        TimesheetStatus.Get(PayrollPeriod.PeriodByDate(Date), Employee."No.")
                     then
                         TimesheetStatus.TestField(Status, TimesheetStatus.Status::Open);
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
 
         Status := Status::Open;
         Modify;

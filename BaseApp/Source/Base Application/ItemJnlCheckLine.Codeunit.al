@@ -272,7 +272,7 @@ codeunit 21 "Item Jnl.-Check Line"
                             repeat
                                 if ReservationEntry."Appl.-to Item Entry" = 0 then
                                     ShowError := true;
-                            until (ReservationEntry.Next = 0) or ShowError
+                            until (ReservationEntry.Next() = 0) or ShowError
                         else
                             ShowError := ItemJnlLine.LastOutputOperation(ItemJnlLine);
                     end;
@@ -583,9 +583,8 @@ codeunit 21 "Item Jnl.-Check Line"
         LocItemLedgerEntry.Get(ItemLedgerEntryNo);
 
         with ItemJnlLine do begin
-
-            if ("Document Type" = "Document Type"::"Item Shipment") or
-              ("Document Type" = "Document Type"::"Item Receipt")
+            if ("Document Type" = "Document Type"::"Inventory Shipment") or
+              ("Document Type" = "Document Type"::"Inventory Receipt")
             then begin
                 //FA check
                 if ("FA No." <> '') or (LocItemLedgerEntry."FA No." <> '') then begin

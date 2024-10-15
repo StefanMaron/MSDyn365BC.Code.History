@@ -96,7 +96,7 @@ codeunit 26550 "Statutory Report Management"
                         end;
                     end;
                 end;
-            until StatutoryReport.Next = 0;
+            until StatutoryReport.Next() = 0;
 
 #if not CLEAN17
         if WebClient then begin

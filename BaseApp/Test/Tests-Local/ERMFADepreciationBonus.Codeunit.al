@@ -487,7 +487,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
 
     local procedure SetFAJournalLineDocNo(var FAJournalLine: Record "FA Journal Line")
     begin
-        FAJournalLine.FindSet;
+        FAJournalLine.FindSet();
         repeat
             FAJournalLine."Document No." := FAJournalLine.Description;
             FAJournalLine.Modify();

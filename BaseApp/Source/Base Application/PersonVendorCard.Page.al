@@ -22,7 +22,7 @@ page 17360 "Person Vendor Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Name; Name)

@@ -165,7 +165,7 @@ codeunit 17303 "Tax Calc. Mgt."
         if TaxCalcHeader.Find('-') then begin
             repeat
                 TaxCalcAccumulat.SetRange("Register No.", TaxCalcHeader."No.");
-                if not TaxCalcAccumulat.IsEmpty then
+                if not TaxCalcAccumulat.IsEmpty() then
                     if not DeleteConfirmed then begin
                         if not Confirm(Text1007 + Text1006) then
                             Error('');
@@ -173,7 +173,7 @@ codeunit 17303 "Tax Calc. Mgt."
                         DeleteConfirmed := true;
                     end;
                 TaxCalcAccumulat.DeleteAll();
-            until TaxCalcHeader.Next = 0;
+            until TaxCalcHeader.Next() = 0;
         end;
 
         if DateBegin = TaxCalcSection."Starting Date" then
@@ -212,9 +212,9 @@ codeunit 17303 "Tax Calc. Mgt."
         if TaxCalcHeader.FindSet then begin
             repeat
                 TaxCalcAccum.SetRange("Register No.", TaxCalcHeader."No.");
-                if TaxCalcAccum.IsEmpty then
+                if TaxCalcAccum.IsEmpty() then
                     exit(false);
-            until TaxCalcHeader.Next = 0;
+            until TaxCalcHeader.Next() = 0;
         end;
         exit(true);
     end;
@@ -249,7 +249,7 @@ codeunit 17303 "Tax Calc. Mgt."
             repeat
                 TaxCalcAccumulat.SetRange("Register No.", TaxCalcHeader."No.");
                 TaxCalcAccumulat.DeleteAll();
-            until TaxCalcHeader.Next = 0;
+            until TaxCalcHeader.Next() = 0;
         end;
 
         TaxCalcLine.Reset();
@@ -313,7 +313,7 @@ codeunit 17303 "Tax Calc. Mgt."
             repeat
                 TaxCalcAccumulat.SetRange("Register No.", TaxCalcHeader."No.");
                 TaxCalcAccumulat.DeleteAll();
-            until TaxCalcHeader.Next = 0;
+            until TaxCalcHeader.Next() = 0;
         end;
 
         TaxCalcLine.Reset();

@@ -157,10 +157,10 @@ report 14917 "Act Items Receipt M-7"
                     CurrReport.Break();
             end;
         }
-        dataitem("Item Document Header"; "Item Document Header")
+        dataitem("Invt. Document Header"; "Invt. Document Header")
         {
             DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Receipt));
-            dataitem("Item Document Line"; "Item Document Line")
+            dataitem("Invt. Document Line"; "Invt. Document Line")
             {
                 DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
                 DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
@@ -168,7 +168,7 @@ report 14917 "Act Items Receipt M-7"
                 trigger OnAfterGetRecord()
                 begin
                     FillLocationBuffer("Item No.", "Location Code",
-                      GetDimValueCode("Item Document Line"."Dimension Set ID"));
+                      GetDimValueCode("Invt. Document Line"."Dimension Set ID"));
 
                     TestField("Location Code");
 
@@ -196,7 +196,7 @@ report 14917 "Act Items Receipt M-7"
             trigger OnAfterGetRecord()
             begin
                 FillHeaderBuffer(
-                  DATABASE::"Item Document Header",
+                  DATABASE::"Invt. Document Header",
                   0,
                   "No.",
                   "Document Date",
@@ -213,10 +213,10 @@ report 14917 "Act Items Receipt M-7"
                     CurrReport.Break();
             end;
         }
-        dataitem("Item Receipt Header"; "Item Receipt Header")
+        dataitem("Invt. Receipt Header"; "Invt. Receipt Header")
         {
             DataItemTableView = SORTING("No.");
-            dataitem("Item Receipt Line"; "Item Receipt Line")
+            dataitem("Invt. Receipt Line"; "Invt. Receipt Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
                 DataItemTableView = SORTING("Document No.", "Line No.");
@@ -224,7 +224,7 @@ report 14917 "Act Items Receipt M-7"
                 trigger OnAfterGetRecord()
                 begin
                     FillLocationBuffer("Item No.", "Location Code",
-                      GetDimValueCode("Item Receipt Line"."Dimension Set ID"));
+                      GetDimValueCode("Invt. Receipt Line"."Dimension Set ID"));
 
                     TestField("Location Code");
 
@@ -252,7 +252,7 @@ report 14917 "Act Items Receipt M-7"
             trigger OnAfterGetRecord()
             begin
                 FillHeaderBuffer(
-                  DATABASE::"Item Receipt Header",
+                  DATABASE::"Invt. Receipt Header",
                   0,
                   "No.",
                   "Document Date",
@@ -336,7 +336,7 @@ report 14917 "Act Items Receipt M-7"
                           LocationBuffer."Dimension 1 Value Code",
                           LocationBuffer."Dimension 2 Code",
                           HeaderBuffer."Orig. Invoice No.");
-                    until LocationBuffer.Next = 0;
+                    until LocationBuffer.Next() = 0;
 
                 ExcelReportBuilderMgr.AddSection('PAGEHEADER');
             end;
@@ -561,7 +561,7 @@ report 14917 "Act Items Receipt M-7"
     begin
         case TableID of
             DATABASE::"Purchase Header",
-          DATABASE::"Item Document Header":
+            DATABASE::"Invt. Document Header":
                 exit(
                   LocalReportManagement.GetDocSignEmplInfo(
                     false,
@@ -572,7 +572,7 @@ report 14917 "Act Items Receipt M-7"
                     EmployeePosition,
                     EmployeeName,
                     EmployeeDocument));
-            DATABASE::"Item Receipt Header":
+            DATABASE::"Invt. Receipt Header":
                 exit(
                   LocalReportManagement.GetDocSignEmplInfo(
                     true,
@@ -644,7 +644,7 @@ report 14917 "Act Items Receipt M-7"
                     else
                         TempPurchLine.Quantity := TempPurchLine."Qty. to Receive";
                     TempPurchLine.Insert();
-                until PurchLine.Next = 0;
+                until PurchLine.Next() = 0;
 
             PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmtToReceive, TempPurchLine, 0,
               TotalAmount, TotalAmountInclVAT, TotalAmountLCY, TotalAmountInclVATLCY);

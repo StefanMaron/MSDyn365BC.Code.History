@@ -59,7 +59,7 @@ page 17478 "Payroll Document Stat. Subform"
             repeat
                 Copy(NewPayrollDocBuffer);
                 Insert;
-            until NewPayrollDocBuffer.Next = 0;
+            until NewPayrollDocBuffer.Next() = 0;
 
         CurrPage.Update(false);
     end;
@@ -81,7 +81,7 @@ page 17478 "Payroll Document Stat. Subform"
                             Dimensions + ';' + "Dimension Code" + '=' + "Dimension Value Code",
                             1,
                             1024);
-                until Next = 0;
+                until Next() = 0;
     end;
 }
 

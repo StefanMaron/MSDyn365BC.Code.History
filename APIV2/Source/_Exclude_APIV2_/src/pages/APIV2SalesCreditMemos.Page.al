@@ -602,7 +602,6 @@ page 30038 "APIV2 - Sales Credit Memos"
         Currency: Record "Currency";
         PaymentTerms: Record "Payment Terms";
         ShipmentMethod: Record "Shipment Method";
-        GraphMgtSalesCreditMemo: Codeunit "Graph Mgt - Sales Credit Memo";
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         LCYCurrencyCode: Code[10];

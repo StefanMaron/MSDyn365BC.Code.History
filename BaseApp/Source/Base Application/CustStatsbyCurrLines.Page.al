@@ -94,7 +94,7 @@ page 486 "Cust. Stats. by Curr. Lines"
             repeat
                 Rec := Currency;
                 Insert;
-            until Currency.Next = 0;
+            until Currency.Next() = 0;
 
         SetRange("Cust. Ledg. Entries in Filter", true);
     end;

@@ -36,7 +36,7 @@ report 17451 "Spreadsheet Employee"
                                     PayrollCalcBuffer."Line No." := PayrollCalcBuffer."Line No." + 10000;
                                     PayrollCalcBuffer.Insert();
                                 end;
-                    until PayrollLedgerEntry.Next = 0;
+                    until PayrollLedgerEntry.Next() = 0;
             end;
 
             trigger OnPostDataItem()
@@ -51,7 +51,7 @@ report 17451 "Spreadsheet Employee"
                             ColumnBuffer."Print Priority" := PayrollCalcBuffer."Print Priority";
                             ColumnBuffer.Insert();
                         end;
-                    until PayrollCalcBuffer.Next = 0;
+                    until PayrollCalcBuffer.Next() = 0;
 
                 PayrollCalcBuffer.SetCurrentKey("No.", "Print Priority", "Element Code");
                 if PayrollCalcBuffer.FindSet then
@@ -63,7 +63,7 @@ report 17451 "Spreadsheet Employee"
                             EmployeeBuffer."Appointment Name" := Employee.GetJobTitleName;
                             EmployeeBuffer.Insert();
                         end;
-                    until PayrollCalcBuffer.Next = 0;
+                    until PayrollCalcBuffer.Next() = 0;
 
                 EmployeeBuffer.Days :=
                   TimesheetMgt.GetTimesheetInfo(
@@ -189,7 +189,7 @@ report 17451 "Spreadsheet Employee"
                         ColumnName := ExcelMgt.ColumnNo2Name(FirstColumnNo + Counter);
                         FillCell(ColumnName + Format(RowNo), ColumnBuffer."Element Description", true, 1, 0);
                         ExcelMgt.SetColumnSize(ColumnName + Format(RowNo), 11);
-                    until ColumnBuffer.Next = 0;
+                    until ColumnBuffer.Next() = 0;
 
                 RowNo += 1;
             end;

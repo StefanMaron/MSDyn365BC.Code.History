@@ -1,4 +1,4 @@
-﻿codeunit 5815 "Undo Sales Shipment Line"
+codeunit 5815 "Undo Sales Shipment Line"
 {
     Permissions = TableData "Sales Line" = imd,
                   TableData "Sales Shipment Line" = imd,
@@ -79,14 +79,14 @@
             SetCurrentKey("Item Shpt. Entry No.");
             SetFilter(Quantity, '<>0');
             SetRange(Correction, false);
-            if IsEmpty then
+            if IsEmpty() then
                 Error(AlreadyReversedErr);
             FindFirst();
             repeat
                 if not HideDialog then
                     Window.Open(Text003);
                 CheckSalesShptLine(SalesShptLine);
-            until Next = 0;
+            until Next() = 0;
 
             ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
             ServItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
@@ -99,10 +99,10 @@
             Find('-');
             repeat
                 TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty then
+                if not TempGlobalItemLedgEntry.IsEmpty() then
                     TempGlobalItemLedgEntry.DeleteAll();
                 TempGlobalItemEntryRelation.Reset();
-                if not TempGlobalItemEntryRelation.IsEmpty then
+                if not TempGlobalItemEntryRelation.IsEmpty() then
                     TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
@@ -150,7 +150,7 @@
                 OnAfterSalesShptLineModify(SalesShptLine);
 
                 UndoFinalizePostATO(SalesShptLine);
-            until Next = 0;
+            until Next() = 0;
 
             InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
@@ -279,7 +279,7 @@
                     OnPostItemJnlLineOnBeforeRunItemJnlPostLine(ItemJnlLine, ItemLedgEntryNotInvoiced, SalesShptLine, SalesShptHeader);
                     ItemJnlPostLine.Run(ItemJnlLine);
                     RemQtyBase -= ItemJnlLine.Quantity;
-                    if ItemLedgEntryNotInvoiced.Next = 0 then;
+                    if ItemLedgEntryNotInvoiced.Next() = 0 then;
                 until (RemQtyBase = 0);
                 exit(ItemJnlLine."Item Shpt. Entry No.");
             end;
@@ -374,7 +374,7 @@
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsSalesShptLine(NewSalesShptLine);
                 ItemEntryRelation.Insert();
-            until TempItemEntryRelation.Next = 0;
+            until TempItemEntryRelation.Next() = 0;
     end;
 
     local procedure DeleteSalesShptLineServItems(SalesShptLine: Record "Sales Shipment Line")
@@ -395,7 +395,7 @@
             repeat
                 if ServItem.CheckIfCanBeDeleted = '' then
                     if ServItem.Delete(true) then;
-            until ServItem.Next = 0;
+            until ServItem.Next() = 0;
     end;
 
     local procedure UndoInitPostATO(var SalesShptLine: Record "Sales Shipment Line")

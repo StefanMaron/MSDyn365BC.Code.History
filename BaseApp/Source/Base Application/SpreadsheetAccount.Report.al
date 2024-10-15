@@ -125,7 +125,7 @@ report 17453 "Spreadsheet Account"
                             AgregateBuffer."Number 1" := 1;
                             AgregateBuffer.Insert();
                         end;
-                    until Buffer.Next = 0;
+                    until Buffer.Next() = 0;
 
                 AgregateBuffer.Reset();
 
@@ -240,7 +240,7 @@ report 17453 "Spreadsheet Account"
                               PayrollLedgEntry."Posting Group",
                               PayrollLedgEntry."Taxable Amount",
                               PayrollLedgEntry."Payroll Amount")
-                        until PayrollLedgEntry.Next = 0;
+                        until PayrollLedgEntry.Next() = 0;
                 end;
             DataSource::"Payroll Documents":
                 begin
@@ -254,7 +254,7 @@ report 17453 "Spreadsheet Account"
                               PayrollDocLine."Posting Group",
                               PayrollDocLine."Taxable Amount",
                               PayrollDocLine."Payroll Amount")
-                        until PayrollDocLine.Next = 0;
+                        until PayrollDocLine.Next() = 0;
                 end;
         end;
     end;

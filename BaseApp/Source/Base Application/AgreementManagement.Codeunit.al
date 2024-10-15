@@ -82,7 +82,7 @@ codeunit 12421 "Agreement Management"
                 TempDimSetEntry."Dimension Value Code" := DefaultDimension."Dimension Value Code";
                 TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
                 TempDimSetEntry.Insert();
-            until DefaultDimension.Next = 0;
+            until DefaultDimension.Next() = 0;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
 }

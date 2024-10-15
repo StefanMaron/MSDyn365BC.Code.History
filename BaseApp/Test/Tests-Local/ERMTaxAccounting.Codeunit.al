@@ -256,7 +256,7 @@ codeunit 144515 "ERM Tax Accounting"
 
         CalendarPeriod.SetRange("Period Type", CalendarPeriod."Period Type"::Month);
         CalendarPeriod.SetRange("Period Start", CalcDate('<-CM>', StartingDate));
-        CalendarPeriod.FindSet;
+        CalendarPeriod.FindSet();
         CalendarPeriod.Next(0);
         TaxCalcMgt.CreateTaxCalcForPeriod(
           TaxCalcSectionCode, UseGLEntry, UseFAEntry, UseItemEntry, UseTemplate, CalendarPeriod);
@@ -581,7 +581,7 @@ codeunit 144515 "ERM Tax Accounting"
         TaxCalcAccum.SetRange("Register No.", RegisterNo);
         Assert.AreEqual(ExpectedLineCount, TaxCalcAccum.Count, TaxCalcAccumErr);
         if ExpectedLineCount <> 0 then begin
-            TaxCalcAccum.FindSet;
+            TaxCalcAccum.FindSet();
             repeat
                 Assert.AreNotEqual(0, TaxCalcAccum.Amount, TaxCalcAccumAmountErr);
             until TaxCalcAccum.Next = 0;

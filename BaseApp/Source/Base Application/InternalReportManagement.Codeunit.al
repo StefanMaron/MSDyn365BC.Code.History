@@ -48,7 +48,7 @@ codeunit 12403 "Internal Report Management"
                 GLCorresp.SetFilter("Credit Source Type Filter", GLAccount1.GetFilter("Source Type Filter"));
             if GLAccount1.GetFilter("Source No. Filter") <> '' then
                 GLCorresp.SetFilter("Credit Source No. Filter", GLAccount1.GetFilter("Source No. Filter"));
-            Type := 1;
+            Type := "Invoice Posting Line Type"::"G/L Account";
             Init;
             if GLCorresp.Find('-') then
                 repeat
@@ -65,7 +65,7 @@ codeunit 12403 "Internal Report Management"
                         Insert;
                         Commit();
                     end;
-                until GLCorresp.Next = 0;
+                until GLCorresp.Next() = 0;
             NumbLines := 0;
             GLCorresp.Reset();
             GLCorresp.SetCurrentKey("Debit Account No.", "Credit Account No.");
@@ -83,7 +83,7 @@ codeunit 12403 "Internal Report Management"
             if GLAccount1.GetFilter("Source No. Filter") <> '' then
                 GLCorresp.SetFilter("Debit Source No. Filter", GLAccount1.GetFilter("Source No. Filter"));
             Init;
-            Type := 0;
+            Type := "Invoice Posting Line Type"::"Prepmt. Exch. Rate Difference";
             if GLCorresp.Find('-') then
                 repeat
                     if not (BeginDate = 0D) or not (EndDate = 0D) then begin
@@ -99,7 +99,7 @@ codeunit 12403 "Internal Report Management"
                         Insert;
                         Commit();
                     end;
-                until GLCorresp.Next = 0;
+                until GLCorresp.Next() = 0;
             exit((NumbLines > 0) and (NumbColumns > 0));
         end;
     end;

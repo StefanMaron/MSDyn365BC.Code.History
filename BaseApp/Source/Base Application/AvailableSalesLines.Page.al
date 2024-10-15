@@ -73,7 +73,7 @@ page 499 "Available - Sales Lines"
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
                         UpdateReservFrom;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Work Type Code"; "Work Type Code")
@@ -139,7 +139,7 @@ page 499 "Available - Sales Lines"
                             UpdateReservMgt;
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
-                            until ReservEntry2.Next = 0;
+                            until ReservEntry2.Next() = 0;
 
                             UpdateReservFrom;
                         end;
@@ -215,6 +215,7 @@ page 499 "Available - Sales Lines"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -277,13 +278,7 @@ page 499 "Available - Sales Lines"
         SourceRecRef.GetTable(CurrentJobPlanningLine);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetItemDocLine(var CurrentItemDocLine: Record "Item Document Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentItemDocLine);
-        SetSource(SourceRecRef, CurrentReservEntry, "Transfer Direction"::Outbound);
-    end;
+#endif
 
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
@@ -335,17 +330,21 @@ page 499 "Available - Sales Lines"
         CurrentSubType := SubType;
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by SetSource procedure.', '18.0')]
     procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyLine);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.', '18.0')]
     procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyHeader);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
+#endif
 
     local procedure SetFilters()
     begin

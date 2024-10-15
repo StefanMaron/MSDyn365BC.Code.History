@@ -185,7 +185,7 @@ codeunit 17300 TaxDiffJnlManagement
                     Mark(true);
                     JnlWithErrors := true;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             if not JnlWithErrors then
                 Message(Text001)

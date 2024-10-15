@@ -220,7 +220,7 @@ page 17208 "Tax Register Term Lines"
                 CurrPage.Update(false);
                 ExternReportFormula1.TestField("Bal. Account No.");
             end;
-        until ExternReportFormula1.Next = 0;
+        until ExternReportFormula1.Next() = 0;
     end;
 
     var

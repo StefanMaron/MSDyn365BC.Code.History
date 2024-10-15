@@ -1,4 +1,4 @@
-table 1294 "Applied Payment Entry"
+﻿table 1294 "Applied Payment Entry"
 {
     Caption = 'Applied Payment Entry';
     LookupPageID = "Payment Application";
@@ -595,13 +595,13 @@ table 1294 "Applied Payment Entry"
 
         case "Account Type" of
             "Account Type"::Customer:
-                GetCustInfo;
+                GetCustInfo();
             "Account Type"::Vendor:
-                GetVendInfo;
+                GetVendInfo();
             "Account Type"::"Bank Account":
-                GetBankAccInfo;
+                GetBankAccInfo();
             "Account Type"::"G/L Account":
-                GetGLAccInfo;
+                GetGLAccInfo();
         end;
     end;
 
@@ -645,11 +645,11 @@ table 1294 "Applied Payment Entry"
 
         case "Account Type" of
             "Account Type"::Customer:
-                GetCustLedgEntryInfo;
+                GetCustLedgEntryInfo();
             "Account Type"::Vendor:
-                GetVendLedgEntryInfo;
+                GetVendLedgEntryInfo();
             "Account Type"::"Bank Account":
-                GetBankAccLedgEntryInfo;
+                GetBankAccLedgEntryInfo();
         end;
     end;
 
@@ -815,7 +815,7 @@ table 1294 "Applied Payment Entry"
             repeat
                 TotalAmountIncludingPmtDisc += AppliedPaymentEntry."Applied Amount";
                 TotalAmountIncludingPmtDisc -= AppliedPaymentEntry."Applied Pmt. Discount";
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
 
         exit(TotalAmountIncludingPmtDisc);
     end;
@@ -954,4 +954,3 @@ table 1294 "Applied Payment Entry"
         exit(AmountToApply);
     end;
 }
-

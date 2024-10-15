@@ -36,7 +36,7 @@ codeunit 137275 "SCM Inventory Journals"
         GlobalExpirationDate: Date;
         GlobalDescription: Text[50];
         GlobalComment: Text[80];
-        AvailabilityWarning: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         SerialNoConfirmaton: Label 'Do you want to overwrite the existing information?';
         LotNoListPageCaption: Label 'Lot No. Information List';
         LotNoError: Label 'The %1 does not exist. Identification fields and values: %2=''%3'',%4='''',%5=''%6''', Comment = '%1:TableCaption1,%2:FieldCaption1,%3:Value1,%4:FieldCaption2,%5:FieldCaption3,%6::Value2';
@@ -422,10 +422,10 @@ codeunit 137275 "SCM Inventory Journals"
         // [THEN] Verify values on Item Tracking Comment.
         FindLotNoInformation(LotNoInformation, ReclassificationItemJournalLine."Item No.");
         FindItemTrackingComment(ItemTrackingComment, ItemTrackingComment.Type::"Lot No.", LotNoInformation."Item No.");
-        ItemTrackingComment.TestField("Serial/Lot/CD No.", LotNoInformation."Lot No.");
+        ItemTrackingComment.TestField("Serial/Lot No.", LotNoInformation."Lot No.");
 
         FindItemTrackingComment(ItemTrackingComment, ItemTrackingComment.Type::"Serial No.", LotNoInformation."Item No.");
-        ItemTrackingComment.TestField("Serial/Lot/CD No.", GlobalNewSerialNo);
+        ItemTrackingComment.TestField("Serial/Lot No.", GlobalNewSerialNo);
     end;
 
     [Test]
@@ -654,7 +654,6 @@ codeunit 137275 "SCM Inventory Journals"
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
         StockkeepingUnit: Record "Stockkeeping Unit";
-        GLSetup: Record "General Ledger Setup";
         InventorySetup: Record "Inventory Setup";
         Quantity: Decimal;
         UnitAmount: Decimal;
@@ -663,10 +662,6 @@ codeunit 137275 "SCM Inventory Journals"
 
         // [GIVEN] Create Item and Stockkeeping Unit, create Location, post Sales entry.
         Initialize;
-
-        GLSetup.Get();
-        GLSetup."Use Legacy G/L Entry Locking" := true;
-        GLSetup.Modify();
 
         LibraryInventory.SetAutomaticCostAdjmtAlways;
         LibraryInventory.SetAverageCostSetup(
@@ -1504,9 +1499,9 @@ codeunit 137275 "SCM Inventory Journals"
         end;
     end;
 
-    local procedure FindItemTrackingComment(var ItemTrackingComment: Record "Item Tracking Comment"; Type: Option; ItemNo: Code[20])
+    local procedure FindItemTrackingComment(var ItemTrackingComment: Record "Item Tracking Comment"; CommentType: Enum "Item Tracking Comment Type"; ItemNo: Code[20])
     begin
-        ItemTrackingComment.SetRange(Type, Type);
+        ItemTrackingComment.SetRange(Type, CommentType);
         ItemTrackingComment.SetRange("Item No.", ItemNo);
         ItemTrackingComment.FindFirst;
     end;
@@ -1784,7 +1779,7 @@ codeunit 137275 "SCM Inventory Journals"
             SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", ItemJournalBatch.Name);
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 iDim += 1;
                 Assert.AreEqual(DimSetID[iDim], "Dimension Set ID", ItemJournalLineDimErr);

@@ -1,4 +1,4 @@
-﻿table 14 Location
+table 14 Location
 {
     Caption = 'Location';
     DataCaptionFields = "Code", Name;
@@ -155,14 +155,14 @@
                 WhseRcptHeader: Record "Warehouse Receipt Header";
             begin
                 WhseRcptHeader.SetRange("Location Code", Code);
-                if not WhseRcptHeader.IsEmpty then
+                if not WhseRcptHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Require Put-away"), xRec."Require Put-away", WhseRcptHeader.TableCaption);
 
                 if not "Require Put-away" then begin
                     TestField("Directed Put-away and Pick", false);
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Put-away");
                     WhseActivHeader.SetRange("Location Code", Code);
-                    if not WhseActivHeader.IsEmpty then
+                    if not WhseActivHeader.IsEmpty() then
                         Error(Text008, FieldCaption("Require Put-away"), true, WhseActivHeader.TableCaption);
                     "Use Cross-Docking" := false;
                     "Cross-Dock Bin Code" := '';
@@ -181,14 +181,14 @@
                 WhseShptHeader: Record "Warehouse Shipment Header";
             begin
                 WhseShptHeader.SetRange("Location Code", Code);
-                if not WhseShptHeader.IsEmpty then
+                if not WhseShptHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Require Pick"), xRec."Require Pick", WhseShptHeader.TableCaption);
 
                 if not "Require Pick" then begin
                     TestField("Directed Put-away and Pick", false);
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Pick);
                     WhseActivHeader.SetRange("Location Code", Code);
-                    if not WhseActivHeader.IsEmpty then
+                    if not WhseActivHeader.IsEmpty() then
                         Error(Text008, FieldCaption("Require Pick"), true, WhseActivHeader.TableCaption);
                     "Use Cross-Docking" := false;
                     "Cross-Dock Bin Code" := '';
@@ -237,7 +237,7 @@
                 if not "Require Receive" then begin
                     TestField("Directed Put-away and Pick", false);
                     WhseRcptHeader.SetRange("Location Code", Code);
-                    if not WhseRcptHeader.IsEmpty then
+                    if not WhseRcptHeader.IsEmpty() then
                         Error(Text008, FieldCaption("Require Receive"), true, WhseRcptHeader.TableCaption);
                     "Receipt Bin Code" := '';
                     "Use Cross-Docking" := false;
@@ -245,7 +245,7 @@
                 end else begin
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Put-away");
                     WhseActivHeader.SetRange("Location Code", Code);
-                    if not WhseActivHeader.IsEmpty then
+                    if not WhseActivHeader.IsEmpty() then
                         Error(Text008, FieldCaption("Require Receive"), false, WhseActivHeader.TableCaption);
 
                     CreateInboundWhseRequest;
@@ -265,7 +265,7 @@
                 if not "Require Shipment" then begin
                     TestField("Directed Put-away and Pick", false);
                     WhseShptHeader.SetRange("Location Code", Code);
-                    if not WhseShptHeader.IsEmpty then
+                    if not WhseShptHeader.IsEmpty() then
                         Error(Text008, FieldCaption("Require Shipment"), true, WhseShptHeader.TableCaption);
                     "Shipment Bin Code" := '';
                     "Use Cross-Docking" := false;
@@ -273,7 +273,7 @@
                 end else begin
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Pick);
                     WhseActivHeader.SetRange("Location Code", Code);
-                    if not WhseActivHeader.IsEmpty then
+                    if not WhseActivHeader.IsEmpty() then
                         Error(Text008, FieldCaption("Require Shipment"), false, WhseActivHeader.TableCaption);
                 end;
             end;
@@ -298,7 +298,7 @@
                     OnValidateBinMandatoryOnBeforeItemLedgEntrySetFilters(Rec);
                     ItemLedgEntry.SetRange(Open, true);
                     ItemLedgEntry.SetRange("Location Code", Code);
-                    if not ItemLedgEntry.IsEmpty then
+                    if not ItemLedgEntry.IsEmpty() then
                         Error(Text009, FieldCaption("Bin Mandatory"));
 
                     "Default Bin Selection" := "Default Bin Selection"::"Fixed Bin";
@@ -306,17 +306,17 @@
                 end;
 
                 WhseActivHeader.SetRange("Location Code", Code);
-                if not WhseActivHeader.IsEmpty then
+                if not WhseActivHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseActivHeader.TableCaption);
 
                 WhseRcptHeader.SetCurrentKey("Location Code");
                 WhseRcptHeader.SetRange("Location Code", Code);
-                if not WhseRcptHeader.IsEmpty then
+                if not WhseRcptHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseRcptHeader.TableCaption);
 
                 WhseShptHeader.SetCurrentKey("Location Code");
                 WhseShptHeader.SetRange("Location Code", Code);
-                if not WhseShptHeader.IsEmpty then
+                if not WhseShptHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseShptHeader.TableCaption);
 
                 if not "Bin Mandatory" and xRec."Bin Mandatory" then begin
@@ -353,17 +353,17 @@
                 WhseRcptHeader: Record "Warehouse Receipt Header";
             begin
                 WhseActivHeader.SetRange("Location Code", Code);
-                if not WhseActivHeader.IsEmpty then
+                if not WhseActivHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseActivHeader.TableCaption);
 
                 WhseRcptHeader.SetCurrentKey("Location Code");
                 WhseRcptHeader.SetRange("Location Code", Code);
-                if not WhseRcptHeader.IsEmpty then
+                if not WhseRcptHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseRcptHeader.TableCaption);
 
                 WhseShptHeader.SetCurrentKey("Location Code");
                 WhseShptHeader.SetRange("Location Code", Code);
-                if not WhseShptHeader.IsEmpty then
+                if not WhseShptHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseShptHeader.TableCaption);
 
                 if "Directed Put-away and Pick" then begin
@@ -628,7 +628,7 @@
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         StockkeepingUnit.SetRange("Location Code", Code);
-        if not StockkeepingUnit.IsEmpty then
+        if not StockkeepingUnit.IsEmpty() then
             Error(CannotDeleteLocSKUExistErr, Code);
 
         WMSCheckWarehouse;
@@ -647,7 +647,7 @@
             repeat
                 WorkCenter.Validate("Location Code", '');
                 WorkCenter.Modify(true);
-            until WorkCenter.Next = 0;
+            until WorkCenter.Next() = 0;
 
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Location, Code);
     end;
@@ -757,7 +757,7 @@
 
         ItemLedgerEntry.SetRange("Location Code", Code);
         ItemLedgerEntry.SetRange(Open, true);
-        if not ItemLedgerEntry.IsEmpty then
+        if not ItemLedgerEntry.IsEmpty() then
             Error(Text013, Code);
 
         WarehouseEntry.SetRange("Location Code", Code);
@@ -777,12 +777,12 @@
         WhseActivLine.SetRange("Location Code", Code);
         WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Movement);
         WhseActivLine.SetFilter("Qty. Outstanding", '<>0');
-        if not WhseActivLine.IsEmpty then
+        if not WhseActivLine.IsEmpty() then
             Error(Text001, TableCaption, Code);
 
         WhseJnlLine.SetRange("Location Code", Code);
         WhseJnlLine.SetFilter(Quantity, '<>0');
-        if not WhseJnlLine.IsEmpty then
+        if not WhseJnlLine.IsEmpty() then
             Error(Text001, TableCaption, Code);
 
         Zone.SetRange("Location Code", Code);
@@ -817,7 +817,7 @@
 
                 WarehouseEntry.FindLast;
                 WarehouseEntry.SetRange("Item No.");
-            until WarehouseEntry.Next = 0;
+            until WarehouseEntry.Next() = 0;
     end;
 
     local procedure CheckWhseAdjmtJnl()
@@ -830,11 +830,11 @@
             repeat
                 WhseJnlLine.SetRange("Journal Template Name", WhseJnlTemplate.Name);
                 WhseJnlLine.SetRange("Location Code", Code);
-                if not WhseJnlLine.IsEmpty then
+                if not WhseJnlLine.IsEmpty() then
                     Error(
                       Text007,
                       FieldCaption("Adjustment Bin Code"));
-            until WhseJnlTemplate.Next = 0;
+            until WhseJnlTemplate.Next() = 0;
     end;
 
     procedure GetRequirementText(FieldNumber: Integer): Text[50]
@@ -906,7 +906,7 @@
                     TransferLine.FindLast;
                     TransferLine.SetRange("Document No.");
                 end;
-            until TransferLine.Next = 0;
+            until TransferLine.Next() = 0;
     end;
 
     procedure GetLocationsIncludingUnspecifiedLocation(IncludeOnlyUnspecifiedLocation: Boolean; ExcludeInTransitLocations: Boolean)
@@ -926,7 +926,7 @@
                     Init;
                     Copy(Location);
                     Insert;
-                until Location.Next = 0;
+                until Location.Next() = 0;
         end;
 
         FindFirst;

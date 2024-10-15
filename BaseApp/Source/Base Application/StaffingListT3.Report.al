@@ -332,7 +332,7 @@ report 17373 "Staffing List T-3"
                         3:
                             Value3 += ContractTermsSetup.Amount;
                     end;
-            until ContractTermsSetup.Next = 0;
+            until ContractTermsSetup.Next() = 0;
 
         exit(DetailValueExists(Value1, Value2, Value3));
     end;
@@ -370,7 +370,7 @@ report 17373 "Staffing List T-3"
                 Value1 += PosValue1;
                 Value2 += PosValue2;
                 Value3 += PosValue3;
-            until Position.Next = 0;
+            until Position.Next() = 0;
 
         exit(DetailValueExists(Value1, Value2, Value3));
     end;

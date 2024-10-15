@@ -76,15 +76,15 @@ codeunit 17470 "RSV Calculation Mgt."
                                               GetTariffCode(TempDisabilityPersonMedicalInfo."Disability Group"),
                                               TempSpecialConditionPersonMedicalInfo."Insurer No.");
                                         end;
-                                until TempSpecialConditionPersonMedicalInfo.Next = 0;
-                        until TempDisabilityPersonMedicalInfo.Next = 0;
+                                until TempSpecialConditionPersonMedicalInfo.Next() = 0;
+                        until TempDisabilityPersonMedicalInfo.Next() = 0;
                 end;
 
                 if UpdatePackNoInBuffer(DetailPayrollReportingBuffer, PackNo) or
                    UpdatePackNoInBuffer(TotalPaidPayrollReportingBuffer, PackNo)
                 then
                     GetNextPackNo(PackNo, PersonCount);
-            until Person.Next = 0;
+            until Person.Next() = 0;
         DetailPayrollReportingBuffer.Reset();
         TotalPaidPayrollReportingBuffer.Reset();
     end;
@@ -101,7 +101,7 @@ codeunit 17470 "RSV Calculation Mgt."
         if Person.FindSet then
             repeat
                 CalcTotalAmountsForPeriod(TotalPaidPayrollReportingBuffer, Person."No.", StartDate, EndDate);
-            until Person.Next = 0;
+            until Person.Next() = 0;
 
         PrepareTotalAmounts(TotalPaidPayrollReportingBuffer);
     end;
@@ -167,9 +167,9 @@ codeunit 17470 "RSV Calculation Mgt."
                                         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
                                         PaidAmount += Abs(VendorLedgerEntry.Amount - VendorLedgerEntry."Remaining Amount");
                                     end;
-                                until VendorLedgerEntry.Next = 0;
-                        until Next = 0;
-                until Employee.Next = 0;
+                                until VendorLedgerEntry.Next() = 0;
+                        until Next() = 0;
+                until Employee.Next() = 0;
         end;
     end;
 
@@ -288,7 +288,7 @@ codeunit 17470 "RSV Calculation Mgt."
                     "Amount 5" := Abs("Amount 6");
                     "Amount 6" := Abs("Amount 9");
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -306,7 +306,7 @@ codeunit 17470 "RSV Calculation Mgt."
             repeat
                 StartDate := GetMinDate("Starting Date", StartDate);
                 EndDate := GetMaxDate("Ending Date", EndDate);
-            until Next = 0;
+            until Next() = 0;
 
             StartDate := GetMaxDate(StartDate, RepStartDate);
             EndDate := GetMinDate(EndDate, RepEndDate);
@@ -341,7 +341,7 @@ codeunit 17470 "RSV Calculation Mgt."
                             "Ending Date" := PeriodEndDate;
                             Modify;
                         end;
-                until PersonMedicalInfo.Next = 0;
+                until PersonMedicalInfo.Next() = 0;
 
                 if PeriodEndDate < EndDate then
                     InsertDisabilityPeriod(
@@ -385,7 +385,7 @@ codeunit 17470 "RSV Calculation Mgt."
                                   SpecialConditionPersonMedicalInfo,
                                   CalcDate('<+1D>', "Ending Date"), PeriodEndDate, LaborContractLine."Special Conditions");
                     end;
-                until LaborContractLine.Next = 0;
+                until LaborContractLine.Next() = 0;
 
                 if PeriodEndDate < EndDate then
                     InsertSpecialCondPeriod(SpecialConditionPersonMedicalInfo, CalcDate('<+1D>', PeriodEndDate), EndDate, '');
@@ -458,11 +458,11 @@ codeunit 17470 "RSV Calculation Mgt."
         if PersonifiedPayrollReportingBuffer.FindSet then
             repeat
                 FilterReportingBuffer(ReportingPersonPayrollReportingBuffer, PersonifiedPayrollReportingBuffer);
-                if ReportingPersonPayrollReportingBuffer.IsEmpty then begin
+                if ReportingPersonPayrollReportingBuffer.IsEmpty() then begin
                     ReportingPersonPayrollReportingBuffer := PersonifiedPayrollReportingBuffer;
                     ReportingPersonPayrollReportingBuffer.Insert();
                 end;
-            until PersonifiedPayrollReportingBuffer.Next = 0;
+            until PersonifiedPayrollReportingBuffer.Next() = 0;
 
         ReportingPersonPayrollReportingBuffer.Reset();
     end;
@@ -475,12 +475,12 @@ codeunit 17470 "RSV Calculation Mgt."
 
         // Disability Tariff Code '01'
         PersonifiedPayrollReportingBuffer.SetRange("Code 3", '01');
-        if not PersonifiedPayrollReportingBuffer.IsEmpty then
+        if not PersonifiedPayrollReportingBuffer.IsEmpty() then
             SheetQty += 1;
 
         // Disability Tariff Code '03'
         PersonifiedPayrollReportingBuffer.SetRange("Code 3", '03');
-        if not PersonifiedPayrollReportingBuffer.IsEmpty then
+        if not PersonifiedPayrollReportingBuffer.IsEmpty() then
             SheetQty += 1;
 
         PersonifiedPayrollReportingBuffer.SetRange("Code 3");
@@ -654,7 +654,7 @@ codeunit 17470 "RSV Calculation Mgt."
             if FindSet then
                 repeat
                     PersonifiedAccountingMgt.CreateExperienceBuffer(ExperienceLaborContractLine, "No.", StartDate, EndDate);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

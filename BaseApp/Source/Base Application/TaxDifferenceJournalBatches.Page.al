@@ -73,7 +73,7 @@ page 17305 "Tax Difference Journal Batches"
                     trigger OnAction()
                     begin
                         TaxDiffJnlMgt.JnlBatchPost(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

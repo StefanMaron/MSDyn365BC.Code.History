@@ -1,10 +1,10 @@
-page 14980 "Posted Direct Transfer"
+page 6781 "Posted Direct Transfer"
 {
     Caption = 'Posted Direct Transfer';
     InsertAllowed = false;
     PageType = Document;
     RefreshOnActivate = true;
-    SourceTable = "Direct Transfer Header";
+    SourceTable = "Direct Trans. Header";
 
     layout
     {
@@ -13,50 +13,50 @@ page 14980 "Posted Direct Transfer"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Transfer-from Code"; "Transfer-from Code")
+                field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code of the location that items are transferred from.';
                 }
-                field("Transfer-to Code"; "Transfer-to Code")
+                field("Transfer-to Code"; Rec."Transfer-to Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code of the location that the items are transferred to.';
                 }
-                field("Transfer Order No."; "Transfer Order No.")
+                field("Transfer Order No."; Rec."Transfer Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Lookup = false;
                     ToolTip = 'Specifies the number of the related transfer order.';
                 }
-                field("Transfer Order Date"; "Transfer Order Date")
+                field("Transfer Order Date"; Rec."Transfer Order Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date when the transfer order was created.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -71,43 +71,44 @@ page 14980 "Posted Direct Transfer"
             group("Transfer-from")
             {
                 Caption = 'Transfer-from';
-                field("Transfer-from Name"; "Transfer-from Name")
+                field("Transfer-from Name"; Rec."Transfer-from Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the sender at the location that the items are transferred from.';
                 }
-                field("Transfer-from Name 2"; "Transfer-from Name 2")
+                field("Transfer-from Name 2"; Rec."Transfer-from Name 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies an additional part of the name of the sender at the location that the items are transferred from.';
                 }
-                field("Transfer-from Address"; "Transfer-from Address")
+                field("Transfer-from Address"; Rec."Transfer-from Address")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the address of the location that the items are transferred from.';
                 }
-                field("Transfer-from Address 2"; "Transfer-from Address 2")
+                field("Transfer-from Address 2"; Rec."Transfer-from Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies an additional part of the address of the location that items are transferred from.';
                 }
-                field("Transfer-from Post Code"; "Transfer-from Post Code")
+                field("Transfer-from Post Code"; Rec."Transfer-from Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Transfer-from Post Code/City';
                     Editable = false;
+                    ToolTip = 'Specifies the post code of the location that the items are transferred from.';
                 }
-                field("Transfer-from City"; "Transfer-from City")
+                field("Transfer-from City"; Rec."Transfer-from City")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the city of the location that the items are transferred from.';
                 }
-                field("Transfer-from Contact"; "Transfer-from Contact")
+                field("Transfer-from Contact"; Rec."Transfer-from Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -117,43 +118,43 @@ page 14980 "Posted Direct Transfer"
             group("Transfer-to")
             {
                 Caption = 'Transfer-to';
-                field("Transfer-to Name"; "Transfer-to Name")
+                field("Transfer-to Name"; Rec."Transfer-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the recipient at the location that the items are transferred to.';
                 }
-                field("Transfer-to Name 2"; "Transfer-to Name 2")
+                field("Transfer-to Name 2"; Rec."Transfer-to Name 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies an additional part of the name of the recipient at the location that the items are transferred to.';
                 }
-                field("Transfer-to Address"; "Transfer-to Address")
+                field("Transfer-to Address"; Rec."Transfer-to Address")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the address of the location that the items are transferred to.';
                 }
-                field("Transfer-to Address 2"; "Transfer-to Address 2")
+                field("Transfer-to Address 2"; Rec."Transfer-to Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies an additional part of the address of the location that the items are transferred to.';
                 }
-                field("Transfer-to Post Code"; "Transfer-to Post Code")
+                field("Transfer-to Post Code"; Rec."Transfer-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the postal code of the location that the items are transferred to.';
                 }
-                field("Transfer-to City"; "Transfer-to City")
+                field("Transfer-to City"; Rec."Transfer-to City")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the city of the location that items are transferred to.';
                 }
-                field("Transfer-to Contact"; "Transfer-to Contact")
+                field("Transfer-to Contact"; Rec."Transfer-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -202,26 +203,23 @@ page 14980 "Posted Direct Transfer"
                     RunObject = Page "Inventory Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Posted Direct Transfer"),
                                   "No." = FIELD("No.");
+                    ToolTip = 'View or add comments for the record.';
                 }
                 action(Dimensions)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedOnly = true;
+                    ShortCutKey = 'Alt+D';
+                    ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
-                }
-                action("Employee Si&gnatures")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Employee Si&gnatures';
-                    Image = Signature;
-                    RunObject = Page "Posted Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12458),
-                                  "Document No." = FIELD("No.");
                 }
             }
         }
@@ -235,10 +233,12 @@ page 14980 "Posted Direct Transfer"
                 Image = Print;
                 Promoted = true;
                 PromotedCategory = Process;
+                PromotedOnly = true;
+                ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
                 var
-                    DirectTransHeader: Record "Direct Transfer Header";
+                    DirectTransHeader: Record "Direct Trans. Header";
                 begin
                     CurrPage.SetSelectionFilter(DirectTransHeader);
                     DirectTransHeader.PrintRecords(true);
@@ -251,10 +251,11 @@ page 14980 "Posted Direct Transfer"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Rec.Navigate();
                 end;
             }
         }

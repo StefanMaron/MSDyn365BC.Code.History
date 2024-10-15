@@ -2,9 +2,9 @@
 {
     Caption = 'Item Tracking Code';
     DataCaptionFields = "Code";
-    #pragma warning disable AS0034
+#pragma warning disable AS0034
     TableType = Temporary;
-    #pragma warning restore AS0034
+#pragma warning restore AS0034
 
     fields
     {
@@ -21,7 +21,11 @@
         field(11; "Lot No. Required"; Boolean)
         {
             Caption = 'Lot No. Required';
-
+        }
+        field(12; "Package No. Required"; Boolean)
+        {
+            Caption = 'Package No. Required';
+            CaptionClass = '6,4';
         }
         field(20; "Serial No."; Code[50])
         {
@@ -31,6 +35,11 @@
         {
             Caption = 'Lot No.';
         }
+        field(22; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+        }
         field(30; "Serial No. Info Required"; Boolean)
         {
             Caption = 'Serial No. Info Required';
@@ -38,6 +47,11 @@
         field(31; "Lot No. Info Required"; Boolean)
         {
             Caption = 'Lot No. Info Required';
+        }
+        field(32; "Package No. Info Required"; Boolean)
+        {
+            Caption = 'Package No. Info Required';
+            CaptionClass = '6,5';
         }
         field(40; "Serial No. Mismatch"; Boolean)
         {
@@ -47,21 +61,58 @@
         {
             Caption = 'Lot No. Mismatch';
         }
+        field(42; "Package No. Mismatch"; Boolean)
+        {
+            Caption = 'Package No. Mismatch';
+            CaptionClass = '6,6';
+        }
         field(12400; "CD No. Required"; Boolean)
         {
             Caption = 'CD No. Required';
+            ObsoleteReason = 'Replaced by field Package No. Required';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
-        field(12410; "CD No."; Code[30])
+        field(12410; "CD No."; Code[50])
         {
             Caption = 'CD No.';
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12420; "CD No. Info Required"; Boolean)
         {
             Caption = 'CD No. Info Required';
+            ObsoleteReason = 'Replaced by field Package No. Info Required.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(12430; "CD No. Mismatch"; Boolean)
         {
             Caption = 'CD No. Mismatch';
+            ObsoleteReason = 'Replaced by field Package No. Mismatch';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 
@@ -93,14 +144,17 @@
         OnAfterCopyTrackingFromBinContentBuffer(Rec, BinContentBuffer);
     end;
 
+#if not CLEAN18
+    [Obsolete('Please use CopyTrackingFromItemJnlLine().', '18.0')]
     procedure CopyTrackingFromItemJournalLine(ItemJournalLine: Record "Item Journal Line");
     begin
         "Serial No." := ItemJournalLine."Serial No.";
         "Lot No." := ItemJournalLine."Lot No.";
-        "CD No." := ItemJournalLine."CD No.";
+        "Package No." := ItemJournalLine."Package No.";
 
         OnAfterCopyTrackingFromItemJournalLine(Rec, ItemJournalLine);
     end;
+#endif
 
     procedure CopyTrackingFromItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry");
     begin
@@ -126,6 +180,30 @@
         OnAfterCopyTrackingFromItemTrackingSetup(Rec, FromItemTrackingSetup);
     end;
 
+    procedure CopyTrackingFromItemTrackingCodeWarehouseTracking(ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        "Serial No. Required" := ItemTrackingCode."SN Warehouse Tracking";
+        "Lot No. Required" := ItemTrackingCode."Lot Warehouse Tracking";
+
+        OnAfterCopyTrackingFromItemTrackingCodeWarehouseTracking(Rec, ItemTrackingCode);
+    end;
+
+    procedure CopyTrackingFromJobLedgerEntry(JobLedgerEntry: Record "Job Ledger Entry");
+    begin
+        "Serial No." := JobLedgerEntry."Serial No.";
+        "Lot No." := JobLedgerEntry."Lot No.";
+
+        OnAfterCopyTrackingFromJobLedgerEntry(Rec, JobLedgerEntry);
+    end;
+
+    procedure CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        "Serial No. Required" := ItemTrackingCode."SN Specific Tracking";
+        "Lot No. Required" := ItemTrackingCode."Lot Specific Tracking";
+
+        OnAfterCopyTrackingFromItemTrackingCodeSpecificTracking(Rec, ItemTrackingCode);
+    end;
+
     procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry");
     begin
         "Serial No." := ReservEntry."Serial No.";
@@ -140,6 +218,22 @@
         "Lot No." := TrackingSpecification."Lot No.";
 
         OnAfterCopyTrackingFromTrackingSpec(Rec, TrackingSpecification);
+    end;
+
+    procedure CopyTrackingFromNewTrackingSpec(TrackingSpecification: Record "Tracking Specification");
+    begin
+        "Serial No." := TrackingSpecification."New Serial No.";
+        "Lot No." := TrackingSpecification."New Lot No.";
+
+        OnAfterCopyTrackingFromNewTrackingSpec(Rec, TrackingSpecification);
+    end;
+
+    procedure CopyTrackingFromItemTracingBuffer(ItemTracingBuffer: Record "Item Tracing Buffer")
+    begin
+        "Serial No." := ItemTracingBuffer."Serial No.";
+        "Lot No." := ItemTracingBuffer."Lot No.";
+
+        OnAfterCopyTrackingFromItemTracingBuffer(Rec, ItemTracingBuffer);
     end;
 
     procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line");
@@ -164,6 +258,30 @@
         "Lot No." := WhseItemTrackingLine."Lot No.";
 
         OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+    end;
+
+    procedure CopyTrackingFromPostedInvtPickLine(PostedInvtPickLine: Record "Posted Invt. Pick Line")
+    begin
+        "Serial No." := PostedInvtPickLine."Serial No.";
+        "Lot No." := PostedInvtPickLine."Lot No.";
+
+        OnAfterCopyTrackingFromPostedInvtPickLine(Rec, PostedInvtPickLine);
+    end;
+
+    procedure CopyTrackingFromPostedInvtPutAwayLine(PostedInvtPutAwayLine: Record "Posted Invt. Put-Away Line")
+    begin
+        "Serial No." := PostedInvtPutAwayLine."Serial No.";
+        "Lot No." := PostedInvtPutAwayLine."Lot No.";
+
+        OnAfterCopyTrackingFromPostedInvtPutAwayLine(Rec, PostedInvtPutAwayLine);
+    end;
+
+    procedure CopyTrackingFromRegisteredWhseActivityLine(RegisteredWhseActivityLine: Record "Registered Whse. Activity Line")
+    begin
+        "Serial No." := RegisteredWhseActivityLine."Serial No.";
+        "Lot No." := RegisteredWhseActivityLine."Lot No.";
+
+        OnAfterCopyTrackingFromRegisteredWhseActivityLine(Rec, RegisteredWhseActivityLine);
     end;
 
     procedure SetTrackingFilterForItem(var Item: Record Item)
@@ -206,6 +324,13 @@
         OnAfterTrackingMismatch(Rec, IsTrackingMismatch);
     end;
 
+    procedure SpecificTracking(ItemNo: Code[20]) IsSpecific: Boolean
+    begin
+        IsSpecific := (("Serial No." <> '') and "Serial No. Required") or (("Lot No." <> '') and "Lot No. Required");
+
+        OnAfterSpecificTracking(Rec, IsSpecific);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckTrackingMismatch(var ItemTrackingSetup: Record "Item Tracking Setup"; TrackingSpecification: Record "Tracking Specification"; ItemTrackingCode: Record "Item Tracking Code")
     begin
@@ -227,9 +352,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingCodeSpecificTracking(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingCodeWarehouseTracking(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code")
+    begin
+    end;
+
+#if not CLEAN18
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemJournalLine(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemLedgerEntry(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemLedgerEntry: Record "Item Ledger Entry")
@@ -242,12 +379,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromJobLedgerEntry(var ItemTrackingSetup: Record "Item Tracking Setup"; JobLedgerEntry: Record "Job Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromReservEntry(var ItemTrackingSetup: Record "Item Tracking Setup"; ReservEntry: Record "Reservation Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromTrackingSpec(var ItemTrackingSetup: Record "Item Tracking Setup"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromNewTrackingSpec(var ItemTrackingSetup: Record "Item Tracking Setup"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTracingBuffer(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTracingBuffer: Record "Item Tracing Buffer")
     begin
     end;
 
@@ -263,6 +415,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromWhseItemTrackingLine(var ItemTrackingSetup: Record "Item Tracking Setup"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromPostedInvtPickLine(var ItemTrackingSetup: Record "Item Tracking Setup"; PostedInvtPickLine: Record "Posted Invt. Pick Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromPostedInvtPutAwayLine(var ItemTrackingSetup: Record "Item Tracking Setup"; PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromRegisteredWhseActivityLine(var ItemTrackingSetup: Record "Item Tracking Setup"; RegisteredWhseActivityLine: Record "Registered Whse. Activity Line")
     begin
     end;
 
@@ -283,6 +450,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTrackingMismatch(ItemTrackingSetup: Record "Item Tracking Setup"; var IsTrackingMismatch: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSpecificTracking(ItemTrackingSetup: Record "Item Tracking Setup"; var IsSpecificTracking: Boolean)
     begin
     end;
 }

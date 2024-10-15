@@ -568,17 +568,17 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Letter of Attorney List";
                     ToolTip = 'View the list of documents that authorize individuals or organizations to act on the behalf of another to perform certain processes.';
                 }
-                action("Posted Item Receipts")
+                action("Posted Inventory Receipts")
                 {
-                    Caption = 'Posted Item Receipts';
-                    RunObject = Page "Posted Item Receipts";
-                    ToolTip = 'Open the list of posted receipts.';
+                    Caption = 'Posted Inventory Receipts';
+                    RunObject = Page "Posted Invt. Receipts";
+                    ToolTip = 'Open the list of posted inventory receipts.';
                 }
-                action("Posted Item Shipment")
+                action("Posted Inventory Shipment")
                 {
-                    Caption = 'Posted Item Shipment';
-                    RunObject = Page "Posted Item Shipments";
-                    ToolTip = 'Open the list of posted shipments.';
+                    Caption = 'Posted Inventory Shipment';
+                    RunObject = Page "Posted Invt. Shipments";
+                    ToolTip = 'Open the list of inventory posted shipments.';
                 }
             }
             group(Finance)

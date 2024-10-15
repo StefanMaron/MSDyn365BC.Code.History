@@ -185,7 +185,7 @@ table 17361 "Labor Contract Line"
                                         TempPosition := Position;
                                         TempPosition.Insert();
                                     end;
-                                until Position.Next = 0;
+                                until Position.Next() = 0;
 
                             if "Position No." <> '' then
                                 TempPosition.Get("Position No.");
@@ -240,7 +240,7 @@ table 17361 "Labor Contract Line"
                         LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
                         LaborContractTerms.SetRange("Operation Type", "Operation Type");
                         LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
-                        if not LaborContractTerms.IsEmpty then
+                        if not LaborContractTerms.IsEmpty() then
                             if Confirm(Text14706, true, LaborContractTerms.TableCaption) then begin
                                 LaborContractTerms.DeleteAll();
                                 CheckFillRate;
@@ -271,7 +271,7 @@ table 17361 "Labor Contract Line"
                     LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
                     LaborContractTerms.SetRange("Operation Type", "Operation Type");
                     LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
-                    if not LaborContractTerms.IsEmpty then
+                    if not LaborContractTerms.IsEmpty() then
                         LaborContractTerms.DeleteAll();
                 end;
             end;
@@ -512,7 +512,7 @@ table 17361 "Labor Contract Line"
 
         LaborContractLine.Reset();
         LaborContractLine.SetRange("Contract No.", "Contract No.");
-        if LaborContractLine.IsEmpty then
+        if LaborContractLine.IsEmpty() then
             TestField("Operation Type", "Operation Type"::Hire);
     end;
 
@@ -642,7 +642,7 @@ table 17361 "Labor Contract Line"
                             LaborContractTerms.TestField(Quantity);
                         end;
                 end;
-            until LaborContractTerms.Next = 0;
+            until LaborContractTerms.Next() = 0;
     end;
 
     [Scope('OnPrem')]

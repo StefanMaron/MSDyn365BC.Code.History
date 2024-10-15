@@ -228,12 +228,12 @@ page 17314 "Tax Calc. Line Select Subf"
 
     local procedure TaxDiffAmountTaxOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure TaxDiffAmountBaseOnAfterValida()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DescriptionOnFormat()

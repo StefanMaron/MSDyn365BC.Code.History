@@ -130,15 +130,28 @@ table 6529 "Record Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
         }
-        field(14900; "CD No."; Code[30])
+        field(6515; "Package No."; Code[50])
         {
-            Caption = 'CD No.';
+            Caption = 'Package No.';
             DataClassification = SystemMetadata;
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"CD No.", "CD No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
             end;
+        }
+        field(14900; "CD No."; Code[50])
+        {
+            Caption = 'CD No.';
+            DataClassification = SystemMetadata;
+            ObsoleteReason = 'Replaced by field Package No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
     }
 
@@ -163,5 +176,31 @@ table 6529 "Record Buffer"
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingType: Enum "Item Tracking Type";
+
+    procedure CopyTrackingFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        "Serial No." := ItemTrackingSetup."Serial No.";
+        "Lot No." := ItemTrackingSetup."Lot No.";
+
+        OnAfterCopyTrackingFromItemTrackingSetup(Rec, ItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingSetup(var RecordBuffer: Record "Record Buffer"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var RecordBuffer: Record "Record Buffer"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
 }
 

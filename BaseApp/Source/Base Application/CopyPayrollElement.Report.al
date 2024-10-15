@@ -26,7 +26,7 @@ report 17407 "Copy Payroll Element"
                         PayrollBaseAmount2 := PayrollBaseAmount;
                         PayrollBaseAmount2."Element Code" := NewElementCode;
                         PayrollBaseAmount2.Insert();
-                    until PayrollBaseAmount.Next = 0;
+                    until PayrollBaseAmount.Next() = 0;
 
                 RangeHeader.Reset();
                 RangeHeader.SetRange("Element Code", PayrollElement.Code);
@@ -35,7 +35,7 @@ report 17407 "Copy Payroll Element"
                         RangeHeader2 := RangeHeader;
                         RangeHeader2."Element Code" := NewElementCode;
                         RangeHeader2.Insert();
-                    until RangeHeader.Next = 0;
+                    until RangeHeader.Next() = 0;
 
                 RangeLine.Reset();
                 RangeLine.SetRange("Element Code", PayrollElement.Code);
@@ -44,7 +44,7 @@ report 17407 "Copy Payroll Element"
                         RangeLine2 := RangeLine;
                         RangeLine2."Element Code" := NewElementCode;
                         RangeLine2.Insert();
-                    until RangeLine.Next = 0;
+                    until RangeLine.Next() = 0;
 
                 PayrollCalculation.Reset();
                 PayrollCalculation.SetRange("Element Code", PayrollElement.Code);
@@ -53,7 +53,7 @@ report 17407 "Copy Payroll Element"
                         PayrollCalculation2 := PayrollCalculation;
                         PayrollCalculation2."Element Code" := NewElementCode;
                         PayrollCalculation2.Insert();
-                    until PayrollCalculation.Next = 0;
+                    until PayrollCalculation.Next() = 0;
 
                 PayrollCalcLine.Reset();
                 PayrollCalcLine.SetRange("Element Code", PayrollElement.Code);
@@ -62,7 +62,7 @@ report 17407 "Copy Payroll Element"
                         PayrollCalcLine2 := PayrollCalcLine;
                         PayrollCalcLine2."Element Code" := NewElementCode;
                         PayrollCalcLine2.Insert();
-                    until PayrollCalcLine.Next = 0;
+                    until PayrollCalcLine.Next() = 0;
 
                 PayrollExprLine.Reset();
                 PayrollExprLine.SetRange("Element Code", PayrollElement.Code);
@@ -71,7 +71,7 @@ report 17407 "Copy Payroll Element"
                         PayrollExprLine2 := PayrollExprLine;
                         PayrollExprLine2."Element Code" := NewElementCode;
                         PayrollExprLine2.Insert();
-                    until PayrollExprLine.Next = 0;
+                    until PayrollExprLine.Next() = 0;
             end;
         }
     }

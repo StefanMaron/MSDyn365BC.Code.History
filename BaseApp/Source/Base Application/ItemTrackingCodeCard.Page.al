@@ -11,12 +11,12 @@ page 6512 "Item Tracking Code Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the code of the record.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a description of the item tracking code.';
@@ -28,52 +28,57 @@ page 6512 "Item Tracking Code Card"
                 group(Control64)
                 {
                     Caption = 'General';
-                    field("SN Specific Tracking"; "SN Specific Tracking")
+                    field("SN Specific Tracking"; Rec."SN Specific Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         ToolTip = 'Specifies that when handling an outbound unit of the item in question, you must always specify which existing serial number to handle.';
+                    }
+                    field("Create SN Info on Posting"; Rec."Create SN Info on Posting")
+                    {
+                        ApplicationArea = ItemTracking;
+                        ToolTip = 'Specifies that if the Serial No. Information card is missing for the document line, the card will be created during posting.';
                     }
                 }
                 group(Inbound)
                 {
                     Caption = 'Inbound';
-                    field("SN Info. Inbound Must Exist"; "SN Info. Inbound Must Exist")
+                    field("SN Info. Inbound Must Exist"; Rec."SN Info. Inbound Must Exist")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN No. Info. Must Exist';
                         ToolTip = 'Specifies that serial numbers on inbound document lines must have an information record in the Serial No. Information Card.';
                     }
-                    field("SN Purchase Inbound Tracking"; "SN Purchase Inbound Tracking")
+                    field("SN Purchase Inbound Tracking"; Rec."SN Purchase Inbound Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Purchase Tracking';
                         ToolTip = 'Specifies that inbound purchase document lines require serial numbers.';
                     }
-                    field("SN Sales Inbound Tracking"; "SN Sales Inbound Tracking")
+                    field("SN Sales Inbound Tracking"; Rec."SN Sales Inbound Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Sales Tracking';
                         ToolTip = 'Specifies that inbound sales document lines require serial numbers.';
                     }
-                    field("SN Pos. Adjmt. Inb. Tracking"; "SN Pos. Adjmt. Inb. Tracking")
+                    field("SN Pos. Adjmt. Inb. Tracking"; Rec."SN Pos. Adjmt. Inb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Positive Adjmt. Tracking';
                         ToolTip = 'Specifies that inbound item journal lines of type positive entry require serial numbers.';
                     }
-                    field("SN Neg. Adjmt. Inb. Tracking"; "SN Neg. Adjmt. Inb. Tracking")
+                    field("SN Neg. Adjmt. Inb. Tracking"; Rec."SN Neg. Adjmt. Inb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that inbound item journal lines of type negative entry require serial numbers.';
                     }
-                    field("SN Assembly Inbound Tracking"; "SN Assembly Inbound Tracking")
+                    field("SN Assembly Inbound Tracking"; Rec."SN Assembly Inbound Tracking")
                     {
                         ApplicationArea = Assembly;
                         Caption = 'SN Assembly Tracking';
                         ToolTip = 'Specifies that serial numbers are required with inbound posting from assembly orders.';
                     }
-                    field("SN Manuf. Inbound Tracking"; "SN Manuf. Inbound Tracking")
+                    field("SN Manuf. Inbound Tracking"; Rec."SN Manuf. Inbound Tracking")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'SN Manufacturing Tracking';
@@ -83,13 +88,13 @@ page 6512 "Item Tracking Code Card"
                 group(Control82)
                 {
                     ShowCaption = false;
-                    field("SN Warehouse Tracking"; "SN Warehouse Tracking")
+                    field("SN Warehouse Tracking"; Rec."SN Warehouse Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Warehouse Tracking';
                         ToolTip = 'Specifies that warehouse document lines require serial numbers.';
                     }
-                    field("SN Transfer Tracking"; "SN Transfer Tracking")
+                    field("SN Transfer Tracking"; Rec."SN Transfer Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Transfer Tracking';
@@ -99,43 +104,43 @@ page 6512 "Item Tracking Code Card"
                 group(Outbound)
                 {
                     Caption = 'Outbound';
-                    field("SN Info. Outbound Must Exist"; "SN Info. Outbound Must Exist")
+                    field("SN Info. Outbound Must Exist"; Rec."SN Info. Outbound Must Exist")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN No. Info. Must Exist';
                         ToolTip = 'Specifies that serial numbers on outbound document lines must have an information record in the Serial No. Information Card.';
                     }
-                    field("SN Purchase Outbound Tracking"; "SN Purchase Outbound Tracking")
+                    field("SN Purchase Outbound Tracking"; Rec."SN Purchase Outbound Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Purchase Tracking';
                         ToolTip = 'Specifies that outbound purchase document lines require serial numbers.';
                     }
-                    field("SN Sales Outbound Tracking"; "SN Sales Outbound Tracking")
+                    field("SN Sales Outbound Tracking"; Rec."SN Sales Outbound Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Sales Tracking';
                         ToolTip = 'Specifies that outbound sales document lines require serial numbers.';
                     }
-                    field("SN Pos. Adjmt. Outb. Tracking"; "SN Pos. Adjmt. Outb. Tracking")
+                    field("SN Pos. Adjmt. Outb. Tracking"; Rec."SN Pos. Adjmt. Outb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Positive Adjmt. Tracking';
                         ToolTip = 'Specifies that outbound item journal lines of type positive entry require serial numbers.';
                     }
-                    field("SN Neg. Adjmt. Outb. Tracking"; "SN Neg. Adjmt. Outb. Tracking")
+                    field("SN Neg. Adjmt. Outb. Tracking"; Rec."SN Neg. Adjmt. Outb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that outbound item journal lines of type negative entry require serial numbers.';
                     }
-                    field("SN Assembly Outbound Tracking"; "SN Assembly Outbound Tracking")
+                    field("SN Assembly Outbound Tracking"; Rec."SN Assembly Outbound Tracking")
                     {
                         ApplicationArea = Assembly;
                         Caption = 'SN Assembly Tracking';
                         ToolTip = 'Specifies that serial numbers are required with outbound posting from assembly orders.';
                     }
-                    field("SN Manuf. Outbound Tracking"; "SN Manuf. Outbound Tracking")
+                    field("SN Manuf. Outbound Tracking"; Rec."SN Manuf. Outbound Tracking")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'SN Manufacturing Tracking';
@@ -149,52 +154,57 @@ page 6512 "Item Tracking Code Card"
                 group(Control74)
                 {
                     Caption = 'General';
-                    field("Lot Specific Tracking"; "Lot Specific Tracking")
+                    field("Lot Specific Tracking"; Rec."Lot Specific Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         ToolTip = 'Specifies that when handling an outbound unit, always specify which existing lot number to handle.';
+                    }
+                    field("Create Lot No. Info on posting"; Rec."Create Lot No. Info on posting")
+                    {
+                        ApplicationArea = ItemTracking;
+                        ToolTip = 'Specifies that if the Lot No. Information card is missing for the document line, the card will be created during posting.';
                     }
                 }
                 group(Control47)
                 {
                     Caption = 'Inbound';
-                    field("Lot Info. Inbound Must Exist"; "Lot Info. Inbound Must Exist")
+                    field("Lot Info. Inbound Must Exist"; Rec."Lot Info. Inbound Must Exist")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot No. Info. Must Exist';
                         ToolTip = 'Specifies that lot numbers on inbound document lines must have an information record in the Lot No. Information Card.';
                     }
-                    field("Lot Purchase Inbound Tracking"; "Lot Purchase Inbound Tracking")
+                    field("Lot Purchase Inbound Tracking"; Rec."Lot Purchase Inbound Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Purchase Tracking';
                         ToolTip = 'Specifies that inbound purchase document lines require a lot number.';
                     }
-                    field("Lot Sales Inbound Tracking"; "Lot Sales Inbound Tracking")
+                    field("Lot Sales Inbound Tracking"; Rec."Lot Sales Inbound Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Sales Tracking';
                         ToolTip = 'Specifies that inbound sales document lines require a lot number.';
                     }
-                    field("Lot Pos. Adjmt. Inb. Tracking"; "Lot Pos. Adjmt. Inb. Tracking")
+                    field("Lot Pos. Adjmt. Inb. Tracking"; Rec."Lot Pos. Adjmt. Inb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Positive Adjmt. Tracking';
                         ToolTip = 'Specifies that inbound item journal lines of type positive entry require a lot number.';
                     }
-                    field("Lot Neg. Adjmt. Inb. Tracking"; "Lot Neg. Adjmt. Inb. Tracking")
+                    field("Lot Neg. Adjmt. Inb. Tracking"; Rec."Lot Neg. Adjmt. Inb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that inbound item journal lines of type negative entry require a lot number.';
                     }
-                    field("Lot Assembly Inbound Tracking"; "Lot Assembly Inbound Tracking")
+                    field("Lot Assembly Inbound Tracking"; Rec."Lot Assembly Inbound Tracking")
                     {
                         ApplicationArea = Assembly;
                         Caption = 'Lot Assembly Tracking';
                         ToolTip = 'Specifies that lot numbers are required with inbound posting from assembly orders.';
                     }
-                    field("Lot Manuf. Inbound Tracking"; "Lot Manuf. Inbound Tracking")
+                    field("Lot Manuf. Inbound Tracking"; Rec."Lot Manuf. Inbound Tracking")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Lot Manufacturing Tracking';
@@ -204,13 +214,13 @@ page 6512 "Item Tracking Code Card"
                 group(Control81)
                 {
                     ShowCaption = false;
-                    field("Lot Warehouse Tracking"; "Lot Warehouse Tracking")
+                    field("Lot Warehouse Tracking"; Rec."Lot Warehouse Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Warehouse Tracking';
                         ToolTip = 'Specifies that warehouse document lines require a lot number.';
                     }
-                    field("Lot Transfer Tracking"; "Lot Transfer Tracking")
+                    field("Lot Transfer Tracking"; Rec."Lot Transfer Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Transfer Tracking';
@@ -220,43 +230,43 @@ page 6512 "Item Tracking Code Card"
                 group(Control48)
                 {
                     Caption = 'Outbound';
-                    field("Lot Info. Outbound Must Exist"; "Lot Info. Outbound Must Exist")
+                    field("Lot Info. Outbound Must Exist"; Rec."Lot Info. Outbound Must Exist")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot No. Info. Must Exist';
                         ToolTip = 'Specifies that lot numbers on outbound document lines must have an information record in the Lot No. Information Card.';
                     }
-                    field("Lot Purchase Outbound Tracking"; "Lot Purchase Outbound Tracking")
+                    field("Lot Purchase Outbound Tracking"; Rec."Lot Purchase Outbound Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Purchase Tracking';
                         ToolTip = 'Specifies that outbound purchase document lines require a lot number.';
                     }
-                    field("Lot Sales Outbound Tracking"; "Lot Sales Outbound Tracking")
+                    field("Lot Sales Outbound Tracking"; Rec."Lot Sales Outbound Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Sales Tracking';
                         ToolTip = 'Specifies that outbound sales document lines require a lot number.';
                     }
-                    field("Lot Pos. Adjmt. Outb. Tracking"; "Lot Pos. Adjmt. Outb. Tracking")
+                    field("Lot Pos. Adjmt. Outb. Tracking"; Rec."Lot Pos. Adjmt. Outb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Positive Adjmt. Tracking';
                         ToolTip = 'Specifies that outbound item journal lines of type positive entry require a lot number.';
                     }
-                    field("Lot Neg. Adjmt. Outb. Tracking"; "Lot Neg. Adjmt. Outb. Tracking")
+                    field("Lot Neg. Adjmt. Outb. Tracking"; Rec."Lot Neg. Adjmt. Outb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Lot Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that outbound item journal lines of type negative entry require a lot number.';
                     }
-                    field("Lot Assembly Outbound Tracking"; "Lot Assembly Outbound Tracking")
+                    field("Lot Assembly Outbound Tracking"; Rec."Lot Assembly Outbound Tracking")
                     {
                         ApplicationArea = Assembly;
                         Caption = 'Lot Assembly Tracking';
                         ToolTip = 'Specifies that lot numbers are required with outbound posting from assembly orders.';
                     }
-                    field("Lot Manuf. Outbound Tracking"; "Lot Manuf. Outbound Tracking")
+                    field("Lot Manuf. Outbound Tracking"; Rec."Lot Manuf. Outbound Tracking")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Lot Manufacturing Tracking';
@@ -264,55 +274,162 @@ page 6512 "Item Tracking Code Card"
                     }
                 }
             }
-            group("CD No.")
+            group("Package Tracking")
             {
-                Caption = 'CD No.';
-                field("CD Specific Tracking"; "CD Specific Tracking")
+                Caption = 'Package Tracking';
+                Visible = PackageTrackingVisible;
+
+                group(Control84)
                 {
-                    ToolTip = 'Specifies that when handling an outbound unit of the item in question, you must always specify a customs declaration number.';
+                    Caption = 'General';
+                    field("Package Specific Tracking"; Rec."Package Specific Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        ToolTip = 'Specifies that when handling an outbound unit, always specify which existing package number to handle.';
+                    }
                 }
-                field("CD Warehouse Tracking"; "CD Warehouse Tracking")
+                group(Control87)
                 {
-                    ToolTip = 'Specifies that warehouse document lines require a customs declaration number.';
+                    Caption = 'Inbound';
+                    field("Package Info. Inb. Must Exist"; Rec."Package Info. Inb. Must Exist")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package No. Info. Must Exist';
+                        ToolTip = 'Specifies that package numbers on inbound document lines must have an information record in the Package No. Information Card.';
+                    }
+                    field("Package Purchase Inb. Tracking"; Rec."Package Purchase Inb. Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Purchase Tracking';
+                        ToolTip = 'Specifies that inbound purchase document lines require a package number.';
+                    }
+                    field("Package Sales Inb. Tracking"; Rec."Package Sales Inbound Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Sales Tracking';
+                        ToolTip = 'Specifies that inbound sales document lines require a package number.';
+                    }
+                    field("Package Pos. Inb. Tracking"; Rec."Package Pos. Inb. Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Positive Adjmt. Tracking';
+                        ToolTip = 'Specifies that inbound item journal lines of type positive entry require a package number.';
+                    }
+                    field("Package Neg. Inb. Tracking"; Rec."Package Neg. Inb. Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Negative Adjmt. Tracking';
+                        ToolTip = 'Specifies that inbound item journal lines of type negative entry require a package number.';
+                    }
+                    field("Package Assembly Inb. Tracking"; Rec."Package Assembly Inb. Tracking")
+                    {
+                        ApplicationArea = Assembly;
+                        Caption = 'Package Assembly Tracking';
+                        ToolTip = 'Specifies that package numbers are required with inbound posting from assembly orders.';
+                    }
+                    field("Package Manuf. Inb. Tracking"; Rec."Package Manuf. Inb. Tracking")
+                    {
+                        ApplicationArea = Manufacturing;
+                        Caption = 'Package Manufacturing Tracking';
+                        ToolTip = 'Specifies that package numbers are required with outbound posting from production - typically output.';
+                    }
                 }
-                field("CD Tracking Exists"; "CD Tracking Exists")
+                group(Control85)
                 {
-                    ToolTip = 'Specifies if any customs declaration numbers exist for the item.';
+                    ShowCaption = false;
+                    field("Package Warehouse Tracking"; Rec."Package Warehouse Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Warehouse Tracking';
+                        ToolTip = 'Specifies that warehouse document lines require a package number.';
+                    }
+                    field("Package Transfer Tracking"; Rec."Package Transfer Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Transfer Tracking';
+                        ToolTip = 'Specifies that transfer order lines require a package number.';
+                    }
+                }
+                group(Control49)
+                {
+                    Caption = 'Outbound';
+                    field("Package Info. Outb. Must Exist"; Rec."Package Info. Outb. Must Exist")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package No. Info. Must Exist';
+                        ToolTip = 'Specifies that package numbers on outbound document lines must have an information record in the Package No. Information Card.';
+                    }
+                    field("Package Purchase Outbound Tracking"; Rec."Package Purch. Outb. Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Purchase Tracking';
+                        ToolTip = 'Specifies that outbound purchase document lines require a package number.';
+                    }
+                    field("Package Sales Outb. Tracking"; "Package Sales Outb. Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Sales Tracking';
+                        ToolTip = 'Specifies that outbound sales document lines require a package number.';
+                    }
+                    field("Package Pos. Outb. Tracking"; Rec."Package Pos. Outb. Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Positive Adjmt. Tracking';
+                        ToolTip = 'Specifies that outbound item journal lines of type positive entry require a package number.';
+                    }
+                    field("Package Neg. Outb. Tracking"; Rec."Package Neg. Outb. Tracking")
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Package Negative Adjmt. Tracking';
+                        ToolTip = 'Specifies that outbound item journal lines of type negative entry require a package number.';
+                    }
+                    field("Package Assembly Out. Tracking"; Rec."Package Assembly Out. Tracking")
+                    {
+                        ApplicationArea = Assembly;
+                        Caption = 'Package Assembly Tracking';
+                        ToolTip = 'Specifies that package numbers are required with outbound posting from assembly orders.';
+                    }
+                    field("Package Manuf. Outb. Tracking"; Rec."Package Manuf. Outb. Tracking")
+                    {
+                        ApplicationArea = Manufacturing;
+                        Caption = 'Package Manufacturing Tracking';
+                        ToolTip = 'Specifies that package numbers are required with outbound posting from production - typically consumption.';
+                    }
                 }
             }
             group("Misc.")
             {
                 Caption = 'Misc.';
-                field("Warranty Date Formula"; "Warranty Date Formula")
+                field("Warranty Date Formula"; Rec."Warranty Date Formula")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the formula that calculates the warranty date entered in the Warranty Date field on item tracking line.';
                 }
-                field("Man. Warranty Date Entry Reqd."; "Man. Warranty Date Entry Reqd.")
+                field("Man. Warranty Date Entry Reqd."; Rec."Man. Warranty Date Entry Reqd.")
                 {
                     ApplicationArea = ItemTracking;
                     Caption = 'Require Warranty Date Entry';
                     ToolTip = 'Specifies that a warranty date must be entered manually.';
                 }
-                field("Use Expiration Dates"; "Use Expiration Dates")
+                field("Use Expiration Dates"; Rec."Use Expiration Dates")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies that items that use this item tracking code can have an expiration date. This will enable checks for expiration dates, which can affect performance for documents with many Item Tracking Lines.';
 
                     trigger OnValidate()
                     begin
-                        ManExpirDateEntryReqdEditable := "Use Expiration Dates";
-                        StrictExpirationPostingEditable := "Use Expiration Dates";
+                        ManExpirDateEntryReqdEditable := Rec."Use Expiration Dates";
+                        StrictExpirationPostingEditable := Rec."Use Expiration Dates";
                     end;
                 }
-                field("Man. Expir. Date Entry Reqd."; "Man. Expir. Date Entry Reqd.")
+                field("Man. Expir. Date Entry Reqd."; Rec."Man. Expir. Date Entry Reqd.")
                 {
                     ApplicationArea = ItemTracking;
                     Caption = 'Require Expiration Date Entry';
                     Editable = ManExpirDateEntryReqdEditable;
                     ToolTip = 'Specifies that items that use this item tracking code must have an expiration date, and that you must enter the expiration date manually. The date formula specified in the Expiration Calculation field on the item card will be ignored.';
                 }
-                field("Strict Expiration Posting"; "Strict Expiration Posting")
+                field("Strict Expiration Posting"; Rec."Strict Expiration Posting")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = StrictExpirationPostingEditable;
@@ -337,27 +454,29 @@ page 6512 "Item Tracking Code Card"
 
     actions
     {
-        area(processing)
-        {
-            action("CD Tracking Setup")
-            {
-                Caption = 'CD Tracking Setup';
-                Image = Track;
-                RunObject = Page "CD Tracking Setup";
-                RunPageLink = "Item Tracking Code" = FIELD(Code);
-                ToolTip = 'Set up custom declaration specific tracking for the item.';
-            }
-        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        ManExpirDateEntryReqdEditable := "Use Expiration Dates";
-        StrictExpirationPostingEditable := "Use Expiration Dates";
+        ManExpirDateEntryReqdEditable := Rec."Use Expiration Dates";
+        StrictExpirationPostingEditable := Rec."Use Expiration Dates";
+    end;
+
+    trigger OnOpenPage()
+    begin
+        SetPackageTrackingVisibility();
     end;
 
     var
         StrictExpirationPostingEditable: Boolean;
         ManExpirDateEntryReqdEditable: Boolean;
+        PackageTrackingVisible: Boolean;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
+    end;
 }
 

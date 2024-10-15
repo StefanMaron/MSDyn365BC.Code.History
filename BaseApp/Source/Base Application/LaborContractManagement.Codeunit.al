@@ -96,7 +96,7 @@ codeunit 17370 "Labor Contract Management"
             if LaborContractTermsSetup.FindSet then
                 repeat
                     InsertContractTerms(LaborContractLine, LaborContractTermsSetup);
-                until LaborContractTermsSetup.Next = 0;
+                until LaborContractTermsSetup.Next() = 0;
 
             // add personal payroll elements
             LaborContractTermsSetup.Reset();
@@ -110,7 +110,7 @@ codeunit 17370 "Labor Contract Management"
             if LaborContractTermsSetup.FindSet then
                 repeat
                     InsertContractTerms(LaborContractLine, LaborContractTermsSetup);
-                until LaborContractTermsSetup.Next = 0;
+                until LaborContractTermsSetup.Next() = 0;
         end;
     end;
 
@@ -191,7 +191,7 @@ codeunit 17370 "Labor Contract Management"
             LaborContractTerms.SetRange("Operation Type", "Operation Type");
             LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
             LaborContractTerms.SetRange("Line Type", LaborContractTerms."Line Type"::"Vacation Accrual");
-            if not LaborContractTerms.IsEmpty then begin
+            if not LaborContractTerms.IsEmpty() then begin
                 EmplAbsenceEntry.Reset();
                 NextEntryNo := EmplAbsenceEntry.GetLastEntryNo() + 1;
             end;
@@ -246,7 +246,7 @@ codeunit 17370 "Labor Contract Management"
                                 EmplAbsenceEntry.SetRange("Entry Type", EmplAbsenceEntry."Entry Type"::Accrual);
                                 EmplAbsenceEntry.SetRange("Start Date",
                                   LaborContractTerms."Starting Date", CalcDate('<1Y-1D>', LaborContractTerms."Starting Date"));
-                                if not EmplAbsenceEntry.IsEmpty then
+                                if not EmplAbsenceEntry.IsEmpty() then
                                     Error(Text004,
                                       LaborContract."Employee No.", LaborContractTerms."Time Activity Code",
                                       LaborContractTerms."Starting Date", CalcDate('<1Y-1D>', LaborContractTerms."Starting Date"));
@@ -267,7 +267,7 @@ codeunit 17370 "Labor Contract Management"
                                 EmplAbsenceEntry.Insert();
                             end;
                     end;
-                until LaborContractTerms.Next = 0;
+                until LaborContractTerms.Next() = 0;
         end;
     end;
 
@@ -622,7 +622,7 @@ codeunit 17370 "Labor Contract Management"
                             TimesheetMgt.UpdateTimesheet(
                               Employee, PayrollPeriod."Starting Date", PayrollPeriod."Ending Date",
                               Position."Calendar Code", true);
-                    until TimesheetStatus.Next = 0;
+                    until TimesheetStatus.Next() = 0;
             end;
 
             Status := Status::Approved;
@@ -819,9 +819,9 @@ codeunit 17370 "Labor Contract Management"
                     GroupOrderLine."Document Type"::Transfer:
                         LaborContractLine.SetRange("Operation Type", LaborContractLine."Operation Type"::Transfer);
                 end;
-                if not LaborContractLine.IsEmpty then
+                if not LaborContractLine.IsEmpty() then
                     LaborContract.Mark(true);
-            until LaborContract.Next = 0;
+            until LaborContract.Next() = 0;
 
         LaborContract.MarkedOnly(true);
         LaborContracts.SetTableView(LaborContract);
@@ -856,7 +856,7 @@ codeunit 17370 "Labor Contract Management"
                         GroupOrderLine.Insert();
                         RecRef.GetTable(GroupOrderLine);
                         ChangeLogMgt.LogInsertion(RecRef);
-                    until LaborContract.Next = 0;
+                    until LaborContract.Next() = 0;
             end;
         end;
     end;
@@ -1100,10 +1100,10 @@ codeunit 17370 "Labor Contract Management"
                       LaborContractTerms."Starting Date",
                       CalcDate('<1Y-1D>', LaborContractTerms."Starting Date"));
                     EmplAbsenceEntry.ModifyAll("Employee No.", '');
-                until LaborContractTerms.Next = 0;
+                until LaborContractTerms.Next() = 0;
 
             LaborContractTerms.SetRange("Line Type", LaborContractTerms."Line Type"::"Payroll Element");
-            if not LaborContractTerms.IsEmpty then begin
+            if not LaborContractTerms.IsEmpty() then begin
                 EmplLedgEntry.Reset();
                 EmplLedgEntry.SetRange("Contract No.", "Contract No.");
                 EmplLedgEntry.SetRange("Employee No.", LaborContract."Employee No.");
@@ -1114,7 +1114,7 @@ codeunit 17370 "Labor Contract Management"
                         PayrollStatus.CheckPayrollStatus(EmplLedgEntry."Period Code", EmplLedgEntry."Employee No.");
                         EmplLedgEntry."Employee No." := '';
                         EmplLedgEntry.Modify();
-                    until EmplLedgEntry.Next = 0;
+                    until EmplLedgEntry.Next() = 0;
                 end;
             end;
 

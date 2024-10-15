@@ -803,7 +803,7 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Coupled Data Synchronization Errors';
                     RunObject = page "CRM Skipped Records";
                     Tooltip = 'Open the Coupled Data Synchronization Errors page.';
-                    AccessByPermission = tabledata 5331 = R;
+                    AccessByPermission = TableData "CRM Integration Record" = R;
                 }
             }
             group("Group16")
@@ -879,12 +879,24 @@ page 8907 "Sales & Marketing Manager RC"
                     RunObject = page "Return Reasons";
                     Tooltip = 'Open the Return Reasons page.';
                 }
+#if not CLEAN18
                 action("Contact Conversion Templates")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact Conversion Templates';
                     RunObject = page "Customer Template List";
                     Tooltip = 'Open the Contact Conversion Templates page.';
+                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Customer Templates".';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
+                }
+#endif
+                action("Customer Templates")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Customer Templates';
+                    RunObject = page "Customer Templ. List";
+                    Tooltip = 'Open the Customer Templates page.';
                 }
                 group("Group17")
                 {

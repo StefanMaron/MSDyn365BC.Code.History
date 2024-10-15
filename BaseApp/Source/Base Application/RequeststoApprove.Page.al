@@ -268,6 +268,7 @@ page 654 "Requests to Approve"
     begin
         FilterGroup(2);
         SetRange("Approver ID", UserId);
+        OnOpenPageOnAfterSetUserIdFilter(Rec);
         FilterGroup(0);
         SetRange(Status, Status::Open);
     end;
@@ -284,6 +285,11 @@ page 654 "Requests to Approve"
         DateStyle := '';
         if IsOverdue then
             DateStyle := 'Attention';
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnAfterSetUserIdFilter(var ApprovalEntry: Record "Approval Entry")
+    begin
     end;
 }
 

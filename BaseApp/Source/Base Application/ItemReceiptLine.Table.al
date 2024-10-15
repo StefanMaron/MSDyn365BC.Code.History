@@ -1,6 +1,9 @@
 table 12452 "Item Receipt Line"
 {
     Caption = 'Item Receipt Line';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Inventory Documents feature.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -160,11 +163,6 @@ table 12452 "Item Receipt Line"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
-
-            trigger OnLookup()
-            begin
-                ShowDimensions();
-            end;
         }
         field(5402; "Variant Code"; Code[10])
         {
@@ -240,32 +238,5 @@ table 12452 "Item Receipt Line"
     fieldgroups
     {
     }
-
-    var
-        DimMgt: Codeunit DimensionManagement;
-
-    [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowItemTrackingLines()
-    var
-        ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
-    begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
-    end;
-
-    [Scope('OnPrem')]
-    procedure RowID1(): Text[250]
-    var
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
-    begin
-        exit(
-          ItemTrackingMgt.ComposeRowID(
-            DATABASE::"Item Receipt Line", 0, "Document No.", '', 0, "Line No."));
-    end;
 }
 

@@ -20,9 +20,9 @@ table 12411 "VAT Ledger Line CD No."
         {
             Caption = 'Line No.';
         }
-        field(4; "CD No."; Code[30])
+        field(4; "CD No."; Code[50])
         {
-            Caption = 'CD No.';
+            Caption = 'Package No.';
         }
     }
 

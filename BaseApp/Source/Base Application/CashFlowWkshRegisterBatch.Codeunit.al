@@ -78,7 +78,7 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
                 LineCount := LineCount + 1;
                 Window.Update(2, LineCount);
                 CFWkshCheckLine.RunCheck(CFWkshLine);
-                if Next = 0 then
+                if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
@@ -97,7 +97,7 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
                 Window.Update(3, LineCount);
                 Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
                 CODEUNIT.Run(CODEUNIT::"Cash Flow Wksh. -Register Line", CFWkshLine);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 }

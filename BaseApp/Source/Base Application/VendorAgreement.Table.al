@@ -443,12 +443,12 @@ table 14901 "Vendor Agreement"
         VendLedgEntry.Reset();
         VendLedgEntry.SetRange("Vendor No.", "Vendor No.");
         VendLedgEntry.SetRange("Agreement No.", "No.");
-        if not VendLedgEntry.IsEmpty then
+        if not VendLedgEntry.IsEmpty() then
             Error(Text001);
 
         LaborContract.SetRange("Vendor No.", "Vendor No.");
         LaborContract.SetRange("Vendor Agreement No.", "No.");
-        if not LaborContract.IsEmpty then
+        if not LaborContract.IsEmpty() then
             Error(Text17360);
 
         PurchSetup.Get();
@@ -473,7 +473,7 @@ table 14901 "Vendor Agreement"
             repeat
                 if VendAgrmt."Vendor No." <> "Vendor No." then
                     Error(Text12403, FieldCaption("No."), VendAgrmt."Vendor No.");
-            until VendAgrmt.Next = 0;
+            until VendAgrmt.Next() = 0;
 
         VendTransferFields;
         VendTransferDimensions;
@@ -653,7 +653,7 @@ table 14901 "Vendor Agreement"
                 DefaultDim2."Dimension Value Code" := DefaultDim."Dimension Value Code";
                 DefaultDim2."Value Posting" := DefaultDim."Value Posting";
                 DefaultDim2.Insert();
-            until DefaultDim.Next = 0;
+            until DefaultDim.Next() = 0;
     end;
 
     [Scope('OnPrem')]

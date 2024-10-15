@@ -130,22 +130,23 @@ page 6501 "Item Tracking Entries"
                     ApplicationArea = ItemTracking;
                     Caption = 'Lot No. Information Card';
                     Image = LotInfo;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     RunObject = Page "Lot No. Information List";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
                                   "Lot No." = FIELD("Lot No.");
                     ToolTip = 'View or edit detailed information about the lot number.';
                 }
-                action("CD No. Information Card")
+                action("Package No. Information Card")
                 {
-                    Caption = 'CD No. Information Card';
+                    Caption = 'Package No. Information Card';
                     Image = SNInfo;
-                    RunObject = Page "CD No. Information List";
-                    RunPageLink = Type = CONST(Item),
-                                  "No." = FIELD("Item No."),
+                    RunObject = Page "Package No. Information List";
+                    RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
-                                  "CD No." = FIELD("CD No.");
-                    ToolTip = 'Set up a tax authority or fund card.';
+                                  "Package No." = FIELD("Package No.");
+                    ToolTip = 'View or edit detailed information about the package number.';
                 }
             }
         }

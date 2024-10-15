@@ -58,7 +58,7 @@ page 14945 "G/L Corr. by Dimension"
                     "Credit Account No." := GLCorrAnalysisViewEntry."Credit Account No.";
                     Insert;
                 end;
-            until GLCorrAnalysisViewEntry.Next = 0;
+            until GLCorrAnalysisViewEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

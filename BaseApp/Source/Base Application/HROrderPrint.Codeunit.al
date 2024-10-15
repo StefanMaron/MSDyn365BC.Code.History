@@ -137,7 +137,7 @@ codeunit 17372 "HR Order - Print"
                     ExcelMgt.FillCell('AS' + Format(RowNo), Format(Position."Monthly Salary Amount"));
 
                     RowNo += 1;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -284,7 +284,7 @@ codeunit 17372 "HR Order - Print"
                             ExcelMgt.FillCell('AY' + Format(RowNo), Format(Position."Monthly Salary Amount"));
 
                     RowNo += 1;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -394,7 +394,7 @@ codeunit 17372 "HR Order - Print"
                         TotalDays += PostedAbsenceLine."Payment Days";
                         OverallVacationStartDate := GetMinDate(PostedAbsenceLine."Start Date", OverallVacationStartDate);
                         OverallVacationEndDate := GetMaxDate(PostedAbsenceLine."End Date", OverallVacationEndDate);
-                    until PostedAbsenceLine.Next = 0;
+                    until PostedAbsenceLine.Next() = 0;
                 ExcelMgt.FillCell('Q41', Format(TotalDays));
                 ExcelMgt.FillCell('C43', LocMgt.Date2Text(OverallVacationStartDate));
                 ExcelMgt.FillCell('AD43', LocMgt.Date2Text(OverallVacationEndDate));
@@ -415,7 +415,7 @@ codeunit 17372 "HR Order - Print"
                             ExcelMgt.FillCell('C39', LocMgt.Date2Text(AbsenceLine."Start Date"));
                             ExcelMgt.FillCell('AD39', LocMgt.Date2Text(AbsenceLine."End Date"));
                         end;
-                    until AbsenceLine.Next = 0;
+                    until AbsenceLine.Next() = 0;
                 ExcelMgt.FillCell('Q41', Format(TotalDays));
                 ExcelMgt.FillCell('C43', LocMgt.Date2Text(OverallVacationStartDate));
                 ExcelMgt.FillCell('AD43', LocMgt.Date2Text(OverallVacationEndDate));
@@ -532,7 +532,7 @@ codeunit 17372 "HR Order - Print"
                     FillLaborContractInfoForT8a(Employee."Contract No.", RowNo);
 
                     RowNo += 1;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -871,7 +871,7 @@ codeunit 17372 "HR Order - Print"
                 repeat
                     PrintFormT3aLines(StaffListOrderLine, RowNo);
                     RowNo += 1;
-                until StaffListOrderLine.Next = 0;
+                until StaffListOrderLine.Next() = 0;
         end else begin
             PostedStaffListOrderLine.SetRange("Document No.", StaffListOrderHeader."No.");
             if PostedStaffListOrderLine.FindSet then
@@ -879,7 +879,7 @@ codeunit 17372 "HR Order - Print"
                     StaffListOrderLine.TransferFields(PostedStaffListOrderLine);
                     PrintFormT3aLines(StaffListOrderLine, RowNo);
                     RowNo += 1;
-                until PostedStaffListOrderLine.Next = 0;
+                until PostedStaffListOrderLine.Next() = 0;
         end;
 
         ExcelMgt.WriteAllToCurrentSheet;
@@ -1018,11 +1018,11 @@ codeunit 17372 "HR Order - Print"
                                     ExcelMgt.FillCell('AF' + Format(RowNo),
                                       Format(PostedPayrollPeriodAE."Salary Amount" + PostedPayrollPeriodAE."Bonus Amount"));
                                     RowNo += 1;
-                                until PostedPayrollPeriodAE.Next = 0;
+                                until PostedPayrollPeriodAE.Next() = 0;
                         end;
                         TotalAmount += PostedPayrollDocLine."Payroll Amount";
                     end;
-                until (EmplLedgEntry.Next = 0);
+                until (EmplLedgEntry.Next() = 0);
 
             // éßÑú« ¡áþ¿ß½Ñ¡«
             ExcelMgt.FillCell('AE59', Format(TotalAmount));
@@ -1130,7 +1130,7 @@ codeunit 17372 "HR Order - Print"
                 Amount += PostedPayrollDocumentLine."Payroll Amount";
 
                 RowNo += 1;
-            until PostedPayrollDocumentLine.Next = 0;
+            until PostedPayrollDocumentLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1196,7 +1196,7 @@ codeunit 17372 "HR Order - Print"
             if FindSet then
                 repeat
                     TotalFSIAmount += "Amount for FSI";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

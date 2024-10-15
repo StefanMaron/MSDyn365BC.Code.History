@@ -55,7 +55,7 @@
             exit; // No reservations exist => no basis for reallocation
 
         TempTrackingSpecification.SetFilter("Buffer Value4", '< %1', 0);
-        if TempTrackingSpecification.IsEmpty then begin
+        if TempTrackingSpecification.IsEmpty() then begin
             TempTrackingSpecification.Reset();
             exit; // Supply is available - no need for reallocation
         end;
@@ -90,7 +90,7 @@
             repeat
                 TempTrackingSpecification2 := TempTrackingSpecification;
                 TempTrackingSpecification2.Insert();
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
         TempTrackingSpecification.Reset();
 
         TempCurrSupplyReservEntry.Reset();
@@ -101,9 +101,9 @@
                 if TempCurrSupplyReservEntry.FindSet then
                     repeat
                         QtyToReallocate := ReshuffleReservEntry(TempCurrSupplyReservEntry, QtyToReallocate, TempTrackingSpecification);
-                    until (TempCurrSupplyReservEntry.Next = 0) or (QtyToReallocate = 0);
+                    until (TempCurrSupplyReservEntry.Next() = 0) or (QtyToReallocate = 0);
                 AllocationsChanged := AllocationsChanged or (QtyToReallocate <> Abs(TempTrackingSpecification2."Buffer Value4"));
-            until TempTrackingSpecification2.Next = 0;
+            until TempTrackingSpecification2.Next() = 0;
     end;
 
     local procedure PrepareTempDataSet(var TempTrackingSpecification: Record "Tracking Specification" temporary; QtyToPrepare: Decimal): Boolean
@@ -126,7 +126,7 @@
         if ItemLedgEntry.FindSet then
             repeat
                 TempTrackingSpecification.SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
-                if TempTrackingSpecification.IsEmpty then begin
+                if TempTrackingSpecification.IsEmpty() then begin
                     InsertTempSupplyReservEntry(ItemLedgEntry);
                     // GET record
                     QtyToPrepare -= ItemLedgEntry."Remaining Quantity";
@@ -149,7 +149,7 @@
                 end;
 
                 DeleteOrderTrackingSurplusEntryForItemLedgEntry(ItemLedgEntry."Entry No.");
-            until (ItemLedgEntry.Next = 0) or (QtyToPrepare <= 0);
+            until (ItemLedgEntry.Next() = 0) or (QtyToPrepare <= 0);
 
         TempTrackingSpecification.Reset();
         exit(QtyToPrepare <= 0);
@@ -212,7 +212,7 @@
                 end else
                     QtyToReshuffleThisLine := MakeConnection(TempSupplyReservEntry, TempCurrDemandReservEntry, QtyToReshuffleThisLine);
 
-            until (TempSupplyReservEntry.Next = 0) or (QtyToReshuffleThisLine = 0);
+            until (TempSupplyReservEntry.Next() = 0) or (QtyToReshuffleThisLine = 0);
 
         RemainingQty := QtyToReshuffle - xQtyToReshuffleThisLine + QtyToReshuffleThisLine;
 
@@ -313,14 +313,14 @@
             repeat
                 ReservEntry := TempReservEntryDelete;
                 ReservEntry.Delete();
-            until TempReservEntryDelete.Next = 0;
+            until TempReservEntryDelete.Next() = 0;
 
         if TempReservEntryModify.FindSet then
             repeat
                 ReservEntry := TempReservEntryModify;
                 ReservEntry.Validate("Quantity (Base)");
                 ReservEntry.Modify();
-            until TempReservEntryModify.Next = 0;
+            until TempReservEntryModify.Next() = 0;
 
         if TempReservEntryInsert.FindSet then
             repeat
@@ -336,7 +336,7 @@
                 ReservEntry.UpdateItemTracking;
                 ReservEntry.Insert();
                 LastInsertedEntryNo := ReservEntry."Entry No.";
-            until TempReservEntryInsert.Next = 0;
+            until TempReservEntryInsert.Next() = 0;
     end;
 
     local procedure CalcInventory(var TempTrackingSpecification: Record "Tracking Specification" temporary): Boolean
@@ -355,7 +355,7 @@
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         ReservEntry.SetFilter("Item Tracking", '<> %1', ReservEntry."Item Tracking"::None);
 
-        if ReservEntry.IsEmpty then  // No reservations with Item Tracking exist against inventory - no basis for reallocation.
+        if ReservEntry.IsEmpty() then  // No reservations with Item Tracking exist against inventory - no basis for reallocation.
             exit(false);
 
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
@@ -374,7 +374,7 @@
                         ItemLedgEntry.CalcFields("Reserved Quantity");
                         TempTrackingSpecification."Buffer Value3" += ItemLedgEntry."Reserved Quantity";
                         InsertTempSupplyReservEntry(ItemLedgEntry);
-                    until ItemLedgEntry.Next = 0;
+                    until ItemLedgEntry.Next() = 0;
 
                 TempTrackingSpecification."Buffer Value4" :=
                   TempTrackingSpecification."Buffer Value2" - // Total Inventory
@@ -382,7 +382,7 @@
                   TempTrackingSpecification."Buffer Value1";  // Non-allocated lot/sn demand (signed negatively)
                 TempTrackingSpecification.Modify();
                 TotalReservedQty += TempTrackingSpecification."Buffer Value3";
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
 
         if TotalReservedQty = 0 then
             exit(false); // No need to consider reallocation if no reservations exist.
@@ -408,20 +408,9 @@
 
         TempTrackingSpecification.SetFilter("Buffer Value4", '< %1', 0);
 
-        if TempTrackingSpecification.FindSet then
+        if TempTrackingSpecification.FindSet() then
             repeat
-                if TempTrackingSpecification."Serial No." <> '' then
-                    ReservEntry.SetRange("Serial No.", TempTrackingSpecification."Serial No.")
-                else
-                    ReservEntry.SetRange("Serial No.");
-                if TempTrackingSpecification."Lot No." <> '' then
-                    ReservEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.")
-                else
-                    ReservEntry.SetRange("Lot No.");
-                if TempTrackingSpecification."CD No." <> '' then
-                    ReservEntry.SetRange("CD No.", TempTrackingSpecification."CD No.")
-                else
-                    ReservEntry.SetRange("CD No.");
+                ReservEntry.SetTrackingFilterFromTrackingSpecIfNotBlank(TempTrackingSpecification);
                 if ReservEntry.FindSet(true, true) then
                     repeat
                         ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive); // Get demand
@@ -432,13 +421,13 @@
                             TempCurrDemandReservEntry := ReservEntry2;
                             TempCurrDemandReservEntry.Insert();
                         end;
-                    until (ReservEntry.Next = 0) or
+                    until (ReservEntry.Next() = 0) or
                           (TempTrackingSpecification."Buffer Value4" + TempTrackingSpecification."Buffer Value5" >= 0);
                 if TempTrackingSpecification."Buffer Value4" + TempTrackingSpecification."Buffer Value5" < 0 then // Not sufficient qty
                     exit(false);
                 TempTrackingSpecification.Modify();
                 QtyNeededForReallocation += Abs(TempTrackingSpecification."Buffer Value4");
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
 
         TempTrackingSpecification.SetFilter("Buffer Value4", '>= %1', 0);
         ReservEntry.SetRange("Reservation Status");
@@ -448,25 +437,13 @@
         // would be counted twice.
         if TempTrackingSpecification.FindSet then
             repeat
-                if TempTrackingSpecification."Serial No." <> '' then
-                    ReservEntry.SetRange("Serial No.", TempTrackingSpecification."Serial No.")
-                else
-                    ReservEntry.SetRange("Serial No.");
-                if TempTrackingSpecification."Lot No." <> '' then
-                    ReservEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.")
-                else
-                    ReservEntry.SetRange("Lot No.");
-                if TempTrackingSpecification."CD No." <> '' then
-                    ReservEntry.SetRange("CD No.", TempTrackingSpecification."CD No.")
-                else
-                    ReservEntry.SetRange("CD No.");
-
-                if ReservEntry.FindSet then
+                ReservEntry.SetTrackingFilterFromTrackingSpecIfNotBlank(TempTrackingSpecification);
+                if ReservEntry.FindSet() then
                     repeat
                         TempSupplyReservEntry.Get(-ReservEntry."Source Ref. No.", true);
                         TempSupplyReservEntry."Quantity (Base)" -= ReservEntry."Quantity (Base)";
                         if TempSupplyReservEntry."Quantity (Base)" = 0 then
-                            TempSupplyReservEntry.Delete
+                            TempSupplyReservEntry.Delete()
                         else
                             TempSupplyReservEntry.Modify();
 
@@ -474,9 +451,9 @@
                             TempSupplyReservEntry := ReservEntry;
                             TempSupplyReservEntry.Insert();
                         end;
-                    until (ReservEntry.Next = 0);
+                    until (ReservEntry.Next() = 0);
                 QtyNeededForReallocation -= TempTrackingSpecification."Buffer Value4";
-            until (TempTrackingSpecification.Next = 0);
+            until (TempTrackingSpecification.Next() = 0);
         exit(QtyNeededForReallocation <= 0);
     end;
 
@@ -508,7 +485,7 @@
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
     begin
-        if not ItemLedgEntry.FindSet then
+        if not ItemLedgEntry.FindSet() then
             exit;
 
         ReservEntry.SetCurrentKey("Item No.", "Source Type", "Source Subtype", "Reservation Status", "Location Code", "Variant Code");
@@ -519,30 +496,29 @@
         ReservEntry.SetRange("Source Subtype", 0);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         ReservEntry.SetRange(Positive, true);
-        ItemLedgEntry.CopyFilter("Serial No.", ReservEntry."Serial No.");
-        ItemLedgEntry.CopyFilter("Lot No.", ReservEntry."Lot No.");
-        ItemLedgEntry.CopyFilter("CD No.", ReservEntry."CD No.");
-
-        if not ReservEntry.FindSet then
+        ReservEntry.CopyTrackingFilterFromItemLedgEntry(ItemLedgEntry);
+        if not ReservEntry.FindSet() then
             exit;
 
         repeat
             ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);  // Get demand
             if not ReservEntry2.TrackingExists then
                 UnspecificQty -= ReservEntry2."Quantity (Base)"; // Sum up negative entries to a positive value
-        until ReservEntry.Next = 0;
+        until ReservEntry.Next() = 0;
     end;
 
-    [Obsolete('Replaced by ReleaseForReservation(ItemNo, VariantCode, LocationCode, ItemTrackingSetup, QtyToRelease)','17.0')]
+#if not CLEAN17
+    [Obsolete('Replaced by ReleaseForReservation(ItemNo, VariantCode, LocationCode, ItemTrackingSetup, QtyToRelease)', '17.0')]
     procedure ReleaseForReservation(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; QtyToRelease: Decimal) AllocationsChanged: Boolean
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         ItemTrackingSetup."Serial No." := SerialNo;
         ItemTrackingSetup."Lot No." := LotNo;
-        ItemTrackingSetup."CD No." := CDNo;
+        ItemTrackingSetup."Package No." := CDNo;
         exit(ReleaseForReservation(ItemNo, VariantCode, LocationCode, ItemTrackingSetup, QtyToRelease));
     end;
+#endif
 
     procedure ReleaseForReservation(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"; QtyToRelease: Decimal) AllocationsChanged: Boolean
     var
@@ -579,7 +555,7 @@
                 CalcItemLedgEntry.CalcFields("Reserved Quantity");
                 AvailableToReserve +=
                   CalcItemLedgEntry."Remaining Quantity" - CalcItemLedgEntry."Reserved Quantity";
-            until (CalcItemLedgEntry.Next = 0) or (AvailableToReserve >= RemainingQtyToReserve);
+            until (CalcItemLedgEntry.Next() = 0) or (AvailableToReserve >= RemainingQtyToReserve);
 
         if AvailableToReserve < RemainingQtyToReserve then begin
             ItemTrackingSetup.CopyTrackingFromReservEntry(CalcReservEntry);
@@ -623,7 +599,7 @@
         if ReservEntry.FindSet then
             repeat
                 UnreservedQty -= Abs(ReservEntry."Quantity (Base)");
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
 
         if QtyToReserveBase > UnreservedQty then
             QtyToReserveBase := UnreservedQty;

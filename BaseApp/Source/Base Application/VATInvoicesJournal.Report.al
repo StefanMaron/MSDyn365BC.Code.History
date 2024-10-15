@@ -196,7 +196,7 @@ report 14927 "VAT Invoices Journal"
                     FillVATInvJnlLine(
                       VATLedgerLine, AmtInclVATText, VATAmtText, Column,
                       VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
-                until Next = 0;
+                until Next() = 0;
                 Window.Close;
             end;
     end;
@@ -237,7 +237,7 @@ report 14927 "VAT Invoices Journal"
                     FillVATInvJnlLine(
                       VATLedgerLine, AmtInclVATText, VATAmtText, Column,
                       VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
-                until Next = 0;
+                until Next() = 0;
                 Window.Close;
             end;
     end;

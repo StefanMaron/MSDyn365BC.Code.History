@@ -1167,7 +1167,7 @@ codeunit 144101 "ERM G/L Reports"
         Customer.SetRange("Date Filter", 0D, StartingDate - 1);
         Customer.SetRange("G/L Account Filter", GLAccountNo);
         Customer.SetAutoCalcFields("G/L Credit Amount", "G/L Debit Amount", "G/L Starting Balance");
-        Customer.FindSet;
+        Customer.FindSet();
         repeat
             StartingDebitAmount += Customer."G/L Debit Amount";
             StartingCreditAmount += Customer."G/L Credit Amount";
@@ -1183,7 +1183,7 @@ codeunit 144101 "ERM G/L Reports"
             SetRange("Date Filter", 0D, StartingDate);
             SetRange("G/L Account Filter", GLAccountNo);
             SetAutoCalcFields("G/L Debit Amount", "G/L Credit Amount", "G/L Balance to Date");
-            FindSet;
+            FindSet();
             repeat
                 StartingDebitAmount += "G/L Debit Amount";
                 StartingCreditAmount += "G/L Credit Amount";

@@ -625,9 +625,9 @@
                                         else
                                             Error(Text12400);
                                 end;
-                            until ValueEntry.Next = 0;
-                    until ItemLedgEntry.Next = 0;
-            until PurchRcptLine.Next = 0;
+                            until ValueEntry.Next() = 0;
+                    until ItemLedgEntry.Next() = 0;
+            until PurchRcptLine.Next() = 0;
         if DocNoFilter = '' then
             DocNoFilter := '.';
         PurchInvHeader.Reset();

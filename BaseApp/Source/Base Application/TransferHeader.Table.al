@@ -1,4 +1,4 @@
-﻿table 5740 "Transfer Header"
+table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -39,6 +39,9 @@
 
                 if "Transfer-from Code" <> '' then
                     CheckTransferFromAndToCodesNotTheSame();
+
+                if "Direct Transfer" then
+                    VerifyNoOutboundWhseHandlingOnLocation("Transfer-from Code");
 
                 if xRec."Transfer-from Code" <> "Transfer-from Code" then begin
                     if HideValidationDialog or
@@ -178,6 +181,9 @@
 
                 if "Transfer-to Code" <> '' then
                     CheckTransferFromAndToCodesNotTheSame();
+
+                if "Direct Transfer" then
+                    VerifyNoInboundWhseHandlingOnLocation("Transfer-to Code");
 
                 if xRec."Transfer-to Code" <> "Transfer-to Code" then begin
                     if HideValidationDialog or (xRec."Transfer-to Code" = '') then
@@ -503,8 +509,11 @@
 
             trigger OnValidate()
             begin
-                if "Direct Transfer" then
+                if "Direct Transfer" then begin
+                    VerifyNoOutboundWhseHandlingOnLocation("Transfer-from Code");
+                    VerifyNoInboundWhseHandlingOnLocation("Transfer-to Code");
                     Validate("In-Transit Code", '');
+                end;
 
                 Modify(true);
                 UpdateTransLines(Rec, FieldNo("Direct Transfer"));
@@ -636,7 +645,7 @@
 
         WhseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
         WhseRequest.SetRange("Source No.", "No.");
-        if not WhseRequest.IsEmpty then
+        if not WhseRequest.IsEmpty() then
             WhseRequest.DeleteAll(true);
 
         ReservMgt.DeleteDocumentReservation(DATABASE::"Transfer Line", 0, "No.", HideValidationDialog);
@@ -784,6 +793,11 @@
         exit(NoSeriesCode);
     end;
 
+    procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
+    end;
+
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
@@ -800,7 +814,7 @@
 
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
-            if TransferLinesExist then
+            if TransferLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
 
@@ -907,7 +921,7 @@
                         OnUpdateTransLines(TransferLine, TransferHeader, FieldID);
                 end;
                 TransferLine.Modify(true);
-            until TransferLine.Next = 0;
+            until TransferLine.Next() = 0;
         end;
     end;
 
@@ -931,7 +945,7 @@
                    (TransLine2."Qty. Shipped (Base)" <> TransLine2."Qty. Received (Base)")
                 then
                     exit(false);
-            until TransLine2.Next = 0;
+            until TransLine2.Next() = 0;
 
         exit(true);
     end;
@@ -954,7 +968,7 @@
 
         WhseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
         WhseRequest.SetRange("Source No.", No);
-        if not WhseRequest.IsEmpty then
+        if not WhseRequest.IsEmpty() then
             WhseRequest.DeleteAll(true);
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Transfer Order");
@@ -1026,11 +1040,11 @@
         end;
     end;
 
-    local procedure TransferLinesExist(): Boolean
+    procedure TransferLinesExist(): Boolean
     begin
         TransLine.Reset();
         TransLine.SetRange("Document No.", "No.");
-        exit(TransLine.FindFirst);
+        exit(TransLine.FindFirst());
     end;
 
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
@@ -1063,7 +1077,7 @@
                       TransLine."Dimension Set ID", TransLine."Shortcut Dimension 1 Code", TransLine."Shortcut Dimension 2 Code");
                     TransLine.Modify();
                 end;
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
     end;
 
     local procedure VerifyShippedLineDimChange(var ShippedLineDimChangeConfirmed: Boolean)
@@ -1080,7 +1094,11 @@
         CheckTransferFromAndToCodesNotTheSame();
 
         if not "Direct Transfer" then
-            TestField("In-Transit Code");
+            TestField("In-Transit Code")
+        else begin
+            VerifyNoOutboundWhseHandlingOnLocation("Transfer-from Code");
+            VerifyNoInboundWhseHandlingOnLocation("Transfer-to Code");
+        end;
         TestField(Status, Status::Released);
         TestField("Posting Date");
 
@@ -1188,7 +1206,7 @@
             repeat
                 LineNo := LineNo + 10000;
                 AddTransferLineFromReceiptLine(PurchRcptLine, LineNo);
-            until PurchRcptLine.Next = 0;
+            until PurchRcptLine.Next() = 0;
     end;
 
     local procedure AddTransferLineFromReceiptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; LineNo: Integer)
@@ -1221,6 +1239,36 @@
     [IntegrationEvent(false, false)]
     local procedure OnUpdateTransLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; FieldID: Integer)
     begin
+    end;
+
+    procedure VerifyNoOutboundWhseHandlingOnLocation(LocationCode: Code[10])
+    var
+        Location: Record Location;
+    begin
+        GetInventorySetup();
+        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
+            exit;
+
+        if not Location.Get(LocationCode) then
+            exit;
+
+        Location.TestField("Require Pick", false);
+        Location.TestField("Require Shipment", false);
+    end;
+
+    procedure VerifyNoInboundWhseHandlingOnLocation(LocationCode: Code[10])
+    var
+        Location: Record Location;
+    begin
+        GetInventorySetup();
+        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
+            exit;
+
+        if not Location.Get(LocationCode) then
+            exit;
+
+        Location.TestField("Require Put-away", false);
+        Location.TestField("Require Receive", false);
     end;
 
     local procedure InitInsert()

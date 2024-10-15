@@ -856,7 +856,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         with ReminderLine do begin
             SetRange("Reminder No.", ReminderNo);
             SetRange(Type, Type::"Customer Ledger Entry");
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(NoOfReminders, "No. of Reminders", NoOfRemindersErr);
             until Next = 0;
@@ -869,7 +869,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         Amount: Decimal;
     begin
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        ReminderLine.FindSet;
+        ReminderLine.FindSet();
         repeat
             Amount += (ReminderLine."Remaining Amount" + ReminderLine.Amount) * (1 + (ReminderLine."VAT %" / 100));
         until ReminderLine.Next = 0;

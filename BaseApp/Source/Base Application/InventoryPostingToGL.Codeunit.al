@@ -37,7 +37,7 @@
         Currency: Record Currency;
         SourceCodeSetup: Record "Source Code Setup";
         GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary;
-        TempInvtPostBuf: array[4] of Record "Invt. Posting Buffer" temporary;
+        TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary;
         TempInvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer" temporary;
         TempGLItemLedgRelation: Record "G/L - Item Ledger Relation" temporary;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
@@ -461,7 +461,14 @@
     end;
 
     local procedure BufferAsmOutputPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBufferAsmOutputPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
@@ -529,7 +536,14 @@
     end;
 
     local procedure BufferAsmConsumpPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBufferAsmConsumpPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
@@ -979,17 +993,17 @@
                                 GenJnlPostLine.SetOverDimErr;
                             FAInsertLedgEntry.AdjustFAEntry(GlobalInvtPostBuf, GenJnlLine);
                             OnBeforePostInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine);
-                            GenJnlPostLine.RunWithCheck(GenJnlLine)
+                            PostGenJnlLine(GenJnlLine);
                         end else begin
                             OnBeforeCheckInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine);
-                            GenJnlCheckLine.RunCheck(GenJnlLine)
+                            CheckGenJnlLine(GenJnlLine);
                         end
                     end else
                         InsertTempInvtPostToGLTestBuf(GenJnlLine, ValueEntry);
                 end;
                 if not PreviewMode and not CalledFromTestReport and not RunOnlyCheck then
                     CreateGLItemLedgRelation(ValueEntry);
-            until Next = 0;
+            until Next() = 0;
             RunOnlyCheck := RunOnlyCheckSaved;
             OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
 
@@ -1084,12 +1098,12 @@
         if GlobalPostPerPostGroup then begin
             TempGLItemLedgRelation.Reset();
             TempGLItemLedgRelation.SetRange("G/L Entry No.", GlobalInvtPostBuf."Entry No.");
-            TempGLItemLedgRelation.FindSet;
+            TempGLItemLedgRelation.FindSet();
             repeat
                 ValueEntry.Get(TempGLItemLedgRelation."Value Entry No.");
                 UpdateValueEntry(ValueEntry);
                 CreateGLItemLedgRelationEntry(GLReg);
-            until TempGLItemLedgRelation.Next = 0;
+            until TempGLItemLedgRelation.Next() = 0;
         end else begin
             UpdateValueEntry(ValueEntry);
             CreateGLItemLedgRelationEntry(GLReg);
@@ -1136,7 +1150,7 @@
         repeat
             InvtPostToGLTestBuf := TempInvtPostToGLTestBuf;
             InvtPostToGLTestBuf.Insert();
-        until TempInvtPostToGLTestBuf.Next = 0;
+        until TempInvtPostToGLTestBuf.Next() = 0;
     end;
 
     procedure GetAmtToPost(var NewCOGSAmt: Decimal; var NewInvtAdjmtAmt: Decimal; var NewDirCostAmt: Decimal; var NewOvhdCostAmt: Decimal; var NewVarPurchCostAmt: Decimal; var NewVarMfgDirCostAmt: Decimal; var NewVarMfgOvhdCostAmt: Decimal; var NewWIPInvtAmt: Decimal; var NewInvtAmt: Decimal; GetTotal: Boolean)
@@ -1172,7 +1186,7 @@
             repeat
                 InvtPostBuf := GlobalInvtPostBuf;
                 InvtPostBuf.Insert();
-            until GlobalInvtPostBuf.Next = 0;
+            until GlobalInvtPostBuf.Next() = 0;
     end;
 
     local procedure GetInvPostingGroupCode(ValueEntry: Record "Value Entry"; WIPInventory: Boolean; InvPostingGroupCode: Code[20]): Code[20]
@@ -1345,6 +1359,16 @@
     procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;
+    end;
+
+    procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlCheckLine.RunCheck(GenJnlLine);
+    end;
+
+    procedure PostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
     [IntegrationEvent(true, false)]
@@ -1542,13 +1566,23 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBufferConsumpPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; CostToPost: Decimal; CostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfteUpdateReportAmounts(var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var InvtAmt: Decimal; var InvtAdjmtAmt: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeBufferAsmOutputPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var CostToPost: Decimal; var CostToPostACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeBufferAsmConsumpPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var CostToPost: Decimal; var CostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

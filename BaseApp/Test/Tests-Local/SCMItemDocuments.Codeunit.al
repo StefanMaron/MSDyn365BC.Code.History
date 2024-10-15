@@ -3,6 +3,7 @@ codeunit 147111 "SCM Item Documents"
     // // [FEATURE] [SCM]
 
     Subtype = Test;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin
@@ -16,7 +17,6 @@ codeunit 147111 "SCM Item Documents"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
-        LibraryCDTracking: Codeunit "Library - CD Tracking";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryUtility: Codeunit "Library - Utility";
@@ -29,169 +29,6 @@ codeunit 147111 "SCM Item Documents"
         WrongQuantityErr: Label 'Wrong quantity in "Item G/L Turnover"';
         WrongAmountErr: Label 'Wrong amount in "Item G/L Turnover"';
         ItemTrackingAction: Option AssignSerialNo,SelectEntries;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemReceiptWithDimension()
-    var
-        ItemDocumentHeader: Record "Item Document Header";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Location: Record Location;
-        DimensionValue: Record "Dimension Value";
-    begin
-        // Setup
-        Initialize;
-        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
-
-        // Execute
-        LibraryCDTracking.CreateItemDocument(ItemDocumentHeader, ItemDocumentHeader."Document Type"::Receipt, Location.Code);
-        ItemDocumentHeader.Validate("Salesperson/Purchaser Code", SalespersonPurchaser.Code);
-        ItemDocumentHeader.Modify(true);
-
-        // Verify
-        VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemDocumentHeader."Dimension Set ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemReceiptWithDimensionLines()
-    var
-        ItemDocumentHeader: Record "Item Document Header";
-        ItemDocumentLine: Record "Item Document Line";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Location: Record Location;
-        Item: Record Item;
-        DimensionValue: Record "Dimension Value";
-        DimensionValueItem: Record "Dimension Value";
-    begin
-        // Setup
-        Initialize;
-        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
-        CreateItemWithDimension(Item, DimensionValueItem);
-
-        // Execute
-        CreateItemDocumentWithLine(
-          ItemDocumentHeader, ItemDocumentLine, Item, ItemDocumentHeader."Document Type"::Receipt, Location.Code, SalespersonPurchaser.Code);
-
-        // Verify
-        VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemDocumentLine."Dimension Set ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemShipmentWithDimension()
-    var
-        ItemDocumentHeader: Record "Item Document Header";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Location: Record Location;
-        DimensionValue: Record "Dimension Value";
-    begin
-        // Setup
-        Initialize;
-        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
-
-        // Execute
-        LibraryCDTracking.CreateItemDocument(ItemDocumentHeader, ItemDocumentHeader."Document Type"::Shipment, Location.Code);
-        ItemDocumentHeader.Validate("Salesperson/Purchaser Code", SalespersonPurchaser.Code);
-        ItemDocumentHeader.Modify(true);
-
-        // Verify
-        VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemDocumentHeader."Dimension Set ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemShipmentWithDimensionLines()
-    var
-        ItemDocumentHeader: Record "Item Document Header";
-        ItemDocumentLine: Record "Item Document Line";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Location: Record Location;
-        Item: Record Item;
-        DimensionValue: Record "Dimension Value";
-    begin
-        // Setup
-        Initialize;
-        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
-        CreateItemWithDimension(Item, DimensionValue);
-
-        // Execute
-        CreateItemDocumentWithLine(
-          ItemDocumentHeader, ItemDocumentLine, Item, ItemDocumentHeader."Document Type"::Shipment, Location.Code, SalespersonPurchaser.Code);
-
-        // Verify
-        VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemDocumentLine."Dimension Set ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostedItemReceiptWithDimension()
-    var
-        ItemDocumentHeader: Record "Item Document Header";
-        ItemDocumentLine: Record "Item Document Line";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Location: Record Location;
-        Item: Record Item;
-        DimensionValue: Record "Dimension Value";
-        DimensionValueItem: Record "Dimension Value";
-        ItemReceiptHeader: Record "Item Receipt Header";
-        ItemReceiptLine: Record "Item Receipt Line";
-    begin
-        // Setup
-        Initialize;
-        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
-        CreateItemWithDimension(Item, DimensionValueItem);
-
-        // Execute
-        CreateItemDocumentWithLine(
-          ItemDocumentHeader, ItemDocumentLine, Item, ItemDocumentHeader."Document Type"::Receipt, Location.Code, SalespersonPurchaser.Code);
-        LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
-
-        // Verify
-        ItemReceiptHeader.SetRange("Location Code", Location.Code);
-        ItemReceiptHeader.FindFirst;
-        Assert.AreEqual(SalespersonPurchaser.Code, ItemReceiptHeader."Purchaser Code", 'Purchaser code should be same');
-        VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemReceiptHeader."Dimension Set ID");
-        ItemReceiptLine.SetRange("Document No.", ItemReceiptHeader."No.");
-        ItemReceiptLine.FindFirst;
-        VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemReceiptLine."Dimension Set ID");
-        VerifyDimensionCode(DimensionValueItem."Dimension Code", DimensionValueItem.Code, ItemReceiptLine."Dimension Set ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostedItemShipmentWithDimension()
-    var
-        ItemDocumentHeader: Record "Item Document Header";
-        ItemDocumentLine: Record "Item Document Line";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Location: Record Location;
-        Item: Record Item;
-        DimensionValue: Record "Dimension Value";
-        DimensionValueItem: Record "Dimension Value";
-        ItemShipmentHeader: Record "Item Shipment Header";
-        ItemShipmentLine: Record "Item Shipment Line";
-    begin
-        // Setup
-        Initialize;
-        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
-        CreateItemWithDimension(Item, DimensionValueItem);
-
-        // Execute
-        CreateItemDocumentWithLine(
-          ItemDocumentHeader, ItemDocumentLine, Item, ItemDocumentHeader."Document Type"::Shipment, Location.Code, SalespersonPurchaser.Code);
-        LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
-
-        // Verify
-        ItemShipmentHeader.SetRange("Location Code", Location.Code);
-        ItemShipmentHeader.FindFirst;
-        Assert.AreEqual(SalespersonPurchaser.Code, ItemShipmentHeader."Salesperson Code", 'Salesperson code should be same');
-        VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemShipmentHeader."Dimension Set ID");
-        ItemShipmentLine.SetRange("Document No.", ItemShipmentHeader."No.");
-        ItemShipmentLine.FindFirst;
-        VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemShipmentLine."Dimension Set ID");
-        VerifyDimensionCode(DimensionValueItem."Dimension Code", DimensionValueItem.Code, ItemShipmentLine."Dimension Set ID");
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -413,8 +250,8 @@ codeunit 147111 "SCM Item Documents"
     [Scope('OnPrem')]
     procedure PostItemShipmentWithFA()
     var
-        ItemDocumentHeader: Record "Item Document Header";
-        ItemDocumentLine: Record "Item Document Line";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Location: Record Location;
         Item: Record Item;
@@ -434,195 +271,15 @@ codeunit 147111 "SCM Item Documents"
         CreateFixedAsset(FixedAssetNo, DepreciationBookCode, AcquisitionCostAccountNo);
 
         // [GIVEN] Item Shipment with fixed asset "FA"
-        CreateItemDocumentWithLine(
-          ItemDocumentHeader, ItemDocumentLine, Item, ItemDocumentHeader."Document Type"::Shipment, Location.Code, SalespersonPurchaser.Code);
-        UpdateItemDocumentLineFA(ItemDocumentHeader, FixedAssetNo, DepreciationBookCode);
+        CreateInvtDocumentWithLine(
+          InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Shipment, Location.Code, SalespersonPurchaser.Code);
+        UpdateInvtDocumentLineFA(InvtDocumentHeader, FixedAssetNo, DepreciationBookCode);
 
         // [WHEN] Post Item Shipment
-        LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
 
         // [THEN] Verify "Source Type" = "Fixed Asset", "Source No." = "FA" on generated G/L Entry with "G/L Account No." = "A"
         VerifyGLEntrySource(Location.Code, AcquisitionCostAccountNo, FixedAssetNo);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostDirectTransferRequireReceive()
-    var
-        Item: Record Item;
-        FromLocation: Record Location;
-        ToLocation: Record Location;
-        Bin: Record Bin;
-        TransferHeader: Record "Transfer Header";
-        TransferLine: Record "Transfer Line";
-        WarehouseEntry: Record "Warehouse Entry";
-        Qty: Integer;
-    begin
-        // [FEATURE] [Location] [Warehouse] [Direct Transfer]
-        // [SCENARIO 253751] Direct transfer to location with inbound warehouse handling should be posted without warehouse receipt
-
-        Initialize;
-
-        // [GIVEN] Two locations: "A" without warehouse setup, and "B" with "Require Receipt" enabled
-        LibraryInventory.CreateItem(Item);
-        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
-        LibraryWarehouse.CreateLocationWMS(ToLocation, true, false, false, true, false);
-        LibraryWarehouse.CreateBin(Bin, ToLocation.Code, '', '', '');
-
-        // [GIVEN] Item "I" with stock of 100 pcs on location "A"
-        Qty := CreateAndPostItemJournalLine(Item."No.", FromLocation.Code, '');
-
-        // [GIVEN] Create a direct transfer order from location "A" to location "B"
-        CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
-        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
-        TransferLine.Validate("Transfer-To Bin Code", Bin.Code);
-        TransferLine.Modify(true);
-
-        // [WHEN] Post the transfer
-        LibraryInventory.PostDirectTransferOrder(TransferHeader);
-
-        // [THEN] Item ledger shows 100 pcs of item "I" moved to location "B"
-        VerifyItemInventory(Item, ToLocation.Code, Qty);
-
-        // [THEN] Positive adjustment for 100 pcs of item "I" is posted on location "B"
-        VerifyWarehouseEntry(ToLocation.Code, Item."No.", WarehouseEntry."Entry Type"::"Positive Adjmt.", Qty);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostDirectTransferRequireShipment()
-    var
-        Item: Record Item;
-        FromLocation: Record Location;
-        ToLocation: Record Location;
-        Bin: Record Bin;
-        TransferHeader: Record "Transfer Header";
-        TransferLine: Record "Transfer Line";
-        WarehouseEntry: Record "Warehouse Entry";
-        Qty: Integer;
-    begin
-        // [FEATURE] [Location] [Warehouse] [Direct Transfer]
-        // [SCENARIO 253751] Direct transfer from location with outbound warehouse handling should be posted without warehouse shipment
-
-        Initialize;
-
-        // [GIVEN] Two locations: "A" with "Require Shipment" enabled, and "B" without warehouse setup
-        LibraryInventory.CreateItem(Item);
-        LibraryWarehouse.CreateLocationWMS(FromLocation, true, false, false, false, true);
-        LibraryWarehouse.CreateBin(Bin, FromLocation.Code, '', '', '');
-        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
-
-        // [GIVEN] Item "I" with stock of 100 pcs on location "A"
-        Qty := CreateAndPostItemJournalLine(Item."No.", FromLocation.Code, Bin.Code);
-
-        // [GIVEN] Create a direct transfer order from location "A" to location "B"
-        CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
-        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
-        TransferLine.Validate("Transfer-from Bin Code", Bin.Code);
-        TransferLine.Modify(true);
-
-        // [WHEN] Post the transfer
-        LibraryInventory.PostDirectTransferOrder(TransferHeader);
-
-        // [THEN] Item ledger shows 100 pcs of item "I" moved to location "B"
-        VerifyItemInventory(Item, ToLocation.Code, Qty);
-
-        // [THEN] Negative adjustment for -100 pcs of item "I" is posted on location "B"
-        VerifyWarehouseEntry(FromLocation.Code, Item."No.", WarehouseEntry."Entry Type"::"Negative Adjmt.", -Qty);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ItemReceiptWithMultipleSerialNos()
-    var
-        Location: Record Location;
-        Bin: Record Bin;
-        Item: Record Item;
-        ItemDocumentHeader: Record "Item Document Header";
-        ItemDocumentLine: Record "Item Document Line";
-        WarehouseEntry: Record "Warehouse Entry";
-    begin
-        // [FEATURE] [Item Receipt] [Item Tracking] [Warehouse]
-        // [SCENARIO 307763] Posting item receipt with multiple serial nos. generates a separate warehouse entry for each serial no.
-        Initialize;
-
-        // [GIVEN] Location with a bin.
-        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
-
-        // [GIVEN] Serial no.-tracked item. "SN Warehouse Tracking" is enabled.
-        CreateSNTrackedItem(Item);
-
-        // [GIVEN] Create item receipt, assign 5 serial nos. to the line.
-        CreateItemDocumentWithItemTracking(
-          ItemDocumentHeader, ItemDocumentLine, ItemDocumentHeader."Document Type"::Receipt,
-          Item."No.", Location.Code, Bin.Code, LibraryRandom.RandIntInRange(5, 10), ItemTrackingAction::AssignSerialNo);
-
-        // [WHEN] Post the item receipt.
-        LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
-
-        // [THEN] 5 warehouse entries are created.
-        WarehouseEntry.SetRange("Item No.", Item."No.");
-        WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
-        Assert.RecordCount(WarehouseEntry, ItemDocumentLine.Quantity);
-
-        // [THEN] Total quantity posted in the warehouse ledger = 5.
-        WarehouseEntry.CalcSums(Quantity);
-        Assert.AreEqual(ItemDocumentLine.Quantity, WarehouseEntry.Quantity, '');
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler,ItemTrackingSummaryModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ItemShipmentWithMultipleSerialNos()
-    var
-        Location: Record Location;
-        Bin: Record Bin;
-        Item: Record Item;
-        ReceiptItemDocumentHeader: Record "Item Document Header";
-        ReceiptItemDocumentLine: Record "Item Document Line";
-        ShipmentItemDocumentHeader: Record "Item Document Header";
-        ShipmentItemDocumentLine: Record "Item Document Line";
-        WarehouseEntry: Record "Warehouse Entry";
-    begin
-        // [FEATURE] [Item Shipment] [Item Tracking] [Warehouse]
-        // [SCENARIO 307763] Posting item shipment with multiple serial nos. generates a separate warehouse entry for each serial no.
-        Initialize;
-
-        // [GIVEN] Location with a bin.
-        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
-
-        // [GIVEN] Serial no.-tracked item. "SN Warehouse Tracking" is enabled.
-        CreateSNTrackedItem(Item);
-
-        // [GIVEN] Create item receipt, assign 5 serial nos. to the line and post it.
-        CreateItemDocumentWithItemTracking(
-          ReceiptItemDocumentHeader, ReceiptItemDocumentLine, ReceiptItemDocumentHeader."Document Type"::Receipt,
-          Item."No.", Location.Code, Bin.Code, LibraryRandom.RandIntInRange(5, 10), ItemTrackingAction::AssignSerialNo);
-        LibraryCDTracking.PostItemDocument(ReceiptItemDocumentHeader);
-
-        // [GIVEN] Create item shipment, select received 5 serial nos.
-        CreateItemDocumentWithItemTracking(
-          ShipmentItemDocumentHeader, ShipmentItemDocumentLine, ShipmentItemDocumentHeader."Document Type"::Shipment,
-          Item."No.", Location.Code, Bin.Code, ReceiptItemDocumentLine.Quantity, ItemTrackingAction::SelectEntries);
-
-        // [WHEN] Post the item shipment.
-        LibraryCDTracking.PostItemDocument(ShipmentItemDocumentHeader);
-
-        // [THEN] 5 warehouse entries are created.
-        WarehouseEntry.SetRange("Item No.", Item."No.");
-        WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
-        Assert.RecordCount(WarehouseEntry, ShipmentItemDocumentLine.Quantity);
-
-        // [THEN] Total quantity posted in the warehouse ledger by warehouse shipment = -5.
-        WarehouseEntry.CalcSums(Quantity);
-        Assert.AreEqual(-ShipmentItemDocumentLine.Quantity, WarehouseEntry.Quantity, '');
-
-        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
@@ -719,14 +376,18 @@ codeunit 147111 "SCM Item Documents"
     end;
 
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
-        LibraryCDTracking.UpdateERMCountryData;
-        UpdatePostedDirectTransfersNoSeries;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateVATPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
+        SetupInvtDocumentsNoSeries();
 
         isInitialized := true;
         Commit();
@@ -754,53 +415,23 @@ codeunit 147111 "SCM Item Documents"
         exit(Qty);
     end;
 
-    local procedure CreateDirectTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocationCode: Code[10]; ToLocationCode: Code[10])
+    local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10]; SalespersonPurchaserCode: Code[20])
     begin
-        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, '');
-        TransferHeader.Validate("Direct Transfer", true);
-        TransferHeader.Modify(true);
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, DocumentType, LocationCode);
+        InvtDocumentHeader.Validate("Salesperson/Purchaser Code", SalespersonPurchaserCode);
+        InvtDocumentHeader.Modify(true);
+        LibraryInventory.CreateInvtDocumentLine(
+          InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreateSNTrackedItem(var Item: Record Item)
-    var
-        ItemTrackingCode: Record "Item Tracking Code";
+    local procedure CreateInvtDocumentWithItemTracking(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; ItemDocumentType: Enum "Invt. Doc. Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; ItemTrkgAction: Option)
     begin
-        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
-        ItemTrackingCode.Validate("SN Warehouse Tracking", true);
-        ItemTrackingCode.Modify(true);
-        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode.Code);
-    end;
-
-    local procedure CreateItemDocumentWithLine(var ItemDocumentHeader: Record "Item Document Header"; var ItemDocumentLine: Record "Item Document Line"; Item: Record Item; DocumentType: Option; LocationCode: Code[10]; SalespersonPurchaserCode: Code[20])
-    begin
-        LibraryCDTracking.CreateItemDocument(ItemDocumentHeader, DocumentType, LocationCode);
-        ItemDocumentHeader.Validate("Salesperson/Purchaser Code", SalespersonPurchaserCode);
-        ItemDocumentHeader.Modify(true);
-        LibraryCDTracking.CreateItemDocumentLine(
-          ItemDocumentHeader, ItemDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
-    end;
-
-    local procedure CreateItemDocumentWithItemTracking(var ItemDocumentHeader: Record "Item Document Header"; var ItemDocumentLine: Record "Item Document Line"; ItemDocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; ItemTrkgAction: Option)
-    begin
-        LibraryCDTracking.CreateItemDocument(ItemDocumentHeader, ItemDocumentType, LocationCode);
-        LibraryCDTracking.CreateItemDocumentLine(ItemDocumentHeader, ItemDocumentLine, ItemNo, 0, Qty);
-        ItemDocumentLine.Validate("Bin Code", BinCode);
-        ItemDocumentLine.Modify(true);
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, ItemDocumentType, LocationCode);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, ItemNo, 0, Qty);
+        InvtDocumentLine.Validate("Bin Code", BinCode);
+        InvtDocumentLine.Modify(true);
         LibraryVariableStorage.Enqueue(ItemTrkgAction);
-        ItemDocumentLine.OpenItemTrackingLines();
-    end;
-
-    local procedure CreateItemWithDimension(var Item: Record Item; var DimensionValue: Record "Dimension Value")
-    var
-        Dimension: Record Dimension;
-        DefaultDimension: Record "Default Dimension";
-    begin
-        Clear(DimensionValue);
-        LibraryInventory.CreateItem(Item);
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        LibraryDimension.CreateDefaultDimension(
-          DefaultDimension, DATABASE::Item, Item."No.", Dimension.Code, DimensionValue.Code);
+        InvtDocumentLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
@@ -861,26 +492,33 @@ codeunit 147111 "SCM Item Documents"
         exit(ItemLedgerEntry."Entry No.");
     end;
 
-    local procedure UpdateItemDocumentLineFA(var ItemDocumentHeader: Record "Item Document Header"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10])
+    local procedure UpdateInvtDocumentLineFA(var InvtDocumentHeader: Record "Invt. Document Header"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10])
     var
-        ItemDocumentLine: Record "Item Document Line";
+        InvtDocumentLine: Record "Invt. Document Line";
     begin
-        ItemDocumentLine.SetRange("Document Type", ItemDocumentHeader."Document Type");
-        ItemDocumentLine.SetRange("Document No.", ItemDocumentHeader."No.");
-        ItemDocumentLine.FindFirst;
-        ItemDocumentLine.Validate("Unit Amount", LibraryRandom.RandDecInDecimalRange(500, 1000, 2));
-        ItemDocumentLine.Validate("Unit Cost", LibraryRandom.RandDecInDecimalRange(500, 1000, 2));
-        ItemDocumentLine.Validate("FA No.", FixedAssetNo);
-        ItemDocumentLine.Validate("Depreciation Book Code", DepreciationBookCode);
-        ItemDocumentLine.Modify(true);
+        InvtDocumentLine.SetRange("Document Type", InvtDocumentHeader."Document Type");
+        InvtDocumentLine.SetRange("Document No.", InvtDocumentHeader."No.");
+        InvtDocumentLine.FindFirst();
+        InvtDocumentLine.Validate("Unit Amount", LibraryRandom.RandDecInDecimalRange(500, 1000, 2));
+        InvtDocumentLine.Validate("Unit Cost", LibraryRandom.RandDecInDecimalRange(500, 1000, 2));
+        InvtDocumentLine.Validate("FA No.", FixedAssetNo);
+        InvtDocumentLine.Validate("Depreciation Book Code", DepreciationBookCode);
+        InvtDocumentLine.Modify(true);
     end;
 
-    local procedure UpdatePostedDirectTransfersNoSeries()
+    local procedure SetupInvtDocumentsNoSeries()
     var
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
-        InventorySetup.Validate("Posted Direct Transfer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        if InventorySetup."Invt. Receipt Nos." = '' then
+            InventorySetup.Validate("Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        if InventorySetup."Posted Invt. Receipt Nos." = '' then
+            InventorySetup.Validate("Posted Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        if InventorySetup."Invt. Shipment Nos." = '' then
+            InventorySetup.Validate("Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        if InventorySetup."Posted Invt. Shipment Nos." = '' then
+            InventorySetup.Validate("Posted Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Modify(true);
     end;
 
@@ -920,7 +558,7 @@ codeunit 147111 "SCM Item Documents"
           ItemJournalBatch, Item, WorkDate, LibraryUtility.GenerateGUID, CalculatePer::Item, false, false, false, 0, false);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Inventory Value (Revalued)", NewAmount);
         ItemJournalLine.Modify(true);
 
@@ -954,27 +592,17 @@ codeunit 147111 "SCM Item Documents"
         CreateSalespersonPurchaseWithDimension(SalespersonPurchaser, DimensionValue);
     end;
 
-    local procedure VerifyDimensionCode(DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimSetID: Integer)
-    var
-        DimensionSetEntry: Record "Dimension Set Entry";
-    begin
-        LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, DimSetID);
-        DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
-        DimensionSetEntry.FindFirst;
-        Assert.AreEqual(DimensionValueCode, DimensionSetEntry."Dimension Value Code", 'Dimension values should be equal');
-    end;
-
     local procedure VerifyGLEntrySource(LocationCode: Code[10]; AcquisitionCostAccountNo: Code[20]; FixedAssetNo: Code[20])
     var
-        ItemShipmentHeader: Record "Item Shipment Header";
+        InvtShipmentHeader: Record "Invt. Shipment Header";
         GLEntry: Record "G/L Entry";
     begin
-        ItemShipmentHeader.SetRange("Location Code", LocationCode);
-        ItemShipmentHeader.FindFirst;
+        InvtShipmentHeader.SetRange("Location Code", LocationCode);
+        InvtShipmentHeader.FindFirst();
 
         GLEntry.SetRange("G/L Account No.", AcquisitionCostAccountNo);
-        GLEntry.SetRange("Document No.", ItemShipmentHeader."No.");
-        GLEntry.FindFirst;
+        GLEntry.SetRange("Document No.", InvtShipmentHeader."No.");
+        GLEntry.FindFirst();
         GLEntry.TestField("Source Type", GLEntry."Source Type"::"Fixed Asset");
         GLEntry.TestField("Source No.", FixedAssetNo);
     end;
@@ -994,35 +622,9 @@ codeunit 147111 "SCM Item Documents"
             SetRange("Location Code", LocationCode);
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", EntryType);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, ExpectedQty);
         end;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
-    begin
-        case LibraryVariableStorage.DequeueInteger of
-            ItemTrackingAction::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
-            ItemTrackingAction::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
-        end;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
-    begin
-        EnterQuantityToCreate.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
-    begin
-        ItemTrackingSummary.OK.Invoke;
     end;
 }
 

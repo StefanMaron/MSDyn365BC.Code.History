@@ -53,7 +53,7 @@ report 17430 "Export Form 2-NDFL to XML"
                                             XMLExcelReportsMgt.AddAttribute(CurrNode[5], DeductAmtTxt, DecimalToText(TaxDeductAmount));
                                         end;
                                     end;
-                                until Next = 0;
+                                until Next() = 0;
                             DeleteAll();
                         end;
                     end;
@@ -221,7 +221,7 @@ report 17430 "Export Form 2-NDFL to XML"
                                                   Format(EmplLedgEntry."External Document Date", 0, '<Day,2>.<Month,2>.<Year4>'));
                                                 XMLExcelReportsMgt.AddAttribute(CurrNode[4], IFNSNotifTxt, EmplLedgEntry."External Document Issued By")
                                             end;
-                                        until PayrollElement.Next = 0;
+                                        until PayrollElement.Next() = 0;
                                 end;
                             end;
                         end;
@@ -750,7 +750,7 @@ report 17430 "Export Form 2-NDFL to XML"
             if FindSet then
                 repeat
                     TotalBaseAmount += Base;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -787,7 +787,7 @@ report 17430 "Export Form 2-NDFL to XML"
                     else
                         if TaxPersent = TaxPersent::"13" then // not linked added to total in 13% case
                             AddToFilter(TaxDeductionsFilter, "Tax Deduction Code");
-                until Next = 0;
+                until Next() = 0;
 
             if TaxDeductionsFilter = '' then
                 exit(0);
@@ -799,7 +799,7 @@ report 17430 "Export Form 2-NDFL to XML"
             if FindSet then
                 repeat
                     TotalTaxDeductionAmount += "Tax Deduction Amount";
-                until Next = 0;
+                until Next() = 0;
         end
     end;
 
@@ -825,7 +825,7 @@ report 17430 "Export Form 2-NDFL to XML"
             if FindSet then
                 repeat
                     TotalAmount += Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -850,7 +850,7 @@ report 17430 "Export Form 2-NDFL to XML"
             if FindSet then
                 repeat
                     TotalAmount += Base;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -875,7 +875,7 @@ report 17430 "Export Form 2-NDFL to XML"
             if FindSet then
                 repeat
                     TotalAmount += Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -903,7 +903,7 @@ report 17430 "Export Form 2-NDFL to XML"
             if FindSet then
                 repeat
                     TotalAmount += "Tax Deduction Amount";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

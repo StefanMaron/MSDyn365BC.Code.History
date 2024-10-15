@@ -301,7 +301,7 @@ table 14905 "Letter of Attorney Header"
                     LetterOfAttorneyLine."Unit of Measure" := PurchaseLine."Unit of Measure";
                     LetterOfAttorneyLine.Insert();
                 end;
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

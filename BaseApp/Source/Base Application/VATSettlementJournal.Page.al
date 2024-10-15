@@ -267,7 +267,7 @@ page 12437 "VAT Settlement Journal"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

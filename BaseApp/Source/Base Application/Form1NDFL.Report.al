@@ -132,7 +132,7 @@ report 17359 "Form 1-NDFL"
                                 Ch4IncomeAmount[I] [J] := Ch4IncomeAmount[I] [J] + Base;
                                 Ch4IncomeAmount[I] [13] := Ch4IncomeAmount[I] [13] + Base;
                             end;
-                        until Next = 0;
+                        until Next() = 0;
                 end;
 
                 // Calculate accrued income tax
@@ -156,14 +156,14 @@ report 17359 "Form 1-NDFL"
                                 TempPersonIncomeEntry := PersonIncomeEntry;
                                 Insert;
                             end;
-                        until PersonIncomeEntry.Next = 0;
+                        until PersonIncomeEntry.Next() = 0;
 
                     Reset;
                     if FindSet then
                         repeat
                             J := ConvertPeriodCode2ColNo("Period Code");
                             Ch4Amounts[6] [J] += Amount;
-                        until Next = 0;
+                        until Next() = 0;
                     DeleteAll();
                 end;
 
@@ -214,7 +214,7 @@ report 17359 "Form 1-NDFL"
                           PersonIncomeEntry, DeductCodes, DeductAmounts, 3);
                         FillDeductEntries(DeductCodes, DeductAmounts, 33, 3);
                         ClearDeductAmounts(DeductAmounts);
-                    until PersonIncomeEntry.Next = 0;
+                    until PersonIncomeEntry.Next() = 0;
 
                 CalcCh4Amounts;
 
@@ -262,7 +262,7 @@ report 17359 "Form 1-NDFL"
                                 TempPersonIncomeEntry := PersonIncomeEntry;
                                 Insert;
                             end;
-                        until PersonIncomeEntry.Next = 0;
+                        until PersonIncomeEntry.Next() = 0;
 
                     TotalAccruals := 0;
                     Reset;
@@ -273,7 +273,7 @@ report 17359 "Form 1-NDFL"
                             TempPersonIncomeEntryByDate.Insert();
                             if not TempPersonIncomeEntryByDate.Interim then
                                 TotalAccruals += TempPersonIncomeEntryByDate.Amount;
-                        until Next = 0;
+                        until Next() = 0;
                     DeleteAll();
                 end;
 
@@ -294,7 +294,7 @@ report 17359 "Form 1-NDFL"
                                 TempPersonIncomeEntry.Insert();
                                 TotalPayments += TempPersonIncomeEntryByDate.Amount;
                             end;
-                        until Next = 0;
+                        until Next() = 0;
                 end;
 
                 with TempPersonIncomeEntryByDate do begin
@@ -346,10 +346,10 @@ report 17359 "Form 1-NDFL"
                                                 end;
                                             end;
                                     end;
-                                until Next = 0;
+                                until Next() = 0;
                                 Ch5RowNo += 1;
                             end;
-                        until TempPersonIncomeEntry.Next = 0;
+                        until TempPersonIncomeEntry.Next() = 0;
                     ExcelMgt.FillCell('AW' + Format(Ch5RowNo), Format(TotalAccruals));
                     ExcelMgt.FillCell('CA' + Format(Ch5RowNo), Format(TotalPayments));
                 end;
@@ -563,7 +563,7 @@ report 17359 "Form 1-NDFL"
                         TempPersonIncomeEntry := PersonIncomeEntry;
                         Insert;
                     end;
-                until PersonIncomeEntry.Next = 0;
+                until PersonIncomeEntry.Next() = 0;
 
             Reset;
             if FindSet then
@@ -575,7 +575,7 @@ report 17359 "Form 1-NDFL"
                     ExcelMgt.FillCell('BG' + Format(RowNo), "Tax Code");
                     ExcelMgt.FillCell('CA' + Format(RowNo), Format(Base));
                     RowNo += 1;
-                until Next = 0;
+                until Next() = 0;
             DeleteAll();
         end;
     end;
@@ -594,7 +594,7 @@ report 17359 "Form 1-NDFL"
                     J := ConvertPeriodCode2ColNo("Period Code");
                     Ch6Amounts[1] [J] := Ch6Amounts[1] [J] + Base;
                     Ch6Amounts[2] [J] := Ch6Amounts[2] [J] + Base - "Tax Deduction Amount";
-                until Next = 0;
+                until Next() = 0;
         end;
 
         InitColumns(4);
@@ -631,7 +631,7 @@ report 17359 "Form 1-NDFL"
                     Ch7Amounts[1] [J] := Ch7Amounts[1] [J] + Base;
                     Ch7Amounts[2] [J] := Ch7Amounts[2] [J] + "Tax Deduction Amount";
                     Ch7Amounts[3] [J] := Ch7Amounts[1] [J] + Ch7Amounts[2] [J];
-                until Next = 0;
+                until Next() = 0;
         end;
 
         InitColumns(5);
@@ -867,7 +867,7 @@ report 17359 "Form 1-NDFL"
                             I += 1;
                         end;
                     end;
-                until (Next = 0) or (I > RowsQty);
+                until (Next() = 0) or (I > RowsQty);
     end;
 
     [Scope('OnPrem')]

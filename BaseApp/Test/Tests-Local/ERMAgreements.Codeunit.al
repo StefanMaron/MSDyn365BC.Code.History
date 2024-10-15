@@ -1422,7 +1422,7 @@ codeunit 144508 "ERM Agreements"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(CustLedgerEntry."Agreement No.", AgreementNo, AgrmtNoIncorrectErr)
         until CustLedgerEntry.Next = 0;
@@ -1433,7 +1433,7 @@ codeunit 144508 "ERM Agreements"
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendLedgerEntry.FindSet;
+        VendLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(VendLedgerEntry."Agreement No.", AgreementNo, AgrmtNoIncorrectErr)
         until VendLedgerEntry.Next = 0;
@@ -1445,7 +1445,7 @@ codeunit 144508 "ERM Agreements"
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.AreEqual(GLEntry."Agreement No.", AgreementNo, AgrmtNoIncorrectErr);
         until GLEntry.Next = 0;
@@ -1457,7 +1457,7 @@ codeunit 144508 "ERM Agreements"
     begin
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.IsFalse(Open, FieldCaption(Open))
             until Next = 0;
@@ -1470,7 +1470,7 @@ codeunit 144508 "ERM Agreements"
     begin
         with VendLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.IsFalse(Open, FieldCaption(Open))
             until Next = 0;

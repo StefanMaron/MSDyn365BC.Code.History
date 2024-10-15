@@ -61,16 +61,14 @@ table 5203 "Employee Qualification"
         {
             Caption = 'Course Grade';
         }
-        field(11; "Employee Status"; Option)
+        field(11; "Employee Status"; Enum "Employee Status")
         {
             Caption = 'Employee Status';
             Editable = false;
-            OptionCaption = 'Active,Inactive,Terminated';
-            OptionMembers = Active,Inactive,Terminated;
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist ("Human Resource Comment Line" WHERE("Table Name" = CONST("Employee Qualification"),
+            CalcFormula = Exist("Human Resource Comment Line" WHERE("Table Name" = CONST("Employee Qualification"),
                                                                      "No." = FIELD("Person No."),
                                                                      "Table Line No." = FIELD("Line No.")));
             Caption = 'Comment';

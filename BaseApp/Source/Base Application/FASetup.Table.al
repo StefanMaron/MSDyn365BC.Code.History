@@ -55,7 +55,7 @@ table 5603 "FA Setup"
                 InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
                 MakeInsCoverageLedgEntry: Codeunit "Make Ins. Coverage Ledg. Entry";
             begin
-                if InsCoverageLedgEntry.IsEmpty then
+                if InsCoverageLedgEntry.IsEmpty() then
                     exit;
 
                 if "Insurance Depr. Book" <> xRec."Insurance Depr. Book" then

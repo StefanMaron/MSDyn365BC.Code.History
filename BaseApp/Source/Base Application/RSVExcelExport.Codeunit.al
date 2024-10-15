@@ -24,7 +24,7 @@ codeunit 17471 "RSV Excel Export"
         TempTotalPaidPayrollReportingBuffer: Record "Payroll Reporting Buffer" temporary;
         FileName: Text[250];
     begin
-        if Person.IsEmpty then
+        if Person.IsEmpty() then
             exit;
         CompanyInfo.Get();
         HumanResourcesSetup.Get();
@@ -99,7 +99,7 @@ codeunit 17471 "RSV Excel Export"
                 Page11_Fill(PersonifiedPayrollReportingBuffer, TemplateSheet11Name, PersonCount, StartSheetNo, StartDate, EndDate, InfoType);
                 Page12_Fill(PersonifiedPayrollReportingBuffer, TemplateSheet12Name, PersonCount, StartSheetNo, EndDate);
                 PersonCount -= 1;
-            until ReportingPersonPayrollReportingBuffer.Next = 0;
+            until ReportingPersonPayrollReportingBuffer.Next() = 0;
 
         for i := 1 to 2 do begin
             ExcelMgt.OpenSheetByNumber(ExcelMgt.GetSheetsCount);
@@ -313,7 +313,7 @@ codeunit 17471 "RSV Excel Export"
                 PersonifiedPayrollReportingBuffer.SetRange("Code 4", TempSpecialCodeListEmployee."No.");
                 for PeriodNo := 0 to 3 do
                     Page12_FillPaymentInfo(PersonifiedPayrollReportingBuffer, PeriodNo);
-            until TempSpecialCodeListEmployee.Next = 0;
+            until TempSpecialCodeListEmployee.Next() = 0;
         PersonifiedPayrollReportingBuffer.SetRange("Code 2");
         PersonifiedPayrollReportingBuffer.SetRange("Code 4");
 
@@ -329,7 +329,7 @@ codeunit 17471 "RSV Excel Export"
                 RowNo += 1;
                 if i < TempExperienceLaborContractLine.Count then
                     ExcelMgt.CopyRow(RowNo - 1);
-            until TempExperienceLaborContractLine.Next = 0;
+            until TempExperienceLaborContractLine.Next() = 0;
         end;
     end;
 
@@ -611,9 +611,9 @@ codeunit 17471 "RSV Excel Export"
             repeat
                 SpecialCodeListEmployee."No." := PersonifiedPayrollReportingBuffer."Code 4";
                 if SpecialCodeListEmployee.Insert() then;
-            until PersonifiedPayrollReportingBuffer.Next = 0;
+            until PersonifiedPayrollReportingBuffer.Next() = 0;
 
-        if SpecialCodeListEmployee.IsEmpty then begin
+        if SpecialCodeListEmployee.IsEmpty() then begin
             SpecialCodeListEmployee."No." := 'ZZZZZZZZZZ';
             SpecialCodeListEmployee.Insert();
         end;

@@ -135,7 +135,7 @@ codeunit 12412 PrepmtDiffManagement
                                     SalesPost.CreateCorrDoc(AdvAdjmtEntryBuff, true);
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
             DeleteAll();
         end;
     end;

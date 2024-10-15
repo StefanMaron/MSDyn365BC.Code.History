@@ -2,6 +2,9 @@ table 12459 "Direct Transfer Line"
 {
     Caption = 'Direct Transfer Line';
     LookupPageID = "Posted Transfer Receipt Lines";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Direct Transfer feature merge to W1.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -134,16 +137,6 @@ table 12459 "Direct Transfer Line"
         {
             Caption = 'Dimension Set ID';
             TableRelation = "Dimension Set Entry";
-
-            trigger OnLookup()
-            begin
-                ShowDimensions();
-            end;
-
-            trigger OnValidate()
-            begin
-                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            end;
         }
         field(5704; "Item Category Code"; Code[20])
         {
@@ -183,26 +176,5 @@ table 12459 "Direct Transfer Line"
         {
         }
     }
-
-    fieldgroups
-    {
-    }
-
-    var
-        DimMgt: Codeunit DimensionManagement;
-
-    [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowItemTrackingLines()
-    var
-        ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
-    begin
-        ItemTrackingDocMgt.ShowItemTrackingForShptRcptLine(DATABASE::"Direct Transfer Line", 0, "Document No.", '', 0, "Line No.");
-    end;
 }
 

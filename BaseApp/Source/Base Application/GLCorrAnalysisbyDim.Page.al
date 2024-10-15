@@ -36,7 +36,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                             Text := GLCorrAnalysisView.Code;
                             ValidateGLCorrAnalysisViewCode;
                             ValidateLineDimCode;
-                            CurrPage.Update;
+                            CurrPage.Update();
                             exit(true);
                         end;
                     end;
@@ -45,7 +45,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                     begin
                         ValidateGLCorrAnalysisViewCode;
                         ValidateLineDimCode;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(DimGroupType; DimGroupType)
@@ -76,14 +76,14 @@ page 14940 "G/L Corr. Analysis by Dim."
                         Text := NewCode;
                         LineDimCode := NewCode;
                         ValidateLineDimCode;
-                        CurrPage.Update;
+                        CurrPage.Update();
                         exit(true);
                     end;
 
                     trigger OnValidate()
                     begin
                         ValidateLineDimCode;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -102,7 +102,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                         DateFilter := GLAcc.GetFilter("Date Filter");
                         StartDate := GLCorrAnalysisViewEntry.GetRangeMin("Posting Date");
                         EndDate := GLCorrAnalysisViewEntry.GetRangeMax("Posting Date");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(DebitAccFilter; DebitAccFilter)
@@ -113,7 +113,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(CreditAccFilter; CreditAccFilter)
@@ -124,7 +124,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(BusUnitFilter; BusUnitFilter)
@@ -136,7 +136,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(PeriodType; PeriodType)
@@ -149,7 +149,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -162,7 +162,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -233,7 +233,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(DebitDim2Filter; DebitDim2Filter)
@@ -251,7 +251,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(DebitDim3Filter; DebitDim3Filter)
@@ -269,7 +269,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(CreditDim1Filter; CreditDim1Filter)
@@ -287,7 +287,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(CreditDim2Filter; CreditDim2Filter)
@@ -305,7 +305,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(CreditDim3Filter; CreditDim3Filter)
@@ -323,7 +323,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -353,7 +353,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -750,7 +750,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                         ExcludeClosingDateFilter :=
                           ExcludeClosingDateFilter + StrSubstNo('&<>%1', ClosingDate(AccountingPeriod."Starting Date" - 1));
                     FirstRec := false;
-                until AccountingPeriod.Next = 0;
+                until AccountingPeriod.Next() = 0;
         end;
     end;
 
@@ -1141,7 +1141,7 @@ page 14940 "G/L Corr. Analysis by Dim."
     begin
         LineDimCode := FindFirstDimension;
         LineDimOption := DimCodeToOption(LineDimCode, DimGroupType);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CodeOnFormat()

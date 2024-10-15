@@ -70,7 +70,7 @@ table 26556 "Table Individual Requisite"
         StatReportTableMapping.SetRange("Table Code", "Table Code");
         StatReportTableMapping.SetRange("Table Row No.", "Line No.");
         StatReportTableMapping.SetRange("Table Column No.", 0);
-        if not StatReportTableMapping.IsEmpty then
+        if not StatReportTableMapping.IsEmpty() then
             StatReportTableMapping.DeleteAll();
     end;
 

@@ -43,7 +43,7 @@
                     trigger OnValidate()
                     begin
                         TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
-                        if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Purchases) then
+                        if TempOptionLookupBuffer.AutoCompleteLookup(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Purchases) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
                         UpdateEditableOnRow();
@@ -68,6 +68,7 @@
                         CurrPage.Update();
                     end;
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -92,6 +93,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -1003,6 +1005,17 @@
                             ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -1089,7 +1102,7 @@
                 action(DocumentLineTracking)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Document &LineTracking';
+                    Caption = 'Document &Line Tracking';
                     ToolTip = 'View related open, posted, or archived documents or document lines.';
 
                     trigger OnAction()
@@ -1214,7 +1227,7 @@
                         ApplicationArea = Suite;
                         Caption = 'Sales &Order';
                         Image = Document;
-                        ToolTip = 'Create a new sales order for an item that is shipped directly from the vendor to the customer. The Drop Shipment check box must be selected on the sales order line, and the Vendor No. field must be filled on the item card.';
+                        ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
 
                         trigger OnAction()
                         begin
@@ -1232,7 +1245,7 @@
                         ApplicationArea = Suite;
                         Caption = 'Sales &Order';
                         Image = Document;
-                        ToolTip = 'Create a new sales order for an item that is shipped directly from the vendor to the customer. The Drop Shipment check box must be selected on the sales order line, and the Vendor No. field must be filled on the item card.';
+                        ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
 
                         trigger OnAction()
                         begin
@@ -1254,7 +1267,7 @@
                     begin
                         TestField("Blanket Order No.");
                         PurchaseHeader.SetRange("No.", "Blanket Order No.");
-                        if not PurchaseHeader.IsEmpty then begin
+                        if not PurchaseHeader.IsEmpty() then begin
                             BlanketPurchaseOrder.SetTableView(PurchaseHeader);
                             BlanketPurchaseOrder.Editable := false;
                             BlanketPurchaseOrder.Run;
@@ -1309,13 +1322,13 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReservePurchLine.DeleteLineConfirm(Rec) then
+            if not PurchLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReservePurchLine.DeleteLine(Rec);
+            PurchLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.PurchaseDocTotalsNotUpToDate;
     end;
@@ -1332,9 +1345,9 @@
     begin
         PurchasesPayablesSetup.Get();
         InventorySetup.Get();
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
-        Currency.InitRoundingPrecision;
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        Currency.InitRoundingPrecision();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1364,8 +1377,6 @@
     end;
 
     var
-        TotalPurchaseHeader: Record "Purchase Header";
-        TotalPurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
         Currency: Record Currency;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -1377,9 +1388,6 @@
         Text001: Label 'You cannot use the Explode BOM function because a prepayment of the purchase order has been invoiced.';
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
-        VATAmount: Decimal;
-        InvoiceDiscountAmount: Decimal;
-        InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
@@ -1394,7 +1402,12 @@
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalPurchaseHeader: Record "Purchase Header";
+        TotalPurchaseLine: Record "Purchase Line";
         ShortcutDimCode: array[8] of Code[20];
+        InvoiceDiscountAmount: Decimal;
+        InvoiceDiscountPct: Decimal;
+        VATAmount: Decimal;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1534,7 +1547,7 @@
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
-    local procedure CalculateTotals()
+    procedure CalculateTotals()
     begin
         if SuppressTotals then
             exit;
@@ -1678,10 +1691,12 @@
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")

@@ -23,7 +23,7 @@ codeunit 17371 "Approve Group Order"
                 LaborContractMgt.DoApprove(LaborContractLine);
                 GroupOrderLine.Validate("Contract No.");
                 GroupOrderLine.Modify();
-            until GroupOrderLine.Next = 0
+            until GroupOrderLine.Next() = 0
         else
             Error(Text001, "No.");
 

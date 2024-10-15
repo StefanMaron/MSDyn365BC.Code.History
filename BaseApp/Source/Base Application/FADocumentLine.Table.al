@@ -210,7 +210,7 @@ table 12477 "FA Document Line"
         field(50; "Item Receipt No."; Code[20])
         {
             Caption = 'Item Receipt No.';
-            TableRelation = "Item Document Header"."No." WHERE("Document Type" = CONST(Receipt));
+            TableRelation = "Invt. Document Header"."No." WHERE("Document Type" = CONST(Receipt));
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -375,7 +375,7 @@ table 12477 "FA Document Line"
             repeat
                 Index += 1;
                 Comment[Index] := FAComment.Comment
-            until (FAComment.Next = 0) or (Index = ArrayLen(Comment));
+            until (FAComment.Next() = 0) or (Index = ArrayLen(Comment));
     end;
 
     [Scope('OnPrem')]

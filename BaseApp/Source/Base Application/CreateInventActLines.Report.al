@@ -38,7 +38,7 @@ report 14913 "Create Invent. Act Lines"
                             CustPostGroupBuffer := CustPostGroup;
                             CustPostGroupBuffer.Insert();
                         end;
-                    until CustLedgerEntry.Next = 0;
+                    until CustLedgerEntry.Next() = 0;
 
                 if CustPostGroupBuffer.FindSet then
                     repeat
@@ -54,13 +54,13 @@ report 14913 "Create Invent. Act Lines"
                                     DebtsAmount += CustLedgerEntry."Remaining Amt. (LCY)"
                                 else
                                     LiabilitiesAmount -= CustLedgerEntry."Remaining Amt. (LCY)"
-                            until CustLedgerEntry.Next = 0;
+                            until CustLedgerEntry.Next() = 0;
 
                         if DebtsAmount <> 0 then
                             AddLine(0, "No.", 0, CustPostGroupBuffer.Code, CustPostGroupBuffer."Receivables Account", DebtsAmount);
                         if LiabilitiesAmount <> 0 then
                             AddLine(0, "No.", 1, CustPostGroupBuffer.Code, CustPostGroupBuffer."Receivables Account", LiabilitiesAmount);
-                    until CustPostGroupBuffer.Next = 0;
+                    until CustPostGroupBuffer.Next() = 0;
             end;
         }
         dataitem(Vendor; Vendor)
@@ -81,7 +81,7 @@ report 14913 "Create Invent. Act Lines"
                             VendPostGroupBuffer := VendPostGroup;
                             VendPostGroupBuffer.Insert();
                         end;
-                    until VendLedgerEntry.Next = 0;
+                    until VendLedgerEntry.Next() = 0;
 
                 if VendPostGroupBuffer.FindSet then
                     repeat
@@ -97,13 +97,13 @@ report 14913 "Create Invent. Act Lines"
                                     DebtsAmount += VendLedgerEntry."Remaining Amt. (LCY)"
                                 else
                                     LiabilitiesAmount -= VendLedgerEntry."Remaining Amt. (LCY)"
-                            until VendLedgerEntry.Next = 0;
+                            until VendLedgerEntry.Next() = 0;
 
                         if DebtsAmount <> 0 then
                             AddLine(1, "No.", 0, VendPostGroupBuffer.Code, VendPostGroupBuffer."Payables Account", DebtsAmount);
                         if LiabilitiesAmount <> 0 then
                             AddLine(1, "No.", 1, VendPostGroupBuffer.Code, VendPostGroupBuffer."Payables Account", LiabilitiesAmount);
-                    until VendPostGroupBuffer.Next = 0;
+                    until VendPostGroupBuffer.Next() = 0;
             end;
         }
     }

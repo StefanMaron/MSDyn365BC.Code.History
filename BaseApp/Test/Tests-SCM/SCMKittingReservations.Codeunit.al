@@ -328,6 +328,16 @@ codeunit 137095 "SCM Kitting - Reservations"
         // Exercise: Reserve for current assembly line, using all available supply lines.
         if TempReservationEntry.FindSet then
             repeat
+#if CLEAN17
+                TrackingSpecification.InitTrackingSpecification(
+                  TempReservationEntry."Source Type",
+                  TempReservationEntry."Source Subtype",
+                  TempReservationEntry."Source ID",
+                  '', 0, TempReservationEntry."Source Ref. No.",
+                  TempReservationEntry."Variant Code",
+                  TempReservationEntry."Location Code",
+                  TempReservationEntry."Qty. per Unit of Measure");
+#else
                 TrackingSpecification.InitTrackingSpecification(
                   TempReservationEntry."Source Type",
                   TempReservationEntry."Source Subtype",
@@ -336,7 +346,9 @@ codeunit 137095 "SCM Kitting - Reservations"
                   TempReservationEntry."Variant Code",
                   TempReservationEntry."Location Code", '', '', '',
                   TempReservationEntry."Qty. per Unit of Measure");
+#endif
                 AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
+
                 // If we are expecting not to be able to create a reservation.
                 if TempReservationEntry."Quantity (Base)" = 0 then
                     asserterror

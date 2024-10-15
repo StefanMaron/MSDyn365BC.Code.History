@@ -48,7 +48,7 @@ codeunit 880 "OCR - Send to Service"
 
         OCRServiceMgt.StartUpload(NoOfDocuments);
 
-        TempIncomingDocumentAttachment.FindSet;
+        TempIncomingDocumentAttachment.FindSet();
         repeat
             if GuiAllowed then begin
                 i += 1;
@@ -56,7 +56,7 @@ codeunit 880 "OCR - Send to Service"
             end;
             IncomingDocument.Get(TempIncomingDocumentAttachment."Incoming Document Entry No.");
             IncomingDocument.SendToOCR(false);
-        until TempIncomingDocumentAttachment.Next = 0;
+        until TempIncomingDocumentAttachment.Next() = 0;
 
         Commit();
 

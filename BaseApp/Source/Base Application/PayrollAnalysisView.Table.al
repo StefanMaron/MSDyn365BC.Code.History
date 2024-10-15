@@ -61,7 +61,7 @@ table 14965 "Payroll Analysis View"
                     if PayrollElement.FindSet then
                         repeat
                             PayrollElement.Mark := true;
-                        until PayrollElement.Next = 0;
+                        until PayrollElement.Next() = 0;
                     PayrollElement.SetRange(Code);
                     if PayrollElement.FindSet then
                         repeat
@@ -70,7 +70,7 @@ table 14965 "Payroll Analysis View"
                                 PayrollAnalysisViewEntry.SetRange("Element Code", PayrollElement.Code);
                                 PayrollAnalysisViewEntry.DeleteAll();
                             end;
-                        until PayrollElement.Next = 0;
+                        until PayrollElement.Next() = 0;
                 end;
                 if ("Last Entry No." <> 0) and ("Payroll Element Filter" <> xRec."Payroll Element Filter") and
                    (xRec."Payroll Element Filter" <> '')
@@ -102,7 +102,7 @@ table 14965 "Payroll Analysis View"
                         repeat
                             TempEmployee := Employee;
                             TempEmployee.Insert();
-                        until Employee.Next = 0;
+                        until Employee.Next() = 0;
                     TempEmployee.Init();
                     TempEmployee."No." := '';
                     TempEmployee.Insert();
@@ -114,7 +114,7 @@ table 14965 "Payroll Analysis View"
                             PayrollAnalysisViewEntry.SetRange("Analysis View Code", Code);
                             PayrollAnalysisViewEntry.SetRange("Employee No.", TempEmployee."No.");
                             PayrollAnalysisViewEntry.DeleteAll();
-                        until TempEmployee.Next = 0
+                        until TempEmployee.Next() = 0
                 end;
                 if ("Last Entry No." <> 0) and (xRec."Employee Filter" <> '') and
                    ("Employee Filter" <> xRec."Employee Filter")
@@ -282,7 +282,7 @@ table 14965 "Payroll Analysis View"
                                 NewPayrollAnalysisViewEntry."Dimension 4 Value Code" := '';
                         end;
                         InsertPayrollAnalysisViewEntry;
-                    until PayrollAnalysisViewEntry.Next = 0;
+                    until PayrollAnalysisViewEntry.Next() = 0;
             end;
         end;
     end;

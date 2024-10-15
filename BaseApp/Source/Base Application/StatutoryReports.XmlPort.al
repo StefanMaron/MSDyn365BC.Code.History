@@ -619,7 +619,7 @@ xmlport 26550 "Statutory Reports"
                             repeat
                                 "Stat. Report Table Row" := StatReportTableRow;
                                 "Stat. Report Table Row".Insert();
-                            until StatReportTableRow.Next = 0;
+                            until StatReportTableRow.Next() = 0;
 
                         StatReportTableColumn.SetRange("Report Code", StatutoryReportTable."Report Code");
                         StatReportTableColumn.SetRange("Table Code", StatutoryReportTable.Code);
@@ -627,7 +627,7 @@ xmlport 26550 "Statutory Reports"
                             repeat
                                 "Stat. Report Table Column" := StatReportTableColumn;
                                 "Stat. Report Table Column".Insert();
-                            until StatReportTableColumn.Next = 0;
+                            until StatReportTableColumn.Next() = 0;
 
                         TableIndividualRequisite.SetRange("Report Code", StatutoryReportTable."Report Code");
                         TableIndividualRequisite.SetRange("Table Code", StatutoryReportTable.Code);
@@ -635,8 +635,8 @@ xmlport 26550 "Statutory Reports"
                             repeat
                                 "Table Individual Requisite" := TableIndividualRequisite;
                                 "Table Individual Requisite".Insert();
-                            until TableIndividualRequisite.Next = 0;
-                    until StatutoryReportTable.Next = 0;
+                            until TableIndividualRequisite.Next() = 0;
+                    until StatutoryReportTable.Next() = 0;
 
                 if not TempStatutoryReport.Header then begin
                     FormatVersion.Get(TempStatutoryReport."Format Version Code");
@@ -652,36 +652,36 @@ xmlport 26550 "Statutory Reports"
                     repeat
                         "Stat. Report Excel Sheet" := StatReportExcelSheet;
                         "Stat. Report Excel Sheet".Insert();
-                    until StatReportExcelSheet.Next = 0;
+                    until StatReportExcelSheet.Next() = 0;
 
                 XMLElementLine.SetRange("Report Code", TempStatutoryReport.Code);
                 if XMLElementLine.FindSet then
                     repeat
                         "XML Element Line" := XMLElementLine;
                         "XML Element Line".Insert();
-                    until XMLElementLine.Next = 0;
+                    until XMLElementLine.Next() = 0;
 
                 XMLElementExpressionLine.SetRange("Report Code", TempStatutoryReport.Code);
                 if XMLElementExpressionLine.FindSet then
                     repeat
                         "XML Element Expression Line" := XMLElementExpressionLine;
                         "XML Element Expression Line".Insert();
-                    until XMLElementExpressionLine.Next = 0;
+                    until XMLElementExpressionLine.Next() = 0;
 
                 PageIndicationXMLElement.SetRange("Report Code", TempStatutoryReport.Code);
                 if PageIndicationXMLElement.FindSet then
                     repeat
                         "Page Indication XML Element" := PageIndicationXMLElement;
                         "Page Indication XML Element".Insert();
-                    until PageIndicationXMLElement.Next = 0;
+                    until PageIndicationXMLElement.Next() = 0;
 
                 StatReportTableMapping.SetRange("Report Code", TempStatutoryReport.Code);
                 if StatReportTableMapping.FindSet then
                     repeat
                         "Stat. Report Table Mapping" := StatReportTableMapping;
                         "Stat. Report Table Mapping".Insert();
-                    until StatReportTableMapping.Next = 0;
-            until TempStatutoryReport.Next = 0;
+                    until StatReportTableMapping.Next() = 0;
+            until TempStatutoryReport.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -700,7 +700,7 @@ xmlport 26550 "Statutory Reports"
                         FormatVersion.ImportXMLSchema(PathName + FormatVersion."XML Schema File Name");
                     FormatVersion.Insert();
                 end;
-            until "Format Version".Next = 0;
+            until "Format Version".Next() = 0;
 
         "Statutory Report".Reset();
         if "Statutory Report".FindSet then
@@ -709,7 +709,7 @@ xmlport 26550 "Statutory Reports"
                     StatutoryReport.Delete(true);
                 StatutoryReport := "Statutory Report";
                 StatutoryReport.Insert();
-            until "Statutory Report".Next = 0;
+            until "Statutory Report".Next() = 0;
 
         "Statutory Report Group".Reset();
         if "Statutory Report Group".FindSet then
@@ -718,7 +718,7 @@ xmlport 26550 "Statutory Reports"
                     StatutoryReportGroup.Delete(true);
                 StatutoryReportGroup := "Statutory Report Group";
                 StatutoryReportGroup.Insert();
-            until "Statutory Report Group".Next = 0;
+            until "Statutory Report Group".Next() = 0;
 
         "Statutory Report Table".Reset();
         if "Statutory Report Table".FindSet then
@@ -729,7 +729,7 @@ xmlport 26550 "Statutory Reports"
                     StatutoryReportTable.Delete(true);
                 StatutoryReportTable := "Statutory Report Table";
                 StatutoryReportTable.Insert();
-            until "Statutory Report Table".Next = 0;
+            until "Statutory Report Table".Next() = 0;
 
         "Stat. Report Table Row".Reset();
         if "Stat. Report Table Row".FindSet then
@@ -740,7 +740,7 @@ xmlport 26550 "Statutory Reports"
                     StatReportTableRow.Delete(true);
                 StatReportTableRow := "Stat. Report Table Row";
                 StatReportTableRow.Insert();
-            until "Stat. Report Table Row".Next = 0;
+            until "Stat. Report Table Row".Next() = 0;
 
         "Stat. Report Table Column".Reset();
         if "Stat. Report Table Column".FindSet then
@@ -751,7 +751,7 @@ xmlport 26550 "Statutory Reports"
                     StatReportTableColumn.Delete(true);
                 StatReportTableColumn := "Stat. Report Table Column";
                 StatReportTableColumn.Insert();
-            until "Stat. Report Table Column".Next = 0;
+            until "Stat. Report Table Column".Next() = 0;
 
         "Table Individual Requisite".Reset();
         if "Table Individual Requisite".FindSet then
@@ -762,7 +762,7 @@ xmlport 26550 "Statutory Reports"
                     TableIndividualRequisite.Delete(true);
                 TableIndividualRequisite := "Table Individual Requisite";
                 TableIndividualRequisite.Insert();
-            until "Table Individual Requisite".Next = 0;
+            until "Table Individual Requisite".Next() = 0;
 
         "XML Element Line".Reset();
         if "XML Element Line".FindSet then
@@ -771,7 +771,7 @@ xmlport 26550 "Statutory Reports"
                     XMLElementLine.Delete(true);
                 XMLElementLine := "XML Element Line";
                 XMLElementLine.Insert();
-            until "XML Element Line".Next = 0;
+            until "XML Element Line".Next() = 0;
 
         "XML Element Expression Line".Reset();
         if "XML Element Expression Line".FindSet then
@@ -784,7 +784,7 @@ xmlport 26550 "Statutory Reports"
                     XMLElementExpressionLine.Delete(true);
                 XMLElementExpressionLine := "XML Element Expression Line";
                 XMLElementExpressionLine.Insert();
-            until "XML Element Expression Line".Next = 0;
+            until "XML Element Expression Line".Next() = 0;
 
         "Page Indication XML Element".Reset();
         if "Page Indication XML Element".FindSet then
@@ -797,7 +797,7 @@ xmlport 26550 "Statutory Reports"
                     PageIndicationXMLElement.Delete();
                 PageIndicationXMLElement := "Page Indication XML Element";
                 PageIndicationXMLElement.Insert();
-            until "Page Indication XML Element".Next = 0;
+            until "Page Indication XML Element".Next() = 0;
 
         "Stat. Report Excel Sheet".Reset();
         if "Stat. Report Excel Sheet".FindFirst then
@@ -809,7 +809,7 @@ xmlport 26550 "Statutory Reports"
 
                 StatReportExcelSheet := "Stat. Report Excel Sheet";
                 StatReportExcelSheet.Insert();
-            until "Stat. Report Excel Sheet".Next = 0;
+            until "Stat. Report Excel Sheet".Next() = 0;
 
         "Stat. Report Table Mapping".Reset();
         if "Stat. Report Table Mapping".FindSet then
@@ -824,7 +824,7 @@ xmlport 26550 "Statutory Reports"
 
                 StatReportTableMapping := "Stat. Report Table Mapping";
                 StatReportTableMapping.Insert();
-            until "Stat. Report Table Mapping".Next = 0;
+            until "Stat. Report Table Mapping".Next() = 0;
     end;
 }
 

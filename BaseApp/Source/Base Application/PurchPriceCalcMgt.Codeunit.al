@@ -1,4 +1,4 @@
-﻿codeunit 7010 "Purch. Price Calc. Mgt."
+codeunit 7010 "Purch. Price Calc. Mgt."
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -168,10 +168,9 @@
         OnAfterFindReqLinePrice(ReqLine, TempPurchPrice, CalledByFieldNo);
     end;
 
-    [Scope('OnPrem')]
-    procedure FindItemDocLinePrice(var ItemDocLine: Record "Item Document Line"; CalledByFieldNo: Integer)
+    procedure FindInvtDocLinePrice(var InvtDocLine: Record "Invt. Document Line"; CalledByFieldNo: Integer)
     begin
-        with ItemDocLine do begin
+        with InvtDocLine do begin
             TestField("Qty. per Unit of Measure");
             SetCurrency('', 0, 0D);
             SetVAT(false, 0, '');
@@ -321,7 +320,7 @@
                                 end;
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         OnAfterCalcBestDirectUnitCostFound(PurchPrice, BestPurchPriceFound);
 
@@ -368,7 +367,7 @@
                                 if BestPurchLineDisc."Line Discount %" < "Line Discount %" then
                                     BestPurchLineDisc := PurchLineDisc;
                         end;
-                until Next = 0;
+                until Next() = 0;
 
         OnAfterCalcBestLineDisc(PurchLineDisc, BestPurchLineDisc);
         PurchLineDisc := BestPurchLineDisc;
@@ -398,7 +397,7 @@
                 repeat
                     ToPurchPrice := FromPurchPrice;
                     ToPurchPrice.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         OnAfterFindPurchPrice(
@@ -429,7 +428,7 @@
                 repeat
                     ToPurchLineDisc := FromPurchLineDisc;
                     ToPurchLineDisc.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         OnAfterFindPurchLineDisc(ToPurchLineDisc, FromPurchLineDisc, ItemNo, QuantityPerUoM, Quantity, ShowAll);

@@ -64,6 +64,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(ProdOrderLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var ProdOrderLine: Record "Prod. Order Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
     var
@@ -71,20 +72,23 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     begin
         ForReservEntry."Serial No." := ForSerialNo;
         ForReservEntry."Lot No." := ForLotNo;
-        ForReservEntry."CD No." := ForCDNo;
+        ForReservEntry."Package No." := ForCDNo;
         CreateReservation(ProdOrderLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
         FromTrackingSpecification := TrackingSpecification;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by ProdOrderLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line")
     begin
         ProdOrderLine.SetReservationFilters(FilterReservEntry);
     end;
+#endif
 
     procedure Caption(ProdOrderLine: Record "Prod. Order Line") CaptionText: Text
     begin
@@ -243,7 +247,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
             if NewItemJnlLine.TrackingExists then begin
                 // Try to match against Item Tracking on the prod. order line:
                 OldReservEntry.SetTrackingFilterFromItemJnlLine(NewItemJnlLine);
-                if OldReservEntry.IsEmpty then
+                if OldReservEntry.IsEmpty() then
                     OldReservEntry.ClearTrackingFilter
                 else
                     ItemTrackingFilterIsSet := true;
@@ -286,12 +290,12 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
         with ReservEntry do begin
             SetFilter("Item Tracking", '<> %1', "Item Tracking"::None);
-            if not IsEmpty then
+            if not IsEmpty() then
                 HasItemTracking := HasItemTracking::Line;
 
             SetRange("Source Type", DATABASE::"Prod. Order Component");
             SetFilter("Source Ref. No.", ' > %1', 0);
-            if not IsEmpty then
+            if not IsEmpty() then
                 if HasItemTracking = HasItemTracking::Line then
                     HasItemTracking := HasItemTracking::"Line and Components"
                 else
@@ -319,7 +323,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
                     ReservEntry2 := ReservEntry;
                     ReservEntry2.ClearItemTrackingFields;
                     ReservEntry2.Modify();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(true);
@@ -371,7 +375,8 @@ codeunit 99000837 "Prod. Order Line-Reserve"
             TrackingSpecification.InitFromProdOrderLine(ProdOrderLine);
             ItemTrackingLines.SetSourceSpec(TrackingSpecification, ProdOrderLine."Due Date");
             ItemTrackingLines.SetInbound(ProdOrderLine.IsInbound);
-            ItemTrackingLines.RunModal;
+            OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ProdOrderLine, ItemTrackingLines);
+            ItemTrackingLines.RunModal();
         end;
 
         OnAfterCallItemTracking(ProdOrderLine);
@@ -414,12 +419,15 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
     local procedure EntryStartNo(): Integer
     begin
-        exit(61);
+        exit("Reservation Summary Type"::"Simulated Production Order".AsInteger());
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo in [61, 62, 63, 64]);
+        exit(EntryNo in ["Reservation Summary Type"::"Simulated Production Order".AsInteger(),
+                         "Reservation Summary Type"::"Planned Production Order".AsInteger(),
+                         "Reservation Summary Type"::"Firm Planned Production Order".AsInteger(),
+                         "Reservation Summary Type"::"Released Production Order".AsInteger()]);
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -572,7 +580,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
                 ProdOrderLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" += ProdOrderLine."Reserved Qty. (Base)";
                 TotalQuantity += ProdOrderLine."Remaining Qty. (Base)";
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
 
         if TotalQuantity = 0 then
             exit;
@@ -594,7 +602,8 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]
     local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
     begin
-        if ReservSummEntry."Entry No." in [63, 64] then
+        if ReservSummEntry."Entry No." in ["Reservation Summary Type"::"Firm Planned Production Order".AsInteger(),
+                                           "Reservation Summary Type"::"Released Production Order".AsInteger()] then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, "Production Order Status".FromInteger(ReservSummEntry."Entry No." - 61), Positive, TotalQuantity);
     end;
@@ -621,6 +630,11 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewProdOrderLine: Record "Prod. Order Line"; OldProdOrderLine: Record "Prod. Order Line"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var ProdOrderLine: Record "Prod. Order Line"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 }

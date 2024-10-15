@@ -28,7 +28,7 @@ report 17415 "Calculate Person Income"
                             PersonIncomeMgt.CreateIncomeHeader(PersonIncomeHeader, Person."No.", Date2DMY(PayrollPeriod."Ending Date", 3));
                             PersonIncomeMgt.CreateIncomeLine(PersonIncomeHeader, PayrollPeriod.Code);
                             PersonIncomeHeader.Recalculate;
-                        until PayrollPeriod.Next = 0;
+                        until PayrollPeriod.Next() = 0;
                 end;
             }
 

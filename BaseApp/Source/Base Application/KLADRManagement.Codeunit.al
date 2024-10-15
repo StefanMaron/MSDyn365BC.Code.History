@@ -24,7 +24,7 @@ codeunit 14950 "KLADR Management"
         if Level > 1 then
             KLADRAddr.SetRange(Parent, ParentCode);
         CurrCode := KLADRAddr.GetParentCode(AltAddr."KLADR Code", Level + 1);
-        if not KLADRAddr.IsEmpty then begin
+        if not KLADRAddr.IsEmpty() then begin
             if KLADRAddr.Get(CurrCode) then;
             KLADRForm.SetTableView(KLADRAddr);
             KLADRForm.SetRecord(KLADRAddr);

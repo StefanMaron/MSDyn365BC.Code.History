@@ -161,7 +161,7 @@ report 17302 "Calculate FE Depreciation"
                             "Employee No." := FAJnlLineTmp."Employee No.";
                             "Depr. Period Starting Date" := FAJnlLineTmp."Depr. Period Starting Date";
                             Insert(true);
-                        until FAJnlLineTmp.Next = 0;
+                        until FAJnlLineTmp.Next() = 0;
                     end;
                 end;
 
@@ -211,7 +211,7 @@ report 17302 "Calculate FE Depreciation"
                                 if FindLast then;
                                 GenJnlNextLineNo := "Line No.";
                             end;
-                        until GenJnlLineTmp.Next = 0;
+                        until GenJnlLineTmp.Next() = 0;
                     end;
                 end;
             end;

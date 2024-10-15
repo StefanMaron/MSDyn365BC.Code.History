@@ -301,7 +301,7 @@ codeunit 86 "Sales-Quote to Order"
                     if SalesOrderLine.Reserve = SalesOrderLine.Reserve::Always then
                         SalesOrderLine.AutoReserve();
                 end;
-            until SalesQuoteLine.Next = 0;
+            until SalesQuoteLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

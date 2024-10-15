@@ -158,7 +158,7 @@ table 17200 "Tax Register"
                     end;
                     TaxRegGLCorrDimFilter.SetRange("Section Code", "Section Code");
                     TaxRegGLCorrDimFilter.SetRange("Tax Register No.", "No.");
-                    if not TaxRegGLCorrDimFilter.IsEmpty then
+                    if not TaxRegGLCorrDimFilter.IsEmpty() then
                         if Confirm(Text1002, true) then
                             TaxRegGLCorrDimFilter.DeleteAll
                         else
@@ -396,7 +396,7 @@ table 17200 "Tax Register"
                             end;
                     end;
                 end;
-            until TaxRegLineSetup.Next = 0;
+            until TaxRegLineSetup.Next() = 0;
 
         if "G/L Corr. Analysis View Code" <> '' then begin
             TempGLCorrAnalysisViewEntry.SetFilter("G/L Corr. Analysis View Code", "G/L Corr. Analysis View Code");
@@ -430,7 +430,7 @@ table 17200 "Tax Register"
             repeat
                 TempGLCorrespondenceEntry := GLCorrespondenceEntry;
                 if not TempGLCorrespondenceEntry.Insert() then;
-            until GLCorrespondenceEntry.Next = 0;
+            until GLCorrespondenceEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -440,7 +440,7 @@ table 17200 "Tax Register"
             repeat
                 TempGLCorrAnalysisViewEntry := GLCorrAnalysisViewEntry;
                 if not TempGLCorrAnalysisViewEntry.Insert() then;
-            until GLCorrAnalysisViewEntry.Next = 0;
+            until GLCorrAnalysisViewEntry.Next() = 0;
     end;
 }
 

@@ -41,9 +41,8 @@ page 6310 "PBI Job Act. v. Budg. Price"
     trigger OnOpenPage()
     var
         PBIJobChartCalc: Codeunit "PBI Job Chart Calc.";
-        JobChartType: Option Profitability,"Actual to Budget Cost","Actual to Budget Price";
     begin
-        PBIJobChartCalc.GetValues(Rec, JobChartType::"Actual to Budget Price");
+        PBIJobChartCalc.GetValues(Rec, "Job Chart Type"::"Actual to Budget Price".AsInteger());
     end;
 }
 

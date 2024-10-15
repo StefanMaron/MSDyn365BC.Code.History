@@ -1,4 +1,4 @@
-﻿report 5685 "Copy Fixed Asset"
+report 5685 "Copy Fixed Asset"
 {
     Caption = 'Copy Fixed Asset';
     Permissions = TableData "FA Depreciation Book" = ri;
@@ -121,7 +121,7 @@
                     DefaultDim2 := DefaultDim;
                     DefaultDim2."No." := FA2."No.";
                     DefaultDim2.Insert(true);
-                until DefaultDim.Next = 0;
+                until DefaultDim.Next() = 0;
             if FADeprBook.Find('-') then
                 repeat
                     FADeprBook2 := FADeprBook;
@@ -131,9 +131,8 @@
                     FADeprBook2."Initial Acquisition" := false;
                     if not FADeprBook2.Insert(true) then
                         FADeprBook2.Modify(true);
-                until FADeprBook.Next = 0;
+                until FADeprBook.Next() = 0;
             if FA2.Find then begin
-                ;
                 FA2."Last Date Modified" := 0D;
                 FA2.Modify();
             end;

@@ -45,9 +45,9 @@ codeunit 12424 "VAT Invoice Journal Management"
                                             if ShowCorrection and not IsCrMemoIncludedInVatLedg("Document No.", ReportType::Issued) then
                                                 InsertVendLE(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
                                     end;
-                        until Next = 0;
+                        until Next() = 0;
                 end;
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -80,9 +80,9 @@ codeunit 12424 "VAT Invoice Journal Management"
                                         if not (ShowCorrection or IsCrMemoIncludedInVatLedg("Document No.", ReportType::Received)) then
                                             InsertCustLE(CustomerLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
                                 end;
-                        until Next = 0;
+                        until Next() = 0;
                 end;
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
     end;
 
     local procedure IsVATinfoAvaliable(VendorLE: Record "Vendor Ledger Entry"): Boolean
@@ -304,7 +304,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                                     AmountFCY += Amount;
                                 end
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -353,7 +353,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                                     AmountFCY += Amount;
                                 end;
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -765,7 +765,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                 repeat
                     AmtInclVAT += "Amount Including VAT";
                     VATAmount += "Amount Including VAT" - Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -779,7 +779,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                 repeat
                     AmtInclVAT += "Amount Including VAT";
                     VATAmount += "Amount Including VAT" - Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -793,7 +793,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                 repeat
                     AmtInclVAT += "Amount Including VAT";
                     VATAmount += "Amount Including VAT" - Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -807,7 +807,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                 repeat
                     AmtInclVAT += "Amount Including VAT";
                     VATAmount += "Amount Including VAT" - Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 }

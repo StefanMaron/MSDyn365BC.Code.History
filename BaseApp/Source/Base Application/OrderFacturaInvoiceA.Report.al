@@ -48,19 +48,19 @@ report 12411 "Order Factura-Invoice (A)"
                             LineValues: array[13] of Text;
                         begin
                             if Number = 1 then
-                                TrackingSpecBuffer2.FindSet
+                                TempTrackingSpecBuffer2.FindSet()
                             else
-                                TrackingSpecBuffer2.Next;
+                                TempTrackingSpecBuffer2.Next();
 
-                            if CDNoInfo.Get(
-                                 CDNoInfo.Type::Item, TrackingSpecBuffer2."Item No.", TrackingSpecBuffer2."Variant Code", TrackingSpecBuffer2."CD No.")
+                            if PackageNoInfo.Get(
+                                 TempTrackingSpecBuffer2."Item No.", TempTrackingSpecBuffer2."Variant Code", TempTrackingSpecBuffer2."Package No.")
                             then begin
-                                CountryName := CDNoInfo.GetCountryName;
-                                CountryCode := CDNoInfo.GetCountryLocalCode;
+                                CountryName := PackageNoInfo.GetCountryName();
+                                CountryCode := PackageNoInfo.GetCountryLocalCode();
                             end;
 
                             CopyArray(LastTotalAmount, TotalAmount, 1);
-                            FacturaInvoiceHelper.TransferItemTrLineValues(LineValues, TrackingSpecBuffer2, CountryCode, CountryName, Sign);
+                            FacturaInvoiceHelper.TransferItemTrLineValues(LineValues, TempTrackingSpecBuffer2, CountryCode, CountryName, Sign);
                             FillBody(LineValues);
                         end;
 
@@ -106,7 +106,9 @@ report 12411 "Order Factura-Invoice (A)"
                               Round(SalesLine1.Amount / SalesLine1."Qty. to Invoice",
                                 Currency."Unit-Amount Rounding Precision");
                             IncrAmount(SalesLine1);
-                            RetrieveCDSpecification;
+                            OnItemTrackingLineOnBeforeTransferReportValues(
+                                SalesLine1, TempTrackingSpecBuffer, TempTrackingSpecBuffer2,
+                                MultipleCD, CDNo, CountryCode, CountryName, TrackingSpecCount);
                             TransferReportValues(LineValues, SalesLine1, CountryName, CDNo, CountryCode);
                         end else begin
                             SalesLine1."No." := '';
@@ -187,7 +189,7 @@ report 12411 "Order Factura-Invoice (A)"
                     repeat
                         AttachedSalesLine := SalesLine1;
                         AttachedSalesLine.Insert();
-                    until SalesLine1.Next = 0;
+                    until SalesLine1.Next() = 0;
 
                 SalesLine1.SetRange("Attached to Line No.", 0);
 
@@ -213,7 +215,7 @@ report 12411 "Order Factura-Invoice (A)"
                     KPPCode := Customer."KPP Code";
 
                 ItemTrackingDocMgt.RetrieveDocumentItemTracking(
-                  TrackingSpecBuffer, "No.", DATABASE::"Sales Header", "Document Type".AsInteger());
+                    TempTrackingSpecBuffer, "No.", DATABASE::"Sales Header", "Document Type".AsInteger());
 
                 if not Preview then begin
                     // IF ArchiveDocument THEN
@@ -332,15 +334,14 @@ report 12411 "Order Factura-Invoice (A)"
         AttachedSalesLine: Record "Sales Line" temporary;
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
-        CDNoInfo: Record "CD No. Information";
-        TrackingSpecBuffer: Record "Tracking Specification" temporary;
-        TrackingSpecBuffer2: Record "Tracking Specification" temporary;
+        PackageNoInfo: Record "Package No. Information";
+        TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
+        TempTrackingSpecBuffer2: Record "Tracking Specification" temporary;
         NoSeriesManagement: Codeunit NoSeriesManagement;
         LocMgt: Codeunit "Localisation Management";
         StdRepMgt: Codeunit "Local Report Management";
         ArchiveManagement: Codeunit ArchiveManagement;
         SegManagement: Codeunit SegManagement;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
         FacturaInvoiceHelper: Codeunit "Factura-Invoice Report Helper";
         CurrencyDescription: Text;
@@ -356,7 +357,6 @@ report 12411 "Order Factura-Invoice (A)"
         Sign: Decimal;
         CountryCode: Code[10];
         CountryName: Text;
-        ValueMissingErr: Label '%1 is missing for %2 items %3 in line %4.';
         LogInteraction: Boolean;
         ArchiveDocument: Boolean;
         CDNo: Text;
@@ -449,116 +449,6 @@ report 12411 "Order Factura-Invoice (A)"
         exit(SalesLine.IsEmpty);
     end;
 
-    [Scope('OnPrem')]
-    procedure RetrieveCDSpecification()
-    var
-        Item: Record Item;
-        ItemTrackingCode: Record "Item Tracking Code";
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        CDTrackingSetup: Record "CD Tracking Setup";
-        ReservEntry: Record "Reservation Entry";
-        ReservEntry2: Record "Reservation Entry";
-        TrackedQty: Decimal;
-    begin
-        MultipleCD := false;
-        CDNo := '';
-        CountryName := '';
-        CountryCode := '';
-        TrackedQty := 0;
-
-        case SalesLine1.Type of
-            SalesLine1.Type::Item:
-                begin
-                    Item.Get(SalesLine1."No.");
-                    if Item."Item Tracking Code" <> '' then begin
-                        SalesLine1.TestField("Appl.-to Item Entry", 0);
-                        SalesLine1.TestField("Appl.-from Item Entry", 0);
-                        ItemTrackingCode.Code := Item."Item Tracking Code";
-                        ItemTrackingMgt.GetItemTrackingSetup(ItemTrackingCode, CDTrackingSetup, 1, false, ItemTrackingSetup);
-                        if ItemTrackingSetup."CD No. Required" then begin
-                            // find tracking specifiation
-                            TrackingSpecBuffer.Reset();
-                            TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
-                              "Source Prod. Order Line", "Source Ref. No.");
-                            TrackingSpecBuffer.SetRange("Source Type", DATABASE::"Sales Line");
-                            TrackingSpecBuffer.SetRange("Source Subtype", SalesLine1."Document Type");
-                            TrackingSpecBuffer.SetRange("Source ID", SalesLine1."Document No.");
-                            TrackingSpecBuffer.SetRange("Source Ref. No.", SalesLine1."Line No.");
-                            TrackingSpecBuffer2.DeleteAll();
-                            if TrackingSpecBuffer.FindSet then
-                                repeat
-                                    TrackingSpecBuffer2.SetRange("CD No.", TrackingSpecBuffer."CD No.");
-                                    if TrackingSpecBuffer2.FindFirst then begin
-                                        TrackingSpecBuffer2."Quantity (Base)" += TrackingSpecBuffer."Quantity (Base)";
-                                        TrackedQty += TrackingSpecBuffer."Quantity (Base)";
-                                        TrackingSpecBuffer2.Modify();
-                                    end else begin
-                                        TrackingSpecBuffer2.Init();
-                                        TrackingSpecBuffer2 := TrackingSpecBuffer;
-                                        TrackingSpecBuffer2.TestField("Quantity (Base)");
-                                        TrackedQty += TrackingSpecBuffer."Quantity (Base)";
-                                        TrackingSpecBuffer2."Lot No." := '';
-                                        TrackingSpecBuffer2."Serial No." := '';
-                                        TrackingSpecBuffer2.Insert();
-                                    end;
-                                until TrackingSpecBuffer.Next = 0;
-                            TrackingSpecBuffer2.Reset();
-                            TrackingSpecCount := TrackingSpecBuffer2.Count();
-                            if TrackingSpecCount = 0 then begin
-                                // find reservation specification
-                                SalesLine1.CalcFields("Reserved Qty. (Base)");
-                                if SalesLine1."Reserved Qty. (Base)" <> 0 then begin
-                                    ReservEntry.Reset();
-                                    ReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
-                                    ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
-                                    ReservEntry.SetRange("Source Subtype", SalesLine1."Document Type");
-                                    ReservEntry.SetRange("Source ID", SalesLine1."Document No.");
-                                    ReservEntry.SetRange("Source Ref. No.", SalesLine1."Line No.");
-                                    if ReservEntry.FindSet then
-                                        repeat
-                                            ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
-                                            TrackingSpecBuffer2.Init();
-                                            TrackingSpecBuffer2.TransferFields(ReservEntry2);
-                                            TrackedQty += TrackingSpecBuffer2."Quantity (Base)";
-                                            TrackingSpecBuffer2."Lot No." := '';
-                                            TrackingSpecBuffer2."Serial No." := '';
-                                            TrackingSpecBuffer2.Insert();
-                                        until ReservEntry.Next = 0;
-                                end;
-                            end;
-
-                            if TrackedQty <> SalesLine1."Qty. to Ship (Base)" then
-                                Error(ValueMissingErr,
-                                  TrackingSpecBuffer2.FieldCaption("CD No."),
-                                  SalesLine1."Qty. to Ship (Base)" - TrackedQty,
-                                  TrackingSpecBuffer2."Item No.", SalesLine1."Line No.");
-
-                            TrackingSpecBuffer2.Reset();
-                            TrackingSpecCount := TrackingSpecBuffer2.Count();
-                            case TrackingSpecCount of
-                                1:
-                                    begin
-                                        TrackingSpecBuffer2.FindFirst;
-                                        CDNo := TrackingSpecBuffer2."CD No.";
-                                        if CDNoInfo.Get(
-                                             CDNoInfo.Type::Item, TrackingSpecBuffer2."Item No.",
-                                             TrackingSpecBuffer2."Variant Code", TrackingSpecBuffer2."CD No.")
-                                        then begin
-                                            CountryName := CDNoInfo.GetCountryName;
-                                            CountryCode := CDNoInfo.GetCountryLocalCode;
-                                        end;
-                                    end;
-                                else
-                                    MultipleCD := true;
-                            end;
-                        end;
-                    end;
-                end;
-            SalesLine1.Type::"Fixed Asset":
-                FacturaInvoiceHelper.GetFAInfo(SalesLine1."No.", CDNo, CountryName);
-        end;
-    end;
-
     local procedure FillDocHeader(var DocNo: Code[20]; var DocDate: Text; var RevNo: Code[20]; var RevDate: Text)
     var
         CorrDocMgt: Codeunit "Corrective Document Mgt.";
@@ -638,6 +528,11 @@ report 12411 "Order Factura-Invoice (A)"
     procedure SetFileNameSilent(NewFileName: Text)
     begin
         FileName := NewFileName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackingLineOnBeforeTransferReportValues(SalesLine: Record "Sales Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempTrackingSpecification2: Record "Tracking Specification" temporary; var MultipleCD: Boolean; var CDNo: Text; var CountryCode: Code[10]; var CountryName: Text; var TrackingSpecCount: Integer);
+    begin
     end;
 }
 

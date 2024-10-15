@@ -304,7 +304,7 @@ page 12409 "Posted Gen. Journals"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

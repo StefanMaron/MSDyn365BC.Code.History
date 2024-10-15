@@ -137,7 +137,7 @@ codeunit 14939 "Torg-16 Document Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure FillItemLedgerLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; ItemDocLine: Record "Item Document Line")
+    procedure FillItemLedgerLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; InvtDocLine: Record "Invt. Document Line")
     var
         Amount: Decimal;
         ItemDescription: Text;
@@ -152,7 +152,7 @@ codeunit 14939 "Torg-16 Document Helper"
         ItemDescription := GetItemDescription(ItemNo);
         GetUOMOKEICode(UnitOfMeasureCode, UnitOfMeasureCodeDesc, OKEICode);
 
-        with ItemDocLine do begin
+        with InvtDocLine do begin
             Amount := Round(Quantity * "Unit Cost");
             TotalAmount += Amount;
             ExcelReportBuilderMgr.AddDataToSection('ItemName', ItemDescription);
@@ -169,7 +169,7 @@ codeunit 14939 "Torg-16 Document Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure FillItemShptLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; ItemShptLine: Record "Item Shipment Line")
+    procedure FillInvtShptLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; InvtShptLine: Record "Invt. Shipment Line")
     var
         Amount: Decimal;
         ItemDescription: Text;
@@ -183,8 +183,8 @@ codeunit 14939 "Torg-16 Document Helper"
 
         ItemDescription := GetItemDescription(ItemNo);
         GetUOMOKEICode(UnitOfMeasureCode, UnitOfMeasureCodeDesc, OKEICode);
-        Amount := ItemShptLine.Amount;
-        with ItemShptLine do begin
+        Amount := InvtShptLine.Amount;
+        with InvtShptLine do begin
             TotalAmount += Amount;
             ExcelReportBuilderMgr.AddDataToSection('ItemName', ItemDescription);
             ExcelReportBuilderMgr.AddDataToSection('ItemId', "Item No.");

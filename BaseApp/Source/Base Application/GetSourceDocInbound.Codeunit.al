@@ -24,7 +24,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         if IsHandled then
             exit(Result);
 
-        if WarehouseRequest.IsEmpty then
+        if WarehouseRequest.IsEmpty() then
             exit(false);
 
         Clear(GetSourceDocuments);
@@ -152,32 +152,6 @@ codeunit 5751 "Get Source Doc. Inbound"
         ShowDialog(CreateFromInbndTransferOrderHideDialog(TransHeader));
     end;
 
-    [Scope('OnPrem')]
-    procedure CreateFromItemReceipt(ItemDocHeader: Record "Item Document Header")
-    var
-        WhseRqst: Record "Warehouse Request";
-        WhseRcptHeader: Record "Warehouse Receipt Header";
-        GetSourceDocuments: Report "Get Source Documents";
-    begin
-        with ItemDocHeader do begin
-            TestField(Status, Status::Released);
-            WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
-            WhseRqst.SetRange("Source Type", DATABASE::"Item Document Line");
-            WhseRqst.SetRange("Source Subtype", ItemDocHeader."Document Type");
-            WhseRqst.SetRange("Source No.", "No.");
-            WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
-            GetRequireReceiveRqst(WhseRqst);
-
-            if WhseRqst.FindFirst then begin
-                GetSourceDocuments.UseRequestPage(false);
-                GetSourceDocuments.SetTableView(WhseRqst);
-                GetSourceDocuments.RunModal;
-                GetSourceDocuments.GetLastReceiptHeader(WhseRcptHeader);
-                PAGE.Run(PAGE::"Warehouse Receipt", WhseRcptHeader);
-            end;
-        end;
-    end;
-
     procedure CreateFromInbndTransferOrderHideDialog(TransHeader: Record "Transfer Header"): Boolean
     var
         WhseRqst: Record "Warehouse Request";
@@ -212,7 +186,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetWhseSourceDocuments.RunModal;
     end;
 
-    local procedure GetRequireReceiveRqst(var WhseRqst: Record "Warehouse Request")
+    procedure GetRequireReceiveRqst(var WhseRqst: Record "Warehouse Request")
     var
         Location: Record Location;
         LocationCode: Text;
@@ -227,7 +201,7 @@ codeunit 5751 "Get Source Doc. Inbound"
             repeat
                 if Location.RequireReceive(WhseRqst."Location Code") then
                     LocationCode += WhseRqst."Location Code" + '|';
-            until WhseRqst.Next = 0;
+            until WhseRqst.Next() = 0;
             if LocationCode <> '' then begin
                 LocationCode := CopyStr(LocationCode, 1, StrLen(LocationCode) - 1);
                 if LocationCode[1] = '|' then

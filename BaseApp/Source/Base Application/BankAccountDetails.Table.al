@@ -123,7 +123,7 @@ table 12436 "Bank Account Details"
         BankAccDetails.SetRange("VAT Registration No.", "VAT Registration No.");
         BankAccDetails.SetRange("Bank Account No.", "VAT Registration No.");
         BankAccDetails.SetRange("KPP Code", "KPP Code");
-        if not BankAccDetails.IsEmpty then
+        if not BankAccDetails.IsEmpty() then
             Error(Text001, "VAT Registration No.", "KPP Code", "Bank Account No.");
     end;
 }

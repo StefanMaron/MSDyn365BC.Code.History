@@ -72,7 +72,7 @@ table 17304 "Tax Diff. Journal Batch"
         if TaxDiffJnlLine.Find('-') then
             repeat
                 TaxDiffJnlLine.Rename("Journal Template Name", Name, TaxDiffJnlLine."Line No.");
-            until TaxDiffJnlLine.Next = 0;
+            until TaxDiffJnlLine.Next() = 0;
     end;
 
     var
@@ -100,7 +100,7 @@ table 17304 "Tax Diff. Journal Batch"
                         TaxDiffJnlLine.Validate("Reason Code", "Reason Code");
                 end;
                 TaxDiffJnlLine.Modify(true);
-            until TaxDiffJnlLine.Next = 0;
+            until TaxDiffJnlLine.Next() = 0;
     end;
 }
 

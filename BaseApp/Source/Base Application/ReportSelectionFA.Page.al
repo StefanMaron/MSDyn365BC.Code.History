@@ -99,7 +99,7 @@ page 12484 "Report Selection - FA"
 
     local procedure ReportUsage2OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

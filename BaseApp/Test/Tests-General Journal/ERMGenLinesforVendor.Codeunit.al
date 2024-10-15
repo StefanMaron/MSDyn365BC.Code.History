@@ -839,10 +839,10 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     begin
         StandardGeneralJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
-        StandardGeneralJournalLine.FindSet;
+        StandardGeneralJournalLine.FindSet();
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
             GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::Vendor);

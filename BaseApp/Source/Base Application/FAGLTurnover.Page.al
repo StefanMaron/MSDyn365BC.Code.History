@@ -25,7 +25,7 @@ page 12499 "FA G/L Turnover"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

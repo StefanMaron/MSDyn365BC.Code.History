@@ -76,7 +76,7 @@ codeunit 14961 "Update Payroll Analysis View"
         if DirectlyFromPosting then
             PayrollAnalysisView2.SetRange("Update on Posting", true);
 
-        if PayrollAnalysisView2.IsEmpty then
+        if PayrollAnalysisView2.IsEmpty() then
             exit;
 
         InitLastEntryNo;
@@ -88,7 +88,7 @@ codeunit 14961 "Update Payroll Analysis View"
         if PayrollAnalysisView2.FindSet(true, true) then
             repeat
                 UpdateOne(PayrollAnalysisView2, not DirectlyFromPosting and (PayrollAnalysisView2."Last Entry No." < LastEntryNo - 1000));
-            until PayrollAnalysisView2.Next = 0;
+            until PayrollAnalysisView2.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -247,7 +247,7 @@ codeunit 14961 "Update Payroll Analysis View"
                     AddValue(PayrollAnalysisViewEntry."Taxable Amount", TempPayrollAnalysisViewEntry."Taxable Amount");
                     PayrollAnalysisViewEntry.Modify();
                 end;
-            until TempPayrollAnalysisViewEntry.Next = 0;
+            until TempPayrollAnalysisViewEntry.Next() = 0;
         TempPayrollAnalysisViewEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
@@ -345,7 +345,7 @@ codeunit 14961 "Update Payroll Analysis View"
                 else
                     InFilters :=
                       InFilters and IsValueIncludedInFilter('', PayrollAnalysisViewFilter."Dimension Value Filter");
-            until (PayrollAnalysisViewFilter.Next = 0) or not InFilters;
+            until (PayrollAnalysisViewFilter.Next() = 0) or not InFilters;
         TempDimEntryBuffer."No." := DimSetID;
         if InFilters then
             TempDimEntryBuffer."Dimension Entry No." := 1

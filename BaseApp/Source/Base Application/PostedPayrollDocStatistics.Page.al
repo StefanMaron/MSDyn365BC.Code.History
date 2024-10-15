@@ -57,7 +57,7 @@ page 17399 "Posted Payroll Doc. Statistics"
             repeat
                 TempPayrollDocLine.TransferFields(PostedPayrollDocLine);
                 TempPayrollDocLine.Insert();
-            until PostedPayrollDocLine.Next = 0;
+            until PostedPayrollDocLine.Next() = 0;
 
         PayrollDocPost.AggregateTaxes(TempPayrollDocLine);
         PayrollDocPost.GetPayrollDocBuffer(PayrollDocBuffer);

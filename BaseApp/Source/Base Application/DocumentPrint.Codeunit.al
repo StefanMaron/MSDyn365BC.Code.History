@@ -1,4 +1,4 @@
-﻿codeunit 229 "Document-Print"
+codeunit 229 "Document-Print"
 {
 
     trigger OnRun()
@@ -252,6 +252,19 @@
         ReportSelections.PrintReport(ReportSelections.Usage::"B.Stmt", BankAccStmt);
     end;
 
+    procedure PrintPostedPaymentReconciliation(PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr")
+    var
+        ReportSelections: Record "Report Selections";
+        IsPrinted: Boolean;
+    begin
+        PostedPaymentReconHdr.SetRecFilter;
+        OnBeforePrintPostedPaymentReconciliation(PostedPaymentReconHdr, IsPrinted);
+        if IsPrinted then
+            exit;
+
+        ReportSelections.PrintReport(ReportSelections.Usage::"Posted Payment Reconciliation", PostedPaymentReconHdr);
+    end;
+
     procedure PrintCheck(var NewGenJnlLine: Record "Gen. Journal Line")
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -295,7 +308,7 @@
 
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
-        if ReportSelection.IsEmpty then
+        if ReportSelection.IsEmpty() then
             Error(Text001, ReportSelection.TableCaption, Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
 
         ReportSelection.PrintForCust(ReportUsage, ServiceContract, ServiceContract.FieldNo("Bill-to Customer No."));
@@ -317,7 +330,7 @@
 
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
-        if ReportSelection.IsEmpty then
+        if ReportSelection.IsEmpty() then
             Error(Text002, ReportSelection.FieldCaption("Report ID"), ServiceHeader.TableCaption, ReportSelection.TableCaption);
 
         ReportSelection.PrintForCust(ReportUsage, ServiceHeader, ServiceHeader.FieldNo("Customer No."));
@@ -433,7 +446,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtOrderHeader);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     procedure PrintInvtOrder(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; ShowRequestForm: Boolean)
@@ -446,7 +459,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtOrderHeader);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     procedure PrintPostedInvtOrder(PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; ShowRequestForm: Boolean)
@@ -459,7 +472,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PstdPhysInvtOrderHdr);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     procedure PrintInvtRecording(PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; ShowRequestForm: Boolean)
@@ -473,7 +486,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtRecordHeader);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     procedure PrintPostedInvtRecording(PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr"; ShowRequestForm: Boolean)
@@ -487,7 +500,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PstdPhysInvtRecordHdr);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -502,48 +515,75 @@
           ReportSelection.Usage::UAS, PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
-    [Scope('OnPrem')]
-    procedure PrintItemDoc(var NewItemDocHeader: Record "Item Document Header")
+    procedure PrintInvtDocument(var NewInvtDocHeader: Record "Invt. Document Header"; ShowRequestPage: Boolean)
     var
-        ItemDocHeader: Record "Item Document Header";
-        ReportSelection: Record "Report Selections";
+        InvtDocHeader: Record "Invt. Document Header";
+        ReportSelections: Record "Report Selections";
         DocPrintBuffer: Record "Document Print Buffer";
     begin
-        with ItemDocHeader do begin
-            Copy(NewItemDocHeader);
-            SetRecFilter;
+        InvtDocHeader.Copy(NewInvtDocHeader);
+        InvtDocHeader.SetRecFilter();
 
-            InsertDocPrintBuffer(DocPrintBuffer, DATABASE::"Item Document Header", "Document Type", "No.");
+        InsertDocPrintBuffer(
+            DocPrintBuffer, DATABASE::"Invt. Document Header", InvtDocHeader."Document Type".AsInteger(), InvtDocHeader."No.");
 
-            Commit();
-            case "Document Type" of
-                "Document Type"::Shipment:
-                    ReportSelection.PrintWithDocPrintOption(
-                      ReportSelection.Usage::UIS.AsInteger(), ItemDocHeader, 0, true, DATABASE::Customer, DocPrintBuffer);
-                "Document Type"::Receipt:
-                    ReportSelection.PrintWithDocPrintOption(
-                      ReportSelection.Usage::UIR.AsInteger(), ItemDocHeader, 0, true, DATABASE::Customer, DocPrintBuffer);
-            end;
+        Commit();
+        case InvtDocHeader."Document Type" of
+            InvtDocHeader."Document Type"::Shipment:
+                ReportSelections.PrintWithDocPrintOption(
+                  ReportSelections.Usage::"Inventory Shipment".AsInteger(), InvtDocHeader, 0, ShowRequestPage, DATABASE::Customer, DocPrintBuffer);
+            InvtDocHeader."Document Type"::Receipt:
+                ReportSelections.PrintWithDocPrintOption(
+                  ReportSelections.Usage::"Inventory Receipt".AsInteger(), InvtDocHeader, 0, ShowRequestPage, DATABASE::Customer, DocPrintBuffer);
         end;
     end;
 
-    [Scope('OnPrem')]
-    procedure PrintItemReceipt(ItemReceiptHeader: Record "Item Receipt Header"; ShowRequestForm: Boolean)
+    procedure PrintInvtReceipt(NewInvtReceiptHeader: Record "Invt. Receipt Header"; ShowRequestPage: Boolean)
     var
         ReportSelections: Record "Report Selections";
-        ItemRcptHeader: Record "Item Receipt Header";
+        InvtReceiptHeader: Record "Invt. Receipt Header";
         DocPrintBuffer: Record "Document Print Buffer";
     begin
-        with ItemRcptHeader do begin
-            Copy(ItemReceiptHeader);
-            SetRecFilter;
+        InvtReceiptHeader.Copy(NewInvtReceiptHeader);
+        InvtReceiptHeader.SetRecFilter();
 
-            InsertDocPrintBuffer(DocPrintBuffer, DATABASE::"Item Receipt Header", 0, "No.");
+        InsertDocPrintBuffer(DocPrintBuffer, DATABASE::"Invt. Receipt Header", 0, InvtReceiptHeader."No.");
 
-            Commit();
-            ReportSelections.PrintWithDocPrintOption(
-              ReportSelections.Usage::IR.AsInteger(), ItemRcptHeader, 0, ShowRequestForm, DATABASE::Customer, DocPrintBuffer);
-        end;
+        Commit();
+        ReportSelections.PrintWithDocPrintOption(
+          ReportSelections.Usage::"P.Inventory Receipt".AsInteger(), InvtReceiptHeader, 0, ShowRequestPage, DATABASE::Customer, DocPrintBuffer);
+    end;
+
+    procedure PrintInvtShipment(NewInvtShipmentHeader: Record "Invt. Shipment Header"; ShowRequestPage: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+        InvtShipmentHeader: Record "Invt. Shipment Header";
+        DocPrintBuffer: Record "Document Print Buffer";
+    begin
+        InvtShipmentHeader.Copy(NewInvtShipmentHeader);
+        InvtShipmentHeader.SetRecFilter();
+
+        InsertDocPrintBuffer(DocPrintBuffer, DATABASE::"Invt. Shipment Header", 0, InvtShipmentHeader."No.");
+
+        Commit();
+        ReportSelections.PrintWithDocPrintOption(
+          ReportSelections.Usage::"P.Inventory Shipment".AsInteger(), InvtShipmentHeader, 0, ShowRequestPage, DATABASE::Customer, DocPrintBuffer);
+    end;
+
+    procedure PrintDirectTransfer(NewDirectTransHeader: Record "Direct Trans. Header"; ShowRequestPage: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+        DirectTransHeader: Record "Direct Trans. Header";
+        DocPrintBuffer: Record "Document Print Buffer";
+    begin
+        DirectTransHeader.Copy(NewDirectTransHeader);
+        DirectTransHeader.SetRecFilter();
+
+        InsertDocPrintBuffer(DocPrintBuffer, DATABASE::"Direct Trans. Header", 0, DirectTransHeader."No.");
+
+        Commit();
+        ReportSelections.PrintWithDocPrintOption(
+          ReportSelections.Usage::"P.Direct Transfer".AsInteger(), DirectTransHeader, 0, ShowRequestPage, DATABASE::Customer, DocPrintBuffer);
     end;
 
     [Scope('OnPrem')]
@@ -624,7 +664,7 @@
         end;
     end;
 
-    local procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header") ReportSelectionUsage: Enum "Report Selection Usage"
+    procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header") ReportSelectionUsage: Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         CopyOfSalesHeader: Record "Sales Header";
@@ -670,7 +710,7 @@
         end;
     end;
 
-    local procedure GetSalesInvoiceDocTypeUsage(SalesInvoiceHeader: Record "Sales Invoice Header"): Enum "Report Selection Usage"
+    procedure GetSalesInvoiceDocTypeUsage(SalesInvoiceHeader: Record "Sales Invoice Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TempSalesHeader: Record "Sales Header" temporary;
@@ -682,7 +722,7 @@
         exit(ReportSelections.Usage::"S.Invoice");
     end;
 
-    local procedure GetPurchDocTypeUsage(PurchHeader: Record "Purchase Header") ReportSelectionUsage: Enum "Report Selection Usage"
+    procedure GetPurchDocTypeUsage(PurchHeader: Record "Purchase Header") ReportSelectionUsage: Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -716,7 +756,7 @@
         end;
     end;
 
-    local procedure GetServContractTypeUsage(ServiceContractHeader: Record "Service Contract Header"): Enum "Report Selection Usage"
+    procedure GetServContractTypeUsage(ServiceContractHeader: Record "Service Contract Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -762,7 +802,7 @@
         end;
     end;
 
-    local procedure GetAsmHeaderDocTypeUsage(AsmHeader: Record "Assembly Header"): Enum "Report Selection Usage"
+    procedure GetAsmHeaderDocTypeUsage(AsmHeader: Record "Assembly Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -783,7 +823,7 @@
         end;
     end;
 
-    local procedure GetSalesOrderUsage(Usage: Option "Order Confirmation","Work Order","Pick Instruction"): Enum "Report Selection Usage"
+    procedure GetSalesOrderUsage(Usage: Option "Order Confirmation","Work Order","Pick Instruction"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -799,7 +839,7 @@
         end;
     end;
 
-    local procedure GetSalesArchDocTypeUsage(SalesHeaderArchive: Record "Sales Header Archive"): Enum "Report Selection Usage"
+    procedure GetSalesArchDocTypeUsage(SalesHeaderArchive: Record "Sales Header Archive"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -824,7 +864,7 @@
         end
     end;
 
-    local procedure GetPurchArchDocTypeUsage(PurchHeaderArchive: Record "Purchase Header Archive"): Enum "Report Selection Usage"
+    procedure GetPurchArchDocTypeUsage(PurchHeaderArchive: Record "Purchase Header Archive"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -849,7 +889,7 @@
         end;
     end;
 
-    local procedure CalcSalesDisc(var SalesHeader: Record "Sales Header")
+    procedure CalcSalesDisc(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
@@ -871,7 +911,7 @@
         end;
     end;
 
-    local procedure CalcPurchDisc(var PurchHeader: Record "Purchase Header")
+    procedure CalcPurchDisc(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
         IsHandled: Boolean;
@@ -893,7 +933,7 @@
         end;
     end;
 
-    local procedure CalcServDisc(var ServHeader: Record "Service Header")
+    procedure CalcServDisc(var ServHeader: Record "Service Header")
     var
         ServLine: Record "Service Line";
         IsHandled: Boolean;
@@ -962,6 +1002,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintBankAccStmt(var BankAccountStatement: Record "Bank Account Statement"; var IsPrinted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintPostedPaymentReconciliation(var PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr"; var IsPrinted: Boolean)
     begin
     end;
 

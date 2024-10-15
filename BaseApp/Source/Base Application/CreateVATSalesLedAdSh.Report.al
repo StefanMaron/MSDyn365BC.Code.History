@@ -217,7 +217,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                         if not LedgerBuffer.FindSet then
                             CurrReport.Break();
                     end else
-                        if LedgerBuffer.Next = 0 then
+                        if LedgerBuffer.Next() = 0 then
                             CurrReport.Break();
 
                     LedgerBuffer."Amount Including VAT" :=
@@ -591,7 +591,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 LedgerBuffer.SetRange("Revision of Corr. No.");
             end;
 
-            if LedgerBuffer.IsEmpty then begin
+            if LedgerBuffer.IsEmpty() then begin
                 LedgerBuffer.Init();
                 LineNo := LineNo + 1;
                 LedgerBuffer.Type := VATLedgerName.Type;
@@ -740,14 +740,14 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                     LedgerConnBuffer.SetRange("Sales Ledger Line No.", LedgerBuffer."Line No.");
                     LedgerConnBuffer.DeleteAll();
                 end;
-            until LedgerBuffer.Next = 0;
+            until LedgerBuffer.Next() = 0;
 
         LedgerConnBuffer.Reset();
         if LedgerConnBuffer.FindSet then
             repeat
                 LedgerConnection := LedgerConnBuffer;
                 LedgerConnection.Insert();
-            until LedgerConnBuffer.Next = 0;
+            until LedgerConnBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -114,7 +114,7 @@ report 17376 "Average Employee Count"
         if Employee.FindSet then
             repeat
                 AvrHeadQty += AverageHeadcountCalculation.CalcAvgCount(Employee."No.", AnalyzableDate);
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
 
         AvrHeadQtyText := Format(Round(AvrHeadQty, 1), 0, 1);
         AvrHeadQtyText := PadStr('', 6 - StrLen(AvrHeadQtyText), '0') + AvrHeadQtyText;

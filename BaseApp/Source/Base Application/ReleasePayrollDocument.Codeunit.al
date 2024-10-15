@@ -28,7 +28,7 @@ codeunit 17407 "Release Payroll Document"
                         PayrollStatus.FieldError("Payroll Status");
 
         PayrollDocLine.SetRange("Document No.", "No.");
-        if PayrollDocLine.IsEmpty then
+        if PayrollDocLine.IsEmpty() then
             Error(Text001, "No.");
 
         Status := Status::Released;

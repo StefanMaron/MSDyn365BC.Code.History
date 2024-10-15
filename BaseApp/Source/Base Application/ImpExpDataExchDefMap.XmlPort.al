@@ -30,7 +30,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."Reading/Writing XMLport" = 0 then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(ExternalDataHandlingCodeunit; "Data Exch. Def"."Ext. Data Handling Codeunit")
@@ -40,7 +40,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."Ext. Data Handling Codeunit" = 0 then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(HeaderLines; "Data Exch. Def"."Header Lines")
@@ -50,7 +50,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."Header Lines" = 0 then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(HeaderTag; "Data Exch. Def"."Header Tag")
@@ -68,7 +68,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."Column Separator" = "Data Exch. Def"."Column Separator"::Comma then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(FileEncoding; "Data Exch. Def"."File Encoding")
@@ -78,7 +78,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."File Encoding" = "Data Exch. Def"."File Encoding"::WINDOWS then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(FileType; "Data Exch. Def"."File Type")
@@ -93,7 +93,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."Reading/Writing Codeunit" = 0 then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(ValidationCodeunit; "Data Exch. Def"."Validation Codeunit")
@@ -103,7 +103,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."Validation Codeunit" = 0 then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(DataHandlingCodeunit; "Data Exch. Def"."Data Handling Codeunit")
@@ -113,7 +113,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."Data Handling Codeunit" = 0 then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(UserFeedbackCodeunit; "Data Exch. Def"."User Feedback Codeunit")
@@ -123,7 +123,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                     trigger OnBeforePassField()
                     begin
                         if "Data Exch. Def"."User Feedback Codeunit" = 0 then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(ColumnsAsRows; "Data Exch. Def"."Columns as Rows")
@@ -172,7 +172,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                         trigger OnBeforePassField()
                         begin
                             if "Data Exch. Line Def".Namespace = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldattribute(ParentCode; "Data Exch. Line Def"."Parent Code")
@@ -204,7 +204,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Column Def"."Data Format" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(DataFormattingCulture; "Data Exch. Column Def"."Data Formatting Culture")
@@ -214,7 +214,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Column Def"."Data Formatting Culture" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(Description; "Data Exch. Column Def".Description)
@@ -224,7 +224,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Column Def".Description = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(Length; "Data Exch. Column Def".Length)
@@ -234,7 +234,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Column Def".Length = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(Constant; "Data Exch. Column Def".Constant)
@@ -244,7 +244,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Column Def".Constant = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(Path; "Data Exch. Column Def".Path)
@@ -292,7 +292,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if not "Data Exch. Mapping"."Use as Intermediate Table" then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(Name; "Data Exch. Mapping".Name)
@@ -305,7 +305,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Mapping"."Mapping Codeunit" = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(DataExchNoFieldID; "Data Exch. Mapping"."Data Exch. No. Field ID")
@@ -315,7 +315,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Mapping"."Data Exch. No. Field ID" = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(DataExchLineFieldID; "Data Exch. Mapping"."Data Exch. Line Field ID")
@@ -325,7 +325,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Mapping"."Data Exch. Line Field ID" = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(PreMappingCodeunit; "Data Exch. Mapping"."Pre-Mapping Codeunit")
@@ -335,7 +335,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Mapping"."Pre-Mapping Codeunit" = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(PostMappingCodeunit; "Data Exch. Mapping"."Post-Mapping Codeunit")
@@ -345,7 +345,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             trigger OnBeforePassField()
                             begin
                                 if "Data Exch. Mapping"."Post-Mapping Codeunit" = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         tableelement("Data Exch. Field Mapping"; "Data Exch. Field Mapping")
@@ -361,7 +361,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if "Data Exch. Field Mapping"."Column No." = 0 then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldattribute(FieldID; "Data Exch. Field Mapping"."Field ID")
@@ -371,7 +371,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if "Data Exch. Field Mapping"."Field ID" = 0 then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldattribute(Optional; "Data Exch. Field Mapping".Optional)
@@ -381,7 +381,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if not "Data Exch. Field Mapping".Optional then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldattribute(UseDefaultValue; "Data Exch. Field Mapping"."Use Default Value")
@@ -391,7 +391,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if not "Data Exch. Field Mapping"."Use Default Value" then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldattribute(DefaultValue; "Data Exch. Field Mapping"."Default Value")
@@ -401,7 +401,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if "Data Exch. Field Mapping"."Default Value" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldattribute(Multiplier; "Data Exch. Field Mapping".Multiplier)
@@ -411,7 +411,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if "Data Exch. Field Mapping".Multiplier = 1 then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldattribute(OverwriteValue; "Data Exch. Field Mapping"."Overwrite Value") //AMC-JN Missing as this is an attribute in table 1225
@@ -421,7 +421,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if not "Data Exch. Field Mapping"."Overwrite Value" then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldattribute(TargetTableID; "Data Exch. Field Mapping"."Target Table ID")
@@ -431,7 +431,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if "Data Exch. Field Mapping"."Target Table ID" = 0 then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldattribute(TargetFieldID; "Data Exch. Field Mapping"."Target Field ID")
@@ -441,7 +441,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 trigger OnBeforePassField()
                                 begin
                                     if "Data Exch. Field Mapping"."Target Table ID" = 0 then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             textattribute(TransformationRule)

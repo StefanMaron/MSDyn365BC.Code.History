@@ -713,7 +713,6 @@ table 5601 "FA Ledger Entry"
             else
                 OnAfterConvertPostingTypeElse(FAJnlLine, Rec);
         end;
-        OnAfterConvertPostingType(Rec, FAJnlLine);
         exit(FAJnlLine."FA Posting Type".AsInteger());
     end;
 
@@ -741,7 +740,7 @@ table 5601 "FA Ledger Entry"
                         "Depr. Bonus" := MarkEntry;
                         CODEUNIT.Run(CODEUNIT::"FA Entry - Edit", FALedgEntry1);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -828,7 +827,7 @@ table 5601 "FA Ledger Entry"
                 BaseAmount := RemainingBase + CalcRealizedVATBase(VATEntry."Entry No.");
                 if VATEntry."Entry No." = VATEntryNo then
                     exit(BaseAmount);
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -844,12 +843,6 @@ table 5601 "FA Ledger Entry"
             VATEntry.SetRange("Unrealized VAT Entry No.", VATEntryNo);
         VATEntry.CalcSums(Base);
         exit(VATEntry.Base);
-    end;
-
-    [Obsolete('Replaced by event OnAfterConvertPostingTypeElse.', '15.3')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterConvertPostingType(FALedgerEntry: Record "FA Ledger Entry"; var FAJournalLine: Record "FA Journal Line")
-    begin
     end;
 
     [IntegrationEvent(false, false)]

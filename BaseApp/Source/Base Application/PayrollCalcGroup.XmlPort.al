@@ -152,10 +152,10 @@ xmlport 17401 "Payroll Calc. Group"
                                     repeat
                                         "Payroll Calc Type Line" := PayrollCalcTypeLine;
                                         "Payroll Calc Type Line".Insert();
-                                    until PayrollCalcTypeLine.Next = 0;
+                                    until PayrollCalcTypeLine.Next() = 0;
                             end;
-                    until PayrollCalcGroupLine.Next = 0;
-            until SourcePayrollCalcGroup.Next = 0;
+                    until PayrollCalcGroupLine.Next() = 0;
+            until SourcePayrollCalcGroup.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -168,7 +168,7 @@ xmlport 17401 "Payroll Calc. Group"
                     PayrollCalcGroup.Delete(true);
                 PayrollCalcGroup := "Payroll Calc Group";
                 PayrollCalcGroup.Insert();
-            until "Payroll Calc Group".Next = 0;
+            until "Payroll Calc Group".Next() = 0;
 
         "Payroll Calc Group Line".Reset();
         if "Payroll Calc Group Line".FindSet then
@@ -180,7 +180,7 @@ xmlport 17401 "Payroll Calc. Group"
                     PayrollCalcGroupLine.Delete(true);
                 PayrollCalcGroupLine := "Payroll Calc Group Line";
                 PayrollCalcGroupLine.Insert();
-            until "Payroll Calc Group Line".Next = 0;
+            until "Payroll Calc Group Line".Next() = 0;
 
         "Payroll Calc Type".Reset();
         if "Payroll Calc Type".FindSet then
@@ -189,7 +189,7 @@ xmlport 17401 "Payroll Calc. Group"
                     PayrollCalcType.Delete(true);
                 PayrollCalcType := "Payroll Calc Type";
                 PayrollCalcType.Insert();
-            until "Payroll Calc Type".Next = 0;
+            until "Payroll Calc Type".Next() = 0;
 
         "Payroll Calc Type Line".Reset();
         if "Payroll Calc Type Line".FindSet then
@@ -201,7 +201,7 @@ xmlport 17401 "Payroll Calc. Group"
                     PayrollCalcTypeLine.Delete(true);
                 PayrollCalcTypeLine := "Payroll Calc Type Line";
                 PayrollCalcTypeLine.Insert();
-            until "Payroll Calc Type Line".Next = 0;
+            until "Payroll Calc Type Line".Next() = 0;
     end;
 }
 

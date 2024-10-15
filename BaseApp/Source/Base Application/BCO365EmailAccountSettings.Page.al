@@ -139,7 +139,7 @@ page 2335 "BC O365 Email Account Settings"
                     trigger OnDrillDown()
                     begin
                         PAGE.RunModal(PAGE::"Graph Mail Setup");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

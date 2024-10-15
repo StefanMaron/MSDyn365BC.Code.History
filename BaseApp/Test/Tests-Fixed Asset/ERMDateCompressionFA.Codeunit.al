@@ -316,7 +316,7 @@ codeunit 134049 "ERM Date Compression FA"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             GenJournalLine.Validate("Posting Date", PostingDate);
             GenJournalLine.Modify(true);

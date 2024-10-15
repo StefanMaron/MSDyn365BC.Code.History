@@ -80,7 +80,7 @@ report 14902 "Cash Report CO-4"
 
                 trigger OnPostDataItem()
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         CurrReport.Break();
 
                     if ExcelReportBuilderManager.IsPageBreakRequired('CASHDAYTOTAL', 'RESTINCASHEND,FOOTER') then
@@ -105,7 +105,7 @@ report 14902 "Cash Report CO-4"
                     SetRange("Posting Date", CreateDate);
                     SetRange(Reversed, false);
 
-                    if IsEmpty then
+                    if IsEmpty() then
                         CurrReport.Break();
 
                     if PrintTitleSheet and (ReportType = ReportType::"Cash Report CO-4") then
@@ -140,7 +140,7 @@ report 14902 "Cash Report CO-4"
                     repeat
                         if CheckLedgEntry."Cashier Report No." <> '' then
                             PageNo := CheckLedgEntry."Cashier Report No."
-                    until (CheckLedgEntry."Cashier Report No." <> '') or (CheckLedgEntry.Next = 0)
+                    until (CheckLedgEntry."Cashier Report No." <> '') or (CheckLedgEntry.Next() = 0)
                 else
                     if Preview then
                         PageNo := 'XXXXX';

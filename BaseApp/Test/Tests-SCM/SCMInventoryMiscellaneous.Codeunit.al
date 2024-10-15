@@ -1242,7 +1242,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetFilter("No.", ItemNoFilter);
         RequisitionLine.ModifyAll("Accept Action Message", true);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             CarryOutAction.Run(RequisitionLine);
         until RequisitionLine.Next = 0;
@@ -2235,13 +2235,13 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ReportSelectionPrint.OK.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Report, 14977, 'OnBeforeExport', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Transfer Receipt TORG-13", 'OnBeforeExport', '', false, false)]
     local procedure SetTranferReceiptTORG13FileNameOnBeforeExport(var FileName: Text)
     begin
         FileName := GetSaveFileName;
     end;
 
-    [EventSubscriber(ObjectType::Report, 14978, 'OnBeforeExport', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Transfer Shipment TORG-13", 'OnBeforeExport', '', false, false)]
     local procedure SetTranferShipmentTORG13FileNameOnBeforeExport(var FileName: Text)
     begin
         FileName := GetSaveFileName;

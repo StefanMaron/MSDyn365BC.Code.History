@@ -65,7 +65,7 @@ report 17208 "Tax Register"
                             FldRef := RecRef.Field(Field."No.");
                             ExcelReportBuilderManager.AddDataToSection('Field' + Format(j), FldRef.Caption);
                             j += 1;
-                        until Field.Next = 0;
+                        until Field.Next() = 0;
 
                     case "Tax Register"."Table ID" of
                         DATABASE::"Tax Register G/L Entry":
@@ -97,8 +97,8 @@ report 17208 "Tax Register"
                                 FldRef := RecRef.Field(Field."No.");
                                 ExcelReportBuilderManager.AddDataToSection('Field' + Format(j), Format(FldRef.Value));
                                 j += 1;
-                            until Field.Next = 0;
-                    until RecRef.Next = 0;
+                            until Field.Next() = 0;
+                    until RecRef.Next() = 0;
                 end;
 
                 trigger OnPreDataItem()

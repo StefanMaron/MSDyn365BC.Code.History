@@ -118,7 +118,7 @@ codeunit 17205 "Create Tax Register FA Entry"
                             end;
 
                         TempTaxRegTemplate.Insert();
-                    until TaxRegTemplate.Next = 0;
+                    until TaxRegTemplate.Next() = 0;
 
                 TempTaxRegTemplate.Reset();
                 if TempTaxRegTemplate.FindSet then
@@ -152,10 +152,10 @@ codeunit 17205 "Create Tax Register FA Entry"
                             TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
                             TaxRegAccumulation.Modify();
                         end;
-                    until TempTaxRegTemplate.Next = 0;
+                    until TempTaxRegTemplate.Next() = 0;
 
                 TempTaxRegTemplate.DeleteAll();
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
 
             FillInTaxRegFALedgerEntry(
               StartDate,
@@ -300,7 +300,7 @@ codeunit 17205 "Create Tax Register FA Entry"
                     TaxRegFAEntry.Insert();
                     EntryNo += 1;
                 end;
-            until FADepreciationBook.Next = 0;
+            until FADepreciationBook.Next() = 0;
     end;
 }
 

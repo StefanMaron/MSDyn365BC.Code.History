@@ -47,7 +47,7 @@ codeunit 17307 "Create Tax Calc. FA Entries"
         Procesing := 0;
         if FixedAsset.FindSet then
             repeat
-                Disposed := DepreciationBook.FindSet;
+                Disposed := DepreciationBook.FindSet();
                 if Disposed then begin
                     Procesing += 1;
                     Window.Update(3, Round((Procesing / Total) * 10000, 1));
@@ -83,7 +83,7 @@ codeunit 17307 "Create Tax Calc. FA Entries"
                             TempTaxCalcFAEntry."Entry No." += 1;
                             TempTaxCalcFAEntry.Insert();
                         end;
-                    until DepreciationBook.Next = 0;
+                    until DepreciationBook.Next() = 0;
                     if Disposed or (BaseAmountDepreciation <> TaxAmountDepreciation) then
                         case TempTaxCalcFAEntry.Count of
                             2:
@@ -102,17 +102,17 @@ codeunit 17307 "Create Tax Calc. FA Entries"
                                     TaxCalcFAEntry.Insert();
                                 end;
                             else begin
-                                    TempTaxCalcFAEntry.FindSet;
+                                    TempTaxCalcFAEntry.FindSet();
                                     repeat
                                         TaxCalcFAEntry.TransferFields(TempTaxCalcFAEntry, false);
                                         TaxCalcFAEntry.Disposed := Disposed;
                                         TaxCalcFAEntry."Entry No." += 1;
                                         TaxCalcFAEntry.Insert();
-                                    until TempTaxCalcFAEntry.Next = 0;
+                                    until TempTaxCalcFAEntry.Next() = 0;
                                 end;
                         end;
                 end;
-            until FixedAsset.Next = 0;
+            until FixedAsset.Next() = 0;
 
         CreateTaxCalcAccumulationation(StartDate, EndDate, TaxCalcSectionCode);
     end;
@@ -143,8 +143,8 @@ codeunit 17307 "Create Tax Calc. FA Entries"
                     TempTaxCalcLine := TaxCalcLine;
                     TempTaxCalcLine.Value := 0;
                     TempTaxCalcLine.Insert();
-                until TaxCalcLine.Next = 0;
-        until TaxCalcHeader.Next = 0;
+                until TaxCalcLine.Next() = 0;
+        until TaxCalcHeader.Next() = 0;
 
         TaxCalcFAEntry0.SetRange("Date Filter", DateBegin, DateEnd);
 
@@ -185,9 +185,9 @@ codeunit 17307 "Create Tax Calc. FA Entries"
                             TempTaxCalcLine.Value += AddValue;
                             TempTaxCalcLine.Modify();
                         end;
-                    until TempTaxCalcLine.Next = 0;
+                    until TempTaxCalcLine.Next() = 0;
                 end;
-            until TaxCalcFAEntry.Next = 0;
+            until TaxCalcFAEntry.Next() = 0;
 
         TaxCalcAccumulation.Reset();
         if not TaxCalcAccumulation.FindLast then
@@ -232,7 +232,7 @@ codeunit 17307 "Create Tax Calc. FA Entries"
                     TaxCalcAccumulation.Amount := TaxCalcAccumulation2."Amount Period";
                     TaxCalcAccumulation.Modify();
                 end;
-            until TempTaxCalcLine.Next = 0;
+            until TempTaxCalcLine.Next() = 0;
     end;
 }
 

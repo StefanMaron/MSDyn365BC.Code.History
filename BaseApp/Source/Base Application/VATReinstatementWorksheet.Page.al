@@ -415,7 +415,7 @@ page 14947 "VAT Reinstatement Worksheet"
             repeat
                 LineToCopy := Rec;
                 LineToCopy.Insert();
-            until Next = 0;
+            until Next() = 0;
         Rec := CurrRec;
         Reset;
         CopyFilters(Filters);
@@ -425,7 +425,7 @@ page 14947 "VAT Reinstatement Worksheet"
         LineToCopy.SetFilter("Date Filter", GetFilter("Date Filter"));
         VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
         VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
-        if LineToCopy.IsEmpty then
+        if LineToCopy.IsEmpty() then
             Error(Text001);
         CopyToVATReinstJournal.SetParameters(LineToCopy, VATEntry, LineToCopy.GetRangeMax("Date Filter"));
         CopyToVATReinstJournal.RunModal;

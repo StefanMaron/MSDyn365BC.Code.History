@@ -79,13 +79,13 @@ page 12454 "Report Selection - Item. Docs"
         FilterGroup(2);
         case ReportUsage2 of
             ReportUsage2::"Unposted Item Shipment":
-                SetRange(Usage, Usage::UIS);
+                SetRange(Usage, Usage::"Inventory Shipment");
             ReportUsage2::"Unposted Item Receipt":
-                SetRange(Usage, Usage::UIR);
+                SetRange(Usage, Usage::"Inventory Receipt");
             ReportUsage2::"Item Shipment":
-                SetRange(Usage, Usage::IS);
+                SetRange(Usage, Usage::"P.Inventory Shipment");
             ReportUsage2::"Item Receipt":
-                SetRange(Usage, Usage::IR);
+                SetRange(Usage, Usage::"P.Inventory Receipt");
             ReportUsage2::"Phys. Inventory":
                 SetRange(Usage, Usage::PIJ);
             ReportUsage2::"Item Reclassification":
@@ -96,7 +96,7 @@ page 12454 "Report Selection - Item. Docs"
 
     local procedure ReportUsage2OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

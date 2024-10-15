@@ -119,7 +119,7 @@ page 7384 "Registered Invt. Movement"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     var

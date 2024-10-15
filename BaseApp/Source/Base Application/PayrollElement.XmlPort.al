@@ -530,14 +530,14 @@ xmlport 17400 "Payroll Element"
                     repeat
                         "Element Dimension" := DefaultDimension;
                         "Element Dimension".Insert();
-                    until DefaultDimension.Next = 0;
+                    until DefaultDimension.Next() = 0;
 
                 PayrollBaseAmount.SetRange("Element Code", SourcePayrollElement.Code);
                 if PayrollBaseAmount.FindSet then
                     repeat
                         "Payroll Base Amount" := PayrollBaseAmount;
                         "Payroll Base Amount".Insert();
-                    until PayrollBaseAmount.Next = 0;
+                    until PayrollBaseAmount.Next() = 0;
 
                 PayrollRangeHeader.SetRange("Element Code", SourcePayrollElement.Code);
                 if PayrollRangeHeader.FindSet then
@@ -552,8 +552,8 @@ xmlport 17400 "Payroll Element"
                             repeat
                                 "Payroll Range Line" := PayrollRangeLine;
                                 "Payroll Range Line".Insert();
-                            until PayrollRangeLine.Next = 0;
-                    until PayrollRangeHeader.Next = 0;
+                            until PayrollRangeLine.Next() = 0;
+                    until PayrollRangeHeader.Next() = 0;
 
                 PayrollCalculation.SetRange("Element Code", SourcePayrollElement.Code);
                 if PayrollCalculation.FindSet then
@@ -575,16 +575,16 @@ xmlport 17400 "Payroll Element"
                                     repeat
                                         "Payroll Element Expression" := PayrollElementExpression;
                                         "Payroll Element Expression".Insert();
-                                    until PayrollElementExpression.Next = 0;
-                            until PayrollCalculationLine.Next = 0;
-                    until PayrollCalculation.Next = 0;
+                                    until PayrollElementExpression.Next() = 0;
+                            until PayrollCalculationLine.Next() = 0;
+                    until PayrollCalculation.Next() = 0;
 
                 PayrollElementVariable.SetRange("Element Code", SourcePayrollElement.Code);
                 if PayrollElementVariable.FindSet then
                     repeat
                         "Payroll Element Variable" := PayrollElementVariable;
                         "Payroll Element Variable".Insert();
-                    until PayrollElementVariable.Next = 0;
+                    until PayrollElementVariable.Next() = 0;
 
                 if SourcePayrollElement."Element Group" <> '' then
                     if not "Payroll Element Group".Get(SourcePayrollElement."Element Group") then begin
@@ -592,7 +592,7 @@ xmlport 17400 "Payroll Element"
                         "Payroll Element Group" := PayrollElementGroup;
                         "Payroll Element Group".Insert();
                     end;
-            until SourcePayrollElement.Next = 0;
+            until SourcePayrollElement.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -605,7 +605,7 @@ xmlport 17400 "Payroll Element"
                     PayrollElement.Delete(true);
                 PayrollElement := "Payroll Element";
                 PayrollElement.Insert();
-            until "Payroll Element".Next = 0;
+            until "Payroll Element".Next() = 0;
 
         "Element Dimension".Reset();
         if "Element Dimension".FindSet then
@@ -618,7 +618,7 @@ xmlport 17400 "Payroll Element"
                     DefaultDimension.Delete(true);
                 DefaultDimension := "Element Dimension";
                 DefaultDimension.Insert();
-            until "Element Dimension".Next = 0;
+            until "Element Dimension".Next() = 0;
 
         "Payroll Base Amount".Reset();
         if "Payroll Base Amount".FindSet then
@@ -627,7 +627,7 @@ xmlport 17400 "Payroll Element"
                     PayrollBaseAmount.Delete(true);
                 PayrollBaseAmount := "Payroll Base Amount";
                 PayrollBaseAmount.Insert();
-            until "Payroll Base Amount".Next = 0;
+            until "Payroll Base Amount".Next() = 0;
 
         "Payroll Range Header".Reset();
         if "Payroll Range Header".FindSet then
@@ -640,7 +640,7 @@ xmlport 17400 "Payroll Element"
                     PayrollRangeHeader.Delete(true);
                 PayrollRangeHeader := "Payroll Range Header";
                 PayrollRangeHeader.Insert();
-            until "Payroll Range Header".Next = 0;
+            until "Payroll Range Header".Next() = 0;
 
         "Payroll Range Line".Reset();
         if "Payroll Range Line".FindSet then
@@ -652,7 +652,7 @@ xmlport 17400 "Payroll Element"
                     PayrollRangeLine.Delete(true);
                 PayrollRangeLine := "Payroll Range Line";
                 PayrollRangeLine.Insert();
-            until "Payroll Range Line".Next = 0;
+            until "Payroll Range Line".Next() = 0;
 
         "Payroll Calculation".Reset();
         if "Payroll Calculation".FindSet then
@@ -661,7 +661,7 @@ xmlport 17400 "Payroll Element"
                     "Payroll Calculation".Delete(true);
                 PayrollCalculation := "Payroll Calculation";
                 PayrollCalculation.Insert();
-            until "Payroll Calculation".Next = 0;
+            until "Payroll Calculation".Next() = 0;
 
         "Payroll Calculation Line".Reset();
         if "Payroll Calculation Line".FindSet then
@@ -674,7 +674,7 @@ xmlport 17400 "Payroll Element"
                     PayrollCalculationLine.Delete(true);
                 PayrollCalculationLine := "Payroll Calculation Line";
                 PayrollCalculationLine.Insert();
-            until "Payroll Calculation Line".Next = 0;
+            until "Payroll Calculation Line".Next() = 0;
 
         "Payroll Element Expression".Reset();
         if "Payroll Element Expression".FindSet then
@@ -688,7 +688,7 @@ xmlport 17400 "Payroll Element"
                     PayrollElementExpression.Delete(true);
                 PayrollElementExpression := "Payroll Element Expression";
                 PayrollElementExpression.Insert();
-            until "Payroll Element Expression".Next = 0;
+            until "Payroll Element Expression".Next() = 0;
 
         "Payroll Element Variable".Reset();
         if "Payroll Element Variable".FindSet then
@@ -701,7 +701,7 @@ xmlport 17400 "Payroll Element"
                     PayrollElementVariable.Delete(true);
                 PayrollElementVariable := "Payroll Element Variable";
                 PayrollElementVariable.Insert();
-            until "Payroll Element Variable".Next = 0;
+            until "Payroll Element Variable".Next() = 0;
 
         "Payroll Element Group".Reset();
         if "Payroll Element Group".FindSet then
@@ -710,7 +710,7 @@ xmlport 17400 "Payroll Element"
                     PayrollElementGroup.Delete(true);
                 PayrollElementGroup := "Payroll Element Group";
                 PayrollElementGroup.Insert();
-            until "Payroll Element Group".Next = 0;
+            until "Payroll Element Group".Next() = 0;
     end;
 }
 

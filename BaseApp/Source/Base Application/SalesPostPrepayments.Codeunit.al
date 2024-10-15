@@ -15,7 +15,6 @@
     end;
 
     var
-        Text000: Label 'is not within your range of allowed posting dates';
         GLSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         GenPostingSetup: Record "General Posting Setup";
@@ -25,6 +24,9 @@
         Text004: Label 'Posting sales and VAT      #3######\';
         Text005: Label 'Posting to customers       #4######\';
         Text006: Label 'Posting to bal. account    #5######';
+        PostingDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - Posting Date field caption';
+        SpecifyInvNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted sales prepayment invoices.';
+        SpecifyCrNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted sales prepayment credit memos.';
         TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
         TempSalesLine: Record "Sales Line" temporary;
         ErrorMessageMgt: Codeunit "Error Message Management";
@@ -166,7 +168,7 @@
             // Reverse old lines
             if DocumentType = DocumentType::Invoice then begin
                 GetSalesLinesToDeduct(SalesHeader, TempSalesLines);
-                if not TempSalesLines.IsEmpty then
+                if not TempSalesLines.IsEmpty() then
                     CalcVATAmountLines(SalesHeader, TempSalesLines, TempVATAmountLineDeduct, DocumentType::"Credit Memo");
             end;
 
@@ -199,7 +201,7 @@
                 PrevLineNo := LineNo;
                 InsertExtendedText(
                   PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
-            until TempPrepmtInvLineBuffer.Next = 0;
+            until TempPrepmtInvLineBuffer.Next() = 0;
 
             if "Compress Prepayment" then
                 case DocumentType of
@@ -227,7 +229,7 @@
                 end else
                     AdjustInvLineBuffers(SalesHeader, TempPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType);
                 TempPrepmtInvLineBuffer.Modify();
-            until TempPrepmtInvLineBuffer.Next = 0;
+            until TempPrepmtInvLineBuffer.Next() = 0;
 
             TempPrepmtInvLineBuffer.Reset();
             TempPrepmtInvLineBuffer.SetCurrentKey(Adjustment);
@@ -239,6 +241,7 @@
                 PostPrepmtInvLineBuffer(
                   SalesHeader, TempPrepmtInvLineBuffer, DocumentType, PostingDescription,
                   GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode);
+
             until TempPrepmtInvLineBuffer.Next(-1) = 0;
 
             // Post customer entry
@@ -290,6 +293,9 @@
         Cust: Record Customer;
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         CheckDimensions: Codeunit "Check Dimensions";
+        ForwardLinkMgt: codeunit "Forward Link Mgt.";
+        ErrorContextElement: Codeunit "Error Context Element";
+        SetupRecID: RecordID;
     begin
         OnBeforeCheckPrepmtDoc(SalesHeader, DocumentType, SuppressCommit);
         with SalesHeader do begin
@@ -298,9 +304,12 @@
             TestField("Bill-to Customer No.");
             TestField("Posting Date");
             TestField("Document Date");
-            if GenJnlCheckLine.DateNotAllowed("Posting Date") then
-                FieldError("Posting Date", Text000);
-
+            ErrorMessageMgt.PushContext(ErrorContextElement, SalesHeader.RecordId, 0, '');
+            if GenJnlCheckLine.IsDateNotAllowed("Posting Date", SetupRecID) then
+                ErrorMessageMgt.LogContextFieldError(
+                  FieldNo("Posting Date"), StrSubstNo(PostingDateNotAllowedErr, FieldCaption("Posting Date")),
+                  SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, ''),
+                  ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
             if not CheckOpenPrepaymentLines(SalesHeader, DocumentType) then
                 Error(Text001);
 
@@ -319,7 +328,9 @@
 
     local procedure UpdateDocNos(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; var DocNo: Code[20]; var NoSeriesCode: Code[20]; var ModifyHeader: Boolean)
     var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        ErrorContextElement: Codeunit "Error Context Element";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -336,6 +347,17 @@
                         TestField("Prepmt. Cr. Memo No.", '');
                         if "Prepayment No." = '' then
                             if not PreviewMode then begin
+                                if "Prepayment No. Series" = '' then begin
+                                    SalesReceivablesSetup.Get();
+                                    ErrorMessageMgt.PushContext(ErrorContextElement, SalesReceivablesSetup.RecordId, 0, '');
+                                    if SalesReceivablesSetup."Posted Prepmt. Inv. Nos." = '' then
+                                        ErrorMessageMgt.LogContextFieldError(
+                                                     SalesReceivablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), SpecifyInvNoSerieTok,
+                                                     SalesReceivablesSetup.RecordId, SalesReceivablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), '');
+                                    ErrorMessageMgt.Finish(SalesReceivablesSetup.RecordId);
+                                    "Prepayment No. Series" := SalesReceivablesSetup."Posted Prepmt. Inv. Nos.";
+                                    ModifyHeader := true;
+                                end;
                                 TestField("Prepayment No. Series");
                                 "Prepayment No." := NoSeriesMgt.GetNextNo("Prepayment No. Series", "Posting Date", true);
                                 ModifyHeader := true;
@@ -349,6 +371,19 @@
                         TestField("Prepayment No.", '');
                         if "Prepmt. Cr. Memo No." = '' then
                             if not PreviewMode then begin
+                                if "Prepmt. Cr. Memo No. Series" = '' then begin
+                                    SalesReceivablesSetup.Get();
+                                    ErrorMessageMgt.PushContext(ErrorContextElement, SalesReceivablesSetup.RecordId, 0, '');
+                                    if SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos." = '' then
+                                        ErrorMessageMgt.LogContextFieldError(
+                                                     SalesReceivablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), SpecifyCrNoSerieTok,
+                                                     SalesReceivablesSetup.RecordId, SalesReceivablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), '');
+                                    ErrorMessageMgt.Finish(SalesReceivablesSetup.RecordId);
+                                    "Prepayment No. Series" := SalesReceivablesSetup."Posted Credit Memo Nos.";
+                                    SalesReceivablesSetup.testfield("Posted Prepmt. Cr. Memo Nos.");
+                                    "Prepmt. Cr. Memo No. Series" := SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.";
+                                    ModifyHeader := true;
+                                end;
                                 TestField("Prepmt. Cr. Memo No. Series");
                                 "Prepmt. Cr. Memo No." := NoSeriesMgt.GetNextNo("Prepmt. Cr. Memo No. Series", "Posting Date", true);
                                 ModifyHeader := true;
@@ -374,7 +409,7 @@
                         UpdatePrepmtSetupFields;
                         Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(Found);
     end;
@@ -446,7 +481,7 @@
                         TempSalesLine := SalesLine;
                         TempSalesLine.Insert();
                     end;
-                until SalesLine.Next = 0;
+                until SalesLine.Next() = 0;
             if SalesSetup."Invoice Rounding" then
                 if InsertInvoiceRounding(
                      SalesHeader, PrepmtInvLineBuf2, TotalPrepmtInvLineBuffer, SalesLine."Line No.")
@@ -519,7 +554,7 @@
                     SalesLine."Prepmt. VAT Amount Inv. (LCY)" += PrepmtAmountRnded[VAT::Amount];
                 end;
                 SalesLine.Modify();
-            until TempGlobalPrepmtInvLineBuf.Next = 0;
+            until TempGlobalPrepmtInvLineBuf.Next() = 0;
         TempGlobalPrepmtInvLineBuf.DeleteAll();
     end;
 
@@ -807,7 +842,7 @@
                 end;
                 PrevLineNo := NextLineNo;
                 NextLineNo := NextLineNo + 10000;
-            until TempExtTextLine.Next = 0;
+            until TempExtTextLine.Next() = 0;
         end;
     end;
 
@@ -917,7 +952,7 @@
                             TempVATAmountLineRemainder.Modify();
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         OnAfterUpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, DocumentType);
@@ -960,7 +995,7 @@
                         VATAmountLine."VAT Difference" := VATAmountLine."VAT Difference" + NewPrepmtVATDiffAmt;
                         VATAmountLine.Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         VATAmountLine.UpdateLines(
@@ -987,7 +1022,7 @@
                 RoundAmounts(SalesHeader, TempPrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
                 if TempPrepmtInvLineBuf."VAT %" <> PrevVATPct then
                     DifVATPct := true;
-            until TempPrepmtInvLineBuf.Next = 0;
+            until TempPrepmtInvLineBuf.Next() = 0;
         end;
 
         TotalAmount := TotalPrepmtInvLineBuf.Amount;
@@ -1012,7 +1047,7 @@
             repeat
                 ToSalesLine := FromSalesLine;
                 ToSalesLine.Insert();
-            until FromSalesLine.Next = 0;
+            until FromSalesLine.Next() = 0;
 
             SalesSetup.Get();
             if SalesSetup."Invoice Rounding" then begin
@@ -1121,6 +1156,7 @@
 
             OnBeforePostCustomerEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
+
             OnAfterPostCustomerEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
         end;
     end;
@@ -1194,7 +1230,7 @@
                     TotalLineAmount := TotalLineAmount + "Line Amount";
                     TotalPrepmtAmtInv := TotalPrepmtAmtInv + "Prepmt. Amt. Inv.";
                     LastLineNo := "Line No.";
-                until Next = 0
+                until Next() = 0
             else
                 Error(Text017, FieldCaption("Prepayment %"));
             if TotalLineAmount = 0 then
@@ -1213,7 +1249,7 @@
                         Validate("Prepmt. Line Amount", NewTotalPrepmtAmount - TotalPrepmtAmount);
                     TotalPrepmtAmount := TotalPrepmtAmount + "Prepmt. Line Amount";
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1261,7 +1297,7 @@
                     SalesLines := SalesLine;
                     SalesLines.Insert();
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure PrepmtVATDiffAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic): Decimal
@@ -1298,7 +1334,7 @@
                             SalesLine."Prepayment VAT Difference" := 0;
                             SalesLine.Modify();
                         end;
-                    until SalesLine.Next = 0;
+                    until SalesLine.Next() = 0;
             end else begin
                 "Last Prepmt. Cr. Memo No." := GenJnlLineDocNo;
                 "Prepmt. Cr. Memo No." := '';
@@ -1319,7 +1355,7 @@
                         SalesLine."Prepmt VAT Diff. to Deduct" := 0;
                         SalesLine."Prepayment VAT Difference" := 0;
                         SalesLine.Modify();
-                    until SalesLine.Next = 0;
+                    until SalesLine.Next() = 0;
             end;
         end;
     end;
@@ -1740,4 +1776,3 @@
     begin
     end;
 }
-

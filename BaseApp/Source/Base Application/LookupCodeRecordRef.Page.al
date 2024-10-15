@@ -62,7 +62,7 @@ page 17249 "Lookup Code (RecordRef)"
                     Code := xFieldRefCode.Value;
                     Text := xFieldRefText.Value;
                     Insert;
-                until xRecordRef.Next = 0;
+                until xRecordRef.Next() = 0;
             end;
             xRecordRef.Close;
             exit(true);

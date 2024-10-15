@@ -190,7 +190,7 @@ report 17207 "Create Norm Details"
                         DeleteWasConfirmed := true;
                     end;
                 NormDetail.DeleteAll(true);
-            until NormGroup.Next = 0;
+            until NormGroup.Next() = 0;
         NormGroup.SetRange("Storing Method");
         NormTemplateLine.SetRange("Norm Jurisdiction Code", NormJurisdictionCode);
         CycleLevel := 1;
@@ -221,7 +221,7 @@ report 17207 "Create Norm Details"
                             EntryNoAmountBuffer.DeleteAll();
                         end;
                     end;
-                until NormGroup.Next = 0;
+                until NormGroup.Next() = 0;
                 CycleLevel += 1;
             end;
         end;

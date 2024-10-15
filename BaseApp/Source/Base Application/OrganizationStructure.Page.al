@@ -195,7 +195,7 @@ page 17384 "Organization Structure"
                     EmployeeNames := Employee.GetFullName
                 else
                     EmployeeNames := CopyStr(EmployeeNames + ';' + Employee.GetFullName, 1, MaxStrLen(EmployeeNames));
-            until Employee.Next = 0;
+            until Employee.Next() = 0;
 
         if EmployeeNames = '' then
             EmployeeNames := Text14700;
@@ -272,7 +272,7 @@ page 17384 "Organization Structure"
                 Position2.CalcFields("Organization Size");
                 if Position2."Organization Size" > 0 then
                     EnlistChildren(Position2."No.")
-            until Position2.Next = 0;
+            until Position2.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -285,7 +285,7 @@ page 17384 "Organization Structure"
                     Rec := ViewBuffer;
                     Insert;
                 end;
-            until ViewBuffer.Next = 0;
+            until ViewBuffer.Next() = 0;
         Get(ID);
     end;
 
@@ -304,7 +304,7 @@ page 17384 "Organization Structure"
                         ViewBuffer.Modify();
                     end;
                 end;
-            until ViewBuffer.Next = 0;
+            until ViewBuffer.Next() = 0;
 
         UpdateView(1);
         CurrPage.Update(false);
@@ -333,7 +333,7 @@ page 17384 "Organization Structure"
                     CollapseChildren(ViewBuffer."Position No.");
                     ViewBuffer := CurrViewBufferElement;
                 end;
-            until ViewBuffer.Next = 0;
+            until ViewBuffer.Next() = 0;
     end;
 
     local procedure ToggleExpandCollapse()
@@ -353,7 +353,7 @@ page 17384 "Organization Structure"
                         ViewBuffer.Hide := false;
                         ViewBuffer.Modify();
                     end;
-                until ViewBuffer.Next = 0;
+                until ViewBuffer.Next() = 0;
                 ViewBuffer.Get(ID);
                 ViewBuffer.Expanded := true;
                 ViewBuffer.Modify();

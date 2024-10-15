@@ -66,7 +66,7 @@ page 12465 "Default Signature Setup"
                         case "Table ID" of
                             DATABASE::"Sales Header",
                             DATABASE::"Purchase Header",
-                            DATABASE::"Item Document Header",
+                            DATABASE::"Invt. Document Header",
                             DATABASE::"FA Document Header":
                                 begin
                                     Selection := StrMenu(GetDocumetTypeString("Table ID"), "Document Type" + 1);
@@ -129,7 +129,7 @@ page 12465 "Default Signature Setup"
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
-        ItemDocumentHeader: Record "Item Document Header";
+        ItemDocumentHeader: Record "Invt. Document Header";
         FADocumentHeader: Record "FA Document Header";
         DocumentTypeName: Text[30];
 
@@ -152,7 +152,7 @@ page 12465 "Default Signature Setup"
                     FieldRef := RecRef.FieldIndex(SalesHeader.FieldNo("Document Type"));
                     exit(FieldRef.OptionCaption);
                 end;
-            DATABASE::"Item Document Header":
+            DATABASE::"Invt. Document Header":
                 begin
                     RecRef.GetTable(ItemDocumentHeader);
                     FieldRef := RecRef.FieldIndex(SalesHeader.FieldNo("Document Type"));
@@ -175,11 +175,8 @@ page 12465 "Default Signature Setup"
                 exit(Format("Sales Document Type".FromInteger(DocumentType)));
             DATABASE::"Purchase Header":
                 exit(Format("Purchase Document Type".FromInteger(DocumentType)));
-            DATABASE::"Item Document Header":
-                begin
-                    ItemDocumentHeader."Document Type" := DocumentType;
-                    exit(Format(ItemDocumentHeader."Document Type"));
-                end;
+            DATABASE::"Invt. Document Header":
+                exit(Format("Invt. Doc. Document Type".FromInteger(DocumentType)));
             DATABASE::"FA Document Header":
                 begin
                     FADocumentHeader."Document Type" := DocumentType;

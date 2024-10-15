@@ -261,7 +261,7 @@ table 17315 "Tax Calc. G/L Entry"
         TaxCalcHeader.SetFilter("Register ID", DelChr(GetFilter("Where Used Register IDs"), '=', '~'));
         FilterGroup(0);
         if TaxCalcHeader.FindSet then
-            if TaxCalcHeader.Next = 0 then
+            if TaxCalcHeader.Next() = 0 then
                 exit(TaxCalcHeader.Description);
     end;
 }

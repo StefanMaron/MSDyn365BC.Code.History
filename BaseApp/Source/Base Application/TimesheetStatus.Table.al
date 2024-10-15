@@ -154,14 +154,14 @@ table 17440 "Timesheet Status"
         PayrollLedgEntry.SetRange("Employee No.", "Employee No.");
         PayrollLedgEntry.SetRange("Period Code", "Period Code");
         PayrollLedgEntry.SetRange(Reversed, false);
-        if not PayrollLedgEntry.IsEmpty then
+        if not PayrollLedgEntry.IsEmpty() then
             Error(Text14800);
 
         PayrollDoc.Reset();
         PayrollDoc.SetCurrentKey("Employee No.");
         PayrollDoc.SetRange("Employee No.", "Employee No.");
         PayrollDoc.SetRange("Period Code", "Period Code");
-        if not PayrollDoc.IsEmpty then
+        if not PayrollDoc.IsEmpty() then
             Error(Text14801);
 
         TimesheetStatus.Reset();
@@ -254,7 +254,7 @@ table 17440 "Timesheet Status"
                 "Absence Hours" +=
                   TimesheetMgt.GetTimesheetInfo(
                     "Employee No.", HumanResSetup."Absence Group Code", StartDate, EndDate, 3);
-            until EmployeeJobEntry.Next = 0;
+            until EmployeeJobEntry.Next() = 0;
     end;
 }
 

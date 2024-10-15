@@ -190,7 +190,7 @@ report 96 "Copy G/L Budget"
                             ProcessRecord(
                               "G/L Account No.", "Business Unit Code", "Posting Date", Description,
                               "Dimension Set ID", Amount);
-                        until Next = 0;
+                        until Next() = 0;
                     end;
                 end;
             FromSource::"G/L Budget Entry":
@@ -208,7 +208,7 @@ report 96 "Copy G/L Budget"
                             ProcessRecord(
                               "G/L Account No.", "Business Unit Code", Date, Description,
                               "Dimension Set ID", Amount);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
         end;
         InsertGLBudgetEntry;
@@ -270,7 +270,7 @@ report 96 "Copy G/L Budget"
                         if FilterIncludesBlanks(TempSelectedDim."Dimension Value Filter") then
                             TempSelectedDim.Level := 1;
                     TempSelectedDim.Modify();
-                until TempSelectedDim.Next = 0;
+                until TempSelectedDim.Next() = 0;
 
             ToGLBudgetEntry.LockTable();
             if ToGLBudgetEntry.FindLast then
@@ -464,11 +464,11 @@ report 96 "Copy G/L Budget"
                                 ToGLBudgetEntry."Budget Dimension 3 Code" := DimSetEntry."Dimension Value Code";
                             if DimSetEntry."Dimension Code" = BudgetDim4Code then
                                 ToGLBudgetEntry."Budget Dimension 4 Code" := DimSetEntry."Dimension Value Code";
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
                     ToGLBudgetEntry.Insert();
                 end;
-            until TempGLBudgetEntry.Next = 0;
+            until TempGLBudgetEntry.Next() = 0;
         end;
         TempGLBudgetEntry.Reset();
         TempGLBudgetEntry.DeleteAll();
@@ -581,7 +581,7 @@ report 96 "Copy G/L Budget"
                 end;
                 DimSetEntry.SetRange("Dimension Code");
                 DimSetEntry.SetRange("Dimension Value Code");
-            until (TempSelectedDim.Next = 0) or not IncludeEntry;
+            until (TempSelectedDim.Next() = 0) or not IncludeEntry;
         if IncludeEntry then begin
             DimSetID := DimMgt.GetDimensionSetID(TempDimSetEntry);
             TempDimEntryBuffer."Dimension Entry No." := DimSetID;

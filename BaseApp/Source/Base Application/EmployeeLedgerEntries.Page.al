@@ -6,6 +6,8 @@ page 17395 "Employee Ledger Entries"
     PageType = List;
     PopulateAllFields = true;
     SourceTable = "Employee Ledger Entry";
+    UsageCategory = History;
+    AdditionalSearchTerms = 'Employee Check, Employee Expense, Pay Employee';
 
     layout
     {
@@ -144,7 +146,7 @@ page 17395 "Employee Ledger Entries"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

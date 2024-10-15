@@ -320,7 +320,7 @@ table 26570 "XML Element Line"
 
         XMLElementExpressionLine.SetRange("Report Code", "Report Code");
         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
-        if not XMLElementExpressionLine.IsEmpty then
+        if not XMLElementExpressionLine.IsEmpty() then
             XMLElementExpressionLine.DeleteAll();
     end;
 
@@ -433,11 +433,11 @@ table 26570 "XML Element Line"
                                 repeat
                                     XMLElementLine.Get("Report Code", PageIndicationXMLElement."XML Element Line No.");
                                     IndicElementValue := IndicElementValue + XMLElementLine.GetElementValue(StatRepBuffer);
-                                until PageIndicationXMLElement.Next = 0;
+                                until PageIndicationXMLElement.Next() = 0;
 
                             if IndicElementValue <> '' then begin
                                 PageIndicBuffer.SetRange("Page Indic. Requisite Value", IndicElementValue);
-                                if PageIndicBuffer.IsEmpty then begin
+                                if PageIndicBuffer.IsEmpty() then begin
                                     EntryNo := EntryNo + 1;
                                     PageIndicBuffer."Entry No." := EntryNo;
                                     PageIndicBuffer."Page Indic. Requisite Value" := IndicElementValue;
@@ -445,8 +445,8 @@ table 26570 "XML Element Line"
                                     PageIndicBuffer.Insert();
                                 end;
                             end;
-                        until ScalableTableRow.Next = 0;
-                until StatReportExcelSheet.Next = 0;
+                        until ScalableTableRow.Next() = 0;
+                until StatReportExcelSheet.Next() = 0;
 
             PageIndicBuffer.Reset();
             if PageIndicBuffer.FindSet then begin
@@ -458,7 +458,7 @@ table 26570 "XML Element Line"
                     StatRepBuffer."Scalable Table Row No." := 0;
 
                     ProcessChildren(CreatedXMLNode, StatRepBuffer, ElementValueBuffer);
-                until PageIndicBuffer.Next = 0;
+                until PageIndicBuffer.Next() = 0;
 
                 CheckEmptyNode(XMLNode, CreatedXMLNode);
             end;
@@ -481,7 +481,7 @@ table 26570 "XML Element Line"
                         PageIndicBuffer.Insert();
                     end else begin
                         PageIndicBuffer.SetRange("Page Indic. Requisite Value", StatReportExcelSheet."Page Indic. Requisite Value");
-                        if PageIndicBuffer.IsEmpty then begin
+                        if PageIndicBuffer.IsEmpty() then begin
                             EntryNo := EntryNo + 1;
                             PageIndicBuffer."Entry No." := EntryNo;
                             PageIndicBuffer."Excel Sheet Name" := StatReportExcelSheet."Sheet Name";
@@ -489,7 +489,7 @@ table 26570 "XML Element Line"
                             PageIndicBuffer.Insert();
                         end;
                     end;
-                until StatReportExcelSheet.Next = 0;
+                until StatReportExcelSheet.Next() = 0;
 
             PageIndicBuffer.Reset();
             if PageIndicBuffer.FindSet then
@@ -502,7 +502,7 @@ table 26570 "XML Element Line"
 
                     ProcessChildren(CreatedXMLNode, StatRepBuffer, ElementValueBuffer);
                     CheckEmptyNode(XMLNode, CreatedXMLNode);
-                until PageIndicBuffer.Next = 0;
+                until PageIndicBuffer.Next() = 0;
         end;
     end;
 
@@ -536,7 +536,7 @@ table 26570 "XML Element Line"
                         repeat
                             XMLElementLine.Get("Report Code", PageIndicationXMLElement."XML Element Line No.");
                             IndicElementValue := IndicElementValue + XMLElementLine.GetElementValue(StatRepBuffer);
-                        until PageIndicationXMLElement.Next = 0;
+                        until PageIndicationXMLElement.Next() = 0;
 
                     if IndicElementValue = StatRepBuffer."Page Indic. Requisite Value" then begin
                         AddElement(XMLNode, "Element Name", '', '', CreatedXMLNode);
@@ -546,7 +546,7 @@ table 26570 "XML Element Line"
                         ProcessChildren(CreatedXMLNode, StatRepBuffer, ElementValueBuffer);
                         CheckEmptyNode(XMLNode, CreatedXMLNode);
                     end;
-                until ScalableTableRow.Next = 0;
+                until ScalableTableRow.Next() = 0;
         end else begin
             StatReportExcelSheet.SetRange("Report Code", "Report Code");
             StatReportExcelSheet.SetRange("Report Data No.", StatRepBuffer."Report Data No.");
@@ -572,7 +572,7 @@ table 26570 "XML Element Line"
                                     ProcessChildren(CreatedXMLNode, StatRepBuffer, ElementValueBuffer);
                                     CheckEmptyNode(XMLNode, CreatedXMLNode);
                                 end;
-                            until ScalableTableRow.Next = 0;
+                            until ScalableTableRow.Next() = 0;
                     end else begin
                         AddElement(XMLNode, "Element Name", '', '', CreatedXMLNode);
 
@@ -582,7 +582,7 @@ table 26570 "XML Element Line"
                         ProcessChildren(CreatedXMLNode, StatRepBuffer, ElementValueBuffer);
                         CheckEmptyNode(XMLNode, CreatedXMLNode);
                     end;
-                until StatReportExcelSheet.Next = 0;
+                until StatReportExcelSheet.Next() = 0;
         end;
     end;
 
@@ -622,7 +622,7 @@ table 26570 "XML Element Line"
                               XMLElementExpressionLine."String Before" +
                               XMLElementExpressionLine.GetReferenceValue(StatRepBuffer."Report Data No.", '') +
                               XMLElementExpressionLine."String After";
-                        until XMLElementExpressionLine.Next = 0;
+                        until XMLElementExpressionLine.Next() = 0;
                 end;
             "Source Type"::"Table Data",
           "Source Type"::"Individual Element",
@@ -648,7 +648,7 @@ table 26570 "XML Element Line"
                                   XMLElementExpressionLine."String Before" +
                                   XMLElementLine.GetElementValue(StatRepBuffer) +
                                   XMLElementExpressionLine."String After";
-                        until XMLElementExpressionLine.Next = 0;
+                        until XMLElementExpressionLine.Next() = 0;
 
                     if StrLen(ElementValue) <> 0 then
                         if "Data Type" = "Data Type"::Integer then begin
@@ -751,7 +751,7 @@ table 26570 "XML Element Line"
                         repeat
                             if not ChildSchemaLine.ElementIsEmpty(StatRepBuffer) then
                                 exit(false);
-                        until ChildSchemaLine.Next = 0;
+                        until ChildSchemaLine.Next() = 0;
                 end;
             "Element Type"::Attribute,
             "Element Type"::Simple:
@@ -824,7 +824,7 @@ table 26570 "XML Element Line"
                     if not DeleteRecord then
                         Value := Value + ChangedRequisiteExpressionLine."String Before" +
                           ChangedRequisiteExpressionLine.Value + ChangedRequisiteExpressionLine."String After";
-            until XMLElementExpressionLine.Next = 0;
+            until XMLElementExpressionLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -839,7 +839,7 @@ table 26570 "XML Element Line"
             repeat
                 XMLElementExpressionLine.Value := XMLElementExpressionLine.GetReferenceValue('', '');
                 XMLElementExpressionLine.Modify();
-            until XMLElementExpressionLine.Next = 0;
+            until XMLElementExpressionLine.Next() = 0;
 
         Clear(XMLElementExpressionLine);
         UpdateElementValue(XMLElementExpressionLine, false);
@@ -1257,7 +1257,7 @@ table 26570 "XML Element Line"
                         ChildRequisiteLine.Validate("Table Code", TableCode);
                         ChildRequisiteLine.Modify();
                     end;
-            until ChildRequisiteLine.Next = 0;
+            until ChildRequisiteLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1304,7 +1304,7 @@ table 26570 "XML Element Line"
             repeat
                 ChildRequisiteLine.CheckComplexTable(StatRepBuffer);
                 ChildRequisiteLine.ExportValue(XMLNode, StatRepBuffer, ElementValueBuffer);
-            until ChildRequisiteLine.Next = 0;
+            until ChildRequisiteLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1343,7 +1343,7 @@ table 26570 "XML Element Line"
                         StatReportExcelSheet.SetRange("Table Code", "Table Code");
                         StatReportExcelSheet.SetRange("Parent Sheet Name", "Excel Sheet Name");
                         StatReportExcelSheet.SetRange("Sheet Name", StatRepBuffer."Excel Sheet Name");
-                        if StatReportExcelSheet.IsEmpty then
+                        if StatReportExcelSheet.IsEmpty() then
                             StatRepBuffer."Excel Sheet Name" := "Excel Sheet Name";
                     end;
             end;
@@ -1459,7 +1459,7 @@ table 26570 "XML Element Line"
                 XMLElementExpressionLine := XMLElementExpressionLineFrom;
                 XMLElementExpressionLine."Report Code" := "Report Code";
                 XMLElementExpressionLine.Insert();
-            until XMLElementExpressionLineFrom.Next = 0;
+            until XMLElementExpressionLineFrom.Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -40,7 +40,7 @@ table 17389 "Employee Absence Entry"
                     EmployeeAbsenceEntry.SetRange("Entry Type", "Entry Type"::Accrual);
                     EmployeeAbsenceEntry.SetRange("Start Date",
                       "Start Date", CalcDate('<1Y-1D>', "Start Date"));
-                    if not EmployeeAbsenceEntry.IsEmpty then
+                    if not EmployeeAbsenceEntry.IsEmpty() then
                         Error(Text004,
                           "Employee No.", "Time Activity Code",
                           "Start Date", CalcDate('<1Y-1D>', "Start Date"));

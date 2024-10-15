@@ -1,4 +1,4 @@
-﻿codeunit 1006 "Copy Job"
+codeunit 1006 "Copy Job"
 {
 
     trigger OnRun()
@@ -80,7 +80,7 @@
                 if CopyDimensions then
                     CopyJobTaskDimensions(SourceJobTask, TargetJobTask);
                 OnAfterCopyJobTask(TargetJobTask, SourceJobTask, CopyPrices, CopyQuantity);
-            until SourceJobTask.Next = 0;
+            until SourceJobTask.Next() = 0;
     end;
 
     procedure CopyJobPlanningLines(SourceJobTask: Record "Job Task"; TargetJobTask: Record "Job Task")
@@ -153,7 +153,7 @@
                     end;
                 end;
                 OnCopyJobPlanningLinesOnAfterCopyTargetJobPlanningLine(TargetJobPlanningLine, SourceJobPlanningLine);
-            until SourceJobPlanningLine.Next = 0;
+            until SourceJobPlanningLine.Next() = 0;
     end;
 
     local procedure CopyJLEsToJobPlanningLines(SourceJobTask: Record "Job Task"; TargetJobTask: Record "Job Task")
@@ -202,7 +202,7 @@
                     TargetJobPlanningLine.Validate(Quantity, 0);
                 NextPlanningLineNo += 10000;
                 TargetJobPlanningLine.Modify();
-            until JobLedgEntry.Next = 0;
+            until JobLedgEntry.Next() = 0;
     end;
 
     local procedure CopyJobDimensions(SourceJob: Record Job; var TargetJob: Record Job)
@@ -217,7 +217,7 @@
             repeat
                 DimMgt.DefaultDimOnDelete(DefaultDimension);
                 DefaultDimension.Delete();
-            until DefaultDimension.Next = 0;
+            until DefaultDimension.Next() = 0;
 
         DefaultDimension.SetRange("No.", SourceJob."No.");
         if DefaultDimension.FindSet then
@@ -231,7 +231,7 @@
                     Insert;
                     DimMgt.DefaultDimOnInsert(DefaultDimension);
                 end;
-            until DefaultDimension.Next = 0;
+            until DefaultDimension.Next() = 0;
 
         DimMgt.UpdateDefaultDim(
           DATABASE::Job, TargetJob."No.", TargetJob."Global Dimension 1 Code", TargetJob."Global Dimension 2 Code");

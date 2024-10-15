@@ -163,13 +163,13 @@ codeunit 17480 "AE Calc Management"
             PayrollDocLineAE.Reset();
             PayrollDocLineAE.SetRange("Document No.", "Document No.");
             PayrollDocLineAE.SetRange("Document Line No.", "Line No.");
-            if not PayrollDocLineAE.IsEmpty then
+            if not PayrollDocLineAE.IsEmpty() then
                 PayrollDocLineAE.DeleteAll();
 
             PayrollPeriodAE.Reset();
             PayrollPeriodAE.SetRange("Document No.", "Document No.");
             PayrollPeriodAE.SetRange("Line No.", "Line No.");
-            if not PayrollPeriodAE.IsEmpty then
+            if not PayrollPeriodAE.IsEmpty() then
                 PayrollPeriodAE.DeleteAll();
 
             AECalcSetup.Reset();
@@ -250,7 +250,7 @@ codeunit 17480 "AE Calc Management"
             if DtldPayrollLedgEntry.FindSet then
                 repeat
                     CreateDocLineAEfromEntry(DtldPayrollLedgEntry, ElementInclusion, "Document No.", "Line No.");
-                until DtldPayrollLedgEntry.Next = 0;
+                until DtldPayrollLedgEntry.Next() = 0;
 
             SkipCurrentPeriod := AECalcSetup."Exclude Current Period" or
               (AECalcSetup."Days for Calc Type" = AECalcSetup."Days for Calc Type"::"Whole Year");
@@ -259,7 +259,7 @@ codeunit 17480 "AE Calc Management"
                 PayrollDocLineAE.Reset();
                 PayrollDocLineAE.SetRange("Document No.", "Document No.");
                 PayrollDocLineAE.SetRange("Document Line No.", "Line No.");
-                if PayrollDocLineAE.IsEmpty then begin
+                if PayrollDocLineAE.IsEmpty() then begin
                     PayrollPeriod.Get("AE Period From");
                     PrevAEPeriodFrom := PayrollPeriod.PeriodByDate(CalcDate('<-1Y>', PayrollPeriod."Ending Date"));
                     PayrollPeriod.Get("AE Period To");
@@ -268,7 +268,7 @@ codeunit 17480 "AE Calc Management"
                     if DtldPayrollLedgEntry.FindSet then
                         repeat
                             CreateDocLineAEfromEntry(DtldPayrollLedgEntry, ElementInclusion, "Document No.", "Line No.");
-                        until DtldPayrollLedgEntry.Next = 0;
+                        until DtldPayrollLedgEntry.Next() = 0;
                     "AE Period From" := PrevAEPeriodFrom;
                     "AE Period To" := PrevAEPeriodTo;
                 end;
@@ -288,7 +288,7 @@ codeunit 17480 "AE Calc Management"
                 PayrollDocLineAE.Reset();
                 PayrollDocLineAE.SetRange("Document No.", "Document No.");
                 PayrollDocLineAE.SetRange("Document Line No.", "Line No.");
-                if PayrollDocLineAE.IsEmpty then begin
+                if PayrollDocLineAE.IsEmpty() then begin
                     CreateDocLinesAEfromDocument(ElementInclusion, "Document No.", "Line No.");
                     "AE Period From" := "Period Code";
                     "AE Period To" := "Period Code";
@@ -303,7 +303,7 @@ codeunit 17480 "AE Calc Management"
                 PayrollDocLineAE.Reset();
                 PayrollDocLineAE.SetRange("Document No.", "Document No.");
                 PayrollDocLineAE.SetRange("Document Line No.", "Line No.");
-                if PayrollDocLineAE.IsEmpty then begin
+                if PayrollDocLineAE.IsEmpty() then begin
                     PayrollDocLineAE.Init();
                     PayrollDocLineAE."Document No." := "Document No.";
                     PayrollDocLineAE."Document Line No." := "Line No.";
@@ -346,7 +346,7 @@ codeunit 17480 "AE Calc Management"
                             "Excluded Days" += PersonIncomeLine."Excluded Days";
                             Modify;
                         end;
-                    until PersonIncomeLine.Next = 0;
+                    until PersonIncomeLine.Next() = 0;
             end;
 
             exit(CalcDocLineAEPeriods(PayrollDocLine, AECalcSetup));
@@ -367,7 +367,7 @@ codeunit 17480 "AE Calc Management"
         PayrollDocLineAE.SetRange("Bonus Type", BonusType);
         if CurrentPeriod then
             PayrollDocLineAE.SetRange("Period Code", PayrollDocLine."Period Code");
-        if PayrollDocLineAE.IsEmpty then
+        if PayrollDocLineAE.IsEmpty() then
             exit;
 
         AEBonusSetup.SetRange("Bonus Type", BonusType);
@@ -384,7 +384,7 @@ codeunit 17480 "AE Calc Management"
                         repeat
                             BonusAmt += PayrollDocLineAE.Amount;
                             BonusQty += 1;
-                        until PayrollDocLineAE.Next = 0;
+                        until PayrollDocLineAE.Next() = 0;
                     if PayrollDocLineAE.FindLast then begin
                         PayrollDocLineAE.Validate("Amount for AE",
                           Round(BonusAmt / BonusQty));
@@ -411,7 +411,7 @@ codeunit 17480 "AE Calc Management"
                                     TempAEBuffer."Entry No." := PayrollDocLineAE."Ledger Entry No.";
                                     TempAEBuffer.Modify();
                                 end;
-                        until PayrollDocLineAE.Next = 0;
+                        until PayrollDocLineAE.Next() = 0;
 
                     if TempAEBuffer.FindSet then
                         repeat
@@ -424,8 +424,8 @@ codeunit 17480 "AE Calc Management"
                                         PayrollDocLineAE.Modify();
                                     end else
                                         PayrollDocLineAE.Delete();
-                                until PayrollDocLineAE.Next = 0;
-                        until TempAEBuffer.Next = 0;
+                                until PayrollDocLineAE.Next() = 0;
+                        until TempAEBuffer.Next() = 0;
                 end;
             AEBonusSetup."AE Bonus Calc Method"::Maximum:
                 begin
@@ -447,7 +447,7 @@ codeunit 17480 "AE Calc Management"
                                     TempAEBuffer."Entry No." := PayrollDocLineAE."Ledger Entry No.";
                                     TempAEBuffer.Modify();
                                 end;
-                        until PayrollDocLineAE.Next = 0;
+                        until PayrollDocLineAE.Next() = 0;
 
                     if TempAEBuffer.FindSet then
                         repeat
@@ -460,8 +460,8 @@ codeunit 17480 "AE Calc Management"
                                         PayrollDocLineAE.Modify();
                                     end else
                                         PayrollDocLineAE.Delete();
-                                until PayrollDocLineAE.Next = 0;
-                        until TempAEBuffer.Next = 0;
+                                until PayrollDocLineAE.Next() = 0;
+                        until TempAEBuffer.Next() = 0;
                 end;
             AEBonusSetup."AE Bonus Calc Method"::Last:
                 if PayrollDocLineAE.FindLast then begin
@@ -480,7 +480,7 @@ codeunit 17480 "AE Calc Management"
                             PayrollDocLineAE.Validate("Amount for AE", PayrollDocLineAE.Amount);
                             PayrollDocLineAE.Modify();
                         end;
-                    until PayrollDocLineAE.Next = 0;
+                    until PayrollDocLineAE.Next() = 0;
         end;
     end;
 
@@ -514,7 +514,7 @@ codeunit 17480 "AE Calc Management"
         PayrollDocLineAE.SetRange("Document No.", PayrollDocLine."Document No.");
         PayrollDocLineAE.SetRange("Document Line No.", PayrollDocLine."Line No.");
         PayrollDocLineAE.SetRange("Period Code", PayrollDocLine."Period Code");
-        if not PayrollDocLineAE.IsEmpty then begin
+        if not PayrollDocLineAE.IsEmpty() then begin
             PeriodNo := 0;
             AddPeriod := 1;
             PayrollPeriod.Reset();
@@ -562,7 +562,7 @@ codeunit 17480 "AE Calc Management"
                                 PayrollPeriodAE."Extra Salary" += PayrollDocLineAE."Amount for AE";
                         end else
                             PayrollPeriodAE."Bonus Amount" += PayrollDocLineAE."Amount for AE";
-                    until PayrollDocLineAE.Next = 0;
+                    until PayrollDocLineAE.Next() = 0;
 
                 CalcPeriodAEDays(PayrollPeriodAE, PayrollDocLine, AECalcSetup."Use Excluded Days");
 
@@ -582,7 +582,7 @@ codeunit 17480 "AE Calc Management"
                             PayrollPeriodAE."Bonus Amount" := PayrollPeriodAE."Bonus Amount" -
                               BonusAmount + PayrollDocLineAE."Amount for AE";
                         end;
-                    until PayrollDocLineAE.Next = 0;
+                    until PayrollDocLineAE.Next() = 0;
                 PayrollDocLineAE.SetRange("Bonus Type");
 
                 PayrollPeriodAE."Base Salary" :=
@@ -627,8 +627,8 @@ codeunit 17480 "AE Calc Management"
                                     TempPayrollDocumentLineAE := PayrollDocLineAE2;
                                     TempPayrollDocumentLineAE.Insert();
                                 end;
-                    until PayrollDocLineAE2.Next = 0;
-            until PayrollDocLineAE.Next = 0;
+                    until PayrollDocLineAE2.Next() = 0;
+            until PayrollDocLineAE.Next() = 0;
 
             if TempPayrollDocumentLineAE.FindSet then
                 repeat
@@ -641,7 +641,7 @@ codeunit 17480 "AE Calc Management"
                     PayrollDocLineAE.Validate("Inclusion Factor",
                       PayrollPeriodAE."Actual Work Days" / PayrollPeriodAE."Planned Work Days");
                     PayrollDocLineAE.Modify();
-                until TempPayrollDocumentLineAE.Next = 0;
+                until TempPayrollDocumentLineAE.Next() = 0;
         end;
 
         // Updated indexed amounts
@@ -662,7 +662,7 @@ codeunit 17480 "AE Calc Management"
                           PayrollPeriodAE."Indexation Factor" * PayrollDocLineAE."Amount for AE";
                     PayrollDocLineAE.Modify();
                 end;
-            until PayrollDocLineAE.Next = 0;
+            until PayrollDocLineAE.Next() = 0;
 
         // update amount for FSI
         if AECalcSetup."Days for Calc Type" = AECalcSetup."Days for Calc Type"::"Whole Year" then begin
@@ -831,7 +831,7 @@ codeunit 17480 "AE Calc Management"
                     PayrollDocLineAE."Depends on Salary Element" := PayrollDocLine."Depends on Salary Element";
                     PayrollDocLineAE.Insert();
                 end;
-            until PayrollDocLine.Next = 0;
+            until PayrollDocLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -893,7 +893,7 @@ codeunit 17480 "AE Calc Management"
                     end;
                     PayrollDocLineAE.Modify();
                 end;
-            until PayrollDocLineAE.Next = 0;
+            until PayrollDocLineAE.Next() = 0;
     end;
 
     local procedure CalcIndexationFactor(PeriodFrom: Code[10]; PayrollDocLine: Record "Payroll Document Line")
@@ -916,9 +916,9 @@ codeunit 17480 "AE Calc Management"
                                 repeat
                                     PayrollPeriodAE."Indexation Factor" *= IndexationFactor;
                                     PayrollPeriodAE.Modify();
-                                until PayrollPeriodAE.Next = 0;
+                                until PayrollPeriodAE.Next() = 0;
                         end;
-            until PayrollPeriod.Next = 0
+            until PayrollPeriod.Next() = 0
     end;
 
     [Scope('OnPrem')]

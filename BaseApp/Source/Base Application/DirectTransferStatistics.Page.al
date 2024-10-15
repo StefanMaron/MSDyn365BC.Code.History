@@ -1,10 +1,10 @@
-page 14985 "Direct Transfer Statistics"
+page 6780 "Direct Transfer Statistics"
 {
     Caption = 'Direct Transfer Statistics';
     Editable = false;
     LinksAllowed = false;
     PageType = Card;
-    SourceTable = "Transfer Shipment Header";
+    SourceTable = "Direct Trans. Header";
 
     layout
     {
@@ -57,27 +57,10 @@ page 14985 "Direct Transfer Statistics"
     }
 
     trigger OnAfterGetRecord()
-    var
-        DirectTransLine: Record "Direct Transfer Line";
     begin
-        ClearAll;
+        ClearAll();
 
-        DirectTransLine.SetRange("Document No.", "No.");
-
-        if DirectTransLine.Find('-') then
-            repeat
-                LineQty := LineQty + DirectTransLine.Quantity;
-                TotalNetWeight :=
-                  TotalNetWeight + (DirectTransLine.Quantity * DirectTransLine."Net Weight");
-                TotalGrossWeight :=
-                  TotalGrossWeight + (DirectTransLine.Quantity * DirectTransLine."Gross Weight");
-                TotalVolume :=
-                  TotalVolume + (DirectTransLine.Quantity * DirectTransLine."Unit Volume");
-                if DirectTransLine."Units per Parcel" > 0 then
-                    TotalParcels :=
-                      TotalParcels +
-                      Round(DirectTransLine.Quantity / DirectTransLine."Units per Parcel", 1, '>');
-            until DirectTransLine.Next = 0;
+        CalculateTotals();
     end;
 
     var
@@ -86,5 +69,39 @@ page 14985 "Direct Transfer Statistics"
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
+
+    local procedure CalculateTotals()
+    var
+        DirectTransLine: Record "Direct Trans. Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        DirectTransLine.SetRange("Document No.", Rec."No.");
+        if DirectTransLine.Find('-') then
+            repeat
+                LineQty += DirectTransLine.Quantity;
+                TotalNetWeight += DirectTransLine.Quantity * DirectTransLine."Net Weight";
+                TotalGrossWeight += DirectTransLine.Quantity * DirectTransLine."Gross Weight";
+                TotalVolume += DirectTransLine.Quantity * DirectTransLine."Unit Volume";
+                if DirectTransLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(DirectTransLine.Quantity / DirectTransLine."Units per Parcel", 1, '>');
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    DirectTransLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until DirectTransLine.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(DirectTransHeader: Record "Direct Trans. Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(DirectTransLine: Record "Direct Trans. Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

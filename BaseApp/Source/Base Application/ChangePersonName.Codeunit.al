@@ -92,7 +92,7 @@ codeunit 17353 "Change Person Name"
                     Employee.Validate("Middle Name", "Middle Name");
                     Employee.Validate("Last Name", "Last Name");
                     Employee.Modify();
-                until Employee.Next = 0;
+                until Employee.Next() = 0;
         end;
     end;
 
@@ -131,7 +131,7 @@ codeunit 17353 "Change Person Name"
         if PersonNameHistory.FindFirst then
             repeat
                 PersonNameHistory.Delete();
-            until PersonNameHistory.Next = 0;
+            until PersonNameHistory.Next() = 0;
     end;
 }
 

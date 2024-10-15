@@ -596,7 +596,7 @@ table 17350 Person
         PersonNameHistory: Record "Person Name History";
     begin
         PersonNameHistory.SetRange("Person No.", "No.");
-        if PersonNameHistory.IsEmpty then
+        if PersonNameHistory.IsEmpty() then
             exit(GetFullName);
 
         PersonNameHistory.SetFilter("Start Date", '<=%1', CurrDate);
@@ -616,7 +616,7 @@ table 17350 Person
         PersonNameHistory: Record "Person Name History";
     begin
         PersonNameHistory.SetRange("Person No.", "No.");
-        if PersonNameHistory.IsEmpty then
+        if PersonNameHistory.IsEmpty() then
             exit(GetNameInitials);
 
         PersonNameHistory.SetFilter("Start Date", '<=%1', CurrDate);
@@ -719,7 +719,7 @@ table 17350 Person
                    (GetEntireAge(EmployeeRelative."Birth Date", CurrentDate) < 18)
                 then
                     Kids := Kids + 1;
-            until EmployeeRelative.Next = 0;
+            until EmployeeRelative.Next() = 0;
         exit(Kids);
     end;
 
@@ -748,7 +748,7 @@ table 17350 Person
         PersonJobHistory: Record "Person Job History";
     begin
         PersonJobHistory.SetRange("Person No.", "No.");
-        if not PersonJobHistory.IsEmpty then
+        if not PersonJobHistory.IsEmpty() then
             case CurrFieldNo of
                 FieldNo("Total Service (Days)"):
                     FieldError("Total Service (Days)");

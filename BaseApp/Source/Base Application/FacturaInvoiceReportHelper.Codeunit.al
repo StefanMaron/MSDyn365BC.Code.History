@@ -161,25 +161,6 @@ codeunit 14931 "Factura-Invoice Report Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure GetFAInfo(FANo: Code[20]; var CDNo: Text; var CountryName: Text)
-    var
-        FA: Record "Fixed Asset";
-        CDNoInfo: Record "CD No. Information";
-    begin
-        CDNo := '';
-        CountryName := '';
-
-        FA.Get(FANo);
-        if FA."CD No." <> '' then begin
-            CDNo := FA."CD No.";
-            CDNoInfo.Get(
-              CDNoInfo.Type::"Fixed Asset", FA."No.", '', FA."CD No.");
-            CountryName := CDNoInfo.GetCountryName;
-            // CountryCode := CDNoInfo.GetCountryLocalCode;
-        end;
-    end;
-
-    [Scope('OnPrem')]
     procedure GetConsignorInfo(VendorNo: Code[20]; var ConsignorName: Text; var ConsignorAddress: Text)
     var
         Vendor: Record Vendor;
@@ -242,7 +223,7 @@ codeunit 14931 "Factura-Invoice Report Helper"
 
         LineValues[10] := StdRepMgt.FormatTextValue(CountryCode);
         LineValues[11] := StdRepMgt.FormatTextValue(CopyStr(CountryName, 1, 1024));
-        LineValues[12] := StdRepMgt.FormatTextValue(TrackingSpecBuf."CD No.")
+        LineValues[12] := StdRepMgt.FormatTextValue(TrackingSpecBuf."Package No.")
     end;
 
     [Scope('OnPrem')]

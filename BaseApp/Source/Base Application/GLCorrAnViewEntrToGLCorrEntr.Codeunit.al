@@ -108,7 +108,7 @@ codeunit 14941 GLCorrAnViewEntrToGLCorrEntr
                         TempGLCorrEntry := GLCorrEntry;
                         if TempGLCorrEntry.Insert() then;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

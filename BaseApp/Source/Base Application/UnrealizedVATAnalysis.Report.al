@@ -236,7 +236,7 @@ report 14928 "Unrealized VAT Analysis"
                                     ChargeVATBase += VATEntry.Base;
                                 end;
                         end;
-                    until VATEntry.Next = 0;
+                    until VATEntry.Next() = 0;
 
                 VATAccNo := '';
                 VATEntryLink.SetRange("VAT Entry No.", "Entry No.");

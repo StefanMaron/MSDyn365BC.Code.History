@@ -24,7 +24,7 @@ page 12431 "Advance Statement"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -36,7 +36,7 @@ page 12431 "Advance Statement"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor Name"; "Buy-from Vendor Name")
@@ -123,7 +123,7 @@ page 12431 "Advance Statement"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -195,7 +195,7 @@ page 12431 "Advance Statement"
                     trigger OnAction()
                     begin
                         ShowDocDim;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -438,7 +438,7 @@ page 12431 "Advance Statement"
                 repeat
                     if VendLedgEntry."Currency Code" = "Currency Code" then
                         VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
-                until VendLedgEntry.Next = 0;
+                until VendLedgEntry.Next() = 0;
         end;
 
         if "Applies-to Doc. No." <> '' then begin
@@ -468,7 +468,7 @@ page 12431 "Advance Statement"
                 if VendLedgerEntry.Get(PurchLine."Empl. Purchase Entry No.") then
                     if PurchHeader."Posting Date" < VendLedgerEntry."Posting Date" then
                         Error(Text12401, PurchHeader."Posting Date", PurchHeader."No.", VendLedgerEntry."Entry No.");
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
     end;
 }
 

@@ -111,7 +111,7 @@ page 6509 "Serial No. Information List"
                     RunPageLink = Type = CONST("Serial No."),
                                   "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
-                                  "Serial/Lot/CD No." = FIELD("Serial No.");
+                                  "Serial/Lot No." = FIELD("Serial No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 separator(Action1102601004)
@@ -154,9 +154,11 @@ page 6509 "Serial No. Information List"
 
                 trigger OnAction()
                 var
+                    ItemTrackingSetup: Record "Item Tracking Setup";
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetTracking("Serial No.", '', '');
+                    ItemTrackingSetup."Serial No." := Rec."Serial No.";
+                    Navigate.SetTracking(ItemTrackingSetup);
                     Navigate.Run;
                 end;
             }

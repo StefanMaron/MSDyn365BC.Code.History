@@ -3,6 +3,9 @@ table 12458 "Direct Transfer Header"
     Caption = 'Direct Transfer Header';
     DataCaptionFields = "No.";
     LookupPageID = "Posted Direct Transfers";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Direct Transfer feature merge to W1.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -35,24 +38,10 @@ table 12458 "Direct Transfer Header"
         {
             Caption = 'Transfer-from Post Code';
             TableRelation = "Post Code";
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Transfer-from City", "Transfer-from Post Code",
-                  "Transfer-from County", "Trsf.-from Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(8; "Transfer-from City"; Text[30])
         {
             Caption = 'Transfer-from City';
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Transfer-from City", "Transfer-from Post Code",
-                  "Transfer-from County", "Trsf.-from Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(9; "Transfer-from County"; Text[30])
         {
@@ -88,24 +77,10 @@ table 12458 "Direct Transfer Header"
         {
             Caption = 'Transfer-to Post Code';
             TableRelation = "Post Code";
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Transfer-to City", "Transfer-to Post Code", "Transfer-to County",
-                  "Trsf.-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(17; "Transfer-to City"; Text[30])
         {
             Caption = 'Transfer-to City';
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Transfer-to City", "Transfer-to Post Code", "Transfer-to County",
-                  "Trsf.-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(18; "Transfer-to County"; Text[30])
         {
@@ -126,7 +101,7 @@ table 12458 "Direct Transfer Header"
         }
         field(22; Comment; Boolean)
         {
-            CalcFormula = Exist ("Inventory Comment Line" WHERE("Document Type" = CONST("Posted Transfer Receipt"),
+            CalcFormula = Exist("Inventory Comment Line" WHERE("Document Type" = CONST("Posted Transfer Receipt"),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -173,16 +148,6 @@ table 12458 "Direct Transfer Header"
         {
             Caption = 'Dimension Set ID';
             TableRelation = "Dimension Set Entry";
-
-            trigger OnLookup()
-            begin
-                ShowDimensions();
-            end;
-
-            trigger OnValidate()
-            begin
-                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            end;
         }
     }
 
@@ -201,86 +166,5 @@ table 12458 "Direct Transfer Header"
         }
     }
 
-    trigger OnDelete()
-    var
-        InvtCommentLine: Record "Inventory Comment Line";
-        DirectTransLine: Record "Direct Transfer Line";
-        PostedDocSignature: Record "Posted Document Signature";
-        MoveEntries: Codeunit MoveEntries;
-    begin
-        DirectTransLine.SetRange("Document No.", "No.");
-        DirectTransLine.DeleteAll();
-
-        InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Direct Transfer");
-        InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.DeleteAll();
-
-        PostedDocSignature.SetRange("Table ID", DATABASE::"Direct Transfer Header");
-        PostedDocSignature.SetRange("Document No.", "No.");
-        PostedDocSignature.DeleteAll();
-
-        ItemTrackingMgt.DeleteItemEntryRelation(
-          DATABASE::"Direct Transfer Line", 0, "No.", '', 0, 0, true);
-
-        MoveEntries.MoveDocRelatedEntries(DATABASE::"Direct Transfer Header", "No.");
-    end;
-
-    var
-        PostCode: Record "Post Code";
-        DimMgt: Codeunit DimensionManagement;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
-
-    [Scope('OnPrem')]
-    procedure Navigate()
-    var
-        NavigatePage: Page Navigate;
-    begin
-        NavigatePage.SetDoc("Posting Date", "No.");
-        NavigatePage.Run;
-    end;
-
-    [Scope('OnPrem')]
-    procedure PrintRecords(ShowRequestForm: Boolean)
-    var
-        ReportSelection: Record "Report Selections";
-        DirectTransHeader: Record "Direct Transfer Header";
-        ReportSelectionTmp: Record "Report Selections" temporary;
-    begin
-        with DirectTransHeader do begin
-            Copy(Rec);
-            ReportSelection.SetRange(Usage, ReportSelection.Usage::DT);
-            ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.Find('-');
-            case ReportSelection.Count of
-                1:
-                    REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, DirectTransHeader);
-                else begin
-                        ReportSelectionTmp.Reset();
-                        ReportSelectionTmp.DeleteAll();
-                        repeat
-                            ReportSelectionTmp.Init();
-                            ReportSelectionTmp := ReportSelection;
-                            ReportSelectionTmp.Insert();
-                        until ReportSelection.Next = 0;
-                        Commit();
-                        ReportSelectionTmp.Find('-');
-                        if PAGE.RunModal(PAGE::"Report Selection - Print", ReportSelectionTmp) = ACTION::LookupOK then begin
-                            ReportSelectionTmp.SetRange(Default, true);
-                            if ReportSelectionTmp.Find('-') then
-                                repeat
-                                    REPORT.RunModal(ReportSelectionTmp."Report ID", ShowRequestForm, false, DirectTransHeader)
-                                until ReportSelectionTmp.Next = 0;
-                            ReportSelectionTmp.DeleteAll();
-                        end;
-                    end;
-            end;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
-    end;
 }
 

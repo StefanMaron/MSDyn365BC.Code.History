@@ -206,7 +206,7 @@ codeunit 17201 "Tax Register Mgt."
         if TaxReg.Find('-') then begin
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
-                if not TaxRegAccumulation.IsEmpty then
+                if not TaxRegAccumulation.IsEmpty() then
                     if not DeleteConfirmed then begin
                         if not Confirm(Text1007, false, StartDate, TaxRegGLEntry.TableCaption) then
                             Error('');
@@ -214,7 +214,7 @@ codeunit 17201 "Tax Register Mgt."
                         DeleteConfirmed := true;
                     end;
                 TaxRegAccumulation.DeleteAll();
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
         end;
 
         if StartDate = TaxRegSection."Starting Date" then
@@ -253,9 +253,9 @@ codeunit 17201 "Tax Register Mgt."
         if TaxReg.FindSet then begin
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
-                if TaxRegAccumulation.IsEmpty then
+                if TaxRegAccumulation.IsEmpty() then
                     exit(false);
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
         end;
         exit(true);
     end;
@@ -286,14 +286,14 @@ codeunit 17201 "Tax Register Mgt."
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                 TaxRegAccumulation.DeleteAll();
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
         end;
 
         TaxRegCVEntry.Reset();
         TaxRegCVEntry.SetCurrentKey("Section Code", "Ending Date");
         TaxRegCVEntry.SetRange("Section Code", SectionCode);
         TaxRegCVEntry.SetFilter("Ending Date", '%1..', StartDate);
-        if not TaxRegCVEntry.IsEmpty then
+        if not TaxRegCVEntry.IsEmpty() then
             Error(Text1008);
 
         if StartDate = TaxRegSection."Starting Date" then
@@ -346,14 +346,14 @@ codeunit 17201 "Tax Register Mgt."
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                 TaxRegAccumulation.DeleteAll();
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
         end;
 
         TaxRegItemEntry.Reset();
         TaxRegItemEntry.SetCurrentKey("Section Code", "Ending Date");
         TaxRegItemEntry.SetRange("Section Code", SectionCode);
         TaxRegItemEntry.SetFilter("Ending Date", '%1..', StartDate);
-        if not TaxRegItemEntry.IsEmpty then
+        if not TaxRegItemEntry.IsEmpty() then
             Error(Text1008);
 
         if StartDate = TaxRegSection."Starting Date" then
@@ -401,7 +401,7 @@ codeunit 17201 "Tax Register Mgt."
         if TaxReg.Find('-') then begin
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
-                if not TaxRegAccumulation.IsEmpty then
+                if not TaxRegAccumulation.IsEmpty() then
                     if not DeleteConfirmed then begin
                         if not Confirm(Text1007, false, StartDate, TaxRegFAEntry.TableCaption) then
                             Error('');
@@ -409,7 +409,7 @@ codeunit 17201 "Tax Register Mgt."
                         DeleteConfirmed := true;
                     end;
                 TaxRegAccumulation.DeleteAll();
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
         end;
 
         if StartDate = TaxRegSection."Starting Date" then
@@ -457,14 +457,14 @@ codeunit 17201 "Tax Register Mgt."
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                 TaxRegAccumulation.DeleteAll();
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
         end;
 
         TaxRegFEEntry.Reset();
         TaxRegFEEntry.SetCurrentKey("Section Code", "Ending Date");
         TaxRegFEEntry.SetRange("Section Code", SectionCode);
         TaxRegFEEntry.SetFilter("Ending Date", '%1..', StartDate);
-        if not TaxRegFEEntry.IsEmpty then
+        if not TaxRegFEEntry.IsEmpty() then
             Error(Text1008);
 
         if StartDate = TaxRegSection."Starting Date" then
@@ -517,14 +517,14 @@ codeunit 17201 "Tax Register Mgt."
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                 TaxRegAccumulation.DeleteAll();
-            until TaxReg.Next = 0;
+            until TaxReg.Next() = 0;
         end;
 
         TaxRegPREntry.Reset();
         TaxRegPREntry.SetCurrentKey("Section Code", "Ending Date");
         TaxRegPREntry.SetRange("Section Code", SectionCode);
         TaxRegPREntry.SetFilter("Ending Date", '%1..', StartDate);
-        if not TaxRegPREntry.IsEmpty then
+        if not TaxRegPREntry.IsEmpty() then
             Error(Text1008);
 
         if StartDate = TaxRegSection."Starting Date" then
@@ -926,7 +926,7 @@ codeunit 17201 "Tax Register Mgt."
                                 end;
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

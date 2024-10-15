@@ -142,7 +142,7 @@ table 5722 "Item Category"
         DeleteItemInheritedAttributes: Boolean;
     begin
         CategoryItem.SetRange("Item Category Code", Code);
-        if CategoryItem.IsEmpty then
+        if CategoryItem.IsEmpty() then
             exit;
         DeleteItemInheritedAttributes := Confirm(StrSubstNo(DeleteItemInheritedAttributesQst, Code));
         if DeleteItemInheritedAttributes then
@@ -153,7 +153,7 @@ table 5722 "Item Category"
                 CategoryItem.Modify();
                 if DeleteItemInheritedAttributes then
                     ItemAttributeManagement.DeleteItemAttributeValueMapping(CategoryItem, TempCategoryItemAttributeValue);
-            until CategoryItem.Next = 0;
+            until CategoryItem.Next() = 0;
     end;
 
     local procedure DeleteAssignedAttributes()

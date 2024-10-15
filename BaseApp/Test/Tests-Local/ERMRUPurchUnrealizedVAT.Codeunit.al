@@ -328,7 +328,7 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
         with VendLedgerEntryTo do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetFilter("Document No.", '%1|%2', InvNo[1], InvNo[2]);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", "Remaining Amount");

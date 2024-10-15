@@ -141,6 +141,11 @@ table 1384 "Employee Templ."
                 "Company E-Mail" := CopyStr(EmailAddress, 1, MaxStrLen("Company E-Mail"));
             end;
         }
+        field(53; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            TableRelation = "No. Series";
+        }
         field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';

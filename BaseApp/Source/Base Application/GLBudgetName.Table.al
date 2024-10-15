@@ -140,7 +140,7 @@ table 95 "G/L Budget Name"
                 GLBudgetEntry."Budget Dimension 3 Code" := GetDimValCode(GLBudgetEntry."Dimension Set ID", "Budget Dimension 3 Code");
                 GLBudgetEntry."Budget Dimension 4 Code" := GetDimValCode(GLBudgetEntry."Dimension Set ID", "Budget Dimension 4 Code");
                 GLBudgetEntry.Modify();
-            until GLBudgetEntry.Next = 0;
+            until GLBudgetEntry.Next() = 0;
         Window.Close;
     end;
 

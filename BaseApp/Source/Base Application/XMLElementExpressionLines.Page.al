@@ -42,7 +42,7 @@ page 26585 "XML Element Expression Lines"
                         Field.SetRange(TableNo, "Table ID");
                         if FieldSelection.Open(Field) then begin
                             Validate("Field ID", Field."No.");
-                            CurrPage.Update;
+                            CurrPage.Update();
 
                             ExpressionValue := UpdateRequisiteValue(false);
                         end;

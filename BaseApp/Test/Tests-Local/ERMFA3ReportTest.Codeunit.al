@@ -210,7 +210,7 @@ codeunit 144715 "ERM FA-3 Report Test"
         with FADocLine do begin
             SetRange("Document Type", FADocHeader."Document Type");
             SetRange("Document No.", FADocHeader."No.");
-            FindSet;
+            FindSet();
             RowShift := 0;
             repeat
                 VerifyReportLineValues(RowShift, Description, "FA No.", Amount);
@@ -231,7 +231,7 @@ codeunit 144715 "ERM FA-3 Report Test"
         with PostedFADocLine do begin
             SetRange("Document Type", PostedFADocHeader."Document Type");
             SetRange("Document No.", PostedFADocHeader."No.");
-            FindSet;
+            FindSet();
             RowShift := 0;
             repeat
                 VerifyReportLineValues(RowShift, Description, "FA No.", Amount);

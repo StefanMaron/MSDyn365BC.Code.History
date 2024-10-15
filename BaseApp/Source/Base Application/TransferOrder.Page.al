@@ -5,7 +5,6 @@ page 5740 "Transfer Order"
     PromotedActionCategories = 'New,Process,Report,Release,Posting,Order,Documents,Print/Send,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Transfer Header";
-    SourceTableView = WHERE("Direct Transfer" = CONST(false));
 
     layout
     {
@@ -24,7 +23,7 @@ page 5740 "Transfer Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Transfer-from Code"; "Transfer-from Code")
@@ -50,7 +49,7 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("In-Transit Code"; "In-Transit Code")

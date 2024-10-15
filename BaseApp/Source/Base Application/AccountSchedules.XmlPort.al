@@ -392,7 +392,7 @@ xmlport 26552 "Account Schedules"
                                 "Acc. Schedule Extension" := AccScheduleExtension;
                                 "Acc. Schedule Extension".Insert();
                             end;
-                    until AccScheduleLine.Next = 0;
+                    until AccScheduleLine.Next() = 0;
 
                 if not "Column Layout Name".Get(TempAccScheduleName."Default Column Layout") then
                     if ColumnLayoutName.Get(TempAccScheduleName."Default Column Layout") then begin
@@ -404,10 +404,10 @@ xmlport 26552 "Account Schedules"
                             repeat
                                 "Column Layout" := ColumnLayout;
                                 "Column Layout".Insert();
-                            until ColumnLayout.Next = 0;
+                            until ColumnLayout.Next() = 0;
                     end;
 
-            until TempAccScheduleName.Next = 0;
+            until TempAccScheduleName.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -422,7 +422,7 @@ xmlport 26552 "Account Schedules"
                     AccScheduleName.Delete(true);
                 AccScheduleName := "Acc. Schedule Name";
                 AccScheduleName.Insert();
-            until "Acc. Schedule Name".Next = 0;
+            until "Acc. Schedule Name".Next() = 0;
 
         "Acc. Schedule Line".Reset();
         if "Acc. Schedule Line".FindSet then
@@ -431,7 +431,7 @@ xmlport 26552 "Account Schedules"
                     AccScheduleLine.Delete(true);
                 AccScheduleLine := "Acc. Schedule Line";
                 AccScheduleLine.Insert();
-            until "Acc. Schedule Line".Next = 0;
+            until "Acc. Schedule Line".Next() = 0;
 
         "Column Layout Name".Reset();
         if "Column Layout Name".FindSet then
@@ -440,7 +440,7 @@ xmlport 26552 "Account Schedules"
                     ColumnLayoutName.Delete();
                 ColumnLayoutName := "Column Layout Name";
                 ColumnLayoutName.Insert();
-            until "Column Layout Name".Next = 0;
+            until "Column Layout Name".Next() = 0;
 
         "Column Layout".Reset();
         if "Column Layout".FindSet then
@@ -449,7 +449,7 @@ xmlport 26552 "Account Schedules"
                     ColumnLayout.Delete(true);
                 ColumnLayout := "Column Layout";
                 ColumnLayout.Insert();
-            until "Column Layout".Next = 0;
+            until "Column Layout".Next() = 0;
 
         "Acc. Schedule Extension".Reset();
         if "Acc. Schedule Extension".FindSet then
@@ -458,7 +458,7 @@ xmlport 26552 "Account Schedules"
                     AccScheduleExtension.Delete(true);
                 AccScheduleExtension := "Acc. Schedule Extension";
                 AccScheduleExtension.Insert();
-            until "Acc. Schedule Extension".Next = 0;
+            until "Acc. Schedule Extension".Next() = 0;
     end;
 }
 

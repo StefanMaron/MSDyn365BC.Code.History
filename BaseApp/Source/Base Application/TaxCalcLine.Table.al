@@ -476,7 +476,7 @@ table 17310 "Tax Calc. Line"
             repeat
                 if TaxCalcGLEntry.SetFieldFilter(Fields."No.", TypeField) then
                     FilterText := StrSubstNo('%1|%2', FilterText, Fields."No.");
-            until Fields.Next = 0;
+            until Fields.Next() = 0;
             FilterText := DelChr(FilterText, '<>', '|');
         end;
     end;
@@ -502,7 +502,7 @@ table 17310 "Tax Calc. Line"
             repeat
                 if TaxCalcItemEntry.SetFieldFilter(Fields."No.", TypeField) then
                     FilterText := StrSubstNo('%1|%2', FilterText, Fields."No.");
-            until Fields.Next = 0;
+            until Fields.Next() = 0;
             FilterText := DelChr(FilterText, '<>', '|');
         end;
     end;
@@ -515,7 +515,7 @@ table 17310 "Tax Calc. Line"
             repeat
                 if TaxCalcFAEntry.SetFieldFilter(Fields."No.", TypeField) then
                     FilterText := StrSubstNo('%1|%2', FilterText, Fields."No.");
-            until Fields.Next = 0;
+            until Fields.Next() = 0;
             FilterText := DelChr(FilterText, '<>', '|');
         end;
     end;
@@ -578,7 +578,7 @@ table 17310 "Tax Calc. Line"
                 Fields.Reset();
                 Fields.SetFilter("No.", MakeFieldFilter(TaxCalcHeader."Table ID"));
                 if Fields.FindFirst then
-                    if Fields.Next = 0 then begin
+                    if Fields.Next() = 0 then begin
                         "Sum Field No." := Fields."No.";
                         "Field Name" := Fields."Field Caption";
                     end;

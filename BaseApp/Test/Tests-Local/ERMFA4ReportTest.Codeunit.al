@@ -82,7 +82,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         Initialize;
         for i := 1 to ArrayLen(FANo) do
             FANo[i] := MockFixedAsset;
-        ReceiptNo := MockItemDocLines;
+        ReceiptNo := MockInvtDocumentLines;
         MockFADocument(FADocHeader, FANo, ReceiptNo, MultipleLine);
         RunReport(FADocHeader, ReportID);
         VerifyResults(FADocHeader, ReportID);
@@ -98,7 +98,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         Initialize;
         for i := 1 to ArrayLen(FANo) do
             FANo[i] := MockFixedAsset;
-        ReceiptNo := MockItemRcptLines;
+        ReceiptNo := MockInvtRcptLines;
         MockPostedFADocument(PostedFADocHeader, FANo, ReceiptNo, MultipleLine);
         RunPostedReport(PostedFADocHeader, ReportID);
         VerifyPostedResults(PostedFADocHeader, ReportID);
@@ -263,36 +263,34 @@ codeunit 144717 "ERM FA-4 Report Test"
         end;
     end;
 
-    local procedure MockItemDocLines(): Code[20]
+    local procedure MockInvtDocumentLines(): Code[20]
     var
-        ItemDocLine: Record "Item Document Line";
+        InvtDocumentLine: Record "Invt. Document Line";
     begin
-        with ItemDocLine do begin
-            "Document No." := LibraryUtility.GenerateGUID;
-            Description := "Document No.";
-            "Item No." := MockItem;
-            Quantity := LibraryRandom.RandInt(100);
-            "Unit Amount" := LibraryRandom.RandDec(100, 2);
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
-            exit("Document No.");
-        end;
+        InvtDocumentLine.Init();
+        InvtDocumentLine."Document No." := LibraryUtility.GenerateGUID;
+        InvtDocumentLine.Description := InvtDocumentLine."Document No.";
+        InvtDocumentLine."Item No." := MockItem;
+        InvtDocumentLine.Quantity := LibraryRandom.RandInt(100);
+        InvtDocumentLine."Unit Amount" := LibraryRandom.RandDec(100, 2);
+        InvtDocumentLine.Amount := LibraryRandom.RandDec(100, 2);
+        InvtDocumentLine.Insert();
+        exit(InvtDocumentLine."Document No.");
     end;
 
-    local procedure MockItemRcptLines(): Code[20]
+    local procedure MockInvtRcptLines(): Code[20]
     var
-        ItemRcptLine: Record "Item Receipt Line";
+        InvtReceiptLine: Record "Invt. Receipt Line";
     begin
-        with ItemRcptLine do begin
-            "Document No." := LibraryUtility.GenerateGUID;
-            Description := "Document No.";
-            "Item No." := MockItem;
-            Quantity := LibraryRandom.RandInt(100);
-            "Unit Amount" := LibraryRandom.RandDec(100, 2);
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
-            exit("Document No.");
-        end;
+        InvtReceiptLine.Init();
+        InvtReceiptLine."Document No." := LibraryUtility.GenerateGUID;
+        InvtReceiptLine.Description := InvtReceiptLine."Document No.";
+        InvtReceiptLine."Item No." := MockItem;
+        InvtReceiptLine.Quantity := LibraryRandom.RandInt(100);
+        InvtReceiptLine."Unit Amount" := LibraryRandom.RandDec(100, 2);
+        InvtReceiptLine.Amount := LibraryRandom.RandDec(100, 2);
+        InvtReceiptLine.Insert();
+        exit(InvtReceiptLine."Document No.");
     end;
 
     local procedure RunReport(FADocHeader: Record "FA Document Header"; ReportID: Integer)
@@ -393,7 +391,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         with FADocLine do begin
             SetRange("Document Type", FADocHeader."Document Type");
             SetRange("Document No.", FADocHeader."No.");
-            FindSet;
+            FindSet();
             RowShift := 0;
             repeat
                 case ReportID of
@@ -417,7 +415,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         with PostedFADocLine do begin
             SetRange("Document Type", PostedFADocHeader."Document Type");
             SetRange("Document No.", PostedFADocHeader."No.");
-            FindSet;
+            FindSet();
             RowShift := 0;
             repeat
                 case ReportID of
@@ -515,7 +513,7 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         with MainAssetComponent do begin
             SetRange("Main Asset No.", FANo);
-            FindSet;
+            FindSet();
             repeat
                 CheckIfValueExistsOnSpecificWorksheet(2, Description);
                 CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(Quantity, 2));
@@ -530,7 +528,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         with ItemFAPreciousMetal do begin
             SetRange("Item Type", "Item Type"::FA);
             SetRange("No.", FANo);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields(Name);
                 CheckIfValueExistsOnSpecificWorksheet(2, Name);
@@ -557,38 +555,34 @@ codeunit 144717 "ERM FA-4 Report Test"
 
     local procedure VerifyItemDocLine(ReceiptNo: Code[20]; WorksheetNo: Integer)
     var
-        ItemDocLine: Record "Item Document Line";
+        InvtDocumentLine: Record "Invt. Document Line";
     begin
-        with ItemDocLine do begin
-            SetRange("Document No.", ReceiptNo);
-            FindSet;
-            repeat
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, "Document No.");
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, Description);
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, "Item No.");
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(Quantity, 2));
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue("Unit Amount", 2));
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(Amount, 2));
-            until Next = 0;
-        end;
+        InvtDocumentLine.SetRange("Document No.", ReceiptNo);
+        InvtDocumentLine.FindSet();
+        repeat
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, InvtDocumentLine."Document No.");
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, InvtDocumentLine.Description);
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, InvtDocumentLine."Item No.");
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(InvtDocumentLine.Quantity, 2));
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(InvtDocumentLine."Unit Amount", 2));
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(InvtDocumentLine.Amount, 2));
+        until InvtDocumentLine.Next() = 0;
     end;
 
     local procedure VerifyItemRcptLine(ReceiptNo: Code[20]; WorksheetNo: Integer)
     var
-        ItemRcptLine: Record "Item Receipt Line";
+        InvtReceiptLine: Record "Invt. Receipt Line";
     begin
-        with ItemRcptLine do begin
-            SetRange("Document No.", ReceiptNo);
-            FindSet;
-            repeat
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, "Document No.");
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, Description);
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, "Item No.");
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(Quantity, 2));
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue("Unit Amount", 2));
-                CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(Amount, 2));
-            until Next = 0;
-        end;
+        InvtReceiptLine.SetRange("Document No.", ReceiptNo);
+        InvtReceiptLine.FindSet();
+        repeat
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, InvtReceiptLine."Document No.");
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, InvtReceiptLine.Description);
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, InvtReceiptLine."Item No.");
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(InvtReceiptLine.Quantity, 2));
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(InvtReceiptLine."Unit Amount", 2));
+            CheckIfValueExistsOnSpecificWorksheet(WorksheetNo, StdRepMgt.FormatReportValue(InvtReceiptLine.Amount, 2));
+        until InvtReceiptLine.Next() = 0;
     end;
 
     local procedure CheckIfValueExistsOnSpecificWorksheet(WorksheetNo: Integer; Value: Text)

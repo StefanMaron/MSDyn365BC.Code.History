@@ -738,7 +738,7 @@ table 302 "Finance Charge Memo Header"
                 else
                     FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Ending Text";
                 FinChrgMemoLine.Insert();
-            until FinChrgText.Next = 0;
+            until FinChrgText.Next() = 0;
             if FinChrgText.Position = FinChrgText.Position::Beginning then
                 InsertBlankLine(FinChrgMemoLine."Line Type"::"Beginning Text");
         end;

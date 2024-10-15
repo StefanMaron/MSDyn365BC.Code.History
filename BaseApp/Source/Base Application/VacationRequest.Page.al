@@ -19,7 +19,7 @@ page 17490 "Vacation Request"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Employee No."; "Employee No.")

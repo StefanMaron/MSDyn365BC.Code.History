@@ -48,7 +48,7 @@ report 17429 "Copy Calendar Setup"
                 ToPayrollCalSetup := FromPayrollCalSetup;
                 ToPayrollCalSetup."Calendar Code" := ToPayrollCalendar.Code;
                 ToPayrollCalSetup.Insert();
-            until FromPayrollCalSetup.Next = 0;
+            until FromPayrollCalSetup.Next() = 0;
     end;
 
     var

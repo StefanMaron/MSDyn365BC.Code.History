@@ -220,7 +220,7 @@ page 17317 "Tax Calc. Term Lines"
                 CurrPage.Update(false);
                 TaxCalcTermLine.TestField("Bal. Account No.");
             end;
-        until TaxCalcTermLine.Next = 0;
+        until TaxCalcTermLine.Next() = 0;
     end;
 
     var

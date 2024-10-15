@@ -13,7 +13,7 @@ codeunit 17410 "Payroll Period-Close"
         if PayrollStatus.FindSet then
             repeat
                 PayrollStatus.FieldError("Payroll Status");
-            until PayrollStatus.Next = 0;
+            until PayrollStatus.Next() = 0;
 
         if not HideDialog then
             if not
@@ -131,8 +131,8 @@ codeunit 17410 "Payroll Period-Close"
                             NewEmplAbsenceEntry.Insert();
                             NextEntryNo := NextEntryNo + 1;
                         end;
-                    until EmplAbsenceEntry.Next = 0;
-            until Employee.Next = 0;
+                    until EmplAbsenceEntry.Next() = 0;
+            until Employee.Next() = 0;
     end;
 
     [Scope('OnPrem')]
