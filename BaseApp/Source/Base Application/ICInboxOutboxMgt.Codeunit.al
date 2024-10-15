@@ -1914,7 +1914,7 @@
                 ICPartner.Get(ICInboxTrans."IC Partner Code");
             end;
         if ICPartner."Customer No." = '' then
-            Error(Text001, ICPartner.TableCaption, ICPartner.Code, Customer.TableCaption);
+            Error(Text001, ICPartner.TableCaption, ICPartner.Code, Customer.TableCaption, ICOutboxPurchHeader."IC Partner Code");
 
         with ICInboxSalesHeader do begin
             "IC Transaction No." := ICInboxTrans."Transaction No.";
