@@ -21,6 +21,8 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
         GLIntegrationDisposalError: Label '%1 must be equal to ''Yes''  in %2: %3=%4. Current value is ''No''.';
         AllowCorrectionError: Label '%1 must have a value in %2: %3=%4. It cannot be zero or empty.';
@@ -33,6 +35,7 @@ codeunit 134451 "ERM Fixed Assets"
         GenJournalBatchName: Code[10];
         FAJournalTemplateName: Code[10];
         FAJournalBatchName: Code[10];
+        FADepreciationMethod: Enum "FA Depreciation Method";
         DepreciationBookError: Label 'The %1 does not exist.';
         FADepreciationCreateError: Label 'FA Depreciation Book must be created for Fixed Asset No. %1';
         FADepreciationNotCreateError: Label 'FA Depreciation Book must not be created for Fixed Asset No. %1';
@@ -52,6 +55,7 @@ codeunit 134451 "ERM Fixed Assets"
         FirstMustBeAcquisitionCostErr: Label 'The first entry must be an Acquisition Cost';
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         TestFieldThreeArgsErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.';
+        AcquireNotificationMsg: Label 'You are ready to acquire the fixed asset.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2341,6 +2345,227 @@ codeunit 134451 "ERM Fixed Assets"
           DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss", GainLossAmount, GainLossAmount, 0);
     end;
 
+    [Test]
+    procedure AcquireActionWhenEmptyDeprStartingEndingDate()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396281] Acquire action state on Fixed Asset card when Fixed Asset has FA Depreciation Book with empty "Depreciation Starting Date" and "Depreciation Ending Date" fields.
+        Initialize();
+
+        // [GIVEN] Fixed Asset with Subclass that has FA Depreciation Book with empty "Depreciation Starting Date", "Depreciation Ending Date" fields.
+        CreateFixedAssetWithSubclass(FixedAsset, FADepreciationBook);
+        FADepreciationBook.Validate("Depreciation Starting Date", 0D);
+        FADepreciationBook.Modify(true);
+        FADepreciationBook.TestField("Depreciation Ending Date", 0D);   // Ending Date cannot be set with empty Starting Date
+
+        // [WHEN] Open Fixed Asset card.
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+
+        // [THEN] Acquire action is disabled.
+        Assert.IsFalse(FixedAssetCard.Acquire.Enabled, '');
+    end;
+
+    [Test]
+    procedure AcquireActionWhenFilledDeprStartingDateEmptyEndingDate()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396281] Acquire action state on Fixed Asset card when Fixed Asset has FA Depreciation Book with filled "Depreciation Starting Date" and empty "Depreciation Ending Date" fields.
+        Initialize();
+
+        // [GIVEN] Fixed Asset with Subclass that has FA Depreciation Book with filled "Depreciation Starting Date" and empty "Depreciation Ending Date" fields.
+        CreateFixedAssetWithSubclass(FixedAsset, FADepreciationBook);
+        UpdateStartingDateOnFADepreciationBook(FADepreciationBook, WorkDate());
+        UpdateEndingDateOnFADepreciationBook(FADepreciationBook, 0D);
+
+        // [WHEN] Open Fixed Asset card.
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+
+        // [THEN] Acquire action is disabled.
+        Assert.IsFalse(FixedAssetCard.Acquire.Enabled, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('EnqueueMessageSendNotificationHandler')]
+    procedure AcquireActionWhenFilledDeprStartingEndingDateFiscalYear365False()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        NotificationText: Text;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396281] Acquire action state on Fixed Asset card when Fixed Asset has FA Depreciation Book with filled "Depreciation Starting Date" and "Depreciation Ending Date" fields. Fiscal Year 365 Days = False.
+        Initialize();
+
+        // [GIVEN] Fixed Asset with Subclass that has FA Depreciation Book with filled "Depreciation Starting Date" and "Depreciation Ending Date" fields.
+        // [GIVEN] Depreciation Book has "Fiscal Year 365 Days" not set.
+        CreateFixedAssetWithSubclass(FixedAsset, FADepreciationBook);
+        LibraryFixedAsset.UpdateFASetupDefaultDeprBook(FADepreciationBook."Depreciation Book Code");
+        UpdateFiscalYear365DaysOnDepreciationBook(FADepreciationBook."Depreciation Book Code", false);
+        UpdateStartingDateOnFADepreciationBook(FADepreciationBook, WorkDate());
+        UpdateEndingDateOnFADepreciationBook(FADepreciationBook, CalcDate('<1Y>', WorkDate()));
+
+        // [WHEN] Open Fixed Asset card.
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+
+        // [THEN] Acquire action is enabled. Notification with text "You are ready to acquire the fixed asset" is shown.
+        Assert.IsTrue(FixedAssetCard.Acquire.Enabled, '');
+        NotificationText := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual(AcquireNotificationMsg, NotificationText, '');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('EnqueueMessageSendNotificationHandler')]
+    procedure AcquireActionWhenStraightLineFilledDeprStartingEndingDateFiscalYear365True()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        NotificationText: Text;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396281] Acquire action state on Fixed Asset card when Fixed Asset has FA Depreciation Book with filled Depreciation Starting/Ending Date fields; Depreciation Method is "Straight-Line". Fiscal Year 365 Days = True.
+        Initialize();
+
+        // [GIVEN] Fixed Asset with Subclass that has FA Depreciation Book with filled "Depreciation Starting Date" and "Depreciation Ending Date" fields. Depreciation Method is "Straight-Line".
+        // [GIVEN] Depreciation Book has "Fiscal Year 365 Days" set.
+        CreateFixedAssetWithSubclass(FixedAsset, FADepreciationBook);
+        LibraryFixedAsset.UpdateFASetupDefaultDeprBook(FADepreciationBook."Depreciation Book Code");
+        UpdateFiscalYear365DaysOnDepreciationBook(FADepreciationBook."Depreciation Book Code", true);
+        UpdateDepreciationMethodOnFADepreciationBook(FADepreciationBook, FADepreciationMethod::"Straight-Line");
+        UpdateStartingDateOnFADepreciationBook(FADepreciationBook, WorkDate());
+        UpdateEndingDateOnFADepreciationBook(FADepreciationBook, CalcDate('<1Y>', WorkDate));
+
+        // [WHEN] Open Fixed Asset card.
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+
+        // [THEN] Acquire action is enabled. Notification with text "You are ready to acquire the fixed asset" is shown.
+        Assert.IsTrue(FixedAssetCard.Acquire.Enabled, '');
+        NotificationText := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual(AcquireNotificationMsg, NotificationText, '');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('EnqueueMessageSendNotificationHandler')]
+    procedure AcquireActionWhenDB1FilledDeprStartingEndingDateFiscalYear365True()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        NotificationText: Text;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396281] Acquire action state on Fixed Asset card when Fixed Asset has FA Depreciation Book with filled Depreciation Starting Date; Depreciation Method is "Declining-Balance 1". Fiscal Year 365 Days = True.
+        Initialize();
+
+        // [GIVEN] Fixed Asset with Subclass that has FA Depreciation Book with filled "Depreciation Starting Date" field. Depreciation Method is "Declining-Balance 1".
+        // [GIVEN] Depreciation Book has "Fiscal Year 365 Days" set.
+        CreateFixedAssetWithSubclass(FixedAsset, FADepreciationBook);
+        LibraryFixedAsset.UpdateFASetupDefaultDeprBook(FADepreciationBook."Depreciation Book Code");
+        UpdateFiscalYear365DaysOnDepreciationBook(FADepreciationBook."Depreciation Book Code", true);
+        UpdateDepreciationMethodOnFADepreciationBook(FADepreciationBook, FADepreciationMethod::"Declining-Balance 1");
+        UpdateStartingDateOnFADepreciationBook(FADepreciationBook, WorkDate());
+
+        // [WHEN] Open Fixed Asset card.
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+
+        // [THEN] Acquire action is enabled. Notification with text "You are ready to acquire the fixed asset" is shown.
+        Assert.IsTrue(FixedAssetCard.Acquire.Enabled, '');
+        NotificationText := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual(AcquireNotificationMsg, NotificationText, '');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('EnqueueMessageSendNotificationHandler')]
+    procedure AcquireActionWhenDB2SLFilledDeprStartingEndingDateFiscalYear365True()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        NotificationText: Text;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396281] Acquire action state on Fixed Asset card when Fixed Asset has FA Depreciation Book with filled Depreciation Starting/Ending Date fields; Depreciation Method is "DB2/SL". Fiscal Year 365 Days = True.
+        Initialize();
+
+        // [GIVEN] Fixed Asset with Subclass that has FA Depreciation Book with filled "Depreciation Starting Date" and "Depreciation Ending Date" fields. Depreciation Method is "DB2/SL".
+        // [GIVEN] Depreciation Book has "Fiscal Year 365 Days" set.
+        CreateFixedAssetWithSubclass(FixedAsset, FADepreciationBook);
+        LibraryFixedAsset.UpdateFASetupDefaultDeprBook(FADepreciationBook."Depreciation Book Code");
+        UpdateFiscalYear365DaysOnDepreciationBook(FADepreciationBook."Depreciation Book Code", true);
+        UpdateDepreciationMethodOnFADepreciationBook(FADepreciationBook, FADepreciationMethod::"DB2/SL");
+        UpdateStartingDateOnFADepreciationBook(FADepreciationBook, WorkDate());
+        UpdateEndingDateOnFADepreciationBook(FADepreciationBook, CalcDate('<1Y>', WorkDate));
+
+        // [WHEN] Open Fixed Asset card.
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+
+        // [THEN] Acquire action is enabled. Notification with text "You are ready to acquire the fixed asset" is shown.
+        Assert.IsTrue(FixedAssetCard.Acquire.Enabled, '');
+        NotificationText := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual(AcquireNotificationMsg, NotificationText, '');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('EnqueueMessageSendNotificationHandler')]
+    procedure AcquireActionWhenManualFilledDeprStartingEndingDateFiscalYear365True()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        NotificationText: Text;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396281] Acquire action state on Fixed Asset card when Fixed Asset has FA Depreciation Book with filled Depreciation Starting Date fields; Depreciation Method is "Manual". Fiscal Year 365 Days = True.
+        Initialize();
+
+        // [GIVEN] Fixed Asset with Subclass that has FA Depreciation Book with filled "Depreciation Starting Date" field. Depreciation Method is "Manual".
+        // [GIVEN] Depreciation Book has "Fiscal Year 365 Days" set.
+        CreateFixedAssetWithSubclass(FixedAsset, FADepreciationBook);
+        LibraryFixedAsset.UpdateFASetupDefaultDeprBook(FADepreciationBook."Depreciation Book Code");
+        UpdateFiscalYear365DaysOnDepreciationBook(FADepreciationBook."Depreciation Book Code", true);
+        UpdateDepreciationMethodOnFADepreciationBook(FADepreciationBook, FADepreciationMethod::Manual);
+        UpdateStartingDateOnFADepreciationBook(FADepreciationBook, WorkDate());
+
+        // [WHEN] Open Fixed Asset card.
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+
+        // [THEN] Acquire action is enabled. Notification with text "You are ready to acquire the fixed asset" is shown.
+        Assert.IsTrue(FixedAssetCard.Acquire.Enabled, '');
+        NotificationText := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual(AcquireNotificationMsg, NotificationText, '');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
@@ -2374,6 +2599,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateLocalData;
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.Save(DATABASE::"FA Setup");
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets");
@@ -2594,6 +2820,24 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
         UpdateIntegrationInBook(DepreciationBook, false, false, false);
+    end;
+
+    local procedure CreateFixedAssetWithSubclass(var FixedAsset: Record "Fixed Asset"; var FADepreciationBook: Record "FA Depreciation Book")
+    var
+        DepreciationBook: Record "Depreciation Book";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+    begin
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        LibraryFixedAsset.CreateFAClass(FAClass);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FixedAsset."FA Posting Group");
+        FixedAsset.Validate("FA Subclass Code", FASubclass.Code);
+        FixedAsset.Modify(true);
+
+        CreateFixedAssetSetup(DepreciationBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+        FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
+        FADepreciationBook.Modify(true);
     end;
 
     local procedure CreateFAWithBookGrossAndNetDisposal(): Code[20]
@@ -2999,6 +3243,33 @@ codeunit 134451 "ERM Fixed Assets"
         FAPostingTypeSetup.ModifyAll("Include in Gain/Loss Calc.", true);
     end;
 
+    local procedure UpdateFiscalYear365DaysOnDepreciationBook(DepreciationBookCode: Code[10]; FiscalYear365Days: Boolean)
+    var
+        DepreciationBook: Record "Depreciation Book";
+    begin
+        DepreciationBook.Get(DepreciationBookCode);
+        DepreciationBook.Validate("Fiscal Year 365 Days", FiscalYear365Days);
+        DepreciationBook.Modify(true);
+    end;
+
+    local procedure UpdateStartingDateOnFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; DepreciationStartingDate: Date)
+    begin
+        FADepreciationBook.Validate("Depreciation Starting Date", DepreciationStartingDate);
+        FADepreciationBook.Modify(true);
+    end;
+
+    local procedure UpdateEndingDateOnFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; DepreciationEndingDate: Date)
+    begin
+        FADepreciationBook.Validate("Depreciation Ending Date", DepreciationEndingDate);
+        FADepreciationBook.Modify(true);
+    end;
+
+    local procedure UpdateDepreciationMethodOnFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; DepreciationMethod: Enum "FA Depreciation Method")
+    begin
+        FADepreciationBook.Validate("Depreciation Method", DepreciationMethod);
+        FADepreciationBook.Modify(true);
+    end;
+
     local procedure VerifyAcquisitionFALedgerEntry(FANo: Code[20]; Amount: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
@@ -3258,6 +3529,12 @@ codeunit 134451 "ERM Fixed Assets"
     procedure DepreciationCalcMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(CompletionStatsMsg, Message);
+    end;
+
+    [SendNotificationHandler]
+    procedure EnqueueMessageSendNotificationHandler(var Notification: Notification): Boolean
+    begin
+        LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
 
