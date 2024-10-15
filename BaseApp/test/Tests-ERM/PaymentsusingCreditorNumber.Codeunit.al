@@ -20,6 +20,7 @@ codeunit 134160 "Payments using Creditor Number"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryRandom: Codeunit "Library - Random";
         NotFoundErr: Label '%1 was not found.';
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
 
     [Test]
@@ -257,12 +258,18 @@ codeunit 134160 "Payments using Creditor Number"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
         Vendor: Record Vendor;
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
+        // [FEATURE] [Payment Reference]
         Initialize;
 
         // Pre-Setup
         CreateVendorWithCreditorNo(Vendor);
         LibraryInventory.CreateItem(Item);
+        // BUG 362612: Copy Vendor Invoice No. to Payment Reference field
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Copy Inv. No. To Pmt. Ref.", false);
+        PurchasesPayablesSetup.Modify(true);
 
         // Setup
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, Vendor."No.");
@@ -274,6 +281,40 @@ codeunit 134160 "Payments using Creditor Number"
         // Verify
         VerifyCreditorInfoOnPostedPurchInvoice(Vendor, '', PurchHeader."Payment Method Code");
         VerifyCreditorInfoOnVendorLedgerEntry(Vendor, '', PurchHeader."Payment Method Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchInvForVendorWithVendInvNo()
+    var
+        Item: Record Item;
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        // [FEATURE] [Payment Reference]
+        // [SCENARIO 362612] A "Vendor Invoice No." copies to the "Payment Reference" during purchase invoice posting
+        // [SCENARIO 362612] when the "Copy Inv. No. To Pmt. Ref." option is enabled in Purchases & Payables Setup
+
+        Initialize;
+
+        // [GIVEN] "Copy Inv. No. To Pmt. Ref." is enabled in the Purchases & Payables Setup
+        CreateVendorWithCreditorNo(Vendor);
+        LibraryInventory.CreateItem(Item);
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Copy Inv. No. To Pmt. Ref.", true);
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Post Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, false, true);
+
+        // [THEN] "Vendor Invoice No." exists in the "Payment Reference" field of the Vendor Ledger Entry
+        VerifyCreditorInfoOnVendorLedgerEntry(Vendor, PurchHeader."Vendor Invoice No.", PurchHeader."Payment Method Code");
     end;
 
     [Test]
@@ -553,6 +594,7 @@ codeunit 134160 "Payments using Creditor Number"
 
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Payments using Creditor Number");
         if IsInitialized then
             exit;
@@ -560,6 +602,7 @@ codeunit 134160 "Payments using Creditor Number"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibrarySetupStorage.SavePurchasesSetup();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Payments using Creditor Number");
     end;
@@ -676,7 +719,7 @@ codeunit 134160 "Payments using Creditor Number"
         Assert.IsFalse(PurchInvHeader.IsEmpty, StrSubstNo(NotFoundErr, PurchInvHeader.TableCaption));
     end;
 
-    local procedure VerifyCreditorInfoOnVendorLedgerEntry(Vendor: Record Vendor; PaymentReference: Code[16]; PaymentMethodCode: Code[10])
+    local procedure VerifyCreditorInfoOnVendorLedgerEntry(Vendor: Record Vendor; PaymentReference: Code[50]; PaymentMethodCode: Code[10])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
