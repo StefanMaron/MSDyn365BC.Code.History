@@ -1491,10 +1491,10 @@
                 end;
             "Item Tracking Lines Controls"::Reclass:
                 begin
-                    NewSerialNoVisible := SetAccess;
-                    NewSerialNoEditable := SetAccess;
-                    NewLotNoVisible := SetAccess;
-                    NewLotNoEditable := SetAccess;
+                    NewSerialNoVisible := not IsDirectTransfer and SetAccess;
+                    NewSerialNoEditable := not IsDirectTransfer and SetAccess;
+                    NewLotNoVisible := not IsDirectTransfer and SetAccess;
+                    NewLotNoEditable := not IsDirectTransfer and SetAccess;
                     NewPackageNoVisible := SetAccess;
                     NewPackageNoEditable := SetAccess;
                     NewExpirationDateVisible := SetAccess;

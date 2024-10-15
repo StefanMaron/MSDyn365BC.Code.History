@@ -447,6 +447,7 @@ table 133 "Incoming Document Attachment"
         TempFieldBuffer: Record "Field Buffer" temporary;
     begin
         AddFieldToFieldBuffer(TempFieldBuffer, IncomingDocument.FieldNo("Vendor Id"));
+        AddFieldToFieldBuffer(TempFieldBuffer, IncomingDocument.FieldNo("Vendor No."));
         AddFieldToFieldBuffer(TempFieldBuffer, IncomingDocument.FieldNo("Vendor Name"));
         AddFieldToFieldBuffer(TempFieldBuffer, IncomingDocument.FieldNo("Vendor Invoice No."));
         AddFieldToFieldBuffer(TempFieldBuffer, IncomingDocument.FieldNo("Order No."));

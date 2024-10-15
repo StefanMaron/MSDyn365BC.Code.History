@@ -2207,6 +2207,185 @@ codeunit 134154 "ERM Intercompany III"
         Assert.RecordIsEmpty(ICOutboxTransaction);
     end;
 
+    [Test]
+    procedure SendRejectedICTransactionWhenAutoAcceptTransactionIsSet()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        HandledICInboxTrans: Record "Handled IC Inbox Trans.";
+        Customer: Record Customer;
+        PurchaseHeader: Record "Purchase Header";
+        ScheduledTask: Record "Scheduled Task";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        ICOutboxTransactions: TestPage "IC Outbox Transactions";
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 413433] Send to IC Partner outbox transaction that is rejected by current company when Auto Accept Transactions is set on IC Partner.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+        ICInboxTransaction.DeleteAll();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Auto Send Transactions is enabled.
+        UpdateAutoSendTransactionsOnCompanyInfo(true);
+
+        // [GIVEN] Customer with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateCustomerWithICPartner(Customer, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Purchase Order "PO" for Vendor with IC Partner.
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+
+        // [GIVEN] Sent Intercompany Purchase Order. IC Inbox Transaction "A" for Sales Order is created.
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [GIVEN] Open Intercompany Inbox Transactions page, Return to Partner IC transaction "A".
+        // [GIVEN] IC Outbox Transaction "B" for Sales Order is created. Transaction Source is "Rejected by Current Company".
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("IC Partner Code", ICPartnerCode);
+        ICInboxTransactions."Return to IC Partner".Invoke();
+        Commit();
+
+        // [GIVEN] Auto Accept Transactions is set for IC Partner.
+        UpdateAutoAcceptTransOnICPartner(ICPartnerCode, true);
+
+        // [GIVEN] Open Intercompany Outbox Transactions page, Send to IC Partner IC transaction "B".
+        HandledICInboxTrans.DeleteAll();    // to prevent possible duplicates as transactions are sent within one company
+        ICOutboxTransactions.OpenEdit();
+        ICOutboxTransactions.Filter.SetFilter("IC Partner Code", ICPartnerCode);
+        ICOutboxTransactions.SendToICPartner.Invoke();
+        Commit();
+
+        // [THEN] IC Inbox Transaction "C" for Purchase Order is created. Transaction Source is "Returned by Partner".
+        ICInboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
+        ICInboxTransaction.FindFirst();
+        ICInboxTransaction.TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Returned by Partner");
+        ICInboxTransaction.TestField("Source Type", ICInboxTransaction."Source Type"::"Purchase Document");
+        ICInboxTransaction.TestField("Document Type", "IC Transaction Document Type"::Order);
+
+        // [THEN] Handled IC Inbox Transaction record is not created.
+        HandledICInboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        Assert.RecordIsEmpty(HandledICInboxTrans);
+
+        // [THEN] Scheduled task for accepting transaction "C" is not created.
+        ScheduledTask.SetRange("Run Codeunit", Codeunit::"IC Inbox Outbox Subscribers");
+        ScheduledTask.SetRange("Failure Codeunit", 0);
+        ScheduledTask.SetRange("Is Ready", true);
+        ScheduledTask.SetRange(Record, ICInboxTransaction.RecordId);
+        Assert.RecordIsEmpty(ScheduledTask);
+
+        // tear down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    procedure SendICTransactionWhenAutoAcceptTransactionIsSet()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        Customer: Record Customer;
+        PurchaseHeader: Record "Purchase Header";
+        ScheduledTask: Record "Scheduled Task";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 413433] Send to IC Partner outbox transaction that is created by current company when Auto Accept Transactions is set on IC Partner.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+        ICInboxTransaction.DeleteAll();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Auto Send Transactions is enabled.
+        UpdateAutoSendTransactionsOnCompanyInfo(true);
+
+        // [GIVEN] Customer with IC Partner. This IC Partner is also set in Company Information.
+        // [GIVEN] Auto Accept Transactions is set for IC Partner.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateCustomerWithICPartner(Customer, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+        UpdateAutoAcceptTransOnICPartner(ICPartnerCode, true);
+
+        // [GIVEN] Purchase Order "PO" for Vendor with IC Partner.
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+
+        // [WHEN] Send Intercompany Purchase Order.
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+        Commit();
+
+        // [THEN] IC Outbox Transaction "A" for Purchase Order is created. Transaction Source is "Created by Current Company".
+        // [THEN] Transaction "A" is automatically sent and Handled IC Outbox Transaction "A" is created.
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+        HandledICOutboxTrans.TestField("Transaction Source", HandledICOutboxTrans."Transaction Source"::"Created by Current Company");
+        HandledICOutboxTrans.TestField("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
+
+        // [THEN] IC Inbox Transaction for Sales Order is created and then Scheduled Task for accepting it is created.
+        ICInboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
+        ICInboxTransaction.FindFirst();
+        ICInboxTransaction.TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
+        ICInboxTransaction.TestField("Source Type", ICInboxTransaction."Source Type"::"Sales Document");
+        ICInboxTransaction.TestField("Document Type", "IC Transaction Document Type"::Order);
+
+        // [THEN] We cannot check if Handled IC Indox Transaction is created, because it is created by Scheduled Task.
+        ScheduledTask.SetRange("Run Codeunit", Codeunit::"IC Inbox Outbox Subscribers");
+        ScheduledTask.SetRange("Failure Codeunit", 0);
+        ScheduledTask.SetRange("Is Ready", true);
+        ScheduledTask.FindLast();
+        ScheduledTask.TestField(Record, ICInboxTransaction.RecordId);
+
+        // tear down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLPostingPreviewPageHandler')]
+    procedure ICGenJnlPostingPreviewSkipFileCreation()
+    var
+        CompanyInformation: Record "Company Information";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        ICGLAccount: Record "IC G/L Account";
+        ICPartner: Record "IC Partner";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        // [SCENARIO 415998] Intercompany transaction .xml file should not be created when preview posting of intercompany general journal
+        Initialize();
+
+        // [GIVEN] IC Setup, "IC Inbox Type"::"File Location"
+        // [GIVEN] IC Partner, "Inbox Type"::"File Location"
+        CreateFileLocationICSetup(CompanyInformation);
+        LibraryERM.CreateICPartner(ICPartner);
+        ICPartner.Validate("Inbox Type", ICPartner."Inbox Type"::"File Location");
+        ICPartner.Validate("Inbox Details", CompanyInformation."IC Inbox Details");
+        ICPartner.Modify(true);
+        // [GIVEN] Intercompany general journal line
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Intercompany);
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateICGeneralJournalLine(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            GenJournalLine."Bal. Account Type"::"IC Partner", ICPartner.Code, ICGLAccount."No.", 100, LibraryUtility.GenerateGUID);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        Commit();
+
+        // [WHEN] Preview posting of intercompany general journal
+        asserterror GenJnlPost.Preview(GenJournalLine);
+
+        // [THEN] Intercompany transaction file does not exist
+        FileName := StrSubstNo('%1\%2_1.xml', ICPartner."Inbox Details", ICPartner.Code);
+        Assert.IsFalse(FileManagement.ServerFileExists(FileName), 'IC transaction file should not exist on preview.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2835,6 +3014,15 @@ codeunit 134154 "ERM Intercompany III"
         CompanyInformation.Modify(true);
     end;
 
+    local procedure UpdateAutoAcceptTransOnICPartner(ICPartnerCode: Code[20]; AutoAcceptTransactions: Boolean)
+    var
+        ICPartner: Record "IC Partner";
+    begin
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Auto. Accept Transactions", AutoAcceptTransactions);
+        ICPartner.Modify(true);
+    end;
+
     local procedure UpdateQtyToShipOnSalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer; QtyToShip: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -2863,6 +3051,19 @@ codeunit 134154 "ERM Intercompany III"
     begin
         SalesHeader.Validate("Bill-to Customer No.", CustomerNo);
         SalesHeader.Modify(true);
+    end;
+
+    local procedure CreateFileLocationICSetup(var CompanyInformation: Record "Company Information")
+    var
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        FileName := FileManagement.ServerTempFileName('');
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Auto. Send Transactions", true);
+        CompanyInformation.Validate("IC Inbox Type", CompanyInformation."IC Inbox Type"::"File Location");
+        CompanyInformation.Validate("IC Inbox Details", FileManagement.GetDirectoryName(FileName));
+        CompanyInformation.Modify(true);
     end;
 
     local procedure VerifySalesDocDimSet(DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
@@ -3031,6 +3232,12 @@ codeunit 134154 "ERM Intercompany III"
     procedure ICSetupPageHandler(var ICSetup: TestPage "IC Setup")
     begin
         ICSetup.Cancel.Invoke;
+    end;
+
+    [PageHandler]
+    procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    begin
+        GLPostingPreview.Close();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSendICDocument', '', false, false)]

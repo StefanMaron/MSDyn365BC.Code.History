@@ -380,7 +380,9 @@ report 31096 "Sales - Invoice CZ"
 
                     trigger OnAfterGetRecord()
                     begin
-                        UnitPriceExclVAT := 100 * "Sales Invoice Line"."Unit Price" / (100 + "Sales Invoice Line"."VAT %");
+                        UnitPriceExclVAT := "Unit Price";
+                        if "Sales Invoice Header"."Prices Including VAT" then
+                            UnitPriceExclVAT := Round("Unit Price" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision");
                     end;
                 }
                 dataitem(SalesInvoiceAdvance; "Sales Invoice Line")
@@ -559,6 +561,12 @@ report 31096 "Sales - Invoice CZ"
                 if "Currency Code" = '' then
                     "Currency Code" := "General Ledger Setup"."LCY Code";
 
+                if "Currency Code" = '' then
+                    Currency.InitRoundingPrecision()
+                else
+                    if not Currency.Get("Currency Code") then
+                        Currency.InitRoundingPrecision();
+
                 if ("Currency Factor" <> 0) and ("Currency Factor" <> 1) then begin
                     CurrExchRate.FindCurrency("Posting Date", "Currency Code", 1);
                     CalculatedExchRate := Round(1 / "Currency Factor" * CurrExchRate."Exchange Rate Amount", 0.00001);
@@ -661,6 +669,7 @@ report 31096 "Sales - Invoice CZ"
         PaymentMethod: Record "Payment Method";
         ShipmentMethod: Record "Shipment Method";
         ReasonCode: Record "Reason Code";
+        Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
         SalesInvHeader: Record "Sales Invoice Header";

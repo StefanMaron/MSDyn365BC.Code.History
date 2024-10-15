@@ -1867,6 +1867,7 @@
     var
         ApprovalEntry: Record "Approval Entry";
         PostedApprovalEntry: Record "Posted Approval Entry";
+        RecordLinkManagement: Codeunit "Record Link Management";
     begin
         ApprovalEntry.SetAutoCalcFields("Pending Approvals", "Number of Approved Requests", "Number of Rejected Requests");
         ApprovalEntry.SetRange("Table ID", ApprovedRecordID.TableNo);
@@ -1885,6 +1886,7 @@
             PostedApprovalEntry."Entry No." := 0;
             OnPostApprovalEntriesOnBeforePostedApprovalEntryInsert(PostedApprovalEntry, ApprovalEntry);
             PostedApprovalEntry.Insert(true);
+            RecordLinkManagement.CopyLinks(ApprovalEntry, PostedApprovalEntry);
         until ApprovalEntry.Next() = 0;
 
         PostApprovalCommentLines(ApprovedRecordID, PostedRecordID, PostedDocNo);

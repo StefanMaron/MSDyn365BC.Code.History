@@ -892,21 +892,14 @@ codeunit 5611 "Calculate Normal Depreciation"
 
         if DepGroup."Depreciation Type" <> DepGroup."Depreciation Type"::"Straight-line Intangible" then
             if FADeprBook.Prorated then begin
-                if not ProjValue then begin
-                    TaxDeprAmount := TaxDeprAmount *
-                      DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) / 360 -
-                      CalcDepreciatedAmount(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
+                if DateFromProjection = 0D then begin
+                    TaxDeprAmount := TaxDeprAmount * DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) / 360 -
+                        CalcDepreciatedAmount(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
                     NumberOfDays2 := DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) -
-                      CalcDepreciatedDays(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
+                        CalcDepreciatedDays(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
                 end else begin
-                    CalculateProjectedValues(CalcStartOfFiscalYear(UntilDate), UntilDate);
-                    TaxDeprAmount := TaxDeprAmount *
-                      DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) / 360 -
-                      CalcDepreciatedAmount(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate) +
-                      TempFALedgEntry3.Amount;
-                    NumberOfDays2 :=
-                      DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) -
-                      NoOfProjectedDays;
+                    TaxDeprAmount := TaxDeprAmount * DepreciationCalc.DeprDays(DateFromProjection, UntilDate, Year365Days) / 360;
+                    NumberOfDays2 := DepreciationCalc.DeprDays(DateFromProjection, UntilDate, Year365Days);
                 end;
             end else
                 if TempFaktor < 1 then
@@ -1059,8 +1052,6 @@ codeunit 5611 "Calculate Normal Depreciation"
     begin
         NoOfProjectedDays := 0;
         TempFALedgEntry3.Reset();
-        if not TempFALedgEntry3.IsEmpty() then ///
-            error('STOP CalculateProjectedValues'); ///
         if StartDate <> 0D then
             TempFALedgEntry3.SetRange("FA Posting Date", StartDate, EndDate)
         else
@@ -1078,8 +1069,8 @@ codeunit 5611 "Calculate Normal Depreciation"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         // NAVCZ
-        IF ProjValue THEN
-            EXIT(TempFromDate >= CalcEndOfFiscalYear(AcquisitionDate));
+        if (DateFromProjection <> 0D) or FADeprBook.Prorated then
+            exit(TempFromDate >= CalcEndOfFiscalYear(AcquisitionDate));
 
         DepreciationCalc.SetFAFilter(FALedgerEntry, FANo, DeprBookCode, true);
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);

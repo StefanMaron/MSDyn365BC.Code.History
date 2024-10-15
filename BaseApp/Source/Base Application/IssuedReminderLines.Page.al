@@ -105,6 +105,12 @@ page 439 "Issued Reminder Lines"
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
+                field("VAT Amount"; "VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT amount in the currency of the reminder.';
+                    Visible = false;
+                }
             }
         }
     }

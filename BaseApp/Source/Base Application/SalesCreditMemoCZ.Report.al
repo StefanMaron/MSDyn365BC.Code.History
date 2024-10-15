@@ -383,7 +383,9 @@ report 31097 "Sales - Credit Memo CZ"
 
                     trigger OnAfterGetRecord()
                     begin
-                        UnitPriceExclVAT := 100 * "Sales Cr.Memo Line"."Unit Price" / (100 + "Sales Cr.Memo Line"."VAT %");
+                        UnitPriceExclVAT := "Unit Price";
+                        if "Sales Cr.Memo Header"."Prices Including VAT" then
+                            UnitPriceExclVAT := Round("Unit Price" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision");
                     end;
                 }
                 dataitem(VATCounter; "Integer")
@@ -517,6 +519,12 @@ report 31097 "Sales - Credit Memo CZ"
                 if "Currency Code" = '' then
                     "Currency Code" := "General Ledger Setup"."LCY Code";
 
+                if "Currency Code" = '' then
+                    Currency.InitRoundingPrecision()
+                else
+                    if not Currency.Get("Currency Code") then
+                        Currency.InitRoundingPrecision();
+
                 if ("Currency Factor" <> 0) and ("Currency Factor" <> 1) then begin
                     CurrExchRate.FindCurrency("Posting Date", "Currency Code", 1);
                     CalculatedExchRate := Round(1 / "Currency Factor" * CurrExchRate."Exchange Rate Amount", 0.00001);
@@ -600,6 +608,7 @@ report 31097 "Sales - Credit Memo CZ"
         PaymentMethod: Record "Payment Method";
         ShipmentMethod: Record "Shipment Method";
         ReasonCode: Record "Reason Code";
+        Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
         Language: Codeunit Language;

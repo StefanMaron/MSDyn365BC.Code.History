@@ -375,7 +375,9 @@ report 31189 "Sales Invoice CZL"
 
                     trigger OnAfterGetRecord()
                     begin
-                        UnitPriceExclVAT := 100 * "Sales Invoice Line"."Unit Price" / (100 + "Sales Invoice Line"."VAT %");
+                        UnitPriceExclVAT := "Unit Price";
+                        if "Sales Invoice Header"."Prices Including VAT" then
+                            UnitPriceExclVAT := Round("Unit Price" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision");
                     end;
                 }
                 dataitem(SalesInvoiceAdvance; "Sales Invoice Line")
@@ -542,6 +544,12 @@ report 31189 "Sales Invoice CZL"
                 if not Customer.Get("Bill-to Customer No.") then
                     Clear(Customer);
 
+                if "Currency Code" = '' then
+                    Currency.InitRoundingPrecision()
+                else
+                    if not Currency.Get("Currency Code") then
+                        Currency.InitRoundingPrecision();
+
                 SalesInvLine.CalcVATAmountLines("Sales Invoice Header", TempVATAmountLine);
                 TempVATAmountLine.UpdateVATEntryLCYAmountsCZL("Sales Invoice Header");
                 if ("Currency Factor" <> 0) and ("Currency Factor" <> 1) then begin
@@ -636,6 +644,7 @@ report 31189 "Sales Invoice CZL"
         PaymentMethod: Record "Payment Method";
         ShipmentMethod: Record "Shipment Method";
         ReasonCode: Record "Reason Code";
+        Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
         SalesInvoiceHeader: Record "Sales Invoice Header";

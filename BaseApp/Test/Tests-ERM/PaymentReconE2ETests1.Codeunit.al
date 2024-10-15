@@ -2842,6 +2842,73 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
           InvCustLedgerEntry[1].FieldCaption("Closed by Entry No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,PaymentApplicationModalPageHandler,PostAndReconcilePageHandler')]
+    [Scope('OnPrem')]
+    procedure TwoSaesInvoiceToPaymentReconciliationJournalDifferentDates()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: array[2] of Record "Bank Acc. Reconciliation";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        PostingDate: array[2] of Date;
+        Index: Integer;
+        DocAmount: Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Application] [Applies-to ID]
+        // [SCENARIO 407488] System can post Bank Account Reconciliation with it has two Bank Account Reconciliation for the same Customer but with different Transaction Date and Bank Account
+        Initialize();
+
+        PostingDate[1] := WorkDate();
+        PostingDate[2] := WorkDate() + LibraryRandom.RandIntInRange(40, 60);
+
+        DocAmount := LibraryRandom.RandIntInRange(100, 200);
+
+        LibrarySales.CreateCustomer(Customer);
+
+        for Index := 1 to ArrayLen(PostingDate) do begin
+            LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+            SalesHeader.Validate("Posting Date", PostingDate[Index]);
+            SalesHeader.Validate("Order Date", PostingDate[Index]);
+            SalesHeader.Validate("Due Date", PostingDate[Index]);
+            SalesHeader.Modify(true);
+
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+            SalesLine.Validate("Unit Price", DocAmount);
+            SalesLine.Modify(true);
+
+            InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+            Clear(BankAccount);
+            CreateBankAcc('SEPA CAMT', BankAccount, '');
+
+            LibraryERM.CreateBankAccReconciliation(
+              BankAccReconciliation[Index], BankAccount."No.", BankAccReconciliation[Index]."Statement Type"::"Payment Application");
+
+            PaymentReconciliationJournal.Trap();
+            BankAccReconciliation[Index].OpenWorksheet(BankAccReconciliation[Index]);
+
+            PaymentReconciliationJournal."Transaction Date".SetValue(PostingDate[Index]);
+            PaymentReconciliationJournal."Statement Amount".SetValue(DocAmount);
+
+            UpdateBankAccRecStmEndingBalance(BankAccReconciliation[Index], DocAmount);
+
+            LibraryVariableStorage.Enqueue(InvoiceNo);
+            PaymentReconciliationJournal.ApplyEntries.Invoke();
+
+            PaymentReconciliationJournal.Close();
+        end;
+
+        PaymentReconciliationJournal.Trap();
+        BankAccReconciliation[1].OpenWorksheet(BankAccReconciliation[1]);
+        PaymentReconciliationJournal.Post.Invoke();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2853,9 +2920,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests 1");
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         BankPmtApplSettings.DeleteAll();
 
         if Initialized then
@@ -2863,10 +2930,10 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         Initialized := true;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 1");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Credit Warnings" := SalesReceivablesSetup."Credit Warnings"::"No Warning";
@@ -3671,6 +3738,21 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
             OK.Invoke;
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PaymentApplicationModalPageHandler(var PaymentApplication: TestPage "Payment Application")
+    var
+        InvoiceNo: Code[20];
+    begin
+        InvoiceNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+
+        PaymentApplication.FILTER.SetFilter("Document No.", InvoiceNo);
+        if PaymentApplication.Applied.AsBoolean() then
+            PaymentApplication.Applied.SetValue(false);
+        PaymentApplication.Applied.SetValue(true);
+        PaymentApplication.OK.Invoke();
     end;
 
     [ModalPageHandler]

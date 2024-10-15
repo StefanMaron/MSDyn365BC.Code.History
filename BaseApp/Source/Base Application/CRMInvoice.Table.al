@@ -467,7 +467,8 @@ table 5355 "CRM Invoice"
             ExternalType = 'String';
             FieldClass = FlowField;
         }
-        field(57; OpportunityIdName; Text[250])
+#pragma warning disable AS0086
+        field(57; OpportunityIdName; Text[2048])
         {
             CalcFormula = Lookup ("CRM Opportunity".Name WHERE(OpportunityId = FIELD(OpportunityId)));
             Caption = 'OpportunityIdName';
@@ -476,7 +477,7 @@ table 5355 "CRM Invoice"
             ExternalType = 'String';
             FieldClass = FlowField;
         }
-        field(58; SalesOrderIdName; Text[250])
+        field(58; SalesOrderIdName; Text[2048])
         {
             CalcFormula = Lookup ("CRM Salesorder".Name WHERE(SalesOrderId = FIELD(SalesOrderId)));
             Caption = 'SalesOrderIdName';
@@ -485,6 +486,7 @@ table 5355 "CRM Invoice"
             ExternalType = 'String';
             FieldClass = FlowField;
         }
+#pragma warning restore AS0086
         field(59; PriceLevelIdName; Text[100])
         {
             CalcFormula = Lookup ("CRM Pricelevel".Name WHERE(PriceLevelId = FIELD(PriceLevelId)));
