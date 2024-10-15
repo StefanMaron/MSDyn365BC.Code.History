@@ -166,6 +166,12 @@ page 300 "Ship-to Address"
                     ToolTip = 'Specifies the customer number.';
                     Visible = false;
                 }
+                field("SAT Address ID"; Rec."SAT Address ID")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
+                    BlankZero = true;
+                }
             }
         }
         area(factboxes)

@@ -2936,6 +2936,14 @@
         {
             Caption = 'Transit-to Location';
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            ObsoleteReason = 'Replaced with SAT Address ID.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif             
         }
         field(10056; "Medical Insurer Name"; Text[50])
         {
@@ -3013,6 +3021,19 @@
             Caption = 'CFDI Period';
             OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
             OptionMembers = "Diario","Semanal","Quincenal","Mensual";
+        }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+            TableRelation = "SAT Address";
+
+            trigger OnLookup()
+            var
+                SATAddress: Record "SAT Address";
+            begin
+                if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
+                    Rec."SAT Address ID" := SATAddress.Id;
+            end;
         }
     }
 
@@ -3184,7 +3205,7 @@
         Text030: Label 'Deleting this document will cause a gap in the number series for return receipts. An empty return receipt %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text031: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Shipment Date.\\Do you want to update the lines?';
         MaxAllowedValueIs100Err: Label 'The values must be less than or equal 100.';
-        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
+        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to recalculate/update dimensions?';
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         SalesHeader: Record "Sales Header";
@@ -4312,7 +4333,7 @@
 
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
             if CouldDimensionsBeKept() then
-                if ConfirmKeepExistingDimensions(OldDimSetID) then begin
+                if not ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
                 end;

@@ -620,6 +620,12 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the character that separates Month, Day and Year of the date that prints on the check image.';
                 }
+                field("Exclude from Pmt. Practices"; Rec."Exclude from Pmt. Practices")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that the customer must be excluded from Payment Practices calculations.';
+                }
             }
             group(Shipping)
             {
