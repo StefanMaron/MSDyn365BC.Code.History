@@ -750,6 +750,28 @@ codeunit 142055 "UT REP Vendor 1099"
         FILE.Erase(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099InformationRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099InformationReportContainsNecCode()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 386168] Vendor 1099 information reports contains the NEC code
+
+        Initialize();
+        // [GIVEN] Vendor Ledger Entry with "NEC-01" code and Amount = "X"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeNec01Tok, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [WHEN] Run Vendor 1099 information report
+        REPORT.Run(REPORT::"Vendor 1099 Information");
+
+        // [THEN] Vendor 1099 Information report Vendor Ledger Entry's amount "X"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(Amounts, -VendorLedgerEntry.Amount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

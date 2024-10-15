@@ -151,8 +151,12 @@
                 Error(Text002);
         end;
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
+        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
             ProcessWebAttachment(Caption + '.' + "File Extension")
+#if not CLEAN17
+        // Code being removed as the procedure ConstFilename will always throw an error and is being removed.
+        // This will cause DeleteFile to always throw an error that the file is in use.
+        // OpenWordAttachment is also being removed as it uses DotNet that cannot run on non-Windows client type.
         else begin
             FileName := ConstFilename;
             if not DeleteFile(FileName) then
@@ -171,6 +175,7 @@
                         DeleteFile(FileName);
             end;
         end;
+#endif
     end;
 
     [Scope('OnPrem')]
@@ -207,6 +212,19 @@
             if not WordManagement.CanRunWordApp then
                 ProcessWebAttachment(WordCaption + '.' + "File Extension")
             else
+#if CLEAN17
+                if not WordManagement.IsWordDocumentExtension("File Extension") then begin
+                    ExportAttachmentToClientFile(FileName);
+                    HyperLink(FileName);
+                    if not "Read Only" then begin
+                        if Confirm(Text004, true) then
+                            ImportAttachmentFromClientFile(FileName, IsTemporary, false);
+                        DeleteFile(FileName);
+                    end else
+                        if Confirm(Text016, true) then
+                            DeleteFile(FileName);
+                end;
+#else
                 if WordManagement.IsWordDocumentExtension("File Extension") then begin
                     OnRunAttachmentOnBeforeWordManagementRunMergedDocument(Rec, Handler);
                     WordManagement.RunMergedDocument(SegLine, Rec, WordCaption, IsTemporary, IsVisible, Handler);
@@ -222,6 +240,8 @@
                         if Confirm(Text016, true) then
                             DeleteFile(FileName);
                 end;
+#endif
+
         WordManagement.Deactivate(5062);
     end;
 
@@ -250,7 +270,9 @@
 
         Path := FileMgt.Magicpath;
         if ExportToFile = '' then begin
+#if not CLEAN17
             ExportToFile := FileMgt.GetFileName(FileMgt.ClientTempFileName("File Extension"));
+#endif
             Path := '';
         end;
 
@@ -496,6 +518,7 @@
         if FileName = '' then
             exit(false);
 
+#if not CLEAN17
         if not FileMgt.ClientFileExists(FileName) then
             exit(true);
 
@@ -504,13 +527,19 @@
             I := I + 1;
         until FileMgt.DeleteClientFile(FileName) or (I = 25);
         exit(not FileMgt.ClientFileExists(FileName));
+#else
+        exit(true);
+#endif
     end;
 
+#if not CLEAN17
     [Scope('OnPrem')]
+    [Obsolete('The local file system is not accessible, the procedure FileMgt.ClientTempFileName will always throw an error. This procedure will be removed.', '17.3')]
     procedure ConstFilename() FileName: Text
     begin
         FileName := FileMgt.ClientTempFileName("File Extension");
     end;
+#endif
 
     procedure ConstDiskFileName() DiskFileName: Text
     begin

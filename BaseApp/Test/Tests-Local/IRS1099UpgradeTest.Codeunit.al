@@ -25,9 +25,10 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         UpgradeFormBoxesScheduledMsg: Label 'A job queue entry has been created.\\Make sure Earliest Start Date/Time field in the Job Queue Entry Card window is correct, and then choose the Set Status to Ready action to schedule a background job.';
         FormBoxesUpgradedMsg: Label 'The 1099 form boxes are successfully updated.';
         ConfirmUpgradeNowQst: Label 'The update process can take a while and block other users activities. Do you want to start the update now?';
-        NotificationMsg: Label 'The list of 1099 form boxes is not up to date for the year %1.';
+        NotificationMsg: Label 'The list of 1099 form boxes is not up to date. Update: %1';
         ConfirmIRS1099CodeUpdateQst: Label 'One or more entries have been posted with IRS 1099 code %1.\\Do you want to continue and update all the data associated with this vendor and the existing IRS 1099 code with the new code, %2?', Comment = '%1 - old code;%2 - new code';
         BlockIfUpgradeNeededErr: Label 'You must update the form boxes in the 1099 Forms-Boxes window before you can run this report.';
+        February2020Lbl: Label 'February 2020';
 
     [Test]
     [Scope('OnPrem')]
@@ -40,6 +41,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
 
         IRS1099FormBox.Get(GetIRS1099UpgradeCode2019);
         IRS1099FormBox.Get(GetIRS1099UpgradeCode2020);
+        IRS1099FormBox.Get(GetIRS1099UpgradeCode2020February);
     end;
 
     [Test]
@@ -79,14 +81,14 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     [HandlerFunctions('SendNotificationHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure NotificationUpgrade2020NotShowOnIRS1099FormBoxPage()
+    procedure NotificationUpgrade2020ThrownOnIRS1099FormBoxPage()
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         IRS1099FormBoxPage: TestPage "IRS 1099 Form-Box";
         IRSCode: Code[10];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 374401] Notification of upgrade 200 thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "NEC-01" does not exist
+        // [SCENARIO 374401] Notification of upgrade 2020 thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "NEC-01" does not exist
 
         Initialize();
         IRSCode := GetIRS1099UpgradeCode2019();
@@ -102,10 +104,40 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     end;
 
     [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure NotificationUpgrade2020FebruaryThrownOnIRS1099FormBoxPage()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        IRS1099FormBoxPage: TestPage "IRS 1099 Form-Box";
+        IRSCode: Code[10];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 387271] Notification of upgrade February 2020 thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "NEC-01" does not exist
+
+        Initialize();
+        IRSCode := GetIRS1099UpgradeCode2019();
+        InsertIRS1099Code(IRSCode);
+        IRSCode := GetIRS1099UpgradeCode2020();
+        InsertIRS1099Code(IRSCode);
+
+        LibraryVariableStorage.Enqueue(February2020Lbl);
+        IRS1099FormBoxPage.OpenView();
+        IRS1099FormBoxPage.FILTER.SetFilter(Code, IRSCode);
+        IRS1099FormBoxPage.Code.AssertEquals(IRSCode);
+        RemoveIRS1099UpgradeCodeYear2019();
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure NotificationNotShowOnIRS1099FormBoxPage()
     var
+        CodeCoverage: Record "Code Coverage";
+        CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         IRS1099FormBoxPage: TestPage "IRS 1099 Form-Box";
         IRSCode: Code[10];
     begin
@@ -118,12 +150,23 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // TFS ID 374401: Support of US1099 for year 2020.
         IRSCode := GetIRS1099UpgradeCode2020();
         InsertIRS1099Code(IRSCode);
+        // TFS ID 387271: Support of NEC-04 for year 2020.
+        IRSCode := GetIRS1099UpgradeCode2020February();
+        InsertIRS1099Code(IRSCode);
 
+        CodeCoverageMgt.StartApplicationCoverage();
         IRS1099FormBoxPage.OpenView();
         IRS1099FormBoxPage.FILTER.SetFilter(Code, IRSCode);
         IRS1099FormBoxPage.Code.AssertEquals(IRSCode);
+        CodeCoverageMgt.StopApplicationCoverage();
+
+        Assert.AreEqual(
+          0,
+          CodeCoverageMgt.GetNoOfHitsCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"IRS 1099 Management", 'SendIRS1099UpgradeNotification'), '');
+
         RemoveIRS1099UpgradeCodeYear2019();
         RemoveIRS1099UpgradeCodeYear2020();
+        RemoveIRS1099UpgradeCodeYear2020February();
     end;
 
     [Test]
@@ -442,6 +485,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
 
         Initialize();
         RemoveIRS1099UpgradeCodeYear2020();
+        RemoveIRS1099UpgradeCodeYear2020February();
         InsertIRS1099Code(GetIRS1099UpgradeCode2020());
         Commit();
         VendorList.OpenEdit();
@@ -477,7 +521,8 @@ codeunit 144030 "IRS 1099 Upgrade Test"
 
         Initialize();
         RemoveIRS1099UpgradeCodeYear2020();
-        InsertIRS1099Code(GetIRS1099UpgradeCode2020);
+        RemoveIRS1099UpgradeCodeYear2020February();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
         Commit();
         IRS1099FormBox.OpenEdit();
         IRS1099FormBox."Vendor 1099 Misc".Invoke();
@@ -509,6 +554,11 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         exit('NEC-01');
     end;
 
+    local procedure GetIRS1099UpgradeCode2020February(): Code[10]
+    begin
+        exit('NEC-04');
+    end;
+
     local procedure RemoveIRS1099UpgradeCodeYear2019()
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
@@ -521,7 +571,15 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
-        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2020);
+        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2020());
+        IRS1099FormBox.DeleteAll();
+    end;
+
+    local procedure RemoveIRS1099UpgradeCodeYear2020February()
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+    begin
+        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2020February());
         IRS1099FormBox.DeleteAll();
     end;
 

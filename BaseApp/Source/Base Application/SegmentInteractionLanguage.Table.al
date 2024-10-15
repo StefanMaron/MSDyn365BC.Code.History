@@ -276,11 +276,18 @@ table 5104 "Segment Interaction Language"
             RemoveAttachment(false);
         end;
 
+#if CLEAN17
+        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then begin
+            if Attachment.ImportAttachmentFromClientFile('', false, true) then
+                NewAttachmentNo := Attachment."No.";
+        end;
+#else
         if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
             if Attachment.ImportAttachmentFromClientFile('', false, true) then
                 NewAttachmentNo := Attachment."No.";
         end else
             NewAttachmentNo := WordManagement.CreateWordAttachment("Segment No." + ' ' + Description, "Language Code");
+#endif
 
         if NewAttachmentNo <> 0 then begin
             "Attachment No." := NewAttachmentNo;

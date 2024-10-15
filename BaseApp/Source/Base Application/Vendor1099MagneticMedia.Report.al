@@ -435,7 +435,7 @@ report 10115 "Vendor 1099 Magnetic Media"
     var
         IRS1099Management: Codeunit "IRS 1099 Management";
     begin
-        IRS1099Management.ThrowErrorfUpgrade2019Needed();
+        IRS1099Management.ThrowErrorfUpgrade2020FebruaryNeeded();
         Session.LogMessage('0000EBN', MagMediaTok, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', RunMagMediaReportMsg);
         TestFile := ' ';
         PriorYear := ' ';
@@ -491,7 +491,7 @@ report 10115 "Vendor 1099 Magnetic Media"
         LastMISCNo := 17;
         LastDIVNo := 16;
         LastINTNo := 13;
-        LastNECNo := 1;
+        LastNECNo := 4;
         MagMediaManagement.Run;
 
         Window.Open(
@@ -912,7 +912,8 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetAmt(GetFullNecCode(1), FormType, EndLine), 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
-          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetAmt(GetFullNecCode(4), FormType, EndLine), 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
@@ -1112,7 +1113,8 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetTotal(GetFullNecCode(1), FormType, EndLine), 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
-          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetTotal(GetFullNecCode(4), FormType, EndLine), 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +

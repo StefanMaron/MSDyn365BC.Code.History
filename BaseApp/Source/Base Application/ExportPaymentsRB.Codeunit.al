@@ -216,7 +216,11 @@ codeunit 10091 "Export Payments (RB)"
         ExportFile.Close;
 
         ClientFile := BankAccount."E-Pay Export File Path" + BankAccount."Last E-Pay Export File Name";
+#if not CLEAN17
         RBMgt.DownloadToFile(FileName, ClientFile);
+#else
+        RBMgt.DownloadHandler(FileName, '', '', '', ClientFile);
+#endif
         Erase(FileName);
         exit(true);
     end;
@@ -384,7 +388,7 @@ codeunit 10091 "Export Payments (RB)"
         RecipientCountryCode := Customer."Country/Region Code";
         RecipientCounty := Customer.County;
         RecipientPostCode := Customer."Post Code";
-        
+
         EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, GenJournalLine, Customer."No.");
 
         CustomerBankAccount.TestField("Bank Account No.");
@@ -447,6 +451,9 @@ codeunit 10091 "Export Payments (RB)"
             ExportFullPathName := "E-Pay Export File Path" + FName;
             TransmitFullPathName := "E-Pay Trans. Program Path" + FName;
 
+#if CLEAN17
+            Error(FileDoesNoteExistErr, FName);
+#else
             if not RBMgt.ClientFileExists(ExportFullPathName) then
                 Error(FileDoesNoteExistErr, FName);
             RBMgt.CopyClientFile(ExportFullPathName, TransmitFullPathName, true);
@@ -454,6 +461,8 @@ codeunit 10091 "Export Payments (RB)"
             if Confirm(ConfirmTransmissioinQst, true, FName, "E-Pay Trans. Program Path", Name, TableCaption, FieldCaption("No."), "No.") then
                 if Confirm(DidTransmissionWorkQst) then
                     RBMgt.DeleteClientFile(ExportFullPathName);
+#endif
+
         end;
     end;
 

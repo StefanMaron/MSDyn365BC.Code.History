@@ -76,7 +76,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             WarehouseActivityLine, TempTrackingSpecification, LocationCode, ItemNo, VariantCode));
     end;
 
-    procedure CalcReservQtyOnPicksShipsWithItemTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TrackingSpecification: Record "Tracking Specification"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    procedure CalcReservQtyOnPicksShipsWithItemTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TrackingSpecification: Record "Tracking Specification"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]) Result: Decimal
     var
         ReservEntry: Record "Reservation Entry";
         TempReservEntryBuffer: Record "Reservation Entry Buffer" temporary;
@@ -84,7 +84,13 @@ codeunit 7314 "Warehouse Availability Mgt."
         ResPickShipQty: Decimal;
         QtyPicked: Decimal;
         QtyToPick: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcReservQtyOnPicksShipsWithItemTracking(LocationCode, ItemNo, VariantCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         // Returns the reserved part of the sum of outstanding quantity on pick lines and
         // quantity on shipment lines picked but not yet shipped for a given item
         ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
@@ -679,6 +685,11 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyRcvdNotAvailable(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var QtyRcvdNotAvailable: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcReservQtyOnPicksShipsWithItemTracking(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

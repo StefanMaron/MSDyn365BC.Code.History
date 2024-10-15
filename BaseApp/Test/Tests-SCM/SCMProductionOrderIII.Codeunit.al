@@ -3675,6 +3675,271 @@ codeunit 137079 "SCM Production Order III"
         ProductionOrder.TestField("Ending Date-Time", CreateDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time"));
     end;
 
+    [Test]
+    procedure FromProductionBinCodeAtWorkCenterIsUsedForProdOrder()
+    var
+        Location: Record Location;
+        Bin: array[3] of Record Bin;
+        BinContent: Record "Bin Content";
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Work Center] [Bin]
+        // [SCENARIO 383668] Bin Code from "From-Production Bin Code" of Work Center of the item's routing is used with the 1st priority as a default bin for production order.
+        Initialize();
+
+        // [GIVEN] Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location "L" with bin "A" set up as "From-Production Bin Code".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("From-Production Bin Code", Bin[1].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Bin "B" set up as Default bin at the location.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin[2].Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        // [GIVEN] Work Center at location "L". Set bin "C" as "From-Production Bin Code".
+        // [GIVEN] Create a routing with the work center and update the item.
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter, Location.Code, Bin[3].Code);
+        UpdateItemManufacturingProperties(Item, '', CreateRouting(WorkCenter."No."));
+
+        // [GIVEN] Create production order.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Validate location code = "L" on the production order.
+        ProductionOrder.Validate("Location Code", Location.Code);
+
+        // [THEN] Bin Code on the production order has been updated to "C" which is a "From-Production Bin Code" in the Work Center of the item's routing.
+        ProductionOrder.TestField("Bin Code", Bin[3].Code);
+    end;
+
+    [Test]
+    procedure FromProductionBinCodeAtLocationIsUsedForProdOrder()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        BinContent: Record "Bin Content";
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Location] [Bin]
+        // [SCENARIO 383668] Bin Code from "From-Production Bin Code" setting at location is used with the 2nd priority as a default bin for production order.
+        Initialize();
+
+        // [GIVEN] Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location "L" with bin "A" set up as "From-Production Bin Code".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("From-Production Bin Code", Bin[1].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Bin "B" set up as Default bin at the location.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin[2].Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        // [GIVEN] Work Center at location "L".
+        // [GIVEN] Create a routing with the work center and update the item.
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter, Location.Code, '');
+        UpdateItemManufacturingProperties(Item, '', CreateRouting(WorkCenter."No."));
+
+        // [GIVEN] Create and refresh production order.
+        CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
+
+        // [WHEN] Validate location code = "L" on the production order.
+        ProductionOrder.Validate("Location Code", Location.Code);
+
+        // [THEN] Bin Code on the production order has been updated to "A" which is a "From-Production Bin Code" at location "L".
+        ProductionOrder.TestField("Bin Code", Bin[1].Code);
+    end;
+
+    [Test]
+    procedure DefaultBinIsUsedForProdOrder()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Bin]
+        // [SCENARIO 383668] Default Bin at location is used with the 3rd priority as a default bin for production order.
+        Initialize();
+
+        // [GIVEN] Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Bin "A" set up as Default bin at the location.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        // [GIVEN] Work Center at location "L".
+        // [GIVEN] Create a routing with the work center and update the item.
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter, Location.Code, '');
+        UpdateItemManufacturingProperties(Item, '', CreateRouting(WorkCenter."No."));
+
+        // [GIVEN] Create and refresh production order.
+        CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
+
+        // [WHEN] Validate location code = "L" on the production order.
+        ProductionOrder.Validate("Location Code", Location.Code);
+
+        // [THEN] Bin Code on the production order has been updated to "A" which is a default bin at location "L".
+        ProductionOrder.TestField("Bin Code", Bin.Code);
+    end;
+
+    [Test]
+    procedure FromProductionBinCodeAtWorkCenterIsUsedForProdOrderLine()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [FEATURE] [Work Center] [Bin] [Prod. Order Line]
+        // [SCENARIO 383668] "From-Production Bin Code" from Work Center is used when you manually add a new prod. order line.
+        Initialize();
+
+        // [GIVEN] Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create production order at "L".
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Work Center at location "L".
+        // [GIVEN] Create a routing with the work center and update the item.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter, Location.Code, Bin.Code);
+        UpdateItemManufacturingProperties(Item, '', CreateRouting(WorkCenter."No."));
+
+        // [WHEN] Add a prod. order line to the production order.
+        ProdOrderLine.Init();
+        ProdOrderLine.Validate(Status, ProductionOrder.Status);
+        ProdOrderLine.Validate("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.Validate("Line No.", LibraryUtility.GetNewRecNo(ProdOrderLine, ProdOrderLine.FieldNo("Line No.")));
+        ProdOrderLine.Validate("Item No.", Item."No.");
+
+        // [THEN]
+        ProdOrderLine.TestField("Location Code", Location.Code);
+        ProdOrderLine.TestField("Bin Code", Bin.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProdOrderRoutingPageHandler')]
+    procedure ProdOrderLineBinCodeNotUpdatedWhenOpenAndViewProdOrderRouting()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [FEATURE] [Work Center] [Bin] [Prod. Order Line] [Prod. Order Routing]
+        // [SCENARIO 383668] When a user open and closes Prod. Order Routing page, this action does not update bin code on the prod. order line.
+        Initialize();
+
+        // [GIVEN] Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Work Center at location "L". Set bin "B" as "From-Production Bin Code".
+        // [GIVEN] Create a routing with the work center and update the item.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter, Location.Code, Bin[1].Code);
+        UpdateItemManufacturingProperties(Item, '', CreateRouting(WorkCenter."No."));
+
+        // [GIVEN] Create and refresh production order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
+
+        // [GIVEN] Update Bin Code to "C" on the prod. order line.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderLine.Validate("Bin Code", Bin[2].Code);
+        ProdOrderLine.Modify(true);
+
+        // [WHEN] Open and close Prod. Order Routing page from the prod. order line.
+        ProdOrderLine.ShowRouting();
+
+        // [THEN] Bin Code on the prod. order line remains "C".
+        ProdOrderLine.Find();
+        ProdOrderLine.TestField("Bin Code", Bin[2].Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProdOrderRoutingAddOperationPageHandler')]
+    procedure ProdOrderLineBinCodeUpdatedWhenOpenAndEditProdOrderRouting()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        WorkCenter: array[2] of Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [FEATURE] [Work Center] [Bin] [Prod. Order Line] [Prod. Order Routing]
+        // [SCENARIO 383668]
+        Initialize();
+
+        // [GIVEN] Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create 2 Work Centers "WC1" and "WC2" at location "L". Set bin code "B1" on "WC1" and bin code "B2" on "WC2".
+        // [GIVEN] Create a routing with the work center "WC1" and update the item.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter[1], Location.Code, Bin[1].Code);
+        CreateWorkCenterWithFromProductionBinCode(WorkCenter[2], Location.Code, Bin[2].Code);
+        UpdateItemManufacturingProperties(Item, '', CreateRouting(WorkCenter[1]."No."));
+
+        // [GIVEN] Create and refresh production order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), Location.Code, '');
+
+        // [WHEN] Open Prod. Order Routing page from the prod. order line and add a new operation with work center "WC2".
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        LibraryVariableStorage.Enqueue(WorkCenter[2]."No.");
+        ProdOrderLine.ShowRouting();
+
+        // [THEN] Bin Code on the prod. order line is updated to "B2".
+        ProdOrderLine.Find();
+        ProdOrderLine.TestField("Bin Code", Bin[2].Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -4222,6 +4487,18 @@ codeunit 137079 "SCM Production Order III"
         WorkCenter.Modify(true);
     end;
 
+    local procedure CreateRouting(WorkCenterNo: Code[20]): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(10)), RoutingLine.Type::"Work Center", WorkCenterNo);
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+        exit(RoutingHeader."No.");
+    end;
+
     local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; CenterNo: Code[20])
     var
         OperationNo: Code[10];
@@ -4375,6 +4652,14 @@ codeunit 137079 "SCM Production Order III"
         CreateWorkCenterWithLocationAndBin(WorkCenter, LocationCode);
         LibraryWarehouse.CreateBin(Bin, LocationCode, '', '', '');
         WorkCenter.Validate("To-Production Bin Code", Bin.Code);
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateWorkCenterWithFromProductionBinCode(var WorkCenter: Record "Work Center"; LocationCode: Code[10]; FromProductionBinCode: Code[20])
+    begin
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Location Code", LocationCode);
+        WorkCenter.Validate("From-Production Bin Code", FromProductionBinCode);
         WorkCenter.Modify(true);
     end;
 
@@ -6005,6 +6290,22 @@ codeunit 137079 "SCM Production Order III"
     procedure ProdOrderRoutingPageHandler(var ProdOrderRouting: TestPage "Prod. Order Routing")
     begin
         ProdOrderRouting.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ProdOrderRoutingAddOperationPageHandler(var ProdOrderRouting: TestPage "Prod. Order Routing")
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        LastOperationNo: Code[10];
+    begin
+        LastOperationNo := Format(1);
+        ProdOrderRouting.Last();
+        LastOperationNo := ProdOrderRouting."Operation No.".Value;
+        ProdOrderRouting.New();
+        ProdOrderRouting."Operation No.".SetValue(IncStr(LastOperationNo));
+        ProdOrderRouting.Type.SetValue(ProdOrderRoutingLine.Type::"Work Center");
+        ProdOrderRouting."No.".SetValue(LibraryVariableStorage.DequeueText());
+        ProdOrderRouting.OK.Invoke();
     end;
 }
 

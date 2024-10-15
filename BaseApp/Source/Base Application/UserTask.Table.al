@@ -120,7 +120,7 @@ table 1170 "User Task"
         }
         field(14; "Created By User Name"; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("Created By"),
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Created By"),
                                                          "License Type" = CONST("Full User")));
             Caption = 'User Created By';
             Editable = false;
@@ -128,7 +128,7 @@ table 1170 "User Task"
         }
         field(15; "Assigned To User Name"; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("Assigned To"),
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Assigned To"),
                                                          "License Type" = CONST("Full User")));
             Caption = 'User Assigned To';
             Editable = false;
@@ -136,7 +136,7 @@ table 1170 "User Task"
         }
         field(16; "Completed By User Name"; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("Completed By"),
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Completed By"),
                                                          "License Type" = CONST("Full User")));
             Caption = 'User Completed By';
             Editable = false;
@@ -278,7 +278,7 @@ table 1170 "User Task"
         InStream: InStream;
     begin
         TempBlob.FromRecord(Rec, FieldNo(Description));
-        TempBlob.CreateInStream(InStream, TEXTENCODING::Windows);
+        TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
         exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
     end;
 
@@ -287,7 +287,7 @@ table 1170 "User Task"
         OutStream: OutStream;
     begin
         Clear(Description);
-        Description.CreateOutStream(OutStream, TEXTENCODING::Windows);
+        Description.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         OutStream.Write(StreamText);
         if Modify(true) then;
     end;

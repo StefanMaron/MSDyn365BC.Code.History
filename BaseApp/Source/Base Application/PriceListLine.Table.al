@@ -740,6 +740,24 @@ table 7001 "Price List Line"
         TestField(Status, Status::Draft);
     end;
 
+    procedure VerifySource()
+    begin
+        if "Source Type" = "Price Source Type"::"Job Task" then
+            TestField("Parent Source No.")
+        else
+            TestField("Parent Source No.", '');
+
+        if "Source Type" in
+            ["Price Source Type"::All,
+            "Price Source Type"::"All Customers",
+            "Price Source Type"::"All Vendors",
+            "Price Source Type"::"All Jobs"]
+        then
+            TestField("Source No.", '')
+        else
+            TestField("Source No.");
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromPriceAsset(PriceAsset: Record "Price Asset")
     begin

@@ -38,7 +38,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         UpdInvDiscQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         WrongFieldValueErr: Label 'Wrong value of field %1.', Comment = '%1 = Field Caption';
         ChangedInvDiscountAmountErr: Label 'Invoice Discount Amount must not be changed';
-        CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         CalcTotalPurchAmountOnlyDiscountAllowedErr: Label 'Total Amount of Purchase lines with allowed discount is incorrect.';
         CalcTotalSalesAmountOnlyDiscountAllowedErr: Label 'Total Amount of Sales lines with allowed discount is incorrect.';
         GetInvoiceDiscountPctErr: Label 'Discount % is incorrect';
@@ -292,51 +291,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         VerifyAmountOnSalesInvoiceAndGLAccount(SalesInvoiceNo, GetReceivablesAccount(Customer."Customer Posting Group"),
           PostingDate, SalesLine."Amount Including VAT");
-    end;
-
-    [Test]
-    [HandlerFunctions('CalculateDepreciationRequestPageHandler,DepreciationCalcConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure DepreciationAmountWithAppreciationEntry()
-    var
-        DepreciationBook: Record "Depreciation Book";
-        FixedAsset: Record "Fixed Asset";
-        FADepreciationBook: Record "FA Depreciation Book";
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // [FEATURE] [Fixed Asset]
-        // Test to verify that program calculates correct depreciation amount after posting an Appreciation Entry.
-
-        // Setup: Create Fixed Asset and create and post General Journal Line for Acquisition Cost and for Appreciation.
-        Initialize;
-        DepreciationBook.SetRange("G/L Integration - Appreciation", true);
-        DepreciationBook.FindFirst;
-        DepreciationBook.Validate("Use Rounding in Periodic Depr.", true);
-        DepreciationBook.Modify(true);
-        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        CreateFADepreciationBookWithDepreciationYears(
-          FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
-        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        CreateAndModifyFAGLJournalLine(
-          GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Acquisition Cost",
-          LibraryRandom.RandDecInRange(1000, 2000, 2), CalcDate('<-CY>', WorkDate));
-        CreateAndModifyFAGLJournalLine(
-          GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::Appreciation,
-          LibraryRandom.RandDecInRange(1000, 2000, 2), CalcDate('<-CY>', WorkDate));
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        FADepreciationBook.CalcFields("Book Value");
-
-        // Exercise: Calculate Depreciation.
-        FixedAsset.SetRange("No.", FixedAsset."No.");
-        REPORT.Run(REPORT::"Calculate Depreciation", true, false, FixedAsset);
-
-        // Verify: Verify Depreciation Amount.
-        VerifyDepreciationAmount(
-          FixedAsset."No.", -1 * Round(FADepreciationBook."Book Value" / (FADepreciationBook."No. of Depreciation Years" * 12), 1));
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
     end;
 
     [Test]
@@ -1892,26 +1846,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Assert.IsTrue(VATPostingSetup.Count >= 2, 'Precondition: Valid set of VAT Posting Setup does not exist.');
     end;
 
-    local procedure CreateAndModifyFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal; PostingDate: Date)
-    begin
-        CreateGenJournalLine(GenJournalLine, FADepreciationBook, GenJournalBatch, FAPostingType, Amount);
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify(true);
-    end;
-
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal)
-    begin
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"Fixed Asset", FADepreciationBook."FA No.", Amount);
-        GenJournalLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
-        GenJournalLine.Validate("FA Posting Type", FAPostingType);
-        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
-        GenJournalLine.Validate("Document No.", FADepreciationBook."FA No.");
-        GenJournalLine.Modify(true);
-    end;
-
     local procedure CreateItem(AllowInvDisc: Boolean; VATProdPostingGroup: Code[20]): Code[20]
     var
         Item: Record Item;
@@ -2201,15 +2135,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         FADepreciationBook.Validate("Acquisition Date", WorkDate);  // Take WORKDATE because value is not important.
         FADepreciationBook.Modify(true);
         exit(FixedAsset."No.")
-    end;
-
-    local procedure CreateFADepreciationBookWithDepreciationYears(var FADepreciationBook: Record "FA Depreciation Book"; FixedAssetNo: Code[20]; FAPostingGroup: Code[20]; DepreciationBookCode: Code[10])
-    begin
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAssetNo, DepreciationBookCode);
-        FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
-        FADepreciationBook.Validate("Depreciation Starting Date", CalcDate('<-CY>', WorkDate));
-        FADepreciationBook.Validate("No. of Depreciation Years", LibraryRandom.RandDecInRange(2, 5, 2));
-        FADepreciationBook.Modify(true);
     end;
 
     local procedure FindFAPostingGroup(var FAPostingGroup: Record "FA Posting Group")
@@ -2690,16 +2615,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         exit(ServiceInvoiceHeader."No.");
     end;
 
-    local procedure VerifyDepreciationAmount(AccountNo: Code[20]; DepreciationAmount: Decimal)
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"Fixed Asset");
-        GenJournalLine.SetRange("Account No.", AccountNo);
-        GenJournalLine.FindFirst;
-        GenJournalLine.TestField(Amount, DepreciationAmount);
-    end;
-
     local procedure VerifyInvDiscAmtAndVATAmt(PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; VATPercent: Decimal; AllowInvDisc: Boolean)
     var
         VendorInvoiceDisc: Record "Vendor Invoice Disc.";
@@ -2828,17 +2743,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Assert.AreNearlyEqual(
           PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount", PurchaseLine."Amount Including VAT",
           LibraryERM.GetAmountRoundingPrecision, AmtInclVATErr);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure CalculateDepreciationRequestPageHandler(var CalculateDepreciation: TestRequestPage "Calculate Depreciation")
-    begin
-        CalculateDepreciation.FAPostingDate.SetValue(CalcDate('<CM>', WorkDate));
-        CalculateDepreciation.PostingDate.SetValue(CalcDate('<CM>', WorkDate));
-        CalculateDepreciation.InsertBalAccount.SetValue(false);
-        CalculateDepreciation.DocumentNo.SetValue(LibraryRandom.RandInt(10));
-        CalculateDepreciation.OK.Invoke;
     end;
 
     [ConfirmHandler]
@@ -2994,14 +2898,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, ExpectedAmount);
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure DepreciationCalcConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Assert.ExpectedMessage(CompletionStatsGenJnlQst, Question);
-        Reply := false;
     end;
 }
 

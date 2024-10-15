@@ -823,7 +823,6 @@
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if sales tax must be included in prepayments.';
-                    Visible = false;
                 }
             }
             group("Electronic Invoice")

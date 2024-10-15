@@ -14,6 +14,7 @@ codeunit 142082 "UT REP Purchase Payables"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPurchase: Codeunit "Library - Purchase";
 
     [Test]
     [HandlerFunctions('AgedAccountsPayableRequestPageHandler')]
@@ -110,6 +111,32 @@ codeunit 142082 "UT REP Purchase Payables"
         VerifyAmountDueForVendor(VendorLedgerEntry[5]."Document No.", 0, 0, 0, -VendorLedgerEntry[5].Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('AgedAccountsPayablePrintVendorWithZeroBalanceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AgedAccountsPayableNAPrinsWhenTheVendorBalaceIsZeroAndNoRelatedEntries()
+    var
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 372369] Report "Aged Accounts Payable NA" should be printed as blank for vendor with zero balance
+        Initialize();
+
+        // [GIVEN] Created Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+        Commit();
+
+        // [WHEN] Save Aged Accounts Payable NA Report with Aging By Due Date option
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Aged Accounts Payable NA");
+
+        // [THEN] The dataset is exist without Vendor and GrandTotalBalanceDue_ = 0
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('Vendor__No__', Vendor."No.");
+        LibraryReportDataset.AssertElementWithValueNotExist('Vendor_Name', Vendor.Name);
+        LibraryReportDataset.AssertElementWithValueExists('GrandTotalBalanceDue_', 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -183,6 +210,17 @@ codeunit 142082 "UT REP Purchase Payables"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AgedAccountsPayableRequestPageHandler(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable NA")
+    begin
+        AgedAccountsPayable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate());
+        AgedAccountsPayable.PrintDetailControl.SetValue(false);
+        AgedAccountsPayable.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        AgedAccountsPayable.AgingMethodControl.SetValue(0);
+        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AgedAccountsPayablePrintVendorWithZeroBalanceRequestPageHandler(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable NA")
     begin
         AgedAccountsPayable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate());
         AgedAccountsPayable.PrintDetailControl.SetValue(false);
