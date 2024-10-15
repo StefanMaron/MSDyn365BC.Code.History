@@ -7,6 +7,7 @@ codeunit 134830 "Alloc. Account Sales E2E Tests"
     var
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERM: Codeunit "Library - ERM";
@@ -20,6 +21,8 @@ codeunit 134830 "Alloc. Account Sales E2E Tests"
         AllocationAccount: Record "Allocation Account";
         AllocAccManualOverride: Record "Alloc. Acc. Manual Override";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Alloc. Account Sales E2E Tests");
+
         AllocationAccount.DeleteAll();
         AllocAccManualOverride.DeleteAll();
 

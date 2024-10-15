@@ -134,6 +134,7 @@ page 5883 "Posted Phys. Invt. Order"
                     ApplicationArea = Warehouse;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    ShortCutKey = 'Alt+D';
                     ToolTip = 'Show dimensions.';
 
                     trigger OnAction()

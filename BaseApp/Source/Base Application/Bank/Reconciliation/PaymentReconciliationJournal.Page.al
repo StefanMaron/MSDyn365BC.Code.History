@@ -157,10 +157,16 @@ page 1290 "Payment Reconciliation Journal"
                     ToolTip = 'Specifies the account number that the payment application will be posted to when you post the worksheet.';
 
                     trigger OnValidate()
+                    var
+                        IsHandled: Boolean;
                     begin
                         CurrPage.Update();
-                        if Rec.Difference <> 0 then
-                            Rec.TransferRemainingAmountToAccount();
+
+                        IsHandled := false;
+                        OnValidateAccountNoOnBeforeTransferRemainingAmountToAccount(Rec, IsHandled);
+                        if not IsHandled then
+                            if Rec.Difference <> 0 then
+                                Rec.TransferRemainingAmountToAccount();
                     end;
                 }
                 field(PostingDateAppliedEntry; AppliedPmtEntry."Posting Date")
@@ -1441,6 +1447,11 @@ page 1290 "Payment Reconciliation Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInvokePost(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAccountNoOnBeforeTransferRemainingAmountToAccount(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -681,6 +681,21 @@ table 270 "Bank Account"
         {
             Caption = 'Disable Automatic Payment Matching';
         }
+        field(1253; "Disable Bank Rec. Optimization"; Boolean)
+        {
+            Caption = 'Disable Bank Reconciliation Optimization';
+            DataClassification = SystemMetadata;
+
+            trigger OnValidate()
+            begin
+                if not "Disable Bank Rec. Optimization" then
+                    exit;
+                if not GuiAllowed() then
+                    exit;
+                if not Confirm(DisablingMakesBankRecAutomatchSlowerWarnMsg) then
+                    Error('');
+            end;
+        }
         field(1260; "Positive Pay Export Code"; Code[20])
         {
             Caption = 'Positive Pay Export Code';
@@ -822,6 +837,7 @@ table 270 "Bank Account"
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = caption of field (Last Payment Statement No.)';
         CannotDeleteBalancingBankAccountErr: Label 'You cannot delete bank account that is used as balancing account in the Payment Registration Setup.', Locked = true;
         ConfirmDeleteBalancingBankAccountQst: Label 'This bank account is used as balancing account on the Payment Registration Setup page.\\Are you sure you want to delete it?';
+        DisablingMakesBankRecAutomatchSlowerWarnMsg: Label 'Disabling the optimization will make automatic bank matching slower, but it will be more precise. It is useful to disable the optimization if you have several open bank ledger entries with the same amount and posting date that you need to automatch. Do you want to turn off the optimization?';
 
     procedure AssistEdit(OldBankAcc: Record "Bank Account"): Boolean
     begin

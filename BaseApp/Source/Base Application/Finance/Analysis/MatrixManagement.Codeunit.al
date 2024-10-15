@@ -222,6 +222,7 @@ codeunit 9200 "Matrix Management"
     var
         Steps: Integer;
         Caption: Text;
+        IsHandled: Boolean;
     begin
         Clear(CaptionSet);
         CaptionRange := '';
@@ -240,8 +241,11 @@ codeunit 9200 "Matrix Management"
                     RecRef.SetPosition(RecordPosition);
                     RecRef.Get(RecRef.RecordId);
                     Steps := RecRef.Next(-MaximumSetLength);
-                    if not (Steps in [-MaximumSetLength .. 0]) then
-                        Error(Text001);
+                    IsHandled := false;
+                    OnGenerateMatrixDataExtendedOnBeforeValidatePreviousStep(Steps, MaximumSetLength, IsHandled);
+                    if not IsHandled then
+                        if not (Steps in [-MaximumSetLength .. 0]) then
+                            Error(Text001);
                 end;
             "Matrix Page Step Type"::Same:
                 begin
@@ -304,6 +308,7 @@ codeunit 9200 "Matrix Management"
         Calendar: Record Date;
         PeriodPageMgt: Codeunit PeriodPageManagement;
         Steps: Integer;
+        IsHandled: Boolean;
     begin
         Clear(CaptionSet);
         CaptionRange := '';
@@ -380,8 +385,11 @@ codeunit 9200 "Matrix Management"
         else
             CaptionRange := CaptionSet[1] + '..' + CaptionSet[CurrSetLength];
 
-        AdjustPeriodWithDateFilter(DateFilter, PeriodRecords[1]."Period Start",
-          PeriodRecords[CurrSetLength]."Period End");
+        IsHandled := false;
+        OnGeneratePeriodMatrixDataOnBeforeAdjustPeriodWithDateFilter(DateFilter, PeriodRecords, CurrSetLength, IsHandled);
+        if not IsHandled then
+            AdjustPeriodWithDateFilter(DateFilter, PeriodRecords[1]."Period Start",
+              PeriodRecords[CurrSetLength]."Period End");
     end;
 
     local procedure GeneratePeriodAndCaption(var CaptionSet: array[32] of Text[80]; var PeriodRecords: array[32] of Record Date temporary; var CurrSetLength: Integer; var Calendar: Record Date; UseNameForCaption: Boolean; PeriodType: Enum "Analysis Period Type")
@@ -556,6 +564,16 @@ codeunit 9200 "Matrix Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRoundAmountOnElse(var Amount: Decimal; RoundingFactor: Enum "Analysis Rounding Factor")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateMatrixDataExtendedOnBeforeValidatePreviousStep(Steps: Integer; MaximumSetLength: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGeneratePeriodMatrixDataOnBeforeAdjustPeriodWithDateFilter(DateFilter: Text; var TempPeriodRecords: array[32] of Record Date temporary; var CurrSetLength: Integer; var IsHandled: Boolean)
     begin
     end;
 }

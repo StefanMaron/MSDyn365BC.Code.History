@@ -27,5 +27,11 @@ codeunit 1544 "Workflow Webhook Subscription"
     begin
         WorkflowWebhookManagement.CancelByStepInstanceId(WorkflowStepInstanceId);
     end;
-}
 
+    procedure GetDirectApprover(RequestorEmailAddress: Text) ApproverEmailAddress: Text
+    var
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        ApproverEmailAddress := WorkflowWebhookManagement.GetDirectApproverForRequestor(RequestorEmailAddress);
+    end;
+}

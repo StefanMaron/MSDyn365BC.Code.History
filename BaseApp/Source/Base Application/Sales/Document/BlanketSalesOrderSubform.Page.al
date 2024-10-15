@@ -1201,6 +1201,8 @@ page 508 "Blanket Sales Order Subform"
 
     protected procedure QuantityOnAfterValidate()
     begin
+        OnBeforeQuantityOnAfterValidate(Rec, xRec);
+
         if Rec.Reserve = Rec.Reserve::Always then begin
             CurrPage.SaveRecord();
             Rec.AutoReserve();
@@ -1210,6 +1212,8 @@ page 508 "Blanket Sales Order Subform"
            (Rec.Quantity <> xRec.Quantity)
         then
             CurrPage.Update(true);
+
+        OnAfterQuantityOnAfterValidate(Rec, xRec);
     end;
 
     protected procedure UnitofMeasureCodeOnAfterValidate()
@@ -1345,6 +1349,16 @@ page 508 "Blanket Sales Order Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line");
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 }

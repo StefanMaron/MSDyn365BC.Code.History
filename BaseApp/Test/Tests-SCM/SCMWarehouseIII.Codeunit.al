@@ -75,6 +75,7 @@ codeunit 137051 "SCM Warehouse - III"
         UnexpectedSourceNoErr: Label 'Unexpected value of Source No. field.';
         ExpiredItemsNotPickedMsg: Label 'Some items were not included in the pick due to their expiration date.';
         ZoneCodeMustMatchErr: Label 'Zone Code must match.';
+        WhseActivityHeaderMustNotBeEmpty: Label 'Warehouse Activity Header must not be empty.';
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler,QuantityToCreatePageHandler,ConfirmHandler,PickActivitiesMessageHandler')]
@@ -5377,6 +5378,99 @@ codeunit 137051 "SCM Warehouse - III"
         Assert.AreEqual(Zone2.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlerGetText')]
+    [Scope('OnPrem')]
+    procedure ChangeStatusOfFirmPlannedProdOrderToReleasedProdOrderAndCreateInvPick()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJnlLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        ReleasedProdOrderNo: Code[20];
+    begin
+        // [SCENARIO 496097] Inventory Pick is created when stan runs Create Inventory PutAway/Pick/Movement action from Released Production Order which is created from Change Status action of Firm Planned Production Order.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Location & Validate Prod Consump Whse Handling.
+        CreateLocation(Location);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+        Location.Modify(true);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create Bin 2.
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, '', '');
+
+        // [GIVEN] Validate To-Production Bin Code in Location.
+        Location.Validate("To-Production Bin Code", Bin2.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Validate Components at Location in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", Location.Code);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item Journal Line & Validate Location Code & Bin Code.
+        CreateItemJournalLine(ItemJnlTemplate, ItemJnlBatch, ItemJnlLine, Item);
+        ItemJnlLine.Validate("Location Code", Location.Code);
+        ItemJnlLine.Validate("Bin Code", Bin.Code);
+        ItemJnlLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlTemplate.Name, ItemJnlBatch.Name);
+
+        // [GIVEN] Create and Certify Production BOM.
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ProductionBOMLine, Item);
+
+        // [GIVEN] Validate Production BOM in Item 2.
+        Item2.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item2.Modify(true);
+
+        // [GIVEN] Create and Refresh Firm Planned Production Order.
+        CreateAndRefreshFirmPlannedProdOrder(ProductionOrder, Item2);
+
+        // [GIVEN] Change Status of Firm Planned Production Order to Released Production Order.
+        ReleasedProdOrderNo := LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+            ProductionOrder."No.",
+            ProductionOrder.Status::"Firm Planned",
+            ProductionOrder.Status::Released);
+
+        // [GIVEN] Run Create Inventory PutAway/Pick/Movement to Create Inventory Pick.
+        LibraryWarehouse.CreateInvtPutPickMovement(
+            "Warehouse Request Source Document"::"Prod. Consumption",
+            ReleasedProdOrderNo,
+            false,
+            true,
+            false);
+
+        // [WHEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+
+        // [VERIFY] Warehouse Activity Header is created.
+        Assert.IsFalse(WarehouseActivityHeader.IsEmpty(), WhseActivityHeaderMustNotBeEmpty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7274,6 +7368,36 @@ codeunit 137051 "SCM Warehouse - III"
         ProdOrderComponent.Insert(true);
 
         LibraryVariableStorage.Enqueue(ProductionOrder."No.");
+    end;
+
+    local procedure CreateAndCertifyProductionBOM(
+        var ProductionBOMHeader: Record "Production BOM Header";
+        var ProductionBOMLine: Record "Production BOM Line";
+        Item: Record Item)
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateAndRefreshFirmPlannedProdOrder(var ProductionOrder: Record "Production Order"; Item: Record Item)
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::"Firm Planned",
+            ProductionOrder."Source Type"::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
     [ModalPageHandler]
