@@ -911,9 +911,6 @@ report 20 "Calc. and Post VAT Settlement"
     begin
         OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle);
 
-        if CurrReport.Preview() then
-            PostSettlement := false;
-
         GetGLSetup();
         if EndDateReq = 0D then
             Error(Text1130000);
