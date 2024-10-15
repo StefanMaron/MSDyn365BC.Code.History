@@ -283,6 +283,7 @@ codeunit 86 "Sales-Quote to Order"
                     SalesOrderLine."Shortcut Dimension 1 Code" := SalesQuoteLine."Shortcut Dimension 1 Code";
                     SalesOrderLine."Shortcut Dimension 2 Code" := SalesQuoteLine."Shortcut Dimension 2 Code";
                     SalesOrderLine."Dimension Set ID" := SalesQuoteLine."Dimension Set ID";
+                    SalesOrderLine."Transaction Type" := SalesOrderHeader."Transaction Type";
                     if Customer."Prepayment %" <> 0 then
                         SalesOrderLine."Prepayment %" := Customer."Prepayment %";
                     PrepmtMgt.SetSalesPrepaymentPct(SalesOrderLine, SalesOrderHeader."Posting Date");

@@ -770,6 +770,10 @@
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
+        field(93; "EORI Number"; Text[40])
+        {
+            Caption = 'EORI Number';
+        }
         field(95; "Use GLN in Electronic Document"; Boolean)
         {
             Caption = 'Use GLN in Electronic Documents';
@@ -1927,6 +1931,7 @@
             if NoSeriesMgt.SelectSeries(SalesSetup."Customer Nos.", OldCust."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
                 Rec := Cust;
+                OnAssistEditOnBeforeExit(Cust);
                 exit(true);
             end;
         end;
@@ -2640,8 +2645,12 @@
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeOpenCustomerLedgerEntries(Rec, DetailedCustLedgEntry);
+        IsHandled := false;
+        OnBeforeOpenCustomerLedgerEntries(Rec, DetailedCustLedgEntry, FilterOnDueEntries, IsHandled);
+        if IsHandled then
+            exit;
 
         DetailedCustLedgEntry.SetRange("Customer No.", "No.");
         CopyFilter("Global Dimension 1 Filter", DetailedCustLedgEntry."Initial Entry Global Dim. 1");
@@ -2821,6 +2830,7 @@
     begin
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
+        OnAfterSetLastModifiedDateTime(Rec);
     end;
 
     local procedure VATRegistrationValidation()
@@ -3132,6 +3142,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLastModifiedDateTime(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCity(var Customer: Record Customer; xCustomer: Record Customer)
     begin
     end;
@@ -3143,6 +3158,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var Customer: Record Customer; var xCustomer: Record Customer; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssistEditOnBeforeExit(var Customer: Record Customer)
     begin
     end;
 
@@ -3212,7 +3232,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenCustomerLedgerEntries(var Customer: Record Customer; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    local procedure OnBeforeOpenCustomerLedgerEntries(var Customer: Record Customer; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; FilterOnDueEntries: Boolean; var IsHandled: Boolean)
     begin
     end;
 

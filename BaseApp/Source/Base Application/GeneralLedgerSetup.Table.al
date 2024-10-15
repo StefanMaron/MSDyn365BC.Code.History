@@ -891,16 +891,21 @@
     procedure UpdateDimValueGlobalDimNo(xDimCode: Code[20]; DimCode: Code[20]; ShortcutDimNo: Integer)
     var
         DimensionValue: Record "Dimension Value";
+        DimensionSetEntry: Record "Dimension Set Entry";
     begin
         if Dim.CheckIfDimUsed(DimCode, ShortcutDimNo, '', '', 0) then
             Error(Text023, Dim.GetCheckDimErr);
         if xDimCode <> '' then begin
             DimensionValue.SetRange("Dimension Code", xDimCode);
             DimensionValue.ModifyAll("Global Dimension No.", 0);
+
+            DimensionSetEntry.UpdateGlobalDimensionNo(xDimCode, 0);
         end;
         if DimCode <> '' then begin
             DimensionValue.SetRange("Dimension Code", DimCode);
             DimensionValue.ModifyAll("Global Dimension No.", ShortcutDimNo);
+
+            DimensionSetEntry.UpdateGlobalDimensionNo(DimCode, ShortcutDimNo);
         end;
         Modify;
     end;

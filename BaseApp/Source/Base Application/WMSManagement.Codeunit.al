@@ -82,6 +82,7 @@
 
     procedure CreateWhseJnlLineFromOutputJnl(ItemJnlLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"): Boolean
     begin
+        OnBeforeCreateWhseJnlLineFromOutputJnl(ItemJnlLine);
         with ItemJnlLine do begin
             if Adjustment or
                ("Value Entry Type" in ["Value Entry Type"::Rounding, "Value Entry Type"::Revaluation])
@@ -2034,6 +2035,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmExceededCapacity(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseJnlLineFromOutputJnl(ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 

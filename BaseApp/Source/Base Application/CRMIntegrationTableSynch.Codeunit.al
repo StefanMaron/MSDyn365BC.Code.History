@@ -45,7 +45,7 @@ codeunit 5340 "CRM Integration Table Synch."
         NoMappingErr: Label 'No mapping is set for %1.', Comment = '%1=Table Caption';
         OutOfMapFilter: Boolean;
         ModifiedByFieldMustBeGUIDErr: Label 'The field %1 in the table %2 must be of type GUID.', Comment = '%1 - a field name, %2 - a table name';
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         ClearCacheTxt: Label 'Clear cache.', Locked = true;
 
     internal procedure InitConnection() ConnectionName: Text

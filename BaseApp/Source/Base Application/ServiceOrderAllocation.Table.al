@@ -225,7 +225,7 @@ table 5950 "Service Order Allocation"
         }
         field(15; "Service Item Description"; Text[100])
         {
-            CalcFormula = Lookup ("Service Item Line".Description WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("Service Item Line".Description WHERE("Document Type" = FIELD("Document Type"),
                                                                         "Document No." = FIELD("Document No."),
                                                                         "Line No." = FIELD("Service Item Line No.")));
             Caption = 'Service Item Description';
@@ -260,7 +260,7 @@ table 5950 "Service Order Allocation"
         }
         field(17; "Repair Status"; Code[20])
         {
-            CalcFormula = Lookup ("Service Item Line"."Repair Status Code" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("Service Item Line"."Repair Status Code" WHERE("Document Type" = FIELD("Document Type"),
                                                                                  "Document No." = FIELD("Document No."),
                                                                                  "Line No." = FIELD("Service Item Line No.")));
             Caption = 'Repair Status';
@@ -395,7 +395,14 @@ table 5950 "Service Order Allocation"
         Text008: Label '%1 and %2 cannot be blank at the same time.';
 
     local procedure ValidateStartEndTime()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateStartEndTime(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Starting Time" = 0T then
             exit;
         if "Finishing Time" = 0T then
@@ -405,7 +412,14 @@ table 5950 "Service Order Allocation"
     end;
 
     local procedure CreateReallocationEntry()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateReallocationEntry(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         RepairStatus2.Reset();
         RepairStatus2.SetRange(Initial, true);
         if RepairStatus2.FindFirst then
@@ -557,6 +571,16 @@ table 5950 "Service Order Allocation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAllocationEntry(var ServiceOrderAllocation: Record "Service Order Allocation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReallocationEntry(var ServiceOrderAllocation: Record "Service Order Allocation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateStartEndTime(var ServiceOrderAllocation: Record "Service Order Allocation"; var IsHandled: Boolean)
     begin
     end;
 }

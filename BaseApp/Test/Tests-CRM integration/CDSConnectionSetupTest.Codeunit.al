@@ -18,14 +18,14 @@ codeunit 139196 "CDS Connection Setup Test"
         URLNeededErr: Label 'A URL is required.';
         URLNamePswNeededErr: Label 'A URL, user name and password are required.';
         OnlyBasicAppAreaMsg: Label 'You do not have access to this page, because your experience is set to Basic.';
-        UnfavorableCDSVersionMsg: Label 'This version of Common Data Service might not work correctly with the base integration solution. We recommend you upgrade to a supported version.';
-        UnfavorableSolutionMsg: Label 'The base integration solution was not detected in Common Data Service.';
+        UnfavorableCDSVersionMsg: Label 'This version of Dataverse might not work correctly with the Dataverse Base Integration solution. We recommend you upgrade to a supported version.';
+        UnfavorableSolutionMsg: Label 'The base integration solution was not detected in Dataverse.';
         JobQueueEntryStatusOnHoldErr: Label 'Job Queue Entry status should be On Hold.';
-        SetupSuccessfulMsg: Label 'The default setup for Common Data Service synchronization has completed successfully.';
+        SetupSuccessfulMsg: Label 'The default setup for Dataverse synchronization has completed successfully.';
         ConnectionSuccessMsg: Label 'The connection test was successful. The settings are valid.';
         CRMIntegrationEnabledStateErr: Label 'CRMIntegrationEnabledState is wrong';
-        ConnectionDisabledMsg: Label 'Connection to Common Data Service is broken and that it has been disabled due to an error: %1', Comment = '%1=disable reason';
-        CannotResolveUserFromConnectionSetupErr: Label 'The user that is specified in the Common Data Service Connection Setup does not exist.';
+        ConnectionDisabledMsg: Label 'Connection to Dataverse is broken and that it has been disabled due to an error: %1', Comment = '%1=disable reason';
+        CannotResolveUserFromConnectionSetupErr: Label 'The user that is specified in the Dataverse Connection Setup does not exist.';
         IsInitialized: Boolean;
 
     [Test]
@@ -96,7 +96,7 @@ codeunit 139196 "CDS Connection Setup Test"
         // [THEN] Should be no registered CDS connection
         Assert.IsFalse(HasTableConnection(TABLECONNECTIONTYPE::CRM, ''), 'Should be no <blank> connection');
         Assert.IsFalse(HasTableConnection(TABLECONNECTIONTYPE::CRM, 'TEST'), 'Should be no TEST connection');
-        Assert.IsFalse(HasTableConnection(TABLECONNECTIONTYPE::CRM, 'CDS'), 'Should be no CDS connection');
+        Assert.IsFalse(HasTableConnection(TABLECONNECTIONTYPE::CRM, 'CDS'), 'Should be no Dataverse connection');
         Assert.AreEqual('', GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM), 'Default CRM connection');
     end;
 

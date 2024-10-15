@@ -1,4 +1,4 @@
-table 115 "Sales Cr.Memo Line"
+﻿table 115 "Sales Cr.Memo Line"
 {
     Caption = 'Sales Cr.Memo Line';
     DrillDownPageID = "Posted Sales Credit Memo Lines";
@@ -638,7 +638,14 @@ table 115 "Sales Cr.Memo Line"
     end;
 
     procedure CalcVATAmountLines(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcVATAmountLines(Rec, SalesCrMemoHeader, TempVATAmountLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempVATAmountLine.DeleteAll();
         SetRange("Document No.", SalesCrMemoHeader."No.");
         if Find('-') then
@@ -842,6 +849,11 @@ table 115 "Sales Cr.Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcVATAmountLines(SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

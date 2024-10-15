@@ -366,7 +366,7 @@ page 5415 "Item Avail. by Variant Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSet(ItemVariant: record "Item Variant"; var Item: Record Item; AmountType: Option "Net Change","Balance at Date")
+    local procedure OnAfterSet(var ItemVariant: record "Item Variant"; var Item: Record Item; AmountType: Option "Net Change","Balance at Date")
     begin
     end;
 }

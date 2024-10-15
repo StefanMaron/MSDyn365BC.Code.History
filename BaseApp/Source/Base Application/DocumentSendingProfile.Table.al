@@ -357,7 +357,7 @@
             exit;
 
         if SingleCustomerSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
-            OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo);
+            OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend);
             if DocumentSendingProfile.LookupProfile(CustomerNo, true, true) then
                 DocumentSendingProfile.Send(ReportUsage, RecordVariant, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
         end else begin
@@ -369,7 +369,7 @@
                     RecRefToSend.SetRecFilter;
                     CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value;
                     DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value;
-                    OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo);
+                    OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend);
                     if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
                         DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
                 until RecRefSource.Next = 0;
@@ -398,7 +398,7 @@
             exit;
 
         if SingleVendorSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
-            OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo);
+            OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2);
             if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, true) then
                 DocumentSendingProfile.SendVendor(ReportUsage, RecordVariant, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
         end else begin
@@ -410,7 +410,7 @@
                     RecRef2.SetRecFilter;
                     VendorNo := RecRef2.Field(VendorFieldNo).Value;
                     DocumentNo := RecRef2.Field(DocumentFieldNo).Value;
-                    OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo);
+                    OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2);
                     if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
                         DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
                 until RecRef.Next = 0;
@@ -985,12 +985,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage: Integer; RecordVariant: Variant; CustomerNo: Code[20])
+    local procedure OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage: Integer; RecordVariant: Variant; CustomerNo: Code[20]; var RecRefToSend: RecordRef)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage: Integer; RecordVariant: Variant; VendorNo: Code[20])
+    local procedure OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage: Integer; RecordVariant: Variant; VendorNo: Code[20]; var RecRefToSend: RecordRef)
     begin
     end;
 }
