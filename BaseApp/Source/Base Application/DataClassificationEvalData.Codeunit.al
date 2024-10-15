@@ -382,6 +382,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Requisition Wksh. Name");
         SetTableFieldsToNormal(DATABASE::"Intrastat Setup");
         SetTableFieldsToNormal(DATABASE::"VAT Reg. No. Srv Config");
+        SetTableFieldsToNormal(DATABASE::"VAT Reg. No. Srv. Template");
         SetTableFieldsToNormal(DATABASE::"Gen. Business Posting Group");
         SetTableFieldsToNormal(DATABASE::"Gen. Product Posting Group");
         SetTableFieldsToNormal(DATABASE::"General Posting Setup");
@@ -4333,6 +4334,7 @@ codeunit 1751 "Data Classification Eval. Data"
     local procedure ClassifyVATRegistrationLog()
     var
         DummyVATRegistrationLog: Record "VAT Registration Log";
+        DummyVATRegistrationLogDetails: Record "VAT Registration Log Details";
         TableNo: Integer;
     begin
         TableNo := DATABASE::"VAT Registration Log";
@@ -4345,6 +4347,12 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyVATRegistrationLog.FieldNo("User ID"));
         SetFieldToPersonal(TableNo, DummyVATRegistrationLog.FieldNo("Country/Region Code"));
         SetFieldToPersonal(TableNo, DummyVATRegistrationLog.FieldNo("VAT Registration No."));
+
+        TableNo := Database::"VAT Registration Log Details";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyVATRegistrationLogDetails.FieldNo(Requested));
+        SetFieldToPersonal(TableNo, DummyVATRegistrationLogDetails.FieldNo(Response));
+        SetFieldToPersonal(TableNo, DummyVATRegistrationLogDetails.FieldNo("Current Value"));
     end;
 
     local procedure ClassifyRequisitionLine()

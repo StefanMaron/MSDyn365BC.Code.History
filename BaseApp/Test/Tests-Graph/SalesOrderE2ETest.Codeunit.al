@@ -17,7 +17,6 @@ codeunit 135513 "Sales Order E2E Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
-        GraphContactIdFieldTxt: Label 'contactId';
         CustomerIdFieldTxt: Label 'customerId';
         CustomerNameFieldTxt: Label 'customerName';
         CustomerNumberFieldTxt: Label 'customerNumber';
@@ -417,108 +416,6 @@ codeunit 135513 "Sales Order E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestGetOrdersWithContactId()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        OrderID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Create an Order with a contact with graph ID (GET method should return Graph Contact ID)
-        // [GIVEN] One Order with contact ID
-        Initialize;
-
-        CreateSalesOrderWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        OrderID := SalesHeader.Id;
-
-        // [WHEN] We get Order from web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(OrderID, PAGE::"Sales Order Entity", OrderServiceNameTxt);
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
-
-        // [THEN] The Order should contain the Contact ID
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPostOrdersWithGraphContactId()
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        OrderWithComplexJSON: Text;
-        TargetURL: Text;
-        ResponseText: Text;
-        OrderNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Posting an Order with Graph Contact ID (POST method should find the customer based on Contact ID)
-        // [GIVEN] One Order with contact ID
-        Initialize;
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        OrderWithComplexJSON := CreateOrderJSONWithContactId(GraphIntegrationRecord);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Order Entity", OrderServiceNameTxt);
-        Commit();
-
-        // [WHEN] We post an Order to web service
-        LibraryGraphMgt.PostToWebService(TargetURL, OrderWithComplexJSON, ResponseText);
-
-        // [THEN] The Order should have a customer found based on contact ID
-        VerifyValidPostRequest(ResponseText, OrderNumber);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(Customer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(OrderNumber, SalesHeader."Document Type"::Order, Contact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestModifyingContactIdUpdatesSellToCustomer()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        SecondCustomer: Record Customer;
-        SecondContact: Record Contact;
-        SecondGraphIntegrationRecord: Record "Graph Integration Record";
-        OrderID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-        OrderWithComplexJSON: Text;
-        OrderNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Create an Order with a contact with graph ID (Selecting a different contact will change sell-to customer)
-        // [GIVEN] One Order with contact ID
-        Initialize;
-
-        CreateSalesOrderWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        OrderID := SalesHeader.Id;
-
-        LibraryGraphDocumentTools.CreateContactWithGraphId(SecondContact, SecondGraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(SecondCustomer, SecondContact);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL(OrderID, PAGE::"Sales Order Entity", OrderServiceNameTxt);
-        OrderWithComplexJSON := CreateOrderJSONWithContactId(SecondGraphIntegrationRecord);
-
-        Commit();
-
-        // [WHEN] We Patch to web service
-        LibraryGraphMgt.PatchToWebService(TargetURL, OrderWithComplexJSON, ResponseText);
-
-        // [THEN] The Order should have a new customer
-        VerifyValidPostRequest(ResponseText, OrderNumber);
-        VerifyContactId(ResponseText, SecondGraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(SecondCustomer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(OrderNumber, SalesHeader."Document Type"::Order, SecondContact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestModifyOrderSetManualDiscount()
     var
         Customer: Record Customer;
@@ -650,39 +547,6 @@ codeunit 135513 "Sales Order E2E Test"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.FindFirst;
-    end;
-
-    local procedure CreateSalesOrderWithGraphContactID(var SalesHeader: Record "Sales Header"; var GraphIntegrationRecord: Record "Graph Integration Record")
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-    begin
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-    end;
-
-    local procedure CreateOrderJSONWithContactId(GraphIntegrationRecord: Record "Graph Integration Record"): Text
-    var
-        JSONManagement: Codeunit "JSON Management";
-        JObject: DotNet JObject;
-        OrderJSON: Text;
-    begin
-        JSONManagement.InitializeEmptyObject;
-        JSONManagement.GetJSONObject(JObject);
-
-        JSONManagement.AddJPropertyToJObject(JObject, GraphContactIdFieldTxt, GraphIntegrationRecord."Graph ID");
-        OrderJSON := JSONManagement.WriteObjectToString;
-
-        exit(OrderJSON);
-    end;
-
-    local procedure VerifyContactId(ResponseText: Text; ExpectedContactId: Text)
-    var
-        contactId: Text;
-    begin
-        LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, GraphContactIdFieldTxt, contactId);
-        Assert.AreEqual(ExpectedContactId, contactId, 'Wrong contact id was returned');
     end;
 
     local procedure VerifyValidPostRequest(ResponseText: Text; var OrderNumber: Text)

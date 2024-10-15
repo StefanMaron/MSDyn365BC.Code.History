@@ -130,6 +130,7 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Variant Code" := StandardItemJournalLine."Variant Code";
         PriceCalculationBuffer."Location Code" := StandardItemJournalLine."Location Code";
         PriceCalculationBuffer.Validate("Currency Code", '');
+        PriceCalculationBuffer."Document Date" := WorkDate();
 
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := false;

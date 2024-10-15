@@ -20,7 +20,7 @@ codeunit 5349 "Auto Create Sales Orders"
         CRMSalesorder: Record "CRM Salesorder";
     begin
         CRMSalesorder.SetRange(StateCode, CRMSalesorder.StateCode::Submitted);
-        CRMSalesorder.SetRange(LastBackofficeSubmit, 0D);
+        CRMSalesorder.SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
         if CRMSalesorder.FindSet(true) then
             repeat
                 SendTraceTag('0000DET', CrmTelemetryCategoryTok, VERBOSITY::Normal,
