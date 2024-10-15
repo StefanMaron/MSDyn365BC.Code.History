@@ -1,4 +1,4 @@
-codeunit 10853 "Intrastat Rep. Filter Rcpt. FR"
+codeunit 10855 "Intrastat Rep. Reset Filter FR"
 {
     TableNo = "Data Exch.";
 
@@ -12,7 +12,7 @@ codeunit 10853 "Intrastat Rep. Filter Rcpt. FR"
         Rec."Table Filters".CreateInStream(InStreamFilters);
         InStreamFilters.ReadText(IntrastatReportLineFilters);
         IntrastatReportLine.SetView(IntrastatReportLineFilters);
-        IntrastatReportLine.SetRange(Type, IntrastatReportLine.Type::Receipt);
+        IntrastatReportLine.SetRange(Type);
 
         Clear(Rec."Table Filters");
         Rec."Table Filters".CreateOutStream(OutStreamFilters);
