@@ -526,7 +526,8 @@
 
             trigger OnValidate()
             begin
-                TestField(Blocked, true);
+                if ("Block Reason" <> '') and ("Block Reason" <> xRec."Block Reason") then
+                    TestField(Blocked, true);
             end;
         }
         field(61; "Last DateTime Modified"; DateTime)

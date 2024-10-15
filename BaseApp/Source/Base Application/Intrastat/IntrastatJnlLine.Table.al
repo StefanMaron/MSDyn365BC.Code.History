@@ -126,7 +126,7 @@
             trigger OnValidate()
             begin
                 "Indirect Cost" := Round(Amount * "Cost Regulation %" / 100, 1);
-                "Statistical Value" := Round(Amount + "Indirect Cost", 1);
+                "Statistical Value" := Amount + "Indirect Cost";
             end;
         }
         field(17; "Indirect Cost"; Decimal)
@@ -411,6 +411,8 @@
         Vendor: Record Vendor;
         TransferReceiptHeader: Record "Transfer Receipt Header";
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         EU3rdPartyTrade: Boolean;
     begin
         if not ItemLedgerEntry.Get("Source Entry No.") then
@@ -485,6 +487,8 @@
                             ItemLedgerEntry."Country/Region Code", TransferShipmentHeader."Partner VAT ID", false, false));
         end;
 
+        if not IntrastatSetup.Get() then
+            IntrastatSetup.Init();
         case ItemLedgerEntry."Source Type" of
             ItemLedgerEntry."Source Type"::Customer:
                 begin
@@ -492,7 +496,9 @@
                         exit('');
                     exit(
                       GetPartnerIDForCountry(
-                        ItemLedgerEntry."Country/Region Code", Customer."VAT Registration No.",
+                        ItemLedgerEntry."Country/Region Code",
+                        IntraJnlManagement.GetVATRegNo(
+                          Customer."Country/Region Code", Customer."VAT Registration No.", IntrastatSetup."Cust. VAT No. on File"),
                         Customer."Partner Type" = Customer."Partner Type"::Person, EU3rdPartyTrade));
                 end;
             ItemLedgerEntry."Source Type"::Vendor:
@@ -501,7 +507,9 @@
                         exit('');
                     exit(
                       GetPartnerIDForCountry(
-                        ItemLedgerEntry."Country/Region Code", Vendor."VAT Registration No.",
+                        ItemLedgerEntry."Country/Region Code",
+                        IntraJnlManagement.GetVATRegNo(
+                          Vendor."Country/Region Code", Vendor."VAT Registration No.", IntrastatSetup."Vend. VAT No. on File"),
                         Vendor."Partner Type" = Vendor."Partner Type"::Person, false));
                 end;
         end;
@@ -512,6 +520,8 @@
         Job: Record Job;
         JobLedgerEntry: Record "Job Ledger Entry";
         Customer: Record Customer;
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
     begin
         if not JobLedgerEntry.Get("Source Entry No.") then
             exit('');
@@ -519,13 +529,17 @@
             exit('');
         if not Customer.Get(Job."Bill-to Customer No.") then
             exit('');
+        if not IntrastatSetup.Get() then
+            IntrastatSetup.Init();
         exit(
           GetPartnerIDForCountry(
-            Customer."Country/Region Code", Customer."VAT Registration No.",
+            Customer."Country/Region Code",
+            IntraJnlManagement.GetVATRegNo(
+              Customer."Country/Region Code", Customer."VAT Registration No.", IntrastatSetup."Cust. VAT No. on File"),
             Customer."Partner Type" = Customer."Partner Type"::Person, false));
     end;
 
-    local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Code[20]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean): Text[50]
+    local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Text[50]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean): Text[50]
     var
         CountryRegion: Record "Country/Region";
     begin

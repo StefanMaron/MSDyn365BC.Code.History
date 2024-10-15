@@ -55,6 +55,7 @@
                     begin
                         Rec.CrossReferenceNoLookUp();
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -77,6 +78,7 @@
                     begin
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -796,6 +798,7 @@
                         trigger OnAction()
                         begin
                             Rec.RollupAsmPrice();
+                            CalculateTotals();
                         end;
                     }
                     action("Roll Up &Cost")
@@ -809,6 +812,7 @@
                         trigger OnAction()
                         begin
                             Rec.RollUpAsmCost();
+                            CalculateTotals();
                         end;
                     }
                 }

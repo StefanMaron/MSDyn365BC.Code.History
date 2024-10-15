@@ -128,7 +128,7 @@ report 11015 "Export Business Data"
         StepValue: Integer;
         NextStep: Integer;
         CloseDate: Boolean;
-        ValueWithQuotesMsg: Label '"%1"';
+        ValueWithQuotesTxt: Label '"%1"', Locked = true;
         CreatingXMLFileMsg: Label 'Creating XML File...';
         StartDateErr: Label 'You must enter a starting date.';
         EndDateErr: Label 'You must enter an ending date.';
@@ -459,7 +459,7 @@ report 11015 "Export Business Data"
                     FieldValueText := Format(FieldRef.Value);
             end;
             if "Field Type" in ["Field Type"::Boolean, "Field Type"::Code, "Field Type"::Option, "Field Type"::Text] then
-                FieldValueText := StrSubstNo(ValueWithQuotesMsg, ConvertString(FieldValueText));
+                FieldValueText := StrSubstNo(ValueWithQuotesTxt, ConvertString(FieldValueText));
         end;
     end;
 

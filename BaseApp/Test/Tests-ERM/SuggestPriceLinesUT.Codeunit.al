@@ -482,6 +482,119 @@ codeunit 134168 "Suggest Price Lines UT"
     end;
 
     [Test]
+    [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
+    procedure T018_PurchasePriceListFCYCopyLinesSameFCY()
+    var
+        PriceLineFilters: Record "Price Line Filters";
+        FromPriceListHeader: Record "Price List Header";
+        FromPriceListLine: Record "Price List Line";
+        ToPriceListHeader: Record "Price List Header";
+        ToPriceListLine: Record "Price List Line";
+        PurchasePriceList: TestPage "Purchase Price List";
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        CurrencyCode: array[2] of Code[10];
+        AdjFactor: Decimal;
+    begin
+        // [FEATURE] [UI] [FCY]
+        Initialize(true);
+        BindSubscription(SuggestPriceLinesUT);
+
+        // [GIVEN] Currency 'C1', where rates are 2 on 01.01, 3 on 02.01
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, 2, 2);
+        LibraryERM.CreateExchangeRate(CurrencyCode[1], WorkDate(), 3, 3);
+
+        // [GIVEN] Purchase Price List 'A' with 'Item' line, where "Unit Cost" is 10, "Currency Code" is 'C1'
+        LibraryPriceCalculation.CreatePriceHeader(FromPriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        FromPriceListHeader."Currency Code" := CurrencyCode[1];
+        FromPriceListHeader.Modify();
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            FromPriceListLine, FromPriceListHeader.Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        // [GIVEN] New Purchase Price List 'X', where "Currency Code" is 'C1'
+        LibraryPriceCalculation.CreatePriceHeader(ToPriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        ToPriceListHeader."Currency Code" := CurrencyCode[1];
+        ToPriceListHeader.Modify();
+        // [GIVEN] Open Purchase price list page for 'X'
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, ToPriceListHeader.Code);
+
+        // [WHEN] run "Copy Price List.." on Price List 'X', set "From Price List Code" 'A', "Adjustment Factor" to 1 and click 'Ok'
+        LibraryVariableStorage.Enqueue(FromPriceListHeader.Code); // to CopyPriceLinesModalHandler
+        AdjFactor := 1;
+        LibraryVariableStorage.Enqueue(AdjFactor); // to set Adjustment Factor
+        LibraryVariableStorage.Enqueue(WorkDate() - 1); // Exch. Rate Date
+        PurchasePriceList.CopyLines.Invoke();
+
+        // [THEN] Page "Suggest Price Line" is open, closed, no one new line is created, where "Direct Unit Cost" is 10
+        ToPriceListLine.SetRange("Price List Code", ToPriceListHeader.Code);
+        Assert.IsTrue(ToPriceListLine.FindFirst(), 'The line is not copied.');
+        ToPriceListLine.TestField("Asset No.", FromPriceListLine."Asset No.");
+        ToPriceListLine.TestField("Minimum Quantity", FromPriceListLine."Minimum Quantity");
+        ToPriceListLine.TestField("Direct Unit Cost", FromPriceListLine."Direct Unit Cost");
+        ToPriceListLine.TestField("Unit Price", 0);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
+    procedure T019_PurchasePriceListFCYCopyLinesAnotherFCY()
+    var
+        PriceLineFilters: Record "Price Line Filters";
+        FromPriceListHeader: Record "Price List Header";
+        FromPriceListLine: Record "Price List Line";
+        ToPriceListHeader: Record "Price List Header";
+        ToPriceListLine: Record "Price List Line";
+        PurchasePriceList: TestPage "Purchase Price List";
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        CurrencyCode: array[2] of Code[10];
+        AdjFactor: Decimal;
+    begin
+        // [FEATURE] [UI] [FCY]
+        Initialize(true);
+        BindSubscription(SuggestPriceLinesUT);
+
+        // [GIVEN] Currency 'C1', where rates are 2 on 01.01, 3 on 02.01
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, 2, 2);
+        LibraryERM.CreateExchangeRate(CurrencyCode[1], WorkDate(), 3, 3);
+
+        // [GIVEN] Currency 'C2', where rates are 10 on 01.01, 9 on 02.01
+        CurrencyCode[2] := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, 10, 10);
+        LibraryERM.CreateExchangeRate(CurrencyCode[2], WorkDate(), 9, 9);
+
+        // [GIVEN] Purchase Price List 'A' with 'Item' line, where "Unit Cost" is 10, "Currency Code" is 'C1'
+        LibraryPriceCalculation.CreatePriceHeader(FromPriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        FromPriceListHeader."Currency Code" := CurrencyCode[1];
+        FromPriceListHeader.Modify();
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            FromPriceListLine, FromPriceListHeader.Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        // [GIVEN] New Purchase Price List 'X', where "Currency Code" is 'C2'
+        LibraryPriceCalculation.CreatePriceHeader(ToPriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        ToPriceListHeader."Currency Code" := CurrencyCode[2];
+        ToPriceListHeader.Modify();
+        // [GIVEN] Open Purchase price list page for 'X'
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, ToPriceListHeader.Code);
+
+        // [WHEN] run "Copy Price List.." on Price List 'X', set "From Price List Code" 'A', "Adjustment Factor" to 1 and click 'Ok'
+        LibraryVariableStorage.Enqueue(FromPriceListHeader.Code); // to CopyPriceLinesModalHandler
+        AdjFactor := 1;
+        LibraryVariableStorage.Enqueue(AdjFactor); // to set Adjustment Factor
+        LibraryVariableStorage.Enqueue(WorkDate() - 1); // Exch. Rate Date
+        PurchasePriceList.CopyLines.Invoke();
+
+        // [THEN] Page "Suggest Price Line" is open, closed, no one new line is created, where "Direct Unit Cost" is 50
+        ToPriceListLine.SetRange("Price List Code", ToPriceListHeader.Code);
+        Assert.IsTrue(ToPriceListLine.FindFirst(), 'The line is not copied.');
+        ToPriceListLine.TestField("Asset No.", FromPriceListLine."Asset No.");
+        ToPriceListLine.TestField("Currency Code", CurrencyCode[2]);
+        ToPriceListLine.TestField("Minimum Quantity", FromPriceListLine."Minimum Quantity");
+        ToPriceListLine.TestField("Direct Unit Cost", FromPriceListLine."Direct Unit Cost" * 5);
+        ToPriceListLine.TestField("Unit Price", 0);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [HandlerFunctions('CopyPriceLinesToWorksheetModalHandler')]
     procedure T020_SalesPriceListCopyLinesExistingToWorksheet()
     var
@@ -535,7 +648,7 @@ codeunit 134168 "Suggest Price Lines UT"
     end;
 
     [Test]
-    [HandlerFunctions('CopyPriceLinesAsNewToWorksheetModalHandler')]
+    [HandlerFunctions('CopyPriceLinesAsNewToWorksheetModalHandler,ModalPriceListFiltersHandler')]
     procedure T021_SalesPriceListCopyLinesAsNewToWorksheet()
     var
         Item: Record Item;
@@ -547,6 +660,7 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceWorksheet: TestPage "Price Worksheet";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
         PriceListCode: Code[20];
+        DefaultsDate: Date;
         AdjFactor: Decimal;
     begin
         // [FEATURE] [UI] [Sales]
@@ -567,11 +681,17 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceWorksheet.PriceTypeFilter.SetValue("Price Type"::Sale);
         PriceWorksheet.SourceGroupFilter.SetValue("Price Source Group"::Customer);
         PriceWorksheet.ModifyExistingLines.SetValue(false);
+        // [GIVEN] Set Defaults with "Starting Date", "Ending Date"
+        DefaultsDate := WorkDate() + 10;
+        LibraryVariableStorage.Enqueue(DefaultsDate); // Starting Date
+        LibraryVariableStorage.Enqueue(DefaultsDate + 10); // Ending Date
+        PriceWorksheet.Defaults.Drilldown(); // Set in ModalPriceListFiltersHandler
 
         // [WHEN] run "Copy Lines" on Price Worksheet, set "Copy As New Lines" is 'Yes' ,"Adjustment Factor" to 2 and click 'Ok'
         LibraryVariableStorage.Enqueue(FromPriceListHeader.Code); // to CopyPriceLinesAsNewToWorksheetModalHandler
         AdjFactor := 2;
         LibraryVariableStorage.Enqueue(AdjFactor); // to set Adjustment Factor
+        LibraryVariableStorage.Enqueue(false); // to set "Force Defaults"
         LibraryVariableStorage.Enqueue(true); // click OK
         PriceWorksheet.CopyLines.Invoke();
 
@@ -584,6 +704,332 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceWorksheetLine.TestField("Minimum Quantity", FromPriceListLine."Minimum Quantity");
         PriceWorksheetLine.TestField("Existing Unit Price", FromPriceListLine."Unit Price");
         PriceWorksheetLine.TestField("Unit Price", FromPriceListLine."Unit Price" * AdjFactor);
+        // [WHERE] "Starting Date" and "Ending Date" are copied form the existing line
+        PriceWorksheetLine.TestField("Starting Date", FromPriceListLine."Starting Date");
+        PriceWorksheetLine.TestField("Ending Date", FromPriceListLine."Ending Date");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyPriceLinesAsNewToWorksheetModalHandler,ModalPriceListFiltersHandler')]
+    procedure T022_SalesPriceListCopyLinesAsNewToWorksheetForceDefaults()
+    var
+        Item: Record Item;
+        PriceLineFilters: Record "Price Line Filters";
+        FromPriceListHeader: Record "Price List Header";
+        FromPriceListLine: Record "Price List Line";
+        ToPriceListHeader: Record "Price List Header";
+        PriceWorksheetLine: Record "Price Worksheet Line";
+        PriceWorksheet: TestPage "Price Worksheet";
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        PriceListCode: Code[20];
+        DefaultsDate: Date;
+        AdjFactor: Decimal;
+    begin
+        // [FEATURE] [UI] [Sales]
+        Initialize(true);
+        // [GIVEN] Sales Default Price List is defined as 'D'
+        PriceListCode := LibraryPriceCalculation.SetDefaultPriceList("Price Type"::Sale, "Price Source Group"::Customer);
+        BindSubscription(SuggestPriceLinesUT);
+
+        // [GIVEN] Sales Price List 'A' with 'Item' line, where "Minimum Quantity" is 12
+        LibraryPriceCalculation.CreatePriceHeader(FromPriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryInventory.CreateItem(Item);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            FromPriceListLine, FromPriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        FromPriceListLine."Minimum Quantity" := 12;
+        FromPriceListLine.Modify();
+        // [GIVEN] Open Price Worksheet page, where parameters Sales/Customer/ModifyExistingLines = false
+        PriceWorksheet.OpenEdit();
+        PriceWorksheet.PriceTypeFilter.SetValue("Price Type"::Sale);
+        PriceWorksheet.SourceGroupFilter.SetValue("Price Source Group"::Customer);
+        PriceWorksheet.ModifyExistingLines.SetValue(false);
+        // [GIVEN] Set Defaults with "Starting Date", "Ending Date"
+        DefaultsDate := WorkDate() + 10;
+        LibraryVariableStorage.Enqueue(DefaultsDate); // Starting Date
+        LibraryVariableStorage.Enqueue(DefaultsDate + 10); // Ending Date
+        PriceWorksheet.Defaults.Drilldown(); // Set in ModalPriceListFiltersHandler
+
+        // [WHEN] run "Copy Lines" on Price Worksheet, set "Copy As New Lines" is 'Yes' ,"Adjustment Factor" to 2 and click 'Ok'
+        LibraryVariableStorage.Enqueue(FromPriceListHeader.Code); // to CopyPriceLinesAsNewToWorksheetModalHandler
+        AdjFactor := 2;
+        LibraryVariableStorage.Enqueue(AdjFactor); // to set Adjustment Factor
+        LibraryVariableStorage.Enqueue(true); // to set "Force Defaults"
+        LibraryVariableStorage.Enqueue(true); // click OK
+        PriceWorksheet.CopyLines.Invoke();
+
+        // [THEN] Page "Suggest Price Line" is open, closed, one new line for price list 'D' is created, 
+        // [THEN] where "Existing Line" is false ,"Minimum Quantity" is 12, "Unit Price" is doubled, "Existing Unit Price" is set
+        PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
+        Assert.IsTrue(PriceWorksheetLine.FindFirst(), 'The line is not copied.');
+        PriceWorksheetLine.TestField("Existing Line", false);
+        PriceWorksheetLine.TestField("Asset No.", FromPriceListLine."Asset No.");
+        PriceWorksheetLine.TestField("Minimum Quantity", FromPriceListLine."Minimum Quantity");
+        PriceWorksheetLine.TestField("Existing Unit Price", FromPriceListLine."Unit Price");
+        PriceWorksheetLine.TestField("Unit Price", FromPriceListLine."Unit Price" * AdjFactor);
+        // [WHERE] "Starting Date" and "Ending Date" are copied form the Defaults
+        PriceWorksheetLine.TestField("Starting Date", DefaultsDate);
+        PriceWorksheetLine.TestField("Ending Date", DefaultsDate + 10);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
+    procedure T025_PurchasePriceListLCYCopyLinesOfDiffCurrencies()
+    var
+        PriceLineFilters: Record "Price Line Filters";
+        FromPriceListHeader: Record "Price List Header";
+        FromPriceListLine: array[2] of Record "Price List Line";
+        ToPriceListHeader: Record "Price List Header";
+        ToPriceListLine: Record "Price List Line";
+        PurchasePriceList: TestPage "Purchase Price List";
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        CurrencyCode: array[2] of Code[10];
+        AdjFactor: Decimal;
+    begin
+        // [FEATURE] [UI] [FCY]
+        // [SCENARIO] Copy lines in different currencies from the price list, where "Allow Updating Defaults" is Yes.
+        Initialize(true);
+        BindSubscription(SuggestPriceLinesUT);
+
+        // [GIVEN] Currency 'C1', where rates are 2 on 01.01, 3 on 02.01
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, 2, 2);
+        LibraryERM.CreateExchangeRate(CurrencyCode[1], WorkDate(), 3, 3);
+
+        // [GIVEN] Purchase Price List 'A' with two lines, where "Allow Updating Defaults" is Yes
+        LibraryPriceCalculation.CreatePriceHeader(FromPriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        FromPriceListHeader."Allow Updating Defaults" := true;
+        FromPriceListHeader.Modify();
+        // [GIVEN] First line, where "Direct Unit Cost" is 10, "Currency Code" is 'C1'
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            FromPriceListLine[1], FromPriceListHeader.Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        FromPriceListLine[1]."Currency Code" := CurrencyCode[1];
+        FromPriceListLine[1].Modify();
+        // [GIVEN] Second line, where "Direct Unit Cost" is 15, "Minimum Quantity" is 100, "Currency Code" is <blank>
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            FromPriceListLine[2], FromPriceListHeader.Code, "Price Source Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        FromPriceListLine[1]."Starting Date" := WorkDate() - 5;
+        FromPriceListLine[1]."Ending Date" := WorkDate() - 2;
+        FromPriceListLine[2]."Minimum Quantity" := 100;
+        FromPriceListLine[2]."Currency Code" := '';
+        FromPriceListLine[2].Modify();
+        // [GIVEN] New Purchase Price List 'X', where "Currency Code" is 'C1', "Allow Updating Defaults" is No
+        LibraryPriceCalculation.CreatePriceHeader(
+            ToPriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, LibraryPurchase.CreateVendorNo());
+        ToPriceListHeader."Currency Code" := CurrencyCode[1];
+        ToPriceListHeader."Starting Date" := WorkDate();
+        ToPriceListHeader."Ending Date" := WorkDate() + 10;
+        ToPriceListHeader.Modify();
+        // [GIVEN] Open Purchase price list page for 'X'
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, ToPriceListHeader.Code);
+
+        // [WHEN] run "Copy Price List.." on Price List 'X', set "From Price List Code" 'A', "Adjustment Factor" to 1 and click 'Ok'
+        LibraryVariableStorage.Enqueue(FromPriceListHeader.Code); // to CopyPriceLinesModalHandler
+        AdjFactor := 1;
+        LibraryVariableStorage.Enqueue(AdjFactor); // to set Adjustment Factor
+        LibraryVariableStorage.Enqueue(WorkDate() - 1); // Exch. Rate Date
+        PurchasePriceList.CopyLines.Invoke();
+
+        // [THEN] Page "Suggest Price Line" is open, closed, two new lines are created, where "Direct Unit Cost" is 10
+        ToPriceListLine.SetRange("Price List Code", ToPriceListHeader.Code);
+        Assert.IsTrue(ToPriceListLine.FindSet(), 'The line is not copied.');
+        ToPriceListLine.TestField("Source Type", ToPriceListHeader."Source Type");
+        ToPriceListLine.TestField("Source No.", ToPriceListHeader."Source No.");
+        ToPriceListLine.TestField("Currency Code", ToPriceListHeader."Currency Code");
+        ToPriceListLine.TestField("Starting Date", ToPriceListHeader."Starting Date");
+        ToPriceListLine.TestField("Ending Date", ToPriceListHeader."Ending Date");
+        ToPriceListLine.TestField("Asset No.", FromPriceListLine[1]."Asset No.");
+        ToPriceListLine.TestField("Minimum Quantity", FromPriceListLine[1]."Minimum Quantity");
+        ToPriceListLine.TestField("Direct Unit Cost", FromPriceListLine[1]."Direct Unit Cost");
+        ToPriceListLine.TestField("Unit Price", 0);
+        // [THEN] Second line copied and "Direct Unit Cost" is converted from LCY to 'C1'
+        Assert.IsTrue(ToPriceListLine.Next() <> 0, 'The second line is not copied.');
+        ToPriceListLine.TestField("Source Type", ToPriceListHeader."Source Type");
+        ToPriceListLine.TestField("Source No.", ToPriceListHeader."Source No.");
+        ToPriceListLine.TestField("Currency Code", ToPriceListHeader."Currency Code");
+        ToPriceListLine.TestField("Starting Date", ToPriceListHeader."Starting Date");
+        ToPriceListLine.TestField("Ending Date", ToPriceListHeader."Ending Date");
+        ToPriceListLine.TestField("Asset No.", FromPriceListLine[2]."Asset No.");
+        ToPriceListLine.TestField("Minimum Quantity", FromPriceListLine[2]."Minimum Quantity");
+        ToPriceListLine.TestField("Direct Unit Cost", FromPriceListLine[2]."Direct Unit Cost" * 2);
+        ToPriceListLine.TestField("Unit Price", 0);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
+    procedure T026_PurchasePriceListAllowEditingDefaultsCopyLinesOfDiffCurrencies()
+    var
+        PriceLineFilters: Record "Price Line Filters";
+        FromPriceListHeader: Record "Price List Header";
+        FromPriceListLine: array[2] of Record "Price List Line";
+        ToPriceListHeader: Record "Price List Header";
+        ToPriceListLine: Record "Price List Line";
+        PurchasePriceList: TestPage "Purchase Price List";
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        CurrencyCode: array[2] of Code[10];
+        AdjFactor: Decimal;
+    begin
+        // [FEATURE] [UI] [FCY]
+        // [SCENARIO] Copy lines in different currencies to the price list, where "Allow Updating Defaults" is Yes and "Force Defaults" is No
+        Initialize(true);
+        BindSubscription(SuggestPriceLinesUT);
+
+        // [GIVEN] Currency 'C1', where rates are 2 on 01.01, 3 on 02.01
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, 2, 2);
+        LibraryERM.CreateExchangeRate(CurrencyCode[1], WorkDate(), 3, 3);
+
+        // [GIVEN] Purchase Price List 'A' with two lines, where "Allow Updating Defaults" is Yes
+        LibraryPriceCalculation.CreatePriceHeader(FromPriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        FromPriceListHeader."Allow Updating Defaults" := true;
+        FromPriceListHeader.Modify();
+        // [GIVEN] First line, where "Direct Unit Cost" is 10, "Currency Code" is 'C1'
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            FromPriceListLine[1], FromPriceListHeader.Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        FromPriceListLine[1]."Currency Code" := CurrencyCode[1];
+        FromPriceListLine[1]."Starting Date" := WorkDate() - 10;
+        FromPriceListLine[1]."Ending Date" := WorkDate() - 1;
+        FromPriceListLine[1].Modify();
+        // [GIVEN] Second line, where "Direct Unit Cost" is 15, "Minimum Quantity" is 100, "Currency Code" is <blank>
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            FromPriceListLine[2], FromPriceListHeader.Code, "Price Source Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        FromPriceListLine[2]."Minimum Quantity" := 100;
+        FromPriceListLine[2]."Currency Code" := '';
+        FromPriceListLine[2].Modify();
+        // [GIVEN] New Purchase Price List 'X', where "Currency Code" is 'C1', "Allow Updating Defaults" is Yes
+        LibraryPriceCalculation.CreatePriceHeader(
+            ToPriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, LibraryPurchase.CreateVendorNo());
+        ToPriceListHeader."Starting Date" := WorkDate();
+        ToPriceListHeader."Ending Date" := WorkDate() + 10;
+        ToPriceListHeader."Allow Updating Defaults" := true;
+        ToPriceListHeader."Currency Code" := CurrencyCode[1];
+        ToPriceListHeader.Modify();
+        // [GIVEN] Open Purchase price list page for 'X'
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, ToPriceListHeader.Code);
+
+        // [WHEN] run "Copy Price List.." on Price List 'X', set "From Price List Code" 'A', "Adjustment Factor" to 1 and click 'Ok'
+        LibraryVariableStorage.Enqueue(FromPriceListHeader.Code); // to CopyPriceLinesModalHandler
+        AdjFactor := 1;
+        LibraryVariableStorage.Enqueue(AdjFactor); // to set Adjustment Factor
+        LibraryVariableStorage.Enqueue(WorkDate() - 1); // Exch. Rate Date
+        PurchasePriceList.CopyLines.Invoke();
+
+        // [THEN] Page "Suggest Price Line" is open, closed, two new lines are created, where "Direct Unit Cost" is 10
+        ToPriceListLine.SetRange("Price List Code", ToPriceListHeader.Code);
+        Assert.IsTrue(ToPriceListLine.FindSet(), 'The line is not copied.');
+        ToPriceListLine.TestField("Source Type", FromPriceListLine[1]."Source Type");
+        ToPriceListLine.TestField("Source No.", FromPriceListLine[1]."Source No.");
+        ToPriceListLine.TestField("Currency Code", FromPriceListLine[1]."Currency Code");
+        ToPriceListLine.TestField("Starting Date", FromPriceListLine[1]."Starting Date");
+        ToPriceListLine.TestField("Ending Date", FromPriceListLine[1]."Ending Date");
+        ToPriceListLine.TestField("Asset No.", FromPriceListLine[1]."Asset No.");
+        ToPriceListLine.TestField("Minimum Quantity", FromPriceListLine[1]."Minimum Quantity");
+        ToPriceListLine.TestField("Direct Unit Cost", FromPriceListLine[1]."Direct Unit Cost");
+        ToPriceListLine.TestField("Unit Price", 0);
+        // [THEN] Second line copied and "Direct Unit Cost" is converted from LCY to 'C1'
+        Assert.IsTrue(ToPriceListLine.Next() <> 0, 'The second line is not copied.');
+        ToPriceListLine.TestField("Source Type", FromPriceListLine[2]."Source Type");
+        ToPriceListLine.TestField("Source No.", FromPriceListLine[2]."Source No.");
+        ToPriceListLine.TestField("Currency Code", FromPriceListLine[2]."Currency Code");
+        ToPriceListLine.TestField("Starting Date", FromPriceListLine[2]."Starting Date");
+        ToPriceListLine.TestField("Ending Date", FromPriceListLine[2]."Ending Date");
+        ToPriceListLine.TestField("Asset No.", FromPriceListLine[2]."Asset No.");
+        ToPriceListLine.TestField("Minimum Quantity", FromPriceListLine[2]."Minimum Quantity");
+        ToPriceListLine.TestField("Direct Unit Cost", FromPriceListLine[2]."Direct Unit Cost");
+        ToPriceListLine.TestField("Unit Price", 0);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestPriceLinesFCYForceDefaultsModalHandler')]
+    procedure T027_PurchasePriceListAllowEditingDefaultsCopyLinesOfDiffCurrenciesForceDefaults()
+    var
+        PriceLineFilters: Record "Price Line Filters";
+        FromPriceListHeader: Record "Price List Header";
+        FromPriceListLine: array[2] of Record "Price List Line";
+        ToPriceListHeader: Record "Price List Header";
+        ToPriceListLine: Record "Price List Line";
+        PurchasePriceList: TestPage "Purchase Price List";
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        CurrencyCode: array[2] of Code[10];
+        AdjFactor: Decimal;
+    begin
+        // [FEATURE] [UI] [FCY]
+        // [SCENARIO] Copy lines in different currencies to the price list, where "Allow Updating Defaults" is Yes and "Force Defaults" is Yes
+        Initialize(true);
+        BindSubscription(SuggestPriceLinesUT);
+
+        // [GIVEN] Currency 'C1', where rates are 2 on 01.01, 3 on 02.01
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, 2, 2);
+        LibraryERM.CreateExchangeRate(CurrencyCode[1], WorkDate(), 3, 3);
+
+        // [GIVEN] Purchase Price List 'A' with two lines, where "Allow Updating Defaults" is Yes
+        LibraryPriceCalculation.CreatePriceHeader(FromPriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        FromPriceListHeader."Allow Updating Defaults" := true;
+        FromPriceListHeader.Modify();
+        // [GIVEN] First line, where "Direct Unit Cost" is 10, "Currency Code" is 'C1'
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            FromPriceListLine[1], FromPriceListHeader.Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        FromPriceListLine[1]."Currency Code" := CurrencyCode[1];
+        FromPriceListLine[1]."Starting Date" := WorkDate() - 10;
+        FromPriceListLine[1]."Ending Date" := WorkDate() - 1;
+        FromPriceListLine[1].Modify();
+        // [GIVEN] Second line, where "Direct Unit Cost" is 15, "Minimum Quantity" is 100, "Currency Code" is <blank>
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            FromPriceListLine[2], FromPriceListHeader.Code, "Price Source Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        FromPriceListLine[2]."Minimum Quantity" := 100;
+        FromPriceListLine[2]."Currency Code" := '';
+        FromPriceListLine[2].Modify();
+        // [GIVEN] New Purchase Price List 'X', where "Currency Code" is 'C1', "Allow Updating Defaults" is Yes
+        LibraryPriceCalculation.CreatePriceHeader(
+            ToPriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, LibraryPurchase.CreateVendorNo());
+        ToPriceListHeader."Starting Date" := WorkDate();
+        ToPriceListHeader."Ending Date" := WorkDate() + 10;
+        ToPriceListHeader."Allow Updating Defaults" := true;
+        ToPriceListHeader."Currency Code" := CurrencyCode[1];
+        ToPriceListHeader.Modify();
+        // [GIVEN] Open Purchase price list page for 'X'
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, ToPriceListHeader.Code);
+
+        // [WHEN] run "Copy Price List.." on Price List 'X', set "From Price List Code" 'A', "Force defaults" as Yes, "Adjustment Factor" to 1 and click 'Ok'
+        LibraryVariableStorage.Enqueue(FromPriceListHeader.Code); // to CopyPriceLinesModalHandler
+        AdjFactor := 1;
+        LibraryVariableStorage.Enqueue(AdjFactor); // to set Adjustment Factor
+        LibraryVariableStorage.Enqueue(WorkDate() - 1); // Exch. Rate Date
+        PurchasePriceList.CopyLines.Invoke();
+
+        // [THEN] Page "Suggest Price Line" is open, closed, two new lines are created, where "Direct Unit Cost" is 10
+        ToPriceListLine.SetRange("Price List Code", ToPriceListHeader.Code);
+        Assert.IsTrue(ToPriceListLine.FindSet(), 'The line is not copied.');
+        ToPriceListLine.TestField("Source Type", ToPriceListHeader."Source Type");
+        ToPriceListLine.TestField("Source No.", ToPriceListHeader."Source No.");
+        ToPriceListLine.TestField("Currency Code", ToPriceListHeader."Currency Code");
+        ToPriceListLine.TestField("Starting Date", ToPriceListHeader."Starting Date");
+        ToPriceListLine.TestField("Ending Date", ToPriceListHeader."Ending Date");
+        ToPriceListLine.TestField("Asset No.", FromPriceListLine[1]."Asset No.");
+        ToPriceListLine.TestField("Minimum Quantity", FromPriceListLine[1]."Minimum Quantity");
+        ToPriceListLine.TestField("Direct Unit Cost", FromPriceListLine[1]."Direct Unit Cost");
+        ToPriceListLine.TestField("Unit Price", 0);
+        // [THEN] Second line copied and "Direct Unit Cost" is converted from LCY to 'C1'
+        Assert.IsTrue(ToPriceListLine.Next() <> 0, 'The second line is not copied.');
+        ToPriceListLine.TestField("Source Type", ToPriceListHeader."Source Type");
+        ToPriceListLine.TestField("Source No.", ToPriceListHeader."Source No.");
+        ToPriceListLine.TestField("Currency Code", ToPriceListHeader."Currency Code");
+        ToPriceListLine.TestField("Starting Date", ToPriceListHeader."Starting Date");
+        ToPriceListLine.TestField("Ending Date", ToPriceListHeader."Ending Date");
+        ToPriceListLine.TestField("Asset No.", FromPriceListLine[2]."Asset No.");
+        ToPriceListLine.TestField("Minimum Quantity", FromPriceListLine[2]."Minimum Quantity");
+        ToPriceListLine.TestField("Direct Unit Cost", FromPriceListLine[2]."Direct Unit Cost" * 2);
+        ToPriceListLine.TestField("Unit Price", 0);
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1499,6 +1945,8 @@ codeunit 134168 "Suggest Price Lines UT"
         item[2].Modify();
         // [GIVEN] Sales Price List, where "Currency Code" is <blank>
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
         // [GIVEN] Open sales price list page on Price List 'X' and run "Suggest Lines.." 
         SalesPriceList.OpenEdit();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
@@ -2292,10 +2740,13 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsTrue(SuggestPriceLines."From Price List Code".Visible(), '"From Price List Code".Visible');
         Assert.IsTrue(SuggestPriceLines."Price Line Filter".Visible(), '"Price Line Filter".Visible');
 
+        Assert.IsFalse(SuggestPriceLines."Force Defaults".Visible(), '"Force Defaults".Visible');
+        SuggestPriceLines."Force Defaults".AssertEquals(true);
+
         Assert.IsFalse(SuggestPriceLines."Minimum Quantity".Visible(), '"Minimum Quantity".Visible');
         Assert.IsFalse(SuggestPriceLines."Product Type".Visible(), '"Product Type".Visible');
         Assert.IsFalse(SuggestPriceLines."Product Filter".Visible(), '"Product Filter".Visible');
-        Assert.IsFalse(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
+        Assert.IsTrue(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
 
         SuggestPriceLines."From Price List Code".SetValue(LibraryVariableStorage.DequeueText());
         SuggestPriceLines."Adjustment Factor".SetValue(LibraryVariableStorage.DequeueDecimal());
@@ -2314,13 +2765,16 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsTrue(SuggestPriceLines."From Price List Code".Visible(), '"From Price List Code".Visible');
         Assert.IsTrue(SuggestPriceLines."Price Line Filter".Visible(), '"Price Line Filter".Visible');
 
+        Assert.IsTrue(SuggestPriceLines."Force Defaults".Visible(), '"Force Defaults".Visible');
+        SuggestPriceLines."Force Defaults".AssertEquals(false);
+
         Assert.IsTrue(SuggestPriceLines."Copy As New Lines".Editable(), '"Copy As New Lines" is not editable');
         SuggestPriceLines."Copy As New Lines".SetValue(false);
 
         Assert.IsFalse(SuggestPriceLines."Minimum Quantity".Visible(), '"Minimum Quantity".Visible');
         Assert.IsFalse(SuggestPriceLines."Product Type".Visible(), '"Product Type".Visible');
         Assert.IsFalse(SuggestPriceLines."Product Filter".Visible(), '"Product Filter".Visible');
-        Assert.IsFalse(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
+        Assert.IsTrue(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
 
         SuggestPriceLines."From Price List Code".SetValue(LibraryVariableStorage.DequeueText());
         SuggestPriceLines."Adjustment Factor".SetValue(LibraryVariableStorage.DequeueDecimal());
@@ -2339,16 +2793,20 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsTrue(SuggestPriceLines."From Price List Code".Visible(), '"From Price List Code".Visible');
         Assert.IsTrue(SuggestPriceLines."Price Line Filter".Visible(), '"Price Line Filter".Visible');
 
+        Assert.IsTrue(SuggestPriceLines."Force Defaults".Visible(), '"Force Defaults".Visible');
+        SuggestPriceLines."Force Defaults".AssertEquals(false);
+
         Assert.IsFalse(SuggestPriceLines."Copy As New Lines".Editable(), '"Copy As New Lines" is editable');
         SuggestPriceLines."Copy As New Lines".AssertEquals(true);
 
         Assert.IsFalse(SuggestPriceLines."Minimum Quantity".Visible(), '"Minimum Quantity".Visible');
         Assert.IsFalse(SuggestPriceLines."Product Type".Visible(), '"Product Type".Visible');
         Assert.IsFalse(SuggestPriceLines."Product Filter".Visible(), '"Product Filter".Visible');
-        Assert.IsFalse(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
+        Assert.IsTrue(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
 
         SuggestPriceLines."From Price List Code".SetValue(LibraryVariableStorage.DequeueText());
         SuggestPriceLines."Adjustment Factor".SetValue(LibraryVariableStorage.DequeueDecimal());
+        SuggestPriceLines."Force Defaults".SetValue(LibraryVariableStorage.DequeueBoolean());
 
         if LibraryVariableStorage.DequeueBoolean() then
             SuggestPriceLines.OK().Invoke()
@@ -2368,7 +2826,8 @@ codeunit 134168 "Suggest Price Lines UT"
 
         Assert.IsFalse(SuggestPriceLines."From Price List Code".Visible(), '"From Price List Code".Visible');
         Assert.IsFalse(SuggestPriceLines."Price Line Filter".Visible(), '"Price Line Filter".Visible');
-        Assert.IsFalse(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
+        Assert.IsTrue(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
+        Assert.IsFalse(SuggestPriceLines."Force Defaults".Visible(), '"Force Defaults".Visible');
 
         SuggestPriceLines."Product Type".SetValue('Item');
         SuggestPriceLines."Product Filter".SetValue(LibraryVariableStorage.DequeueText());
@@ -2382,6 +2841,9 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsTrue(SuggestPriceLines."Adjustment Factor".Visible(), '"Adjustment Factor".Visible');
         Assert.IsTrue(SuggestPriceLines."Rounding Method Code".Visible(), '"Rounding Method Code".Visible');
 
+        Assert.IsFalse(SuggestPriceLines."Force Defaults".Visible(), '"Force Defaults".Visible');
+        SuggestPriceLines."Force Defaults".AssertEquals(true);
+
         Assert.IsTrue(SuggestPriceLines.Defaults.Visible(), 'Defaults.Visible');
         Assert.IsTrue(SuggestPriceLines."Product Type".Visible(), '"Product Type".Visible');
         Assert.IsTrue(SuggestPriceLines."Product Filter".Visible(), '"Product Filter".Visible');
@@ -2390,7 +2852,7 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsFalse(SuggestPriceLines."Copy As New Lines".Visible(), '"Copy As New Lines".Visible');
         Assert.IsFalse(SuggestPriceLines."From Price List Code".Visible(), '"From Price List Code".Visible');
         Assert.IsFalse(SuggestPriceLines."Price Line Filter".Visible(), '"Price Line Filter".Visible');
-        Assert.IsFalse(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
+        Assert.IsTrue(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
 
         SuggestPriceLines."Product Type".SetValue(LibraryVariableStorage.DequeueText());
         SuggestPriceLines."Product Filter".SetValue(LibraryVariableStorage.DequeueText());
@@ -2418,6 +2880,16 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsTrue(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
         SuggestPriceLines."Exchange Rate Date".AssertEquals(WorkDate());
 
+        SuggestPriceLines."Adjustment Factor".SetValue(LibraryVariableStorage.DequeueDecimal());
+        SuggestPriceLines."Exchange Rate Date".SetValue(LibraryVariableStorage.DequeueDate());
+        SuggestPriceLines.OK().Invoke()
+    end;
+
+    [ModalPageHandler]
+    procedure SuggestPriceLinesFCYForceDefaultsModalHandler(var SuggestPriceLines: TestPage "Suggest Price Lines")
+    begin
+        SuggestPriceLines."From Price List Code".SetValue(LibraryVariableStorage.DequeueText());
+        SuggestPriceLines."Force Defaults".SetValue(true);
         SuggestPriceLines."Adjustment Factor".SetValue(LibraryVariableStorage.DequeueDecimal());
         SuggestPriceLines."Exchange Rate Date".SetValue(LibraryVariableStorage.DequeueDate());
         SuggestPriceLines.OK().Invoke()
@@ -2572,5 +3044,13 @@ codeunit 134168 "Suggest Price Lines UT"
         CustomerFilter := LibraryVariableStorage.DequeueText();
         SuggestPriceLine."Price Line Filter".SetValue(CustomerFilter);
         SuggestPriceLine.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ModalPriceListFiltersHandler(var PriceListFilters: TestPage "Price List Filters")
+    begin
+        PriceListFilters.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PriceListFilters.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PriceListFilters.OK().Invoke();
     end;
 }
