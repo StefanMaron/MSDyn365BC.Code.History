@@ -1132,7 +1132,7 @@ page 5052 "Contact List"
         ContactRec: Record Contact;
         ContactBusinessRelation: Enum "Contact Business Relation";
     begin
-        ContactRec.SetRange("Contact Business Relation", ContactBusinessRelation::" ");
+        ContactRec.SetRange("Contact Business Relation", ContactBusinessRelation::" ", ContactBusinessRelation::None);
         if ContactRec.IsEmpty() then
             exit;
 

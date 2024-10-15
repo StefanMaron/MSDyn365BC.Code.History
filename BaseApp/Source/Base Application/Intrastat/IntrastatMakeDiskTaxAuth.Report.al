@@ -77,7 +77,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 trigger OnPreDataItem()
                 begin
                     CompanyInfo.Get();
-                    VATRegNo := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
+                    VATRegNo := ConvertStr(IntraJnlManagement.GetCompanyVATRegNo(), Text001, '    ');
                     SetRange("Internal Ref. No.", CopyStr(IntraReferenceNo, 1, 4), CopyStr(IntraReferenceNo, 1, 4) + '9');
                     PrevCompoundField := '';
                     IntrastatFileWriter.InitializeNextFile(IntrastatFileWriter.GetDefaultOrReceiptFileName());
@@ -195,7 +195,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         PrevType: Integer;
         ReceiptExists: Boolean;
         ShipmentExists: Boolean;
-        VATRegNo: Code[20];
+        VATRegNo: Text;
         ExportFormat: Enum "Intrastat Export Format";
         SpecifiedExportFormat: Enum "Intrastat Export Format";
         ExportFormatIsSpecified: Boolean;
