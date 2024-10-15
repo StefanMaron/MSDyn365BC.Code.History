@@ -3356,6 +3356,90 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrderComponent.TestField("Bin Code", '');
     end;
 
+    [Test]
+    procedure DateTimeAfterPlanningProdOrderForwardWhenOperationTimeIsBlank()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        WorkCenter2: Record "Work Center";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        RoutingNo: Code[20];
+        PrevOperationEndingDateTime: DateTime;
+    begin
+        // [FEATURE] [Routing] [Planning]
+        // [SCENARIO 397481] Starting Date-Time = Ending Date-Time on planning routing line with zero operation time when planned forward.
+        Initialize();
+
+        // [GIVEN] Item with routing of two routing lines with different work centers "WC1" and "WC2".
+        // [GIVEN] Set reordering policy to "Fixed Reorder Qty." to enable forward planning.
+        Item.Get(CreateItemWithRoutingAndTwoWorkCenters(WorkCenter, WorkCenter2, RoutingNo));
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Reorder Point", 100);
+        Item.Validate("Reorder Quantity", 200);
+        Item.Modify(true);
+
+        // [GIVEN] Calculate calendar and zero out run time on routing line for work center "WC1".
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, WorkDate() - 10, WorkDate() + 10);
+        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter."No.");
+
+        // [WHEN] Calculate regenerative plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+
+        // [THEN] Starting Date-Time = Ending Date-Time on the work center "WC" and are equal to Ending Date-Time of work center "WC2".
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter2."No.");
+        PlanningRoutingLine.FindFirst();
+        PrevOperationEndingDateTime := PlanningRoutingLine."Ending Date-Time";
+
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        PlanningRoutingLine.FindFirst();
+        PlanningRoutingLine.TestField("Starting Date-Time", PrevOperationEndingDateTime);
+        PlanningRoutingLine.TestField("Ending Date-Time", PlanningRoutingLine."Starting Date-Time");
+    end;
+
+    [Test]
+    procedure DateTimeAfterPlanningProdOrderBackwardWhenOperationTimeIsBlank()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        WorkCenter2: Record "Work Center";
+        SalesHeader: Record "Sales Header";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        RoutingNo: Code[20];
+        NextOperationEndingDateTime: DateTime;
+    begin
+        // [FEATURE] [Routing] [Planning]
+        // [SCENARIO 397481] Starting Date-Time = Ending Date-Time on planning routing line with zero operation time when planned backward.
+        Initialize();
+
+        // [GIVEN] Item with routing of two routing lines with different work centers "WC1" and "WC2".
+        // [GIVEN] Set reordering policy to "Order" to enable backward planning.
+        Item.Get(CreateItemWithRoutingAndTwoWorkCenters(WorkCenter, WorkCenter2, RoutingNo));
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
+
+        // [GIVEN] Calculate calendar and zero out run time on routing line for work center "WC2".
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate() - 10, WorkDate() + 10);
+        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter2."No.");
+
+        // [GIVEN] Create sales order to make a demand.
+        CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Calculate regenerative plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+
+        // [THEN] Starting Date-Time = Ending Date-Time on the work center "WC2" and are equal to Starting Date-Time of work center "WC".
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        PlanningRoutingLine.FindFirst();
+        NextOperationEndingDateTime := PlanningRoutingLine."Starting Date-Time";
+
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter2."No.");
+        PlanningRoutingLine.FindFirst();
+        PlanningRoutingLine.TestField("Starting Date-Time", NextOperationEndingDateTime);
+        PlanningRoutingLine.TestField("Ending Date-Time", PlanningRoutingLine."Starting Date-Time");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3694,6 +3778,7 @@ codeunit 137404 "SCM Manufacturing"
 
         LibraryInventory.CreateItem(Item);
         with Item do begin
+            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
             Validate("Routing No.", RoutingNo);
             Modify;
             exit("No.");

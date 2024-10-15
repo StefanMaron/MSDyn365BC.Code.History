@@ -1561,7 +1561,8 @@
 
         if "No." <> '' then
             CurrPage.AgedAccPayableChart.PAGE.UpdateChartForVendor("No.");
-
+        if Rec.GetFilter("Date Filter") = '' then
+            SetRange("Date Filter", 0D, WorkDate());
         CRMIsCoupledToRecord := CRMIntegrationEnabled or CDSIntegrationEnabled;
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
@@ -1600,6 +1601,7 @@
             if IntegrationTableMapping.Get('VENDOR') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+
         SetOverReceiptControlsVisibility();
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
