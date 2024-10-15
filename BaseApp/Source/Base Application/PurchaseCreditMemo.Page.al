@@ -806,10 +806,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action(Vendor)
@@ -998,6 +995,7 @@ page 52 "Purchase Credit Memo"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -1016,6 +1014,7 @@ page 52 "Purchase Credit Memo"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }

@@ -1285,7 +1285,9 @@
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable := 
+            CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
+            (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
@@ -1304,8 +1306,15 @@
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
     end;
 
+    procedure ClearTotalSalesHeader();
+    begin
+        Clear(TotalSalesHeader);
+    end;
+
     procedure CalculateTotals()
     begin
+        OnBeforeCalculateTotals(TotalSalesLine, SuppressTotals);
+
         if SuppressTotals then
             exit;
 
@@ -1445,6 +1454,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnNewRecordOnAfterInitType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; BelowxRec: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(var TotalSalesLine: Record "Sales Line"; SuppressTotals: Boolean)
     begin
     end;
 }

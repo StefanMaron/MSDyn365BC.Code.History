@@ -438,6 +438,9 @@ codeunit 5150 "Integration Management"
     var
         IntegrationManagementSetup: Codeunit "Integration Management Setup";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if (Rec.ID = GetIntegrationManagementDisabledFeatureKey()) and (Rec.Enabled = Rec.Enabled::None) then
             if Confirm(IntegrationManagementSetup.GetConfigureIntegrationManagementUpdateQst()) then
                 Page.Run(Page::"Integration Management Setup");

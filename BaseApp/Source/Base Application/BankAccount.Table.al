@@ -614,7 +614,13 @@ table 270 "Bank Account"
                         FieldError("Mobile Phone No.", PhoneNoCannotContainLettersErr);
             end;
         }
-
+        field(11500; "Swiss QRBill IBAN"; Code[50])
+        {
+            Caption = 'QR-IBAN';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
+            ObsoleteReason = 'Moved into extension QR-Bill Management for Switzerland';
+        }
     }
 
     keys

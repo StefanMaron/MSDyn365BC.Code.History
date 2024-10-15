@@ -7,7 +7,6 @@ report 25 "Account Schedule"
     Caption = 'Account Schedule';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
-    AllowScheduling = false;
 
     dataset
     {

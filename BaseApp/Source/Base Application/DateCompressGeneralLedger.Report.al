@@ -1,4 +1,4 @@
-report 98 "Date Compress General Ledger"
+﻿report 98 "Date Compress General Ledger"
 {
     Caption = 'Date Compress General Ledger';
     Permissions = TableData "G/L Entry" = rimd,
@@ -416,6 +416,7 @@ report 98 "Date Compress General Ledger"
               NewGLEntry."Add.-Currency Credit Amount" + "Add.-Currency Credit Amount";
             if RetainNo(FieldNo(Quantity)) then
                 NewGLEntry.Quantity := NewGLEntry.Quantity + Quantity;
+            OnSummarizeEntryOnBeforeGLEntryDelete(NewGLEntry, GLEntry);
             Delete;
 
             GLItemLedgRelation.SetRange("G/L Entry No.", "Entry No.");
@@ -594,6 +595,11 @@ report 98 "Date Compress General Ledger"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitRegisters(var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSummarizeEntryOnBeforeGLEntryDelete(var NewGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry")
     begin
     end;
 }

@@ -64,7 +64,8 @@
         UpdateWorkflowTableRelations();
         UpgradeWordTemplateTables();
         UpdatePriceSourceGroupInPriceListLines();
-        UpdatePriceListLineStatus()
+        UpdatePriceListLineStatus();
+        UpdateJobPlanningLinePlanningDueDate();
     end;
 
     local procedure ClearTemporaryTables()
@@ -233,6 +234,24 @@
                 END;
             UNTIL Job.Next() = 0;
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddingIDToJobsUpgradeTag());
+    end;
+
+    local procedure UpdateJobPlanningLinePlanningDueDate()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobPlanningLinePlanningDueDateUpgradeTag()) then
+            exit;
+
+        if JobPlanningLine.FindSet() then
+            repeat
+                JobPlanningLine.UpdatePlannedDueDate();
+                JobPlanningLine.Modify();
+            until JobPlanningLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobPlanningLinePlanningDueDateUpgradeTag());
     end;
 
     local procedure UpdatePriceSourceGroupInPriceListLines()
@@ -1588,7 +1607,7 @@
         TemplateRecordRef: RecordRef;
         TemplateFieldRef: FieldRef;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewVendorTemplatesUpgradeTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVendorTemplatesUpgradeTag()) then
             exit;
 
         if FindConfigTemplateHeader(ConfigTemplateHeader, Database::Vendor) then
@@ -1610,7 +1629,7 @@
                 end;
             until ConfigTemplateHeader.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewVendorTemplatesUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVendorTemplatesUpgradeTag());
     end;
 
     local procedure UpgradeCustomerTemplates()
@@ -1625,7 +1644,7 @@
         TemplateRecordRef: RecordRef;
         TemplateFieldRef: FieldRef;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewCustomerTemplatesUpgradeTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustomerTemplatesUpgradeTag()) then
             exit;
 
         if FindConfigTemplateHeader(ConfigTemplateHeader, Database::Customer) then
@@ -1653,7 +1672,7 @@
                     UpdateNewCustomerTemplateFromConversionTemplate(CustomerTempl, CustomerTemplate);
             until CustomerTemplate.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewCustomerTemplatesUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustomerTemplatesUpgradeTag());
     end;
 
     local procedure UpgradeItemTemplates()
@@ -1667,7 +1686,7 @@
         TemplateRecordRef: RecordRef;
         TemplateFieldRef: FieldRef;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewItemTemplatesUpgradeTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemTemplatesUpgradeTag()) then
             exit;
 
         if FindConfigTemplateHeader(ConfigTemplateHeader, Database::Item) then
@@ -1689,7 +1708,7 @@
                 end;
             until ConfigTemplateHeader.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewItemTemplatesUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemTemplatesUpgradeTag());
     end;
 
     local procedure FindConfigTemplateHeader(var ConfigTemplateHeader: Record "Config. Template Header"; TableId: Integer): Boolean

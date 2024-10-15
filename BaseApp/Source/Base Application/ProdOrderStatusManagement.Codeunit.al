@@ -562,6 +562,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange("Prod. Order No.", ProdOrder."No.");
             SetFilter("Item No.", '<>%1', '');
             LockTable();
+            OnFlushProdOrderOnAfterProdOrderCompSetFilters(ProdOrder, ProdOrderComp);
             if FindSet then begin
                 NoOfRecords := Count;
                 Window.Open(
@@ -1215,6 +1216,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFlushProdOrderOnAfterPostFlushItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFlushProdOrderOnAfterProdOrderCompSetFilters(ProdOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 

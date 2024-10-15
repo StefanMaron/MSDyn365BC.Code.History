@@ -102,13 +102,14 @@ table 7355 "Report Selection Warehouse"
         IsHandled: Boolean;
     begin
         SelectTempReportSelectionsToPrint(TempReportSelectionWarehouse, ReportUsage);
-        if TempReportSelectionWarehouse.FindSet() then begin
-            IsHandled := false;
-            OnBeforePrintDocument(TempReportSelectionWarehouse, ShowRequestPage, RecVarToPrint, IsHandled);
-            if not IsHandled then
-                Report.Run(TempReportSelectionWarehouse."Report ID", ShowRequestPage, false, RecVarToPrint);
-            OnAfterPrintDocument(TempReportSelectionWarehouse, ShowRequestPage, RecVarToPrint);
-        end;
+        if TempReportSelectionWarehouse.FindSet() then
+            repeat
+                IsHandled := false;
+                OnBeforePrintDocument(TempReportSelectionWarehouse, ShowRequestPage, RecVarToPrint, IsHandled);
+                if not IsHandled then
+                    Report.Run(TempReportSelectionWarehouse."Report ID", ShowRequestPage, false, RecVarToPrint);
+                OnAfterPrintDocument(TempReportSelectionWarehouse, ShowRequestPage, RecVarToPrint);
+            until TempReportSelectionWarehouse.Next() = 0;
     end;
 
     local procedure SelectTempReportSelectionsToPrint(var TempReportSelectionWarehouse: Record "Report Selection Warehouse"; ReportUsage: Enum "Report Selection Warehouse Usage")

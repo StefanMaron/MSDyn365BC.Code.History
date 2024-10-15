@@ -707,13 +707,12 @@ page 44 "Sales Credit Memo"
                     var
                         Handled: Boolean;
                     begin
+                        Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if not Handled then begin
-                            CalcInvDiscForHeader;
+                        if Handled then
                             Commit();
-                            PAGE.RunModal(PAGE::"Sales Statistics", Rec);
-                            SalesCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-                        end
+
+                        OpenDocumentStatistics();
                     end;
                 }
                 action(CreditMemo_CustomerCard)
@@ -918,6 +917,7 @@ page 44 "Sales Credit Memo"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
                 action(Reopen)
@@ -936,6 +936,7 @@ page 44 "Sales Credit Memo"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
             }

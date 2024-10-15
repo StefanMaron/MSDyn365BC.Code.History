@@ -1,4 +1,4 @@
-codeunit 134763 "Test Sales Post Preview"
+﻿codeunit 134763 "Test Sales Post Preview"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -25,10 +25,12 @@ codeunit 134763 "Test Sales Post Preview"
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
+        SalesHeaderPostingNo: Code[20];
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         AmountMustBePositiveErr: Label 'Amount must be positive';
         InvalidSubscriberTypeErr: label 'Invalid Subscriber type. The type must be CODEUNIT.';
+        PostingPreviewNoTok: Label '***', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -980,6 +982,39 @@ codeunit 134763 "Test Sales Post Preview"
         VerifyAmountOnGLEntry(DocumentNo, VATPostingSetup."Sales VAT Account", -VATAmount);
     end;
 
+    [Test]
+    procedure PreviewSalesInvoiceWithSameInvoiceAndPostingInvoiceNos()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 406700] When SalesSetup has same values for Invoice Nos. and Posted Invoice Nos. the creating SalesInvoiceHeader.No. = "***"
+        Initialize();
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Set Sales Setup "Invoice Nos." = "III" and "Posted Invoice Nos." = "III"
+        UpdateSalesSetupPostedInvoiceNos();
+
+        // [GIVEN] Create sales invoice
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+        SalesHeader.Modify(true);
+        Commit();
+
+        // [WHEN] Run posting preview
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Sales Header "Posting No." = "***"
+        Assert.AreEqual(PostingPreviewNoTok, TestSalesPostPreview.GetSalesHeaderPostingNo(), 'Invalid Posting No.');
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -1214,11 +1249,31 @@ codeunit 134763 "Test Sales Post Preview"
         CustomerEntriesPreview.OK.Invoke;
     end;
 
+    local procedure UpdateSalesSetupPostedInvoiceNos()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        SalesSetup."Posted Invoice Nos." := SalesSetup."Invoice Nos.";
+        SalesSetup.Modify();
+    end;
+
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
     begin
         Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
         Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger,
           StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
+    end;
+
+    procedure GetSalesHeaderPostingNo(): Code[20]
+    begin
+        exit(SalesHeaderPostingNo);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterUpdatePostingNos', '', false, false)]
+    local procedure OnAfterUpdatePostingNos(var SalesHeader: Record "Sales Header"; var NoSeriesMgt: Codeunit NoSeriesManagement; CommitIsSuppressed: Boolean)
+    begin
+        SalesHeaderPostingNo := SalesHeader."Posting No.";
     end;
 
     [ConfirmHandler]

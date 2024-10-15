@@ -4209,6 +4209,7 @@
         if "Location Code" <> '' then
             ItemLedgEntry.SetRange("Location Code", "Location Code");
         ItemLedgEntry.SetRange("Variant Code", "Variant Code");
+        OnSelectItemEntryOnAfterItemLedgEntrySetFilters(Rec, ItemLedgEntry);
 
         if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then
             Validate("Appl.-to Item Entry", ItemLedgEntry."Entry No.");
@@ -4924,7 +4925,7 @@
         LocalGLAcc: Record "G/L Account";
         FAPostingGr: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
-        FASetup: Record "FA Setup";
+
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4934,14 +4935,10 @@
 
         if (Type <> Type::"Fixed Asset") or ("No." = '') then
             exit;
-        if "Depreciation Book Code" = '' then begin
-            FASetup.Get();
-            "Depreciation Book Code" := FASetup."Default Depr. Book";
-            if not FADeprBook.Get("No.", "Depreciation Book Code") then
-                "Depreciation Book Code" := '';
-            if "Depreciation Book Code" = '' then
+        if "Depreciation Book Code" = '' then
+            if not FindDefaultFADeprBook() then
                 exit;
-        end;
+
         if "FA Posting Type" = "FA Posting Type"::" " then
             "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
         FADeprBook.Get("No.", "Depreciation Book Code");
@@ -4964,6 +4961,20 @@
         Validate("VAT Prod. Posting Group", LocalGLAcc."VAT Prod. Posting Group");
 
         OnAfterGetFAPostingGroup(Rec, LocalGLAcc);
+    end;
+
+    local procedure FindDefaultFADeprBook() Result: Boolean
+    var
+        FASetup: Record "FA Setup";
+        FADeprBook: Record "FA Depreciation Book";
+    begin
+        FASetup.Get();
+        "Depreciation Book Code" := FASetup."Default Depr. Book";
+        if not FADeprBook.Get("No.", "Depreciation Book Code") then
+            "Depreciation Book Code" := '';
+        Result := "Depreciation Book Code" <> '';
+
+        OnAfterFindDefaultFADeprBook(Rec, Result);
     end;
 
     procedure UpdateUOMQtyPerStockQty()
@@ -7023,7 +7034,7 @@
                 Type := xRec.Type;
         end;
 
-        OnAfterInitType(rec, xRec);
+        OnAfterInitType(rec, xRec, PurchHeader);
     end;
 
     local procedure CheckWMS()
@@ -7121,6 +7132,11 @@
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateLineDiscountPercent(Rec, DropInvoiceDiscountAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         TestStatusOpen;
         IsHandled := false;
         OnValidateLineDiscountPercentOnAfterTestStatusOpen(Rec, xRec, CurrFieldNo, IsHandled);
@@ -7360,6 +7376,7 @@
         AdjustStartDate: Boolean;
     begin
         GetPurchHeader;
+        OnUpdateDeferralAmountsOnBeforeSetDeferralPostDate(PurchHeader, Rec, DeferralPostDate);
         DeferralPostDate := PurchHeader."Posting Date";
         AdjustStartDate := true;
         if "Document Type" = "Document Type"::"Return Order" then begin
@@ -7928,12 +7945,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFindDefaultFADeprBook(var PurchaseLine: Record "Purchase Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterHasTypeToFillMandatoryFields(var PurchaseLine: Record "Purchase Line"; var ReturnValue: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitType(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    local procedure OnAfterInitType(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -8654,6 +8676,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateDeferralAmountsOnBeforeSetDeferralPostDate(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var DeferralPostDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateUnitCostOnBeforeUpdateUnitCostLCY(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; Item: Record Item; SKU: Record "Stockkeeping Unit"; Currency: Record Currency; GLSetup: Record "General Ledger Setup")
     begin
     end;
@@ -9011,6 +9038,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSelectItemEntryOnAfterItemLedgEntrySetFilters(var PurchaseLine: Record "Purchase Line"; var ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer)
     begin
     end;
@@ -9042,6 +9074,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateVATProdPostingGroup(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLineDiscountPercent(var PurchaseLine: Record "Purchase Line"; DropInvoiceDiscountAmount: Boolean; var IsHandled: Boolean)
     begin
     end;
 

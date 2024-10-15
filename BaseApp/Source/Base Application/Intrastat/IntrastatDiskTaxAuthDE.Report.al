@@ -34,7 +34,13 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                         if CompanyInfo."Check Transaction Specific." then
                             TestField("Transaction Specification");
                         if Type = Type::Receipt then
-                            TestField("Country/Region of Origin Code");
+                            TestField("Country/Region of Origin Code")
+                        else begin
+                            if CompanyInfo."Check for Partner VAT ID" then
+                                TestField("Partner VAT ID");
+                            if CompanyInfo."Check for Country of Origin" then
+                                TestField("Country/Region of Origin Code");
+                        end;
                         if "Supplementary Units" then
                             TestField(Quantity);
                     end;
@@ -42,7 +48,8 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                     CompoundField :=
                       Format("Country/Region Code", 10) + Format(DelChr("Tariff No."), 10) +
                       Format("Transaction Type", 10) + Format("Transport Method", 10) +
-                      Format(Area, 10) + Format("Transaction Specification", 10) + Format("Country/Region of Origin Code", 10);
+                      Format(Area, 10) + Format("Transaction Specification", 10) + Format("Country/Region of Origin Code", 10) +
+                      Format("Partner VAT ID", MaxStrLen("Partner VAT ID"));
 
                     if (TempType <> Type) or (StrLen(TempCompoundField) = 0) then begin
                         TempType := Type;
@@ -297,8 +304,8 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         XMLDocument: DotNet XmlDocument;
         RootXMLNode: DotNet XmlNode;
         DeclarationXMLNode: DotNet XmlNode;
-        CompoundField: Text[70];
-        TempCompoundField: Text[70];
+        CompoundField: Text[120];
+        TempCompoundField: Text[120];
         IntraReferenceNo: Text[10];
         ASCIIFileBodyText: Text;
         ServerFileShipments: Text;

@@ -226,6 +226,8 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                 else
                     CheckApplFromItemEntry := ServiceLine.Quantity < 0;
 
+            OnPostItemJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine, ServiceHeader);
+
             if (ServiceLine."Location Code" <> '') and (ServiceLine.Type = ServiceLine.Type::Item) and (Quantity <> 0) then begin
                 GetLocation(ServiceLine."Location Code", Location);
                 if ((ServiceLine."Document Type" in [ServiceLine."Document Type"::Invoice, ServiceLine."Document Type"::"Credit Memo"]) and
@@ -369,7 +371,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             "Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
             "System-Created Entry" := true;
 
-            OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine);
+            OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine, GenJnlLineDocNo);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
@@ -715,7 +717,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; GenJnlLineDocNo: Code[20])
     begin
     end;
 
@@ -741,6 +743,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResJnlPostLine(var ResJnlLine: Record "Res. Journal Line"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceHeader: Record "Service Header");
     begin
     end;
 

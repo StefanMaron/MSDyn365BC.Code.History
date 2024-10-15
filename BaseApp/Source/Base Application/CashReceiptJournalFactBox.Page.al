@@ -272,7 +272,6 @@ page 35516 "Cash Receipt Journal FactBox"
         CustPaymtTerm := '';
 
         CustLedgEntry.Reset();
-        CustLedgEntry.SetCurrentKey("Document No.");
         Cust.Init();
 
         case true of
@@ -287,7 +286,7 @@ page 35516 "Cash Receipt Journal FactBox"
                 exit;
         end;
 
-        if not CustLedgEntry.FindSet then
+        if not CustLedgEntry.FindSet() then
             exit;
 
         if Currency.ReadPermission then

@@ -271,7 +271,7 @@ codeunit 144000 "VAT Rounding"
         UpdateSalesSetup(true);
 
         // [GIVEN] Create Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         Quantity := LibraryRandom.RandInt(10);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, Quantity);
         UnitPrice := LibraryRandom.RandDecInDecimalRange(5, 10, 2);
@@ -285,7 +285,7 @@ codeunit 144000 "VAT Rounding"
         SalesLine.Modify(true);
 
         // [WHEN] Open Statistic Page
-        SalesHeader.OpenSalesOrderStatistics();
+        SalesHeader.OpenDocumentStatistics();
 
         // [THEN] Amount and "VAT amount" in Statistic page are equal to amount and "VAT amount" in "Sales line"
         SalesLine.TestField(Amount, LibraryVariableStorage.DequeueDecimal);
@@ -314,7 +314,7 @@ codeunit 144000 "VAT Rounding"
         UpdateSalesSetup(true);
 
         // [GIVEN] Create Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         Quantity := LibraryRandom.RandInt(10);
         ItemNo := CreateItem();
         UnitPrice := LibraryRandom.RandDecInDecimalRange(5, 10, 2);
@@ -342,7 +342,7 @@ codeunit 144000 "VAT Rounding"
         SalesLine2.Modify(true);
 
         // [WHEN] Open Statistic Page
-        SalesHeader.OpenSalesOrderStatistics();
+        SalesHeader.OpenDocumentStatistics();
 
         // [THEN] Amount and "VAT amount" in Statistic page are equal to amount and "VAT amount" for Sales Order
         Assert.AreEqual(GetAmountTotal(SalesHeader), LibraryVariableStorage.DequeueDecimal, '');

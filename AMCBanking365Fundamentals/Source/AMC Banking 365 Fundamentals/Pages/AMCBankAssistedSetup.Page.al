@@ -617,8 +617,15 @@ page 20105 "AMC Bank Assisted Setup"
     }
 
     trigger OnInit();
+    var
+        AMCBankingSetup: Record "AMC Banking Setup";
     begin
         LoadTopBanners();
+        if not AMCBankingSetup.Get() then begin
+            AMCBankingSetup.Init();
+            AMCBankingSetup.Insert(true);
+            Commit();
+        end;
     end;
 
     trigger OnOpenPage();
