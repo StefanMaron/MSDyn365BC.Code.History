@@ -459,7 +459,7 @@ codeunit 418 "User Management"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaas() then
+        if EnvironmentInfo.IsSaaSInfrastructure() then
             if Rec."Windows Security ID" <> '' then
                 Error(WindowsSecurityIdNotEditableOnSaaSErr);
     end;

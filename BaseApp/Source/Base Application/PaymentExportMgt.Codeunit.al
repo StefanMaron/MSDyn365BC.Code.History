@@ -27,7 +27,7 @@ codeunit 1210 "Payment Export Mgt"
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         BankExportImportSetup.TestField("Data Exch. Def. Code");
         with DataExch do begin
-            Init;
+            Init();
             "Data Exch. Def Code" := BankExportImportSetup."Data Exch. Def. Code";
             Insert(true);
         end;
@@ -157,7 +157,7 @@ codeunit 1210 "Payment Export Mgt"
         if ((Value.IsDecimal or Value.IsInteger or Value.IsBigInteger) and (StringValue = '0')) or
            (StringValue = '')
         then
-            FieldRef.TestField
+            FieldRef.TestField();
     end;
 
     local procedure CastToDestinationType(var DestinationValue: Variant; SourceValue: Variant; DataExchColumnDef: Record "Data Exch. Column Def"; Multiplier: Decimal)
@@ -192,12 +192,20 @@ codeunit 1210 "Payment Export Mgt"
     end;
 
     local procedure FormatToText(ValueToFormat: Variant; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def"): Text[250]
+    var
+        ResultText: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFormatToText(ValueToFormat, DataExchDef, DataExchColumnDef, ResultText, IsHandled);
+        if IsHandled then
+            exit(ResultText);
+
         if DataExchColumnDef."Data Format" <> '' then
             exit(Format(ValueToFormat, 0, DataExchColumnDef."Data Format"));
 
         if DataExchDef."File Type" in [DataExchDef."File Type"::Xml,
-                                          DataExchDef."File Type"::Json]
+                                       DataExchDef."File Type"::Json]
         then
             exit(Format(ValueToFormat, 0, 9));
 
@@ -212,7 +220,13 @@ codeunit 1210 "Payment Export Mgt"
     local procedure CheckLength(Value: Text; FieldRef: FieldRef; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def")
     var
         DataExchDefCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLength(Value, FieldRef, DataExchDef, DataExchColumnDef, IsHandled);
+        if IsHandled then
+            exit;
+
         DataExchDefCode := DataExchColumnDef."Data Exch. Def Code";
 
         if (DataExchColumnDef.Length > 0) and (StrLen(Value) > DataExchColumnDef.Length) then
@@ -251,7 +265,7 @@ codeunit 1210 "Payment Export Mgt"
             ExportToServerTempFile(DataExchDef."Reading/Writing XMLport", DataExchField);
 
         DataExchField.DeleteAll();
-        DataExch.Delete
+        DataExch.Delete();
     end;
 
     procedure EnableExportToServerTempFile(NewMode: Boolean; NewExtension: Text[3])
@@ -273,7 +287,7 @@ codeunit 1210 "Payment Export Mgt"
         ExportFile.Create(ServerFileName);
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPortID, OutStream, DataExchField);
-        ExportFile.Close;
+        ExportFile.Close();
     end;
 
     procedure GetServerTempFileName(): Text[1024]
@@ -285,5 +299,14 @@ codeunit 1210 "Payment Export Mgt"
     local procedure OnProcessColumnMappingOnBeforeCheckLength(var ValueAsString: Text[250]; DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchColumnDef: Record "Data Exch. Column Def")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLength(Value: Text; FieldRef: FieldRef; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatToText(ValueToFormat: Variant; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def"; var ResultText: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+}

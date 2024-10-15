@@ -134,6 +134,11 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        DeltaUpdateTotals();
+                    end;
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {

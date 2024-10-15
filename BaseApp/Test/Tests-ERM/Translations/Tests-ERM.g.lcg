@@ -6046,7 +6046,7 @@
   </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 2354784708" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have changed the %1 on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
+      <Val><![CDATA[You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -12072,6 +12072,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Field Caption,%2=Field Value,%3=Table Caption]D;]A;(LookupHint=Codeunit Service Orders - NamedType WrongValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3297607540 - Method 3010469687 - NamedType 1695193923" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity is not updated correctly for item type %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Resource]D;]A;(LookupHint=Codeunit Service Orders - Method UpdateQtyToShipAndQtyToInvoiceOnValidateQuantityWarehousing - NamedType QtyNotUpdatedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3489413783 - NamedType 2787836535" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

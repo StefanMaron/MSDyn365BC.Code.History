@@ -1,4 +1,4 @@
-codeunit 5750 "Whse.-Create Source Document"
+﻿codeunit 5750 "Whse.-Create Source Document"
 {
 
     trigger OnRun()
@@ -26,6 +26,7 @@ codeunit 5750 "Whse.-Create Source Document"
         if SalesLine.AsmToOrderExists(AsmHeader) then begin
             ATOWhseShptLineQty := AsmHeader."Remaining Quantity" - SalesLine."ATO Whse. Outstanding Qty.";
             ATOWhseShptLineQtyBase := AsmHeader."Remaining Quantity (Base)" - SalesLine."ATO Whse. Outstd. Qty. (Base)";
+            OnFromSalesLine2ShptLineOnBeforeCreateATOShipmentLine(WhseShptHeader, AsmHeader, SalesLine, ATOWhseShptLineQty, ATOWhseShptLineQtyBase);
             if ATOWhseShptLineQtyBase > 0 then begin
                 if not CreateShptLineFromSalesLine(WhseShptHeader, SalesLine, ATOWhseShptLineQty, ATOWhseShptLineQtyBase, true) then
                     exit(false);
@@ -63,7 +64,7 @@ codeunit 5750 "Whse.-Create Source Document"
             if SalesLine."Document Type" = SalesLine."Document Type"::Order then
                 "Due Date" := SalesLine."Planned Shipment Date";
             if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then
-                "Due Date" := WorkDate;
+                "Due Date" := WorkDate();
             if WhseShptHeader."Shipment Date" = 0D then
                 "Shipment Date" := SalesLine."Shipment Date"
             else
@@ -79,86 +80,96 @@ codeunit 5750 "Whse.-Create Source Document"
             OnBeforeCreateShptLineFromSalesLine(WhseShptLine, WhseShptHeader, SalesLine, SalesHeader);
             CreateShptLine(WhseShptLine);
             OnAfterCreateShptLineFromSalesLine(WhseShptLine, WhseShptHeader, SalesLine, SalesHeader);
-            exit(not HasErrorOccured);
+            exit(not HasErrorOccured());
         end;
     end;
 
     procedure SalesLine2ReceiptLine(WhseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line"): Boolean
     var
         WhseReceiptLine: Record "Warehouse Receipt Line";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
-        with WhseReceiptLine do begin
-            InitNewLine(WhseReceiptHeader."No.");
-            SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
-            SalesLine.TestField("Unit of Measure Code");
-            SetItemData(
-              SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
-              SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
-              SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
-            OnSalesLine2ReceiptLineOnAfterInitNewLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
-            case SalesLine."Document Type" of
-                SalesLine."Document Type"::Order:
-                    begin
-                        Validate("Qty. Received", Abs(SalesLine."Quantity Shipped"));
-                        "Due Date" := SalesLine."Planned Shipment Date";
-                    end;
-                SalesLine."Document Type"::"Return Order":
-                    begin
-                        Validate("Qty. Received", Abs(SalesLine."Return Qty. Received"));
-                        "Due Date" := WorkDate;
-                    end;
-            end;
-            SetQtysOnRcptLine(WhseReceiptLine, Abs(SalesLine.Quantity), Abs(SalesLine."Quantity (Base)"));
-            "Starting Date" := SalesLine."Shipment Date";
-            if "Location Code" = WhseReceiptHeader."Location Code" then
-                "Bin Code" := WhseReceiptHeader."Bin Code";
-            if "Bin Code" = '' then
-                "Bin Code" := SalesLine."Bin Code";
-            OnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(WhseReceiptLine, SalesLine);
-            UpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
-            OnBeforeCreateReceiptLineFromSalesLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
-            CreateReceiptLine(WhseReceiptLine);
-            OnAfterCreateRcptLineFromSalesLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
-            exit(not HasErrorOccured);
+        IsHandled := false;
+        OnBeforeSalesLine2ReceiptLine(WhseReceiptHeader, SalesLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        WhseReceiptLine.InitNewLine(WhseReceiptHeader."No.");
+        WhseReceiptLine.SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Unit of Measure Code");
+        WhseReceiptLine.SetItemData(
+            SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
+            SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
+            SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
+        OnSalesLine2ReceiptLineOnAfterInitNewLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
+        case SalesLine."Document Type" of
+            SalesLine."Document Type"::Order:
+                begin
+                    WhseReceiptLine.Validate("Qty. Received", Abs(SalesLine."Quantity Shipped"));
+                    WhseReceiptLine."Due Date" := SalesLine."Planned Shipment Date";
+                end;
+            SalesLine."Document Type"::"Return Order":
+                begin
+                    WhseReceiptLine.Validate("Qty. Received", Abs(SalesLine."Return Qty. Received"));
+                    WhseReceiptLine."Due Date" := WorkDate();
+                end;
         end;
+        SetQtysOnRcptLine(WhseReceiptLine, Abs(SalesLine.Quantity), Abs(SalesLine."Quantity (Base)"));
+        WhseReceiptLine."Starting Date" := SalesLine."Shipment Date";
+        if WhseReceiptLine."Location Code" = WhseReceiptHeader."Location Code" then
+            WhseReceiptLine."Bin Code" := WhseReceiptHeader."Bin Code";
+        if WhseReceiptLine."Bin Code" = '' then
+            WhseReceiptLine."Bin Code" := SalesLine."Bin Code";
+        OnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(WhseReceiptLine, SalesLine);
+        UpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
+        OnBeforeCreateReceiptLineFromSalesLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
+        CreateReceiptLine(WhseReceiptLine);
+        OnAfterCreateRcptLineFromSalesLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
+        exit(not WhseReceiptLine.HasErrorOccured());
     end;
 
     procedure FromServiceLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; ServiceLine: Record "Service Line"): Boolean
     var
         WhseShptLine: Record "Warehouse Shipment Line";
         ServiceHeader: Record "Service Header";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFromService2ShptLine(WhseShptHeader, ServiceLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
 
-        with WhseShptLine do begin
-            InitNewLine(WhseShptHeader."No.");
-            SetSource(DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.");
-            ServiceLine.TestField("Unit of Measure Code");
-            SetItemData(
-              ServiceLine."No.", ServiceLine.Description, ServiceLine."Description 2", ServiceLine."Location Code",
-              ServiceLine."Variant Code", ServiceLine."Unit of Measure Code", ServiceLine."Qty. per Unit of Measure",
-              ServiceLine."Qty. Rounding Precision", ServiceLine."Qty. Rounding Precision (Base)");
-            OnFromServiceLine2ShptLineOnAfterInitNewLine(WhseShptLine, WhseShptHeader, ServiceLine);
-            SetQtysOnShptLine(WhseShptLine, Abs(ServiceLine."Outstanding Quantity"), Abs(ServiceLine."Outstanding Qty. (Base)"));
-            if ServiceLine."Document Type" = ServiceLine."Document Type"::Order then
-                "Due Date" := ServiceLine.GetDueDate;
-            if WhseShptHeader."Shipment Date" = 0D then
-                "Shipment Date" := ServiceLine.GetShipmentDate
-            else
-                "Shipment Date" := WhseShptHeader."Shipment Date";
-            "Destination Type" := "Destination Type"::Customer;
-            "Destination No." := ServiceLine."Bill-to Customer No.";
-            "Shipping Advice" := ServiceHeader."Shipping Advice";
-            if "Location Code" = WhseShptHeader."Location Code" then
-                "Bin Code" := WhseShptHeader."Bin Code";
-            if "Bin Code" = '' then
-                "Bin Code" := ServiceLine."Bin Code";
-            UpdateShptLine(WhseShptLine, WhseShptHeader);
-            OnFromServiceLine2ShptLineOnBeforeCreateShptLine(WhseShptLine, WhseShptHeader, ServiceHeader, ServiceLine);
-            CreateShptLine(WhseShptLine);
-            OnAfterCreateShptLineFromServiceLine(WhseShptLine, WhseShptHeader, ServiceLine);
-            exit(not HasErrorOccured);
-        end;
+        WhseShptLine.InitNewLine(WhseShptHeader."No.");
+        WhseShptLine.SetSource(DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.");
+        ServiceLine.TestField("Unit of Measure Code");
+        WhseShptLine.SetItemData(
+            ServiceLine."No.", ServiceLine.Description, ServiceLine."Description 2", ServiceLine."Location Code",
+            ServiceLine."Variant Code", ServiceLine."Unit of Measure Code", ServiceLine."Qty. per Unit of Measure",
+            ServiceLine."Qty. Rounding Precision", ServiceLine."Qty. Rounding Precision (Base)");
+        OnFromServiceLine2ShptLineOnAfterInitNewLine(WhseShptLine, WhseShptHeader, ServiceLine);
+        SetQtysOnShptLine(WhseShptLine, Abs(ServiceLine."Outstanding Quantity"), Abs(ServiceLine."Outstanding Qty. (Base)"));
+        if ServiceLine."Document Type" = ServiceLine."Document Type"::Order then
+            WhseShptLine."Due Date" := ServiceLine.GetDueDate();
+        if WhseShptHeader."Shipment Date" = 0D then
+            WhseShptLine."Shipment Date" := ServiceLine.GetShipmentDate()
+        else
+            WhseShptLine."Shipment Date" := WhseShptHeader."Shipment Date";
+        WhseShptLine."Destination Type" := "Warehouse Destination Type"::Customer;
+        WhseShptLine."Destination No." := ServiceLine."Bill-to Customer No.";
+        WhseShptLine."Shipping Advice" := ServiceHeader."Shipping Advice";
+        if WhseShptLine."Location Code" = WhseShptHeader."Location Code" then
+            WhseShptLine."Bin Code" := WhseShptHeader."Bin Code";
+        if WhseShptLine."Bin Code" = '' then
+            WhseShptLine."Bin Code" := ServiceLine."Bin Code";
+        UpdateShptLine(WhseShptLine, WhseShptHeader);
+        OnFromServiceLine2ShptLineOnBeforeCreateShptLine(WhseShptLine, WhseShptHeader, ServiceHeader, ServiceLine);
+        CreateShptLine(WhseShptLine);
+        OnAfterCreateShptLineFromServiceLine(WhseShptLine, WhseShptHeader, ServiceLine);
+        exit(not WhseShptLine.HasErrorOccured());
     end;
 
     procedure FromPurchLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; PurchLine: Record "Purchase Line") Result: Boolean
@@ -167,7 +178,7 @@ codeunit 5750 "Whse.-Create Source Document"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFromPurchLine2ShptLine(PurchLine, Result, IsHandled);
+        OnBeforeFromPurchLine2ShptLine(PurchLine, Result, IsHandled, WhseShptHeader);
         if IsHandled then
             exit(Result);
 
@@ -184,7 +195,7 @@ codeunit 5750 "Whse.-Create Source Document"
             if PurchLine."Document Type" = PurchLine."Document Type"::Order then
                 "Due Date" := PurchLine."Expected Receipt Date";
             if PurchLine."Document Type" = PurchLine."Document Type"::"Return Order" then
-                "Due Date" := WorkDate;
+                "Due Date" := WorkDate();
             if WhseShptHeader."Shipment Date" = 0D then
                 "Shipment Date" := PurchLine."Planned Receipt Date"
             else
@@ -200,7 +211,7 @@ codeunit 5750 "Whse.-Create Source Document"
             OnBeforeCreateShptLineFromPurchLine(WhseShptLine, WhseShptHeader, PurchLine);
             CreateShptLine(WhseShptLine);
             OnAfterCreateShptLineFromPurchLine(WhseShptLine, WhseShptHeader, PurchLine);
-            exit(not HasErrorOccured);
+            exit(not HasErrorOccured());
         end;
     end;
 
@@ -208,11 +219,12 @@ codeunit 5750 "Whse.-Create Source Document"
     var
         WhseReceiptLine: Record "Warehouse Receipt Line";
         IsHandled: Boolean;
+        Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforePurchLine2ReceiptLine(WhseReceiptHeader, PurchLine, IsHandled);
+        OnBeforePurchLine2ReceiptLine(WhseReceiptHeader, PurchLine, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with WhseReceiptLine do begin
             InitNewLine(WhseReceiptHeader."No.");
@@ -232,7 +244,7 @@ codeunit 5750 "Whse.-Create Source Document"
                 PurchLine."Document Type"::"Return Order":
                     begin
                         Validate("Qty. Received", Abs(PurchLine."Return Qty. Shipped"));
-                        "Due Date" := WorkDate;
+                        "Due Date" := WorkDate();
                     end;
             end;
             SetQtysOnRcptLine(WhseReceiptLine, Abs(PurchLine.Quantity), Abs(PurchLine."Quantity (Base)"));
@@ -246,7 +258,7 @@ codeunit 5750 "Whse.-Create Source Document"
             OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader, PurchLine);
             CreateReceiptLine(WhseReceiptLine);
             OnAfterCreateRcptLineFromPurchLine(WhseReceiptLine, WhseReceiptHeader, PurchLine);
-            exit(not HasErrorOccured);
+            exit(not HasErrorOccured());
         end;
     end;
 
@@ -257,7 +269,7 @@ codeunit 5750 "Whse.-Create Source Document"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFromTransLine2ShptLine(TransLine, Result, IsHandled);
+        OnBeforeFromTransLine2ShptLine(TransLine, Result, IsHandled, WhseShptHeader);
         if IsHandled then
             exit(Result);
 
@@ -273,7 +285,7 @@ codeunit 5750 "Whse.-Create Source Document"
             SetQtysOnShptLine(WhseShptLine, TransLine."Outstanding Quantity", TransLine."Outstanding Qty. (Base)");
             "Due Date" := TransLine."Shipment Date";
             if WhseShptHeader."Shipment Date" = 0D then
-                "Shipment Date" := WorkDate
+                "Shipment Date" := WorkDate()
             else
                 "Shipment Date" := WhseShptHeader."Shipment Date";
             "Destination Type" := "Destination Type"::Location;
@@ -288,7 +300,7 @@ codeunit 5750 "Whse.-Create Source Document"
             OnBeforeCreateShptLineFromTransLine(WhseShptLine, WhseShptHeader, TransLine, TransHeader);
             CreateShptLine(WhseShptLine);
             OnAfterCreateShptLineFromTransLine(WhseShptLine, WhseShptHeader, TransLine, TransHeader);
-            exit(not HasErrorOccured);
+            exit(not HasErrorOccured());
         end;
     end;
 
@@ -330,7 +342,7 @@ codeunit 5750 "Whse.-Create Source Document"
                   TransLine."Quantity Received" + TransLine."Qty. to Receive" - WhseInbndOtsdgQty,
                   TransLine."Qty. Received (Base)" + TransLine."Qty. to Receive (Base)" - TransLine."Whse. Inbnd. Otsdg. Qty (Base)");
             "Due Date" := TransLine."Receipt Date";
-            "Starting Date" := WorkDate;
+            "Starting Date" := WorkDate();
             if "Location Code" = WhseReceiptHeader."Location Code" then
                 "Bin Code" := WhseReceiptHeader."Bin Code";
             if "Bin Code" = '' then
@@ -339,7 +351,7 @@ codeunit 5750 "Whse.-Create Source Document"
             UpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
             CreateReceiptLine(WhseReceiptLine);
             OnAfterCreateRcptLineFromTransLine(WhseReceiptLine, WhseReceiptHeader, TransLine);
-            exit(not HasErrorOccured);
+            exit(not HasErrorOccured());
         end;
     end;
 
@@ -352,9 +364,9 @@ codeunit 5750 "Whse.-Create Source Document"
             Item.ItemSKUGet(Item, "Location Code", "Variant Code");
             "Shelf No." := Item."Shelf No.";
             OnBeforeWhseShptLineInsert(WhseShptLine);
-            Insert;
+            Insert();
             OnAfterWhseShptLineInsert(WhseShptLine);
-            CreateWhseItemTrackingLines;
+            CreateWhseItemTrackingLines();
         end;
 
         OnAfterCreateShptLine(WhseShptLine);
@@ -373,8 +385,8 @@ codeunit 5750 "Whse.-Create Source Document"
         with WarehouseShipmentLine do begin
             Quantity := Qty;
             "Qty. (Base)" := QtyBase;
-            InitOutstandingQtys;
-            CheckSourceDocLineQty;
+            InitOutstandingQtys();
+            CheckSourceDocLineQty();
             if Location.Get("Location Code") then
                 if Location."Directed Put-away and Pick" then
                     CheckBin(0, 0);
@@ -395,9 +407,9 @@ codeunit 5750 "Whse.-Create Source Document"
             Item."No." := "Item No.";
             Item.ItemSKUGet(Item, "Location Code", "Variant Code");
             "Shelf No." := Item."Shelf No.";
-            Status := GetLineStatus;
+            Status := GetLineStatus();
             OnBeforeWhseReceiptLineInsert(WhseReceiptLine);
-            Insert;
+            Insert();
             OnAfterWhseReceiptLineInsert(WhseReceiptLine);
         end;
     end;
@@ -407,7 +419,7 @@ codeunit 5750 "Whse.-Create Source Document"
         with WarehouseReceiptLine do begin
             Quantity := Qty;
             "Qty. (Base)" := QtyBase;
-            InitOutstandingQtys;
+            InitOutstandingQtys();
         end;
 
         OnAfterSetQtysOnRcptLine(WarehouseReceiptLine, Qty, QtyBase);
@@ -462,7 +474,7 @@ codeunit 5750 "Whse.-Create Source Document"
         if IsHandled then
             exit(ReturnValue);
 
-        if SalesLine.IsNonInventoriableItem then
+        if SalesLine.IsNonInventoriableItem() then
             exit(false);
 
         SalesLine.CalcFields("Whse. Outstanding Qty. (Base)");
@@ -490,7 +502,7 @@ codeunit 5750 "Whse.-Create Source Document"
         if IsHandled then
             exit(ReturnValue);
 
-        if SalesLine.IsNonInventoriableItem then
+        if SalesLine.IsNonInventoriableItem() then
             exit(false);
 
         with WhseReceiptLine do begin
@@ -513,7 +525,7 @@ codeunit 5750 "Whse.-Create Source Document"
         if IsHandled then
             exit(ReturnValue);
 
-        if PurchLine.IsNonInventoriableItem then
+        if PurchLine.IsNonInventoriableItem() then
             exit(false);
 
         with WhseShptLine do begin
@@ -534,7 +546,7 @@ codeunit 5750 "Whse.-Create Source Document"
         if IsHandled then
             exit(ReturnValue);
 
-        if PurchLine.IsNonInventoriableItem then
+        if PurchLine.IsNonInventoriableItem() then
             exit(false);
 
         PurchLine.CalcFields("Whse. Outstanding Qty. (Base)");
@@ -696,12 +708,12 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFromPurchLine2ShptLine(var PurchLine: Record "Purchase Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFromPurchLine2ShptLine(var PurchLine: Record "Purchase Line"; var Result: Boolean; var IsHandled: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFromTransLine2ShptLine(var TransLine: Record "Transfer Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFromTransLine2ShptLine(var TransLine: Record "Transfer Line"; var Result: Boolean; var IsHandled: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -711,7 +723,7 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchLine2ReceiptLine(WhseReceiptHeader: Record "Warehouse Receipt Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnBeforePurchLine2ReceiptLine(WhseReceiptHeader: Record "Warehouse Receipt Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -812,6 +824,21 @@ codeunit 5750 "Whse.-Create Source Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLine2ReceiptLine(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFromService2ShptLine(WarehouseShptHeader: Record "Warehouse Shipment Header"; ServiceLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromSalesLine2ShptLineOnBeforeCreateATOShipmentLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; AsmHeader: Record "Assembly Header"; var SalesLine: Record "Sales Line"; var ATOWhseShptLineQty: Decimal; var ATOWhseShptLineQtyBase: Decimal)
     begin
     end;
 }

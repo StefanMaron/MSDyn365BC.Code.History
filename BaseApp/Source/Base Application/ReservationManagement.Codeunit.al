@@ -542,7 +542,7 @@
             exit;
         end;
 
-        OnAutoReserveOnBeforeSetValueArray(ValueArrayNo);
+        OnAutoReserveOnBeforeSetValueArray(ValueArrayNo, AvailabilityDate);
         for i := 1 to SetValueArray(ValueArrayNo) do
             AutoReserveOneLine(ValueArray[i], RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
 
@@ -1327,7 +1327,10 @@
         QuantityIsValidated: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeDeleteReservEntries(ReservEntry, DownToQuantity, CalcReservEntry, CalcReservEntry2, IsHandled);
+        if IsHandled then
+            exit;
 
         ReservEntry.SetRange("Reservation Status");
         if ReservEntry.IsEmpty() then
@@ -2982,7 +2985,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAutoReserveOnBeforeSetValueArray(var ValueArrayNo: Integer)
+    local procedure OnAutoReserveOnBeforeSetValueArray(var ValueArrayNo: Integer; AvailabilityDate: Date)
     begin
     end;
 

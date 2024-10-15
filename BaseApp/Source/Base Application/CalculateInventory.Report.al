@@ -397,6 +397,8 @@
                     else
                         Validate("Entry Type", "Entry Type"::"Negative Adjmt.");
                     Validate("Document No.", NextDocNo);
+
+                    OnInsertItemJnlLineOnBeforeValidateItemNo(ItemJnlLine);
                     Validate("Item No.", ItemNo);
                     Validate("Variant Code", VariantCode2);
                     Validate("Location Code", Location.Code);
@@ -442,7 +444,7 @@
                     if DimBufMgt.GetDimensions(DimEntryNo2, TempDimBufOut) then begin
                         TempDimSetEntry.Reset();
                         TempDimSetEntry.DeleteAll();
-                        if TempDimBufOut.Find('-') then begin
+                        if TempDimBufOut.Find('-') then
                             repeat
                                 DimValue.Get(TempDimBufOut."Dimension Code", TempDimBufOut."Dimension Value Code");
                                 TempDimSetEntry."Dimension Code" := TempDimBufOut."Dimension Code";
@@ -455,8 +457,7 @@
                                 OnInsertItemJnlLineOnAfterUpdateDimensionSetID(ItemJnlLine);
                                 Modify;
                             until TempDimBufOut.Next() = 0;
-                            TempDimBufOut.DeleteAll();
-                        end;
+                        TempDimBufOut.DeleteAll();
                     end;
                 end;
             end;
@@ -561,14 +562,13 @@
     local procedure TransferDim(DimSetID: Integer)
     begin
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
-        if DimSetEntry.Find('-') then begin
+        if DimSetEntry.Find('-') then
             repeat
                 if TempSelectedDim.Get(
                      UserId, 3, REPORT::"Calculate Inventory", '', DimSetEntry."Dimension Code")
                 then
                     InsertDim(DATABASE::"Item Ledger Entry", DimSetID, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
             until DimSetEntry.Next() = 0;
-        end;
     end;
 
     local procedure CalcWhseQty(AdjmtBin: Code[20]; var PosQuantity: Decimal; var NegQuantity: Decimal)
@@ -584,6 +584,7 @@
         AdjustPosQty := false;
         with QuantityOnHandBuffer do begin
             ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+            OnCalcWhseQtyOnAfterGetWhseItemTrkgSetup("Location Code", WhseItemTrackingSetup);
             ItemTrackingSplit := WhseItemTrackingSetup.TrackingRequired();
             WhseEntry.SetCurrentKey(
               "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
@@ -606,15 +607,14 @@
                 NegQuantity := WhseQuantity - WhseEntry."Qty. (Base)";
                 WhseEntry.SetRange("Entry Type", WhseEntry."Entry Type"::Movement);
                 WhseEntry.CalcSums("Qty. (Base)");
-                if WhseEntry."Qty. (Base)" <> 0 then begin
+                if WhseEntry."Qty. (Base)" <> 0 then
                     if WhseEntry."Qty. (Base)" > 0 then
                         PosQuantity := PosQuantity + WhseQuantity - WhseEntry."Qty. (Base)"
                     else
                         NegQuantity := NegQuantity - WhseQuantity - WhseEntry."Qty. (Base)";
-                end;
 
                 WhseEntry.SetRange("Entry Type", WhseEntry."Entry Type"::"Positive Adjmt.");
-                if WhseEntry.Find('-') then begin
+                if WhseEntry.Find('-') then
                     repeat
                         WhseEntry.SetRange("Serial No.", WhseEntry."Serial No.");
 
@@ -642,19 +642,17 @@
                         WhseEntry.Find('+');
                         WhseEntry.SetRange("Serial No.");
                     until WhseEntry.Next() = 0;
-                end;
             end else begin
                 if WhseEntry.Find('-') then
                     repeat
                         WhseEntry.SetRange("Lot No.", WhseEntry."Lot No.");
                         OnCalcWhseQtyOnAfterLotRequiredWhseEntrySetFilters(WhseEntry);
                         WhseEntry.CalcSums("Qty. (Base)");
-                        if WhseEntry."Qty. (Base)" <> 0 then begin
+                        if WhseEntry."Qty. (Base)" <> 0 then
                             if WhseEntry."Qty. (Base)" > 0 then
                                 NegQuantity := NegQuantity - WhseEntry."Qty. (Base)"
                             else
                                 PosQuantity := PosQuantity + WhseEntry."Qty. (Base)";
-                        end;
                         WhseEntry.Find('+');
                         WhseEntry.SetRange("Lot No.");
                         OnCalcWhseQtyOnAfterLotRequiredWhseEntryClearFilters(WhseEntry);
@@ -769,29 +767,37 @@
     procedure AddZeroQtySKU()
     var
         SKU: Record "Stockkeeping Unit";
+        ShouldAddZeroQty: Boolean;
+        IsHandled: Boolean;
     begin
-        if not ZeroQty then
+        ShouldAddZeroQty := ZeroQty;
+        OnAddZeroQtyOnAfterCalcShouldAddZeroQty(Item, ZeroQty, ShouldAddZeroQty);
+        if not ShouldAddZeroQty then
             exit;
 
         SKU.SetCurrentKey("Item No.");
         SKU.SetRange("Item No.", Item."No.");
         Item.CopyFilter("Variant Filter", SKU."Variant Code");
         Item.CopyFilter("Location Filter", SKU."Location Code");
+        OnAddZeroQtyOnAfterFilterSKU(Item, SKU);
         if SKU.Find('-') then begin
             QuantityOnHandBuffer.Reset();
             QuantityOnHandBuffer.SetRange("Item No.", Item."No.");
-            repeat
-                QuantityOnHandBuffer.SetRange("Variant Code", SKU."Variant Code");
-                QuantityOnHandBuffer.SetRange("Location Code", SKU."Location Code");
-                if not QuantityOnHandBuffer.Find('-') then begin
-                    Clear(QuantityOnHandBuffer);
-                    QuantityOnHandBuffer."Item No." := SKU."Item No.";
-                    QuantityOnHandBuffer."Variant Code" := SKU."Variant Code";
-                    QuantityOnHandBuffer."Location Code" := SKU."Location Code";
-                    OnAddZeroQtySKUOnBeforeInsertQuantityOnHandBuffer(QuantityOnHandBuffer, SKU, Item);
-                    QuantityOnHandBuffer.Insert();
-                end;
-            until SKU.Next() = 0;
+            IsHandled := false;
+            OnAddZeroQtySKUOnBeforeInsertZeroQtySKU(Item, SKU, QuantityOnHandBuffer, IsHandled);
+            if not IsHandled then
+                repeat
+                    QuantityOnHandBuffer.SetRange("Variant Code", SKU."Variant Code");
+                    QuantityOnHandBuffer.SetRange("Location Code", SKU."Location Code");
+                    if not QuantityOnHandBuffer.Find('-') then begin
+                        Clear(QuantityOnHandBuffer);
+                        QuantityOnHandBuffer."Item No." := SKU."Item No.";
+                        QuantityOnHandBuffer."Variant Code" := SKU."Variant Code";
+                        QuantityOnHandBuffer."Location Code" := SKU."Location Code";
+                        OnAddZeroQtySKUOnBeforeInsertQuantityOnHandBuffer(QuantityOnHandBuffer, SKU, Item);
+                        QuantityOnHandBuffer.Insert();
+                    end;
+                until SKU.Next() = 0;
         end;
     end;
 
@@ -946,7 +952,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnInsertItemJnlLineOnAfterCalcShouldInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; ZeroQty: Boolean; var ShouldInsertItemJnlLine: Boolean)
     begin
     end;
@@ -956,7 +962,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAddZeroQtySKUOnBeforeInsertQuantityOnHandBuffer(var TempInventoryBuffer: Record "Inventory Buffer" temporary; StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
     begin
     end;
@@ -976,7 +982,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeQuantityOnHandBufferFindAndInsert(var InventoryBuffer: Record "Inventory Buffer"; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
@@ -986,7 +992,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnItemLedgerEntryOnPreDataItemOnBeforeInsertQuantityOnHandBuffer(var TempInventoryBuffer: Record "Inventory Buffer" temporary; Item: Record Item)
     begin
     end;
@@ -1041,18 +1047,43 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateBufferOnBeforeInsert(var InventoryBuffer: Record "Inventory Buffer"; CalledFromItemLedgerEntry: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateBufferOnBeforeModify(var InventoryBuffer: Record "Inventory Buffer"; CalledFromItemLedgerEntry: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPreReport(var ItemJournalLine: Record "Item Journal Line"; var PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAddZeroQtyOnAfterFilterSKU(var Item: Record Item; var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAddZeroQtyOnAfterCalcShouldAddZeroQty(var Item: Record Item; ZeroQty: Boolean; var ShouldAddZeroQty: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAddZeroQtySKUOnBeforeInsertZeroQtySKU(Item: Record Item; SKU: Record "Stockkeeping Unit"; var TempInventoryBuffer: Record "Inventory Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJnlLineOnBeforeValidateItemNo(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcWhseQtyOnAfterGetWhseItemTrkgSetup(LocationCode: Code[10]; var ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 }

@@ -1,4 +1,4 @@
-table 1003 "Job Planning Line"
+﻿table 1003 "Job Planning Line"
 {
     Caption = 'Job Planning Line';
     DrillDownPageID = "Job Planning Lines";
@@ -2082,6 +2082,10 @@ table 1003 "Job Planning Line"
         if IsHandled then
             exit;
 
+        // Patch for fixing Edit-in-Excel issues due to dependency on xRec. 
+        if not GuiAllowed() then
+            if xRec.Get(xRec.RecordId()) then;
+
         if "Total Price" = 0 then begin
             "Line Amount" := 0;
             "Line Discount Amount" := 0;
@@ -2315,7 +2319,7 @@ table 1003 "Job Planning Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateReservation(Rec, xRec, CalledByFieldNo, IsHandled);
+        OnBeforeUpdateReservation(Rec, xRec, CalledByFieldNo, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -2927,7 +2931,7 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateReservation(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateReservation(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 

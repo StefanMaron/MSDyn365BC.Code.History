@@ -172,9 +172,13 @@ codeunit 5815 "Undo Sales Shipment Line"
                 if not SkipTestFields then begin
                     if Correction then
                         Error(AlreadyReversedErr);
-                    if "Qty. Shipped Not Invoiced" <> Quantity then
-                        if HasInvoicedNotReturnedQuantity(SalesShptLine) then
-                            Error(Text005);
+
+                    IsHandled := false;
+                    OnCheckSalesShptLineOnBeforeHasInvoicedNotReturnedQuantity(SalesShptLine, IsHandled);
+                    if not IsHandled then
+                        if "Qty. Shipped Not Invoiced" <> Quantity then
+                            if HasInvoicedNotReturnedQuantity(SalesShptLine) then
+                                Error(Text005);
                 end;
                 if Type = Type::Item then begin
                     if not SkipTestFields then
@@ -182,8 +186,12 @@ codeunit 5815 "Undo Sales Shipment Line"
 
                     if not SkipUndoPosting then begin
                         UndoPostingMgt.TestSalesShptLine(SalesShptLine);
-                        UndoPostingMgt.CollectItemLedgEntries(
-                            TempItemLedgEntry, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+
+                        IsHandled := false;
+                        OnCheckSalesShptLineOnBeforeCollectItemLedgEntries(SalesShptLine, TempItemLedgEntry, IsHandled);
+                        if not IsHandled then
+                            UndoPostingMgt.CollectItemLedgEntries(
+                                TempItemLedgEntry, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
                         UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.", "Qty. Shipped Not Invoiced" <> Quantity);
                     end;
                     if not SkipUndoInitPostATO then
@@ -703,6 +711,16 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsSalesInvoiceCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesShptLineOnBeforeCollectItemLedgEntries(SalesShptLine: Record "Sales Shipment Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesShptLineOnBeforeHasInvoicedNotReturnedQuantity(SalesShptLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

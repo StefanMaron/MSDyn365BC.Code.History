@@ -43,7 +43,7 @@ page 7021 "Suggest Price Lines"
                             CurrPage.Update(true);
                         end;
                     }
-                    field("Price Line Filter"; Rec."Price Line Filter")
+                    field("Price Line Filter"; GetReadablePriceLineFilter())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Price Line Filter';
@@ -79,7 +79,7 @@ page 7021 "Suggest Price Lines"
                         Caption = 'Product Type';
                         ToolTip = 'Specifies the product type that defines the table being a source for the suggested price list lines.';
                     }
-                    field("Product Filter"; Rec."Asset Filter")
+                    field("Product Filter"; GetReadableAssetFilter())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Product Filter';
@@ -234,6 +234,28 @@ page 7021 "Suggest Price Lines"
     begin
         TempDefaultsPriceListHeader := PriceListHeader;
         Defaults := GetDefaults();
+    end;
+
+    local procedure GetReadableAssetFilter() Result: Text
+    var
+        RecRef: RecordRef;
+    begin
+        if Rec."Asset Filter" = '' then
+            exit('');
+        RecRef.Open(Rec."Table ID");
+        RecRef.SetView(Rec."Asset Filter");
+        Result := RecRef.GetView(true);
+        RecRef.Close();
+    end;
+
+    local procedure GetReadablePriceLineFilter(): Text
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        if Rec."Price Line Filter" = '' then
+            exit('');
+        PriceListLine.SetView(Rec."Price Line Filter");
+        exit(PriceListLine.GetView(true));
     end;
 
     local procedure ShowPriceListFilters()

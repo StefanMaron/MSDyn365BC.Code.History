@@ -154,7 +154,7 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the preferred method of sending documents to this customer, so that you do not have to select a sending option every time that you post and send a document to the customer. Sales documents to this customer will be sent using the specified sending profile and will override the default document sending profile.';
                 }
-                field(TotalSales2; Totals)
+                field(TotalSales2; Rec."Sales (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total Sales';
@@ -2414,7 +2414,9 @@
     trigger OnAfterGetCurrRecord()
     begin
         if GuiAllowed() then
-            OnAfterGetCurrRecordFunc();
+            OnAfterGetCurrRecordFunc()
+        else
+            OnAfterGetCurrRecordFuncBackground();
     end;
 
     local procedure OnAfterGetCurrRecordFunc()
@@ -2448,6 +2450,12 @@
             else
                 OpenApprovalEntriesExistCurrUser := false;
         end;
+    end;
+
+    local procedure OnAfterGetCurrRecordFuncBackground()
+    begin
+        Rec.CalcFields("Sales (LCY)", "Profit (LCY)", "Inv. Discounts (LCY)", "Payments (LCY)");
+        CustomerMgt.CalculateStatisticsWithCurrentCustomerValues(Rec, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit);
     end;
 
     trigger OnInit()
@@ -2484,7 +2492,9 @@
         if Rec.GetFilter("Date Filter") = '' then
             SetRange("Date Filter", 0D, WorkDate());
         if GuiAllowed() then
-            OnOpenPageFunc();
+            OnOpenPageFunc()
+        else
+            OnOpenBackground();
         OnAfterOnOpenPage(Rec, xRec);
     end;
 
@@ -2513,6 +2523,11 @@
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
 
         SetWorkFlowEnabled();
+    end;
+
+    local procedure OnOpenBackground()
+    begin
+        Rec.SetAutoCalcFields("Sales (LCY)", "Profit (LCY)", "Inv. Discounts (LCY)", "Payments (LCY)");
     end;
 
     local procedure StartBackgroundCalculations()
@@ -2799,7 +2814,8 @@
 
         if CustomerTemplMgt.InsertCustomerFromTemplate(Customer) then begin
             VerifyVatRegNo(Customer);
-            Copy(Customer);
+            Rec.Copy(Customer);
+            OnCreateCustomerFromTemplateOnBeforeCurrPageUpdate(Rec);
             CurrPage.Update();
         end else
             if CustomerTemplMgt.TemplatesAreNotEmpty() then
@@ -2853,6 +2869,11 @@
     begin
         ActivateFields;
         CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomerFromTemplateOnBeforeCurrPageUpdate(var Customer: Record Customer)
+    begin
     end;
 }
 

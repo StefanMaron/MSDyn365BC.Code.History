@@ -4223,6 +4223,60 @@ codeunit 136101 "Service Orders"
 
     [Test]
     [Scope('OnPrem')]
+    procedure UpdateQtyToShipAndQtyToInvoiceOnValidateQuantityWarehousing()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLineForItem: Record "Service Line";
+        ServiceLineForResource: Record "Service Line";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        Location: Record Location;
+        ServiceItemLineNo: Integer;
+        RandQty: Integer;
+        QtyNotUpdatedErr: Label 'Quantity is not updated correctly for item type %1', Comment = '%1 = Resource';
+    begin
+        // [SCENARIO] Qty. to Ship and Qty. to Invoice should be updated when updating the quantity for a relevant item types when require shipment or require receive.
+
+        // [GIVEN] Service Order with Service lines and Location with require shipment and require receive.
+        Initialize();
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, true, true);
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup.Modify(true);
+        ServiceItemLineNo := CreateServiceOrder(ServiceHeader, '');
+        ServiceHeader.Validate("Location Code", Location.Code);
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceLine(ServiceLineForItem, ServiceHeader, ServiceLineForItem.Type::Item, '');
+        LibraryService.CreateServiceLine(ServiceLineForResource, ServiceHeader, ServiceLineForResource.Type::Resource, '');
+
+        // [WHEN] Update Quantity on Resource Line
+        RandQty := LibraryRandom.RandInt(10);
+        ServiceLineForResource.Validate(Quantity, RandQty);
+
+        // [THEN] The quantity fields should be updated correctly
+        Assert.AreEqual(RandQty, ServiceLineForResource."Qty. to Ship", StrSubstNo(QtyNotUpdatedErr, ServiceLineForResource.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForResource."Qty. to Invoice", StrSubstNo(QtyNotUpdatedErr, ServiceLineForResource.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForResource."Outstanding Quantity", StrSubstNo(QtyNotUpdatedErr, ServiceLineForResource.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForResource."Quantity (Base)", StrSubstNo(QtyNotUpdatedErr, ServiceLineForResource.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForResource."Qty. to Ship (Base)", StrSubstNo(QtyNotUpdatedErr, ServiceLineForResource.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForResource."Qty. to Invoice (Base)", StrSubstNo(QtyNotUpdatedErr, ServiceLineForResource.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForResource."Outstanding Qty. (Base)", StrSubstNo(QtyNotUpdatedErr, ServiceLineForResource.Type::Resource));
+
+        // [WHEN] Update Quantity on Item Line
+        RandQty := LibraryRandom.RandInt(10);
+        ServiceLineForItem.Validate(Quantity, RandQty);
+
+        // [THEN] The quantity fields should be updated correctly.
+        // Warehouse documents will update the Qty. to Ship/Receive fields for inventoriable type and document type order.
+        Assert.AreEqual(0, ServiceLineForItem."Qty. to Ship", StrSubstNo(QtyNotUpdatedErr, ServiceLineForItem.Type::Resource));
+        Assert.AreEqual(0, ServiceLineForItem."Qty. to Invoice", StrSubstNo(QtyNotUpdatedErr, ServiceLineForItem.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForItem."Outstanding Quantity", StrSubstNo(QtyNotUpdatedErr, ServiceLineForItem.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForItem."Quantity (Base)", StrSubstNo(QtyNotUpdatedErr, ServiceLineForItem.Type::Resource));
+        Assert.AreEqual(0, ServiceLineForItem."Qty. to Ship (Base)", StrSubstNo(QtyNotUpdatedErr, ServiceLineForItem.Type::Resource));
+        Assert.AreEqual(0, ServiceLineForItem."Qty. to Invoice (Base)", StrSubstNo(QtyNotUpdatedErr, ServiceLineForItem.Type::Resource));
+        Assert.AreEqual(RandQty, ServiceLineForItem."Outstanding Qty. (Base)", StrSubstNo(QtyNotUpdatedErr, ServiceLineForResource.Type::Resource));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure RoundingErrorThrownWhenInvalidQuantityEntered0OnServiceLine()
     var
         Item: Record Item;
