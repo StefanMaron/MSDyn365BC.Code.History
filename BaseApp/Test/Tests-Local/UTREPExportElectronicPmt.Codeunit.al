@@ -142,7 +142,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         CustomerNo, CustomerBankAccountCode : Code[20];
     begin
         // Setup: Create Customer,Bank Account and General Journal Line.
-        Initialize;
+        Initialize();
         CreateExportReportSelection(Layout::RDLC);
         CustomerNo := CreateCustomer;
         CustomerBankAccountCode := CreateCustomerBankAccount(CustomerNo, ExportFormat);
@@ -170,7 +170,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         UTREPExportElectronicPmt: Codeunit "UT REP Export Electronic Pmt.";
     begin
         // Setup: Create Vendor,Bank Account and General Journal Line.
-        Initialize;
+        Initialize();
         BindSubscription(UTREPExportElectronicPmt);
         RunExportElectronicPaymentsVendor(GenJournalLine, ExportFormat, false);
 
@@ -191,7 +191,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     begin
         // Test Void for Electronic Payment-IAT
         // [GIVEN] Create payment journal
-        Initialize;
+        Initialize();
         BindSubscription(UTREPExportElectronicPmt);
 
         RunExportElectronicPaymentsVendor(GenJournalLine, ExportFormat::US, false); // ExportFormat doesn't matter
@@ -223,7 +223,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         ExportFormat: Option;
     begin
         // [SCENARIO 381364] Export Electronic Payments through Codeunit "Bulk Vendor Remit Reporting" when no reports in Report Selections
-        Initialize;
+        Initialize();
         BindSubscription(UTREPExportElectronicPmt);
 
         // [GIVEN] There are no reports for Vendor Remittance in Report Selection
@@ -249,7 +249,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UpdateCompanyInformation;  // Update Federal ID No. in Company Information.
     end;
 
@@ -260,7 +260,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         VendorNo, VendorBankAccountCode : Code[20];
     begin
         // Setup: Create Vendor,Bank Account and General Journal Line.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         VendorBankAccountCode := CreateVendorBankAccount(VendorNo, ExportFormat);
         CreateVendorLedgerEntry(VendorLedgerEntry, VendorNo);
@@ -289,7 +289,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         VoidTransmitElecPayments.SetUsageType(1); // Void
         VoidTransmitElecPayments.SetTableView(GenJournalLine);
         Commit();
-        VoidTransmitElecPayments.RunModal;
+        VoidTransmitElecPayments.RunModal();
     end;
 
     local procedure CreateBankAccount(ExportFormat: Option): Code[20]
@@ -401,7 +401,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        if CustLedgerEntry2.FindLast then
+        if CustLedgerEntry2.FindLast() then
             CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1
         else
             CustLedgerEntry."Entry No." := 1;
@@ -429,7 +429,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        if VendorLedgerEntry2.FindLast then
+        if VendorLedgerEntry2.FindLast() then
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1
         else
             VendorLedgerEntry."Entry No." := 1;

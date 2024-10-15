@@ -33,7 +33,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LastGLRegisterNo: Integer;
         PostedPrepmtVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LastGLRegisterNo := GetLastGLRegisterNo;
 
@@ -72,7 +72,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LastGLRegisterNo: Integer;
         PostedPrepmtVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LastGLRegisterNo := GetLastGLRegisterNo;
 
@@ -117,7 +117,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LastGLRegisterNo: Integer;
         PostedPrepmtVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LastGLRegisterNo := GetLastGLRegisterNo;
 
         PostPrepmtInvForSalesOrderCase258679(SalesHeader);
@@ -137,7 +137,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LastGLRegisterNo: Integer;
         PostedPrepmtVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LastGLRegisterNo := GetLastGLRegisterNo;
 
         PostPrepmtInvForPurchOrderCase258679(PurchHeader);
@@ -158,7 +158,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LastGLRegisterNo: Integer;
         PostedPrepmtVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LastGLRegisterNo := GetLastGLRegisterNo;
 
         PostPrepmtInvForSalesOrderCase258679(SalesHeader);
@@ -180,7 +180,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LastGLRegisterNo: Integer;
         PostedPrepmtVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LastGLRegisterNo := GetLastGLRegisterNo;
 
         PostPrepmtInvForPurchOrderCase258679(PurchHeader);
@@ -368,7 +368,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         // [FEATURE] [Sales] [Currency] [Prices Incl. VAT]
         // [SCENARIO 356261] 100% prepayment Sales Order (in FCY) invoiced twice on different dates produces zero GLEntry "Sales VAT Account" balance.
-        Initialize;
+        Initialize();
         SetGeneralLedgerSetup(true);
         CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct);
         AmountInclVAT := 733.73;
@@ -412,7 +412,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         // [FEATURE] [Sales] [Currency] [Prices Incl. VAT]
         // [SCENARIO 356261] 100% prepayment Purchase Order (in FCY) invoiced twice on different dates produces zero GLEntry "Purchase VAT Account" balance.
-        Initialize;
+        Initialize();
         SetGeneralLedgerSetup(true);
         CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct);
         AmountInclVAT := 733.73;
@@ -433,7 +433,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [GIVEN] Change Purchase Order's "Posting Date" = "D2"
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseHeader.Validate("Posting Date", NewDate);
-        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Post Purchase Order
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -458,7 +458,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [FEATURE] [Invoice Discount] [Prices Excl. VAT] [Sales]
         // [SCENARIO 229419] Sales order post in case of prepayment (prepayment vat % = 0), invoice discount (order prepayment % + invoice discount % = 100),
         // [SCENARIO 229419] several lines with different vat setup (vat % <> 0), "Prices Including VAT" = FALSE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvDiscountExclVAT, InvDiscountInclVAT, VATAmount);
 
         // [GIVEN] Sales order with prepayment (85%), invoice discount (15%), "Prices Including VAT" = FALSE, several lines with different vat setup
@@ -492,7 +492,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [FEATURE] [Invoice Discount] [Prices Incl. VAT] [Sales]
         // [SCENARIO 229419] Sales order post in case of prepayment (prepayment vat % = 0), invoice discount (order prepayment % + invoice discount % = 100),
         // [SCENARIO 229419] several lines with different vat setup (vat % <> 0), "Prices Including VAT" = TRUE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvDiscountExclVAT, InvDiscountInclVAT, VATAmount);
 
         // [GIVEN] Sales order with prepayment (85%), invoice discount (15%), "Prices Including VAT" = TRUE, several lines with different vat setup
@@ -526,7 +526,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [FEATURE] [Invoice Discount] [Prices Excl. VAT] [Sales]
         // [SCENARIO 229419] Sales order post in case of prepayment (prepayment vat % = 0), invoice discount (order prepayment % + invoice discount % > 100),
         // [SCENARIO 229419] several lines with different vat setup (vat % <> 0), "Prices Including VAT" = FALSE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvDiscountExclVAT, InvDiscountInclVAT, VATAmount);
 
         // [GIVEN] Sales order with prepayment (85.01%), invoice discount (15%), "Prices Including VAT" = FALSE, several lines with different vat setup
@@ -560,7 +560,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [FEATURE] [Invoice Discount] [Prices Incl. VAT] [Sales]
         // [SCENARIO 229419] Sales order post in case of prepayment (prepayment vat % = 0), invoice discount (order prepayment % + invoice discount % > 100),
         // [SCENARIO 229419] several lines with different vat setup (vat % <> 0), "Prices Including VAT" = TRUE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvDiscountExclVAT, InvDiscountInclVAT, VATAmount);
 
         // [GIVEN] Sales order with prepayment (85.01%), invoice discount (15%), "Prices Including VAT" = TRUE, several lines with different vat setup
@@ -594,7 +594,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [FEATURE] [Invoice Discount] [Prices Excl. VAT] [Purchase]
         // [SCENARIO 229419] Purchase order post in case of prepayment (prepayment vat % = 0), invoice discount (order prepayment % + invoice discount % = 100),
         // [SCENARIO 229419] several lines with different vat setup (vat % <> 0), "Prices Including VAT" = FALSE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvDiscountExclVAT, InvDiscountInclVAT, VATAmount);
 
         // [GIVEN] Purchase order with prepayment (85%), invoice discount (15%), "Prices Including VAT" = FALSE, several lines with different vat setup
@@ -628,7 +628,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [FEATURE] [Invoice Discount] [Prices Excl. VAT] [Purchase]
         // [SCENARIO 229419] Purchase order post in case of prepayment (prepayment vat % = 0), invoice discount (order prepayment % + invoice discount % = 100),
         // [SCENARIO 229419] several lines with different vat setup (vat % <> 0), "Prices Including VAT" = TRUE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvDiscountExclVAT, InvDiscountInclVAT, VATAmount);
 
         // [GIVEN] Purchase order with prepayment (85%), invoice discount (15%), "Prices Including VAT" = TRUE, several lines with different vat setup
@@ -662,7 +662,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [FEATURE] [Invoice Discount] [Prices Excl. VAT] [Purchase]
         // [SCENARIO 229419] Purchase order post in case of prepayment (prepayment vat % = 0), invoice discount (order prepayment % + invoice discount % > 100),
         // [SCENARIO 229419] several lines with different vat setup (vat % <> 0), "Prices Including VAT" = FALSE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvDiscountExclVAT, InvDiscountInclVAT, VATAmount);
 
         // [GIVEN] Purchase order with prepayment (85.01%), invoice discount (15%), "Prices Including VAT" = FALSE, several lines with different vat setup
@@ -696,7 +696,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [FEATURE] [Invoice Discount] [Prices Excl. VAT] [Purchase]
         // [SCENARIO 229419] Purchase order post in case of prepayment (prepayment vat % = 0), invoice discount (order prepayment % + invoice discount % > 100),
         // [SCENARIO 229419] several lines with different vat setup (vat % <> 0), "Prices Including VAT" = TRUE
-        Initialize;
+        Initialize();
         PrepareExpectedAmounts_TFS229419(Amount, AmountIncludingVAT, InvDiscountExclVAT, InvDiscountInclVAT, VATAmount);
 
         // [GIVEN] Purchase order with prepayment (85.01%), invoice discount (15%), "Prices Including VAT" = TRUE, several lines with different vat setup
@@ -730,12 +730,12 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         // [FEATURE] [Sales] [Currency] [Prices Incl. VAT] [Line Discount]
         // [SCENARIO 358986] Post partial sales invoice with Line discount and specific Amount Rounding Precision
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with 5% VAT
         CreateVATPostingSetupWithVATPct(VATPostingSetup, 5);
         // [GIVEN] Amount Rounding Precision = 0.01 in G/L Setup is more sharp than in Currency (0.1)
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.Get(CreateCurrencyExchRate(1));
         Currency.Validate("Amount Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision" * 10);
         Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)" * 10);
@@ -791,12 +791,12 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         // [FEATURE] [Purchase] [Currency] [Prices Incl. VAT] [Line Discount]
         // [SCENARIO 358986] Post partial purchase invoice with Line discount and specific Amount Rounding Precision
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with 5% VAT
         CreateVATPostingSetupWithVATPct(VATPostingSetup, 5);
         // [GIVEN] Amount Rounding Precision = 0.01 in G/L Setup is more sharp than in Currency (0.1)
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.Get(CreateCurrencyExchRate(1));
         Currency.Validate("Amount Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision" * 10);
         Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)" * 10);
@@ -1005,10 +1005,10 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Prepayment - VAT Rounding");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         isInitialized := true;
         Commit();
@@ -1017,7 +1017,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
 
     local procedure InitializeSetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; var LastGLRegisterNo: Integer)
     begin
-        Initialize;
+        Initialize();
         SetGeneralLedgerSetup(true);
         CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct);
         LastGLRegisterNo := GetLastGLRegisterNo;
@@ -1096,7 +1096,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     var
         GLRegister: Record "G/L Register";
     begin
-        if GLRegister.FindLast then
+        if GLRegister.FindLast() then
             exit(GLRegister."No.");
         exit(0);
     end;
@@ -1532,7 +1532,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         DummyGLAccount."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         with NewVATPostingSetup do begin
             Get(VATPostingSetup."VAT Bus. Posting Group", LibraryERM.CreateRelatedVATPostingSetup(DummyGLAccount));
-            Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+            Validate("VAT Identifier", LibraryUtility.GenerateGUID());
             Validate("VAT %", VATRate);
             Modify(true);
         end;
@@ -1700,7 +1700,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate(Quantity, Qty);
             Modify(true);
         end;
@@ -1713,7 +1713,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         with PurchLine do begin
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Document No.", PurchHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate(Quantity, Qty);
             Modify(true);
         end;
@@ -1857,7 +1857,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
 
     local procedure PostPurchPrepmtInvoice(var PurchHeader: Record "Purchase Header"): Code[20]
     begin
-        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
         exit(LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader));
     end;
 
@@ -1872,7 +1872,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     var
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
     begin
-        PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
         PurchPostPrepayments.CreditMemo(PurchHeader);
     end;
 
@@ -1896,7 +1896,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         PurchHeader.Find();
         Assert.IsFalse(PrepaymentMgt.TestPurchasePrepayment(PurchHeader), 'PrepaymentMgt.TestPurchasePrepayment()');
-        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true));
     end;
 
@@ -2017,9 +2017,9 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         with GLRegister do begin
             SetFilter("No.", '>%1', LastGLRegNo);
-            FindFirst;
+            FindFirst();
             FromEntryNo := "From Entry No.";
-            FindLast;
+            FindLast();
             ToEntryNo := "To Entry No.";
         end;
         GLEntry.SetRange("Entry No.", FromEntryNo, ToEntryNo);
@@ -2045,9 +2045,9 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         with GLRegister do begin
             SetFilter("No.", '>%1', LastGLRegNo);
-            FindFirst;
+            FindFirst();
             FromEntryNo := "From VAT Entry No.";
-            FindLast;
+            FindLast();
             ToEntryNo := "To VAT Entry No.";
         end;
         VATEntry.SetRange("Entry No.", FromEntryNo, ToEntryNo);

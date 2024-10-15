@@ -143,7 +143,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Order]
         // [SCENARIO] Tax Amount rounding on Sales Order Statistics with two jurisdiction codes and TaxArea."Country/Region" = CA
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = CA
         TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Order, DummyTaxCountry::CA);
@@ -168,7 +168,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Order]
         // [SCENARIO] Tax Amount rounding on Sales Order Statistics with two jurisdiction codes and TaxArea."Country/Region" = US
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = US
         TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Order, DummyTaxCountry::US);
@@ -193,10 +193,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Sales Order values on Sales Document Test Report - 202.
 
         // Setup: Create Sales Order and open Sales Order page.
-        Initialize;
+        Initialize();
         CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Order, DummyTaxCountry::CA);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         Commit();
 
@@ -221,7 +221,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Quote]
         // [SCENARIO] Tax Amount rounding on Sales Quote Statistics with two jurisdiction codes and TaxArea."Country/Region" = CA
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = CA
         TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote, DummyTaxCountry::CA);
@@ -246,7 +246,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Quote]
         // [SCENARIO] Tax Amount rounding on Sales Quote Statistics with two jurisdiction codes and TaxArea."Country/Region" = US
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote with Item, Currency, two jurisdiction codes and TaxArea."Country/Region" = US
         TaxAmount := CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote, DummyTaxCountry::US);
@@ -272,7 +272,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Tax Amount on Purchase Order Statistics.
 
         // Setup: Create Purchase Order and open Purchase Order page.
-        Initialize;
+        Initialize();
         TaxAmount := CreatePurchaseDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         LibraryVariableStorage.Enqueue(TaxAmount);
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
@@ -295,7 +295,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Tax Amount on Purchase Quote Statistics.
 
         // Setup: Create Purchase Quote and open Purchase Quote page.
-        Initialize;
+        Initialize();
         TaxAmount := CreatePurchaseDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         LibraryVariableStorage.Enqueue(TaxAmount);
         OpenPurchaseQuotePage(PurchaseQuote, PurchaseHeader);
@@ -317,10 +317,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Purchase Order values on Purchase Document Test Report - 402.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
         Commit();
 
@@ -346,7 +346,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Tax Amount on Service Order Statistics.
 
         // Setup: Create Service Order and open Service Order page.
-        Initialize;
+        Initialize();
         TaxAmount := CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::Order);
         LibraryVariableStorage.Enqueue(ServiceHeader."Currency Code");
         LibraryVariableStorage.Enqueue(TaxAmount);
@@ -370,7 +370,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Tax Amount on Service Invoice Statistics.
 
         // Setup: Create Service Invoice and open Service Invoice page.
-        Initialize;
+        Initialize();
         TaxAmount := CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::Invoice);
         LibraryVariableStorage.Enqueue(ServiceHeader."Currency Code");
         LibraryVariableStorage.Enqueue(TaxAmount);
@@ -393,10 +393,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Service Order values on Service Document Test Report - 5915.
 
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         LibraryVariableStorage.Enqueue(ServiceHeader."No.");
         Commit();
 
@@ -421,7 +421,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Service Order Number and Amount on Service Order Report - 5900.
 
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::Order);
         LibraryVariableStorage.Enqueue(ServiceHeader."No.");
         FindServiceLine(ServiceLine, ServiceHeader."No.");
@@ -447,7 +447,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Service Order Number and Amount on Service Quote Report - 5902.
 
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::Quote);
         LibraryVariableStorage.Enqueue(ServiceHeader."No.");
         FindServiceLine(ServiceLine, ServiceHeader."No.");
@@ -471,7 +471,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Amount after posting General Journal Line with GST/HST Journal in G/L Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Tax Area Line and General Journal Line using Tax Setup
         CreateAndPostGenJournalWithTaxDetail(GenJournalLine, WorkDate);
@@ -489,7 +489,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Posting Date error while posting General Journal Line with GST/HST and blank posting date.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Tax Area Line and General Journal Line using Tax Setup
         asserterror CreateAndPostGenJournalWithTaxDetail(GenJournalLine, 0D);
@@ -507,7 +507,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Account No. error while posting General Journal Line with GST/HST and blank Account No.
 
         // Setup: Create General Journal Line and modify GST/HST.
-        Initialize;
+        Initialize();
         CreateGenJournal(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", '',
           LibraryRandom.RandDec(10, 2));
@@ -534,11 +534,11 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Bal. Account No. error while posting General Journal Line with GST/HST and blank Bal. Account No.
 
         // Setup: Create Sales Tax Journal Line using page.
-        Initialize;
+        Initialize();
         CreateTaxAreaLine(TaxDetail);
         FindVATPostingSetup(VATPostingSetup);
         SalesTaxJournal.OpenEdit;
-        SalesTaxJournal."Document No.".SetValue(LibraryUtility.GenerateGUID);
+        SalesTaxJournal."Document No.".SetValue(LibraryUtility.GenerateGUID());
         SalesTaxJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         SalesTaxJournal."Account No.".SetValue(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxDetail."Tax Group Code"));
         SalesTaxJournal.Amount.SetValue(LibraryRandom.RandDec(10, 2));
@@ -564,7 +564,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Amount error while posting Sales Tax Journal Line with zero Amount.
 
         // Setup: Create Sales Tax Journal Line using page.
-        Initialize;
+        Initialize();
         CreateTaxAreaLine(TaxDetail);
         FindVATPostingSetup(VATPostingSetup);
         SalesTaxJournal.OpenEdit;
@@ -588,7 +588,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify VAT Entry values after posting General Journal Line with GST/HST in G/L Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Tax Area Line and General Journal Line using Tax Setup.
         CreateAndPostGenJournalWithTaxDetail(GenJournalLine, WorkDate);
@@ -608,7 +608,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Software Identification Code in the Company Information.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Modify Software Identification Code in the Company Information.
         SoftwareIdentificationCode := DelStr(LibraryUtility.GenerateGUID, 1, 8);  // Using 8 for length of Software Identification Code.
@@ -657,7 +657,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxAreaCode: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
         FindVATPostingSetup(VATPostingSetup);
 
@@ -684,7 +684,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Purchase Credit Memo Line GST/HST should be updated to Acquisition while using Fixed Asset in Purchase Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateFixedAsset(FixedAsset, '');  // Using blank value for FA Posting Group.
 
         // Exercise.
@@ -726,7 +726,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         DocumentNo: Code[20];
     begin
         // Setup: Create and setup Fixed Asset, Depreciation Book.
-        Initialize;
+        Initialize();
         CreateAndModifyDepreciationBook(DepreciationBook);
         CreateFixedAsset(FixedAsset, CreateFAPostingGroup);
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
@@ -755,7 +755,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify G/L Entry after applying Sales Credit Memo using Electronic Payment.
 
         // Setup: Create and post Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", '', '');
         DocumentNo := PostSalesDocument(SalesLine);
 
@@ -782,7 +782,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify G/L Entry after applying Purchase Invoice using Electronic Payment.
 
         // Setup: Create and post Purchase Order.
-        Initialize;
+        Initialize();
         FindVATPostingSetup(VATPostingSetup);
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item,
           CreateItem(VATPostingSetup."VAT Prod. Posting Group", ''), CreateVendor(''));
@@ -812,7 +812,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Posted Purchase Invoice Line Discount and Amount after posting Purchase Order with Line Discount %.
 
         // Setup: Create and modify Purchase Order.
-        Initialize;
+        Initialize();
         FindVATPostingSetup(VATPostingSetup);
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item,
           CreateItem(VATPostingSetup."VAT Prod. Posting Group", ''), CreateVendor(''));
@@ -824,7 +824,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // Verify: Verify Posted Purchase Invoice Line Discount and Amount after posting Purchase Order with Line Discount %.
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField(Amount, PurchaseLine."Line Amount");
         PurchInvLine.TestField("Line Discount %", PurchaseLine."Line Discount %");
     end;
@@ -841,7 +841,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Posted Sales Invoice Line Discount and Amount after posting Sales Order with Line Discount %.
 
         // Setup: Create and modify Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order, '', '');
         ModifySalesLine(SalesLine);
 
@@ -850,7 +850,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // Verify: Verify Posted Sales Invoice Line Discount and Amount after posting Sales Order with Line Discount %.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField(Amount, SalesInvoiceLine."Line Amount");
         SalesInvoiceLine.TestField("Line Discount %", SalesInvoiceLine."Line Discount %");
     end;
@@ -866,7 +866,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Purchase Order Tax Area Code which should be validated from Vendor. Bug Id:203903
 
         // Setup: Modify Purchases and Payables setup and create Tax Area Line.
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetup;
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
 
@@ -891,7 +891,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Posted Sales Invoice Line Discount Amount after posting Sales Order with Line Discount Amount. BUG ID:151937
 
         // Setup: Create Tax Area Line and Create and modify Sales Order.
-        Initialize;
+        Initialize();
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order, TaxAreaCode, TaxDetail."Tax Group Code");
         ModifySalesLine(SalesLine);
@@ -901,7 +901,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // Verify: Verify Posted Sales Invoice Line Discount Amount after posting Sales Order with Line Discount Amount.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Line Discount Amount", SalesInvoiceLine."Line Discount Amount");
     end;
 
@@ -934,7 +934,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         Amount: Decimal;
     begin
         // Setup: Create Purchase Order/Invoice.
-        Initialize;
+        Initialize();
         UpdateExtDocNoPurchasesPayablesSetup(false);
         Amount := CreateAndModifyPurchaseDocument(PurchaseLine, DocumentType);
 
@@ -977,7 +977,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Purchase  Retrun Order Line VAT Entry and GL Entry after posting Purchase Return Order. BUG ID:151922
 
         // Setup: Create Purchase Return Order.
-        Initialize;
+        Initialize();
         UpdateExtDocNoPurchasesPayablesSetup(false);
         Amount := CreateAndModifyPurchaseDocument(PurchaseLine, DocumentType);
 
@@ -1021,7 +1021,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxAreaCode: Code[20];
     begin
         // Verify GL entry values after posting Purchase Order,Tax Amount Change throgh Statistics page. BUG ID:151938
-        Initialize;
+        Initialize();
 
         // Setup. Create Tax Detail and Purchase Order.
         CompanyInfomation.Get();
@@ -1068,7 +1068,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // Verify Value Entries values after posting Purchase Order with Item Charge assignment.
 
         // Setup.
-        Initialize;
+        Initialize();
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
         VATPostingSetup.Get('', '');
         CreatePurchaseDocumentWithTaxArea(PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item,
@@ -1096,7 +1096,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // Verify that rounding works correctly when summarize Sales Tax Lines.
 
-        Initialize;
+        Initialize();
         FindVATPostingSetup(VATPostingSetup);
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Order, '', '');
         LibrarySales.CreateSalesLine(
@@ -1123,7 +1123,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         ExpectedAmount: Decimal;
     begin
         // Verify Purchase Invoice with Job Task posted with corrected amount in Job Ledger Entry
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetup;
         TaxAreaCode := InitJobAndTaxDetailWithExpense(Job, JobTask, TaxDetail);
         DocumentNo := CreatePostPurchInvWithJobTask(ExpectedAmount, TaxDetail, JobTask, TaxAreaCode);
@@ -1143,7 +1143,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // Verify that "Tax To Be Expensed" correctly transfered from partially posted Purchase Invoice to "Unit Cost (LCY)" in Job Jnl. Line.
 
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetup;
         TaxAreaCode := InitJobAndTaxDetailWithExpense(Job, JobTask, TaxDetail);
         DocumentNo := CreatePostPartialPurchInvWithJobTask(PurchaseLine, TaxDetail, JobTask, TaxAreaCode);
@@ -1162,7 +1162,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         UseTaxLineNo: Integer;
     begin
         // [SCENARIO] Post Purchase Invoice in FCY with two lines. Second line has "Use Tax" flag.
-        Initialize;
+        Initialize();
         PurchaseLineCount := 2; // number of Purchase Invoice lines
         UseTaxLineNo := 2; // use 1 (odd) or 2 (even) to define which lines will have "Use Tax" flag
         // [GIVEN] Purchase Invoice in FCY, odd or even lines has "Use Tax" flag
@@ -1186,7 +1186,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         UseTaxLineNo: Option "None",All,Even,Odd;
     begin
         // [SCENARIO] Post Purchase Invoice in FCY with two lines. First line has "Use Tax" flag.
-        Initialize;
+        Initialize();
         PurchaseLineCount := 2; // number of Purchase Invoice lines
         UseTaxLineNo := 1; // use 1 (odd) or 2 (even) to define which lines will have "Use Tax" flag
         // [GIVEN] Purchase Invoice in FCY, odd or even lines has "Use Tax" flag
@@ -1210,7 +1210,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         UseTaxLineNo: Integer;
     begin
         // [SCENARIO] Post Purchase Invoice in FCY with three lines. Even lines has "Use Tax" flag.
-        Initialize;
+        Initialize();
         PurchaseLineCount := 3; // number of Purchase Invoice lines
         UseTaxLineNo := 2; // use 1 (odd) or 2 (even) to define which lines will have "Use Tax" flag
         // [GIVEN] Purchase Invoice in FCY, odd or even lines has "Use Tax" flag
@@ -1234,7 +1234,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         UseTaxLineNo: Integer;
     begin
         // [SCENARIO] Post Purchase Invoice in FCY with three lines. Odd lines has "Use Tax" flag.
-        Initialize;
+        Initialize();
         PurchaseLineCount := 3; // number of Purchase Invoice lines
         UseTaxLineNo := 1; // use 1 (odd) or 2 (even) to define which lines will have "Use Tax" flag
         // [GIVEN] Purchase Invoice in FCY, odd or even lines has "Use Tax" flag
@@ -1263,7 +1263,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [SCENARIO] Create Sales Order, open Statistics, change Tax Amount and post document
 
-        Initialize;
+        Initialize();
         UnitPrice := 854224.16; // hardcoded "Unit Price" to get required difference
         NewTaxAmount := 42711.44;
         SalesTaxPct := 5; // hardcoded sales tax percent to get required difference
@@ -1300,7 +1300,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [SCENARIO] Create Purchase Order, open Statistics, change Tax Amount and post document
 
-        Initialize;
+        Initialize();
         DirectUnitCost := 854224.16; // hardcoded "Direct Unit Cost" to get required difference
         NewTaxAmount := 42711.44;
         SalesTaxPct := 5; // hardcoded sales tax percent to get required difference
@@ -1330,7 +1330,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         QtyToPost: Decimal;
     begin
         // [SCENARIO 359660] Value entry for item charge is created when item is received in two separate receipts before applying item charge
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with 2 lines: item and item charge
         CreatePurchaseOrderWithItemCharge(PurchaseHeader, PurchaseLine);
@@ -1364,7 +1364,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Provincial Tax] [Currency]
         // [SCENARIO] Post Purchase Invoice in FCY with Provincial Tax.
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Invoice in FCY, "Provincial Tax Area Code" filled in.
         CreatePurchInvWithCurrencyAndProvTax(PurchaseHeader, GLAccountArray, ExpectedAmountArray);
         // [WHEN] Post Purchase Invoice
@@ -1388,7 +1388,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [FEATURE] [Purchase] [Provincial Tax] [Currency] [Expense/Capitalize]
         // [SCENARIO 216424] Posting of a purchase invoice with Currency, "Tax Area Code" = "NOTAX", "Provincial Tax Area Code" = "PROVTAX",
         // [SCENARIO 216424] where "PROVTAX" - tax area with several tax jurisdictions having tax detail lines setup with "Expense/Capitalize" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Tax Groups: "TAXABLE", "NONTAXABLE"
         // [GIVEN] Sales Tax Area "NOTAX" with "NOTAX" jutrisdiction line
@@ -1423,7 +1423,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [FEATURE] [Purchase] [Provincial Tax] [Expense/Capitalize]
         // [SCENARIO 216424] Posting of a purchase invoice with "Tax Area Code" = "NOTAX", "Provincial Tax Area Code" = "PROVTAX",
         // [SCENARIO 216424] where "PROVTAX" - tax area with several tax jurisdictions having tax detail lines setup with "Expense/Capitalize" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Tax Groups: "TAXABLE", "NONTAXABLE"
         // [GIVEN] Sales Tax Area "NOTAX" with "NOTAX" jutrisdiction line
@@ -1452,7 +1452,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales Tax] [Excise Tax] [Statistics]
         // [SCENARIO 361729] Excise Tax Amount on the Purchase Order Statistics page
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Order with Excise Tax, tax amount = "Y"
         CreatePurchOrderWithExciseTax(PurchaseHeader, TaxAmount);
         LibraryVariableStorage.Enqueue(TaxAmount);
@@ -1474,7 +1474,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales Tax] [Excise Tax]
         // [SCENARIO 362131] Excise Tax Amount dependency on "Quantity (Base)" in posted Purchase Invoice
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purchase Invoice with Excise Tax, "Quantity (Base)" = "X", Excise tax % = "Y"
         CreateAndPostPurchDocWithExciseTax(
           DocumentNo, TaxAmount, PostingDate, PurchaseHeader."Document Type"::Invoice);
@@ -1496,7 +1496,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales Tax] [Excise Tax]
         // [SCENARIO 362131] Excise Tax Amount dependency on "Quantity (Base)" in posted Purchase Credit Memo
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purchase Credit Memo with Excise Tax, "Quantity (Base)" = "X", Excise tax % = "Y"
         CreateAndPostPurchDocWithExciseTax(
           DocumentNo, TaxAmount, PostingDate, PurchaseHeader."Document Type"::"Credit Memo");
@@ -1518,7 +1518,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales Tax] [Excise Tax]
         // [SCENARIO 362131] Excise Tax Amount dependency on "Quantity (Base)" in posted Sales Invoice
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Sales Invoice with Excise Tax, "Quantity (Base)" = "X", Excise tax % = "Y"
         CreateAndPostSalesDocWithExciseTax(
           DocumentNo, TaxAmount, PostingDate, SalesHeader."Document Type"::Invoice);
@@ -1540,7 +1540,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales Tax] [Excise Tax]
         // [SCENARIO 362131] Excise Tax Amount dependency on "Quantity (Base)" in posted Sales Credit Memo
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Sales Credit Memo with Excise Tax, "Quantity (Base)" = "X", Excise tax % = "Y"
         CreateAndPostSalesDocWithExciseTax(
           DocumentNo, TaxAmount, PostingDate, SalesHeader."Document Type"::"Credit Memo");
@@ -1563,7 +1563,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales Order] [Sales Tax] [Excise Tax] [Tax On Tax]
         // [SCENARIO 363004] Sales Order rounding posting with specific Tax Area Setup (Excise Tax, Calculate Tax On Tax)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Setup with two lines:
         // [GIVEN] Tax Detail Line 1:  "Tax Type" = "Sales and Use Tax", "Tax Below Maximum" = 5, "Calculate Tax On Tax" = TRUE
@@ -1594,7 +1594,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase Order] [Sales Tax] [Excise Tax] [Tax On Tax]
         // [SCENARIO 363004] Purchase Order rounding posting with specific Tax Area Setup (Excise Tax, Calculate Tax On Tax)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Setup with two lines:
         // [GIVEN] Tax Detail Line 1:  "Tax Type" = "Sales and Use Tax", "Tax Below Maximum" = 5, "Calculate Tax On Tax" = TRUE
@@ -1623,7 +1623,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [SCENARIO 363302] Not a zero amount after reopening released Purchase Order with Sales Tax
 
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetup;
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
 
@@ -1650,7 +1650,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [FEATURE] [Purchase]
         // [SCENARIO 363302] Amount is not changed after reopening released Purchase Order with VAT
 
-        Initialize;
+        Initialize();
         FindVATPostingSetup(VATPostingSetup);
         // [GIVEN] Released Purchase Order with VAT and Amount Including VAT = 125
         CreateReleasePurchOrder(
@@ -1676,7 +1676,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [SCENARIO 363302] Not a zero amount after reopening released Sales Order with Sales Tax
 
-        Initialize;
+        Initialize();
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
 
         // [GIVEN] Released Sales Order with Sales Tax
@@ -1703,7 +1703,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [FEATURE] [Sales]
         // [SCENARIO 363302] Amount is not changed after reopening released Sales Order with VAT
 
-        Initialize;
+        Initialize();
         FindVATPostingSetup(VATPostingSetup);
         // [GIVEN] Released Sales Order with VAT and Amount Including VAT = 125
         CreateReleaseSalesOrder(SalesHeader, SalesLine, VATPostingSetup."VAT Prod. Posting Group", '', '');
@@ -1726,7 +1726,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         DocNo: Code[20];
     begin
         // [SCENARIO 372265] Post FCY Sales Order after Prepayment Invoice is posted with custom Amount and Exchange Rate
-        Initialize;
+        Initialize();
         // [GIVEN] FCY Sales Order with custom Amount = 999 and Exchange Rate (1:1.25)
         CreateFCYSalesOrderWithCustomAmountAndExchageRate(SalesHeader);
         // [GIVEN] Posted Prepayment Invoice
@@ -1751,7 +1751,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Negative Line]
         // [SCENARIO 375539] Purchase Order with two lines, the last line is negative
-        Initialize;
+        Initialize();
         DirectUnitCost[1] := 1229; // hardcoded "Direct Unit Cost" to get required rounding issue
         DirectUnitCost[2] := -93.3; // hardcoded "Direct Unit Cost" to get required rounding issue
         SalesTaxPct := 5; // hardcoded sales tax percent to get required rounding issue
@@ -1785,12 +1785,12 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [SCENARIO 379686] When more than 4 tax jurisdictions are contained in the tax area selected on the purchase order
         // [SCENARIO] an "Index out of bounds." error message should appear on opening the Purchase Order Statistics page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area TA with 5 tax jurisdictions and Country = 'CA'
         TaxAreaCode := LibraryERMTax.CreateTaxArea_CA;
 
-        TaxGroup.FindFirst;
+        TaxGroup.FindFirst();
 
         for Counter := 1 to 5 do
             CreateTaxJurisdictionAndTaxDetail(TaxAreaCode, TaxGroup.Code);
@@ -1838,13 +1838,13 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 200992] Sales Order posting with rounding for 2 Tax Details when "Maximum Amount/Qty" is specified
-        Initialize;
+        Initialize();
         UpdateVATInUseOnGLSetup;
 
         // [GIVEN] Sales Tax Setup has 1st line of Tax Detail with "Tax Below Maximum" = 6
         // [GIVEN] Sales Tax Setup has 2nd line of Tax Detail with "Tax Below Maximum" = 1.5 and "Maximum Amount/Qty" = 5000
         // [GIVEN] Tax Account (Sales) = "X"
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
         CreateTaxAreaSetupWithValues(TaxDetail1, TaxAreaCode, TaxGroupCode, 6, 0, GLAccountNo);
@@ -1875,7 +1875,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize]
         // [SCENARIO 210430] Purchase invoice posting in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -1905,7 +1905,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize]
         // [SCENARIO 210430] Sales invoice posting in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -1935,7 +1935,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize]
         // [SCENARIO 210430] Purchase invoice posting in case of Tax Country = US, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -1965,7 +1965,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize]
         // [SCENARIO 210430] Sales invoice posting in case of Tax Country = US, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -1995,7 +1995,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Currency] [Expense/Capitalize]
         // [SCENARIO 210430] Purchase invoice posting in case of Tax Country = CA, Expense, FCY, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2027,7 +2027,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Currency] [Expense/Capitalize]
         // [SCENARIO 210430] Sales invoice posting in case of Tax Country = CA, Expense, FCY, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2059,7 +2059,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Currency] [Expense/Capitalize]
         // [SCENARIO 210430] Purchase invoice posting in case of Tax Country = US, Expense, FCY, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2091,7 +2091,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Currency] [Expense/Capitalize]
         // [SCENARIO 210430] Sales invoice posting in case of Tax Country = US, Expense, FCY, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2123,7 +2123,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize]
         // [SCENARIO 212811] Purchase invoice posting in case of Tax Country = CA, Expense, several custom lines including negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2152,7 +2152,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize]
         // [SCENARIO 212811] Sales invoice posting in case of Tax Country = CA, Expense, several custom lines including negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2181,7 +2181,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize]
         // [SCENARIO 212811] Purchase invoice posting in case of Tax Country = US, Expense, several custom lines including negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2210,7 +2210,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize]
         // [SCENARIO 212811] Sales invoice posting in case of Tax Country = US, Expense, several custom lines including negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2239,7 +2239,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Currency] [Expense/Capitalize]
         // [SCENARIO 212811] Purchase invoice posting in case of Tax Country = CA, Expense, FCY, several custom lines including negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2270,7 +2270,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Currency] [Expense/Capitalize]
         // [SCENARIO 212811] Sales invoice posting in case of Tax Country = CA, Expense, FCY, several custom lines including negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2301,7 +2301,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Currency] [Expense/Capitalize]
         // [SCENARIO 212811] Purchase invoice posting in case of Tax Country = US, Expense, FCY, several custom lines including negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2332,7 +2332,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Currency] [Expense/Capitalize]
         // [SCENARIO 212811] Sales invoice posting in case of Tax Country = US, Expense, FCY, several custom lines including negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2364,7 +2364,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Copy Document] [Tax Difference]
         // [SCENARIO 214207] Sales Tax Amount Difference should be copied from Posted Purchase Invoice to Purchase Cr. Memo by Copy Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Sales Tax Amount Difference
         UpdateMaxVATDifferenceAllowedGeneralLedgerSetup(LibraryRandom.RandIntInRange(10, 100));
@@ -2397,7 +2397,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Copy Document] [Tax Difference]
         // [SCENARIO 214207] Sales Tax Amount Difference should be copied from Posted Sales Invoice to Sales Cr. Memo by Copy Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Sales Tax Amount Difference
         UpdateMaxVATDifferenceAllowedGeneralLedgerSetup(LibraryRandom.RandIntInRange(10, 100));
@@ -2430,7 +2430,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 382294] Sales Order with "Tax Area Code" and blank "Tax Group Code" field value is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" with "Tax Area Code" and blank "Tax Group Code" field value
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
@@ -2455,7 +2455,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 382294] Sales Order with Tax is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" with Tax
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
@@ -2480,7 +2480,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 382294] Sales Order with Tax is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" with Tax
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
@@ -2505,7 +2505,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 382294] Sales Order without Tax is not shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" without Tax
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
@@ -2530,7 +2530,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 382294] Purchase Order with "Tax Area Code" and blank "Tax Group Code" field value is shown on the "Purchase Order List" page when called with SkipShowingLinesWithoutVAT = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" with "Tax Area Code" and blank "Tax Group Code" field value
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
@@ -2555,7 +2555,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 382294] Purchase Order with Tax is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" with Tax
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
@@ -2580,7 +2580,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 382294] Purchase Order with Tax is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" with Tax
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
@@ -2605,7 +2605,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 382294] Purchase Order without Tax is not shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" without Tax
         TaxAreaCode := CreateTaxDetailWithExpense(TaxDetail);
@@ -2630,7 +2630,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize] [Invoice]
         // [SCENARIO 228521] Purchase invoice subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2656,7 +2656,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize] [Invoice]
         // [SCENARIO 228521] Purchase invoice subtotals in case of Tax Country = US, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2682,7 +2682,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Currency] [Expense/Capitalize]
         // [SCENARIO 228521] Purchase invoice subtotals in case of Tax Country = CA, Expense, FCY, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2711,7 +2711,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Currency] [Expense/Capitalize]
         // [SCENARIO 228521] Purchase invoice subtotals in case of Tax Country = US, Expense, FCY, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2740,7 +2740,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize] [Credit Memo]
         // [SCENARIO 228521] Purchase credit memo subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2766,7 +2766,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize] [Order]
         // [SCENARIO 228521] Purchase order subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2792,7 +2792,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize] [Return Order]
         // [SCENARIO 228521] Purchase return order subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2818,7 +2818,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize] [Blanket Order]
         // [SCENARIO 228521] Purchase blanket order subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2844,7 +2844,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Purchase] [Expense/Capitalize] [Quote]
         // [SCENARIO 228521] Purchase quote subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2869,7 +2869,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Invoice]
         // [SCENARIO 228521] Sales invoice subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2894,7 +2894,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Invoice]
         // [SCENARIO 228521] Sales invoice subtotals in case of Tax Country = US, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2919,7 +2919,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Currency] [Expense/Capitalize]
         // [SCENARIO 228521] Sales invoice subtotals in case of Tax Country = CA, Expense, FCY, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -2947,7 +2947,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Currency] [Expense/Capitalize]
         // [SCENARIO 228521] Sales invoice subtotals in case of Tax Country = US, Expense, FCY, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = US having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::US);
@@ -2975,7 +2975,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Credit Memo]
         // [SCENARIO 228521] Sales credit memo subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -3000,7 +3000,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Order]
         // [SCENARIO 228521] Sales order subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -3025,7 +3025,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Return Order]
         // [SCENARIO 228521] Sales return order subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -3050,7 +3050,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Blanket Order]
         // [SCENARIO 228521] Sales blanket order subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -3075,7 +3075,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Quote]
         // [SCENARIO 228521] Sales quote subtotals in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -3102,8 +3102,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Order] [Report] [Order Confirmation]
         // [SCENARIO 228827] Print REP1305 "Standard Sales - Order Conf." in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         UpdateReportLayoutSelection(REPORT::"Standard Sales - Order Conf.", DummyReportLayoutSelection.Type::"RDLC (built-in)");
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
@@ -3141,7 +3141,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Order] [Report] [Order Confirmation]
         // [SCENARIO 228827] Print REP10075 "Sales Order" in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
         CreateCustomTaxSetup_TFS210430(TaxAreaCode, TaxGroupCode, DummyTaxCountry::CA);
@@ -3180,7 +3180,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [FEATURE] [Purchase] [Expense/Capitalize]
         // [SCENARIO 283517] "Use Tax" can be set on Purchase Line if both "Sales Tax Only" with "Expense/Capitalize" = TRUE Tax Detail and Tax Detail of another type exist for applicable Tax Jurisdiction
 
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetup;
         // [GIVEN] Tax Area "TA01" with "Country/Region" = CA and Tax Area Line for Tax Jurisdiction "TJ01"
         // [GIVEN] Tax Group "TG01"
@@ -3220,7 +3220,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Expense/Capitalize]
         // [SCENARIO 285454] "Use Tax" cannot be set on Purchase Line when "Sales And Use Tax" has "Expense/Capitalize" = TRUE in Tax Detail
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetup;
 
         // [GIVEN] Tax Area "TA01" with "Country/Region" = CA and Tax Area Line for Tax Jurisdiction "TJ01"
@@ -3269,7 +3269,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [FEATURE] [Purchase] [Expense/Capitalize]
         // [SCENARIO 285454] "Use Tax" can be set on Purchase Line if both "Sales Tax Only" with "Expense/Capitalize" = TRUE Tax Detail and Tax Detail of another type exist for applicable Tax Jurisdiction
 
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetup;
         // [GIVEN] Tax Area "TA01" with "Country/Region" = CA and Tax Area Line for Tax Jurisdiction "TJ01"
         // [GIVEN] Tax Group "TG01"
@@ -3310,7 +3310,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 309621] Set "Tax Liable" for Sales Quote make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3348,7 +3348,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Blanket Order]
         // [SCENARIO 309621] Set "Tax Liable" for Sales Blanket Order make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3386,7 +3386,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 309621] Set "Tax Liable" for Sales Order make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3424,7 +3424,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 309621] Set "Tax Liable" for Sales Invoice make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3462,7 +3462,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 309621] Set "Tax Liable" for Sales Credit Memo make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3500,7 +3500,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO 309621] Set "Tax Liable" for Sales Return Order make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3537,7 +3537,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 309621] Unset "Tax Liable" for Sales Quote make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3573,7 +3573,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Blanket Order]
         // [SCENARIO 309621] Unset "Tax Liable" for Sales Blanket Order make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3609,7 +3609,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 309621] Unset "Tax Liable" for Sales Order make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3645,7 +3645,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 309621] Unset "Tax Liable" for Sales Invoice make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3681,7 +3681,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 309621] Unset "Tax Liable" for Sales Credit Memo make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3717,7 +3717,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO 309621] Unset "Tax Liable" for Sales Return Order make Sales Lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3755,7 +3755,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Quote]
         // [SCENARIO 309621] Set "Tax Liable" for Purchase Quote make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3794,7 +3794,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Blanket Order]
         // [SCENARIO 309621] Set "Tax Liable" for Purchase Blanket Order make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3833,7 +3833,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Order]
         // [SCENARIO 309621] Set "Tax Liable" for Purchase Order make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3872,7 +3872,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 309621] Set "Tax Liable" for Purchase Invoice make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3911,7 +3911,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 309621] Set "Tax Liable" for Purchase Credit Memo make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3950,7 +3950,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // [SCENARIO 309621] Set "Tax Liable" for Purchase Return Order make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -3988,7 +3988,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Quote]
         // [SCENARIO 309621] Unset "Tax Liable" for Purchase Quote make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -4025,7 +4025,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Blanket Order]
         // [SCENARIO 309621] Unset "Tax Liable" for Purchase Blanket Order make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -4062,7 +4062,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Order]
         // [SCENARIO 309621] Unset "Tax Liable" for Purchase Order make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -4099,7 +4099,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 309621] Unset "Tax Liable" for Purchase Invoice make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -4137,7 +4137,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 309621] Unset "Tax Liable" for Purchase Credit Memo make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -4174,7 +4174,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // [SCENARIO 309621] Unset "Tax Liable" for Purchase Return Order make Purchase lines amounts recalculated accordingly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
         TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
@@ -4205,15 +4205,15 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxSetup: Record "Tax Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
 
         CreateEmptyVATPostingSetupSalesTax;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         TaxSetup.DeleteAll();
         TaxSetup.Init();
@@ -4435,8 +4435,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
             Validate("Tax Liable", true);
             Validate("Tax Area Code", TaxAreaCode);
             Validate("Tax Identification Type", "Tax Identification Type"::"Legal Entity");
-            "RFC No." := LibraryUtility.GenerateGUID;
-            "CURP No." := LibraryUtility.GenerateGUID;
+            "RFC No." := LibraryUtility.GenerateGUID();
+            "CURP No." := LibraryUtility.GenerateGUID();
             Validate("Post Code", PostCode.Code);
             Modify(true);
             exit("No.");
@@ -4488,7 +4488,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         with PurchaseHeader do begin
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(''));
-            Validate("Ship-to Address", LibraryUtility.GenerateGUID);
+            Validate("Ship-to Address", LibraryUtility.GenerateGUID());
             Validate("Currency Code", CurrencyCode);
             Validate("Tax Liable", true);
             Validate("Tax Area Code", TaxAreaCode);
@@ -4537,7 +4537,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(''));
-            Validate("Bill-to Address", LibraryUtility.GenerateGUID);
+            Validate("Bill-to Address", LibraryUtility.GenerateGUID());
             Validate("Currency Code", CurrencyCode);
             Validate("Tax Liable", true);
             Validate("Tax Area Code", TaxAreaCode);
@@ -4747,14 +4747,14 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetRange(Type, LineType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentNo: Code[20])
     begin
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure ModifyServiceLine(var ServiceLine: Record "Service Line")
@@ -4809,7 +4809,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         if SkipShowingLinesWithoutVAT then
             SalesOrderList.SkipShowingLinesWithoutVAT;
         SalesOrderList.SetTableView(SalesHeader);
-        SalesOrderList.Run;
+        SalesOrderList.Run();
     end;
 
     local procedure OpenPurchaseOrderList(PurchaseHeader: Record "Purchase Header"; SkipShowingLinesWithoutVAT: Boolean)
@@ -4821,7 +4821,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         if SkipShowingLinesWithoutVAT then
             PurchaseOrderList.SkipShowingLinesWithoutVAT;
         PurchaseOrderList.SetTableView(PurchaseHeader);
-        PurchaseOrderList.Run;
+        PurchaseOrderList.Run();
     end;
 
     local procedure CreatePostPurchInvWithJobTask(var AmountInclTAX: Decimal; TaxDetail: Record "Tax Detail"; JobTask: Record "Job Task"; TaxAreaCode: Code[20]): Code[20]
@@ -5644,7 +5644,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
             SetFilter("Line No.", '<>%1', "Line No.");
             SetRange(Type);
-            if FindSet then
+            if FindSet() then
                 repeat
                     UpdateQtyToReceiveAndInvoice(PurchaseLine, 0, 0);
                 until Next = 0;
@@ -5693,7 +5693,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
             SetRange("Document Type", PurchaseLine."Document Type");
             SetRange("Document No.", PurchaseLine."Document No.");
             SetRange("Document Line No.", PurchaseLine."Line No.");
-            FindFirst;
+            FindFirst();
 
             Validate("Qty. to Assign", NewQtyToAssign);
             Modify(true);
@@ -5736,7 +5736,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
     local procedure UpdateVendorInvoiceNo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -6051,7 +6051,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
-        TaxAreaLine.FindFirst;
+        TaxAreaLine.FindFirst();
 
         TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
         exit(TaxJurisdiction."Tax Account (Sales)");
@@ -6063,7 +6063,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
-        TaxAreaLine.FindFirst;
+        TaxAreaLine.FindFirst();
 
         TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
         exit(TaxJurisdiction."Tax Account (Purchases)");
@@ -6107,7 +6107,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
@@ -6119,7 +6119,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("Bal. Account No.", GenJournalLine."Bal. Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GenJournalLine.Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
@@ -6132,7 +6132,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("GST/HST", GSTHST);
         VATEntry.SetRange("Document Type", DocumentType);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, VATEntry.FieldCaption(Base), VATEntry.Base, VATEntry.TableCaption));
@@ -6145,7 +6145,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         with JobLedgerEntry do begin
             SetRange("Job No.", JobNo);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, "Total Cost", '');
         end;
     end;
@@ -6170,7 +6170,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         with JobLedgerEntry do begin
             SetRange("Job No.", PurchLine."Job No.");
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             GLSetup.Get();
             Assert.AreEqual(
               Round(
@@ -6293,7 +6293,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         with GLEntry do begin
             SetRange("G/L Account No.", TaxAccountNo);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(ExpectedAmount, Amount, LibraryERM.GetAmountRoundingPrecision, GLEntryAmountErr);
         end;
     end;
@@ -6314,7 +6314,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreEqual(GLEntry.Amount, -1248.75, TaxAmountErr);
     end;
 
@@ -6325,7 +6325,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         with CustLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount);
             TestField(Amount, ExpectedAmount);
         end;
@@ -6338,7 +6338,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         with VendorLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount);
             TestField(Amount, ExpectedAmount);
         end;
@@ -6374,7 +6374,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         VerifyGLEntryAmountNearlyEqual(GLEntry, GetVendorPayablesAccount(VendorNo), -PurchAmount);
         GLEntry.SetRange("G/L Account No.");
         GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Purchase);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           TaxAmount + PurchAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntryAmountErr);
     end;
@@ -6407,10 +6407,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Document Type", DocumentType);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Amount, Amount[1]);
         SalesLine.TestField("Amount Including VAT", AmountIncludingVAT[1]);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine.TestField(Amount, Amount[2]);
         SalesLine.TestField("Amount Including VAT", AmountIncludingVAT[2]);
     end;
@@ -6421,10 +6421,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("Document Type", DocumentType);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Amount, Amount[1]);
         PurchaseLine.TestField("Amount Including VAT", AmountIncludingVAT[1]);
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         PurchaseLine.TestField(Amount, Amount[2]);
         PurchaseLine.TestField("Amount Including VAT", AmountIncludingVAT[2]);
     end;
@@ -6435,7 +6435,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         for I := 1 to ArrayLen(GLAccountArray) do begin
             GLEntry.SetRange("G/L Account No.", GLAccountArray[I]);
-            GLEntry.FindFirst;
+            GLEntry.FindFirst();
             ActualAmount[I] := GLEntry.Amount;
         end;
     end;

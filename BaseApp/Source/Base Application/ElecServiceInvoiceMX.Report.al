@@ -78,10 +78,10 @@ report 10479 "Elec. Service Invoice MX"
                     column(CompanyInfo__Giro_No__; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfo__Bank_Name_; CompanyInfo."Bank Name")
+                    column(CompanyInfo__Bank_Name_; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
+                    column(CompanyInfo__Bank_Account_No__; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(Service_Invoice_Header___Bill_to_Customer_No__; "Service Invoice Header"."Bill-to Customer No.")
@@ -949,6 +949,9 @@ report 10479 "Elec. Service Invoice MX"
 
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
+                if not CompanyBankAccount.Get("Service Invoice Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
                     CompanyInfo."Phone No." := RespCenter."Phone No.";
@@ -1092,6 +1095,7 @@ report 10479 "Elec. Service Invoice MX"
         GLSetup: Record "General Ledger Setup";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";

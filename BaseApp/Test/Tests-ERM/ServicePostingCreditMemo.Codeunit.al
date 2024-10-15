@@ -54,7 +54,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 3. Verify that the Service Lines in the Credit Memo correspond to the Service Lines in the Service Contract.
 
         // [GIVEN] Create and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
 
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -84,7 +84,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 3. Verify that the Service Line in the Credit Memo corresponds to the Service Line in the Service Contract.
 
         // [GIVEN] Create Service Contract with Automatic Credit Memo as TRUE and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate("Automatic Credit Memos", true);
         ServiceContractHeader.Modify(true);
@@ -123,7 +123,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 3. Verify that the Service Lines in the Credit Memo correspond to the Service Lines in the Service Contract.
 
         // [GIVEN] Create Service Contract with Automatic Credit Memo as TRUE and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate("Automatic Credit Memos", true);
         ServiceContractHeader.Modify(true);
@@ -163,7 +163,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 3. Verify that the Service Lines in the Credit Memo correspond to the Service Lines in the Service Contract.
 
         // [GIVEN] Create and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate("Starting Date", CalcDate('<-CM>', WorkDate));  // Validate first date of month.
         ServiceContractHeader.Validate(Prepaid, true);
@@ -195,7 +195,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 2. Verify that the application allows creation of Service Credit Memo Lines.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // [WHEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
@@ -204,7 +204,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [THEN] Verify that the Service Credit Memo Lines are created.
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 3. Verify that the Service Lines in the Credit Memo correspond to the Service Lines in the Service Contract.
 
         // [GIVEN] Create and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate("Starting Date", CalcDate('<-CM>', WorkDate));  // Validate first date of month.
         ServiceContractHeader.Validate(Prepaid, true);
@@ -276,7 +276,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 3. Verify that the Service Lines in the Credit Memo correspond to the Service Lines in the Service Contract.
 
         // [GIVEN] Create Service Contract with Automatic Credit Memo as TRUE and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate("Automatic Credit Memos", true);
         ServiceContractHeader.Modify(true);
@@ -318,7 +318,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 3. Verify that the Service Line in the Credit Memo corresponds to the Service Line in the Service Contract.
 
         // [GIVEN] Create Service Contract with Automatic Credit Memo as TRUE and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate("Automatic Credit Memos", true);
         ServiceContractHeader.Modify(true);
@@ -363,7 +363,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 5. Verify that the Service Lines in the Credit Memo correspond to the Service Lines in the Service Contract.
 
         // [GIVEN] Create Service Contract with Automatic Credit Memo as TRUE and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate("Automatic Credit Memos", true);
         ServiceContractHeader.Modify(true);
@@ -411,7 +411,7 @@ codeunit 136104 "Service Posting - Credit Memo"
 
         // [GIVEN] Create and sign Service Contract. Post the Service Invoice. Create Service Credit Memo from Create Contract Line
         // Credit Memo.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
         PostServiceInvoice(ServiceContractHeader."Contract No.");
@@ -447,7 +447,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 4. Verify that the Credit Memo has been deleted.
 
         // [GIVEN] Create and sign Service Contract. Post the Service Invoice. Create Service Credit Memo by inserting Credit Memo Header and running Get Prepaid Contract Entries.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate("Starting Date", CalcDate('<-CM>', WorkDate));  // Validate first date of month.
         ServiceContractHeader.Validate(Prepaid, true);
@@ -490,7 +490,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 3. Verify that the application generates an error as 'There is nothing to post'.
 
         // [GIVEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateServiceCreditMemoLine(ServiceHeader);
 
@@ -517,7 +517,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // relevant Credit Memo Lines.
 
         // [GIVEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateServCrdtMmLnGLAccWithQty(ServiceHeader);
 
@@ -548,7 +548,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // relevant Credit Memo Lines.
 
         // [GIVEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateServCrdtMmLneItemWithQty(ServiceHeader);
 
@@ -580,7 +580,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // relevant Credit Memo Lines.
 
         // [GIVEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateServCrdtMmLnRsrceWithQty(ServiceHeader);
 
@@ -611,7 +611,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // relevant Credit Memo Lines.
 
         // [GIVEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateServCrdtMmLnGLAccWithQty(ServiceHeader);
         CreateServCrdtMmLneItemWithQty(ServiceHeader);
@@ -651,7 +651,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // created and the fields Applies-to Doc. Type and Applies-to Doc. No. are blank.
 
         // [GIVEN] Create and post Sales Credit Memo. Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesCreditMemo(SalesHeader, Customer."No.");
         ExecuteConfirmHandlerInvoiceES;
@@ -694,7 +694,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 4. Verify that the Applies-to Doc. No. field on Service Credit Memo Header is filled in with the number of the Invoice created.
 
         // [GIVEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         CreateSalesInvoice(SalesHeader, Customer."No.");
@@ -737,7 +737,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 4. Verify that the Applies-to Doc. No. field on Service Credit Memo Header is filled in with the number of Credit Memo created.
 
         // [GIVEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         CreateSalesCreditMemo(SalesHeader, Customer."No.");
@@ -786,7 +786,7 @@ codeunit 136104 "Service Posting - Credit Memo"
 
         // [GIVEN] Create and post a Service Invoice - Create Service Header, Service Line. Create Service Credit Memo - Service Header and
         // Service Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithPrice(Item);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
@@ -801,7 +801,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
 
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         DocumentHeaderNo := ServiceInvoiceHeader."No.";
         DocumentType := CustLedgerEntry."Document Type"::Invoice;
 
@@ -839,7 +839,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 2. Verify that the application posts negative debit and credit amounts for corrective entries
 
         // [GIVEN] Set Credit Memo As "Correction"
-        Initialize;
+        Initialize();
         SetCreditMemoAsCorrection;
 
         // [WHEN] Create Service Credit Memo by inserting Credit Memo Header and Service Credit Memo Lines.
@@ -871,7 +871,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 158079] Service credit memo provides same amounts as invoiced amounts when created from same service contract.
 
         // [GIVEN] Create and sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
@@ -902,7 +902,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 158079] The application creates credit limit warning when creating a service order on the Customer Card.
 
         // [GIVEN] Setup Credit Warning field on Sales and Receivables Setup. Create Customer, Service Order for the Customer.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         CreditWarnings := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
@@ -920,7 +920,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // 4. TearDown: Reset the value of Credit Warning field on Sales and Receivables Setup.
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Modify(true);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -936,7 +936,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 160852] Contract Invoice Report run successfully from Create Contract Invoices Report.
 
         // [GIVEN] Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
@@ -965,7 +965,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 168064] "Customer No." and "Line Amount" in Service Invoice Header and Line after posting Service Invoice with the line copied from Service Contract.
 
         // [GIVEN] Create and sign Service Contract, get and copy Service Lines.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
         GetServiceLinesFromContract(ServiceLine, ServiceContractHeader."Contract No.");
@@ -990,7 +990,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 172908] Error occurs on Creation of Service Credit Memo from Service Contract having Unposted Service Invoices.
 
         // [GIVEN] Create and sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
@@ -1016,7 +1016,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 172908] Error occurs on Creation of Service Invoice from Service Contract having Unposted Service Credit Memo.
 
         // [GIVEN] Create and sign Service Contract, Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
@@ -1047,7 +1047,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 235040] Posting a Service Credit Memo with a Service Lines of Type Item and Resource with Contract No.
 
         // [GIVEN] Create and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
         PostServiceInvoice(ServiceContractHeader."Contract No.");
@@ -1084,7 +1084,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 143443] Create Service Credit Memo, post it and verify Item Ledger Entry.
 
         // [GIVEN] Find Item, create Service Contract, sign it and create Customer without Price Including VAT.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -1117,7 +1117,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 143443] Create Service Credit Memo for Type Cost, post it and verify the Service Ledger Entries.
 
         // [GIVEN] Find Service Cost, create Customer without Price Including VAT.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
         CustomerNo := CustomerWithPriceIncludingVAT(false);
 
@@ -1147,7 +1147,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 143443] Create Service Credit Memo for Type GL Account, post it and verify the Service Ledger Entries.
 
         // [GIVEN] Find GL Account with Direct Posting True, create Customer with Price Including VAT.
-        Initialize;
+        Initialize();
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         CustomerNo := CustomerWithPriceIncludingVAT(true);
 
@@ -1177,7 +1177,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 143443] Create Service Credit Memo for Type Item, post it and verify the Service Ledger Entries.
 
         // [GIVEN] Find Item, create Customer with Price Including VAT.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CustomerNo := CustomerWithPriceIncludingVAT(true);
 
@@ -1207,8 +1207,8 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 143443] Create Service Credit Memo for Type Resource, post it and verify the Service Ledger Entries.
 
         // [GIVEN] Create Resource, create Customer with Price Including VAT.
-        Initialize;
-        ResourceNo := LibraryResource.CreateResourceNo;
+        Initialize();
+        ResourceNo := LibraryResource.CreateResourceNo();
         CustomerNo := CustomerWithPriceIncludingVAT(true);
 
         // [WHEN] Create Service Credit Memo and post it.
@@ -1237,7 +1237,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [SCENARIO 143444] Create and Post Service Credit Memo and Validate Posted Service Credit Memo Line.
 
         // [GIVEN] Create Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
 
@@ -1289,10 +1289,10 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         // [FEATURE] [UI]
         // [Scenario]  Actions on Sales Quote Page not enabled if no customer selected
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Quote page is opened on SaaS
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
 
         // [THEN] All controls related to customer (and on SaaS) are disabled
         Assert.IsFalse(SalesCreditMemo.Statistics.Enabled, ControlShouldBeDisabledErr);
@@ -1304,7 +1304,7 @@ codeunit 136104 "Service Posting - Credit Memo"
 
         // [WHEN] Sales Quotes page is opened with no application area
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
 
         // [THEN] All controls related to customer (and not on SaaS) are disabled
         Assert.IsFalse(SalesCreditMemo.Release.Enabled, ControlShouldBeDisabledErr);
@@ -1321,7 +1321,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         // [FEATURE] [UI]
         // [Scenario]  Actions on Sales Quote Page are enabled if customer selected
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sample sales credit memo
         LibrarySales.CreateCustomer(Customer);
@@ -1359,7 +1359,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [FEATURE] [Resource] [Usage] [Credit Memo]
         // [SCENARIO 230230] Negative resource usage entry should be created in the resource ledger when posting a service credit memo for a resource
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service credit memo for a resource "R". "Quantity" = 5, "Unit Price" = 8
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
@@ -1374,7 +1374,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // [THEN] Resource ledger entry with type "Usage" is created. Quantity = -5, "Total Price" = -40
         ResLedgerEntry.SetRange("Resource No.", ServiceLine."No.");
         ResLedgerEntry.SetRange("Entry Type", ResLedgerEntry."Entry Type"::Usage);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, -ServiceLine.Quantity);
         ResLedgerEntry.TestField("Total Price", -ServiceLine.Quantity * ServiceLine."Unit Price");
         ResLedgerEntry.TestField("Document No.", ServiceHeader."Last Posting No.");
@@ -1390,11 +1390,11 @@ codeunit 136104 "Service Posting - Credit Memo"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Posting - Credit Memo");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Credit Memo");
@@ -1407,7 +1407,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         Clear(ApplyCustomerEntries);
         ApplyCustomerEntries.SetService(ServiceHeader, CustLedgerEntry, ServiceHeader.FieldNo("Applies-to Doc. No."));
@@ -1424,7 +1424,7 @@ codeunit 136104 "Service Posting - Credit Memo"
 
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToTempServiceLine: Record "Service Line" temporary)
     begin
-        if FromServiceLine.FindSet then
+        if FromServiceLine.FindSet() then
             repeat
                 ToTempServiceLine.Init();
                 ToTempServiceLine := FromServiceLine;
@@ -1522,11 +1522,11 @@ codeunit 136104 "Service Posting - Credit Memo"
         CreateContractInvoices: Report "Create Contract Invoices";
     begin
         ServiceContractHeader.SetRange("Contract No.", ContractNo);
-        ServiceContractHeader.FindFirst;
+        ServiceContractHeader.FindFirst();
         CreateContractInvoices.SetTableView(ServiceContractHeader);
         CreateContractInvoices.SetOptions(WorkDate, ServiceContractHeader."Next Invoice Date", CreateInvoices);
         CreateContractInvoices.UseRequestPage(false);
-        CreateContractInvoices.RunModal;
+        CreateContractInvoices.RunModal();
     end;
 
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20])
@@ -1653,7 +1653,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ResourceNo: Code[20];
     begin
         // Create 2 to 10 Service Lines - Boundary 2 is important.
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ResourceNo := LibraryResource.CreateResourceNo();
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 10) do begin
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
             ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
@@ -1668,7 +1668,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ResourceNo: Code[20];
     begin
         // Create 2 to 10 Service Lines - Boundary 2 is important.
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ResourceNo := LibraryResource.CreateResourceNo();
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 10) do begin
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
             LineWithQuantityAndUnitPrice(ServiceLine);
@@ -1682,7 +1682,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, No);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         LineWithQuantityAndUnitPrice(ServiceLine);
@@ -1712,13 +1712,13 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
         ServiceHeader.SetRange("Contract No.", ServiceContractNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
     end;
 
     local procedure FindServiceCrMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     local procedure FindCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; CustomerNo: Code[20])
@@ -1726,7 +1726,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         with CustLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1739,7 +1739,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         GetPrepaidContractEntries.Initialize(ServiceHeader);
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractNo);
         GetPrepaidContractEntries.SetTableView(ServiceLedgerEntry);
-        GetPrepaidContractEntries.RunModal;
+        GetPrepaidContractEntries.RunModal();
     end;
 
     local procedure GetServiceLinesFromContract(var ServiceLine: Record "Service Line"; ContractNo: Code[20])
@@ -1748,7 +1748,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
         ServiceHeader.SetRange("Contract No.", ContractNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindSet();
@@ -1763,7 +1763,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceDocumentRegister.SetRange("Source Document Type", ServiceDocumentRegister."Source Document Type"::Contract);
         ServiceDocumentRegister.SetRange("Source Document No.", ServiceContractNo);
         ServiceDocumentRegister.SetRange("Destination Document Type", ServiceDocumentRegister."Destination Document Type"::Invoice);
-        ServiceDocumentRegister.FindFirst;
+        ServiceDocumentRegister.FindFirst();
         ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, ServiceDocumentRegister."Destination Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
     end;
@@ -1842,7 +1842,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::"Credit Memo");
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.Validate("Contract No.", ContractNo);
         ServiceLine.Modify(true);
     end;
@@ -1951,7 +1951,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // Verify that the Posted Service Credit Memo Lines created corresponds with the relevant Service Credit Memo Lines.
         TempServiceLine.FindSet();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", TempServiceLine."Document No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         repeat
             ServiceCrMemoLine.Get(ServiceCrMemoHeader."No.", TempServiceLine."Line No.");  // Line No in unposted/posted documents are same.
             ServiceCrMemoLine.TestField("Customer No.", TempServiceLine."Customer No.");
@@ -1981,9 +1981,9 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         // Verify that the G/L Entry created correspond with the relevant Service Credit Memo Lines.
-        TempServiceLine.FindFirst;
+        TempServiceLine.FindFirst();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", TempServiceLine."Document No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
         GLEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
@@ -2000,9 +2000,9 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         // Verify that the Detailed Customer Ledger Entry created correspond with the relevant Service Credit Memo Lines.
-        TempServiceLine.FindFirst;
+        TempServiceLine.FindFirst();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", TempServiceLine."Document No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::"Credit Memo");
         DetailedCustLedgEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         DetailedCustLedgEntry.FindSet();
@@ -2018,9 +2018,9 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         // Verify that the VAT Entry created correspond with the relevant Service Credit Memo Lines.
-        TempServiceLine.FindFirst;
+        TempServiceLine.FindFirst();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", TempServiceLine."Document No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
         VATEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         VATEntry.FindSet();
@@ -2038,12 +2038,12 @@ codeunit 136104 "Service Posting - Credit Memo"
         // Verify that the Value Entry created correspond with the relevant Service Credit Memo Lines.
         TempServiceLine.FindSet();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", TempServiceLine."Document No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Credit Memo");
         ValueEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         repeat
             ValueEntry.SetRange("Order Line No.", TempServiceLine."Line No.");
-            ValueEntry.FindFirst;
+            ValueEntry.FindFirst();
             ValueEntry.TestField("Item No.", TempServiceLine."No.");
             ValueEntry.TestField("Posting Date", TempServiceLine."Posting Date");
             ValueEntry.TestField("Source No.", TempServiceLine."Customer No.");
@@ -2075,7 +2075,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         // Includig VAT of the Service Invoice and the Service Credit Memo.
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", ServiceInvoiceHeaderNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.TestField("Remaining Amount", ServiceInvoiceAmtIncVAT - ServiceCreditMemoAmtIncVAT);
     end;
@@ -2085,7 +2085,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         ServiceCrMemoLine.SetRange("Customer No.", CustomerNo);
-        ServiceCrMemoLine.FindFirst;
+        ServiceCrMemoLine.FindFirst();
         ServiceCrMemoLine.TestField(Type, Type);
         ServiceCrMemoLine.TestField("No.", No);
         ServiceCrMemoLine.TestField(Quantity, Quantity);
@@ -2097,7 +2097,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Customer No.", ServiceContractHeader."Customer No.");
         TempServiceLine.FindSet();
         repeat
@@ -2116,7 +2116,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         GeneralLedgerSetup.Get();
         ServiceLine.FindSet();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceLine."Document No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::"Credit Memo");
         ServiceLedgerEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         ServiceLedgerEntry.FindSet();
@@ -2137,10 +2137,10 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::"Credit Memo");
         ServiceLedgerEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("Entry Type", ServiceLedgerEntry."Entry Type"::Sale);
         ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
         ServiceLedgerEntry.TestField("No.", No);
@@ -2153,10 +2153,10 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Credit Memo");
         ItemLedgerEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
         ItemLedgerEntry.TestField("Item No.", ItemNo);
         ItemLedgerEntry.TestField(Quantity, Quantity);
@@ -2168,7 +2168,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         GLEntry: Record "G/L Entry";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", DocumentNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
         GLEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
@@ -2210,7 +2210,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentHeaderNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         ApplyCustomerEntries.SetCustLedgEntry(CustLedgerEntry);
         ApplyCustomerEntries.SetCustApplId(false);
         Response := ACTION::LookupOK;

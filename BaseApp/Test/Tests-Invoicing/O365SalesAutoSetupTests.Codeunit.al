@@ -67,7 +67,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
         O365C2GraphEventSettings.Modify();
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -89,16 +89,16 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         O365SalesInitialSetup: Codeunit "O365 Sales Initial Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         O365SalesInitialSetup.HideConfirmDialog;
-        O365SalesInitialSetup.Run;
+        O365SalesInitialSetup.Run();
         Clear(O365SalesInitialSetup);
 
         O365SalesInitialSetupRec.Get();
         Assert.IsTrue(O365SalesInitialSetupRec."Is initialized", 'Setup has not been initialised already');
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
@@ -116,14 +116,14 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         LibrarySales: Codeunit "Library - Sales";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
 
         LibraryVariableStorage.Enqueue(OverrideDefaultsWithSalesSetupQst);
         LibraryVariableStorage.Enqueue(true);
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
@@ -141,14 +141,14 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         LibrarySales: Codeunit "Library - Sales";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
 
         LibraryVariableStorage.Enqueue(OverrideDefaultsWithSalesSetupQst);
         LibraryVariableStorage.Enqueue(false);
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
@@ -165,12 +165,12 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         if SalesReceivablesSetup.Get then
             SalesReceivablesSetup.Delete();
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
@@ -196,14 +196,14 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO 217158] Customer templates for person and company type must be defined in Marketing Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Marketin Setup record does not exist
         if MarketingSetup.Get then
             MarketingSetup.Delete();
 
         // [WHEN] Codeunit "O365 Sales Initial Setup" is being run
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // [THEN] Marketing Setup record created
@@ -224,7 +224,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         LibraryJournals: Codeunit "Library - Journals";
     begin
         // Setup
-        Initialize;
+        Initialize();
         O365SalesInitialSetup.Get();
 
         if not GenJournalBatch.Get(O365SalesInitialSetup."Payment Reg. Template Name", O365SalesInitialSetup."Payment Reg. Batch Name") then begin
@@ -235,7 +235,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         end;
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
@@ -257,7 +257,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         if not CustomReportLayout.Get(StrSubstNo(DraftInvoiceLayoutTxt, REPORT::"Standard Sales - Draft Invoice")) then begin
             CustomReportLayout.Init();
@@ -268,7 +268,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         end;
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
@@ -287,10 +287,10 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         MyNotifications: Record "My Notifications";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
@@ -315,7 +315,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         ConfigRule: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         O365SalesInitialSetup.Get();
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
@@ -330,7 +330,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         ConfigTemplateHeader.Insert(true);
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Verify
@@ -357,7 +357,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         until ConfigTemplateHeader.Next = 0;
 
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Customer);
-        if not ConfigTmplSelectionRules.FindFirst then
+        if not ConfigTmplSelectionRules.FindFirst() then
             exit; // NA may not contain a selection rule for customers
 
         Assert.AreEqual(1, ConfigTmplSelectionRules.Count, 'There should only be one selection rule for customers');
@@ -377,7 +377,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         CustomerTemplate: Record "Customer Template";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CustomerTemplate.DeleteAll();
 
         if CompanyInformation.Get then begin
@@ -386,7 +386,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         end;
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Verify
@@ -395,11 +395,11 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Assert.IsFalse(CustomerTemplate.IsEmpty, 'No Customer templates have been created');
 
         CustomerTemplate.SetRange("Contact Type", CustomerTemplate."Contact Type"::Company);
-        CustomerTemplate.FindFirst;
+        CustomerTemplate.FindFirst();
         VerifyCustomerTemplate(CustomerTemplate);
 
         CustomerTemplate.SetRange("Contact Type", CustomerTemplate."Contact Type"::Person);
-        CustomerTemplate.FindFirst;
+        CustomerTemplate.FindFirst();
         VerifyCustomerTemplate(CustomerTemplate);
     end;
 #endif
@@ -418,10 +418,10 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         ConfigRule: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Verify
@@ -433,7 +433,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Assert.AreEqual(TaxableCodeTxt, Item."Tax Group Code", 'Incorrect Tax Group Code.');
 
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Item);
-        ConfigTmplSelectionRules.FindFirst;
+        ConfigTmplSelectionRules.FindFirst();
 
         Assert.AreEqual(1, ConfigTmplSelectionRules.Count, 'There should only be one selection rule for customers');
         ConfigTmplSelectionRules."Selection Criteria".CreateInStream(InStr);
@@ -453,10 +453,10 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         TaxAreaCode: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         TaxAreaCode := GetTaxAreaCode;
@@ -477,8 +477,8 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         SalesDocumentIcon: Record "Sales Document Icon";
     begin
         // Setup
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
 
         // Verify
         Assert.IsFalse(SalesDocumentIcon.IsEmpty, 'Sales Document icons were not created from demo data');
@@ -492,46 +492,17 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         O365SalesInitialSetup.Get();
         Assert.IsFalse(O365SalesInitialSetup."Is initialized", '');
 
         // Excercise
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Verify
         O365SalesInitialSetup.Get();
         Assert.IsTrue(O365SalesInitialSetup."Is initialized", '');
-    end;
-
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend')]
-    [Scope('OnPrem')]
-    procedure TestBccSetup()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        O365EmailSetup: Record "O365 Email Setup";
-        SMTPMail: Codeunit "SMTP Mail";
-    begin
-        // Setup
-        Initialize;
-        if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete();
-
-        SMTPMail.ApplyOffice365Smtp(SMTPMailSetup);
-        SMTPMailSetup."User ID" := TestMailTxt;
-        SMTPMailSetup.Insert();
-
-        // Excercise
-        LibraryLowerPermissions.SetO365Setup;
-        CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
-
-        // Verify
-        O365EmailSetup.SetCurrentKey(Email, RecipientType);
-        O365EmailSetup.SetRange(Email, TestMailTxt);
-        O365EmailSetup.SetRange(RecipientType, O365EmailSetup.RecipientType::BCC);
-        Assert.IsTrue(O365EmailSetup.FindFirst, 'BCC rule was not created');
     end;
 
     [Test]
@@ -541,13 +512,13 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [GIVEN] A new company
-        Initialize;
+        Initialize();
 
         // [WHEN] Invoicing initial setup runs on COD2110 for the first time
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // [THEN] Any job queue entry that was created before (e.g. in COD2) is now set OnHold, except the ones useful for Invoicing
-        if JobQueueEntry.FindSet then
+        if JobQueueEntry.FindSet() then
             repeat
                 Assert.AreEqual(JobQueueEntry.Status, JobQueueEntry.Status::"On Hold",
                   StrSubstNo('Job queue entry for %1 %2 is not On Hold for Invoicing, but it''s %3.',
@@ -564,7 +535,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         O365SalesInitialSetup: Codeunit "O365 Sales Initial Setup";
     begin
         // [SCENARIO 203201] Bal. Account field should be blank for payment methods with Use for Invoicing after initialization of O365 company
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new payment method with Bal. Account
         LibraryERM.CreatePaymentMethodWithBalAccount(PaymentMethod);
@@ -573,7 +544,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
 
         // [WHEN] O365 company is being initialized
         O365SalesInitialSetup.HideConfirmDialog;
-        O365SalesInitialSetup.Run;
+        O365SalesInitialSetup.Run();
 
         // [THEN] Bal. Account field is blank for payment methods with Use for Invoicing = Yes
         PaymentMethod.SetRange("Use for Invoicing", true);
@@ -622,7 +593,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         O365SalesInitialSetup.Get();
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Customer Template");
         ConfigTemplateLine.SetRange("Field ID", FieldId);
-        if not ConfigTemplateLine.FindFirst then
+        if not ConfigTemplateLine.FindFirst() then
             exit('');
 
         exit(ConfigTemplateLine."Default Value");
@@ -633,18 +604,18 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         CompanyInformation: Record "Company Information";
         TaxArea: Record "Tax Area";
     begin
-        if TaxArea.FindFirst then
+        if TaxArea.FindFirst() then
             TaxAreaCode := TaxArea.Code;
 
         if CompanyInformation.Get and (CompanyInformation.County <> '') then begin
             TaxArea.Reset();
             TaxArea.SetRange(Code, CompanyInformation.County);
-            if TaxArea.FindFirst then
+            if TaxArea.FindFirst() then
                 TaxAreaCode := TaxArea.Code
             else begin
                 TaxArea.Reset();
                 TaxArea.SetRange(Description, CompanyInformation.County);
-                if TaxArea.FindFirst then
+                if TaxArea.FindFirst() then
                     TaxAreaCode := TaxArea.Code
             end;
         end;

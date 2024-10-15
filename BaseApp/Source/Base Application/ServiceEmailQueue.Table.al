@@ -79,7 +79,7 @@ table 5935 "Service Email Queue"
     begin
         if "Entry No." = 0 then begin
             ServEmailQueue.Reset();
-            if ServEmailQueue.FindLast then
+            if ServEmailQueue.FindLast() then
                 "Entry No." := ServEmailQueue."Entry No." + 1
             else
                 "Entry No." := 1;

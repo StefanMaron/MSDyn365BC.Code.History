@@ -234,7 +234,7 @@ page 10150 "O365 Tax Settings Card"
     local procedure SetDefaults()
     begin
         InitializeDefaultTaxAreaLabel;
-        TempSalesTaxSetupWizard.Initialize;
+        TempSalesTaxSetupWizard.Initialize();
         TempSalesTaxSetupWizard."Tax Area Code" := DelChr(Code, '<>', ' ');
         InitializeTaxAreaLines;
         if not IsCanada then
@@ -279,10 +279,10 @@ page 10150 "O365 Tax Settings Card"
     begin
         ClearFieldsForCA;
         TaxAreaLine.SetRange("Tax Area", TempSalesTaxSetupWizard."Tax Area Code");
-        if TaxAreaLine.FindSet then
+        if TaxAreaLine.FindSet() then
             repeat
                 TaxJurisdiction.SetRange(Code, TaxAreaLine."Tax Jurisdiction Code");
-                if TaxJurisdiction.FindFirst then
+                if TaxJurisdiction.FindFirst() then
                     if TaxJurisdiction."Report-to Jurisdiction" = CATxt then begin
                         GSTorHSTCode := TaxJurisdiction.Code;
                         GSTorHST := GetProvince(GSTorHSTCode);

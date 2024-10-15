@@ -20,10 +20,10 @@ codeunit 139007 "Test Instruction Mgt. SaaS"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // Verify
         // Instruction is not displayed
@@ -42,10 +42,10 @@ codeunit 139007 "Test Instruction Mgt. SaaS"
         SalesInvoice: TestPage "Sales Invoice";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         DocumentSendingProfile.SetRange(Default, true);
-        if DocumentSendingProfile.FindFirst then begin
+        if DocumentSendingProfile.FindFirst() then begin
             DocumentSendingProfile.Disk := DocumentSendingProfile.Disk::No;
             DocumentSendingProfile.Modify();
         end;
@@ -73,12 +73,12 @@ codeunit 139007 "Test Instruction Mgt. SaaS"
     begin
         UserPreference.DeleteAll();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();

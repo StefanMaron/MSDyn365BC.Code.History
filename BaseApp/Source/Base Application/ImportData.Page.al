@@ -240,7 +240,7 @@ page 9900 "Import Data"
         SelectedCompany.DeleteAll();
 
         if IncludeAllCompanies then
-            if FindSet then
+            if FindSet() then
                 repeat
                     SelectedCompany := Rec;
                     SelectedCompany.Insert();

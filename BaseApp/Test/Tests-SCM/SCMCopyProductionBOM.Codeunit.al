@@ -38,7 +38,7 @@ codeunit 137210 "SCM Copy Production BOM"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Copy Production BOM");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -52,7 +52,7 @@ codeunit 137210 "SCM Copy Production BOM"
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
     begin
         // Setup: Create source Production BOM and Version.
-        Initialize;
+        Initialize();
         SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, BOMStatus);
 
         // Create destination Production BOM Header.
@@ -132,7 +132,7 @@ codeunit 137210 "SCM Copy Production BOM"
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
     begin
         // Setup: Create source Production BOM and version.
-        Initialize;
+        Initialize();
         SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, BOMStatus);
 
         // Exercise: Copy BOM from source Production BOM Header.
@@ -193,7 +193,7 @@ codeunit 137210 "SCM Copy Production BOM"
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
     begin
         // Setup: Create source Production BOM and version.
-        Initialize;
+        Initialize();
         SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, BOMStatus);
 
         // Exercise: Copy BOM version from the desired BOM version.
@@ -274,7 +274,7 @@ codeunit 137210 "SCM Copy Production BOM"
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
     begin
         // Setup: Create source Production BOM and version.
-        Initialize;
+        Initialize();
         SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, ProductionBOMHeader.Status::New);
 
         // Exercise: Copy BOM version, first from the BOM version, then from the Production BOM header.
@@ -297,7 +297,7 @@ codeunit 137210 "SCM Copy Production BOM"
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
     begin
         // Setup: Create source Production BOM and version.
-        Initialize;
+        Initialize();
         SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, ProductionBOMHeader.Status::New);
 
         // Exercise: Copy BOM version from Header, then from the other Production BOM version.
@@ -321,7 +321,7 @@ codeunit 137210 "SCM Copy Production BOM"
         VersionCount: Integer;
     begin
         // Setup: Create source Production BOM and version.
-        Initialize;
+        Initialize();
         SetupCopyBOM(ProductionBOMHeader, ProductionBOMVersion, ProductionBOMVersion.Status::New);
 
         // Exercise: Copy BOM version from the desired BOM version, Generating Matrix Data and Calculating Total No. of Version Count And
@@ -397,7 +397,7 @@ codeunit 137210 "SCM Copy Production BOM"
         // Select source version from Production BOM Version List lookup page.
         ProductionBOMVersion.SetRange("Production BOM No.", ProdBOMNo);
         ProductionBOMVersion.SetRange("Version Code", ProdBOMVersionCode);
-        ProductionBOMVersion.FindFirst;
+        ProductionBOMVersion.FindFirst();
         ProdBOMVersionList.SetTableView(ProductionBOMVersion);
         ProdBOMVersionList.SetRecord(ProductionBOMVersion);
         Response := ACTION::LookupOK;
@@ -460,12 +460,12 @@ codeunit 137210 "SCM Copy Production BOM"
         I: Integer;
     begin
         ProductionBOMVersion.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMVersion.FindFirst;
+        ProductionBOMVersion.FindFirst();
         Assert.AreEqual(VersionCount, ProductionBOMVersion.Count, CountError);
 
         for I := 1 to VersionCount do begin
             ProductionBOMVersion.SetRange("Version Code", VersionCode[VersionCount]);
-            ProductionBOMVersion.FindFirst;
+            ProductionBOMVersion.FindFirst();
         end;
     end;
 }

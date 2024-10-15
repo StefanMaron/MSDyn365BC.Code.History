@@ -356,7 +356,7 @@ report 10148 "List Price Sheet"
             Currency.Find;
             CurrencyExchRate.SetRange("Currency Code", Currency.Code);
             CurrencyExchRate.SetRange("Starting Date", 0D, WorkDate);
-            CurrencyExchRate.FindLast;
+            CurrencyExchRate.FindLast();
         end;
         ItemFilter := Item.GetFilters;
     end;

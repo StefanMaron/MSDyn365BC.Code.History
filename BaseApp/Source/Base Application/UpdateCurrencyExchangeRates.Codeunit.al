@@ -27,7 +27,7 @@ codeunit 1281 "Update Currency Exchange Rates"
     begin
         CurrExchRateUpdateSetup.SetRange(Enabled, true);
 
-        if CurrExchRateUpdateSetup.FindSet then
+        if CurrExchRateUpdateSetup.FindSet() then
             repeat
                 OnBeforeSyncCurrencyExchangeRatesLoop(CurrExchRateUpdateSetup);
                 GetCurrencyExchangeData(CurrExchRateUpdateSetup, ResponseInStream, SourceName);

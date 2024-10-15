@@ -41,7 +41,7 @@ codeunit 144056 "ERM Cash Basis"
         // [SCENARIO] VAT Realized Gain/Loss for LCY payment to FCY invoice for Customer.
 
         // [GIVEN] Create Currency. Create Customer and Item with VAT Posting Group.
-        Initialize;
+        Initialize();
         GeneralSetupForRealizedVAT(
           Currency, VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Cash Basis", ItemNo, PostingDate, RateFactor, RateFactor2);
         CustomerNo := CreateCustomer(Currency.Code, VATPostingSetup."VAT Bus. Posting Group");
@@ -87,7 +87,7 @@ codeunit 144056 "ERM Cash Basis"
         // [SCENARIO] VAT Realized Gain/Loss for LCY payment to FCY invoice for Vendor.
 
         // [GIVEN] Create Currency. Create Vendor and Item with VAT Posting Group.
-        Initialize;
+        Initialize();
         GeneralSetupForRealizedVAT(
           Currency, VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Cash Basis", ItemNo, PostingDate, RateFactor, RateFactor2);
         VendorNo := CreateVendor(Currency.Code, VATPostingSetup."VAT Bus. Posting Group");
@@ -130,7 +130,7 @@ codeunit 144056 "ERM Cash Basis"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO TFS118222] Payment in FCY is applied to Invoice in FCY with unrealized VAT. Realized VAT is posted with the Exchange Rate of the Payment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency with Exchange Rates. Create Vendor with Unrealized VAT setup.
         GeneralSetupForRealizedVAT(
@@ -173,7 +173,7 @@ codeunit 144056 "ERM Cash Basis"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 381218] VAT Entries for unapplied Vendor Payment in FCY with unrealized VAT are posted with Exh.Rate of Payment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exchange Rates assigned to Vendor with Unrealized VAT setup.
         GeneralSetupForRealizedVAT(
@@ -244,7 +244,7 @@ codeunit 144056 "ERM Cash Basis"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 319666] VAT Entries for unapplied Customer Payment in FCY with unrealized VAT are posted with Exh.Rate of Payment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exchange Rates assigned to Customer with Unrealized VAT setup.
         GeneralSetupForRealizedVAT(
@@ -316,7 +316,7 @@ codeunit 144056 "ERM Cash Basis"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO TFS120394] Payment in FCY is applied to Purchase Invoice in FCY with unrealized VAT. Realized VAT is posted with the updated Exchange Rate of the Payment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency with Exchange Rates. Create Vendor with Unrealized VAT setup.
         GeneralSetupForRealizedVAT(
@@ -371,7 +371,7 @@ codeunit 144056 "ERM Cash Basis"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO TFS120394] Payment in FCY is applied to Sales Invoice in FCY with unrealized VAT. Realized VAT is posted with the updated Exchange Rate of the Payment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency with Exchange Rates. Create Customer with Unrealized VAT setup.
         GeneralSetupForRealizedVAT(
@@ -427,7 +427,7 @@ codeunit 144056 "ERM Cash Basis"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 363848] Realized VAT is posted with original unrealized amounts after vendor payment with new adjusted exch. rate is applied to invoice in FCY.
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
 
         // [GIVEN] Create Currency with Exchange Rates. Create Vendor with Percentage Unrealized VAT setup.
@@ -442,8 +442,11 @@ codeunit 144056 "ERM Cash Basis"
             LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
 
         // [GIVEN] Run Adjust Exch. Rates report with new posting date (Exch Rate = Y)
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, PostingDate, PostingDate);
-
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, PostingDate, PostingDate);
+#endif
         // [WHEN] Post Payment in FCY (Exch Rate = Y) and apply to Invoice (fully paid)
         CreatePaymentGenJournalLineWithAppln(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, InvoiceNo,
@@ -492,7 +495,7 @@ codeunit 144056 "ERM Cash Basis"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363848] Realized VAT is posted with original unrealized amounts after customer payment with new adjusted exch. rate is applied to invoice in FCY.
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
 
         // [GIVEN] Create Currency with Exchange Rates. Create Customer with Percentage Unrealized VAT setup.
@@ -507,8 +510,11 @@ codeunit 144056 "ERM Cash Basis"
             LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
 
         // [GIVEN] Run Adjust Exch. Rates report with new posting date (Exch Rate = Y)
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, PostingDate, PostingDate);
-
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, PostingDate, PostingDate);
+#endif
         // [WHEN] Post Payment in FCY (Exch Rate = Y) and apply to Invoice (fully paid)
         CreatePaymentGenJournalLineWithAppln(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, InvoiceNo,
@@ -541,13 +547,13 @@ codeunit 144056 "ERM Cash Basis"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         UpdateGenLedgerSetup('');
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
@@ -749,7 +755,7 @@ codeunit 144056 "ERM Cash Basis"
             SetRange(Type, VATType);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -779,7 +785,7 @@ codeunit 144056 "ERM Cash Basis"
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
             SetFilter("Gen. Posting Type", '<>%1', "Gen. Posting Type"::" ");
-            FindLast;
+            FindLast();
             TestField(Amount, GLAmount);
         end;
     end;
@@ -789,7 +795,7 @@ codeunit 144056 "ERM Cash Basis"
         VATEntry: Record "VAT Entry";
     begin
         FindVATEntry(VATEntry, VATType, VATEntry."Document Type"::Payment, DocumentNo);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         VATEntry.TestField(Amount, VATAmount);
         VATEntry.TestField(Base, VATBase);
     end;
@@ -810,7 +816,7 @@ codeunit 144056 "ERM Cash Basis"
     begin
         with VATEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             TestField("Remaining Unrealized Amount", VATAmount);
             TestField("Remaining Unrealized Base", VATBase);
         end;

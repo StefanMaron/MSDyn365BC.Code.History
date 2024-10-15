@@ -133,7 +133,7 @@ report 10115 "Vendor 1099 Magnetic Media"
                 end;
 
                 VendorFiltered.CopyFilters(Vendor);
-                if VendorFiltered.FindSet then
+                if VendorFiltered.FindSet() then
                     repeat
                         ProcessVendorInvoices(VendorFiltered."No.", PeriodDate);
                     until VendorFiltered.Next() = 0;
@@ -492,7 +492,7 @@ report 10115 "Vendor 1099 Magnetic Media"
         LastDIVNo := 18;
         LastINTNo := 13;
         LastNECNo := 4;
-        MagMediaManagement.Run;
+        MagMediaManagement.Run();
 
         Window.Open(
           'Exporting...\\' +
@@ -588,7 +588,7 @@ report 10115 "Vendor 1099 Magnetic Media"
                 4:
                     SetRange("IRS 1099 Code", 'NEC-', 'NEC-99');
             end;
-            if FindSet then
+            if FindSet() then
                 repeat
                     Calculate1099Amount(TempAppliedEntry, "Amount to Apply");
                     if IRS1099Management.GetAdjustmentRec(IRS1099Adjustment, TempAppliedEntry) then begin

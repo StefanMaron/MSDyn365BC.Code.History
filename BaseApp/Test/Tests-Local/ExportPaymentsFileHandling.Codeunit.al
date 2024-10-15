@@ -99,7 +99,7 @@ codeunit 142500 "Export Payments File Handling"
         VendorNo, VendorBankAccountNo : Code[20];
     begin
         // Verify that no error of Input Qualifier while doing export payment.
-        Initialize;
+        Initialize();
 
         // Setup: Create Gen journal line and create Vendor bank account.
         UpdateCompanyInfo;
@@ -131,7 +131,7 @@ codeunit 142500 "Export Payments File Handling"
     begin
         // Verify data of the RB exported file (only related to HF 363117)
         // this test should be used for future changes of RB electronic payment format
-        Initialize;
+        Initialize();
 
         // Setup: Create Gen journal line and create Vendor bank account.
         UpdateCompanyInfo;
@@ -164,7 +164,7 @@ codeunit 142500 "Export Payments File Handling"
     begin
         // [FEATURE] [Export Payments (ACH)] [Payables]
         // [SCENARIO 364614] Exported Payment File (ACH) has 16-chars length Vendor.Name
-        Initialize;
+        Initialize();
         UpdateCompanyInfo;
 
         // [GIVEN] Vendor with Name = "XY", where "X" = 16-chars length string, "Y" = 34-chars length string
@@ -197,7 +197,7 @@ codeunit 142500 "Export Payments File Handling"
     begin
         // [FEATURE] [Export Payments (ACH)] [Receivables]
         // [SCENARIO 364614] Exported Payment File (ACH) has 16-chars length Customer.Name
-        Initialize;
+        Initialize();
         UpdateCompanyInfo;
 
         // [GIVEN] Customer with Name = "XY", where "X" = 16-chars length string, "Y" = 34-chars length string
@@ -230,7 +230,7 @@ codeunit 142500 "Export Payments File Handling"
     begin
         // [FEATURE] [Export Payments (Cecoban)] [Payables]
         // [SCENARIO 364614] Exported Payment File (Cecoban) has 40-chars length Vendor.Name
-        Initialize;
+        Initialize();
         UpdateCompanyInfo;
 
         // [GIVEN] Vendor with Name = "XY", where "X" = 40-chars length string, "Y" = 10-chars length string
@@ -263,7 +263,7 @@ codeunit 142500 "Export Payments File Handling"
     begin
         // [FEATURE] [Export Payments (Cecoban)] [Receivables]
         // [SCENARIO 364614] Exported Payment File (Cecoban) has 40-chars length Customer.Name
-        Initialize;
+        Initialize();
         UpdateCompanyInfo;
 
         // [GIVEN] Customer with Name = "XY", where "X" = 40-chars length string, "Y" = 10-chars length string
@@ -287,7 +287,7 @@ codeunit 142500 "Export Payments File Handling"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -448,9 +448,6 @@ codeunit 142500 "Export Payments File Handling"
     var
         FileManagement: Codeunit "File Management";
     begin
-#if not CLEAN19
-        FileManagement.CreateClientDirectory(FilePathName);
-#endif
         exit(FilePathName);
     end;
 
@@ -458,27 +455,18 @@ codeunit 142500 "Export Payments File Handling"
     var
         FileManagement: Codeunit "File Management";
     begin
-#if not CLEAN19
-        FileManagement.DeleteClientDirectory(FilePathName);
-#endif
     end;
 
     local procedure CreateFile(FilePathName: Text)
     var
         FileManagement: Codeunit "File Management";
     begin
-#if not CLEAN19
-        FileManagement.CreateClientFile(FilePathName);
-#endif
     end;
 
     local procedure DeleteFile(FilePathName: Text)
     var
         FileManagement: Codeunit "File Management";
     begin
-#if not CLEAN19
-        FileManagement.DeleteClientFile(FilePathName);
-#endif
     end;
 
     local procedure ModifyBankAccount(var BankAccount: Record "Bank Account")
@@ -505,7 +493,7 @@ codeunit 142500 "Export Payments File Handling"
     begin
         with CompanyInformation do begin
             Get;
-            Validate("Federal ID No.", LibraryUtility.GenerateGUID);
+            Validate("Federal ID No.", LibraryUtility.GenerateGUID());
             Modify;
         end;
     end;

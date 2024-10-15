@@ -38,13 +38,13 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         // [WHEN] Creating a new item charge using the GUI
         ItemChargeNo := LibraryUtility.GenerateRandomCode(ItemCharge.FieldNo("No."), DATABASE::"Item Charge");
 
-        ItemCharges.OpenNew;
+        ItemCharges.OpenNew();
         ItemCharges."No.".SetValue(ItemChargeNo);
         ItemCharges.OK.Invoke;
 
         // [THEN] The record is created
         ItemCharge.SetRange("No.", ItemChargeNo);
-        ItemCharge.FindFirst;
+        ItemCharge.FindFirst();
 
         Assert.RecordIsNotEmpty(ItemCharge);
 
@@ -208,7 +208,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 376402] System get Cost Amount (Actual) value from invoice's value entries when it copies document from Invoice to Credit Memo
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
 
@@ -377,12 +377,12 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryERM: Codeunit "Library - ERM";
     begin
         Currency.SetRange(Code, LibraryERM.CreateCurrencyWithExchangeRate(DMY2Date(1, 1, 2000), 1, 1));
-        Currency.FindFirst;
+        Currency.FindFirst();
         Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(1, 2, 5));
         Currency.Modify(true);
 
         PurchaseHeader."Currency Code" := Currency.Code;
-        PurchaseHeader."Currency Factor" := Currency."Currency Factor";
+        PurchaseHeader.Validate("Currency Factor", Currency."Currency Factor");
         PurchaseHeader.Modify(true);
     end;
 

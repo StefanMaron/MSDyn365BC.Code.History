@@ -82,7 +82,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PurchaseOrderWithDropShipmentSerialNoSynchronizationError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseOrderWithDropShipmentSerialNo(false);  // Post Sales Order -False.
     end;
 
@@ -92,7 +92,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PurchaseOrderWithDropShipmentSerialNoWithoutPostSalesOrderError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseOrderWithDropShipmentSerialNo(true);  // Post Sales Order -True.
     end;
 
@@ -141,7 +141,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Tracking Code, Create Sales Order with Purchasing Code, Create Purchase Order and Drop Shipment.
-        Initialize;
+        Initialize();
         Quantity := 10 * LibraryRandom.RandInt(5);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", '', Quantity, false);  // Multiple line as False.
@@ -185,7 +185,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Items with Tracking Code, Create Sales Order with two Lines with Purchasing Code, Create Purchase Order and Drop Shipment.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateItem(Item2, ItemTrackingCodeSerialSpecific.Code);
@@ -217,7 +217,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Tracking Code, Create Sales Order with Purchasing Code, Create Purchase Order and Drop Shipment.
-        Initialize;
+        Initialize();
         Quantity := 10 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeLotSpecific.Code);
         CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", '', Quantity, false);  // Multiple line as false.
@@ -261,7 +261,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Items with Tracking Code, Create Sales Order with Purchasing Code, Create Purchase Order and Drop Shipment.
-        Initialize;
+        Initialize();
         Quantity := 10 * LibraryRandom.RandInt(5);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateItem(Item2, ItemTrackingCodeSerialSpecific.Code);
@@ -299,7 +299,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Tracking Code, Create Sales Order with Purchasing Code, Drop Shipment for Sales Line on Requisition Worksheet.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", '', Quantity, false);
@@ -332,7 +332,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Tracking Code, Create Sales Order with Purchasing Code on multiple Lines, Drop Shipment for Sales Line on Requisition Worksheet.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", Item."No.", Quantity, true);
@@ -366,7 +366,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Tracking Code, Create Sales Order with Purchasing Code on multiple Lines, Drop Shipment for Sales Line on Requisition Worksheet.
-        Initialize;
+        Initialize();
         Quantity := 10 * LibraryRandom.RandInt(5);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeLotSpecific.Code);
         CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", '', Quantity, false);
@@ -407,7 +407,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Tracking Code, Create Sales Order with Purchasing Code on multiple Lines, Drop Shipment for Sales Line on Requisition Worksheet.
-        Initialize;
+        Initialize();
         Quantity := 10 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", Item."No.", Quantity, true);
@@ -440,7 +440,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PostedSalesShipmentPartialPickFromPickWorksheetSerialLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromPickWorksheetSerialLotNo(true);  // Partial Pick - True.
     end;
 
@@ -450,7 +450,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PostedSalesShipmentPickFromPickWorksheetSerialLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromPickWorksheetSerialLotNo(false);  // Partial Pick - False.
     end;
 
@@ -526,7 +526,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with SN Specific, Production Order and Post Output with Tracking, Create Internal Put-away, Create and Register Put-away, Movement and Create Internal Pick.
-        Initialize;
+        Initialize();
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         SetGlobalValue(Item."No.", true, false, false, AssignTracking::SerialNo, 0);  // Assign Global variable for Page Handler. Create New Lot as True,Assign Tracking as SerialNo.
@@ -561,7 +561,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure MovementAndPickFromPickWorksheetSerialLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         MovementAndPickFromPickWorksheet(false);  // Delete Pick as False.
     end;
 
@@ -571,7 +571,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure MovementAndPickFromPickWorksheetRecreatePickSerialLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         MovementAndPickFromPickWorksheet(true);  // Delete Pick as True.
     end;
 
@@ -645,7 +645,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with SN Specific, Production Order and Post Output with Tracking, Create Internal Put-away, Create Movement and Delete Put-away.
-        Initialize;
+        Initialize();
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         SetGlobalValue(Item."No.", true, false, false, AssignTracking::SerialNo, 0);  // Assign Global variable for Page Handler. Create New Lot as True,Assign Tracking as SerialNo.
@@ -686,7 +686,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with SN Specific, Production Order and Post Output with Tracking,Create Internal Put-away,Create Movement and Delete Movement.
-        Initialize;
+        Initialize();
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         SetGlobalValue(Item."No.", true, false, false, AssignTracking::SerialNo, 0);  // Assign Global variable for Page Handler. Create New Lot as True,Assign Tracking as SerialNo.
@@ -724,7 +724,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Setup: Update White location,Create Item with SN Specific, Create and Post Warehouse Receipt from Purchase Order.
-        Initialize;
+        Initialize();
         UpdateWarehouseAndBinPoliciesOnLocation(LocationWhite, true, true);
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         SetGlobalValue(Item."No.", true, false, false, AssignTracking::SerialNo, 0);  // Assign Global variable for Page Handler. Create New Lot as True,Assign Tracking as SerialNo.
@@ -756,7 +756,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Update White location,Create Item with SN Specific, Create and Post Warehouse Receipt from Purchase Order.
-        Initialize;
+        Initialize();
         UpdateWarehouseAndBinPoliciesOnLocation(LocationWhite, true, true);
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
@@ -791,7 +791,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Update White location,Create Item with SN Specific,Create and Post Purchase Order,Create Transfer Order and Post Warehouse Receipt.
-        Initialize;
+        Initialize();
         UpdateWarehouseAndBinPoliciesOnLocation(LocationWhite, true, true);
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
@@ -833,7 +833,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Update White location,Create Item with SN Specific,Create and Post Purchase Order,Create Transfer Order and Post Warehouse Receipt.
-        Initialize;
+        Initialize();
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         CreateAndReleasePurchaseOrder(PurchaseHeader, Item."No.", LocationBlue.Code, Quantity);
@@ -865,7 +865,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PurchaseOrderWithCustomizedTrackingForSerialNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseOrderWithCustomizedTracking(false, AssignTracking::SerialNo);  // New Lot No as false.
     end;
 
@@ -875,7 +875,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PurchaseOrderWithCustomizedTrackingForSerialLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseOrderWithCustomizedTracking(true, AssignTracking::LotNo);  // New Lot No as false.
     end;
 
@@ -921,7 +921,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ComponentsAtLocation: Code[10];
     begin
         // Setup: Create Item With SN Specific Tracking include SN Warehouse Tracking, Post Warehouse Receipt from Purchase Order with Tracking, Create Production Order, Create and Register Pick.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
@@ -981,7 +981,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ComponentsAtLocation: Code[10];
     begin
         // Setup: Create Item With SN Specific Tracking include SN Warehouse Tracking, Post Warehouse Receipt from Purchase Order with Tracking, Create Production Order, Create Internal Put-Away.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         Bin.Get(LocationWhite.Code, LocationWhite."To-Production Bin Code");
@@ -1021,7 +1021,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
     begin
         // Setup : Create Item with SN Specific, Create Warehouse Internal Put-Away.
-        Initialize;
+        Initialize();
         Bin.Get(LocationWhite.Code, LocationWhite."To-Production Bin Code");
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateWhseInternalPutawayHeader(WhseInternalPutAwayHeader, Bin."Zone Code", Bin.Code);
@@ -1045,7 +1045,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
     begin
         // Setup: Create Item with SN Specific, Create Warehouse Internal Pick.
-        Initialize;
+        Initialize();
         Bin.Get(LocationWhite.Code, LocationWhite."To-Production Bin Code");
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateWhseInternalPickHeader(WhseInternalPickHeader, Bin."Zone Code", Bin.Code);
@@ -1073,7 +1073,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         GetSourceDocInbound: Codeunit "Get Source Doc. Inbound";
     begin
         // Setup: Update White location,Create Item with SN Specific, Create and Post Warehouse Receipt from Purchase Order, Create Put-away from Put-away Worksheet.
-        Initialize;
+        Initialize();
         UpdateWarehouseAndBinPoliciesOnLocation(LocationWhite, true, true);
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, 0);  // Assign Global variable for Page Handler,Assign Tracking as SerialNo.
@@ -1087,7 +1087,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
           WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationWhite.Code, Item."No.");
         GetSourceDocInbound.GetSingleWhsePutAwayDoc(
           WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationWhite.Code);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
 
         // Exercise: Open Tracking line from Warehouse Worksheet Line.
         asserterror WhseWorksheetLine.OpenItemTrackingLines();
@@ -1116,7 +1116,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with SN Specific, Create and Post Warehouse Receipt from Purchase Order, Create Warehouse Shipment from Sales Order, Create Pick from Pick Worksheet.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, 0);  // Assign Global variable for Page Handler,Assign Tracking as SerialNo.
@@ -1148,7 +1148,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         // Setup: Create Item with SN Specific, Create Warehouse Worksheet line.
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateWhseWorksheetName(WhseWorksheetName, LocationWhite.Code, WhseWorksheetTemplate.Type::Movement);
         CreateWhseWorksheetLine(
@@ -1171,7 +1171,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         // Setup : Create Item with SN Specific, Create Warehouse Journal line.
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         LibraryWarehouse.WarehouseJournalSetup(LocationWhite.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
         LibraryWarehouse.CreateWhseJournalLine(
@@ -1196,7 +1196,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         // Setup: Create Item With SN Specific Tracking include SN Warehouse Tracking, Create Warehouse Journal line and Assign Tracking.
-        Initialize;
+        Initialize();
         Bin.Get(LocationWhite.Code, LocationWhite."To-Production Bin Code");
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         LibraryWarehouse.WarehouseJournalSetup(LocationWhite.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
@@ -1228,7 +1228,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with SN Specific,Create and Post Warehouse Receipt from Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, 0);  // Assign Global variable for Page Handler, Assign Tracking as SerialNo.
@@ -1258,7 +1258,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with SN Specific, Create Released Production Order and Post Output with Tracking and again create Output journal with negative Quantity.
-        Initialize;
+        Initialize();
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateItem(Item2, ItemTrackingCodeSerialSpecific.Code);
@@ -1293,7 +1293,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with SN Specific, Create and Post Item Journal line, Create Released Production Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
         CreateItem(Item2, ItemTrackingCodeSerialSpecific.Code);
@@ -1325,7 +1325,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup : Create Item With SN Specific Tracking include SN Warehouse Tracking, Create Bin and Bin Content.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         CreateBinAndBinContent(Bin, Item, LocationSilver.Code);
@@ -1355,7 +1355,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup : Create Item With SN Specific Tracking include SN Warehouse Tracking , Create Bin,Bin Content and Production BOM, Create Released Prodcution Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         CreateItem(Item2, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
@@ -1389,7 +1389,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Quantity: Decimal;
     begin
         // Setup : Create Item With SN Specific Tracking include SN Warehouse Tracking , Create Bin,Bin Content and Production BOM, Create and Post Item journal Line, Create Released Prodcution Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         CreateItem(Item2, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
@@ -1416,7 +1416,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure WarehouseReceiptFromPurchaseOrderWithoutSNWarehouseTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseReceiptFromPurchaseOrderSerialNo(ItemTrackingCodeSerialSpecific.Code);
     end;
 
@@ -1426,7 +1426,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure WarehouseReceiptFromPurchaseOrderWithSNWarehouseTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseReceiptFromPurchaseOrderSerialNo(ItemTrackingCodeSerialSpecificWithWarehouse.Code);
     end;
 
@@ -1464,7 +1464,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure WarehouseReceiptFromSalesReturnOrderWithoutSNWarehouseTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseReceiptFromSalesReturnOrderSerialNo(ItemTrackingCodeSerialSpecific.Code);
     end;
 
@@ -1474,7 +1474,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure WarehouseReceiptFromSalesReturnOrderWithSNWarehouseTracking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseReceiptFromSalesReturnOrderSerialNo(ItemTrackingCodeSerialSpecificWithWarehouse.Code);
     end;
 
@@ -1523,7 +1523,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PostingPolicy: Integer;
     begin
         // Setup: Create Item with SN Specific Tracking, Create and Post Positive Adjustment, Create Warehouse Shipment from Sales Order.
-        Initialize;
+        Initialize();
         PostingPolicy :=
           UpdateWarehouseSetupPostingPolicy(WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
@@ -1561,7 +1561,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PostingPolicy: Integer;
     begin
         // Setup: Create Item with SN Specific Tracking, Create and Post Positive Adjustment, Create Warehouse Shipment from Purchase Return Order.
-        Initialize;
+        Initialize();
         PostingPolicy :=
           UpdateWarehouseSetupPostingPolicy(WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
@@ -1596,7 +1596,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Setup: Create Item With SN Specific Tracking include SN Warehouse Tracking, Create and Post Positive Adjustment, Create Warehouse Shipment from Sales Order and Pick.
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         CreateAndPostItemJournalLineWithTracking(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationYellow.Code, 10 + LibraryRandom.RandInt(10), 0,
@@ -1626,7 +1626,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup: Create Item With SN Specific Tracking include SN Warehouse Tracking, Create and Post Positive Adjustment, Create Warehouse Shipment from Purchase Return Order and Pick.
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         CreateAndPostItemJournalLineWithTracking(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationYellow.Code, 10 + LibraryRandom.RandInt(10), 0,
@@ -1662,7 +1662,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [SN Warehouse Tracking] [Inventory Pick] [Binding]
         // [SCENARIO 380088] Inventory Pick should perform successful partial shipment of Sales Line, which is linked to a supply by Binding = "Order-to-Order".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location that requires Pick.
         // [GIVEN] Item with Serial Nos. tracking.
@@ -1701,7 +1701,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PostWarehouseReceiptFromPurchaseOrderWithoutSNWarehouseTrackingError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptFromPurchaseOrder(ItemTrackingCodeSerialSpecific.Code);
     end;
 
@@ -1710,7 +1710,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PostWarehouseReceiptFromPurchaseOrderWithSNWarehouseTrackingError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptFromPurchaseOrder(ItemTrackingCodeSerialSpecificWithWarehouse.Code);
     end;
 
@@ -1746,7 +1746,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PostWarehouseReceiptFromSalesReturnOrderWithoutSNWarehouseTrackingError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptFromSalesReturnOrder(ItemTrackingCodeSerialSpecific.Code);
     end;
 
@@ -1755,7 +1755,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     procedure PostWarehouseReceiptFromSalesReturnOrderWithSNWarehouseTrackingError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptFromSalesReturnOrder(ItemTrackingCodeSerialSpecificWithWarehouse.Code);
     end;
 
@@ -1801,7 +1801,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PostingPolicy: Integer;
     begin
         // Setup: Create Item with SN Specific Tracking, Create and Post Positive Adjustment, Create Warehouse Shipment from Sales Order.
-        Initialize;
+        Initialize();
         PostingPolicy :=
           UpdateWarehouseSetupPostingPolicy(WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
@@ -1833,7 +1833,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PostingPolicy: Integer;
     begin
         // Setup: Create Item with SN Specific Tracking, Create and Post Positive Adjustment, Create Warehouse Shipment from Purchase Return Order.
-        Initialize;
+        Initialize();
         PostingPolicy :=
           UpdateWarehouseSetupPostingPolicy(WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
@@ -1864,7 +1864,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Amount: Decimal;
     begin
         // Setup: Create Item with SN Specific Tracking, Create and Post ItemJournal with Positive Adjustment.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10); // For Random Value
         Amount := LibraryRandom.RandDec(10, 2); // For Random Value
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
@@ -1889,7 +1889,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Amount: Decimal;
     begin
         // Setup: Create Item with SN Specific Tracking, Create and Post ItemJournal with Purchase.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10); // For Random Value
         Amount := LibraryRandom.RandDec(10, 2); // For Random Value
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code);
@@ -1917,7 +1917,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
     begin
         // [SCENARIO] Verify Parent Item Output is present on Item Tracing Page when run trace by SN No. assigned to Consumption Item
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
 
         // [GIVEN] Create SN-specific ChildItem 'CI' and simple ParentItem 'PI' with Production BOM that uses 'CI'
@@ -1964,7 +1964,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [SCENARIO 376162] Expiration Date is preserved in Pick Line when lookup in Pick is cancelled.
 
         // [GIVEN] Lot tracked Item on stock with Lot and Expiration Date.
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemTrackingCodeLotSpecificWithWarehouse.Code);
         Quantity := LibraryRandom.RandDecInRange(10, 100, 2);
         SetGlobalValue(Item."No.", true, false, false, AssignTracking::LotNo, Quantity);
@@ -2017,7 +2017,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [FEATURE] [Warehouse] [Lot Tracking] [Inventory Movement]
         // [SCENARIO 378930] Inventory movement is registered for item with Lot Tracking and Bin Code when Bin Types does not exist
 
-        Initialize;
+        Initialize();
         // [GIVEN] No Bin Types in current database
         MoveFromBinTypeToBinType(BinType, TempBinType);
 
@@ -2058,12 +2058,12 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Item Tracking] [Posted Whse. Receipt] [Put-away] [Transfer Order]
         // [SCENARIO 206372] Put-away can be created from partially put-away posted warehouse receipt in case the way item entries and warehouse entries are split by quantity is different for these two ledgers.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item, lot warehouse tracking is enabled.
         CreateItem(Item, ItemTrackingCodeLotSpecificWithWarehouse.Code);
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         Qty := 3 * 2 * LibraryRandom.RandIntInRange(20, 40);
         QtyRemToPutaway := LibraryRandom.RandIntInRange(5, 10);
 
@@ -2114,7 +2114,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Item Tracking] [Posted Whse. Receipt] [Put-away]
         // [SCENARIO 206372] "Qty. (Base)" on put-away lines created from partially put-away posted warehouse receipt should be equal to quantity left to be handled for each lot.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item, lot warehouse tracking is enabled.
         CreateItem(Item, ItemTrackingCodeLotSpecificWithWarehouse.Code);
@@ -2122,7 +2122,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [GIVEN] Purchase Order for the item with two lot-tracked lines. Lot Nos. "L1" and "L2".
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         for i := 1 to 2 do begin
-            LotNo[i] := LibraryUtility.GenerateGUID;
+            LotNo[i] := LibraryUtility.GenerateGUID();
             Qty[i] := LibraryRandom.RandIntInRange(50, 100);
             QtyRemToPutaway[i] := LibraryRandom.RandIntInRange(5, 10);
             CreatePurchaseLine(PurchaseHeader, PurchaseLine, Item."No.", LocationWhite.Code, Qty[i]);
@@ -2175,12 +2175,12 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Item Tracking] [Whse. Receipt] [Put-away] [Transfer Order]
         // [SCENARIO 209278] Put-away should be created for all lots in whse. receipt line, if quantity of each lot consists of several item entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item, lot warehouse tracking is enabled.
         CreateItem(Item, ItemTrackingCodeLotSpecificWithWarehouse.Code);
         for i := 1 to ArrayLen(LotNo) do
-            LotNo[i] := LibraryUtility.GenerateGUID;
+            LotNo[i] := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Two purchase orders of the item: "PO1" and "PO2".
         // [GIVEN] "PO1" has three lines with lot = "L1" and quantity = 2 pcs.
@@ -2217,12 +2217,12 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Item Tracking] [Posted Whse. Receipt] [Put-away]
         // [SCENARIO 209278] Put-away should be created for all lots in posted whse. receipt line, if quantity of each lot consists of several item entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item, lot warehouse tracking is enabled.
         CreateItem(Item, ItemTrackingCodeLotSpecificWithWarehouse.Code);
         for i := 1 to ArrayLen(LotNo) do
-            LotNo[i] := LibraryUtility.GenerateGUID;
+            LotNo[i] := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Two purchase orders of the item: "PO1" and "PO2".
         // [GIVEN] "PO1" has three lines with lot = "L1" and quantity = 2 pcs.
@@ -2271,7 +2271,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Drop Shipment] [Sales] [Archive]
         // [SCENARIO 225698] When partly post Drop Shipment Sales through Purchase Order "Sales Line Archive"."Qty. to Ship" = "Purchase Line"."Qty. to Receive"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Archive Quotes and Orders" set in "Sales & Receivables Setup", "Default Quantity to Ship" = Remainder
         LibrarySales.SetArchiveOrders(true);
@@ -2298,7 +2298,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [THEN] "Sales Line Archive" is created, "Qty. to Ship" = "PO"."Qty. to Receive"
         SalesLineArchive.SetRange("Document Type", SalesLine."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesLine."Document No.");
-        SalesLineArchive.FindFirst;
+        SalesLineArchive.FindFirst();
         SalesLineArchive.TestField("Qty. to Ship", ShipReceiveQty);
     end;
 
@@ -2318,7 +2318,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Drop Shipment] [Purchase] [Archive]
         // [SCENARIO 225698] When partly post Drop Shipment Purchase through Sales Order "Sales Line Archive"."Qty. to Ship" = "Purchase Line"."Qty. to Receive"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Archive Quotes and Orders" set in "Purchases & Payables Setup", "Default Qty. to Receive" = Remainder
         LibraryPurchase.SetArchiveOrders(true);
@@ -2343,7 +2343,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
         // [THEN] "Purchase Line Archive" is created, "Qty. to Receive" = "DSO"."Qty. to Ship"
         PurchaseLineArchive.SetRange("No.", Item."No.");
-        PurchaseLineArchive.FindFirst;
+        PurchaseLineArchive.FindFirst();
         PurchaseLineArchive.TestField("Qty. to Receive", ShipReceiveQty);
     end;
 
@@ -2357,7 +2357,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263607] Drop shipment with a lot tracked item cannot be posted when item tracking on purchase and sales sides is not synchronized
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with outbound item tracking by lot nos.
         // [GIVEN] Drop shipment for item "I". Assign lot no. "L1" in the sales line
@@ -2381,7 +2381,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263607] Drop shipment with an SN tracked item cannot be posted when item tracking on purchase and sales sides is not synchronized
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with outbound item tracking by serial nos.
         // [GIVEN] Drop shipment for 3 pcs item "I". Assign serial numbers "S1" through "S3" in the sales line
@@ -2406,7 +2406,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263607] Drop shipment can be posted on the sales side when the purchase order has no item tracking, and the sales order is tracked by lot no.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with outbound item tracking by lot nos.
         // [GIVEN] Drop shipment for item "I". Assign lot no. "L1" in the sales line
@@ -2434,7 +2434,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263607] Drop shipment can be posted on the purchase side when the purchase order has no item tracking, and the sales order is tracked by lot no.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with outbound item tracking by lot nos.
         // [GIVEN] Drop shipment for item "I". Assign lot no. "L1" in the sales line
@@ -2461,7 +2461,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263607] Drop shipment can be posted on the sales side when the purchase order has no item tracking, and the sales order is tracked by serial no.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with outbound item tracking by serial nos.
         // [GIVEN] Drop shipment for 3 pcs of item "I". Assign serial numbers in the sales line
@@ -2489,7 +2489,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263607] Drop shipment can be posted on the purchase side when the purchase order has no item tracking, and the sales order is tracked by serial no.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with outbound item tracking by serial nos.
         // [GIVEN] Drop shipment for 3 pcs of item "I". Assign serial numbers in the sales line
@@ -2520,7 +2520,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263607] Drop shipment cannot be posted on the sales side when the sales order has no item tracking, and the purchase order is tracked by serial no.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with outbound item tracking by serial nos.
         CreateItem(Item, CreateNonSpecificPurchItemTrackingCode(false, true));
@@ -2553,7 +2553,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263607] Drop shipment cannot be posted on the purchase side when the sales order has no item tracking, and the purchase order is tracked by serial no.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with outbound item tracking by serial nos.
         CreateItem(Item, CreateNonSpecificPurchItemTrackingCode(false, true));
@@ -2587,7 +2587,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 267926] Drop shipment sales order with two item lines - the first is lot-tracked, the second has no tracking - can be invoiced after you receive the linked purchase order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "LI".
         // [GIVEN] Non-tracked item "NI".
@@ -2632,7 +2632,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 267926] Drop shipment sales order with two item lines - the first is lot-tracked, the second has no tracking - can be invoiced after you post the shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "LI".
         // [GIVEN] Non-tracked item "NI".
@@ -2677,8 +2677,8 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // [FEATURE] [Sales] [Blanket Order] [Order]
         // [SCENARIO 340083] Item Tracking on a sales order line created from blanket order matches the quantity being ordered.
-        Initialize;
-        LotNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Lot-tracked item with inventory.
         LibraryItemTracking.CreateLotItem(Item);
@@ -3003,20 +3003,20 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM RTAM Item Tracking-II");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         ClearGlobals;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM RTAM Item Tracking-II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
-        NoSeriesSetup;
+        NoSeriesSetup();
         ItemTrackingCodeSetup;
         ItemJournalSetup;
         CreateLocationSetup;
@@ -3232,7 +3232,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // Purchase Return Order.
         CreateAndReleasePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", ItemNo, LocationCode, Quantity);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -3413,20 +3413,20 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchInvHeader(var PurchInvHeader: Record "Purch. Inv. Header"; OrderNo: Code[20])
     begin
         PurchInvHeader.SetRange("Order No.", OrderNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
     end;
 
     local procedure SelectPurchInvLine(var PurchInvLine: Record "Purch. Inv. Line"; OrderNo: Code[20])
@@ -3436,13 +3436,13 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         FindPurchInvHeader(PurchInvHeader, OrderNo);
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
     end;
 
     local procedure FindSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; OrderNo: Code[20])
     begin
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure SelectSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; OrderNo: Code[20])
@@ -3452,7 +3452,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         FindSalesInvoiceHeader(SalesInvoiceHeader, OrderNo);
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20])
@@ -3461,7 +3461,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
     end;
 
@@ -3481,7 +3481,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         RequisitionLine.SetRange("Worksheet Template Name", ReqWkshTemplateName);
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshNameName);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         repeat
             RequisitionLine.OpenItemTrackingLines();
         until RequisitionLine.Next = 0;
@@ -3490,7 +3490,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     local procedure CreateRequisitionWorksheetName(var ReqWkshTemplate: Record "Req. Wksh. Template"; var RequisitionWkshName: Record "Requisition Wksh. Name")
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
@@ -3521,7 +3521,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     local procedure UpdateVendorInvoiceNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");  // Get Latest Instance, Important for Test.
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -3628,7 +3628,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; LotNoFilter: Text; ActivityType: Enum "Warehouse Activity Type")
@@ -3639,7 +3639,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetFilter("Lot No.", LotNoFilter);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
@@ -3654,7 +3654,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; AutoFillQuantity: Boolean) WhseActivityHeaderNo: Code[20]
@@ -3696,7 +3696,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
@@ -3712,7 +3712,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
         WhseWorksheetTemplate.SetRange(Type, Type);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
         LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
     end;
 
@@ -3721,7 +3721,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
         WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
@@ -3757,7 +3757,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure FindBin(var Zone: Record Zone; var Bin: Record Bin; ZoneCode: Code[10]; BinCode: Code[20]; LocationCode: Code[10])
@@ -3819,7 +3819,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure CreateAndReleaseTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; FromLocation: Code[10]; ToLocation: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
@@ -3914,7 +3914,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         FilterOnWhseWorksheetLine(
           WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode, ItemNo);
         GetSourceDocInbound.GetSingleWhsePutAwayDoc(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
 
         WhseWorksheetLine.AutofillQtyToHandle(WhseWorksheetLine);
         if Tracking then
@@ -3930,11 +3930,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
     begin
         PostedWhseReceiptHeader.SetRange("Whse. Receipt No.", WhseReceiptNo);
-        PostedWhseReceiptHeader.FindFirst;
+        PostedWhseReceiptHeader.FindFirst();
 
         PostedWhseReceiptLine.SetHideValidationDialog(true);
         PostedWhseReceiptLine.SetRange("No.", PostedWhseReceiptHeader."No.");
-        PostedWhseReceiptLine.FindFirst;
+        PostedWhseReceiptLine.FindFirst();
         PostedWhseReceiptLine.CreatePutAwayDoc(PostedWhseReceiptLine, '');
     end;
 
@@ -3966,7 +3966,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         GetSourceDocOutbound.GetSingleWhsePickDoc(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode);
         FilterOnWhseWorksheetLine(
           WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode, ItemNo);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         if Tracking then
             WhseWorksheetLine.OpenItemTrackingLines();  // Assign Tracking on Page handler ItemTrackingPageHandler.
         LibraryWarehouse.CreatePickFromPickWorksheet(
@@ -3998,7 +3998,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         CreateInvtPutAwayPickMvmt.SuppressMessages(true);
         CreateInvtPutAwayPickMvmt.UseRequestPage(false);
         CreateInvtPutAwayPickMvmt.SetTableView(WarehouseRequest);
-        CreateInvtPutAwayPickMvmt.RunModal;
+        CreateInvtPutAwayPickMvmt.RunModal();
     end;
 
     local procedure UpdateWarehouseAndBinPoliciesOnLocation(var Location: Record Location; UsePutAwayWorksheet: Boolean; AlwaysCreatePutAwayLine: Boolean)
@@ -4051,7 +4051,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
               WarehouseActivityLine, SourceNo, SourceDocument, LocationCode, ItemNo, LotNo, "Activity Type"::"Put-away");
             for i := "Action Type"::Take.AsInteger() to "Action Type"::Place.AsInteger() do begin
                 SetRange("Action Type", i);
-                FindLast;
+                FindLast();
                 Validate("Qty. to Handle", QtyToHandle);
                 Modify(true);
             end;
@@ -4091,7 +4091,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
     begin
         PostedWhseReceiptHeader.SetRange("Whse. Receipt No.", WhseReceiptNo);
-        PostedWhseReceiptHeader.FindFirst;
+        PostedWhseReceiptHeader.FindFirst();
         GlobalDocumentNo := PostedWhseReceiptHeader."No.";  // Assign Global variable for Page Handler.
     end;
 
@@ -4159,7 +4159,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.ModifyAll("Document No.", LibraryUtility.GenerateGUID);
+        ItemJournalLine.ModifyAll("Document No.", LibraryUtility.GenerateGUID());
     end;
 
     local procedure UpdateWarehouseSetupPostingPolicy(NewPostingPolicy: Option) PostingPolicy: Integer
@@ -4201,7 +4201,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         WhseInternalPutAwayLine.SetRange("No.", No);
         WhseInternalPutAwayLine.SetRange("Item No.", ItemNo);
-        WhseInternalPutAwayLine.FindFirst;
+        WhseInternalPutAwayLine.FindFirst();
     end;
 
     local procedure UpdateProductionBOMNoOnItem(var Item: Record Item; ProductionBOMNo: Code[20])
@@ -4251,7 +4251,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         BinTypeBuffer.DeleteAll();
 
         BinType.Reset();
-        if BinType.FindSet then
+        if BinType.FindSet() then
             repeat
                 BinTypeBuffer := BinType;
                 BinTypeBuffer.Insert();
@@ -4266,7 +4266,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         with ItemLedgEntry do begin
             SetRange("Document No.", DocNo);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             exit("Lot No.");
         end;
     end;
@@ -4301,7 +4301,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
-        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Validate(Amount, Amount);
         ItemJournalLine.Modify(true);
@@ -4374,7 +4374,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         TrackingQuantity := SalesShipmentLine.Quantity;  // Assign Global Variable for Page handler.
         SalesShipmentLine.ShowItemTrackingLines;  // Open Item Tracking Line for Verify on PostedLinesPageHandler.
     end;

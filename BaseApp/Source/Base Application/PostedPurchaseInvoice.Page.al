@@ -1,4 +1,4 @@
-page 138 "Posted Purchase Invoice"
+﻿page 138 "Posted Purchase Invoice"
 {
     Caption = 'Posted Purchase Invoice';
     InsertAllowed = false;
@@ -357,6 +357,13 @@ page 138 "Posted Purchase Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the vendor.';
                 }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    Visible = false;
+                }
                 group("Electronic Invoice")
                 {
                     Caption = 'Electronic Invoice';
@@ -682,22 +689,6 @@ page 138 "Posted Purchase Invoice"
                     PurchInvHeader.PrintRecords(true);
                 end;
             }
-            action(Navigate)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Find entries...';
-                Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category5;
-                ShortCutKey = 'Shift+Ctrl+I';
-                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                Visible = NOT IsOfficeAddin;
-
-                trigger OnAction()
-                begin
-                    Navigate;
-                end;
-            }
             action(AttachAsPDF)
             {
                 ApplicationArea = Basic, Suite;
@@ -811,6 +802,22 @@ page 138 "Posted Purchase Invoice"
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
                 }
+                action(Navigate)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Find entries...';
+                    Image = Navigate;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    ShortCutKey = 'Ctrl+Alt+Q';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                    Visible = NOT IsOfficeAddin;
+
+                    trigger OnAction()
+                    begin
+                        Navigate;
+                    end;
+                }
                 action(DocAttach)
                 {
                     ApplicationArea = All;
@@ -827,9 +834,25 @@ page 138 "Posted Purchase Invoice"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
+            }
+            action("&Navigate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                Promoted = true;
+                PromotedCategory = Category5;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                Visible = false;
+
+                trigger OnAction()
+                begin
+                    Navigate;
+                end;
             }
             group(IncomingDocument)
             {
@@ -900,7 +923,7 @@ page 138 "Posted Purchase Invoice"
                 begin
                     PostedPurchInvoiceUpdate.LookupMode := true;
                     PostedPurchInvoiceUpdate.SetRec(Rec);
-                    PostedPurchInvoiceUpdate.RunModal;
+                    PostedPurchInvoiceUpdate.RunModal();
                 end;
             }
         }

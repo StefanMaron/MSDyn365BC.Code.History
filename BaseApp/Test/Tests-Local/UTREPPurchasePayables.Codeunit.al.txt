@@ -24,7 +24,7 @@ codeunit 142082 "UT REP Purchase Payables"
         VendorLedgerEntry: array[4] of Record "Vendor Ledger Entry";
     begin
         // [SCENARIO 285677] Run report 10085 - Aged Accounts Payable for four vendors with diferent due date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry on 23-02-20 with amount "A1" for "Vend1"
         CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[1], CreateVendor, CalcDate('<+30D>', WorkDate) + 1, -1);
@@ -66,7 +66,7 @@ codeunit 142082 "UT REP Purchase Payables"
         PostingDate: Date;
     begin
         // [SCENARIO 285677] Run report 10085 - Aged Accounts Payable for vendor with entries of diferent due date
-        Initialize;
+        Initialize();
 
         VendorNo := CreateVendor;
         PostingDate := CalcDate('<-4M>', WorkDate);
@@ -112,7 +112,7 @@ codeunit 142082 "UT REP Purchase Payables"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateVendor(): Code[20]

@@ -48,7 +48,7 @@ codeunit 137413 "SCM Item Attributes"
         TempItemAttributeValue: Record "Item Attribute Value" temporary;
     begin
         // [FEATURE] [UT]
-        Initialize;
+        Initialize();
         ItemAttributeValueSelection.DeleteAll();
 
         // [GIVEN] Item 'X' with an attribute exist
@@ -78,7 +78,7 @@ codeunit 137413 "SCM Item Attributes"
         DefinedOnKeyValue: Code[20];
     begin
         // [FEATURE] [UT]
-        Initialize;
+        Initialize();
         ItemAttributeValueSelection.DeleteAll();
 
         // [GIVEN] Item 'X' with an attribute exist
@@ -110,7 +110,7 @@ codeunit 137413 "SCM Item Attributes"
         SecondItemAttributeValue: Record "Item Attribute Value";
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item and a set of item attributes
         CreateTestOptionItemAttributes;
@@ -120,10 +120,10 @@ codeunit 137413 "SCM Item Attributes"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
 
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemCard(FirstItemAttribute, FirstItemAttributeValue, ItemCard);
 
-        SecondItemAttribute.FindLast;
+        SecondItemAttribute.FindLast();
         AssignItemAttributeViaItemCard(SecondItemAttribute, SecondItemAttributeValue, ItemCard);
 
         // [THEN] The factbox on the item card shows the names of the chosen attributes and values
@@ -151,7 +151,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttribute.DeleteAll();
         LibraryInventory.CreateItemAttribute(FirstItemAttribute, ItemAttributeType, '');
         if ItemAttributeType <> ItemAttribute.Type::Text then
-            LibraryInventory.CreateItemAttribute(SecondItemAttribute, ItemAttributeType, LibraryUtility.GenerateGUID)
+            LibraryInventory.CreateItemAttribute(SecondItemAttribute, ItemAttributeType, LibraryUtility.GenerateGUID())
         else
             LibraryInventory.CreateItemAttribute(SecondItemAttribute, ItemAttributeType, '');
         LibraryInventory.CreateItem(Item1);
@@ -161,8 +161,8 @@ codeunit 137413 "SCM Item Attributes"
         case ItemAttributeType of
             ItemAttribute.Type::Text:
                 begin
-                    FirstItemAttributeValue := LibraryUtility.GenerateGUID;
-                    SecondItemAttributeValue := LibraryUtility.GenerateGUID;
+                    FirstItemAttributeValue := LibraryUtility.GenerateGUID();
+                    SecondItemAttributeValue := LibraryUtility.GenerateGUID();
                 end;
             ItemAttribute.Type::Decimal:
                 begin
@@ -219,7 +219,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestAssignNonOptionAttributesToItemViaItemCard(DummyItemAttribute.Type::Text);
     end;
@@ -231,7 +231,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestAssignNonOptionAttributesToItemViaItemCard(DummyItemAttribute.Type::Integer);
     end;
@@ -243,7 +243,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestAssignNonOptionAttributesToItemViaItemCard(DummyItemAttribute.Type::Decimal);
     end;
@@ -255,7 +255,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestAssignNonOptionAttributesToItemViaItemCard(DummyItemAttribute.Type::Date);
     end;
@@ -274,7 +274,7 @@ codeunit 137413 "SCM Item Attributes"
         FirstItemAttributeValueName: Text[250];
         SecondItemAttributeValueName: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item and a set of item attributes
         CreateTestOptionItemAttributes;
@@ -284,20 +284,20 @@ codeunit 137413 "SCM Item Attributes"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
 
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
         FirstItemAttributeValueName := FirstItemAttributeValue.Value;
-        SecondItemAttributeValue.FindLast;
+        SecondItemAttributeValue.FindLast();
         SecondItemAttributeValueName := SecondItemAttributeValue.Value;
         SetItemAttributesViaItemCard(ItemCard, FirstItemAttribute, FirstItemAttributeValue.Value);
 
-        SecondItemAttribute.FindLast;
+        SecondItemAttribute.FindLast();
         SecondItemAttributeValue.SetRange("Attribute ID", SecondItemAttribute.ID);
-        SecondItemAttributeValue.FindFirst;
+        SecondItemAttributeValue.FindFirst();
         SecondItemAttributeValue.Value := FirstItemAttributeValueName;
         SecondItemAttributeValue.Modify();
-        SecondItemAttributeValue.FindLast;
+        SecondItemAttributeValue.FindLast();
         SecondItemAttributeValue.Value := SecondItemAttributeValueName;
         SecondItemAttributeValue.Modify();
         SetItemAttributesViaItemCard(ItemCard, SecondItemAttribute, SecondItemAttributeValue.Value);
@@ -323,7 +323,7 @@ codeunit 137413 "SCM Item Attributes"
         SecondItemAttributeValue: Record "Item Attribute Value";
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemAndSetOfItemsAttributes(Item);
@@ -331,10 +331,10 @@ codeunit 137413 "SCM Item Attributes"
         ItemList.OpenEdit;
         ItemList.GotoRecord(Item);
 
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemList(FirstItemAttribute, FirstItemAttributeValue, ItemList);
 
-        SecondItemAttribute.FindLast;
+        SecondItemAttribute.FindLast();
         AssignItemAttributeViaItemList(SecondItemAttribute, SecondItemAttributeValue, ItemList);
 
         // [THEN] The factbox on the item list shows the names of the chosen attributes and values
@@ -353,15 +353,15 @@ codeunit 137413 "SCM Item Attributes"
         FirstItemAttribute: Record "Item Attribute";
         SecondItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates item attributes with some values
         CreateTestOptionItemAttributes;
 
         // [THEN] The Values field on the Item Attributes list shows the comma separated string with the item attribute values
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         CheckOptionItemAttributeValues(FirstItemAttribute);
-        SecondItemAttribute.FindLast;
+        SecondItemAttribute.FindLast();
         CheckOptionItemAttributeValues(SecondItemAttribute);
     end;
 
@@ -374,13 +374,13 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeCard: TestPage "Item Attribute";
         ItemAttributeValues: TestPage "Item Attribute Values";
     begin
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates item attributes with some values
         CreateTestOptionItemAttributes;
 
         // [THEN] The Values field drilldown on Item Attriobutes window, launches the Item Attribute Values window, in which you can change the attribute values
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         ItemAttributes.OpenEdit;
         ItemAttributes.GotoRecord(FirstItemAttribute);
         ItemAttributeCard.Trap;
@@ -388,7 +388,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValues.Trap;
         ItemAttributeCard.Values.DrillDown;
         ItemAttributeValues.New;
-        ItemAttributeValues.Value.SetValue(LibraryUtility.GenerateGUID);
+        ItemAttributeValues.Value.SetValue(LibraryUtility.GenerateGUID());
         ItemAttributeValues.Close;
         ItemAttributeCard.Close;
         CheckOptionItemAttributeValues(FirstItemAttribute);
@@ -402,19 +402,19 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributes: TestPage "Item Attributes";
         ItemAttributeValues: TestPage "Item Attribute Values";
     begin
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates item attributes with some values
         CreateTestOptionItemAttributes;
 
         // [THEN] The Values field drilldown on Item Attriobutes window, launches the Item Attribute Values window, in which you can change the attribute values
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         ItemAttributes.OpenEdit;
         ItemAttributes.GotoRecord(FirstItemAttribute);
         ItemAttributeValues.Trap;
         ItemAttributes.Values.DrillDown;
         ItemAttributeValues.New;
-        ItemAttributeValues.Value.SetValue(LibraryUtility.GenerateGUID);
+        ItemAttributeValues.Value.SetValue(LibraryUtility.GenerateGUID());
         ItemAttributeValues.Close;
         CheckOptionItemAttributeValues(FirstItemAttribute);
     end;
@@ -432,23 +432,23 @@ codeunit 137413 "SCM Item Attributes"
         TranslatedName: Text[250];
         NewName: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] A set of item attributes
         CreateTestOptionItemAttributes;
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         ItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        ItemAttributeValue.FindFirst;
+        ItemAttributeValue.FindFirst();
 
         // [WHEN] The user translates attribute values
         TestLanguageID := 1030;
         Language.SetRange("Windows Language ID", TestLanguageID);
-        if Language.FindFirst then begin
+        if Language.FindFirst() then begin
             TranslatedName := InsertOptionItemAttributeValueTranslation(Language, FirstItemAttribute, ItemAttributeValue);
 
             // [WHEN] The user renames the attribute value
             // [WHEN] The user answers that he wants to reuse the attribute value translations
-            NewName := LibraryUtility.GenerateGUID;
+            NewName := LibraryUtility.GenerateGUID();
             LibraryVariableStorage.Enqueue(StrSubstNo(ReuseValueTranslationsQst, ItemAttributeValue.Value, NewName));
             LibraryVariableStorage.Enqueue(true);
             ItemAttributeValue.Validate(Value, NewName);
@@ -472,23 +472,23 @@ codeunit 137413 "SCM Item Attributes"
         NewName: Text[250];
         TestLanguageID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] A set of item attributes
         CreateTestOptionItemAttributes;
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         ItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        ItemAttributeValue.FindFirst;
+        ItemAttributeValue.FindFirst();
 
         // [WHEN] The user translates attribute values
         TestLanguageID := 1030;
         Language.SetRange("Windows Language ID", TestLanguageID);
-        if Language.FindFirst then begin
+        if Language.FindFirst() then begin
             InsertOptionItemAttributeValueTranslation(Language, FirstItemAttribute, ItemAttributeValue);
 
             // [WHEN] The user renames the attribute value
             // [WHEN] The user answers that he wants to reuse the attribute value translations
-            NewName := LibraryUtility.GenerateGUID;
+            NewName := LibraryUtility.GenerateGUID();
             LibraryVariableStorage.Enqueue(StrSubstNo(ReuseValueTranslationsQst, ItemAttributeValue.Value, NewName));
             LibraryVariableStorage.Enqueue(false);
             ItemAttributeValue.Validate(Value, NewName);
@@ -508,16 +508,16 @@ codeunit 137413 "SCM Item Attributes"
         Values: Text;
         NewName: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] A set of item attributes
         CreateTestOptionItemAttributes;
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         Values := FirstItemAttribute.GetValues;
 
         // [WHEN] The user renames an attribute
         // [WHEN] The user answers that he wants to reuse the attribute values
-        NewName := LibraryUtility.GenerateGUID;
+        NewName := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(StrSubstNo(ReuseValuesAndTranslationsQst, FirstItemAttribute.Name, NewName));
         LibraryVariableStorage.Enqueue(true);
         FirstItemAttribute.Validate(Name, NewName);
@@ -536,17 +536,17 @@ codeunit 137413 "SCM Item Attributes"
         Values: Text;
         NewName: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] A set of item attributes
         CreateTestOptionItemAttributes;
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         Values := FirstItemAttribute.GetValues;
         Assert.AreNotEqual('', Values, '');
 
         // [WHEN] The user renames an attribute
         // [WHEN] The user answers that he doesn't want to reuse the attribute values
-        NewName := LibraryUtility.GenerateGUID;
+        NewName := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(StrSubstNo(ReuseValuesAndTranslationsQst, FirstItemAttribute.Name, NewName));
         LibraryVariableStorage.Enqueue(false);
         FirstItemAttribute.Validate(Name, NewName);
@@ -566,14 +566,14 @@ codeunit 137413 "SCM Item Attributes"
         FirstItemAttributeValue: Record "Item Attribute Value";
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemAndSetOfItemsAttributes(Item);
         // [WHEN] The user assigns some attribute values to the item
         ItemList.OpenEdit;
         ItemList.GotoRecord(Item);
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemList(FirstItemAttribute, FirstItemAttributeValue, ItemList);
         ItemList.Close;
 
@@ -601,16 +601,16 @@ codeunit 137413 "SCM Item Attributes"
         FirstItemAttributeValue: Record "Item Attribute Value";
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemAndSetOfItemsAttributes(Item);
         // [WHEN] The user assigns some attribute values to the item
         ItemList.OpenEdit;
         ItemList.GotoRecord(Item);
-        FirstItemAttribute.FindLast;
+        FirstItemAttribute.FindLast();
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindLast;
+        FirstItemAttributeValue.FindLast();
 
         // [WHEN] The user blocks the assigned attribute
         FirstItemAttribute.Blocked := true;
@@ -630,16 +630,16 @@ codeunit 137413 "SCM Item Attributes"
         FirstItemAttributeValue: Record "Item Attribute Value";
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemAndSetOfItemsAttributes(Item);
         // [WHEN] The user assigns some attribute values to the item
         ItemList.OpenEdit;
         ItemList.GotoRecord(Item);
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         // [WHEN] The user blocks the assigned attribute value
         FirstItemAttributeValue.Blocked := true;
@@ -659,14 +659,14 @@ codeunit 137413 "SCM Item Attributes"
         DummyItemAttributeValue: Record "Item Attribute Value";
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemAndSetOfItemsAttributes(Item);
         // [WHEN] The user assigns some attribute values to the item
         ItemList.OpenEdit;
         ItemList.GotoRecord(Item);
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemList(FirstItemAttribute, DummyItemAttributeValue, ItemList);
         ItemList.Close;
 
@@ -693,22 +693,22 @@ codeunit 137413 "SCM Item Attributes"
         NewAttributeCode: Text;
         NewValueCode: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemAndSetOfItemsAttributes(Item);
         // [WHEN] The user assigns some attribute values to the item
         ItemList.OpenEdit;
         ItemList.GotoRecord(Item);
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemList(FirstItemAttribute, FirstItemAttributeValue, ItemList);
         ItemList.Close;
 
         // [WHEN] The user renames the assigned attribute or value
-        NewAttributeCode := LibraryUtility.GenerateGUID;
+        NewAttributeCode := LibraryUtility.GenerateGUID();
         FirstItemAttribute.Name := LowerCase(NewAttributeCode);
         FirstItemAttribute.Modify(true);
-        NewValueCode := LibraryUtility.GenerateGUID;
+        NewValueCode := LibraryUtility.GenerateGUID();
         FirstItemAttributeValue.Value := LowerCase(NewValueCode);
         FirstItemAttributeValue.Modify();
 
@@ -739,7 +739,7 @@ codeunit 137413 "SCM Item Attributes"
         TranslationPrefix: Text[250];
         OriginalLanguageID: Integer;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemAndSetOfItemsAttributes(Item);
@@ -748,14 +748,14 @@ codeunit 137413 "SCM Item Attributes"
         TranslationPrefix := 'Danish';
 
         // [WHEN] The user assigns some attribute values to the item
-        SecondItemAttribute.FindLast;
+        SecondItemAttribute.FindLast();
         SecondItemAttributeValue.SetRange("Attribute ID", SecondItemAttribute.ID);
-        SecondItemAttributeValue.FindFirst;
+        SecondItemAttributeValue.FindFirst();
         LibraryInventory.CreateItemAttributeValueMapping(DATABASE::Item, Item."No.", SecondItemAttribute.ID, SecondItemAttributeValue.ID);
 
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
         LibraryInventory.CreateItemAttributeValueMapping(DATABASE::Item, Item."No.", FirstItemAttribute.ID, FirstItemAttributeValue.ID);
 
         // [WHEN] The user translates the assigned attribute or value, and switches the global language
@@ -766,7 +766,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeTranslations.New;
 
         Language.SetRange("Windows Language ID", TestLanguageID);
-        if Language.FindFirst then begin
+        if Language.FindFirst() then begin
             ItemAttributeTranslations."Language Code".SetValue(Language.Code);
             ItemAttributeTranslations.Name.SetValue(TranslationPrefix + FirstItemAttribute.Name);
             ItemAttributeTranslations.OK.Invoke;
@@ -807,7 +807,7 @@ codeunit 137413 "SCM Item Attributes"
         SecondItemAttributeValue: Record "Item Attribute Value";
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item and a set of item attributes
         LibraryInventory.CreateItem(Item);
@@ -817,12 +817,12 @@ codeunit 137413 "SCM Item Attributes"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
 
-        FirstItemAttribute.FindFirst;
+        FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemCard(FirstItemAttribute, FirstItemAttributeValue, ItemCard);
 
         // [WHEN] The user assigns the same attribute value to the item again
         SecondItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        SecondItemAttributeValue.FindLast;
+        SecondItemAttributeValue.FindLast();
 
         // [THEN] The user gets an error message
         asserterror SetItemAttributesViaItemCard(ItemCard, FirstItemAttribute, SecondItemAttributeValue.Value);
@@ -838,10 +838,10 @@ codeunit 137413 "SCM Item Attributes"
         Item: Record Item;
         InvalidValue: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         CreateTestIntegerItemAttributes;
-        ItemAttribute.FindFirst;
+        ItemAttribute.FindFirst();
         LibraryInventory.CreateItem(Item);
         InvalidValue := Format(LibraryRandom.RandDec(1000, 2));
 
@@ -861,12 +861,12 @@ codeunit 137413 "SCM Item Attributes"
         Item: Record Item;
         InvalidValue: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         CreateTestDecimalItemAttributes;
-        ItemAttribute.FindFirst;
+        ItemAttribute.FindFirst();
         LibraryInventory.CreateItem(Item);
-        InvalidValue := LibraryUtility.GenerateGUID;
+        InvalidValue := LibraryUtility.GenerateGUID();
 
         ItemAttributeValueSelection.Validate("Attribute ID", ItemAttribute.ID);
         ItemAttributeValueSelection.Validate("Attribute Type", ItemAttributeValueSelection."Attribute Type"::Decimal);
@@ -884,12 +884,12 @@ codeunit 137413 "SCM Item Attributes"
         Item: Record Item;
         InvalidValue: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         CreateTestDecimalItemAttributes;
-        ItemAttribute.FindFirst;
+        ItemAttribute.FindFirst();
         LibraryInventory.CreateItem(Item);
-        InvalidValue := LibraryUtility.GenerateGUID;
+        InvalidValue := LibraryUtility.GenerateGUID();
 
         ItemAttributeValueSelection.Validate("Attribute ID", ItemAttribute.ID);
         ItemAttributeValueSelection.Validate("Attribute Type", ItemAttributeValueSelection."Attribute Type"::Date);
@@ -904,10 +904,10 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         CreateTestOptionItemAttributes;
-        DummyItemAttribute.FindFirst;
+        DummyItemAttribute.FindFirst();
         asserterror DummyItemAttribute.Validate(Type, DummyItemAttribute.Type::Integer);
         Assert.ExpectedError(StrSubstNo(ChangingAttributeTypeErr, DummyItemAttribute.Name));
     end;
@@ -919,10 +919,10 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttribute: Record "Item Attribute";
         DummyItemAttributeValue: Record "Item Attribute Value";
     begin
-        Initialize;
+        Initialize();
 
         CreateTestIntegerItemAttributes;
-        ItemAttribute.FindFirst;
+        ItemAttribute.FindFirst();
         DummyItemAttributeValue."Attribute ID" := ItemAttribute.ID;
         DummyItemAttributeValue.Value := Format(LibraryRandom.RandInt(1000));
         DummyItemAttributeValue.Insert();
@@ -940,7 +940,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [SCENARIO] Item attribue assigned to an item should not be deleted after deletion is confirmed
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemWithIntegerAttribute(ItemAttributeValue);
@@ -964,7 +964,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [SCENARIO] Item attribue value assigned to an item should not be deleted after deletion is confirmed
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         CreateItemWithIntegerAttribute(ItemAttributeValue);
@@ -988,7 +988,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValue: Record "Item Attribute Value";
         NewName: Text[250];
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         LibraryInventory.CreateItem(Item);
@@ -998,7 +998,7 @@ codeunit 137413 "SCM Item Attributes"
         // [WHEN] The user assigns some attribute values to the item
         LibraryInventory.CreateItemAttributeValueMapping(DATABASE::Item, Item."No.", ItemAttribute.ID, ItemAttributeValue.ID);
 
-        NewName := LibraryUtility.GenerateGUID;
+        NewName := LibraryUtility.GenerateGUID();
 
         LibraryVariableStorage.Enqueue(RenameUsedAttributeQst);
         LibraryVariableStorage.Enqueue(true);
@@ -1022,17 +1022,17 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValue: Record "Item Attribute Value";
         NewValue: Text[250];
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [GIVEN] An item and a set of item attributes
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID());
 
         // [WHEN] The user assigns some attribute values to the item
         LibraryInventory.CreateItemAttributeValueMapping(DATABASE::Item, Item."No.", ItemAttribute.ID, ItemAttributeValue.ID);
 
-        NewValue := LibraryUtility.GenerateGUID;
+        NewValue := LibraryUtility.GenerateGUID();
 
         LibraryVariableStorage.Enqueue(RenameUsedAttributeValueQst);
         LibraryVariableStorage.Enqueue(true);
@@ -1043,7 +1043,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValue.Modify();
 
         ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
-        ItemAttributeValue.FindFirst;
+        ItemAttributeValue.FindFirst();
         Assert.AreEqual(NewValue, ItemAttributeValue.Value, '');
     end;
 
@@ -1055,10 +1055,10 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeCard: TestPage "Item Attribute";
         AttributeName: Text;
     begin
-        Initialize;
+        Initialize();
 
-        ItemAttributeCard.OpenNew;
-        AttributeName := LibraryUtility.GenerateGUID;
+        ItemAttributeCard.OpenNew();
+        AttributeName := LibraryUtility.GenerateGUID();
         ItemAttributeCard.Name.SetValue(LowerCase(AttributeName));
         ItemAttributeCard.Type.SetValue(DummyItemAttribute.Type::Text);
         Assert.IsFalse(ItemAttributeCard."Unit of Measure".Visible, 'UoF Field is shown while it should be invisible');
@@ -1075,10 +1075,10 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeCard: TestPage "Item Attribute";
         AttributeName: Text;
     begin
-        Initialize;
+        Initialize();
 
-        ItemAttributeCard.OpenNew;
-        AttributeName := LibraryUtility.GenerateGUID;
+        ItemAttributeCard.OpenNew();
+        AttributeName := LibraryUtility.GenerateGUID();
         ItemAttributeCard.Name.SetValue(LowerCase(AttributeName));
         ItemAttributeCard.Type.SetValue(DummyItemAttribute.Type::Text);
         Assert.IsFalse(ItemAttributeCard.Values.Visible, 'Values field is shown while it should be invisible');
@@ -1093,7 +1093,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
     begin
-        Initialize;
+        Initialize();
 
         VerifyVisibilityInApplicationArea(ExperienceTierSetup.FieldCaption(Basic));
         VerifyVisibilityInApplicationArea(ExperienceTierSetup.FieldCaption(Essential));
@@ -1106,7 +1106,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestChangeAttributesOnItem(DummyItemAttribute.Type::Text);
     end;
@@ -1118,7 +1118,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestChangeAttributesOnItem(DummyItemAttribute.Type::Integer);
     end;
@@ -1130,7 +1130,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestChangeAttributesOnItem(DummyItemAttribute.Type::Decimal);
     end;
@@ -1142,7 +1142,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestChangeAttributesOnItem(DummyItemAttribute.Type::Option);
     end;
@@ -1154,7 +1154,7 @@ codeunit 137413 "SCM Item Attributes"
     var
         DummyItemAttribute: Record "Item Attribute";
     begin
-        Initialize;
+        Initialize();
 
         TestChangeAttributesOnItem(DummyItemAttribute.Type::Date);
     end;
@@ -1172,20 +1172,20 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [GIVEN] An item and a set of item attributes
         ItemAttribute.DeleteAll();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if ItemAttributeType = ItemAttribute.Type::Option then
             CreateTestOptionItemAttributes
         else
             LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttributeType, '');
         LibraryInventory.CreateItem(Item);
 
-        ItemAttribute.FindFirst;
+        ItemAttribute.FindFirst();
 
         case ItemAttributeType of
             ItemAttribute.Type::Text:
                 begin
-                    FirstItemAttributeValue := LibraryUtility.GenerateGUID;
-                    SecondItemAttributeValue := LibraryUtility.GenerateGUID;
+                    FirstItemAttributeValue := LibraryUtility.GenerateGUID();
+                    SecondItemAttributeValue := LibraryUtility.GenerateGUID();
                 end;
             ItemAttribute.Type::Decimal:
                 begin
@@ -1200,9 +1200,9 @@ codeunit 137413 "SCM Item Attributes"
             ItemAttribute.Type::Option:
                 begin
                     ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
-                    ItemAttributeValue.FindFirst;
+                    ItemAttributeValue.FindFirst();
                     FirstItemAttributeValue := ItemAttributeValue.Value;
-                    ItemAttributeValue.FindLast;
+                    ItemAttributeValue.FindLast();
                     SecondItemAttributeValue := ItemAttributeValue.Value;
                 end;
             ItemAttribute.Type::Date:
@@ -1219,7 +1219,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", Item."No.");
         ItemAttributeValueMapping.SetRange("Item Attribute ID", ItemAttribute.ID);
-        ItemAttributeValueMapping.FindFirst;
+        ItemAttributeValueMapping.FindFirst();
         OriginalAttributeValueID := ItemAttributeValueMapping."Item Attribute Value ID";
         ItemAttributeValueMapping.Delete(true);
         SetItemAttributesViaItemCard(ItemCard, ItemAttribute, SecondItemAttributeValue);
@@ -1247,7 +1247,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemNoAttributes: Record Item;
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with an single attribute
         CreateItemAttributeValues(ItemAttributeValue, 1, ItemAttribute.Type::Option);
@@ -1278,7 +1278,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemNoAttributes: Record Item;
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two items with the same attribute exist
         CreateItemAttributeValues(ItemAttributeValue, 1, ItemAttribute.Type::Text);
@@ -1318,7 +1318,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemNo: array[5] of Code[20];
     begin
         // [SCENARIO 277697] Filter 2200 sorted items by attribute in case of consecutive item numbers.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items with sorted numbers "A00001" - "A02205".
         // [GIVEN] Items "A00001" and "A00003" don't have any attributes, all other items have attribute "A".
@@ -1359,7 +1359,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [SCENARIO 226323] Item List shows only items with attribute when no adjacent items with same attribute
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two attributes = "A" and "B"
         CreateItemAttributeValues(ItemAttributeValue, 1, ItemAttribute.Type::Text);
@@ -1400,7 +1400,7 @@ codeunit 137413 "SCM Item Attributes"
         // [THEN] After clearing attributes all filters on Item List is reseted
         ItemList.ClearAttributes.Invoke;
         ItemNoAttributes.Reset();
-        ItemNoAttributes.FindLast;
+        ItemNoAttributes.FindLast();
         ItemList.Last;
         Assert.AreEqual(ItemNoAttributes."No.", ItemList."No.".Value, 'Wrong ItemAttribute was shown for the last item');
     end;
@@ -1416,7 +1416,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemNo: array[3] of Code[20];
     begin
         // [SCENARIO 277697] Stan sets filter for item with an attribute after he filters 2200 items by attribute in case of nonconsecutive item numbers.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items with sorted numbers "A00001" - "A04402".
         // [GIVEN] Even items - "A00002", "A00004" and so on - have attribute "A", odd items don't have any attribute.
@@ -1447,7 +1447,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemNo: array[3] of Code[20];
     begin
         // [SCENARIO 277697] Stan sets filter for item without an attribute after he filters 2200 items by attribute in case of nonconsecutive item numbers.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items with sorted numbers "A00001" - "A04402".
         // [GIVEN] Even items - "A00002", "A00004" and so on - have attribute "A", odd items don't have any attribute.
@@ -1478,7 +1478,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemNoAttributes: Record Item;
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with an multiple attributes assigned
         CreateItemAttributeValues(ItemAttributeValue, 10, ItemAttribute.Type::Integer);
@@ -1519,7 +1519,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemList: TestPage "Item List";
         RangeText: Text;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with an multiple attributes assigned
         CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Integer);
@@ -1565,7 +1565,7 @@ codeunit 137413 "SCM Item Attributes"
         Value1: Text;
         Value2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An attribute of type decimal
         CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Decimal);
@@ -1595,7 +1595,7 @@ codeunit 137413 "SCM Item Attributes"
         ExpectedFilterText: Text;
         TextValue: Text;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An attriubte of type text
         CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text);
@@ -1626,7 +1626,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemList: TestPage "Item List";
         FilterText: Text;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three items with text attribute
         CreateItemAttributeValues(ItemAttributeValue, 10, ItemAttribute.Type::Text);
@@ -1669,7 +1669,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemList: TestPage "Item List";
         ExpectedRangeText: Text;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An attribute of option type
         CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option);
@@ -1698,7 +1698,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemNoAttributes: Record Item;
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item list is already filtered with Attributes
         CreateItemAttributeValues(ItemAttributeValue, 10, ItemAttribute.Type::Integer);
@@ -1731,7 +1731,7 @@ codeunit 137413 "SCM Item Attributes"
         SecondItemAttributeValue: Record "Item Attribute Value";
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item and a set of item attributes
         CreateTestOptionItemAttributes;
@@ -1741,8 +1741,8 @@ codeunit 137413 "SCM Item Attributes"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
 
-        FirstItemAttribute.FindFirst;
-        SecondItemAttribute.FindLast;
+        FirstItemAttribute.FindFirst();
+        SecondItemAttribute.FindLast();
 
         AssignItemAttributeViaItemCard(FirstItemAttribute, FirstItemAttributeValue, ItemCard);
         AssignItemAttributeViaItemCard(SecondItemAttribute, SecondItemAttributeValue, ItemCard);
@@ -1805,7 +1805,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttribute: Record "Item Attribute";
     begin
         // [SCENARIO 215293] Default item attribute name should be shown when the current system language is not found in the Language table
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
         // Negative value to ensure that the parameter does not correspond to any Windows language ID
@@ -1820,10 +1820,10 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValue: Record "Item Attribute Value";
     begin
         // [SCENARIO 215293] Default item attribute value should be shown when the current system language is not found in the Language table
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID());
 
         // Negative value to ensure that the parameter does not correspond to any Windows language ID
         Assert.AreEqual(ItemAttributeValue.Value, ItemAttributeValue.GetTranslatedName(-1), WrongAttrNameForUnknownLanguageErr);
@@ -1844,7 +1844,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211711] If Item is renamed, it's Attributes should not be lost
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item and a set of item attributes
         LibraryInventory.CreateItem(Item);
@@ -1858,7 +1858,7 @@ codeunit 137413 "SCM Item Attributes"
 
         // [WHEN] Rename Item "III" to "III2"
         PrevItemNo := Item."No.";
-        ItemNo := LibraryUtility.GenerateGUID;
+        ItemNo := LibraryUtility.GenerateGUID();
         Item.Rename(ItemNo);
 
         // [THEN] There are two attributes for Item "III2"
@@ -1887,10 +1887,10 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 226997] FindAttributeValue function in Table 7504 "Item Attribute Value Selection" finds existing attribute of decimal type by its Numeric Value, as long as Value depends on regional settings.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Attribute "A".
-        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Decimal, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Decimal, LibraryUtility.GenerateGUID());
 
         AttrValueUSFormat := '12,345.67';
         AttrValue := 12345.67;
@@ -1923,7 +1923,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 228474] Item Attribute Value Translation is deleted when Item Attribute is deleted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Attribute with Item Attr. Value Translation.
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
@@ -1953,7 +1953,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [SCENARIO 235152] When changing a value of an item attribue, other values of the same attribute mapped to other items should not be affected
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] 5 items with the same attribute "A" and different values of that attribute - from "V1" to "V5"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
@@ -1988,11 +1988,11 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [SCENARIO 235152] When changing a value of an item attribue, value should not be deleted if it is mapped to other items
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] 5 items with the same attribute "A", value "V"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID());
 
         ItemCount := LibraryRandom.RandIntInRange(3, 6);
         for I := 1 to ItemCount do
@@ -2022,7 +2022,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [SCENARIO 235152] When changing a value of an item attribue, value should be deleted if it is not mapped to other items
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] One item with attribute "A", value "V"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
@@ -2055,11 +2055,11 @@ codeunit 137413 "SCM Item Attributes"
         // [FEATURE] [Item Category]
         // [SCENARIO 252765] When attribute value mapping is deleted for all items in a category, attribute value that is not mapped to other items, should be deleted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item attribute "A" with value "V"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Item category "C"
         LibraryInventory.CreateItemCategory(ItemCategory);
@@ -2089,7 +2089,7 @@ codeunit 137413 "SCM Item Attributes"
         // [FEATURE] [Item Category]
         // [SCENARIO 252765] When category attribute value is changed, old attribute value that is not mapped to other items, should be deleted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item category "C" with attribute "A" and attribute value "V1"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
@@ -2117,7 +2117,7 @@ codeunit 137413 "SCM Item Attributes"
         // [FEATURE] [Item Category]
         // [SCENARIO 252765] When an attribute value is deleted for a category, but not its items, attribute value should not be deleted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item category "C" with attribute "A" and attribute value "V1"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
@@ -2150,7 +2150,7 @@ codeunit 137413 "SCM Item Attributes"
         // [FEATURE] [Item Category]
         // [SCENARIO 252765] When attribute value mapping is deleted for items in a category, but the value is mapped to items with no category code, attribute value should not be deleted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item category "C" with attribute "A" and attribute value "V1"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
@@ -2185,10 +2185,10 @@ codeunit 137413 "SCM Item Attributes"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 317701] FindAttributeValue function in Table 7504 "Item Attribute Value Selection" finds existing attribute of date type by its Date Value.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Attribute "A".
-        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Date, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Date, LibraryUtility.GenerateGUID());
         AttrValueFullYear := Format(WorkDate, 0, '<Month,2>/<Day,2>/<Year4>');
         AttrValue := WorkDate;
 
@@ -2472,11 +2472,11 @@ codeunit 137413 "SCM Item Attributes"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Item Attributes");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         ItemAttribute.DeleteAll();
         ItemAttributeValue.DeleteAll();
         ItemAttributeValueMapping.DeleteAll();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryNotificationMgt.DisableAllNotifications;
 
         if IsInitialized then
@@ -2502,7 +2502,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(Experience);
 
-        ItemAttributes.OpenNew;
+        ItemAttributes.OpenNew();
         Assert.IsTrue(ItemAttributes.ItemAttributeValues.Visible, '');
         Assert.IsTrue(ItemAttributes.ItemAttributeTranslations.Visible, '');
         Assert.IsTrue(ItemAttributes.Name.Visible, '');
@@ -2510,18 +2510,18 @@ codeunit 137413 "SCM Item Attributes"
         Assert.IsTrue(ItemAttributes.Blocked.Visible, '');
         ItemAttributes.Close;
 
-        ItemAttributeValues.OpenNew;
+        ItemAttributeValues.OpenNew();
         Assert.IsTrue(ItemAttributeValues.ItemAttributeValueTranslations.Visible, '');
         Assert.IsTrue(ItemAttributeValues.Value.Visible, '');
         Assert.IsTrue(ItemAttributeValues.Blocked.Visible, '');
         ItemAttributeValues.Close;
 
-        ItemAttributeTranslations.OpenNew;
+        ItemAttributeTranslations.OpenNew();
         Assert.IsTrue(ItemAttributeTranslations."Language Code".Visible, '');
         Assert.IsTrue(ItemAttributeTranslations.Name.Visible, '');
         ItemAttributeTranslations.Close;
 
-        ItemAttributeCard.OpenNew;
+        ItemAttributeCard.OpenNew();
         Assert.IsTrue(ItemAttributeCard.ItemAttributeValues.Visible, '');
         Assert.IsTrue(ItemAttributeCard.ItemAttributeTranslations.Visible, '');
         Assert.IsTrue(ItemAttributeCard.Name.Visible, '');
@@ -2541,12 +2541,12 @@ codeunit 137413 "SCM Item Attributes"
         Assert.IsFalse(ItemAttributeCard.Values.Visible, '');
         ItemAttributeCard.Close;
 
-        ItemAttributeValueList.OpenNew;
+        ItemAttributeValueList.OpenNew();
         Assert.IsTrue(ItemAttributeValueList."Attribute Name".Visible, '');
         Assert.IsTrue(ItemAttributeValueList.Value.Visible, '');
         ItemAttributeValueList.Close;
 
-        ItemAttrValueTranslations.OpenNew;
+        ItemAttrValueTranslations.OpenNew();
         Assert.IsTrue(ItemAttrValueTranslations."Language Code".Visible, '');
         Assert.IsTrue(ItemAttrValueTranslations.Name.Visible, '');
         ItemAttrValueTranslations.Close;
@@ -2563,14 +2563,14 @@ codeunit 137413 "SCM Item Attributes"
     local procedure AssignItemAttributeViaItemList(ItemAttribute: Record "Item Attribute"; var ItemAttributeValue: Record "Item Attribute Value"; var ItemList: TestPage "Item List")
     begin
         ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
-        ItemAttributeValue.FindFirst;
+        ItemAttributeValue.FindFirst();
         SetItemAttributesViaItemList(ItemList, ItemAttribute, ItemAttributeValue.Value);
     end;
 
     local procedure AssignItemAttributeViaItemCard(ItemAttribute: Record "Item Attribute"; var ItemAttributeValue: Record "Item Attribute Value"; var ItemCard: TestPage "Item Card")
     begin
         ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
-        ItemAttributeValue.FindFirst;
+        ItemAttributeValue.FindFirst();
         SetItemAttributesViaItemCard(ItemCard, ItemAttribute, ItemAttributeValue.Value);
     end;
 
@@ -2616,7 +2616,7 @@ codeunit 137413 "SCM Item Attributes"
         end;
 
         ItemAttributeValue.SetRange("Attribute ID", ItemAttributeValue."Attribute ID");
-        ItemAttributeValue.FindFirst;
+        ItemAttributeValue.FindFirst();
     end;
 
     local procedure CreateItemAttributeValue(var ItemAttribute: Record "Item Attribute"; var ItemAttributeValue: Record "Item Attribute Value"; ValueText: Text)
@@ -2653,7 +2653,7 @@ codeunit 137413 "SCM Item Attributes"
 
     local procedure CreateItemCategoryWithTextAttributeValue(var ItemCategory: Record "Item Category"; var ItemAttributeValue: Record "Item Attribute Value"; ItemAttributeID: Integer)
     begin
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttributeID, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttributeID, LibraryUtility.GenerateGUID());
         CreateItemCategoryWithTextAttributeMapping(ItemCategory, ItemAttributeID, ItemAttributeValue.ID);
     end;
 
@@ -2679,7 +2679,7 @@ codeunit 137413 "SCM Item Attributes"
 
     local procedure CreateItemWithTextAttributeValue(var Item: Record Item; var ItemAttributeValue: Record "Item Attribute Value"; ItemAttributeID: Integer)
     begin
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttributeID, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttributeID, LibraryUtility.GenerateGUID());
         CreateItemWithTextAttributeMapping(Item, ItemAttributeID, ItemAttributeValue.ID);
     end;
 
@@ -2734,7 +2734,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         ItemAttribute.DeleteAll();
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Integer, '');
-        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Integer, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Integer, LibraryUtility.GenerateGUID());
     end;
 
     local procedure CreateTestDecimalItemAttributes()
@@ -2743,7 +2743,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         ItemAttribute.DeleteAll();
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Decimal, '');
-        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Decimal, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Decimal, LibraryUtility.GenerateGUID());
     end;
 
     local procedure CreateTestOptionItemAttribute()
@@ -2753,8 +2753,8 @@ codeunit 137413 "SCM Item Attributes"
     begin
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
 
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LowerCase(LibraryUtility.GenerateGUID));
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LowerCase(LibraryUtility.GenerateGUID));
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LowerCase(LibraryUtility.GenerateGUID()));
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LowerCase(LibraryUtility.GenerateGUID()));
     end;
 
     local procedure CreateItemsWithConsecutiveNosAndAttributes(var ItemNo: array[5] of Code[20]; var ItemAttributeValue: Record "Item Attribute Value")
@@ -2833,7 +2833,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         ItemAttributeValue.SetRange("Attribute ID", ItemAttributeID);
         ItemAttributeValue.SetRange(Value, AttributeValue);
-        ItemAttributeValue.FindFirst;
+        ItemAttributeValue.FindFirst();
     end;
 
     local procedure InsertOptionItemAttributeValueTranslation(Language: Record Language; ItemAttribute: Record "Item Attribute"; ItemAttributeValue: Record "Item Attribute Value") TranslatedName: Text[250]
@@ -2844,7 +2844,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttrValueTranslation."Language Code" := Language.Code;
         ItemAttrValueTranslation."Attribute ID" := ItemAttribute.ID;
         ItemAttrValueTranslation.ID := ItemAttributeValue.ID;
-        TranslatedName := LibraryUtility.GenerateGUID;
+        TranslatedName := LibraryUtility.GenerateGUID();
         ItemAttrValueTranslation.Name := TranslatedName;
         ItemAttrValueTranslation.Insert();
     end;
@@ -2856,7 +2856,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemCategoryCard.OpenEdit;
         ItemCategoryCard.GotoKey(ItemCategoryCode);
         ItemCategoryCard.Attributes.First;
-        ItemCategoryCard.Attributes.Value.SetValue(LibraryUtility.GenerateGUID);
+        ItemCategoryCard.Attributes.Value.SetValue(LibraryUtility.GenerateGUID());
         ItemCategoryCard.OK.Invoke;
     end;
 
@@ -2892,7 +2892,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         ItemList.OpenView;
         LibraryVariableStorage.Enqueue(ItemAttributeValue.Count);
-        if ItemAttributeValue.FindSet then
+        if ItemAttributeValue.FindSet() then
             repeat
                 ItemAttribute.Get(ItemAttributeValue."Attribute ID");
                 LibraryVariableStorage.Enqueue(ItemAttribute.Name);
@@ -2910,7 +2910,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemCard.OpenView;
         ItemCard.GotoKey(ItemNo);
 
-        NewAttributeValue := LibraryUtility.GenerateGUID;
+        NewAttributeValue := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(NewAttributeValue);
         ItemCard.Attributes.Invoke;
 
@@ -3078,7 +3078,7 @@ codeunit 137413 "SCM Item Attributes"
     begin
         AttributeName := LibraryVariableStorage.DequeueText;
         ItemAttribute.SetRange(Name, AttributeName);
-        ItemAttribute.FindFirst;
+        ItemAttribute.FindFirst();
 
         case ItemAttribute.Type of
             ItemAttribute.Type::Decimal, ItemAttribute.Type::Integer:

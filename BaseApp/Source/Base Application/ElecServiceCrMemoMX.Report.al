@@ -78,10 +78,10 @@ report 10478 "Elec. Service Cr Memo MX"
                     column(CompanyInfo__Giro_No__; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfo__Bank_Name_; CompanyInfo."Bank Name")
+                    column(CompanyInfo__Bank_Name_; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
+                    column(CompanyInfo__Bank_Account_No__; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(Service_Cr_Memo_Header___Bill_to_Customer_No__; "Service Cr.Memo Header"."Bill-to Customer No.")
@@ -920,6 +920,9 @@ report 10478 "Elec. Service Cr Memo MX"
 
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
+                if not CompanyBankAccount.Get("Service Cr.Memo Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
                     CompanyInfo."Phone No." := RespCenter."Phone No.";
@@ -1062,6 +1065,7 @@ report 10478 "Elec. Service Cr Memo MX"
         Text007: Label 'Total %1 Excl. VAT';
         GLSetup: Record "General Ledger Setup";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";

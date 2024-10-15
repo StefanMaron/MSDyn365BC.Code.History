@@ -89,7 +89,7 @@ report 10308 "Currency List"
             begin
                 CurrExchRate.SetRange("Currency Code", Code);
                 CurrExchRate.SetRange("Starting Date", 0D, WorkDate);
-                CurrExchRate.FindLast;
+                CurrExchRate.FindLast();
             end;
         }
     }

@@ -42,15 +42,9 @@ codeunit 10092 "Export Payments (Cecoban)"
         Text014: Label 'Cannot end export file until an export file is started.';
         Text015: Label 'Cannot end export file until export batch is ended.';
         Text016: Label 'File %1 does not exist.';
-#if not CLEAN17
-        Text017: Label 'Did the transmission work properly?';
-#endif
         Text018: Label 'Either %1 or %2 must refer to either a %3 or a %4 for an electronic payment.';
         Text1020100: Label '%1 is blocked for %2 processing.', Comment = '%1 = account type, %2 = customer.blocked';
         PrivacyBlockedErr: Label '%1 is blocked for privacy.', Comment = '%1 = account type';
-#if not CLEAN17
-        Text019: Label 'You must now run the program that transmits the payments file to the bank. Transmit the file named %1 located at %2 to %3 (%4 %5 %6).  After the transmission is completed, you will be asked if it worked correctly.  Are you ready to transmit (answer No to cancel the transmission process)?';
-#endif
         SequenceNo: Integer;
         OpCode: Integer;
         TransitNoErr: Label 'is not valid. Bank Account number must be either the 18 character CLABE format for checking, or 16 characters for Debit Card';
@@ -318,11 +312,7 @@ codeunit 10092 "Export Payments (Cecoban)"
         ExportFile.Close;
 
         ClientFile := BankAccount."E-Pay Export File Path" + BankAccount."Last E-Pay Export File Name";
-#if not CLEAN17
-        RBMgt.DownloadToFile(FileName, ClientFile);
-#else
         RBMgt.DownloadHandler(FileName, '', '', '', ClientFile);
-#endif
         Erase(FileName);
 
         exit(true);
@@ -472,17 +462,7 @@ codeunit 10092 "Export Payments (Cecoban)"
             ExportFullPathName := "E-Pay Export File Path" + FName;
             TransmitFullPathName := "E-Pay Trans. Program Path" + FName;
 
-#if CLEAN17
             Error(Text016, FName);
-#else
-            if not RBMgt.ClientFileExists(ExportFullPathName) then
-                Error(Text016, FName);
-            RBMgt.CopyClientFile(ExportFullPathName, TransmitFullPathName, true);
-
-            if Confirm(Text019, true, FName, "E-Pay Trans. Program Path", Name, TableCaption, FieldCaption("No."), "No.") then
-                if Confirm(Text017) then
-                    RBMgt.DeleteClientFile(ExportFullPathName);
-#endif
         end;
     end;
 

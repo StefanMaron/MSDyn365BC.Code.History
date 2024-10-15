@@ -25,7 +25,9 @@ codeunit 228 "Test Report-Print"
         InsuranceJnlTempl: Record "Insurance Journal Template";
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlLine: Record "Warehouse Journal Line";
+#if not CLEAN20
         BankRecHdr: Record "Bank Rec. Header";
+#endif
 
     procedure PrintGenJnlBatch(GenJnlBatch: Record "Gen. Journal Batch")
     begin
@@ -259,6 +261,8 @@ codeunit 228 "Test Report-Print"
         REPORT.Run(JobJnlTemplate."Test Report ID", true, false, JobJnlLine);
     end;
 
+#if not CLEAN20
+    [Obsolete('NA Bank Rec. Header deprecated in favor of W1 bank reconciliation. Use reports for "Bank Acc. Reconciliation" like PrintBankAccRecon', '20.0')]
     procedure PrintBankRec(NewBankRecHdr: Record "Bank Rec. Header")
     begin
         BankRecHdr := NewBankRecHdr;
@@ -268,6 +272,7 @@ codeunit 228 "Test Report-Print"
         ReportSelection.Find('-');
         REPORT.Run(ReportSelection."Report ID", true, false, BankRecHdr);
     end;
+#endif
 
     local procedure CalcSalesDiscount(var SalesHeader: Record "Sales Header")
     var
@@ -280,7 +285,7 @@ codeunit 228 "Test Report-Print"
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             OnCalcSalesDiscOnAfterSetFilters(SalesLine, SalesHeader);
-            SalesLine.FindFirst;
+            SalesLine.FindFirst();
             OnCalcSalesDiscOnBeforeRun(SalesHeader, SalesLine);
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -301,7 +306,7 @@ codeunit 228 "Test Report-Print"
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
             OnCalcPurchDiscOnAfterSetFilters(PurchLine, PurchHeader);
-            PurchLine.FindFirst;
+            PurchLine.FindFirst();
             OnCalcPurchDiscOnBeforeRun(PurchHeader, PurchLine);
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
             PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
@@ -321,7 +326,7 @@ codeunit 228 "Test Report-Print"
             ServLine.Reset();
             ServLine.SetRange("Document Type", ServHeader."Document Type");
             ServLine.SetRange("Document No.", ServHeader."No.");
-            ServLine.FindFirst;
+            ServLine.FindFirst();
             OnCalcServDiscOnBeforeRun(ServHeader, ServLine);
             CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServLine);
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");

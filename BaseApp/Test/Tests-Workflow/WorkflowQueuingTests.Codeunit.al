@@ -31,7 +31,7 @@ codeunit 134315 "Workflow Queuing Tests"
         // [THEN] The workflow is completed and archived, and is not getting stuck in the process.
 
         // Setup
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         WorkflowStepInstanceArchive.DeleteAll();
 
         CreateIncomingDocumentWorkflow;

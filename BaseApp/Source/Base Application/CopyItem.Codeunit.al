@@ -100,7 +100,7 @@ codeunit 730 "Copy Item"
     var
         TargetItem: Record Item;
     begin
-        OnBeforeCopyItem(SourceItem, TargetItem, CopyCounter);
+        OnBeforeCopyItem(SourceItem, TargetItem, CopyCounter, CopyItemBuffer);
 
         InitTargetItem(TargetItem, CopyCounter);
 
@@ -110,7 +110,7 @@ codeunit 730 "Copy Item"
         CopyItemPicture(SourceItem, TargetItem);
         CopyItemUnisOfMeasure(SourceItem, TargetItem);
         CopyItemGlobalDimensions(SourceItem, TargetItem);
-        OnCopyItemOnBeforeTargetItemInsert(SourceItem, TargetItem, CopyCounter);
+        OnCopyItemOnBeforeTargetItemInsert(SourceItem, TargetItem, CopyCounter, CopyItemBuffer);
         TargetItem.Insert();
 
         CopyExtendedTexts(SourceItem."No.", TargetItem);
@@ -522,7 +522,7 @@ codeunit 730 "Copy Item"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyItem(SourceItem: Record Item; var TargetItem: Record Item; CopyCounter: Integer)
+    local procedure OnBeforeCopyItem(SourceItem: Record Item; var TargetItem: Record Item; CopyCounter: Integer; var CopyItemBuffer: Record "Copy Item Buffer")
     begin
     end;
 
@@ -547,7 +547,7 @@ codeunit 730 "Copy Item"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyItemOnBeforeTargetItemInsert(SourceItem: Record Item; var TargetItem: Record Item; CopyCounter: Integer)
+    local procedure OnCopyItemOnBeforeTargetItemInsert(SourceItem: Record Item; var TargetItem: Record Item; CopyCounter: Integer; var CopyItemBuffer: Record "Copy Item Buffer")
     begin
     end;
 }

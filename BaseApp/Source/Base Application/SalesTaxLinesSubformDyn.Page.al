@@ -117,7 +117,7 @@ page 36740 "Sales Tax Lines Subform Dyn"
 
     trigger OnOpenPage()
     begin
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     var
@@ -135,7 +135,7 @@ page 36740 "Sales Tax Lines Subform Dyn"
 
     procedure SetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
-        if NewSalesTaxLine.FindFirst then
+        if NewSalesTaxLine.FindFirst() then
             repeat
                 Copy(NewSalesTaxLine);
                 Insert;
@@ -146,7 +146,7 @@ page 36740 "Sales Tax Lines Subform Dyn"
     procedure GetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
         NewSalesTaxLine.DeleteAll();
-        if FindFirst then
+        if FindFirst() then
             repeat
                 NewSalesTaxLine.Copy(Rec);
                 NewSalesTaxLine.Insert();

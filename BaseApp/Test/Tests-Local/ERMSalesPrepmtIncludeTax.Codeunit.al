@@ -559,7 +559,7 @@
     begin
         GeneralPostingSetup.SetFilter("Sales Account", '<>%1', '');
         GeneralPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
-        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.FindFirst();
 
         Customer.Init();
         Customer.Insert(true);
@@ -650,7 +650,7 @@
     var
         TaxArea: Record "Tax Area";
     begin
-        if TaxArea.FindFirst then;
+        if TaxArea.FindFirst() then;
         exit(TaxArea.Code);
     end;
 
@@ -658,7 +658,7 @@
     var
         TaxGroup: Record "Tax Group";
     begin
-        if TaxGroup.FindFirst then;
+        if TaxGroup.FindFirst() then;
         exit(TaxGroup.Code);
     end;
 
@@ -681,7 +681,7 @@
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Item.FindFirst;
+        Item.FindFirst();
 
         Item."No." := '';
         Item.Validate("Tax Group Code", FindTaxGroupCode);
@@ -726,7 +726,7 @@
         with GLEntry do begin
             SetRange("Source Type", "Source Type"::Customer);
             SetRange("Source No.", CustNo);
-            FindLast;
+            FindLast();
             Reset;
             SetRange("Transaction No.", "Transaction No.");
             CustPostingGroup.Get(CustPostingGroupCode);
@@ -740,7 +740,7 @@
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgEntry do begin
-            FindLast;
+            FindLast();
             CalcFields(Amount, "Amount (LCY)");
             Assert.AreEqual(0, Amount, 'Expected zero Customer Ledger Entry due to 100% prepayment.');
             Assert.AreEqual(0, "Amount (LCY)", 'Expected zero Customer Ledger Entry in LCY due to 100% prepayment.');

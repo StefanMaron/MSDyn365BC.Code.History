@@ -855,7 +855,7 @@ page 256 "Payment Journal"
                     begin
                         Clear(SuggestVendorPayments);
                         SuggestVendorPayments.SetGenJnlLine(Rec);
-                        SuggestVendorPayments.RunModal;
+                        SuggestVendorPayments.RunModal();
                     end;
                 }
                 action(SuggestEmployeePayments)
@@ -875,7 +875,7 @@ page 256 "Payment Journal"
                     begin
                         Clear(SuggestEmployeePayments);
                         SuggestEmployeePayments.SetGenJnlLine(Rec);
-                        SuggestEmployeePayments.RunModal;
+                        SuggestEmployeePayments.RunModal();
                     end;
                 }
                 action(PreviewCheck)
@@ -940,12 +940,13 @@ page 256 "Payment Journal"
                             CheckIfPrivacyBlocked;
 
                             GenJournalBatch.Get("Journal Template Name", CurrentJnlBatchName);
+                            GenJournalBatch.TestField("Posting No. Series", '');
                             BankAccount.Get(GenJournalBatch."Bal. Account No.");
 
                             if (BankAccount."Export Format" = 0) or (BankAccount."Export Format" = BankAccount."Export Format"::Other) then begin
                                 // Export Format is either empty or 'OTHER'
                                 GenJnlLine.CopyFilters(Rec);
-                                GenJnlLine.FindFirst;
+                                GenJnlLine.FindFirst();
                                 GenJnlLine.ExportPaymentFile;
                             end else begin
                                 CompanyInformation.Get();
@@ -955,7 +956,7 @@ page 256 "Payment Journal"
                                 GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                                 GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
 
-                                if GenJnlLine.FindSet then begin
+                                if GenJnlLine.FindSet() then begin
                                     repeat
                                         CheckPaymentLineBeforeExport(GenJnlLine, GenJournalBatch, BankAccount);
                                     until GenJnlLine.Next() = 0;
@@ -975,7 +976,7 @@ page 256 "Payment Journal"
                                     if "Bank Payment Type" = "Bank Payment Type"::"Electronic Payment-IAT" then
                                         BankExportImportSetup.Get(BankAccount."EFT Export Code");
 
-                                if GenJnlLine.FindFirst then begin
+                                if GenJnlLine.FindFirst() then begin
                                     repeat
                                         ExportNewLines := BulkVendorRemitReporting.ProcessLine(GenJnlLine);
                                     until (ExportNewLines = true) or (GenJnlLine.Next() = 0);
@@ -1013,7 +1014,7 @@ page 256 "Payment Journal"
 
                                 if not EntriesToVoid(GenJnlLine, true) then
                                     Error(NoEntriesToVoidErr);
-                                if GenJnlLine.FindFirst then
+                                if GenJnlLine.FindFirst() then
                                     GenJnlLine.VoidPaymentFile;
                             end else begin
                                 GenJnlLine.Reset();
@@ -1031,7 +1032,7 @@ page 256 "Payment Journal"
                                 else
                                     if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
                                         VoidTransmitElecPayments.SetBankAccountNo("Bal. Account No.");
-                                VoidTransmitElecPayments.RunModal;
+                                VoidTransmitElecPayments.RunModal();
                             end;
                         end;
                     }
@@ -1056,7 +1057,7 @@ page 256 "Payment Journal"
                                 BankAccount.Get("Bal. Account No.");
                             if (BankAccount."Export Format" = 0) or (BankAccount."Export Format" = BankAccount."Export Format"::Other) then begin
                                 GenJnlLine.CopyFilters(Rec);
-                                if GenJnlLine.FindFirst then
+                                if GenJnlLine.FindFirst() then
                                     GenJnlLine.TransmitPaymentFile;
                             end;
                         end;
@@ -1128,6 +1129,25 @@ page 256 "Payment Journal"
                     PromotedCategory = Category4;
                     RunObject = Page "Credit Transfer Registers";
                     ToolTip = 'View or edit the payment files that have been exported in connection with credit transfers.';
+                }
+                action(NetCustomerVendorBalances)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Net Customer/Vendor Balances';
+                    Image = Balance;
+                    ToolTip = 'Create journal lines to consolidate customer and vendor balances as of a specified date. This is relevant when you do business with a company that is both a customer and a vendor. Depending on which is larger, the balance will be netted for either the payable or receivable amount.';
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+
+                    trigger OnAction()
+                    var
+                        NetCustomerVendorBalances: Report "Net Customer/Vendor Balances";
+                    begin
+                        NetCustomerVendorBalances.SetGenJnlLine(Rec);
+                        NetCustomerVendorBalances.RunModal();
+                    end;
                 }
             }
             action(Approvals)
@@ -1238,7 +1258,7 @@ page 256 "Payment Journal"
                     begin
                         GenJournalBatch.Get("Journal Template Name", CurrentJnlBatchName);
                         GenerateEFTFiles.SetBalanceAccount(GenJournalBatch."Bal. Account No.");
-                        GenerateEFTFiles.Run;
+                        GenerateEFTFiles.Run();
                     end;
                 }
             }
@@ -1296,7 +1316,7 @@ page 256 "Payment Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action(PreCheck)
@@ -1499,7 +1519,7 @@ page 256 "Payment Journal"
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter);
-                        FlowTemplateSelector.Run;
+                        FlowTemplateSelector.Run();
                     end;
                 }
                 action(SeeFlows)
@@ -1783,6 +1803,7 @@ page 256 "Payment Journal"
         DocPrint: Codeunit "Document-Print";
         CheckManagement: Codeunit CheckManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1880,8 +1901,8 @@ page 256 "Payment Journal"
     local procedure EnableApplyEntriesAction()
     begin
         ApplyEntriesActionEnabled :=
-          ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) or
-          ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]);
+          ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee]) or
+          ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::Employee]);
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -1915,7 +1936,7 @@ page 256 "Payment Journal"
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);
@@ -2043,13 +2064,13 @@ page 256 "Payment Journal"
             if GenJnlLine3."Bal. Account Type" = GenJnlLine3."Bal. Account Type"::Vendor then begin
                 VendorBankAccount.SetRange("Vendor No.", GenJnlLine3."Bal. Account No.");
                 VendorBankAccount.SetRange(Code, GenJnlLine3."Recipient Bank Account");
-                if VendorBankAccount.FindFirst then
+                if VendorBankAccount.FindFirst() then
                     exit(VendorBankAccount."Use for Electronic Payments")
             end else
                 if GenJnlLine3."Bal. Account Type" = GenJnlLine3."Bal. Account Type"::Customer then begin
                     CustomerBankAccount.SetRange("Customer No.", GenJnlLine3."Bal. Account No.");
                     CustomerBankAccount.SetRange(Code, GenJnlLine3."Recipient Bank Account");
-                    if CustomerBankAccount.FindFirst then
+                    if CustomerBankAccount.FindFirst() then
                         exit(CustomerBankAccount."Use for Electronic Payments");
                 end else
                     exit(true)
@@ -2058,13 +2079,13 @@ page 256 "Payment Journal"
                 if GenJnlLine3."Account Type" = GenJnlLine3."Account Type"::Vendor then begin
                     VendorBankAccount.SetRange("Vendor No.", GenJnlLine3."Account No.");
                     VendorBankAccount.SetRange(Code, GenJnlLine3."Recipient Bank Account");
-                    if VendorBankAccount.FindFirst then
+                    if VendorBankAccount.FindFirst() then
                         exit(VendorBankAccount."Use for Electronic Payments");
                 end else
                     if GenJnlLine3."Account Type" = GenJnlLine3."Account Type"::Customer then begin
                         CustomerBankAccount.SetRange("Customer No.", GenJnlLine3."Account No.");
                         CustomerBankAccount.SetRange(Code, GenJnlLine3."Recipient Bank Account");
-                        if CustomerBankAccount.FindFirst then
+                        if CustomerBankAccount.FindFirst() then
                             exit(CustomerBankAccount."Use for Electronic Payments");
                     end else
                         exit(true);

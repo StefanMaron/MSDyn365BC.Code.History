@@ -1,4 +1,4 @@
-page 27 "Vendor List"
+﻿page 27 "Vendor List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendors';
@@ -12,7 +12,7 @@ page 27 "Vendor List"
     UsageCategory = Lists;
 
     AboutTitle = 'About vendors';
-    AboutText = 'Here you overview all registered vendors that you purchase goods and services from. With vendor templates you can quickly register new vendors having common details defined by the template.';
+    AboutText = 'Here you overview all registered vendors that you purchase goods and services from. With [Vendor Templates](?page=1385 "Opens the Vendor Templates") you can quickly register new vendors having common details defined by the template.';
 
     layout
     {
@@ -107,7 +107,7 @@ page 27 "Vendor List"
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
@@ -223,27 +223,6 @@ page 27 "Vendor List"
                 Caption = 'Power BI Reports';
                 Visible = PowerBIVisible;
             }
-            part(Control14; "Social Listening FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Vendor),
-                              "Source No." = FIELD("No.");
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
-            part(Control15; "Social Listening Setup FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Vendor),
-                              "Source No." = FIELD("No.");
-                UpdatePropagation = Both;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
             part(VendorDetailsFactBox; "Vendor Details FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -335,7 +314,7 @@ page 27 "Vendor List"
                         begin
                             CurrPage.SetSelectionFilter(Vend);
                             DefaultDimMultiple.SetMultiRecord(Vend, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -395,25 +374,6 @@ page 27 "Vendor List"
                                   "No." = FIELD("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
-#if not CLEAN18
-                action("Cross Re&ferences")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Cross Re&ferences';
-                    Image = Change;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '18.0';
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    RunObject = Page "Cross References";
-                    RunPageLink = "Cross-Reference Type" = CONST(Vendor),
-                                  "Cross-Reference Type No." = FIELD("No.");
-                    RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
-                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
-                    Visible = false;
-                }
-#endif
                 action("Item Refe&rences")
                 {
                     AccessByPermission = TableData "Item Reference" = R;
@@ -569,7 +529,7 @@ page 27 "Vendor List"
                     end;
                 }
 #endif
-#if not CLEAN17
+#if not CLEAN19
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
@@ -786,7 +746,6 @@ page 27 "Vendor List"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this vendor.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1319,7 +1278,7 @@ page 27 "Vendor List"
                     var
                         IRS1099Management: Codeunit "IRS 1099 Management";
                     begin
-                        IRS1099Management.Run1099DivReport();
+                        IRS1099Management.Run1099DivReport;
                     end;
                 }
                 action("Vendor 1099 Misc")
@@ -1434,12 +1393,8 @@ page 27 "Vendor List"
     trigger OnAfterGetCurrRecord()
     var
         Vendor: Record Vendor;
-        SocialListeningMgt: Codeunit "Social Listening Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        if SocialListeningSetupVisible then
-            SocialListeningMgt.GetVendFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
-
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
@@ -1464,19 +1419,14 @@ page 27 "Vendor List"
 
     trigger OnOpenPage()
     var
-        SocialListeningSetup: Record "Social Listening Setup";
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        EmailFeature: Codeunit "Email Feature";
     begin
         SetRange("Date Filter", 0D, WorkDate());
-        with SocialListeningSetup do
-            SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         ResyncVisible := ReadSoftOCRMasterDataSync.IsSyncEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             if IntegrationTableMapping.Get('VENDOR') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
@@ -1489,10 +1439,6 @@ page 27 "Vendor List"
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
         [InDataSet]
         CanSendEmail: Boolean;
-        [InDataSet]
-        SocialListeningSetupVisible: Boolean;
-        [InDataSet]
-        SocialListeningVisible: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
         PowerBIVisible: Boolean;
@@ -1504,7 +1450,6 @@ page 27 "Vendor List"
         CRMIsCoupledToRecord: Boolean;
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

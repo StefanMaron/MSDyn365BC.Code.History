@@ -33,7 +33,7 @@ codeunit 142001 "Sales Tax Deferrals"
     begin
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 381309] System involves "Expense / Capitailize" only tax details when calculating "Amount To Defer" for purchases deferral schedule
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Use Vendor's Tax Area Code" = TRUE in "Purchases & Payables Setup"
         UpdateUseVendorTaxPurchaseSetup(true);
@@ -79,7 +79,7 @@ codeunit 142001 "Sales Tax Deferrals"
     begin
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 201769] System ignores tax details when calculating "Amount To Defer" for sales deferral schedule
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template "T" with 2 periods
         // [GIVEN] "G/L Account" "A" and Customer "C" are set to use Sales Tax
@@ -122,7 +122,7 @@ codeunit 142001 "Sales Tax Deferrals"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 381309] Posted Purchase Order with Sales Tax and Deferrals setup generates G/L entries with tax in amounts.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Use Vendor's Tax Area Code" = TRUE in "Purchases & Payables Setup"
         // [GIVEN] "Tax Detail"[1] where "Tax Rate" = 2%  and "Expense / Capitalize" = FALSE
@@ -169,7 +169,7 @@ codeunit 142001 "Sales Tax Deferrals"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 380817] Posted Sales Order with Sales Tax and Deferrals setup generates G/L entries with tax in amounts.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template "T" with 2 periods and "Deferral Account" = "D"
         // [GIVEN] "G/L Account" "A" and Custoemr "C" are set to use Sales Tax
@@ -205,7 +205,7 @@ codeunit 142001 "Sales Tax Deferrals"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -337,7 +337,7 @@ codeunit 142001 "Sales Tax Deferrals"
         DeferralHeader.SetRange("Deferral Doc. Type", DeferralDocumentType);
         DeferralHeader.SetRange("Document Type", DocumentType);
         DeferralHeader.SetRange("Document No.", DocumentNo);
-        DeferralHeader.FindFirst;
+        DeferralHeader.FindFirst();
         DeferralHeader.TestField("Amount to Defer", ExpectedAmount);
     end;
 

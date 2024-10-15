@@ -19,8 +19,8 @@ table 7390 "Create Pick Parameters"
         field(3; "Whse. Document"; Option)
         {
             Caption = 'Whse. Document';
-            OptionCaption = 'Pick Worksheet,Shipment,Movement Worksheet,Internal Pick,Production,Assembly';
-            OptionMembers = "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly;
+            OptionCaption = 'Pick Worksheet,Shipment,Movement Worksheet,Internal Pick,Production,Assembly,Job';
+            OptionMembers = "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly,Job;
             DataClassification = SystemMetadata;
         }
         field(4; "Sorting Method"; Enum "Whse. Activity Sorting Method")

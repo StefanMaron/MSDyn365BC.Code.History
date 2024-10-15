@@ -482,7 +482,7 @@ report 212 "Sales Prepmt. Document Test"
                             SalesLine.SetSalesHeader("Sales Header");
                             SalesLine.CalcSalesTaxLines("Sales Header", SalesLine);
                             SalesPostPrepmt.UpdateSalesTaxOnLines(SalesLine, "Sales Header"."Prepmt. Include Tax", DocumentType);
-                            if SalesLine.FindSet then
+                            if SalesLine.FindSet() then
                                 repeat
                                     TempSalesLine := SalesLine;
                                     if DocumentType = DocumentType::"Credit Memo" then
@@ -689,7 +689,7 @@ report 212 "Sales Prepmt. Document Test"
 
                         if not DimMgt.CheckDimIDComb(TempPrepmtInvLineBuf."Dimension Set ID") then
                             AddError(DimMgt.GetDimCombErr);
-                        TableID[1] := DimMgt.TypeToTableID3(TempSalesLine.Type::"G/L Account".AsInteger());
+                        TableID[1] := DimMgt.SalesLineTypeToTableID(TempSalesLine.Type::"G/L Account");
                         No[1] := "Prepayment Inv. Line Buffer"."G/L Account No.";
                         TableID[2] := DATABASE::Job;
                         No[2] := "Prepayment Inv. Line Buffer"."Job No.";

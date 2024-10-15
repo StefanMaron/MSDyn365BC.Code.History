@@ -675,7 +675,7 @@ page 9188 "Generic Chart Customization"
                 begin
                     CalcFields(BLOB);
                     CopyGenericChart.SetSourceChart(Rec);
-                    CopyGenericChart.RunModal;
+                    CopyGenericChart.RunModal();
                 end;
             }
         }
@@ -833,7 +833,7 @@ page 9188 "Generic Chart Customization"
         Clear(Aggregation);
         Clear(ChartType);
         i := 0;
-        if TempGenericChartYAxis.FindSet then begin
+        if TempGenericChartYAxis.FindSet() then begin
             CurrentCaptionCode := GenericChartMgt.RequiredMeasureCode;
             repeat
                 i += 1;

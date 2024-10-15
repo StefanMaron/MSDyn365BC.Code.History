@@ -478,14 +478,6 @@
                 column(VendorItemNo_PurchLine; "Vendor Item No.")
                 {
                 }
-#if not CLEAN17
-                column(CrossReferenceNo_PurchLine; "Cross-Reference No.")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference No.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 column(ItemReferenceNo_PurchLine; "Item Reference No.")
                 {
                 }
@@ -1119,7 +1111,7 @@
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Purchase Header".FindSet then
+            if "Purchase Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(
                       13, "Purchase Header"."No.", 0, 0, DATABASE::Vendor, "Purchase Header"."Buy-from Vendor No.",

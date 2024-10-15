@@ -115,18 +115,6 @@ page 888 "SmartList Designer"
         ResolvedSourceTableParameterTxt := ''; // QueryId and SourceId parameters should be mutually exclusive
     end;
 
-    [Obsolete('Use RunForTable on CU 888 (SmartList Designer) instead', '17.0')]
-    procedure SetTableNo(TableNo: Integer)
-    begin
-        SetForTableAndView(TableNo, '');
-    end;
-
-    [Obsolete('Use RunForQuery on CU 888 (SmartList Designer) instead', '17.0')]
-    procedure SetQueryId(QueryId: Text)
-    begin
-        SetForQueryId(QueryId);
-    end;
-
     var
         SmartListDesigner: Codeunit "SmartList Designer";
         EnvironmentInfo: Codeunit "Environment Information";

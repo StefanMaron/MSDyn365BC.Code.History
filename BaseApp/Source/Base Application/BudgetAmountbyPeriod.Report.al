@@ -97,7 +97,7 @@ report 10030 "Budget Amount by Period"
                     BaseAmount := DistributeAmt;
 
                 GLBudgetEntry.Reset();
-                if GLBudgetEntry.FindLast then
+                if GLBudgetEntry.FindLast() then
                     EntryNo := GLBudgetEntry."Entry No.";
             end;
         }
@@ -229,7 +229,7 @@ report 10030 "Budget Amount by Period"
             PeriodLength::"Accounting Period":
                 begin
                     AcctPeriod.SetFilter("Starting Date", '>%1', CurrentDate);
-                    if not AcctPeriod.FindFirst then
+                    if not AcctPeriod.FindFirst() then
                         Error(Text000);
                     CalculatedDate := AcctPeriod."Starting Date";
                 end;

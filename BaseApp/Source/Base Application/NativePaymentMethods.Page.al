@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2862 "Native - Payment Methods"
 {
     Caption = 'nativePaymentMethods', Locked = true;
@@ -138,4 +139,4 @@ page 2862 "Native - Payment Methods"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

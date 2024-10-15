@@ -155,7 +155,7 @@ report 10212 "Completed Jobs"
                 JobPlanningLine.SetRange("Job No.", "No.");
                 CopyFilter("Planning Date Filter", JobPlanningLine."Planning Date");
                 JobPlanningLine.SetFilter(Type, '<>%1', JobPlanningLine.Type::Text);
-                if JobPlanningLine.FindSet then
+                if JobPlanningLine.FindSet() then
                     repeat
                         case JobPlanningLine."Line Type" of
                             JobPlanningLine."Line Type"::Budget:
@@ -174,7 +174,7 @@ report 10212 "Completed Jobs"
                 JobLedgerEntry.SetCurrentKey("Job No.", "Posting Date");
                 JobLedgerEntry.SetRange("Job No.", "No.");
                 CopyFilter("Posting Date Filter", JobLedgerEntry."Posting Date");
-                if JobLedgerEntry.FindSet then
+                if JobLedgerEntry.FindSet() then
                     repeat
                         case JobLedgerEntry."Entry Type" of
                             JobLedgerEntry."Entry Type"::Usage:

@@ -221,10 +221,10 @@ page 466 "Tax Jurisdictions"
         TaxDetail.SetRange("Tax Jurisdiction Code", Code);
         TaxDetail.SetRange("Tax Group Code", '');
         TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales and Use Tax");
-        if TaxDetail.FindLast then begin
+        if TaxDetail.FindLast() then begin
             DefaultTaxIsEnabled := true;
             TaxDetail.SetRange("Effective Date", TaxDetail."Effective Date");
-            TaxDetail.FindLast;
+            TaxDetail.FindLast();
         end else begin
             DefaultTaxIsEnabled := false;
             TaxDetail.SetRange("Effective Date");

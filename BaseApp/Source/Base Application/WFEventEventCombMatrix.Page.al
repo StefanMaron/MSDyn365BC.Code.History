@@ -241,7 +241,7 @@ page 1542 "WF Event/Event Comb. Matrix"
     begin
         for i := 1 to ArrayLen(MATRIX_Caption) do begin
             WorkflowEvent.SetRange(Description, MATRIX_Caption[i]);
-            if WorkflowEvent.FindFirst then
+            if WorkflowEvent.FindFirst() then
                 if WFEventResponseCombination.Get(WFEventResponseCombination.Type::"Event", WorkflowEvent."Function Name",
                      WFEventResponseCombination."Predecessor Type"::"Event", "Function Name") or (not WorkflowEvent.HasPredecessors)
                 then
@@ -257,7 +257,7 @@ page 1542 "WF Event/Event Comb. Matrix"
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
         WorkflowEvent.SetRange(Description, MATRIX_Caption[ColumnNo]);
-        WorkflowEvent.FindFirst;
+        WorkflowEvent.FindFirst();
 
         if MATRIX_CellData[ColumnNo] then begin
             WorkflowEventHandling.AddEventPredecessor(WorkflowEvent."Function Name", "Function Name");

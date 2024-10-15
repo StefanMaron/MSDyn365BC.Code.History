@@ -14,7 +14,7 @@ report 7399 "Delete Empty Whse. Registers"
             trigger OnAfterGetRecord()
             begin
                 WhseEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
-                if WhseEntry.FindFirst then
+                if WhseEntry.FindFirst() then
                     CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");

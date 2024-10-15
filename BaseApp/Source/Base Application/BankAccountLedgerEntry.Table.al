@@ -105,6 +105,10 @@ table 271 "Bank Account Ledger Entry"
         {
             Caption = 'Closed at Date';
         }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(49; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
@@ -146,20 +150,30 @@ table 271 "Bank Account Ledger Entry"
         field(56; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
+#if not CLEAN20
             TableRelation = IF ("Statement Status" = FILTER("Bank Acc. Entry Applied" | "Check Entry Applied")) "Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."))
             ELSE
             IF ("Statement Status" = CONST(Closed)) "Posted Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
+#else
+            TableRelation = "Bank Acc. Reconciliation Line"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
+            ValidateTableRelation = false;
+#endif
             //This property is currently not supported
             //TestTableRelation = false;
         }
         field(57; "Statement Line No."; Integer)
         {
             Caption = 'Statement Line No.';
+#if not CLEAN20
             TableRelation = IF ("Statement Status" = FILTER("Bank Acc. Entry Applied" | "Check Entry Applied")) "Bank Rec. Line"."Line No." WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                                                                                                "Statement No." = FIELD("Statement No."))
             ELSE
             IF ("Statement Status" = CONST(Closed)) "Posted Bank Rec. Line"."Line No." WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                                                                                                                                                                                     "Statement No." = FIELD("Statement No."));
+#else
+            TableRelation = "Bank Acc. Reconciliation Line"."Statement Line No." WHERE("Bank Account No." = FIELD("Bank Account No."),
+                                                                                        "Statement No." = FIELD("Statement No."));
+#endif
             //This property is currently not supported
             //TestTableRelation = false;
         }
@@ -361,6 +375,7 @@ table 271 "Bank Account Ledger Entry"
         "Dimension Set ID" := GenJnlLine."Dimension Set ID";
         "Our Contact Code" := GenJnlLine."Salespers./Purch. Code";
         "Source Code" := GenJnlLine."Source Code";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "Reason Code" := GenJnlLine."Reason Code";
         "Currency Code" := GenJnlLine."Currency Code";
@@ -369,6 +384,7 @@ table 271 "Bank Account Ledger Entry"
         "Bal. Account No." := GenJnlLine."Bal. Account No.";
         if GenJnlLine."Linked Table ID" <> 0 then
             SetBankAccReconciliationLine(GenJnlLine);
+
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
     end;
 

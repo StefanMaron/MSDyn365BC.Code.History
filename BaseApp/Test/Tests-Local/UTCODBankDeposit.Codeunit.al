@@ -107,7 +107,7 @@ codeunit 141007 "UT COD Bank Deposit"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
         BankAccount: Record "Bank Account";
     begin
-        BankAccountPostingGroup.FindFirst;
+        BankAccountPostingGroup.FindFirst();
         BankAccount."No." := LibraryUTUtility.GetNewCode;
         BankAccount."Bank Acc. Posting Group" := BankAccountPostingGroup.Code;
         BankAccount.Insert();

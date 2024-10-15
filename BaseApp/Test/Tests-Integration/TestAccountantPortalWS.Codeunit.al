@@ -37,7 +37,7 @@ codeunit 134765 TestAccountantPortalWS
         FinanceCue: Record "Finance Cue";
     begin
         // [SCENARIO] Exercise Page for Accountant Portal Finance Cues.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cue data available.
         SetupData;
@@ -78,10 +78,6 @@ codeunit 134765 TestAccountantPortalWS
           FinanceCue.FieldName("OCR Pending"), '                             3', MasterStyle::None);
         VerifyFinanceCues(AccountantPortalFinanceCues,
           FinanceCue.FieldName("OCR Completed"), '                             2', MasterStyle::None);
-        VerifyFinanceCues(AccountantPortalFinanceCues,
-          FinanceCue.FieldName("Requests to Approve"), '                             0', MasterStyle::None);
-        VerifyFinanceCues(AccountantPortalFinanceCues,
-          FinanceCue.FieldName("Requests Sent for Approval"), '                             0', MasterStyle::None);
 
         AccountantPortalFinanceCues.Close;
     end;
@@ -94,7 +90,7 @@ codeunit 134765 TestAccountantPortalWS
         AcctWebServicesMgt: Codeunit "Acct. WebServices Mgt.";
     begin
         // [SCENARIO] Exercise Page for Accountant Portal Activities Cues.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cue data available.
         SetupData;
@@ -123,8 +119,6 @@ codeunit 134765 TestAccountantPortalWS
           '                           ' + ActivitiesCue.FieldName("Average Collection Days"), '0.0', MasterStyle::Favorable);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Ongoing Sales Quotes"), '                             3', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Requests to Approve"), '                             0', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Sales Inv. - Pending Doc.Exch."), '                             1', MasterStyle::None);
         VerifyActivitiesCues(AccountantPortalActivityCues,
@@ -156,7 +150,7 @@ codeunit 134765 TestAccountantPortalWS
     begin
         // [FEATURE] [UT]
         // [SCENARIO 281231] GetAmountFormat returns correct format depending on Local Currency settings in General Ledger Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Local Currency not set in General Ledger Setup
         GeneralLedgerSetup.Validate("LCY Code", '');
@@ -181,7 +175,7 @@ codeunit 134765 TestAccountantPortalWS
     begin
         // [FEATURE] [UT]
         // [SCENARIO 281231] GetAmountFormat returns correct format depending on Local Currency settings in General Ledger Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Local Currency Symbol set in General Ledger Setup
         LCYSymbol := CopyStr(LibraryRandom.RandText(MaxStrLen(LCYSymbol)), 1, MaxStrLen(LCYSymbol));
@@ -198,7 +192,7 @@ codeunit 134765 TestAccountantPortalWS
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
@@ -509,7 +503,7 @@ codeunit 134765 TestAccountantPortalWS
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", No);
-        if not SalesHeader.FindFirst then begin
+        if not SalesHeader.FindFirst() then begin
             SalesHeader.Init();
             SalesHeader."Document Type" := DocumentType;
             SalesHeader."No." := No;
@@ -522,7 +516,7 @@ codeunit 134765 TestAccountantPortalWS
     begin
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("No.", No);
-        if not PurchaseHeader.FindFirst then begin
+        if not PurchaseHeader.FindFirst() then begin
             PurchaseHeader.Init();
             PurchaseHeader."Document Type" := DocumentType;
             PurchaseHeader."No." := No;
@@ -572,7 +566,7 @@ codeunit 134765 TestAccountantPortalWS
     local procedure CreateVendor(No: Text[20]; Blocked: Enum "Vendor Blocked")
     begin
         Vendor.SetRange("No.", No);
-        if not Vendor.FindFirst then begin
+        if not Vendor.FindFirst() then begin
             Vendor.Init();
             Vendor."No." := No;
             Vendor.Blocked := Blocked;

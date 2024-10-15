@@ -115,7 +115,7 @@ page 9901 "Export Data"
         IncludeGlobalData := true;
         IncludeAllCompanies := true;
 
-        if Company.FindSet then
+        if Company.FindSet() then
             repeat
                 Rec := Company;
                 Insert;
@@ -164,7 +164,7 @@ page 9901 "Export Data"
     begin
         SelectedCompany.DeleteAll();
         if IncludeAllCompanies then begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     SelectedCompany := Rec;
                     SelectedCompany.Insert();

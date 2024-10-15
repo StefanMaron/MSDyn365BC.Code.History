@@ -1,9 +1,13 @@
+#if not CLEAN20
 report 10406 "Bank Rec. Process Lines"
 {
     Caption = 'Bank Rec. Process Lines';
     Permissions = TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm;
     ProcessingOnly = true;
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -480,3 +484,4 @@ report 10406 "Bank Rec. Process Lines"
     end;
 }
 
+#endif

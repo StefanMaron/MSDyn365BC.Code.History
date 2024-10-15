@@ -60,6 +60,15 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                     ToolTip = 'Specifies the shipping agent''s package number.';
                 }
             }
+            group(Payment)
+            {
+                Caption = 'Payment';
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
+            }
             group("Electronic Document")
             {
                 Caption = 'Electronic Document';
@@ -102,17 +111,17 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
           ("Shipping Agent Code" <> xSalesCrMemoHeader."Shipping Agent Code") or
           ("Shipping Agent Service Code" <> xSalesCrMemoHeader."Shipping Agent Service Code") or
           ("Package Tracking No." <> xSalesCrMemoHeader."Package Tracking No.") or
+          ("Company Bank Account Code" <> xSalesCrMemoHeader."Company Bank Account Code") or
           ("CFDI Cancellation Reason Code" <> xSalesCrMemoHeader."CFDI Cancellation Reason Code") or
           ("Substitution Document No." <> xSalesCrMemoHeader."Substitution Document No.");
 
         OnAfterRecordChanged(Rec, xSalesCrMemoHeader, IsChanged);
     end;
 
-    [Scope('OnPrem')]
     procedure SetRec(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         Rec := SalesCrMemoHeader;
-        Insert();
+        Rec.Insert();
     end;
 
     [IntegrationEvent(false, false)]

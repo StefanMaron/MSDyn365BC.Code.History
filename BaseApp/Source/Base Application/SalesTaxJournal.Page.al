@@ -240,7 +240,7 @@ page 10101 "Sales Tax Journal"
                         GenJnlLine.Copy(Rec);
                         ManageSalesTaxJournal.CreateTempGenJnlLines(GenJnlLine, TempGenJnlLine);
                         GLReconcile.SetGenJnlLine(TempGenJnlLine);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action("Test Report")

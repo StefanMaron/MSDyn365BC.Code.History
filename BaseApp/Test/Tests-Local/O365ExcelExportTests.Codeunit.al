@@ -32,7 +32,7 @@ codeunit 138915 "O365 Excel Export Tests"
         HSTColumnNo: Integer;
         InvoiceRowNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostNewInvoice(SalesInvoiceHeader, 'AB', 1000);
 
@@ -75,7 +75,7 @@ codeunit 138915 "O365 Excel Export Tests"
         HSTColumnNo: Integer;
         InvoiceRowNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostNewInvoice(SalesInvoiceHeader, 'ON', 1000);
 
@@ -118,7 +118,7 @@ codeunit 138915 "O365 Excel Export Tests"
         HSTColumnNo: Integer;
         InvoiceRowNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostNewInvoice(SalesInvoiceHeader, 'MB', 1000);
 
@@ -158,7 +158,7 @@ codeunit 138915 "O365 Excel Export Tests"
         Customer: Record Customer;
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         SalesInvoiceHeader.DeleteAll();
         Item.DeleteAll();
         Customer.DeleteAll();
@@ -199,7 +199,7 @@ codeunit 138915 "O365 Excel Export Tests"
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 1);
         LibrarySmallBusiness.PostSalesInvoice(SalesHeader);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 }
 

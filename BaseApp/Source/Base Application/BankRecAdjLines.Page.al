@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 36723 "Bank Rec. Adj. Lines"
 {
     AutoSplitKey = true;
@@ -6,6 +7,9 @@ page 36723 "Bank Rec. Adj. Lines"
     SourceTable = "Bank Rec. Line";
     SourceTableView = SORTING("Bank Account No.", "Statement No.", "Record Type", "Line No.")
                       WHERE("Record Type" = CONST(Adjustment));
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -265,7 +269,7 @@ page 36723 "Bank Rec. Adj. Lines"
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object Name", TableName);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         exit(AllObj."Object ID");
     end;
 
@@ -358,3 +362,4 @@ page 36723 "Bank Rec. Adj. Lines"
     end;
 }
 
+#endif

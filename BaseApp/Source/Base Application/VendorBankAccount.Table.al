@@ -278,7 +278,6 @@ table 288 "Vendor Bank Account"
     local procedure OnValidateUseforElectronicPayments(xVendorBankAccount: Record "Vendor Bank Account"; var IsHandled: Boolean)
     begin
     end;
-    
     [IntegrationEvent(false, false)]
     local procedure OnValidateBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; FieldToValidate: Text)
     begin

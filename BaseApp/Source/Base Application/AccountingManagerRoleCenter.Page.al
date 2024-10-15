@@ -474,6 +474,14 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Page "Bank Account List";
                 ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
             }
+            action(BankDeposit)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Bank Deposit';
+                Image = DepositSlip;
+                RunObject = codeunit "Open Deposits Page";
+                ToolTip = 'Create a new bank deposit.';
+            }
             action("VAT Statements")
             {
                 ApplicationArea = Basic, Suite;
@@ -835,6 +843,13 @@ page 9001 "Accounting Manager Role Center"
                     RunObject = Page "Posted Deposit List";
                     ToolTip = 'View the posted deposit header, deposit header lines, deposit comments, and deposit dimensions.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
                 action("Posted Bank Recs.")
                 {
                     Caption = 'Posted Bank Recs.';
@@ -974,10 +989,10 @@ page 9001 "Accounting Manager Role Center"
                 }
                 action(Deposit)
                 {
-                    Caption = 'Deposit';
+                    Caption = 'Bank Deposit';
                     Image = DepositSlip;
-                    RunObject = Page Deposits;
-                    ToolTip = 'Create a new deposit.';
+                    RunObject = codeunit "Open Deposits Page";
+                    ToolTip = 'Create a new bank deposit.';
                 }
                 action("Bank Rec.")
                 {
@@ -1059,7 +1074,7 @@ page 9001 "Accounting Manager Role Center"
             {
                 Caption = 'Deposit';
                 Image = DepositSlip;
-                RunObject = Page Deposit;
+                RunObject = codeunit "Open Deposit Page";
                 ToolTip = 'Create a new deposit.';
             }
             separator(Action67)
@@ -1244,7 +1259,7 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
             action("Export GIFI Info. to Excel")

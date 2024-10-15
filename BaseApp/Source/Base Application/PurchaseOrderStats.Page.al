@@ -746,9 +746,6 @@ page 10039 "Purchase Order Stats."
         PurchPost: Codeunit "Purch.-Post";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         VATLinesForm: Page "Sales Tax Lines Subform Dyn";
-        TotalAmount1: array[3] of Decimal;
-        TotalAmount2: array[3] of Decimal;
-        VATAmount: array[3] of Decimal;
         PrepmtTotalAmount: Decimal;
         PrepmtVATAmount: Decimal;
         PrepmtTotalAmount2: Decimal;
@@ -775,6 +772,11 @@ page 10039 "Purchase Order Stats."
         Text1020010: Label 'Tax Breakdown:';
         Text1020011: Label 'Sales Tax Breakdown:';
         Text1020012: Label 'Other Taxes';
+
+    protected var
+        TotalAmount1: array[3] of Decimal;
+        TotalAmount2: array[3] of Decimal;
+        VATAmount: array[3] of Decimal;
 
     local procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "Sales Tax Amount Line")
     var
@@ -979,7 +981,7 @@ page 10039 "Purchase Order Stats."
         PurchLine.Reset();
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
 
         if TempSalesTaxLine1.GetAnyLineModified then begin
             SalesTaxCalculate.StartSalesTaxCalculation;
@@ -1035,7 +1037,7 @@ page 10039 "Purchase Order Stats."
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
         SetEditableForVATLinesForm(ActiveTab);
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempTaxAmountLine(VATLinesToDrillDown);
     end;
 }

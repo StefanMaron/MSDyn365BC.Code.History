@@ -789,7 +789,7 @@ report 6641 "Return Order"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Purchase Header".FindSet then
+            if "Purchase Header".FindSet() then
                 repeat
                     if "Purchase Header"."Buy-from Contact No." <> '' then
                         SegManagement.LogDocument(22, "Purchase Header"."No.", 0, 0, DATABASE::Contact,

@@ -29,15 +29,11 @@ page 10457 "MX Electronic Invoice Setup"
     trigger OnOpenPage()
     var
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
-        EmailFeature: Codeunit "Email Feature";
         MailManagement: Codeunit "Mail Management";
         Notify: Notification;
         IsEmailEnabled: Boolean;
     begin
-        if EmailFeature.IsEnabled() then
-            IsEmailEnabled := MailManagement.IsEnabled()
-        else
-            IsEmailEnabled := SMTPMail.IsEnabled;
+        IsEmailEnabled := MailManagement.IsEnabled();
 
         if not IsEmailEnabled then begin
             Notify.Message(EmailSetupMissingMsg);
@@ -64,7 +60,6 @@ page 10457 "MX Electronic Invoice Setup"
     end;
 
     var
-        SMTPMail: Codeunit "SMTP Mail";
         EmailSetupMissingMsg: Label 'You must set up email in Business Central before you can send electronic invoices.';
         SetupEmailMsg: Label 'Go to Set Up Email.';
 }

@@ -252,11 +252,11 @@ page 27010 "Mexican CFDI Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                     Info: ModuleInfo;
                 begin
                     Finished := true;
-                    AssistedSetup.Complete(PAGE::"Mexican CFDI Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Mexican CFDI Wizard");
                     FinishAction;
                 end;
             }
@@ -274,7 +274,7 @@ page 27010 "Mexican CFDI Wizard"
     begin
         Step := Step::Start;
         EnableControls;
-        if CompanyInformation.FindFirst then begin
+        if CompanyInformation.FindFirst() then begin
             PostCode := CompanyInformation."SAT Postal Code";
             TaxScheme := CompanyInformation."SAT Tax Regime Classification";
         end;
@@ -540,10 +540,10 @@ page 27010 "Mexican CFDI Wizard"
         SATUtilities: Codeunit "SAT Utilities";
     begin
         CountryRegion.SetRange("SAT Country Code", '');
-        if CountryRegion.FindFirst then begin
+        if CountryRegion.FindFirst() then begin
             SATUtilities.MapCountryCodes;
             CountryRegion.SetRange("SAT Country Code", '');
-            if CountryRegion.FindFirst then
+            if CountryRegion.FindFirst() then
                 AllCountriesMapped := false
             else
                 AllCountriesMapped := true;
@@ -551,10 +551,10 @@ page 27010 "Mexican CFDI Wizard"
             AllCountriesMapped := true;
 
         UnitOfMeasure.SetRange("SAT UofM Classification", '');
-        if UnitOfMeasure.FindFirst then begin
+        if UnitOfMeasure.FindFirst() then begin
             SATUtilities.MapUnitsofMeasure;
             UnitOfMeasure.SetRange("SAT UofM Classification", '');
-            if UnitOfMeasure.FindFirst then
+            if UnitOfMeasure.FindFirst() then
                 AllUofMsMapped := false
             else
                 AllUofMsMapped := true;
@@ -567,14 +567,14 @@ page 27010 "Mexican CFDI Wizard"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do
-            if FindFirst then begin
+            if FindFirst() then begin
                 "SAT Postal Code" := PostCode;
                 "SAT Tax Regime Classification" := TaxScheme;
                 Modify;
             end;
     end;
 
-    local procedure ConfirmCustomerConsent() : Boolean
+    local procedure ConfirmCustomerConsent(): Boolean
     begin
         GeneralLdegerSetup.Get();
         GeneralLdegerSetup.Validate("CFDI Enabled", true);

@@ -30,7 +30,7 @@ codeunit 144001 "Sales/Purchase Document"
         // Verify Purchase Order posted successfully when Currency Code matches with the Additional Reporting Currency on General Ledger Setup.
 
         // Setup: Create Item and Vendor with Currency. Modify General Ledger Setup for Additional Reporting Currency. Create Purchase Order.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateVendor(Vendor, CreateCurrency, '');
         ModifyGeneralLedgerSetup(Vendor."Currency Code");
@@ -62,7 +62,7 @@ codeunit 144001 "Sales/Purchase Document"
         // Verify Sales Order posted successfully when Currency Code matches with the Additional Reporting Currency on General Ledger Setup.
 
         // Setup: Create Item and Customer with Currency. Modify General Ledger Setup for Additional Reporting Currency. Create Sales Order.
-        Initialize;
+        Initialize();
         CreateCustomerWithCurrency(Customer);
         GeneralLedgerSetup.Get();
         ModifyGeneralLedgerSetup(Customer."Currency Code");
@@ -97,7 +97,7 @@ codeunit 144001 "Sales/Purchase Document"
         // Verify G/L Entries after posting Purchase Order when Use Vendor's Tax Area Code is true on Purchase Payable Setup.
 
         // Setup: Update Purchase Payable Setup,
-        Initialize;
+        Initialize();
         UpdatePurchasePayableSetup;
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
         CreateVendor(Vendor, '', TaxAreaCode);
@@ -118,7 +118,7 @@ codeunit 144001 "Sales/Purchase Document"
 
     local procedure Initialize()
     begin
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -242,7 +242,7 @@ codeunit 144001 "Sales/Purchase Document"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate));
         GLEntry.TestField("Additional-Currency Amount", AdditionalCurrencyAmount);
     end;

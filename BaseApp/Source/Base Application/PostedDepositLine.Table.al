@@ -188,7 +188,7 @@ table 10144 "Posted Deposit Line"
                     GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                     GLEntry.SetRange("G/L Account No.", "Account No.");
                     if not GLEntry.Get("Entry No.") then
-                        if GLEntry.FindLast then;
+                        if GLEntry.FindLast() then;
                     PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
                 end;
             "Account Type"::Customer:
@@ -196,7 +196,7 @@ table 10144 "Posted Deposit Line"
                     CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
                     CustLedgEntry.SetRange("Customer No.", "Account No.");
                     if not CustLedgEntry.Get("Entry No.") then
-                        if CustLedgEntry.FindLast then;
+                        if CustLedgEntry.FindLast() then;
                     PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
                 end;
             "Account Type"::Vendor:
@@ -204,7 +204,7 @@ table 10144 "Posted Deposit Line"
                     VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
                     VendLedgEntry.SetRange("Vendor No.", "Account No.");
                     if not VendLedgEntry.Get("Entry No.") then
-                        if VendLedgEntry.FindLast then;
+                        if VendLedgEntry.FindLast() then;
                     PAGE.Run(PAGE::"Vendor Ledger Entries", VendLedgEntry);
                 end;
             "Account Type"::"Bank Account":
@@ -212,7 +212,7 @@ table 10144 "Posted Deposit Line"
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
                     BankAccLedgEntry.SetRange("Bank Account No.", "Account No.");
                     if not BankAccLedgEntry.Get("Entry No.") then
-                        if BankAccLedgEntry.FindLast then;
+                        if BankAccLedgEntry.FindLast() then;
                     PAGE.Run(PAGE::"Bank Account Ledger Entries", BankAccLedgEntry);
                 end;
         end;

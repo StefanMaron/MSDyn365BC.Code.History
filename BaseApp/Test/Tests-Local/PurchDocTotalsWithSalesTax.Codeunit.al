@@ -41,12 +41,12 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // [FEATURE] [Invoice]
         // [SCENARIO 136984] For page Mini Purchase Invoice Subform (1355) Entry
         // Setup
-        Initialize;
+        Initialize();
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a purchasing document with a purchasing line containing sales tax
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice, false);
 
         // Store away the line created, to pull back in later
@@ -118,12 +118,12 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // [FEATURE] [Invoice] [Posting]
         // [SCENARIO 136984] For page Mini Purchase Invoice Subform (1355) Posting
         // Setup
-        Initialize;
+        Initialize();
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a purchasing document with a purchasing line containing sales tax
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice, false);
 
         // Store away the line created, to pull back in later
@@ -192,12 +192,12 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // [FEATURE] [Credit Memo]
         // [SCENARIO 136984] For page Mini Purchase Credit Memo Subform (1370) Entry
         // Setup
-        Initialize;
+        Initialize();
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a purchasing document with a purchasing line containing sales tax
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", false);
 
         // Store away the line created, to pull back in later
@@ -268,12 +268,12 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // [FEATURE] [Credit Memo]
         // [SCENARIO 136984] For page Mini Purchase Credit Memo Subform (1370) Posting
         // Setup
-        Initialize;
+        Initialize();
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a purchasing document with a purchasing line containing sales tax
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", false);
 
         // Store away the line created, to pull back in later
@@ -336,10 +336,10 @@ codeunit 142057 PurchDocTotalsWithSalesTax
     begin
         // [FEATURE] [Invoice] [Expense/Capitalize]
         // [SCENARIO 312198] Tax Amount must be calculated in Document Totals when "Expense/Capitalize" is true in Tax Details
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Tax setup where tax detail with "Expense/Capitalize" = TRUE and "Tax Below Maximum" = 10%
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
@@ -382,10 +382,10 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         ItemCreated: Code[20];
     begin
         // The following verifies excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
@@ -444,10 +444,10 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         Assert: Codeunit Assert;
     begin
         // The following verifies the posting of excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
@@ -547,7 +547,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if isInitialized then
             exit;
@@ -556,7 +556,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchasesPayablesSetup."Invoice Rounding" := false;
         PurchasesPayablesSetup.Modify();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         TaxSetup.DeleteAll();
         TaxSetup.Init();

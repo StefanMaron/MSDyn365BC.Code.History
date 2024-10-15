@@ -141,7 +141,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                       CustomLayoutReporting.GetOptionValueFromRequestPageForReport(ReportSelections."Report ID", 'BankAccount."No."');
                     OptionCode := CopyStr(OptionText, 1, 20);
                     Evaluate(BankAccountNo, OptionCode);
-                    if GenJournalLineRecRef.FindFirst then begin
+                    if GenJournalLineRecRef.FindFirst() then begin
                         repeat
                             GenJournalLineRecRef.SetTable(GenJournalLine);
                             if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account" then
@@ -167,7 +167,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
     begin
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
         ReportSelections.SetFilter("Report ID", '<>0');
-        if not ReportSelections.FindFirst then
+        if not ReportSelections.FindFirst() then
             Error(VendRemittanceReportSelectionErr);
     end;
 
@@ -251,7 +251,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                     OptionCode := CopyStr(OptionText, 1, 20);
                     Evaluate(BankAccountNo, OptionCode);
 
-                    if GenJournalLineRecRef.FindFirst then begin
+                    if GenJournalLineRecRef.FindFirst() then begin
                         repeat
                             GenJournalLineRecRef.SetTable(GenJournalLine);
                             if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account" then
@@ -356,7 +356,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
     begin
         EFTExport.SetCurrentKey("Sequence No.");
         EFTExport.SetRange("Sequence No.");
-        if EFTExport.FindLast then
+        if EFTExport.FindLast() then
             exit(EFTExport."Sequence No." + 1);
 
         exit(1);
@@ -382,7 +382,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        if GenJournalLineRecRef.FindFirst then begin
+        if GenJournalLineRecRef.FindFirst() then begin
             repeat
                 GenJournalLineRecRef.SetTable(GenJournalLine);
 

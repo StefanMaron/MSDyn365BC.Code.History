@@ -28,7 +28,7 @@ codeunit 142072 "UT COD Order Entry"
         // Purpose is to test Codeunit 63 Sales-Explode BOM On Run trigger.
 
         // Setup: Create SalesOrder
-        Initialize;
+        Initialize();
         CreateSalesOrderForExplodeBom(SalesLine);
 
         // EXERCISE.
@@ -37,7 +37,7 @@ codeunit 142072 "UT COD Order Entry"
         // Verify: Sales Line No. after Explode BOM.
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("No.", SalesLine."No.");
     end;
 
@@ -48,9 +48,9 @@ codeunit 142072 "UT COD Order Entry"
         SalesHeader: Record "Sales Header";
     begin
         // Purpose is to test Codeunit 86 Sales-Quote to Order On Run trigger.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // Setup: Create Sales Quote.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote, CreateParentItem);
         Commit();
 
@@ -60,7 +60,7 @@ codeunit 142072 "UT COD Order Entry"
         // Verify. Package Tracking No. after editing Sales Shipment Line.
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Quote No.", SalesHeader."No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     [Test]
@@ -73,7 +73,7 @@ codeunit 142072 "UT COD Order Entry"
         // Purpose is to test Codeunit 10001 Shipment Line - Edit On Run trigger.
 
         // Setup: Create Sales Shipment Document.
-        Initialize;
+        Initialize();
         CreateSalesShipmentDocument(SalesShipmentLine);
 
         // Exercise.
@@ -91,7 +91,7 @@ codeunit 142072 "UT COD Order Entry"
     begin
         // Purpose of the test is to validate On Hold field in On Run Trigger of Codeunit -80 Sales-Post.
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithOnHold(SalesHeader);
 
         // Exercise.
@@ -104,7 +104,7 @@ codeunit 142072 "UT COD Order Entry"
     local procedure Initialize()
     begin
         CreateBlankVATPostingSetup;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Test]
@@ -127,8 +127,8 @@ codeunit 142072 "UT COD Order Entry"
         Item: Record Item;
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
-        GenProductPostingGroup.FindFirst;
-        InventoryPostingGroup.FindFirst;
+        GenProductPostingGroup.FindFirst();
+        InventoryPostingGroup.FindFirst();
         Item."No." := LibraryUTUtility.GetNewCode;
         Item."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;  // HardCode value required for Sales-Explode BOM Codeunit.
         Item."Inventory Posting Group" := InventoryPostingGroup.Code;  // HardCode value required for Sales-Explode BOM Codeunit.
@@ -174,7 +174,7 @@ codeunit 142072 "UT COD Order Entry"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, BomComponent."Parent Item No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure CreateSalesOrderWithOnHold(var SalesHeader: Record "Sales Header")

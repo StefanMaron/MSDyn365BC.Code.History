@@ -1,6 +1,10 @@
+#if not CLEAN20
 codeunit 10142 "Deposit-Post + Print"
 {
     TableNo = "Deposit Header";
+    ObsoleteReason = 'Replaced by new Bank Deposits extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -43,3 +47,4 @@ codeunit 10142 "Deposit-Post + Print"
     end;
 }
 
+#endif

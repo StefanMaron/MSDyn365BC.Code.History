@@ -42,7 +42,7 @@ codeunit 141002 "UT REP Check"
         // [SCENARIO] Amount is reported without decimal part repeated twice by report Check (Stub/Check/Stub)
 
         // [GIVEN] Payment Journal Line to Vendor where Amount = 100
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
 
         // [GIVEN] Rounding Precision for Currency used for Payment is 0.01
@@ -81,7 +81,7 @@ codeunit 141002 "UT REP Check"
         // [SCENARIO] Amount is reported without decimal part repeated twice by report Check (Stub/Stub/Check)
 
         // [GIVEN] Payment Journal Line to Vendor where Amount = 100
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
 
         // [GIVEN] Rounding Precision for Currency used for Payment is 0.1
@@ -114,7 +114,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeGLAccountCheck(
           BankAccount."Check Date Format", BankAccount."Bank Communication", REPORT::Check);  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -129,7 +129,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeGLAccountCheck(
           LibraryRandom.RandIntInRange(1, 3), BankAccount."Bank Communication"::"S Spanish", REPORT::Check);  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -144,7 +144,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeGLAccountCheck(
           BankAccount."Check Date Format", BankAccount."Bank Communication", REPORT::"Three Checks per Page");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -159,7 +159,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeGLAccountCheck(
           BankAccount."Check Date Format", BankAccount."Bank Communication", REPORT::"Check (Stub/Stub/Check)");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -174,7 +174,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeGLAccountCheck(
           LibraryRandom.RandIntInRange(1, 3), BankAccount."Bank Communication"::"S Spanish", REPORT::"Check (Stub/Stub/Check)");  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -189,7 +189,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeGLAccountCheck(
           BankAccount."Check Date Format", BankAccount."Bank Communication", REPORT::"Check (Stub/Check/Stub)");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -204,7 +204,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeGLAccountCheck(
           LibraryRandom.RandIntInRange(1, 3), BankAccount."Bank Communication"::"S Spanish", REPORT::"Check (Stub/Check/Stub)");  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -236,7 +236,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeCustomerCheck(
           Customer."Check Date Format", Customer."Bank Communication", REPORT::Check);  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -251,7 +251,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeCustomerCheck(
           LibraryRandom.RandIntInRange(1, 3), Customer."Bank Communication"::"S Spanish", REPORT::Check);  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -266,7 +266,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeCustomerCheck(
           Customer."Check Date Format", Customer."Bank Communication", REPORT::"Check (Stub/Stub/Check)");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -281,7 +281,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeCustomerCheck(
           LibraryRandom.RandIntInRange(1, 3), Customer."Bank Communication"::"S Spanish", REPORT::"Check (Stub/Stub/Check)");  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -296,7 +296,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeCustomerCheck(
           Customer."Check Date Format", Customer."Bank Communication", REPORT::"Check (Stub/Check/Stub)");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -311,7 +311,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeCustomerCheck(
           LibraryRandom.RandIntInRange(1, 3), Customer."Bank Communication"::"S Spanish", REPORT::"Check (Stub/Check/Stub)");  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -326,7 +326,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeCustomerCheck(
           Customer."Check Date Format", Customer."Bank Communication", REPORT::"Three Checks per Page");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -360,7 +360,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeVendorCheck(
           Vendor."Check Date Format", Vendor."Bank Communication", REPORT::Check);  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -375,7 +375,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeVendorCheck(
           LibraryRandom.RandIntInRange(1, 3), Vendor."Bank Communication"::"S Spanish", REPORT::Check);  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -390,7 +390,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeVendorCheck(
           Vendor."Check Date Format", Vendor."Bank Communication", REPORT::"Check (Stub/Stub/Check)");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -405,7 +405,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeVendorCheck(
           LibraryRandom.RandIntInRange(1, 3), Vendor."Bank Communication"::"S Spanish", REPORT::"Check (Stub/Stub/Check)");  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -420,7 +420,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeVendorCheck(
           Vendor."Check Date Format", Vendor."Bank Communication", REPORT::"Check (Stub/Check/Stub)");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -435,7 +435,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeVendorCheck(
           LibraryRandom.RandIntInRange(1, 3), Vendor."Bank Communication"::"S Spanish", REPORT::"Check (Stub/Check/Stub)");  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -450,7 +450,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeVendorCheck(
           Vendor."Check Date Format", Vendor."Bank Communication", REPORT::"Three Checks per Page");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -484,7 +484,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeBankAccountCheck(
           BankAccount."Check Date Format", BankAccount."Bank Communication", REPORT::Check);  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -499,7 +499,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeBankAccountCheck(
           LibraryRandom.RandIntInRange(1, 3), BankAccount."Bank Communication"::"S Spanish", REPORT::Check);  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -514,7 +514,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeBankAccountCheck(
           BankAccount."Check Date Format", BankAccount."Bank Communication", REPORT::"Check (Stub/Stub/Check)");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -529,7 +529,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeBankAccountCheck(
           LibraryRandom.RandIntInRange(1, 3), BankAccount."Bank Communication"::"S Spanish", REPORT::"Check (Stub/Stub/Check)");  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -544,7 +544,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeBankAccountCheck(
           BankAccount."Check Date Format", BankAccount."Bank Communication", REPORT::"Check (Stub/Check/Stub)");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -559,7 +559,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeBankAccountCheck(
           LibraryRandom.RandIntInRange(1, 3), BankAccount."Bank Communication"::"S Spanish", REPORT::"Check (Stub/Check/Stub)");  // Check Date Format- option Range 1 to 3 and Bank Communication -S Spanish.
     end;
@@ -574,7 +574,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate TestGenJnlLine - OnAfterGetRecord of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypeBankAccountCheck(
           BankAccount."Check Date Format", BankAccount."Bank Communication", REPORT::"Three Checks per Page");  // Default value (blank) use for Check Date Format and Bank Communication.
     end;
@@ -604,7 +604,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportProcessCancelled(REPORT::Check);
     end;
 
@@ -616,7 +616,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportProcessCancelled(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -628,7 +628,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportProcessCancelled(REPORT::"Check (Stub/Check/Stub)")
     end;
 
@@ -640,7 +640,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportProcessCancelled(REPORT::"Three Checks per Page")
     end;
 
@@ -672,7 +672,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineLastCheck(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -684,7 +684,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineLastCheck(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -696,7 +696,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineLastCheck(REPORT::"Three Checks per Page");
     end;
 
@@ -723,7 +723,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineAtLeastOneDigit(REPORT::Check);
     end;
 
@@ -735,7 +735,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineAtLeastOneDigit(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -747,7 +747,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineAtLeastOneDigit(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -759,7 +759,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineAtLeastOneDigit(REPORT::"Three Checks per Page");
     end;
 
@@ -789,7 +789,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineWithDocumentNo(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -801,7 +801,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineWithDocumentNo(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -813,7 +813,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnPreDataItem Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemVoidGenJnlLineWithDocumentNo(REPORT::"Three Checks per Page");
     end;
 
@@ -842,7 +842,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordVoidGenJnlLineReprint(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -854,7 +854,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordVoidGenJnlLineReprint(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -866,7 +866,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordVoidGenJnlLineReprint(REPORT::"Three Checks per Page");
     end;
 
@@ -899,7 +899,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(REPORT::Check, GenJournalLine."Account Type", '');  // Blank value for Applies to Document Number.
     end;
 
@@ -913,7 +913,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(REPORT::"Check (Stub/Stub/Check)", GenJournalLine."Account Type", '');  // Blank value for Applies to Document Number.
     end;
 
@@ -927,7 +927,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(REPORT::"Check (Stub/Check/Stub)", GenJournalLine."Account Type", '');  // Blank value for Applies to Document Number.
     end;
 
@@ -941,7 +941,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(REPORT::"Three Checks per Page", GenJournalLine."Account Type", '');  // Blank value for Applies to Document Number.
     end;
 
@@ -955,7 +955,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(
           REPORT::Check, GenJournalLine."Account Type"::"G/L Account", LibraryUTUtility.GetNewCode);  // Generate new code for Applies To Document Number.
     end;
@@ -970,7 +970,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(
           REPORT::"Check (Stub/Stub/Check)", GenJournalLine."Account Type"::"G/L Account", LibraryUTUtility.GetNewCode);  // Generate new code for Applies to Document Number.
     end;
@@ -985,7 +985,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(
           REPORT::"Check (Stub/Check/Stub)", GenJournalLine."Account Type"::"G/L Account", LibraryUTUtility.GetNewCode);  // Generate new code for Applies to Document Number.
     end;
@@ -1000,7 +1000,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(
           REPORT::"Three Checks per Page", GenJournalLine."Account Type"::"G/L Account", LibraryUTUtility.GetNewCode);  // Generate new code for Applies to Document Number.
     end;
@@ -1015,7 +1015,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(
           REPORT::Check, GenJournalLine."Account Type"::"Bank Account", LibraryUTUtility.GetNewCode);  // Generate new code for Applies to Document Number.
     end;
@@ -1030,7 +1030,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(
           REPORT::"Check (Stub/Stub/Check)", GenJournalLine."Account Type"::"Bank Account", LibraryUTUtility.GetNewCode);  // Generate new code for Applies to Document Number.
     end;
@@ -1045,7 +1045,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(
           REPORT::"Check (Stub/Check/Stub)", GenJournalLine."Account Type"::"Bank Account", LibraryUTUtility.GetNewCode);  // Generate new code for Applies to Document Number.
     end;
@@ -1060,7 +1060,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesType(
           REPORT::"Three Checks per Page", GenJournalLine."Account Type"::"Bank Account", LibraryUTUtility.GetNewCode);  // Generate new code for Applies to Document Number.
     end;
@@ -1093,7 +1093,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodOneLineIDCustomer(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -1105,7 +1105,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodOneLineIDCustomer(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -1138,7 +1138,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodOneLineIDVendor(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -1150,7 +1150,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodOneLineIDVendor(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -1183,7 +1183,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesCustomer(REPORT::Check);
     end;
 
@@ -1195,7 +1195,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesCustomer(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -1207,7 +1207,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesCustomer(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -1219,7 +1219,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesCustomer(REPORT::"Three Checks per Page");
     end;
 
@@ -1252,7 +1252,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesVendor(REPORT::Check);
     end;
 
@@ -1264,7 +1264,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesVendor(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -1276,7 +1276,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesVendor(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -1288,7 +1288,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodMoreLinesVendor(REPORT::"Three Checks per Page");
     end;
 
@@ -1324,7 +1324,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::Check, 'US', CheckStyle::US);  // Company Information Region - US and Check Style - US in Report - Check.
     end;
 
@@ -1338,7 +1338,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::Check, 'CA', CheckStyle::CA);  // Company Information Region - Canada and Check Style - CA in Report - Check.
     end;
 
@@ -1352,7 +1352,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::Check, 'MX', CheckStyle::US);  // Company Information Region - Mexico and Check Style - US in Report - Check.
     end;
 
@@ -1366,7 +1366,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::"Check (Stub/Stub/Check)", 'US', CheckStyle::US); // Company Information Region - US and Check Style - US in Report - Check (Stub/Stub/Check).
     end;
 
@@ -1378,7 +1378,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::"Check (Stub/Stub/Check)", 'CA', 0);  // Company Information Region - Canada and Check Style - 0 in Report - Check (Stub/Stub/Check).
     end;
 
@@ -1392,7 +1392,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::"Check (Stub/Stub/Check)", 'MX', CheckStyle::US);  // Company Information Region - Mexico and Check Style - US in Report - Check (Stub/Stub/Check).
     end;
 
@@ -1406,7 +1406,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::"Check (Stub/Check/Stub)", 'US', CheckStyle::US);  // Company Information Region - US and Check Style - US in Report - Check (Stub/Check/Stub).
     end;
 
@@ -1418,7 +1418,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::"Check (Stub/Check/Stub)", 'CA', 0);  // Company Information Region - Canada and Check Style - 0 in Report - Check (Stub/Check/Stub).
     end;
 
@@ -1432,7 +1432,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::"Check (Stub/Check/Stub)", 'MX', CheckStyle::US);  // Company Information Region - Mexico and Check Style - US in Report - Check (Stub/Check/Stub).
     end;
 
@@ -1446,7 +1446,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::"Three Checks per Page", 'US', CheckStyle::US);  // Company Information Region - US and Check Style - US in Report - Check (Stub/Check/Stub).
     end;
 
@@ -1460,7 +1460,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate  SetCheckPrintParams function of Report 10413 - Three Checks per Page.
         // Setup.
-        Initialize;
+        Initialize();
         SetCheckPrintParamsCountryRegionCodeType(REPORT::"Three Checks per Page", 'MX', CheckStyle::US);  // Company Information Region - Mexico and Check Style - US in Report - Check (Stub/Check/Stub).
     end;
 
@@ -1493,7 +1493,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodOneEntryCustomer(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -1505,7 +1505,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodOneEntryCustomer(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -1538,7 +1538,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodOneEntryVendor(REPORT::"Check (Stub/Stub/Check)");
     end;
 
@@ -1550,7 +1550,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub).
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGenJnlLineApplyMethodOneEntryVendor(REPORT::"Check (Stub/Check/Stub)");
     end;
 
@@ -1585,7 +1585,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate OnPreReport of Report 10400 - Check Translation Management.
         // Setup.
-        Initialize;
+        Initialize();
         TestLanguageTypeCheckTranslationManagement(TestLanguage::ENU, 'ENU');  // Text - ENU and Test Language option - ENU used on Report - Check Translation Management.
     end;
 
@@ -1599,7 +1599,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate OnPreReport of Report 10400 - Check Translation Management.
         // Setup.
-        Initialize;
+        Initialize();
         TestLanguageTypeCheckTranslationManagement(TestLanguage::ENC, 'ENC');  // Text - ENC and Test Language option - ENC used on Report - Check Translation Management.
     end;
 
@@ -1613,7 +1613,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate OnPreReport of Report 10400 - Check Translation Management.
         // Setup.
-        Initialize;
+        Initialize();
         TestLanguageTypeCheckTranslationManagement(TestLanguage::FRC, 'FRC');  // Text - FRC and Test Language option - FRC used on Report - Check Translation Management.
     end;
 
@@ -1627,7 +1627,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Purpose of the test is to validate OnPreReport of Report 10400 - Check Translation Management.
         // Setup.
-        Initialize;
+        Initialize();
         TestLanguageTypeCheckTranslationManagement(TestLanguage::ESM, 'ESM');  // Text - ESM and Test Language option - ESM used on Report - Check Translation Management.
     end;
 
@@ -1711,7 +1711,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Line created as result of Stub/Stub/Check print is not restricted record when General Journal Batch Approval Workflow is enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Stub/Check)");
 
         // [GIVEN] General Journal Batch Approval Workflow is enabled for direct approvers.
@@ -1756,7 +1756,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Line created as result of Stub/Check/Stub Print is not restricted record when General Journal Batch Approval Workflow is enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Check/Stub)");
 
         // [GIVEN] General Journal Batch Approval Workflow is enabled for direct approvers.
@@ -1801,7 +1801,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Line created as result of Check/Stub/Stub Print is not restricted record when General Journal Batch Approval Workflow is enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Check/Stub/Stub)");
 
         // [GIVEN] General Journal Batch Approval Workflow is enabled for direct approvers.
@@ -1845,7 +1845,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Batch Line created with Stub/Stub/Check Printed posted while no Approval Workflows enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Stub/Check)");
 
         // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
@@ -1879,7 +1879,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Batch Line created with Stub/Check/Stub Printed posted while no Approval Workflows enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Check/Stub)");
 
         // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
@@ -1913,7 +1913,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Batch Line created with Check/Stub/Stub Printed posted while no Approval Workflows enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Check/Stub/Stub)");
 
         // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
@@ -1947,7 +1947,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Batch Line created with Stub/Stub/Check Printed with "One Check Per Vendor" option posted while no Approval Workflows enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Stub/Check)");
 
         // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
@@ -1980,7 +1980,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Batch Line created with Stub/Check/Stub Printed with "One Check Per Vendor" option posted while no Approval Workflows enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Check/Stub)");
 
         // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
@@ -2013,7 +2013,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Batch Line created with Check/Stub/Stub Printed with "One Check Per Vendor" option posted while no Approval Workflows enabled.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Check/Stub/Stub)");
 
         // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
@@ -2046,7 +2046,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] Payment Journal Batch must be approved before print the check.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Stub/Check)");
 
         // [GIVEN] General Journal Batch Approval Workflow is enabled for direct approvers.
@@ -2084,7 +2084,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Stub/Stub/Check with "One Check Per Vendor" option from Payment Journal.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Stub/Check)");
 
         // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
@@ -2119,7 +2119,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Stub/Check/Stub with "One Check Per Vendor" option from Payment Journal.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Check/Stub)");
 
         // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
@@ -2154,7 +2154,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Check/Stub/Stub with "One Check Per Vendor" option from Payment Journal.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Check/Stub/Stub)");
 
         // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
@@ -2189,7 +2189,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Stub/Stub/Check without "One Check Per Vendor" option from Payment Journal.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Stub/Check)");
 
         // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
@@ -2224,7 +2224,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Stub/Check/Stub without "One Check Per Vendor" option from Payment Journal.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Stub/Check/Stub)");
 
         // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
@@ -2259,7 +2259,7 @@ codeunit 141002 "UT REP Check"
     begin
         // [FEATURE] [Payment Journal] [Workflow] [Approval]
         // [SCENARIO 254460] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Check/Stub/Stub without "One Check Per Vendor" option from Payment Journal.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"B.Check", REPORT::"Check (Check/Stub/Stub)");
 
         // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
@@ -2291,7 +2291,7 @@ codeunit 141002 "UT REP Check"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 304668] Purpose of the test is to validate VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10401 - Check (Stub/Stub/Check) for Employee.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee, Bank Account, General Journal line with Account Type Employee and Epmloyee Ledger Entry.
         CreateEmployeeBankAccGenJnlLineForEmployee(GenJournalLine);
@@ -2313,7 +2313,7 @@ codeunit 141002 "UT REP Check"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 304668] Purpose of the test is to VoidGenJnlLine - OnAfterGetRecord Trigger of Report 10411 - Check (Stub/Check/Stub) for Employee.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee, Bank Account, General Journal line with Account Type Employee and Epmloyee Ledger Entry.
         CreateEmployeeBankAccGenJnlLineForEmployee(GenJournalLine);
@@ -2336,7 +2336,7 @@ codeunit 141002 "UT REP Check"
         ReportSelections: Record "Report Selections";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         Workflow.ModifyAll(Enabled, false, true);
         UserSetup.DeleteAll();
@@ -2560,7 +2560,7 @@ codeunit 141002 "UT REP Check"
         Employee: Record Employee;
     begin
         Employee.Init();
-        Employee."No." := LibraryUtility.GenerateGUID;
+        Employee."No." := LibraryUtility.GenerateGUID();
         Employee.Insert();
         exit(Employee."No.");
     end;
@@ -2584,7 +2584,7 @@ codeunit 141002 "UT REP Check"
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        if CheckLedgerEntry.FindLast then
+        if CheckLedgerEntry.FindLast() then
             exit(CheckLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -2593,7 +2593,7 @@ codeunit 141002 "UT REP Check"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        if VendorLedgerEntry.FindLast then
+        if VendorLedgerEntry.FindLast() then
             exit(VendorLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -2602,7 +2602,7 @@ codeunit 141002 "UT REP Check"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        if CustLedgerEntry.FindLast then
+        if CustLedgerEntry.FindLast() then
             exit(CustLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -2836,7 +2836,7 @@ codeunit 141002 "UT REP Check"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindLast;
+        GenJournalLine.FindLast();
         GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::"Bank Account");
         GenJournalLine.TestField("Account No.", BalAccountNo);
     end;

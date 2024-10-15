@@ -25,7 +25,7 @@ codeunit 104150 "UPG. IRS 1099 Form Boxes"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.Get1099DIV2018UpgradeTag) THEN
             EXIT;
 
-        UpgradeIRS1099FormBoxes.RUN;
+        UpgradeIRS1099FormBoxes.Run();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.Get1099DIV2018UpgradeTag);
     end;

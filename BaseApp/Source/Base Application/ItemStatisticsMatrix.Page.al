@@ -1196,7 +1196,7 @@ page 9223 "Item Statistics Matrix"
         ItemBuffer.SetRange("Item Ledger Entry Type Filter");
 
         CopyValueEntryFilters(ValueEntry);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 case ValueEntry."Document Type" of
                     ValueEntry."Document Type"::"Purchase Credit Memo":

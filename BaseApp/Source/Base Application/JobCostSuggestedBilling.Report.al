@@ -142,7 +142,7 @@ report 10219 "Job Cost Suggested Billing"
                 JobLedgerEntry.SetCurrentKey("Job No.", "Job Task No.", "Entry Type", "Posting Date");
                 JobLedgerEntry.SetRange("Job No.", "No.");
                 CopyFilter("Posting Date Filter", JobLedgerEntry."Posting Date");
-                if JobLedgerEntry.FindSet then
+                if JobLedgerEntry.FindSet() then
                     repeat
                         if JobLedgerEntry."Entry Type" = JobLedgerEntry."Entry Type"::Sale then
                             InvoicedPrice := InvoicedPrice - JobLedgerEntry."Total Price (LCY)"

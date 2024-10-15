@@ -19,6 +19,7 @@ codeunit 137011 "SCM Revaluation-II"
         RevaluationItemJournalBatch: Record "Item Journal Batch";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -57,7 +58,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // Covers TFS_TC_ID = 6202
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -112,7 +113,7 @@ codeunit 137011 "SCM Revaluation-II"
         // Covers TFS_TC_ID = 6175
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order as Receive.
         // Create and Post Sales Order, Reopen Purchase Order and Post Purchase Order with Less Qty to Invoice.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -174,7 +175,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // Covers TFS_TC_ID = 6169,6173
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order as Receive.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -243,7 +244,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // Covers TFS_TC_ID = 6170,6171,6178
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order as Receive.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -309,7 +310,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // Covers TFS_TC_ID = 4009
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         LibraryInventory.SetAverageCostSetupInAccPeriods("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
@@ -372,7 +373,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // Covers TFS_TC_ID = 6209,4006
         // Setup: Update Manufacturing Setup and Inventory Setup.
-        Initialize;
+        Initialize();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
@@ -482,7 +483,7 @@ codeunit 137011 "SCM Revaluation-II"
         ExpectedCostAmount: Decimal;
     begin
         // Setup: Update Inventory Setup.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(false, false, AutomaticCostAdjustment::Always, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -544,7 +545,7 @@ codeunit 137011 "SCM Revaluation-II"
         Item: Record Item;
         NewUnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -564,7 +565,7 @@ codeunit 137011 "SCM Revaluation-II"
         ItemJournalLine: Record "Item Journal Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -585,7 +586,7 @@ codeunit 137011 "SCM Revaluation-II"
         Item: Record Item;
         NewUnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         LibraryInventory.SetAverageCostSetupInAccPeriods("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
@@ -613,7 +614,7 @@ codeunit 137011 "SCM Revaluation-II"
         // [FEATURE] [Production Order] [Adjust Cost Item Entries]
         // [SCENARIO 378471] "Adjust Cost - Item Entries" job should consider reversed prod. order output when it is revalued on a later date
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create component item "I1" with "Average" costing method and produced item "I2" which includes "I1" in its prod. BOM, costing method = "Standard"
         CreateItemWithUnitCost(ComponentItem, ComponentItem."Costing Method"::Average, LibraryRandom.RandDec(100, 2));
@@ -661,7 +662,7 @@ codeunit 137011 "SCM Revaluation-II"
         // [FEATURE] [Production Order] [Adjust Cost Item Entries] [Post Inventory Cost to G/L]
         // [SCENARIO 378538] Standard cost variance created during WIP adjustment and forwarded to applied output reversal entry, can be posted to G/L
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component item "I1" with unit cost 17.33333
         CreateItemWithUnitCost(ComponentItem, ComponentItem."Costing Method"::FIFO, 17.33333);
@@ -713,7 +714,7 @@ codeunit 137011 "SCM Revaluation-II"
         // [FEATURE] [Applies-to Entry]
         // [SCENARIO 359734] It should be possible to post revaluation of an item ledger entry when there are ILE's with blank "Item No."
 
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -780,7 +781,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // [FEATURE] [Calculate Inventory Value] [Average Costing Method] [Unit Cost]
         // [SCENARIO 209978] Expected cost should not be included in average cost calculation for item with Costing Method = Average.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(
           false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
@@ -820,7 +821,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // [FEATURE] [Calculate Inventory Value] [Average Costing Method] [Unit Cost] [Transfer]
         // [SCENARIO 209978] Calculate inventory value run with a filter by location should exclude from average cost calculation not posted purchases and outbound transfers applied to them.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(
           false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
@@ -853,7 +854,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // [FEATURE] [Calculate Inventory Value] [Average Costing Method] [Unit Cost] [Transfer]
         // [SCENARIO 209978] Calculate inventory value run with a filter by location should exclude from average cost calculation inbound transfers applied to not posted purchases.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(
           false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
@@ -886,7 +887,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // [FEATURE] [Calculate Inventory Value] [Average Costing Method] [Unit Cost] [Transfer]
         // [SCENARIO 209978] Calculate inventory value run without location filter should exclude from average cost calculation not invoiced purchases and transfers applied to them.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(
           false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
@@ -924,7 +925,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // [FEATURE] [Calculate Inventory Value] [Average Costing Method] [Unit Cost]
         // [SCENARIO 209978] Average cost calculation should include only actual cost posted no later than the revaluation date.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(
           false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
@@ -971,7 +972,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // [SCENARIO 200674] Inventory value can be calculated in revaluation journal when item variant code and location code contain filtering symbols ">", "<", "="
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "Average Cost Calc. Type" = "Item & Location & Variant"
         UpdateInventorySetup(
@@ -1008,7 +1009,7 @@ codeunit 137011 "SCM Revaluation-II"
 
         // [THEN] Calculated unit cost = "C", calculated inventory value = "C" * "Q"
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Unit Cost (Calculated)", UnitCost);
         ItemJournalLine.TestField("Inventory Value (Calculated)", UnitCost * Qty);
     end;
@@ -1068,7 +1069,7 @@ codeunit 137011 "SCM Revaluation-II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Revaluation-II");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -1077,16 +1078,18 @@ codeunit 137011 "SCM Revaluation-II"
         GeneralLedgerSetup.Get();
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        NoSeriesSetup;
-        OutputJournalSetup;
-        RevaluationJournalSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        NoSeriesSetup();
+        OutputJournalSetup();
+        RevaluationJournalSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();
@@ -1244,7 +1247,7 @@ codeunit 137011 "SCM Revaluation-II"
         InventoryPostingGroupRec: Record "Inventory Posting Group";
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        InventoryPostingGroupRec.FindFirst;
+        InventoryPostingGroupRec.FindFirst();
         InventoryPostingGroup := InventoryPostingGroupRec.Code;
         exit(Location.Code);
     end;
@@ -1255,7 +1258,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseDocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Qty. to Invoice", InvoiceQty);
         PurchaseLine.Modify(true);
     end;
@@ -1319,7 +1322,7 @@ codeunit 137011 "SCM Revaluation-II"
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalTemplateBatch);
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", OldUnitCost + LibraryRandom.RandDec(50, 2));
         ItemJournalLine.Modify(true);
         exit(ItemJournalLine."Unit Cost (Revalued)");
@@ -1336,7 +1339,7 @@ codeunit 137011 "SCM Revaluation-II"
             ItemLedgerEntry.SetRange("Item No.", ItemNo);
             ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Transfer Receipt");
             ItemLedgerEntry.SetFilter(Quantity, '>0');
-            ItemLedgerEntry.FindFirst;
+            ItemLedgerEntry.FindFirst();
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, RevaluedQuantity - ItemLedgerEntry.Quantity);
             SalesLine.Validate("Location Code", LocationCode);
             LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, ItemNo, ItemLedgerEntry.Quantity);
@@ -1357,7 +1360,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         // Create a Transfer Order to Transfer a Random Quantity to a Different Location.
         Location.SetRange("Use As In-Transit", true);
-        Location.FindFirst;
+        Location.FindFirst();
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, CreateLocationCode(InventoryPostingGroup), Location.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, LibraryRandom.RandInt(5));
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
@@ -1523,7 +1526,7 @@ codeunit 137011 "SCM Revaluation-II"
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::Output);
             SetRange("Order No.", ProdOrderNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1598,7 +1601,7 @@ codeunit 137011 "SCM Revaluation-II"
             SetRange("Order No.", ProdOrderNo);
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::Output);
-            FindLast;
+            FindLast();
 
             exit("Entry No.");
         end;
@@ -1622,7 +1625,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
     end;
 
@@ -1647,7 +1650,7 @@ codeunit 137011 "SCM Revaluation-II"
         CalcInventoryValueOnDate(Item, ItemJournalLine, WorkDate);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
-        ItemJournalLine.FindLast;
+        ItemJournalLine.FindLast();
         ItemJournalLine.Validate("Unit Cost (Revalued)", ItemJournalLine."Unit Cost (Calculated)" + UnitCostDiff);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -1682,14 +1685,14 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure SelectPurchItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure CreateOutputJournal(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; ProductionOrderNo: Code[20]; Quantity: Decimal)
@@ -1723,7 +1726,7 @@ codeunit 137011 "SCM Revaluation-II"
         with PurchaseHeader do begin
             Find;
             LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
             Validate("Posting Date", LibraryRandom.RandDateFrom(GetLatestPostingDate, 10));
             Modify(true);
         end;
@@ -1736,7 +1739,7 @@ codeunit 137011 "SCM Revaluation-II"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Direct Unit Cost", NewUnitCost);
             Modify(true);
         end;
@@ -1788,14 +1791,14 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         Item.CalcFields(Inventory);
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         Assert.AreEqual(Item.Inventory, ItemJournalLine.Quantity, ErrMessageQtyMustBeEqual);
     end;
 
     local procedure VerifyRevaluationJournalLine(var ItemJournalLine: Record "Item Journal Line"; Qty: Decimal; UnitCost: Decimal)
     begin
         with ItemJournalLine do begin
-            FindFirst;
+            FindFirst();
             TestField(Quantity, Qty);
             TestField("Unit Cost (Calculated)", UnitCost);
             TestField("Inventory Value (Calculated)", Qty * UnitCost);
@@ -1936,7 +1939,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
         exit(ProdOrderComponent."Act. Consumption (Qty)" * UnitCost);
     end;
@@ -1947,7 +1950,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         Assert.AreEqual(ExpectedCostAmount, ItemLedgerEntry."Cost Amount (Actual)", ErrMsgCostAmount);
     end;

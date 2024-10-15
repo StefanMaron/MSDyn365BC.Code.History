@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 10122 "Bank Rec. Dep. Lines Subform"
 {
     Caption = 'Bank Rec. Dep. Lines Subform';
@@ -7,6 +8,9 @@ page 10122 "Bank Rec. Dep. Lines Subform"
     SourceTable = "Bank Rec. Line";
     SourceTableView = SORTING("Bank Account No.", "Statement No.", "Record Type", "Line No.")
                       WHERE("Record Type" = CONST(Deposit));
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -263,7 +267,7 @@ page 10122 "Bank Rec. Dep. Lines Subform"
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object Name", TableName);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         exit(AllObj."Object ID");
     end;
 
@@ -297,3 +301,4 @@ page 10122 "Bank Rec. Dep. Lines Subform"
     end;
 }
 
+#endif

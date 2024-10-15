@@ -131,7 +131,7 @@ codeunit 139453 "O365 Customer Permission Test"
         // Test was moved to the end of the codeunit, because LibraryPermissionsVerify.CreateRecWithRelatedFields() removes demo data.
 
         // [GIVEN] A user with O365 Basic and Customer Edit permissions
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
         ExcludedTables := ExcludedTables.List;
         InsertTablesExcludedFromCustomerCreate(ExcludedTables);
@@ -141,7 +141,7 @@ codeunit 139453 "O365 Customer Permission Test"
         LibraryPermissionsVerify.VerifyWritePermissionTrue(RecordRef);
 
         // [THEN] The user can read from the record and related tables
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         RecordRefWithAllRelations.Open(DATABASE::Customer);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
@@ -156,8 +156,8 @@ codeunit 139453 "O365 Customer Permission Test"
         RecordRefWithAllRelations: RecordRef;
     begin
         // [GIVEN] An Customer with related records and a user with O365 Basic and Customer View
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
 
         RecordRefWithAllRelations.Open(DATABASE::Customer);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);

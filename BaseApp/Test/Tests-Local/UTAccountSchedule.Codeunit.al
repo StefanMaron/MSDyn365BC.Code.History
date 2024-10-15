@@ -26,7 +26,7 @@ codeunit 142068 "UT Account Schedule"
     begin
         // Purpose of the test is to validate Acc. Schedule Name - OnAfterGetRecord trigger of Report ID - 10000.
         // Setup: Create Acc. Schedule Name.
-        Initialize;
+        Initialize();
         CreateAccScheduleName(AccScheduleLine);
 
         // Exercise.
@@ -192,7 +192,7 @@ codeunit 142068 "UT Account Schedule"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAccScheduleName(var AccScheduleLine: Record "Acc. Schedule Line")

@@ -520,7 +520,7 @@ report 14030 "Official journal ledger Summ."
                 begin
                     AccPeriod.SetRange("New Fiscal Year", true);
                     AccPeriod.SetRange("Starting Date", FromDate);
-                    if AccPeriod.FindFirst then
+                    if AccPeriod.FindFirst() then
                         exit(1);
 
                     exit(0);
@@ -529,7 +529,7 @@ report 14030 "Official journal ledger Summ."
                 begin
                     AccPeriod.SetRange("New Fiscal Year", true);
                     AccPeriod.SetRange("Starting Date", ToDate + 1);
-                    if AccPeriod.FindFirst then
+                    if AccPeriod.FindFirst() then
                         exit(1);
 
                     exit(0);
@@ -539,7 +539,7 @@ report 14030 "Official journal ledger Summ."
                     if Open and (FromDate = ToDate) then
                         exit(0);
                     AccPeriod.SetRange("Starting Date", FromDate, ToDate);
-                    if AccPeriod.FindFirst then
+                    if AccPeriod.FindFirst() then
                         exit(AccPeriod.Count);
 
                     exit(0);
@@ -548,7 +548,7 @@ report 14030 "Official journal ledger Summ."
                 if FromDate <> ToDate then begin
                     AccPeriod.SetRange("Starting Date", FromDate + 1, ToDate);
                     AccPeriod.SetRange("New Fiscal Year", true);
-                    if AccPeriod.FindFirst then begin
+                    if AccPeriod.FindFirst() then begin
                         Error(Text000);
                         CurrReport.Break();
                     end;
@@ -556,22 +556,22 @@ report 14030 "Official journal ledger Summ."
             5:
                 begin
                     AccPeriod.SetRange("Starting Date", FromDate);
-                    if not AccPeriod.FindFirst then
+                    if not AccPeriod.FindFirst() then
                         Error(Text001, FromDate);
                 end;
             6:
                 begin
                     AccPeriod.SetRange("Starting Date", ToDate + 1);
-                    if not AccPeriod.FindFirst then
+                    if not AccPeriod.FindFirst() then
                         Error(Text002);
                 end;
             7:
                 begin
                     AccPeriod2.SetFilter("Starting Date", '<%1', FromDate);
                     AccPeriod2.SetRange("New Fiscal Year", true);
-                    if AccPeriod2.FindLast then;
+                    if AccPeriod2.FindLast() then;
                     AccPeriod.SetRange("Starting Date", AccPeriod2."Starting Date", FromDate);
-                    if AccPeriod.FindFirst then
+                    if AccPeriod.FindFirst() then
                         exit(AccPeriod.Count);
 
                     exit(0);

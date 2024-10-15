@@ -1,4 +1,4 @@
-codeunit 1752 "Data Class. Eval. Data Country"
+﻿codeunit 1752 "Data Class. Eval. Data Country"
 {
 
     trigger OnRun()
@@ -32,13 +32,17 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GIFI Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Dictionary Info");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Account Identifier");
+#if not CLEAN20
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Rec. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Rec. Line");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Comment Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Bank Rec. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Bank Rec. Line");
+#if not CLEAN20
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Rec. Sub-line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Deposit Header");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Deposit Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Deposit Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"B10 Adjustment");

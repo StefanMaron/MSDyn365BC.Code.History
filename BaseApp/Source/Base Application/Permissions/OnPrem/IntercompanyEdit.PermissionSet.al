@@ -31,5 +31,6 @@ permissionset 3922 "Intercompany - Edit"
                   tabledata "IC Outbox Sales Header" = RIMD,
                   tabledata "IC Outbox Sales Line" = RIMD,
                   tabledata "IC Outbox Transaction" = RIMD,
-                  tabledata "IC Partner" = R;
+                  tabledata "IC Partner" = R,
+                  tabledata "IC Setup" = R;
 }

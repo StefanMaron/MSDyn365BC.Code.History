@@ -77,7 +77,7 @@ page 2106 "O365 Item Card"
                             else
                                 TaxGroup.SetFilter(Code, '%1', TaxSetup."Non-Taxable Tax Group Code")
                         end;
-                        if TaxGroup.FindFirst then
+                        if TaxGroup.FindFirst() then
                             Validate("Tax Group Code", TaxGroup.Code);
                     end;
                 }

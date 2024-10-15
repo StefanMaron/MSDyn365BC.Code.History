@@ -344,10 +344,10 @@ report 10403 Deposit
                                     begin
                                         AppliedCustLedgEntry.DeleteAll();
                                         FilterDepositCustLedgerEntry("Posted Deposit Line", CustLedgEntry);
-                                        if CustLedgEntry.FindSet then
+                                        if CustLedgEntry.FindSet() then
                                             repeat
                                                 EntryAppMgt.GetAppliedCustEntries(TempAppliedCustLedgEntry, CustLedgEntry, false);
-                                                if TempAppliedCustLedgEntry.FindSet then
+                                                if TempAppliedCustLedgEntry.FindSet() then
                                                     repeat
                                                         AppliedCustLedgEntry := TempAppliedCustLedgEntry;
                                                         AppliedCustLedgEntry.Insert();
@@ -358,10 +358,10 @@ report 10403 Deposit
                                     begin
                                         AppliedVendLedgEntry.DeleteAll();
                                         FilterDepositVendLedgerEntry("Posted Deposit Line", VendLedgEntry);
-                                        if VendLedgEntry.FindSet then
+                                        if VendLedgEntry.FindSet() then
                                             repeat
                                                 EntryAppMgt.GetAppliedVendEntries(TempAppliedVendLedgEntry, VendLedgEntry, false);
-                                                if TempAppliedVendLedgEntry.FindSet then
+                                                if TempAppliedVendLedgEntry.FindSet() then
                                                     repeat
                                                         AppliedVendLedgEntry := TempAppliedVendLedgEntry;
                                                         AppliedVendLedgEntry.Insert();
@@ -518,7 +518,7 @@ report 10403 Deposit
         PostedDepositLine.SetCurrentKey("Deposit No.", "Line No.");
         PostedDepositLine.SetRange("Deposit No.", PostedDepositLine."Deposit No.");
         PostedDepositLine.SetRange("Line No.", PostedDepositLine."Line No.");
-        if PostedDepositLine.FindFirst then
+        if PostedDepositLine.FindFirst() then
             FromEntryNo := PostedDepositLine."Entry No.";
 
         DepositCustLedgerEntry.Get(PostedDepositLine."Entry No.");
@@ -526,7 +526,7 @@ report 10403 Deposit
         PostedDepositLine.SetCurrentKey("Deposit No.", "Line No.");
         PostedDepositLine.SetRange("Deposit No.", PostedDepositLine."Deposit No.");
         PostedDepositLine.SetFilter("Line No.", '>%1', PostedDepositLine."Line No.");
-        if PostedDepositLine.FindFirst then begin
+        if PostedDepositLine.FindFirst() then begin
             DepositCustLedgerEntry.Reset();
             ToEntryNo := PostedDepositLine."Entry No.";
             DepositCustLedgerEntry.SetRange("Transaction No.", DepositCustLedgerEntry."Transaction No.");
@@ -548,7 +548,7 @@ report 10403 Deposit
         PostedDepositLine.SetCurrentKey("Deposit No.", "Line No.");
         PostedDepositLine.SetRange("Deposit No.", PostedDepositLine."Deposit No.");
         PostedDepositLine.SetRange("Line No.", PostedDepositLine."Line No.");
-        if PostedDepositLine.FindFirst then
+        if PostedDepositLine.FindFirst() then
             FromEntryNo := PostedDepositLine."Entry No.";
 
         DepositVendLedgerEntry.Get(PostedDepositLine."Entry No.");
@@ -556,7 +556,7 @@ report 10403 Deposit
         PostedDepositLine.SetCurrentKey("Deposit No.", "Line No.");
         PostedDepositLine.SetRange("Deposit No.", PostedDepositLine."Deposit No.");
         PostedDepositLine.SetFilter("Line No.", '>%1', PostedDepositLine."Line No.");
-        if PostedDepositLine.FindFirst then begin
+        if PostedDepositLine.FindFirst() then begin
             DepositVendLedgerEntry.Reset();
             ToEntryNo := PostedDepositLine."Entry No.";
             DepositVendLedgerEntry.SetRange("Transaction No.", DepositVendLedgerEntry."Transaction No.");

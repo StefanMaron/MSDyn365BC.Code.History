@@ -28,7 +28,7 @@
         PurchaseLine: Record "Purchase Line";
         TaxGroup: Record "Tax Group";
     begin
-        Initialize;
+        Initialize();
         UpdatePurchaseSetup(true);
 
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
@@ -48,7 +48,7 @@
         PurchaseLine: Record "Purchase Line";
         TaxGroup: Record "Tax Group";
     begin
-        Initialize;
+        Initialize();
         UpdatePurchaseSetup(true);
 
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
@@ -69,7 +69,7 @@
         TaxGroup: Record "Tax Group";
         UnitAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         UpdatePurchaseSetup(true);
 
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
@@ -102,7 +102,7 @@
         // [FEATURE] [Purchase]
         // [SCENARIO 379357] Release Purchase Order after reopen and clear Sales Tax fields
         // [GIVEN] "Use Vendor's Tax Area Code" is TRUE on Purchase Setup
-        Initialize;
+        Initialize();
         UpdatePurchaseSetup(true);
 
         // [GIVEN] Released Purchase Order with Expense Sales Tax, where "Tax To Be Expensed" = 100
@@ -137,7 +137,7 @@
         // [FEATURE] [Release] [Invoice Discount] [Sales]
         // [SCENARIO 214434] Sales Line is recalculated after Manual Release
         // [SCENARIO 214434] in case of Sales Tax setup with "Expense/Capitalize" = TRUE, SalesReceivablesSetup."Calc. Inv. Discount" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] SalesReceivablesSetup."Calc. Inv. Discount" = FALSE
         LibrarySales.SetCalcInvDiscount(false);
@@ -166,7 +166,7 @@
         // [FEATURE] [Release] [Invoice Discount] [Sales]
         // [SCENARIO 214434] Sales Line is recalculated after Manual Release
         // [SCENARIO 214434] in case of Sales Tax setup with "Expense/Capitalize" = TRUE, SalesReceivablesSetup."Calc. Inv. Discount" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] SalesReceivablesSetup."Calc. Inv. Discount" = TRUE
         LibrarySales.SetCalcInvDiscount(true);
@@ -196,7 +196,7 @@
         // [FEATURE] [Release] [Invoice Discount] [Sales] [Report]
         // [SCENARIO 214434] Sales Line is recalculated after Manual Release and print test report
         // [SCENARIO 214434] in case of Sales Tax setup with "Expense/Capitalize" = TRUE, SalesReceivablesSetup."Calc. Inv. Discount" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] SalesReceivablesSetup."Calc. Inv. Discount" = FALSE
         LibrarySales.SetCalcInvDiscount(false);
@@ -229,7 +229,7 @@
         // [FEATURE] [Release] [Invoice Discount] [Sales] [Report]
         // [SCENARIO 214434] Sales Line is recalculated after Manual Release and print test report
         // [SCENARIO 214434] in case of Sales Tax setup with "Expense/Capitalize" = TRUE, SalesReceivablesSetup."Calc. Inv. Discount" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] SalesReceivablesSetup."Calc. Inv. Discount" = TRUE
         LibrarySales.SetCalcInvDiscount(true);
@@ -261,7 +261,7 @@
         // [FEATURE] [Release] [Invoice Discount] [Purchase]
         // [SCENARIO 214434] Purchase Line is recalculated after Manual Release
         // [SCENARIO 214434] in case of Sales Tax setup with "Expense/Capitalize" = TRUE, PurchasesPayablesSetup."Calc. Inv. Discount" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchasesPayablesSetup."Calc. Inv. Discount" = FALSE
         LibraryPurchase.SetCalcInvDiscount(false);
@@ -290,7 +290,7 @@
         // [FEATURE] [Release] [Invoice Discount] [Purchase]
         // [SCENARIO 214434] Purchase Line is recalculated after Manual Release
         // [SCENARIO 214434] in case of Sales Tax setup with "Expense/Capitalize" = TRUE, PurchasesPayablesSetup."Calc. Inv. Discount" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchasesPayablesSetup."Calc. Inv. Discount" = TRUE
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -320,7 +320,7 @@
         // [FEATURE] [Release] [Invoice Discount] [Purchase] [Report]
         // [SCENARIO 214434] Purchase Line is recalculated after Manual Release and print test report
         // [SCENARIO 214434] in case of Sales Tax setup with "Expense/Capitalize" = TRUE, PurchasesPayablesSetup."Calc. Inv. Discount" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchasesPayablesSetup."Calc. Inv. Discount" = FALSE
         LibraryPurchase.SetCalcInvDiscount(false);
@@ -353,7 +353,7 @@
         // [FEATURE] [Release] [Invoice Discount] [Purchase] [Report]
         // [SCENARIO 214434] Purchase Line is recalculated after Manual Release and print test report
         // [SCENARIO 214434] in case of Sales Tax setup with "Expense/Capitalize" = TRUE, PurchasesPayablesSetup."Calc. Inv. Discount" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchasesPayablesSetup."Calc. Inv. Discount" = TRUE
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -390,7 +390,7 @@
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 281818] "Tax To Be Expensed" is calculated for Purchase Invoice with zero balance
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Tax setup with "Tax Below Maximum" = 10, "Expense/Capitalize" = TRUE
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
@@ -401,7 +401,7 @@
         // [GIVEN] "Tax To Be Expensed" is equal to 100
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         DocumentTotals.PurchaseRedistributeInvoiceDiscountAmounts(PurchaseLine, VATAmount, TotalPurchaseLine);
         PurchaseLine.TestField("Tax To Be Expensed");
         Amount := PurchaseLine.Amount;
@@ -538,7 +538,7 @@
         PurchaseLine2: Record "Purchase Line";
     begin
         // [SCENARIO 360864] Adding second line to the purchase order with expense tax
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax detailes for two tax jurisdicstions, 5% no expense, 7% with expense
         CreateSalesTaxSetup(TaxArea, TaxGroup);
@@ -603,7 +603,7 @@
     var
         ReportSelections: Record "Report Selections";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         isInitialized := true;
@@ -915,7 +915,7 @@
             SetRange("Job Task No.", PurchaseLine."Job Task No.");
             SetRange(Type, Type::"G/L Account");
             SetRange("No.", PurchaseLine."No.");
-            FindFirst;
+            FindFirst();
 
             if PurchaseLine."Job Currency Code" <> '' then
                 JobCurrFactor := PurchaseLine."Job Currency Factor"
@@ -934,7 +934,7 @@
         TaxDetail: Record "Tax Detail";
     begin
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
-        TaxDetail.FindFirst;
+        TaxDetail.FindFirst();
 
         with SalesHeader do begin
             CalcFields(Amount, "Amount Including VAT");
@@ -947,7 +947,7 @@
         TaxDetail: Record "Tax Detail";
     begin
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
-        TaxDetail.FindFirst;
+        TaxDetail.FindFirst();
 
         with PurchaseHeader do begin
             CalcFields(Amount, "Amount Including VAT");

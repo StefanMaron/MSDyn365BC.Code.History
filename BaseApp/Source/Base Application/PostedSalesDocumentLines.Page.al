@@ -166,7 +166,6 @@ page 5850 "Posted Sales Document Lines"
     end;
 
     var
-        ToSalesHeader: Record "Sales Header";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         OldMenuType: Integer;
         CurrentMenuType: Integer;
@@ -184,9 +183,12 @@ page 5850 "Posted Sales Document Lines"
         PostedReturnRcptsVisible: Boolean;
         [InDataSet]
         PostedCrMemosVisible: Boolean;
+        CurrentMenuTypeOpt: Option x0,x1,x2,x3;
+
+    protected var
+        ToSalesHeader: Record "Sales Header";
         [InDataSet]
         ShowRevLineEnable: Boolean;
-        CurrentMenuTypeOpt: Option x0,x1,x2,x3;
 
     [Scope('OnPrem')]
     procedure CopyLineToDoc()

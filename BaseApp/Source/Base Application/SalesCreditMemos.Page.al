@@ -174,6 +174,7 @@ page 9302 "Sales Credit Memos"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                     Visible = false;
+                    StyleExpr = StatusStyleTxt;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -387,9 +388,10 @@ page 9302 "Sales Credit Memos"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualRelease(SalesHeader);
                     end;
                 }
                 action("Re&open")
@@ -405,9 +407,10 @@ page 9302 "Sales Credit Memos"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualReopen(SalesHeader);
                     end;
                 }
             }
@@ -489,10 +492,8 @@ page 9302 "Sales Credit Memos"
                                 CheckSalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
                             until SalesHeader.Next() = 0;
                             SalesBatchPostMgt.RunWithUI(SalesHeader, Count, ReadyToPostQst);
-                        end else begin
-                            CheckSalesCheckAllLinesHaveQuantityAssigned(Rec);
+                        end else
                             PostDocument(CODEUNIT::"Sales-Post (Yes/No)");
-                        end;
                     end;
                 }
                 action("Preview Posting")
@@ -670,6 +671,11 @@ page 9302 "Sales Credit Memos"
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        StatusStyleTxt := GetStatusStyleText();
+    end;
+
     trigger OnOpenPage()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -692,6 +698,8 @@ page 9302 "Sales Credit Memos"
         ReadyToPostQst: Label 'The number of credit memos that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     local procedure SetControlAppearance()
     var
@@ -712,10 +720,8 @@ page 9302 "Sales Credit Memos"
         PreAssignedNo: Code[20];
         IsHandled: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then begin
-            LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
-            PreAssignedNo := "No.";
-        end;
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := "No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -737,19 +743,16 @@ page 9302 "Sales Credit Memos"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if SalesCrMemoHeader.FindFirst then
+        if SalesCrMemoHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesCrMemoQst, SalesCrMemoHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                InstructionMgt.ShowPostedDocument(SalesCrMemoHeader, Page::"Sales Credit Memos");
     end;
 
     local procedure CheckSalesCheckAllLinesHaveQuantityAssigned(SalesHeader: Record "Sales Header")
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
     end;
 
     [IntegrationEvent(false, false)]

@@ -52,7 +52,7 @@
                     NotBlank = true;
                     ShowMandatory = true;
                     AboutTitle = 'Who you are selling to';
-                    AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.​';
+                    AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.?';
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
                     trigger OnValidate()
@@ -354,6 +354,12 @@
                         CurrPage.Update();
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("Shipment Date"; "Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -391,6 +397,13 @@
                         CurrPage.Update();
                     end;
                 }
+                field("Customer Posting Group"; Rec."Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -402,10 +415,11 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
 
                     trigger OnValidate()
                     begin
-                        UpdatePaymentService;
+                        UpdatePaymentService();
                     end;
                 }
                 field("Reason Code"; "Reason Code")
@@ -494,6 +508,12 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
                 {
@@ -973,6 +993,14 @@
         }
         area(factboxes)
         {
+            part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = SalesDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
@@ -1094,7 +1122,7 @@
                     begin
                         Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if Handled then 
+                        if Handled then
                             exit;
 
                         PrepareOpeningDocumentStatistics();
@@ -1182,7 +1210,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(CFDIRelationDocuments)
@@ -1407,7 +1435,7 @@
                     begin
                         Clear(MoveNegSalesLines);
                         MoveNegSalesLines.SetSalesHeader(Rec);
-                        MoveNegSalesLines.RunModal;
+                        MoveNegSalesLines.RunModal();
                         MoveNegSalesLines.ShowDocument;
                     end;
                 }
@@ -1540,7 +1568,7 @@
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -1569,7 +1597,7 @@
                     PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     AboutTitle = 'When all is set, you post';
-                    AboutText = 'After entering the sales lines and other information, you post the invoice to make it count.​ After posting, the sales invoice is moved to the Posted Sales Invoices list.';
+                    AboutText = 'After entering the sales lines and other information, you post the invoice to make it count.? After posting, the sales invoice is moved to the Posted Sales Invoices list.';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
@@ -1712,7 +1740,7 @@
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         StatusStyleTxt := GetStatusStyleText();
-        UpdatePaymentService;
+        UpdatePaymentService();
         SetControlAppearance;
     end;
 
@@ -1722,6 +1750,8 @@
         UpdateShipToBillToGroupVisibility();
         SellToContact.GetOrClear("Sell-to Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1731,11 +1761,9 @@
     end;
 
     trigger OnInit()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        JobQueuesUsed := SalesReceivablesSetup.JobQueueActive;
-        SetExtDocNoMandatoryCondition;
+        JobQueuesUsed := SalesSetup.JobQueueActive();
+        SetExtDocNoMandatoryCondition();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1779,6 +1807,9 @@
         if ("No." <> '') and ("Sell-to Customer No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
         PaymentServiceVisible := PaymentServiceSetup.IsPaymentServiceVisible;
+
+        SetPostingGroupEditable();
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1790,6 +1821,8 @@
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        SalesSetup: Record "Sales & Receivables Setup";
+        GLSetup: Record "General Ledger Setup";
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ReportPrint: Codeunit "Test Report-Print";
@@ -1811,6 +1844,7 @@
         ShowWorkflowStatus: Boolean;
         PaymentServiceVisible: Boolean;
         PaymentServiceEnabled: Boolean;
+        IsPostingGroupEditable: Boolean;
         OpenPostedSalesInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Sales Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         IsCustomerOrContactNotEmpty: Boolean;
         ShowQuoteNo: Boolean;
@@ -1822,6 +1856,11 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        SalesDocCheckFactboxVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         SkipConfirmationDialogOnClosing: Boolean;
@@ -1835,6 +1874,9 @@
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
@@ -1852,8 +1894,7 @@
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
         PreAssignedNo := "No.";
 
         SendToPosting(PostingCodeunitID);
@@ -1877,7 +1918,7 @@
         if OfficeMgt.IsAvailable then begin
             SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
             SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-            if SalesInvoiceHeader.FindFirst then
+            if SalesInvoiceHeader.FindFirst() then
                 PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
         end else
             case Navigate of
@@ -1916,11 +1957,11 @@
     begin
         SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if SalesInvoiceHeader.FindFirst then
+        if SalesInvoiceHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesInvQst, SalesInvoiceHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
+                InstructionMgt.ShowPostedDocument(SalesInvoiceHeader, Page::"Sales Invoice");
     end;
 
     local procedure SalespersonCodeOnAfterValidate()
@@ -1937,11 +1978,9 @@
     end;
 
     local procedure SetExtDocNoMandatoryCondition()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get();
-        ExternalDocNoMandatory := SalesReceivablesSetup."Ext. Doc. No. Mandatory"
+        SalesSetup.GetRecordOnce();
+        ExternalDocNoMandatory := SalesSetup."Ext. Doc. No. Mandatory";
     end;
 
     local procedure ShowPreview()
@@ -1955,6 +1994,7 @@
     local procedure SetControlAppearance()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
@@ -1967,7 +2007,21 @@
 
         IsCustomerOrContactNotEmpty := ("Sell-to Customer No." <> '') or ("Sell-to Contact No." <> '');
 
+        SalesDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.SalesDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            SetControlAppearance();
     end;
 
     procedure SetSkipConfirmationDialogOnClosing(Skip: Boolean)
@@ -1975,16 +2029,27 @@
         SkipConfirmationDialogOnClosing := Skip;
     end;
 
-    local procedure UpdatePaymentService()
+    protected procedure UpdatePaymentService()
     var
         PaymentServiceSetup: Record "Payment Service Setup";
     begin
         PaymentServiceEnabled := PaymentServiceSetup.CanChangePaymentService(Rec);
     end;
 
+    procedure SetPostingGroupEditable()
+    begin
+        SalesSetup.GetRecordOnce();
+        IsPostingGroupEditable := SalesSetup."Allow Multiple Posting Groups";
+    end;
+
     local procedure UpdateShipToBillToGroupVisibility()
     begin
         CustomerMgt.CalculateShipToBillToOptions(ShipToOptions, BillToOptions, Rec);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

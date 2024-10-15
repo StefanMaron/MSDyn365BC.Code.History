@@ -165,11 +165,6 @@ page 1369 "Monitored Fields Worksheet"
         }
     }
 
-    trigger OnOpenPage()
-    begin
-        MonitorSensitiveField.ShowEmailFeatureEnabledNotification();
-    end;
-
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         TableNo := 0;

@@ -144,6 +144,16 @@ table 334 "Column Layout"
             Caption = 'Budget Name';
             TableRelation = "G/L Budget Name";
         }
+        field(40; "Hide Currency Symbol"; Boolean)
+        {
+            Caption = 'Hide Currency Symbol';
+            
+            trigger OnValidate()
+            begin
+                if "Hide Currency Symbol" then
+                    TestField("Column Type", "Column Layout Type"::Formula);
+            end;
+        }
     }
 
     keys

@@ -148,34 +148,6 @@ table 9054 "Finance Cue"
             Caption = 'OCR Completed';
             FieldClass = FlowField;
         }
-        field(26; "Requests to Approve"; Integer)
-        {
-            CalcFormula = Count("Approval Entry" WHERE("Approver ID" = FIELD("User ID Filter"),
-                                                        Status = FILTER(Open)));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced with Approvals Activities part';
-            Caption = 'Requests to Approve';
-            FieldClass = FlowField;
-            ObsoleteTag = '17.0';
-        }
-        field(27; "Requests Sent for Approval"; Integer)
-        {
-            CalcFormula = Count("Approval Entry" WHERE("Sender ID" = FIELD("User ID Filter"),
-                                                        Status = FILTER(Open)));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced with Approvals Activities part';
-            Caption = 'Requests Sent for Approval';
-            FieldClass = FlowField;
-            ObsoleteTag = '17.0';
-        }
-        field(28; "User ID Filter"; Code[50])
-        {
-            Caption = 'User ID Filter';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced with Approvals Activities part';
-            FieldClass = FlowFilter;
-            ObsoleteTag = '17.0';
-        }
         field(29; "Non-Applied Payments"; Integer)
         {
             CalcFormula = Count("Bank Acc. Reconciliation" WHERE("Statement Type" = CONST("Payment Application")));
@@ -206,21 +178,33 @@ table 9054 "Finance Cue"
         }
         field(10120; "Bank Reconciliations to Post"; Integer)
         {
-            CalcFormula = Count ("Bank Rec. Header");
+#if not CLEAN20
+            CalcFormula = Count("Bank Rec. Header");
+#else
+            CalcFormula = Count("Bank Acc. Reconciliation" WHERE("Statement Type" = CONST("Bank Reconciliation")));
+#endif
             Caption = 'Bank Reconciliations to Post';
             FieldClass = FlowField;
         }
         field(10121; "Bank Acc. Reconciliations"; Integer)
         {
-            CalcFormula = Count ("Bank Acc. Reconciliation" WHERE("Statement Type" = CONST("Bank Reconciliation")));
+            CalcFormula = Count("Bank Acc. Reconciliation" WHERE("Statement Type" = CONST("Bank Reconciliation")));
             Caption = 'Bank Acc. Reconciliations';
             FieldClass = FlowField;
         }
         field(10140; "Deposits to Post"; Integer)
         {
-            CalcFormula = Count ("Deposit Header" WHERE("Total Deposit Lines" = FILTER(<> 0)));
+            CalcFormula = Count("Deposit Header" WHERE("Total Deposit Lines" = FILTER(<> 0)));
             Caption = 'Deposits to Post';
             FieldClass = FlowField;
+            ObsoleteReason = 'Replaced by new Bank Deposits extension';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 

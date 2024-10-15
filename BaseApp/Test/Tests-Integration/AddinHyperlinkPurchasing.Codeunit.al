@@ -664,7 +664,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     var
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify();
     end;
 

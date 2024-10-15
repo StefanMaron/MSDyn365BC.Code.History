@@ -648,7 +648,6 @@ report 322 "Aged Accounts Payable"
 
     var
         GLSetup: Record "General Ledger Setup";
-        TempVendorLedgEntry: Record "Vendor Ledger Entry" temporary;
         VendorLedgEntryEndingDate: Record "Vendor Ledger Entry";
         TotalVendorLedgEntry: array[5] of Record "Vendor Ledger Entry";
         AgedVendorLedgEntry: array[6] of Record "Vendor Ledger Entry";
@@ -703,6 +702,9 @@ report 322 "Aged Accounts Payable"
         CompanyDisplayName: Text;
         DocNoCaption: Text;
         DocumentNo: Code[35];
+
+    protected var
+        TempVendorLedgEntry: Record "Vendor Ledger Entry" temporary;
 
     local procedure CalcDates()
     var

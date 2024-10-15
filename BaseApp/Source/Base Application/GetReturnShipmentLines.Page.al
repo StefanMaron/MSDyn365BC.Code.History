@@ -223,10 +223,10 @@ page 6648 "Get Return Shipment Lines"
         TempReturnShptLine.Reset();
         TempReturnShptLine.CopyFilters(Rec);
         TempReturnShptLine.SetRange("Document No.", "Document No.");
-        if not TempReturnShptLine.FindFirst then begin
+        if not TempReturnShptLine.FindFirst() then begin
             ReturnShptLine.CopyFilters(Rec);
             ReturnShptLine.SetRange("Document No.", "Document No.");
-            if not ReturnShptLine.FindFirst then
+            if not ReturnShptLine.FindFirst() then
                 exit(false);
             TempReturnShptLine := ReturnShptLine;
             TempReturnShptLine.Insert();

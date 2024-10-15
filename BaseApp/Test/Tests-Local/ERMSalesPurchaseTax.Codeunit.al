@@ -231,7 +231,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify that G/L Entry and VAT entry should be exist after posting Sales Return Order with Tax Liable.
 
         // Setup: Create Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Return Order");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         OpenSalesRetOrdPage(SalesReturnOrder, SalesHeader);
@@ -255,7 +255,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify creation of Sales Tax Group.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         LibraryERM.CreateTaxGroup(TaxGroup);
@@ -274,7 +274,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify creation of Sales Tax Jurisdiction.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         JurisdictionCode := LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US;
@@ -292,7 +292,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify creation of Sales Tax Area.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         LibraryERM.CreateTaxArea(TaxArea);
@@ -310,7 +310,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify creation of Sales Tax Detail.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateSalesTaxDetail(TaxDetail);
@@ -330,14 +330,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Posted Purchase Credit Memo after posting Purchase Credit Memo with Tax Liable.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo");
 
         // Verify: Verify Posted Purchase Credit Memo after posting Purchase Credit Memo with Tax Liable.
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
         PurchCrMemoLine.TestField("Buy-from Vendor No.", PurchaseLine."Buy-from Vendor No.");
         PurchCrMemoLine.TestField("Tax Liable", true);
         PurchCrMemoLine.TestField("Tax Area Code", PurchaseLine."Tax Area Code");
@@ -355,14 +355,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Posted Purchase Invoice after posting Purchase Inoice with Tax Liable.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice);
 
         // Verify: Verify Posted Purchase Invoice after posting Purchase Inoice with Tax Liable.
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField("Buy-from Vendor No.", PurchaseLine."Buy-from Vendor No.");
         PurchInvLine.TestField("Tax Liable", true);
         PurchInvLine.TestField("Tax Area Code", PurchaseLine."Tax Area Code");
@@ -380,7 +380,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry after posting Purchase Order with Tax Liable.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order);
@@ -401,7 +401,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Purchase Order after Make Order from Purchase Blanket Order with Tax Liable.
 
         // Setup: Create Purchase Blanket Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
@@ -422,7 +422,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Purchase Order after Make Order from Purchase Quote with Tax Liable.
 
         // Setup: Create Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Quote);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
@@ -444,7 +444,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Posted Service Credit Memo after posting Service Credit Memo with Tax Liable.
 
         // Setup: Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceHeader."Document Type"::"Credit Memo");
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
 
@@ -453,7 +453,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify Posted Service Credit Memo after posting Service Credit Memo with Tax Liable.
         ServiceCrMemoLine.SetRange("Customer No.", ServiceLine."Customer No.");
-        ServiceCrMemoLine.FindFirst;
+        ServiceCrMemoLine.FindFirst();
         ServiceCrMemoLine.TestField("No.", ServiceLine."No.");
         ServiceCrMemoLine.TestField(Quantity, ServiceLine.Quantity);
         ServiceCrMemoLine.TestField("Tax Liable", true);
@@ -469,7 +469,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Posted Service Shipment after posting Service Order with Tax Liable.
 
         // Setup: Create Tax Area Line, find VAT Posting Setup and create Service Order.
-        Initialize;
+        Initialize();
         CreateAndModifyServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
 
         // 2. Exercise: Post Service Order as Ship.
@@ -491,7 +491,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify created Service Line after Make Order from Service Quote with Tax Liable.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndModifyServiceLine(ServiceHeader, ServiceHeader."Document Type"::Quote);
 
         // 2. Exercise.
@@ -501,7 +501,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         FindServiceLine(ServiceLine, ServiceHeader."Customer No.");
         ServiceLine.TestField("Tax Area Code", ServiceHeader."Tax Area Code");
         ServiceLine.TestField("Tax Liable", true);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -516,7 +516,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Sales Order after Make Order from Sales Blanket Order with Tax Liable.
 
         // Setup: Create Sales Blanket Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Blanket Order");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -525,7 +525,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify Sales Order after Make Order from Sales Blanket Order with Tax Liable.
         VerifySalesOrderAfterMakeOrder(SalesHeader);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -540,7 +540,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry after posting Sales Credit Memo with Tax Liable.
 
         // Setup: Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -567,7 +567,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify that G/L Entry and VAT entry after posting Sales Invoice with Tax Liable.
 
         // Setup: Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         OpenSalesInvoicePage(SalesInvoice, SalesHeader);
@@ -598,7 +598,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify that G/L Entry and VAT entry after posting Sales Order with Tax Liable.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         OpenSalesOrderPage(SalesOrder, SalesHeader);
@@ -626,7 +626,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Sales Order after Make Order from Sales Quote with Tax Liable.
 
         // Setup: Create Sales Quote.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Quote);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -635,7 +635,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify Sales Order after Make Order from Sales Quote with Tax Liable.
         VerifySalesOrderAfterMakeOrder(SalesHeader);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify that G/L Entry and VAT Entry after posting Service Invoice with Tax Liable.
 
         // Setup: Create Service Invoice and calculate the VAT Amount.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceHeader."Document Type"::Invoice);
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         VATAmount := ((ServiceLine."Qty. to Invoice" * ServiceLine."Unit Price") * (ServiceLine."VAT %" / 100));
@@ -660,7 +660,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify that G/L Entry and VAT Entry after posting Service Invoice with Tax Liable.
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         VerifyGLEntry(ServiceInvoiceHeader."No.", -ServiceLine."Line Amount", -VATAmount);
         VerifyVATEntry(ServiceInvoiceHeader."No.", -ServiceLine."Line Amount", -VATAmount);
     end;
@@ -703,7 +703,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Amount after posting Sales Journal in G/L Entry.
 
         // Setup: Create Credit Memo from Sales Journal and calculate Amount LCY.
-        Initialize;
+        Initialize();
         PostGenJournalLineUsingTaxSetup(GenJournalLine, DocumentType, CurrencyCode, Amount);
         AmountLCY := GenJournalLine."Amount (LCY)";
 
@@ -755,7 +755,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry after posting Payment applied with Credit Memo.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostGenJournalLineUsingTaxSetup(GenJournalLine, DocumentType, CurrencyCode, Amount);
         AmountLCY := GenJournalLine."Amount (LCY)";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -780,7 +780,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount on Sales Order Statistics.
 
         // Setup: Create Sales Order and open Sales Order page.
-        Initialize;
+        Initialize();
         Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         TaxAmount := SalesLine."Line Amount" * Tax / 100;
@@ -807,7 +807,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify values on Sales Tax Lines page using Sales Order Statistics with Tax Liable.
 
         // Setup: Create Sales Order and open Sales Order page.
-        Initialize;
+        Initialize();
         Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         TaxAmount := SalesLine."Line Amount" * Tax / 100;
@@ -834,7 +834,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Posted Sales Invoice after posting Sales Order with Tax Liable.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -857,7 +857,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry after applying Refund with Credit Memo using General Journal Line.
 
         // Setup: Create and post Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -884,7 +884,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount on Sales Credit Memo Statistics page.
 
         // Setup: Create Sales Order and open Sales Credit Memo page.
-        Initialize;
+        Initialize();
         Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         TaxAmount := SalesLine."Line Amount" * Tax / 100;
@@ -911,7 +911,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify values on Sales Tax Lines page using Sales Credit Memo Statistics page.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         TaxAmount := SalesLine."Line Amount" * Tax / 100;
@@ -940,7 +940,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry after applying Payment with Invoice using General Journal Line with Currency.
 
         // Setup: Create and post Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesLine.Validate("Currency Code", CreateCurrency);
         SalesLine.Modify(true);
@@ -968,7 +968,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify values on Sales Line Archive after archiving Sales Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -990,7 +990,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify values on Sales Header Archive after archiving Sales Order and verify G/L Entry Amount.
 
         // Setup: Modify Sales and Receivables setup, "Archive Quotes and Orders" as TRUE to archive Sales Order with posting.
-        Initialize;
+        Initialize();
         LibrarySales.SetArchiveOrders(true);
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -1015,7 +1015,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry after applying Payment with Invoice using General Journal Line.
 
         // Setup: Create and post Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1042,7 +1042,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry Amount after post Sales Order after Make Order from Sales Blanket Order.
 
         // Setup: Create and Make Order from Sales Blanket Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Blanket Order");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
@@ -1053,7 +1053,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify G/L Entry Amount after post Sales Order after Make Order from Sales Blanket Order.
         VerifyGLEntryAmount(DocumentNo, '', -SalesLine."Line Amount");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1070,7 +1070,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount on Sales Quote Statistics page.
 
         // Setup: Create Sales Quote and open Sales Quote page.
-        Initialize;
+        Initialize();
         Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Quote);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         TaxAmount := SalesLine."Line Amount" * Tax / 100;
@@ -1100,7 +1100,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount on Sales Order Statistics created after Make Order from Sales Quote.
 
         // Setup: Create Sales Quote, Make Order and open Sales Order page create after Make Order.
-        Initialize;
+        Initialize();
         Tax := CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Quote);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         TaxAmount := SalesLine."Line Amount" * Tax / 100;
@@ -1113,7 +1113,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesOrder.Statistics.Invoke;  // Invoke to open Sales Order Statistics page.
 
         // Verify: Verify Tax Amount on Sales Order Statistics. Verification done in SalesOrderStatisticsPageHandler.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1130,7 +1130,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry Amount after post Sales Order after Make Order from Sales Quote.
 
         // Setup: Create Sales Quote, Make Order and find Sales Order create after Make Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Quote);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
@@ -1141,7 +1141,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify G/L Entry Amount after post Sales Order after Make Order from Sales Quote.
         VerifyGLEntryAmount(DocumentNo, '', -SalesLine."Line Amount");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1159,7 +1159,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify G/L Entry Amount after post Sales Order using Make Order from Sales Quote with Customer Invoice Discount.
 
         // Setup: Set Automatic Cost Posting to TRUE and create Sales Quote, Make Order and find Sales Order create after Make Order.
-        Initialize;
+        Initialize();
         ModifyInventorySetup;
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomerWithInvDisc);
         LibrarySales.CreateSalesLine(
@@ -1172,7 +1172,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify G/L Entry Amount after post Sales Order after Make Order from Sales Quote using Customer Invoice Discount.
         VerifyGLEntryAmount(DocumentNo, '', -SalesLine."Line Amount");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1189,7 +1189,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify values on Sales Tax Lines page using Service Order Statistics page.
 
         // Setup: Create Service Order and find Service Line.
-        Initialize;
+        Initialize();
         Tax := CreateAndModifyServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
         FindServiceLine(ServiceLine, ServiceHeader."Customer No.");
         TaxAmount := ServiceLine."Line Amount" * Tax / 100;
@@ -1219,7 +1219,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount on Sales Credit Memo Statistics page.
 
         // Setup: Create Service Credit Memo and open Service Credit Memo page.
-        Initialize;
+        Initialize();
         Tax := CreateServiceDocument(ServiceLine, ServiceHeader."Document Type"::"Credit Memo");
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         TaxAmount := ServiceLine."Line Amount" * Tax / 100;
@@ -1242,7 +1242,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify that multiple PAC web services can be defined and any one can be selected in G/L Setup.
 
         // Setup: Create multiple PAC web services.
-        Initialize;
+        Initialize();
         CreatePACWebServices(PACWebService);
         CreatePACWebServices(PACWebService2);
 
@@ -1265,7 +1265,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify GST/HST field of VAT Entry for posted purchase invoice.
 
         // Setup: Create Purchase Order with GST/HST.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice);
         PurchaseLine.Validate("GST/HST", PurchaseLine."GST/HST"::"New Housing Rebates");
         PurchaseLine.Modify(true);
@@ -1276,7 +1276,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         // Verify: Verify GST/HST field in posted purchase invoice.
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("GST/HST", VATEntry."GST/HST"::"New Housing Rebates");
     end;
 
@@ -1292,7 +1292,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify options in the field GST/HST of Gen. Journal Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         FindGenJournalTemplateAndBatch(GenJournalBatch, GenJournalTemplate.Type::"Sales Tax");
         LibrarySales.CreateCustomer(Customer);
 
@@ -1319,7 +1319,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify options in the field GST/HST of VAT Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
         FindGenJournalTemplateAndBatch(GenJournalBatch, GenJournalTemplate.Type::"Sales Tax");
         LibrarySales.CreateCustomer(Customer);
 
@@ -1345,7 +1345,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Service Document Could not be Post Without Description on Service Line.
 
         // Setup: Create Sevice Invoice and Update Service Line
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceHeader."Document Type"::Invoice);
         ServiceHeader.Get(ServiceLine."Document Type"::Invoice, ServiceLine."Document No.");
         ServiceLine.Validate(Description, '');
@@ -1367,7 +1367,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [SCENARIO] Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_General when Sales Order open for on-prem.
         // [GIVEN] setups needed to generate tax lines.
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(SalesNoOfLinesStatistics::General);
         // [GIVEN] A Sales Order
@@ -1386,7 +1386,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [SCENARIO] Verify Sales Tax Amount Field is Editable on Sales Tax Lines_General when Sales Order open on D365.
         // [GIVEN] setups needed to generate tax lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(SalesNoOfLinesStatistics::General);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         // [GIVEN] A Sales Order
@@ -1405,7 +1405,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [SCENARIO] Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Invoicing when Sales Order open for on-prem.
         // [GIVEN] setups needed to generate tax lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(SalesNoOfLinesStatistics::Invoicing);
         // [GIVEN] A Sales Order
         // [WHEN] The No. Vat Lines on the invoicing tab is pressed.
@@ -1424,7 +1424,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [SCENARIO] Verify Sales Tax Amount Field is editable on Sales Tax Lines_Invoicing when Sales Order open for D365.
         // [GIVEN] setups needed to generate tax lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(SalesNoOfLinesStatistics::Invoicing);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         // [GIVEN] A Sales Order
@@ -1443,7 +1443,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesNoOfLinesStatistics: Option General,Invoicing,Shipping,Prepayment;
     begin
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Shipping when Sales Order open.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(SalesNoOfLinesStatistics::Shipping);
         SetupSalesVATLines;
     end;
@@ -1456,7 +1456,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesNoOfLinesStatistics: Option General,Invoicing,Shipping,Prepayment;
     begin
         // Verify Sales Tax Amount Field is Editable on Sales Tax Lines_Prepayment when Sales Order open.
-        Initialize;
+        Initialize();
         EnqueueValuesInOrderStatistics(SalesNoOfLinesStatistics::Prepayment, true, 0, false);
         SetupSalesVATLines;
     end;
@@ -1474,7 +1474,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount not Editable after Releasing on Sales Tax Lines_Shipping on Sales Order Statistics.
 
         // Setup: Create and Release Sales Order.
-        Initialize;
+        Initialize();
         UpdateSetups(true, LibraryRandom.RandIntInRange(10, 100));
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -1503,7 +1503,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount is Editable after Releasing and Tax Amount should be Updated Amount after Reopening Sales Order.
 
         // Setup: Create and Release Sales Order.
-        Initialize;
+        Initialize();
         UpdateSetups(true, LibraryRandom.RandIntInRange(10, 100));
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -1534,7 +1534,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
     begin
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_General when Purchase Order open.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::General);
         SetupPurchaseVATLines;
     end;
@@ -1548,7 +1548,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
     begin
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_General when Purchase Order open.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::General);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         SetupPurchaseVATLines;
@@ -1563,7 +1563,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
     begin
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Invoice when Purchase Order open.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Invoicing);
         SetupPurchaseVATLines;
     end;
@@ -1577,7 +1577,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
     begin
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Invoice when Purchase Order open.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Invoicing);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         SetupPurchaseVATLines;
@@ -1592,7 +1592,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
     begin
         // Verify Sales Tax Amount Field is Not Editable on Sales Tax Lines_Shipping when Purchse Order open.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PurchaseNoOfLinesOnStats::Shipping);
         SetupPurchaseVATLines;
     end;
@@ -1605,7 +1605,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseNoOfLinesOnStats: Option General,Invoicing,Shipping,Prepayment;
     begin
         // Verify Sales Tax Amount Field is Editable on Sales Tax Lines_Prepayment when Purchse Order open.
-        Initialize;
+        Initialize();
         EnqueueValuesInOrderStatistics(PurchaseNoOfLinesOnStats::Prepayment, true, 0, false);
         SetupPurchaseVATLines;
     end;
@@ -1624,7 +1624,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount not Editable after Releasing on Sales Tax Lines_Shipping on Purchase Order Statistics.
 
         // Setup: Create and Release Sales Order.
-        Initialize;
+        Initialize();
         UpdateSetups(true, LibraryRandom.RandIntInRange(10, 100));
         CreateAndModifyPurchaseDocument(PurchaseLine);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -1654,7 +1654,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Verify Tax Amount is Editable after Releasing and Tax Amount should be Updated Amount after Reopening Purchase Order.
 
         // Setup: Create and Release Purchase Order.
-        Initialize;
+        Initialize();
         UpdateSetups(true, LibraryRandom.RandIntInRange(10, 100));
         CreateAndModifyPurchaseDocument(PurchaseLine);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -1695,7 +1695,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Setup: Create Sales Invoice with Tax Area Country.
         // Exercise: Run and Save Sales Document Test Report.
         // To repro the issue, we need make sure 3rd digits after the decimal point is (5,7). Here "Sales Tax Amount" = 1(Qty) * 0.1 (Direct Unit Cost) * TaxBelowMaximum / 100
-        Initialize;
+        Initialize();
         TaxBelowMaximum1 := LibraryRandom.RandIntInRange(5, 6);
         TaxBelowMaximum2 := TaxBelowMaximum1 + 1; // Make different with TaxBelowMaximum1
         RunSalesDocumentTestReportWithTwoTaxAreaLines(
@@ -1727,7 +1727,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Setup: Create Sales Invoice with Tax Area Country.
         // Exercise: Run and Save Sales Document Test Report.
         // To repro the issue, we need make sure 3rd digits after the decimal point is (5,7). Here "Sales Tax Amount" = 1(Qty) * 0.1 (Direct Unit Cost) * TaxBelowMaximum / 100
-        Initialize;
+        Initialize();
         TaxBelowMaximum1 := LibraryRandom.RandIntInRange(5, 7);
         TaxBelowMaximum2 := LibraryRandom.RandIntInRange(5, 7) + 100; // Make different with TaxBelowMaximum1.
         RunSalesDocumentTestReportWithTwoTaxAreaLines(
@@ -1756,7 +1756,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [FEATURE] [Sales] [Sales Tax]
         // [SCENARIO 374921] "Tax Amount" rounding in "Sales Document - Test" when 3 tax jurisdictions involved.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         LibraryERM.CreateTaxArea(TaxArea);
 
@@ -1803,7 +1803,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Setup: Create Sales Invoice with Tax Area Country.
         // Exercise: Run and Save Purchase Document Test Report.
         // To repro the issue, we need make sure 3rd digits after the decimal point is (5,7). Here "Sales Tax Amount" = 1(Qty) * 0.1 (Direct Unit Cost) * TaxBelowMaximum / 100
-        Initialize;
+        Initialize();
         TaxBelowMaximum1 := LibraryRandom.RandIntInRange(5, 6);
         TaxBelowMaximum2 := TaxBelowMaximum1 + 1; // Make different with TaxBelowMaximum1
         RunPurchaseDocumentTestReportWithTwoTaxAreaLines(
@@ -1835,7 +1835,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // Setup: Create Sales Invoice with Tax Area Country.
         // Exercise: Run and Save Purchase Document Test Report.
         // To repro the issue, we need make sure 3rd digits after the decimal point is (5,7). Here "Sales Tax Amount" = 1(Qty) * 0.1 (Direct Unit Cost) * TaxBelowMaximum / 100
-        Initialize;
+        Initialize();
         TaxBelowMaximum1 := LibraryRandom.RandIntInRange(5, 7);
         TaxBelowMaximum2 := LibraryRandom.RandIntInRange(5, 7) + 100; // Make different with TaxBelowMaximum1.
         RunPurchaseDocumentTestReportWithTwoTaxAreaLines(
@@ -1864,7 +1864,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [FEATURE] [Purchase] [Purchase Tax]
         // [SCENARIO 374921] "Tax Amount" rounding in "Purchase Document - Test" when 3 tax jurisdictions involved.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         LibraryERM.CreateTaxArea(TaxArea);
 
@@ -1908,7 +1908,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // BUG 100401:
         // Negative Sales Tax rounds down. We have different for positive / negative quanities for certain Tax % and amounts.
         // [SETUP]
-        Initialize;
+        Initialize();
         Quantity := 1;
         AdjustTaxPriceRoundingPrecision(TaxDetail, Price, TaxAreaCode);
 
@@ -1942,7 +1942,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // BUG 100401:
         // Negative Purchase Tax rounds down. We have different for positive / negative quanities for certain Tax % and amounts.
         // [SETUP]
-        Initialize;
+        Initialize();
         Quantity := 1;
         AdjustTaxPriceRoundingPrecision(TaxDetail, Price, TaxAreaCode);
 
@@ -1980,7 +1980,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [SCENARIO 377055] G/L Entry with Unrealized VAT Amount should be posted to "Unreal. Tax Acc. (Sales)" from Tax Jurisdiction when unapply payment
 
         // [GIVEN] Unrealized Sales Tax setup. Tax Jurisdiction with "Unreal. Tax Acc. (Sales)" = "X"
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales Tax Only");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
@@ -2027,7 +2027,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [SCENARIO 377055] G/L Entry with Unrealized VAT Amount should be posted to "Unreal. Tax Acc. (Purchase)" from Tax Jurisdiction when unapply payment
 
         // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Tax Acc. (Purchase)" = "X"
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales Tax Only");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
@@ -2068,7 +2068,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [FEATURE] [VAT Amount]
         // [SCENARIO 269045] VAT Amount can be adjusted in Gen. Journal Line when VAT Calculation Type = "Sales Tax"
-        Initialize;
+        Initialize();
         MaxVATDiffAllowed := LibraryRandom.RandDecInRange(10, 20, 2);
 
         // [GIVEN] "Max. VAT Difference Allowed" = 10.0 in General Ledger Setup
@@ -2102,7 +2102,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [FEATURE] [Bal. VAT Amount]
         // [SCENARIO 269045] Bal. VAT Amount can be adjusted in Gen. Journal Line when VAT Calculation Type = "Sales Tax"
-        Initialize;
+        Initialize();
         MaxVATDiffAllowed := LibraryRandom.RandDecInRange(10, 20, 2);
 
         // [GIVEN] "Max. VAT Difference Allowed" = 10.0 in General Ledger Setup
@@ -2135,7 +2135,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [FEATURE] [Full VAT] [VAT Amount]
         // [SCENARIO 269045] Error when validate VAT Amount in Gen. Journal Line with VAT Calculation Type = "Full VAT"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch with "Allow VAT Difference" = TRUE
         CreateGenJournalBatchWithAllowVATDifference(GenJournalBatch);
@@ -2161,7 +2161,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [FEATURE] [Full VAT] [Bal. VAT Amount]
         // [SCENARIO 269045] Error when validate Bal. VAT Amount in Gen. Journal Line with VAT Calculation Type = "Full VAT"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch with "Allow VAT Difference" = TRUE
         CreateGenJournalBatchWithAllowVATDifference(GenJournalBatch);
@@ -2718,7 +2718,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [FEATURE] [UT]
         // [SCENARIO 312423] A "Tax Below Maximum" and "Tax Above Maximum" of Tax Detail has four decimal places
 
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
         LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, '', 0, 0D);
         TaxDetail.Validate("Tax Below Maximum", 12.3456);
@@ -2742,7 +2742,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [SCENARIO 312424] A "Default Sales & Use Tax" of Tax Jurisdiction has four decimal places
 
         // [GIVEN] Create Tax Juridiction.
-        Initialize;
+        Initialize();
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
 
         // [WHEN] page Tax Juridictions is opened in Edit mode.
@@ -2772,7 +2772,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [SCENARIO 318764]  G/L Entry with Unrealized VAT Amount should be posted from "Unreal. Rev. Charge (Purch.)"  to "Reverse Charge (Purchases)" from Tax Jurisdiction when apply payment
 
         // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Rev. Charge (Purch.)" = "X" and "Reverse Charge (Purchases)" = "Y"
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales and Use Tax");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
@@ -2820,7 +2820,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [SCENARIO 318764] G/L Entry with Unrealized VAT Amount should be posted to "Unreal. Rev. Charge (Purch.)" from Tax Jurisdiction when unapply payment
 
         // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Rev. Charge (Purch.)" = "X" and "Reverse Charge (Purchases)" = "Y"
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales and Use Tax");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
@@ -2861,7 +2861,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         // [FEATURE] [Sales] [Prepayment]
         // [SCENARIO 319776] Prepayment on Sales Lines updates after "Prepmt. Amount Excl. Tax" is changed on Sales Order Stats. page
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order with TaxAreaCode for Customer and Prepayment %
         UpdateSetups(TRUE, LibraryRandom.RandIntInRange(10, 100));
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
@@ -2878,7 +2878,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [THEN] Sales Line is updated
         SalesLine.SETRANGE("Document No.", SalesHeader."No.");
         SalesLine.SETRANGE("Document Type", SalesHeader."Document Type");
-        SalesLine.FINDFIRST;
+        SalesLine.FindFirst();
         SalesLine.TESTFIELD("Prepmt. Line Amount", PrepmntAmount);
     end;
 
@@ -2887,11 +2887,11 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         InventorySetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryApplicationArea.EnablePremiumSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -3385,21 +3385,21 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20])
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindSalesOrder(var SalesHeaderOrder: Record "Sales Header"; CustomerNo: Code[20])
     begin
         SalesHeaderOrder.SetRange("Document Type", SalesHeaderOrder."Document Type"::Order);
         SalesHeaderOrder.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesHeaderOrder.FindFirst;
+        SalesHeaderOrder.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; CustomerNo: Code[20])
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Customer No.", CustomerNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -3422,14 +3422,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindPurchLine(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     begin
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
     end;
 
     local procedure FindCustUnapplicationTransactionNo(DocType: Option; DocNo: Code[20]): Integer
@@ -3441,7 +3441,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Unapplied, true);
-            FindLast;
+            FindLast();
             exit("Transaction No.");
         end;
     end;
@@ -3455,7 +3455,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Unapplied, true);
-            FindLast;
+            FindLast();
             exit("Transaction No.");
         end;
     end;
@@ -3476,7 +3476,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
     local procedure GetRandomCode(FieldLength: Integer) RandomCode: Code[20]
     begin
-        RandomCode := LibraryUtility.GenerateGUID;
+        RandomCode := LibraryUtility.GenerateGUID();
         repeat
             RandomCode += Format(LibraryRandom.RandInt(9));  // Generating any Random integer value.
         until StrLen(RandomCode) = FieldLength;
@@ -3501,7 +3501,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         with VATEntry do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Remaining Unrealized Amount");
         end;
     end;
@@ -3637,7 +3637,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesOrder: TestPage "Sales Order";
     begin
         // Setup: Create Sales Order with Tax Area Code.
-        // Initialize;
+        // Initialize();
         UpdateSetups(true, LibraryRandom.RandIntInRange(10, 100));
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -3760,7 +3760,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         PurchaseHeaderOrder.SetRange("Document Type", PurchaseHeaderOrder."Document Type"::Order);
         PurchaseHeaderOrder.SetRange("Vendor Invoice No.", PurchaseHeader."Vendor Invoice No.");
-        PurchaseHeaderOrder.FindFirst;
+        PurchaseHeaderOrder.FindFirst();
         PurchaseHeaderOrder.TestField("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchaseHeaderOrder.TestField("Tax Liable", true);
         PurchaseHeaderOrder.TestField("Tax Area Code", PurchaseHeader."Tax Area Code");
@@ -3783,7 +3783,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
         SalesHeaderArchive.TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesHeaderArchive.TestField("Tax Area Code", SalesHeader."Tax Area Code");
         SalesHeaderArchive.TestField("Tax Liable", true);
@@ -3794,7 +3794,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Tax Group Code", SalesLine."Tax Group Code");
         SalesInvoiceLine.TestField("Tax Area Code", SalesLine."Tax Area Code");
         SalesInvoiceLine.TestField("Tax Liable", true);
@@ -3806,7 +3806,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         SalesLineArchive: Record "Sales Line Archive";
     begin
         SalesLineArchive.SetRange("Document No.", SalesLine."Document No.");
-        SalesLineArchive.FindFirst;
+        SalesLineArchive.FindFirst();
         SalesLineArchive.TestField("Qty. to Ship", SalesLine."Qty. to Ship");
         SalesLineArchive.TestField(Quantity, SalesLine.Quantity);
         SalesLineArchive.TestField("Qty. to Invoice", SalesLine."Qty. to Invoice");
@@ -3819,7 +3819,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentHeader.TestField("Customer No.", CustomerNo);
         ServiceShipmentHeader.TestField("Tax Area Code", TaxAreaCode);
         ServiceShipmentHeader.TestField("Tax Liable", true);
@@ -3830,7 +3830,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
@@ -3861,7 +3861,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), VATEntry.Base, VATEntry.TableCaption));
@@ -3876,7 +3876,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
@@ -3889,7 +3889,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetRange("GST/HST", GSTHST);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure VerifyGSTHSTFieldOnVATEntry(CustomerNo: Code[20]; GSTHST: Option)
@@ -3898,7 +3898,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         VATEntry.SetRange("Bill-to/Pay-to No.", CustomerNo);
         VATEntry.SetRange("GST/HST", GSTHST);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure VerifyVATGLEntryOnUnapplication(DocNo: Code[20]; TransactionNo: Integer; GLAccNo: Code[20])

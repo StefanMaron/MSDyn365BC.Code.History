@@ -108,7 +108,7 @@ codeunit 144050 "UT TAB Purchase Header"
         // Verify.
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField("Tax Area Code", VendorAltTaxAreaCode);
     end;
 
@@ -134,7 +134,7 @@ codeunit 144050 "UT TAB Purchase Header"
 
         // Verify.
         PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
         PurchaseHeaderArchive.TestField("Tax Area Code", PurchaseHeader."Tax Area Code");
     end;
 

@@ -170,10 +170,10 @@ codeunit 550 "VAT Rate Change Conversion"
         VATRateChangeConversion: Record "VAT Rate Change Conversion";
     begin
         VATRateChangeConversion.SetRange(Type, VATRateChangeConversion.Type::"VAT Prod. Posting Group");
-        if VATRateChangeConversion.FindSet then
+        if VATRateChangeConversion.FindSet() then
             repeat
                 VATPostingSetupOld.SetRange("VAT Prod. Posting Group", VATRateChangeConversion."From Code");
-                if VATPostingSetupOld.FindSet then
+                if VATPostingSetupOld.FindSet() then
                     repeat
                         if not VATPostingSetupNew.Get(VATPostingSetupOld."VAT Bus. Posting Group", VATRateChangeConversion."To Code") then
                             Error(
@@ -488,7 +488,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     if SalesHeader.Status = SalesHeader.Status::Open then begin
                         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                         SalesLine.SetRange("Document No.", SalesHeader."No.");
-                        if SalesLine.FindSet then
+                        if SalesLine.FindSet() then
                             repeat
                                 if LineInScope(
                                      SalesLine."Gen. Prod. Posting Group", SalesLine."VAT Prod. Posting Group", ConvertGenProdPostingGroup,
@@ -568,7 +568,7 @@ codeunit 550 "VAT Rate Change Conversion"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     DescriptionTxt := '';
                     if LineInScope("Gen. Prod. Posting Group", "VAT Prod. Posting Group", ConvertGenProdPostingGroup, ConvertVATProdPostingGroup) then begin
@@ -710,7 +710,7 @@ codeunit 550 "VAT Rate Change Conversion"
         OldReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
         OldReservationEntry.SetRange("Source Type", DATABASE::"Sales Line");
         OldReservationEntry.SetRange("Source Subtype", SalesLine."Document Type");
-        if OldReservationEntry.FindSet then
+        if OldReservationEntry.FindSet() then
             repeat
                 NewReservationEntry := OldReservationEntry;
                 NewReservationEntry."Source Ref. No." := NewLineNo;
@@ -780,7 +780,7 @@ codeunit 550 "VAT Rate Change Conversion"
             SalesLine2.SetRange("No.", SalesLine."No.");
             SalesLine2.SetRange("Quantity Shipped", 0);
             Clear(SalesHeader);
-            if SalesLine2.FindSet then
+            if SalesLine2.FindSet() then
                 repeat
                     if (SalesHeader."Document Type" <> SalesLine2."Document Type") or
                        (SalesHeader."No." <> SalesLine2."Document No.")
@@ -791,7 +791,7 @@ codeunit 550 "VAT Rate Change Conversion"
                         SalesLine3.SetRange("Document No.", SalesHeader."No.");
                         SalesLine3.SetRange("Blanket Order No.", SalesLine2."Blanket Order No.");
                         SalesLine3.SetRange("Blanket Order Line No.", SalesLine2."Blanket Order Line No.");
-                        if SalesLine3.FindLast then begin
+                        if SalesLine3.FindLast() then begin
                             SalesLine3."Blanket Order Line No." := SalesLine."Line No.";
                             SalesLine3.Modify();
                         end;
@@ -873,7 +873,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     if PurchaseHeader.Status = PurchaseHeader.Status::Open then begin
                         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
                         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-                        if PurchaseLine.FindSet then
+                        if PurchaseLine.FindSet() then
                             repeat
                                 if LineInScope(
                                      PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group", ConvertGenProdPostingGroup,
@@ -956,7 +956,7 @@ codeunit 550 "VAT Rate Change Conversion"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     DescriptionTxt := '';
                     if LineInScope("Gen. Prod. Posting Group", "VAT Prod. Posting Group", ConvertGenProdPostingGroup, ConvertVATProdPostingGroup) then begin
@@ -1123,7 +1123,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     OldItemChargeAssignmentPurch.SetRange("Applies-to Doc. Type", PurchaseLine."Document Type");
                     OldItemChargeAssignmentPurch.SetRange("Applies-to Doc. No.", PurchaseLine."Document No.");
                     OldItemChargeAssignmentPurch.SetRange("Applies-to Doc. Line No.", PurchaseLine."Line No.");
-                    if OldItemChargeAssignmentPurch.FindSet then
+                    if OldItemChargeAssignmentPurch.FindSet() then
                         repeat
                             QtyRemainder := OldItemChargeAssignmentPurch."Qty. to Assign";
                             AmountRemainder := OldItemChargeAssignmentPurch."Amount to Assign";
@@ -1176,7 +1176,7 @@ codeunit 550 "VAT Rate Change Conversion"
         if PurchaseLine2.Find('>') then
             NextLineNo := PurchaseLine."Line No." + (PurchaseLine2."Line No." - PurchaseLine."Line No.") div 2;
         if (NextLineNo = PurchaseLine."Line No.") or (NextLineNo = 0) then begin
-            PurchaseLine2.FindLast;
+            PurchaseLine2.FindLast();
             NextLineNo := PurchaseLine2."Line No." + 10000;
         end;
         exit(NextLineNo <> PurchaseLine."Line No.");
@@ -1207,7 +1207,7 @@ codeunit 550 "VAT Rate Change Conversion"
                         PurchaseLine3.SetRange("Document No.", PurchaseHeader."No.");
                         PurchaseLine3.SetRange("Blanket Order No.", PurchaseLine2."Blanket Order No.");
                         PurchaseLine3.SetRange("Blanket Order Line No.", PurchaseLine2."Blanket Order Line No.");
-                        if PurchaseLine3.FindLast then begin
+                        if PurchaseLine3.FindLast() then begin
                             PurchaseLine3."Blanket Order Line No." := PurchaseLine."Line No.";
                             PurchaseLine3.Modify();
                         end;
@@ -1250,7 +1250,7 @@ codeunit 550 "VAT Rate Change Conversion"
         if SalesLine2.Find('>') then
             NextLineNo := SalesLine."Line No." + (SalesLine2."Line No." - SalesLine."Line No.") div 2;
         if (NextLineNo = SalesLine."Line No.") or (NextLineNo = 0) then begin
-            SalesLine2.FindLast;
+            SalesLine2.FindLast();
             NextLineNo := SalesLine2."Line No." + 10000;
         end;
         exit(NextLineNo <> SalesLine."Line No.");
@@ -1275,11 +1275,11 @@ codeunit 550 "VAT Rate Change Conversion"
         then
             exit;
         VatRateChangeConversion.SetRange(Type, VatRateChangeConversion.Type::"Gen. Prod. Posting Group");
-        if VatRateChangeConversion.FindSet then
+        if VatRateChangeConversion.FindSet() then
             repeat
                 with ServPriceAdjustmentDetail do begin
                     SetRange("Gen. Prod. Posting Group", VatRateChangeConversion."From Code");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             VATRateChangeLogEntry.Init();
                             RecRef.GetTable(ServPriceAdjustmentDetailNew);
@@ -1527,7 +1527,7 @@ codeunit 550 "VAT Rate Change Conversion"
             OldReservationEntry.SetRange("Source Type", DATABASE::"Service Line");
             OldReservationEntry.SetRange("Source Subtype", ServiceLine."Document Type");
             OldReservationEntry.SetRange("Reservation Status", OldReservationEntry."Reservation Status"::Reservation);
-            if OldReservationEntry.FindSet then
+            if OldReservationEntry.FindSet() then
                 repeat
                     NewReservationEntry := OldReservationEntry;
                     NewReservationEntry."Source Ref. No." := NewLineNo;
@@ -1578,7 +1578,7 @@ codeunit 550 "VAT Rate Change Conversion"
         if ServiceLine2.Find('>') then
             NextLineNo := ServiceLine."Line No." + (ServiceLine2."Line No." - ServiceLine."Line No.") div 2;
         if (NextLineNo = ServiceLine."Line No.") or (NextLineNo = 0) then begin
-            ServiceLine2.FindLast;
+            ServiceLine2.FindLast();
             NextLineNo := ServiceLine2."Line No." + 10000;
         end;
         exit(NextLineNo <> ServiceLine."Line No.");
@@ -1595,7 +1595,7 @@ codeunit 550 "VAT Rate Change Conversion"
         ItemChargeAssignmentSales2.SetRange("Document Type", ItemChargeAssignmentSales."Document Type");
         ItemChargeAssignmentSales2.SetRange("Document No.", ItemChargeAssignmentSales."Document No.");
         ItemChargeAssignmentSales2.SetRange("Document Line No.", ItemChargeAssignmentSales."Document Line No.");
-        if ItemChargeAssignmentSales2.FindLast then
+        if ItemChargeAssignmentSales2.FindLast() then
             ExitValue := ItemChargeAssignmentSales2."Line No." + 10000;
         exit(ExitValue);
     end;
@@ -1611,7 +1611,7 @@ codeunit 550 "VAT Rate Change Conversion"
         ItemChargeAssignmentPurch2.SetRange("Document Type", ItemChargeAssignmentPurch."Document Type");
         ItemChargeAssignmentPurch2.SetRange("Document No.", ItemChargeAssignmentPurch."Document No.");
         ItemChargeAssignmentPurch2.SetRange("Document Line No.", ItemChargeAssignmentPurch."Document Line No.");
-        if ItemChargeAssignmentPurch2.FindLast then
+        if ItemChargeAssignmentPurch2.FindLast() then
             ExitValue := ItemChargeAssignmentPurch2."Line No." + 10000;
         exit(ExitValue);
     end;

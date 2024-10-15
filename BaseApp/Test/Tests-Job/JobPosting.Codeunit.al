@@ -66,7 +66,7 @@ codeunit 136309 "Job Posting"
         // Check value of Job Ledger Entries and Job Planning Line exist or not after posting Job Journal Line.
 
         // 1. Setup: Create Job with Job Task, Resource and Job Journal Line.
-        Initialize;
+        Initialize();
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         CreateJobWithJobTask(JobTask);
         CreateJobJournalLine(
@@ -90,7 +90,7 @@ codeunit 136309 "Job Posting"
     begin
         // Verify creation of Job by page with Status type Order.
 
-        Initialize;
+        Initialize();
         CreateJobCardAndVerifyData(Job.Status::Open);
     end;
 
@@ -102,7 +102,7 @@ codeunit 136309 "Job Posting"
     begin
         // Verify creation of Job by page with Status type Planning.
 
-        Initialize;
+        Initialize();
         CreateJobCardAndVerifyData(Job.Status::Planning);
     end;
 
@@ -134,7 +134,7 @@ codeunit 136309 "Job Posting"
         // Test functionality of Copy Job with From Source as Job Planning Lines.
 
         // 1. Setup: Create Job, Job Task and Job Planning Lines.
-        Initialize;
+        Initialize();
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         CreateJobWithJobTask(JobTask);
         CreateJobPlanningLine(
@@ -171,7 +171,7 @@ codeunit 136309 "Job Posting"
         // Test functionality of Copy Job with From Source as Job Ledger Entries.
 
         // 1. Setup: Create Job, Job Task and Job Planning Lines. Create and post Job journal Line.
-        Initialize;
+        Initialize();
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         CreateJobWithJobTask(JobTask);
         CreateJobPlanningLine(
@@ -203,7 +203,7 @@ codeunit 136309 "Job Posting"
         // Check value of Job Ledger Entries and Job Planning Line exist or not after posting Job G/L Journal Line.
 
         // 1. Setup: Create Job with Job Task and a Job G/L Journal line.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         CreateJobGLJournalLine(GenJournalLine, JobTask);
 
@@ -227,11 +227,11 @@ codeunit 136309 "Job Posting"
         // Verify Remaining Quantity on Item Ledger Entry after posting Purchase Order with Item Tracking Lines.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create and Receive Purchase Order.
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         DocumentNo := PostPurchaseOrderWithItemTracking(PurchaseLine, false);
 
         // 3. Verify: Verify Cost,Invoiced and Remaining Quantity on Item Ledger Entry.
@@ -254,10 +254,10 @@ codeunit 136309 "Job Posting"
         // Verify Remaining Quantity on Item Ledger Entry after posting Job Journal Line with Item Tracking Lines.
 
         // 1. Setup: Create Purchase Order With Item Tracking Lines, Post Purchase Order, Create a Job and Job Task, Create Job Journal Line.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         DocumentNo := PostPurchaseOrderWithItemTracking(PurchaseLine, false);
 
         // Update General Posting Setup.
@@ -297,10 +297,10 @@ codeunit 136309 "Job Posting"
         // Verify Remaining Quantity on Item Ledger Entry after posting Job Journal Line with Item Tracking Lines and Negative Quantity.
 
         // 1. Setup: Create and post Purchase Order With Item Tracking Lines.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryVariableStorage.Enqueue(false);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);
         PostPurchaseOrderWithItemTracking(PurchaseLine, true);
 
@@ -347,10 +347,10 @@ codeunit 136309 "Job Posting"
         // Verify Invoiced and Remaining Quantity on Item Ledger Entry after Receiving Purchase Order with Item Tracking Lines.
 
         // 1. Setup: Create Purchase Order With Item Tracking Lines, Update General Posting Setup, Post Purchase Order, Create a Job and Job Task, Create Job Journal Line.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         CreatePurchaseDocumentWithJobAndItemTracking(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine."Job Line Type"::"Both Budget and Billable", true, false);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -385,10 +385,10 @@ codeunit 136309 "Job Posting"
         // Verify Invoiced and Remaining Quantity on Item Ledger Entry after Invoicing Purchase Order with Item Tracking Lines.
 
         // 1. Setup. Create and receive Purchase Order with Job and Item Tracking.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         CreatePurchaseDocumentWithJobAndItemTracking(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine."Job Line Type"::"Both Budget and Billable", true, false);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -427,14 +427,14 @@ codeunit 136309 "Job Posting"
         // Create a new job with Copy Job functionality.
 
         // 1. Setup: Create a Job and Job Task for it.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         Job.Get(JobTask."Job No.");
         BillToCustomerNo := Job."Bill-to Customer No.";
-        TargetJobNo := LibraryUtility.GenerateGUID;
+        TargetJobNo := LibraryUtility.GenerateGUID();
 
         // 2. Exercise: Create new Job using Copy Job functionality.
-        CopyJob.CopyJob(Job, TargetJobNo, TargetJobNo, Job."Bill-to Customer No.");
+        CopyJob.CopyJob(Job, TargetJobNo, TargetJobNo, Job."Bill-to Customer No.", '');
 
         // 3. Verify: Verify Bill-to Customer No. and Job Task No. for new Job.
         Job.TestField("Bill-to Customer No.");  // To make sure that Bill-to Customer No. is not blank.
@@ -454,7 +454,7 @@ codeunit 136309 "Job Posting"
         // Verify Item Tracking Lines on Purchase Credit Memo which is created after executing "Get Posted Document Lines to Reverse" where Serial No and Job are involved.
 
         // 1. Setup: Create and post Purchase Invoice With Item Tracking Lines and Job. Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         PostPurchaseInvoice(PurchaseHeader);
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.");
 
@@ -480,7 +480,7 @@ codeunit 136309 "Job Posting"
         // Verify Gl Entry and Job Ledger Entry after posting the Purchase Credit Memo with more than one quantity after executing "Get Posted Document Lines to Reverse" where Serial No and Job are involved.
 
         // 1. Setup: Create and post Purchase Invoice With Item Tracking Lines and Job. Create Purchase Credit Memo Lines using Get Posted Document Lines to Reverse function.
-        Initialize;
+        Initialize();
         PostPurchaseInvoice(PurchaseHeader);
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.");
         PurchaseHeader.GetPstdDocLinesToReverse();
@@ -506,7 +506,7 @@ codeunit 136309 "Job Posting"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 361355] Item Tracking Line on Purchase Credit Memo has correct "Appl.-to Item Entry" after using "Get Posted Document Lines to Reverse"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post Purchase Invoice With Item Tracking Lines with Reservations.
         // [GIVEN] Purchase Credit Memo.
@@ -535,7 +535,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Ledger Entry after posting the Purchase Order with Job and Charge (Item).
 
         // 1. Setup: Create Purchase Order With Job and ChargeItem.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         LibraryInventory.CreateItemCharge(ItemCharge);
         CreatePurchaseOrderWithJob(
@@ -567,7 +567,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Task Statistics Price, Cost and Profit for Schedule and Usage.
 
         // 1. Setup: Create a Job and Job Task for it. Create and Post Job Journal Lines for Type Item, Resource and GLAccount.
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         CreateJobJournalLinesForDifferentType(Job, JobJournalLine);
         LibraryJob.PostJobJournal(JobJournalLine);
@@ -589,7 +589,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Task Statistics Price, Cost and Profit for Schedule and Usage with Different Currency.
 
         // 1. Setup: Create a Job with different Currency and Job Task for it. Create and Post Job Journal Lines for Type Item, Resource and GLAccount.
-        Initialize;
+        Initialize();
         CreateJobWithCurrency(Job);
         CreateJobJournalLinesForDifferentType(Job, JobJournalLine);
         LibraryJob.PostJobJournal(JobJournalLine);
@@ -612,7 +612,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Statistics Price, Cost and Profit for Schedule and Usage.
 
         // 1. Setup: Create a Job and multiple Job Tasks for it. Create and Post Job Journal Lines for Type Item, Resource and GLAccount.
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         for Counter := 1 to 1 + LibraryRandom.RandInt(3) do begin
             CreateJobJournalLinesForDifferentType(Job, JobJournalLine);
@@ -637,7 +637,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Statistics Price, Cost and Profit for Schedule and Usage with Different Currency.
 
         // 1. Setup: Create a Job with different Currency and multiple Job Tasks for it. Create and Post Job Journal Lines for Type Item, Resource and GLAccount.
-        Initialize;
+        Initialize();
         CreateJobWithCurrency(Job);
         for Counter := 1 to 1 + LibraryRandom.RandInt(3) do begin
             CreateJobJournalLinesForDifferentType(Job, JobJournalLine);
@@ -661,7 +661,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Task Statistics Price, Cost and Profit for Contract and Invoiced.
 
         // 1. Setup: Create a Job and Job Task for it. Create Job Planning Lines for Type Item, Resource and GLAccount and then Create Sales Invoice from Job Planning Line. Post the Sales Invoice.
-        Initialize;
+        Initialize();
         CreateJobWithCustomer(Job, CreateCustomer(''));  // Passing Blank for Currency Code.
         CreateJobPlanningLinesForDifferentType(Job, JobPlanningLine);
         CreateAndPostSalesInvoice(JobPlanningLine, Job."Bill-to Customer No.");
@@ -683,7 +683,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Task Statistics Price, Cost and Profit for Contract and Invoiced with Different Currency.
 
         // 1. Setup: Create a Job with different Currency and Job Task for it. Create Job Planning Lines for Type Item, Resource and GLAccount and then Create Sales Invoice from Job Planning Line. Post the Sales Invoice.
-        Initialize;
+        Initialize();
         CreateJobWithCurrency(Job);
         CreateJobPlanningLinesForDifferentType(Job, JobPlanningLine);
         CreateAndPostSalesInvoice(JobPlanningLine, Job."Bill-to Customer No.");
@@ -706,7 +706,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Statistics Price, Cost and Profit for Contract and Invoiced.
 
         // 1. Setup: Create a Job and multiple Job Tasks for it. Create Job Planning Lines for Type Item, Resource and GLAccount and then Create Sales Invoice from Job Planning Line. Post the Sales Invoice.
-        Initialize;
+        Initialize();
         CreateJobWithCustomer(Job, CreateCustomer(''));  // Passing Blank for Currency Code.
         for Counter := 1 to 1 + LibraryRandom.RandInt(3) do begin
             CreateJobPlanningLinesForDifferentType(Job, JobPlanningLine);
@@ -731,7 +731,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Statistics Price, Cost and Profit for Contract and Invoiced with Different Currency.
 
         // 1. Setup: Create a Job with different Currency and multiple Job Tasks for it. Create Job Planning Lines for Type Item, Resource and GLAccount and then Create Sales Invoice from Job Planning Line. Post the Sales Invoice.
-        Initialize;
+        Initialize();
         CreateJobWithCurrency(Job);
         for Counter := 1 to 1 + LibraryRandom.RandInt(3) do begin
             CreateJobPlanningLinesForDifferentType(Job, JobPlanningLine);
@@ -757,7 +757,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Task Statistics Price, Cost and Profit for Schedule and Usage with Planning and Posting Date Filters.
 
         // 1. Setup: Create a Job and Job Task for it. Create and Post Job Journal Lines for Type Resource.
-        Initialize;
+        Initialize();
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -786,7 +786,7 @@ codeunit 136309 "Job Posting"
         // Verify Job Statistics Price, Cost and Profit for Schedule and Usage with Planning and Posting Date Filters.
 
         // 1. Setup: Create a Job and multiple Job Tasks for it. Create Job Planning Lines for Type Resource and then Create Sales Invoice from Job Planning Line. Post the Sales Invoice.
-        Initialize;
+        Initialize();
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         LibraryJob.CreateJob(Job);
         for Counter := 1 to 1 + LibraryRandom.RandInt(3) do begin
@@ -860,7 +860,7 @@ codeunit 136309 "Job Posting"
     begin
         // Verify Qty. per Unit of Measure on Purchase Line is not updated when changed it on Base Unit of Measure after receiving the Purchase Order.
 
-        Initialize;
+        Initialize();
         QtyPerUnitOfMeasure := ReceivePurchaseOrderWithNewUOM(PurchaseHeader);
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
 
@@ -890,7 +890,7 @@ codeunit 136309 "Job Posting"
     begin
         // Verify Job Ledger Entry after posting a Purchase Order where "Qty. per Unit of Measure" is different on Base Unit of Measure while posting Purchase Order as receive and then Invoice.
 
-        Initialize;
+        Initialize();
         QtyPerUnitOfMeasure := ReceivePurchaseOrderWithNewUOM(PurchaseHeader);
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
 
@@ -921,7 +921,7 @@ codeunit 136309 "Job Posting"
         // Verify correct Unit Price for an Item is updated on Job Planning Line when Sales Price are defined on the Item.
 
         // 1. Setup: Create Job and Job Task, create Item with Unit Price, create Sales Price for Item with Minimum Quantity with Random values.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         Job.Get(JobTask."Job No.");
         Item.Get(CreateItem);
@@ -946,7 +946,7 @@ codeunit 136309 "Job Posting"
         // Check Currency Code and Invoice Currency Code field values on Job Card when Bill to Customer No. on Job is having no Currency attached.
 
         // 1. Setup: Supply Blank value for Currency Code to update it on Customer.
-        Initialize;
+        Initialize();
         InvoiceCurrencyForJob('');
     end;
 
@@ -957,7 +957,7 @@ codeunit 136309 "Job Posting"
         // Check Currency Code and Invoice Currency Code field values on Job Card when Bill to Customer No. on Job has Currency attached.
 
         // 1. Setup: Create Currency and update it on Customer.
-        Initialize;
+        Initialize();
         InvoiceCurrencyForJob(CreateCurrency);
     end;
 
@@ -988,13 +988,13 @@ codeunit 136309 "Job Posting"
         // Verify Program updates the Unit Cost with Automatic Cost Posting set to YES and Automatic Cost Adjustment set to Always on Inventory Setup.
 
         // 1. Setup: Set Automatic Cost Posting as TRUE and Automatic Cost Adjustment to Always, Create Item, Create multiple Item Journal Lines.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithInventoryAdjustmentAccount;
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         NoOfLines := 1 + LibraryRandom.RandInt(3);  // To create 2 to 4 Item Journal Lines Boundary 2 is important.
         TotalAmount := CreateMultipleItemJournalLines(ItemJournalLine, ItemNo, NoOfLines);
         SaveItemJnlLineInTempTable(TempItemJournalLine, ItemJournalLine);
-        LibraryUtility.GenerateGUID;  // Hack to fix problem with GenerateGUID.
+        LibraryUtility.GenerateGUID();  // Hack to fix problem with GenerateGUID.
 
         // 2. Exercise: Post Item Journal Lines.
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -1023,7 +1023,7 @@ codeunit 136309 "Job Posting"
         // Veriy Program updates the Unit Cost when posting of Job Journal with Automatic Cost Posting set to YES and Automatic Cost Adjustment set to Always on Inventory Setup.
 
         // 1. Setup: Set Automatic Cost Posting as TRUE and Automatic Cost Adjustment to Always, Create Item, Create and Post Item Journal Lines, Create Job with Job Task, Create Job Journal line.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         GeneralLedgerSetup.Get();
         Item.Get(CreateItemWithInventoryAdjustmentAccount);
@@ -1035,7 +1035,7 @@ codeunit 136309 "Job Posting"
         CreateJobWithJobTask(JobTask);
         CreateJobJournalLine(
           LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Item, JobJournalLine, JobTask, Item."No.", 1, Item."Unit Cost", Item."Unit Price");  // Taking Quantity as 1 is important for test.
-        TempItemJournalLine.FindFirst;  // Required for the verification of Item "Unit Cost" and Item Ledger Entry.
+        TempItemJournalLine.FindFirst();  // Required for the verification of Item "Unit Cost" and Item Ledger Entry.
 
         // 2. Exercise: Post Job Journal Line.
         LibraryJob.PostJobJournal(JobJournalLine);
@@ -1082,7 +1082,7 @@ codeunit 136309 "Job Posting"
     begin
         // Test G/L Entries and Value Entries With Undo Reciept on Posted Purchase Order with job with Automatic and Expected Cost Posting to True.
         // Setup: Create And Post Purchase Order With Job No.
-        Initialize;
+        Initialize();
         UpdateInventorySetupWithExpectedCost(true, true);
 
         // Excercise : Undo Purchase Reciept on Posted Purchase Invoice.
@@ -1110,7 +1110,7 @@ codeunit 136309 "Job Posting"
     begin
         // Test G/L Entries and Value Entries With Undo Retun Shipment on Posted Purchase Return Order with job with Automatic and Expected Cost Posting to True.
         // Setup: Create And Post Purchase Return Order With Job No.
-        Initialize;
+        Initialize();
         UpdateInventorySetupWithExpectedCost(true, true);
         CreateJobWithJobTask(JobTask);
         CreatePurchaseOrderWithJob(
@@ -1173,7 +1173,7 @@ codeunit 136309 "Job Posting"
         // Verify that TargetJobTaskNo is working as per the selection of TargetJobNo on Copy Job Planning Lines page.
 
         // Setup: Create Job and Job Task.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
 
         // Exercise: Open Copy Job Planning Lines page and set the value on the controls TargetJobNo and TargetJobTaskNo.
@@ -1196,7 +1196,7 @@ codeunit 136309 "Job Posting"
         // Verify that TargetJobTaskNo lookup is working as per the selection of TargetJobNo on Copy Job Planning Lines page.
 
         // Setup: Create Job and Job Task.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
 
         // Exercise: Open Copy Job Planning Lines page and set the value on the control TargetJobNo and then lookup TargetJobTaskNo.
@@ -1218,7 +1218,7 @@ codeunit 136309 "Job Posting"
         // Verify that system throws error while setting the value in TargetJobTaskNo if TargetJobNo is not filled.
 
         // Setup: Create Job and Job Task.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
 
         // Exercise: Open Copy Job Planning Lines page and set the value on the controls SourceJobNo and TargetJobTaskNo.
@@ -1242,7 +1242,7 @@ codeunit 136309 "Job Posting"
         // Verify Global Dimensions of new Job from Source Job using Copy Job functionality.
 
         // Setup: Create a Job and Job Task for it and update Global Dimension.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         SourceJob.Get(JobTask."Job No.");
         UpdateGlobalDimensionOnJob(SourceJob);
@@ -1309,7 +1309,7 @@ codeunit 136309 "Job Posting"
         JobTask: Record "Job Task";
     begin
         // [SCENARIO 108995] Verify that job cannot be copied with manual "No." and disabled "Manual Nos." in "Job No. Series"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with job task
         LibraryJob.CreateJob(Job);
@@ -1340,7 +1340,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Currency Code]
         // [SCENARIO 218732] "Currency Code" clears out when update "Bill-To Customer No." by Customer with any currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Currency Code" = "USD" and Customer "X"
         CreateJobWithCurrency(Job);
@@ -1368,7 +1368,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Currency Code]
         // [SCENARIO 288249] "Currency Code" doesn't change when update "Bill-To Customer No." by Customer without currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Currency Code" = EUR
         LibraryJob.CreateJob(Job);
@@ -1396,7 +1396,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Currency Code]
         // [SCENARIO 288249] "Currency Code" is blank, when you change "Invoice Currency Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Currency Code" = RUB
         CreateJobWithCurrency(Job);
@@ -1416,7 +1416,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Currency Code]
         // [SCENARIO 288249] "Invoice Currency Code" is blank, when you change "Currency Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Invoice Currency Code" = RUB
         LibraryJob.CreateJob(Job);
@@ -1438,7 +1438,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Currency Code] [UI]
         // [SCENARIO 218732] "Invoice Currency Code" on Job Card page is editable when "Currency Code" has value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Currency Code" = RUB
         CreateJobWithCurrency(Job);
@@ -1460,7 +1460,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Currency Code] [UI]
         // [SCENARIO 218732] "Currency Code" on Job Card page is editable when "Invoice Currency Code" has value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Invoice Currency Code" = RUB
         LibraryJob.CreateJob(Job);
@@ -1491,9 +1491,9 @@ codeunit 136309 "Job Posting"
         // [FEATURE] [Purch. Unit of Measure]
         // [SCENARIO 375427] The Quantity in Job Ledger Entry should be calculated in Base Unit Of Measure Code when posting Purchase Invoice with Job and different Unit Of Measure Code
 
-        Initialize;
+        Initialize();
         // [GIVEN] Unit Of Measure "BOX" With "Qty. Per Unit Of Measure" = 10
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, ItemNo);
         // [GIVEN] Purchase Invoice with Job, "Unit Of Measure" = "BOX" and Quantity = 3
         CreatePurchaseDocument(PurchLine, PurchHeader."Document Type"::Invoice, ItemNo);
@@ -1520,7 +1520,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 379760] Clear Currency Code on Job Card when update Bill-To Customer with filled Currency Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with Customer without Currency Code
         CreateJobWithCustomer(Job, CreateCustomer(''));
@@ -1532,7 +1532,7 @@ codeunit 136309 "Job Posting"
         // [WHEN] Update Bill-to Customer field on Job Card by another Customer with Currency Code
         JobCard.OpenEdit;
         JobCard.FILTER.SetFilter("No.", Job."No.");
-        JobCard."Bill-to Customer No.".SetValue(CreateCustomer(CreateCurrency));
+        JobCard."Bill-to Name".SetValue(CreateCustomer(CreateCurrency));
         JobCard.OK.Invoke;
 
         // [THEN] Job."Currency Code" is empty
@@ -1554,7 +1554,7 @@ codeunit 136309 "Job Posting"
         // [FEATURE] [Item Tracking] [Serial No.]
         // [SCENARIO 382364] "Serial No." in Job Planning Line is equal the same field from Job Ledger Entry after posting Purchase Order with Item Tracking and "Job Planning Line No." defined
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with Planning Line - "Usage Link" and Item "X" with Tracking by "Serial Nos."
         CreateJobWithPlanningUsageLinkAndSpecificItem(JobPlanningLine, CreateItemWithTrackingCode(false, true));
@@ -1593,14 +1593,14 @@ codeunit 136309 "Job Posting"
         // [FEATURE] [Item Tracking] [Lot No.]
         // [SCENARIO 382364] "Lot No." in Job Planning Line is equal the same field from Job Ledger Entry after posting Purchase Order with Item Tracking and "Job Planning Line No." defined
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with Planning Line - "Usage Link" and Item "X" with Tracking by "Lot Nos."
         CreateJobWithPlanningUsageLinkAndSpecificItem(JobPlanningLine, CreateItemWithTrackingCode(true, false));
 
         // [GIVEN] Purchase Order with Item "X", Job ("Job Planning Line No." is defined to make strict link to Job)
         LibraryVariableStorage.Enqueue(false);
-        LotNo := LibraryUtility.GenerateGUID;  // Assign in Global variable.
+        LotNo := LibraryUtility.GenerateGUID();  // Assign in Global variable.
         LibraryVariableStorage.Enqueue(LotNo);
         CreatePurchaseDocument(PurchLine, PurchHeader."Document Type"::Order, JobPlanningLine."No.");
         UpdatePurchaseLine(PurchLine, JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", PurchLine."Job Line Type"::Budget);
@@ -1640,7 +1640,7 @@ codeunit 136309 "Job Posting"
         // Check value of Job Ledger Entries and Job Planning Line exist or not after posting Job Journal Line.
 
         // [WHEN] Job with Job Task, Resource and Job Journal Line is created.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         JobCue.CalcFields("Jobs Over Budget");
         InitialOverBudget := JobCue."Jobs Over Budget";
@@ -1678,7 +1678,7 @@ codeunit 136309 "Job Posting"
         JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
         JobPlanningLine.SetRange("Schedule Line", true);
-        if JobPlanningLine.FindFirst then begin
+        if JobPlanningLine.FindFirst() then begin
             JobPlanningLine.Validate(Quantity, JobPlanningLine.Quantity + 1000);
             JobPlanningLine.Modify(true);
         end;
@@ -1708,7 +1708,7 @@ codeunit 136309 "Job Posting"
         // Check value of Job Ledger Entries and Job Planning Line exist or not after posting Job Journal Line.
 
         // [WHEN] Job with Job Task, Resource and Job Journal Line is created.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         Commit();
 
@@ -1738,7 +1738,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Job] [Reservation] [Item Tracking]
         // [SCENARIO 230236] when job has reserve for item and job journal line hasn't "Job Planning Line No." the journal line can be posted
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
@@ -1787,7 +1787,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Post Inventory Cost to G/L]
         // [SCENARIO 252104] Post Inventory Cost to G/L batch job run with "Per Posting Group" option leaves Job No. field blank on G/L entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with inventory.
         // [GIVEN] Cost is adjusted in order not to include the positive adjustment entry to the next run of Post Cost to G/L job.
@@ -1803,11 +1803,11 @@ codeunit 136309 "Job Posting"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [WHEN] Run "Post Inventory Cost to G/L" batch job with "Per Posting Group" option.
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         LibraryCosting.PostInvtCostToGL(true, WorkDate, DocumentNo);
 
         // [THEN] Two G/L entries are created.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.RecordCount(GLEntry, 2);
 
@@ -1827,7 +1827,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [Post Inventory Cost to G/L]
         // [SCENARIO 252104] Post Inventory Cost to G/L batch job run with "Per Entry" option populates Job No. field on G/L entries from value entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with inventory.
         LibraryInventory.CreateItem(Item);
@@ -1872,7 +1872,7 @@ codeunit 136309 "Job Posting"
     begin
         // [FEATURE] [FCY]
         // [SCENARIO 299333] "Posted Total Cost (LCY)" in job planning line relies on "Posting Date" of posting job ledger entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "C" with exchange rates: 100 at date Jan 1st, and 200 and Jan 2nd.
         RemainingQty := LibraryRandom.RandIntInRange(5, 10);
@@ -2216,15 +2216,16 @@ codeunit 136309 "Job Posting"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Posting");
         // Clear the needed global variables.
         ClearGlobals;
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Posting");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         NoSeries.Get(LibraryJob.GetJobTestNoSeries);
         NoSeries."Manual Nos." := true;
@@ -2237,6 +2238,7 @@ codeunit 136309 "Job Posting"
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Posting");
@@ -2450,14 +2452,14 @@ codeunit 136309 "Job Posting"
     var
         JobCard: TestPage "Job Card";
     begin
-        JobCard.OpenNew;
+        JobCard.OpenNew();
         JobCard.Description.Activate; // Need to change focus to get Job No. assigned.
         JobNo := JobCard."No.".Value;
         JobCard.OK.Invoke;
 
         JobCard.OpenEdit; // Need to reopen page to refresh fields.
         JobCard.FILTER.SetFilter("No.", JobNo);
-        JobCard."Bill-to Customer No.".SetValue(Job."Bill-to Customer No.");
+        JobCard."Sell-to Customer No.".SetValue(Job."Sell-to Customer No.");
         JobCard."Person Responsible".SetValue(Job."Person Responsible");
         JobCard."Job Posting Group".SetValue(Job."Job Posting Group");
         JobCard."WIP Method".SetValue(Job."WIP Method");
@@ -2568,10 +2570,10 @@ codeunit 136309 "Job Posting"
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
 
-    local procedure CreateJobWithCustomer(var Job: Record Job; BillToCustomerNo: Code[20])
+    local procedure CreateJobWithCustomer(var Job: Record Job; SellToCustomerNo: Code[20])
     begin
         LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", BillToCustomerNo);
+        Job.Validate("Sell-to Customer No.", SellToCustomerNo);
         Job.Modify(true);
     end;
 
@@ -2634,7 +2636,7 @@ codeunit 136309 "Job Posting"
         // Find Resource and Job WIP Method.
         Resource.SetRange(Type, Resource.Type::Person);
         LibraryResource.FindResource(Resource);
-        JobWIPMethod.FindFirst;
+        JobWIPMethod.FindFirst();
 
         // Create a Job.
         LibraryJob.CreateJob(Job);
@@ -2694,11 +2696,11 @@ codeunit 136309 "Job Posting"
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
         CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemNo, LocationCode, ItemJournalLine."Entry Type"::"Positive Adjmt.");
         LibraryVariableStorage.Enqueue(TrackingOption::AssignManualSN);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID());
         ItemJournalLine.OpenItemTrackingLines(false);
         CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemNo, LocationCode, ItemJournalLine."Entry Type"::"Positive Adjmt.");
         LibraryVariableStorage.Enqueue(TrackingOption::AssignManualSN);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID());
         ItemJournalLine.OpenItemTrackingLines(false);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -2751,7 +2753,7 @@ codeunit 136309 "Job Posting"
         DimensionValue: Record "Dimension Value";
     begin
         DimensionValue.SetRange("Dimension Code", GlobalDimensionCode);
-        DimensionValue.FindLast;
+        DimensionValue.FindLast();
         exit(DimensionValue.Code);
     end;
 
@@ -2773,7 +2775,7 @@ codeunit 136309 "Job Posting"
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.SetRange("No.", No);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -2781,7 +2783,7 @@ codeunit 136309 "Job Posting"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GenerateJobNo(): Code[20]
@@ -2886,7 +2888,7 @@ codeunit 136309 "Job Posting"
         PostedOrderNo: Code[20];
     begin
         // Setup: Set Inventory Setup.
-        Initialize;
+        Initialize();
         UpdateInventorySetupWithExpectedCost(true, true);
 
         // Excercise : Create And Post Purchase Order With Job No.
@@ -2910,7 +2912,7 @@ codeunit 136309 "Job Posting"
         // Find and Post the Sales Invoice created from Job Planning Line.
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Bill-to Customer No.", CustomerNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         InvoicedCostFCY :=
           InvoicedCostFCY +
           Round(SalesLine."Unit Cost" * SalesLine.Quantity, LibraryJob.GetAmountRoundingPrecision(SalesLine."Currency Code"));  // Assigning value to Global Variable as required in page handler.
@@ -2949,7 +2951,7 @@ codeunit 136309 "Job Posting"
         JobCreateInvoice: Codeunit "Job Create-Invoice";
     begin
         // Create Items with Automatic Extended Text and Block one of the created Item after creating Job Planning Lines.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         Job.Get(JobTask."Job No.");
         CreateItemWithAutomaticExtText(Item);
@@ -2983,7 +2985,7 @@ codeunit 136309 "Job Posting"
         JobCreateInvoice: Codeunit "Job Create-Invoice";
     begin
         // Create Item with Extended Text and Create Job Planning Line.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         Job.Get(JobTask."Job No.");
         CreateItemWithAutomaticExtText(Item);
@@ -3028,7 +3030,7 @@ codeunit 136309 "Job Posting"
     begin
         PurchRcptLine.SetRange("Document No.", DocumentNo);
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
     end;
 
@@ -3100,7 +3102,7 @@ codeunit 136309 "Job Posting"
     begin
         ReturnShipmentLine.SetRange("Document No.", DocumentNo);
         ReturnShipmentLine.SetRange("No.", No);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
         LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
     end;
 
@@ -3142,11 +3144,11 @@ codeunit 136309 "Job Posting"
         SalesLine: Record "Sales Line";
     begin
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::" ");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Description, Description);
     end;
 
@@ -3155,7 +3157,7 @@ codeunit 136309 "Job Posting"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 
@@ -3184,7 +3186,7 @@ codeunit 136309 "Job Posting"
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         ItemLedgerEntry.TestField("Remaining Quantity", RemainingQuantity);
         ItemLedgerEntry.TestField("Invoiced Quantity", InvoicedQuantity);
@@ -3209,7 +3211,7 @@ codeunit 136309 "Job Posting"
     begin
         JobLedgerEntry.SetRange("Document No.", JobJournalLine."Document No.");
         JobLedgerEntry.SetRange("No.", JobJournalLine."No.");
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         JobLedgerEntry.TestField("Job Task No.", JobJournalLine."Job Task No.");
         JobLedgerEntry.TestField(Quantity, JobJournalLine.Quantity);
     end;
@@ -3222,7 +3224,7 @@ codeunit 136309 "Job Posting"
         JobPlanningLine.SetRange("Job No.", JobJournalLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobJournalLine."Job Task No.");
         JobPlanningLine.SetRange("Line Type", LineType);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         JobPlanningLine.TestField(Quantity, JobJournalLine.Quantity);
     end;
 
@@ -3231,7 +3233,7 @@ codeunit 136309 "Job Posting"
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         JobLedgerEntry.SetRange("Job No.", GenJournalLine."Job No.");
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         JobLedgerEntry.TestField("Job Task No.", GenJournalLine."Job Task No.");
         JobLedgerEntry.TestField("No.", GenJournalLine."Account No.");
         JobLedgerEntry.TestField(Quantity, GenJournalLine."Job Quantity");
@@ -3243,7 +3245,7 @@ codeunit 136309 "Job Posting"
         JobPlanningLine: Record "Job Planning Line";
     begin
         JobPlanningLine.SetRange("Job No.", GenJournalLine."Job No.");
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         JobPlanningLine.TestField("Job Task No.", GenJournalLine."Job Task No.");
         JobPlanningLine.TestField(Quantity, GenJournalLine."Job Quantity");
         JobPlanningLine.TestField("Unit Price", GenJournalLine."Job Unit Price");
@@ -3255,7 +3257,7 @@ codeunit 136309 "Job Posting"
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Item No.", ItemNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Expected)", CostAmountExpected);
     end;
 
@@ -3268,11 +3270,11 @@ codeunit 136309 "Job Posting"
             SetRange("Source ID", PurchHeader."No.");
             SetRange("Source Type", DATABASE::"Purchase Line");
             SetRange("Source Subtype", PurchHeader."Document Type");
-            FindFirst;
+            FindFirst();
         end;
 
         ItemLedgerEntry.SetRange("Item No.", ReservEntry."Item No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         Assert.AreEqual(ItemLedgerEntry."Entry No.", ReservEntry."Appl.-to Item Entry", ApplToItemEntryErr);
     end;
@@ -3331,7 +3333,7 @@ codeunit 136309 "Job Posting"
     [Scope('OnPrem')]
     procedure EnterCustomizedSNPageHandler(var EnterCustomizedSN: TestPage "Enter Customized SN")
     begin
-        EnterCustomizedSN.CustomizedSN.SetValue(LibraryUtility.GenerateGUID);
+        EnterCustomizedSN.CustomizedSN.SetValue(LibraryUtility.GenerateGUID());
         EnterCustomizedSN.QtyToCreate.SetValue(LibraryVariableStorage.DequeueDecimal);
         EnterCustomizedSN.Increment.SetValue(1);
         EnterCustomizedSN.OK.Invoke;

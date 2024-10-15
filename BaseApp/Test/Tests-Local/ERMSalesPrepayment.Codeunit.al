@@ -26,7 +26,7 @@ codeunit 141000 "ERM Sales Prepayment"
         DocNo: Code[20];
         CurrencyCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         if not ForLCY then begin
             CurrencyCode := FindCurrency;
@@ -86,7 +86,7 @@ codeunit 141000 "ERM Sales Prepayment"
         GenPostingSetup.SetFilter("Gen. Prod. Posting Group", '<>''''');
         GenPostingSetup.SetFilter("Sales Account", '<>''''');
         GenPostingSetup.SetFilter("Sales Prepayments Account", '<>''''');
-        GenPostingSetup.FindLast;
+        GenPostingSetup.FindLast();
     end;
 
     local procedure CreateSalesDocumentWithRandomPrepaymentPercent(var SalesHeader: Record "Sales Header"; SellToCustomerNo: Code[20]; No: Code[20]; PrepmtIncludeTax: Boolean)
@@ -136,12 +136,12 @@ codeunit 141000 "ERM Sales Prepayment"
         TaxDetail: Record "Tax Detail";
         TaxAreaLine: Record "Tax Area Line";
     begin
-        if not TaxAreaLine.FindFirst then
+        if not TaxAreaLine.FindFirst() then
             exit(CreateTaxArea(TaxGroup));
 
         TaxDetail.SetFilter("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
         TaxDetail.SetFilter("Tax Group Code", '<>''''');
-        if not TaxDetail.FindFirst then
+        if not TaxDetail.FindFirst() then
             exit(CreateTaxArea(TaxGroup));
 
         TaxGroup.Get(TaxDetail."Tax Group Code");
@@ -170,7 +170,7 @@ codeunit 141000 "ERM Sales Prepayment"
     var
         Currency: Record Currency;
     begin
-        Currency.FindFirst;
+        Currency.FindFirst();
         exit(Currency.Code);
     end;
 
@@ -187,7 +187,7 @@ codeunit 141000 "ERM Sales Prepayment"
             FindGenPostingSetup(GeneralPostingSetup);
             Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
 
-            CustomerPostingGroup.FindFirst;
+            CustomerPostingGroup.FindFirst();
             Validate("Customer Posting Group", CustomerPostingGroup.Code);
             LibraryERM.CreateGLAccount(GLAccount);
             GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
@@ -242,7 +242,7 @@ codeunit 141000 "ERM Sales Prepayment"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryApplicationArea.EnableEssentialSetup;
 
         isInitialized := true;

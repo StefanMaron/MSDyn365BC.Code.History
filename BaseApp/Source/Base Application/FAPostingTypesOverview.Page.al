@@ -77,7 +77,7 @@ page 5662 "FA Posting Types Overview"
                     Clear(MatrixForm);
                     MatrixForm.LoadMatrix(
                       MATRIX_CaptionSet, MatrixRecords, NoOfColumns, GetFilter("FA Posting Date Filter"), RoundingFactor);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

@@ -273,7 +273,7 @@ report 1143 "Import Cost Budget from Excel"
                                               CopyStr(
                                                 ExcelBuffer."Cell Value as Text",
                                                 1, MaxStrLen(TempCostBudgetBuffer2."Cost Type No.")));
-                                            if TempCostType.FindFirst then
+                                            if TempCostType.FindFirst() then
                                                 TempCostBudgetBuffer2."Cost Type No." :=
                                                   CopyStr(
                                                     ExcelBuffer."Cell Value as Text",
@@ -318,10 +318,10 @@ report 1143 "Import Cost Budget from Excel"
         Window.Close;
         TempExcelBuffer.Reset();
         TempExcelBuffer.SetRange(Comment, Text009);
-        if not TempExcelBuffer.FindFirst then
+        if not TempExcelBuffer.FindFirst() then
             Error(Text025);
         TempExcelBuffer.SetRange(Comment, Text014);
-        if not TempExcelBuffer.FindFirst then
+        if not TempExcelBuffer.FindFirst() then
             Error(Text026);
     end;
 

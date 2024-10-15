@@ -13,7 +13,7 @@ codeunit 915 "Assembly Info-Pane Management"
     var
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
-        PeriodType: Option Day,Week,Month,Quarter,Year;
+        PeriodType: Enum "Analysis Period Type";
         LookaheadDateformula: DateFormula;
     begin
         if GetItem(AsmLine) then begin
@@ -22,7 +22,7 @@ codeunit 915 "Assembly Info-Pane Management"
             Evaluate(LookaheadDateformula, '<0D>');
 
             exit(
-              AvailableToPromise.QtyAvailabletoPromise(
+              AvailableToPromise.CalcQtyAvailabletoPromise(
                 Item,
                 GrossRequirement,
                 ScheduledReceipt,

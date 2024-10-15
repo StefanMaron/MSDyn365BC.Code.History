@@ -211,7 +211,7 @@ page 36640 "Order Header Status Factbox"
         TotalOpenAmount := 0;
         TotalOpenAmountOnHold := 0;
         SalesHeader.Copy(Rec);
-        if SalesHeader.FindSet then
+        if SalesHeader.FindSet() then
             repeat
                 SalesHeader.CalcFields("Outstanding Amount ($)");
                 TotalOpenAmount := TotalOpenAmount + SalesHeader."Outstanding Amount ($)";

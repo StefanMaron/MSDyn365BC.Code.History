@@ -18,7 +18,7 @@ codeunit 10335 "Exp. Mapping Det EFT MX"
         if ACHCecobanDetail.Find('-') then
             repeat
                 DataExch.SetRange("Entry No.", "Entry No.");
-                if DataExch.FindFirst then begin
+                if DataExch.FindFirst() then begin
                     RecordRef.GetTable(ACHCecobanDetail);
                     EFTExportMgt.InsertDataExchLineForFlatFile(
                       DataExch,

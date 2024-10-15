@@ -27,14 +27,14 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Calc. Posting Date Test");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Calc. Posting Date Test");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Calc. Posting Date Test");
@@ -51,7 +51,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         DueDateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -80,7 +80,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         DueDateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -109,7 +109,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         DueDateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -137,7 +137,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         DueDateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -166,7 +166,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         DueDateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -194,7 +194,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         DueDateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -218,7 +218,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -326,7 +326,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
@@ -346,7 +346,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
@@ -368,7 +368,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -395,7 +395,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         WorkDateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -427,7 +427,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         DueDateRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -480,7 +480,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryVariableStorage.Enqueue(DueDateOffsetDateFormula);
         LibraryVariableStorage.Enqueue(VendorNo);
         Commit();
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure PostVendorInvoice(VendorNo: Code[20]; DateOffset: Integer; DiscDateOffset: Integer)
@@ -508,7 +508,7 @@ codeunit 134254 "Calc. Posting Date Test"
         VendLedgerEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
         VendLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
-        VendLedgerEntry.FindLast;
+        VendLedgerEntry.FindLast();
     end;
 
     local procedure ApplyToVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -528,7 +528,7 @@ codeunit 134254 "Calc. Posting Date Test"
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
         GenJnlLine.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
         GenJnlLine.SetRange("Account No.", VendorNo);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         Assert.AreEqual(ExpPostingDate, GenJnlLine."Posting Date", 'Wrong posting date.');
         ActualStyle := GenJnlLine.GetOverdueDateInteractions(ActualWarning);
         Assert.AreEqual(ExpStyle, ActualStyle, 'Wrong style for the record.');
@@ -550,10 +550,10 @@ codeunit 134254 "Calc. Posting Date Test"
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
         VendLedgEntry.SetFilter("Applies-to Doc. No.", '<>%1', '');
         Assert.AreEqual(ExpPaymentLines, GenJnlLine.Count, 'Wrong number of payments.');
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 GenJnlLine.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
-                GenJnlLine.FindFirst;
+                GenJnlLine.FindFirst();
                 if VendLedgEntry."Due Date" + DueDateOffset < WorkDate then
                     Assert.AreEqual(WorkDate, GenJnlLine."Posting Date", 'Wrong posting date.')
                 else

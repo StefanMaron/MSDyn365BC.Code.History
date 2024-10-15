@@ -54,7 +54,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Day1: Date;
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup Item.
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
@@ -101,7 +101,7 @@ codeunit 137621 "SCM Costing Bugs II"
         // Verify.
         // Item Application Entry is generated correctly.
         ItemApplicationEntry.SetRange("Outbound Item Entry No.", TempItemLedgerEntry."Entry No.");
-        ItemApplicationEntry.FindFirst;
+        ItemApplicationEntry.FindFirst();
         ItemApplicationEntry.TestField(Quantity, -Qty);
         ItemApplicationEntry.TestField("Cost Application", true);
 
@@ -128,7 +128,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Day1: Date;
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup Item.
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
@@ -171,7 +171,7 @@ codeunit 137621 "SCM Costing Bugs II"
         // Verify.
         // Item Application Entry is generated correctly.
         ItemApplicationEntry.SetRange("Outbound Item Entry No.", TempItemLedgerEntry."Entry No.");
-        ItemApplicationEntry.FindFirst;
+        ItemApplicationEntry.FindFirst();
         ItemApplicationEntry.TestField(Quantity, -Qty);
         ItemApplicationEntry.TestField("Cost Application", false);
 
@@ -203,7 +203,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Output Journal] [Production Order]
         // [SCENARIO 251070] Check Adjustment after applying negative Consumption on Production Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup Parent and Component item.
         // [GIVEN] BOM and Routing.
@@ -227,7 +227,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPatterns.MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, CompItem, WorkDate, Location.Code, '', -Qty, 0);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // [GIVEN] Apply Consumption to Negative Consumption from the Unapplied Entries page.
@@ -256,7 +256,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Qty: Decimal;
         QtyPer: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup produced and component item.
         LibraryPatterns.MAKEItem(ParentItem, ParentItem."Costing Method"::Standard, LibraryRandom.RandDec(100, 2), 0, 0, '');
@@ -316,7 +316,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Interval: DateFormula;
     begin
         // Repro steps
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
 
         // Post item journal lines and adjust cost
@@ -364,7 +364,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Interval: DateFormula;
     begin
         // Repro steps
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
 
         // Post item journal lines and adjust cost
@@ -409,7 +409,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Interval: DateFormula;
     begin
         // Same scenario as in TFS330379 - the negative adjustment is applied to 2nd purchase in item journal
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
 
         // Post item journal lines
@@ -428,7 +428,7 @@ codeunit 137621 "SCM Costing Bugs II"
           ItemJournalLine, ItemJournalBatch, Item, PostingDate[4], ItemLedgerEntry."Entry Type"::"Negative Adjmt.", 1);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Posting Date", PostingDate[2]);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemJournalLine."Applies-to Entry" := ItemLedgerEntry."Entry No.";
         ItemJournalLine.Insert();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -451,7 +451,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Interval: DateFormula;
     begin
         // Same scenario as in TFS330379 - the negative adjustment is applied to 2nd purchase in item journal
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
 
         // Post item journal lines
@@ -471,7 +471,7 @@ codeunit 137621 "SCM Costing Bugs II"
           ItemJournalLine, ItemJournalBatch, Item, PostingDate[4], ItemLedgerEntry."Entry Type"::"Negative Adjmt.", 3);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Posting Date", PostingDate[2]);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemJournalLine."Applies-to Entry" := ItemLedgerEntry."Entry No."; // Quantity in ILE cannot cover negative adjustment
         ItemJournalLine.Insert();
 
@@ -488,7 +488,7 @@ codeunit 137621 "SCM Costing Bugs II"
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         ApplicationWorksheet: TestPage "Application Worksheet";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set Automatic Cost Adjustment = Always
         LibraryInventory.SetAutomaticCostAdjmtAlways;
@@ -531,7 +531,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Quantity: Decimal;
         CostAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
 
         Quantity := 3;
@@ -551,7 +551,7 @@ codeunit 137621 "SCM Costing Bugs II"
         Quantity: Decimal;
         CostAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         Quantity := 3;
         CostAmount := 10;
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
@@ -616,7 +616,7 @@ codeunit 137621 "SCM Costing Bugs II"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         ReadjustStandardCostItem(Item);
         VerifyItemStandardCost(Item."No.");
     end;
@@ -629,7 +629,7 @@ codeunit 137621 "SCM Costing Bugs II"
         CurrencyCode: Code[10];
         CurrExchRate: Decimal;
     begin
-        Initialize;
+        Initialize();
         CurrExchRate := LibraryRandom.RandDecInRange(5, 10, 2);
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, CurrExchRate, CurrExchRate);
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
@@ -670,7 +670,7 @@ codeunit 137621 "SCM Costing Bugs II"
         SaleQty: Integer;
         UnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.SetAutomaticCostAdjmtNever;
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -737,7 +737,7 @@ codeunit 137621 "SCM Costing Bugs II"
         // [GIVEN] Post purchase return of 2 pcs of item "I" and apply to the transfer entry, Posting Date = WORKDATE + 2 days
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Transfer);
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         LibraryPatterns.POSTItemJournalLineWithApplication(
           ItemJnlTemplate.Type::Item, ItemJnlLine."Entry Type"::Purchase, Item, Location[1].Code, '', -2,
           CalcDate('<2D>', WorkDate), Amount[1], ItemLedgEntry."Entry No.");
@@ -749,12 +749,12 @@ codeunit 137621 "SCM Costing Bugs II"
         with ItemLedgEntry do begin
             SetRange("Item No.", Item."No.");
             SetRange("Entry Type", "Entry Type"::"Negative Adjmt.");
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Actual)");
             ExpectedCost := "Cost Amount (Actual)";
 
             SetRange("Entry Type", "Entry Type"::Purchase);
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Actual)");
             TestField("Cost Amount (Actual)", ExpectedCost);
         end;
@@ -966,7 +966,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Output Journal] [Production Order]
         // [SCENARIO 376642] No Consupmtion should be posted for Journal Line with negative "Output Quantity"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Prod Order
         LibraryInventory.SetAutomaticCostAdjmtAlways;
@@ -1003,7 +1003,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Application Worksheet]
         // [SCENARIO 380140] Item Ledger Entries that are unapplied by Application Worksheet and not reapplied back due to a its accidental crash, are reapplied back on next opening of the Worksheet.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted positive and negative Item Ledger Entries applied to each other.
         // [GIVEN] Item Ledger Entries are unapplied with Application Worksheet.
@@ -1045,7 +1045,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Application Worksheet]
         // [SCENARIO 380525] Cost of Item Ledger Entries that is not adjusted due to an accidental crash of Application Worksheet is adjusted on the next opening of the Worksheet. Blocked items are released.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Automatic Cost Adjustment = Always in Inventory Setup.
         LibraryInventory.SetAutomaticCostAdjmtAlways;
@@ -1090,7 +1090,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Application Worksheet]
         // [SCENARIO 380140] Item Ledger Entries that are unapplied not by Application Worksheet, remain unapplied on next opening of the Worksheet.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted positive and negative Item Ledger Entries applied to each other.
         // [GIVEN] Item Ledger Entries are unapplied not with Application Worksheet.
@@ -1129,7 +1129,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Application Worksheet]
         // [SCENARIO 380140] Item Application Entry History in which unapplied Item Entries are saved for reapplication in case of a sudden crash, is cleared off when Application Worksheet is safely closed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted positive and negative Item Ledger Entries applied to each other.
         LibraryInventory.CreateItem(Item);
@@ -1163,7 +1163,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Application Worksheet]
         // [SCENARIO 260491] Item is not blocked by application worksheet if no entries are unapplied.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post positive and negative item entries and remove the item application between them.
         LibraryInventory.CreateItem(Item);
@@ -1196,7 +1196,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Production] [Output] [Adjust Cost - Item Entries]
         // [SCENARIO 260831] "Adjust Cost Item Entries" can be executed after changing item with posted entries in released production order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items "I1" and "I2"
         for i := 1 to 2 do
@@ -1246,7 +1246,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Item Charge] [Suggest Assignment]
         // [SCENARIO 380487] If all "Item Charge Assignment (Purch)" have "Applies-to Doc. Type" Sales Shipment then Suggest Item Charge Assignment function provides Dialog with Options Equally,Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Item Charge Assignment (Purch)" for "Sales Shipment Line"
         CreateItemChargeAssgntPurchForSalesShptLine(PurchaseLine);
@@ -1271,7 +1271,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Item Charge] [Suggest Assignment]
         // [SCENARIO 380487] If all "Item Charge Assignment (Purch)" have "Applies-to Doc. Type" Transfer Receipt then Suggest Item Charge Assignment function doesn't provide any Dialog.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Item Charge Assignment (Purch)" for "Transfer Receipt Line"
         CreateItemChargeAssgntPurchForTransferReceiptLine(PurchaseLine, ItemChargeAssignmentPurch);
@@ -1293,7 +1293,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Item Charge] [Suggest Assignment]
         // [SCENARIO 380487] If "Item Charge Assignment (Purch)" have different "Applies-to Doc. Type" then Suggest Item Charge Assignment function provides Dialog with Options Equally,Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Item Charge Assignment (Purch)" for "Sales Shipment Line" and "Transfer Receipt Line"
         CreateItemChargeAssgntPurchForSalesShptLineAndTransferReceiptLine(PurchaseLine);
@@ -1317,7 +1317,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Item Application] [Transfer] [Reclassification Journal]
         // [SCENARIO 217342] Direct transfer created in Reclassification Journal should be posted with no item application on its positive side when the posting causes a loop in item application.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I", locations "A" and "B".
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
@@ -1361,7 +1361,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Item Application Entry] [Transfer] [UT]
         // [SCENARIO 286625] AppliedInbndTransEntryExists function in Table 339 Item Application Entry does not look for an applied transfer item entry if its item entry parameter points to a negative ILE.
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandInt(10);
 
@@ -1403,7 +1403,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Item Application Entry] [Transfer] [UT]
         // [SCENARIO 286625] AppliedInbndTransEntryExists function in Table 339 Item Application Entry finds an applied transfer item entry to a positive ILE.
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandInt(10);
 
@@ -1443,7 +1443,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Application Worksheet] [Item Application Entry] [UT]
         // [SCENARIO 288094] Item is not blocked after Reapply is invoked on Item Application Worksheet.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post positive and negative item entries.
         LibraryInventory.CreateItem(Item);
@@ -1485,7 +1485,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost Item Entries] [Purchase] [Sales]
         // [SCENARIO 294814] When there are multiple sales item entries applied to one purchase entry and the cost of the purchase is changed after receipt, the new cost is fully transferred from the purchase to the sales.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with FIFO costing method.
         CreateItem(Item, Item."Costing Method"::FIFO, 0, Item."Replenishment System"::Purchase, 1);
@@ -1540,7 +1540,7 @@ codeunit 137621 "SCM Costing Bugs II"
         // [GIVEN] Invoice the 2nd purchase line.
         // [GIVEN] Both the purchase and the sales are fully posted now.
         PurchaseHeader.Find;
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [WHEN] Run the cost adjustment.
@@ -1579,7 +1579,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Average Costing Method] [Item Application Entry] [Cost Application] [Transfer]
         // [SCENARIO 307863] "Cost Application" is false for all outbound entries applied to transfer receipt for item with costing method = "Average".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with costing method = "Average".
         CreateItem(Item, Item."Costing Method"::Average, 0, Item."Replenishment System"::Purchase, 1);
@@ -1634,7 +1634,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Average Costing Method] [Valuation Date] [Transfer]
         // [SCENARIO 318318] Valuation date on an outbound entry is equal to the latest valuation date among applied inbound entries.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandIntInRange(10, 20);
         AdditionalQty := LibraryRandom.RandInt(5);
 
@@ -1660,7 +1660,7 @@ codeunit 137621 "SCM Costing Bugs II"
         // [THEN] The valuation date of the posted negative entry is 25/01 (the latest date among the inbound entries).
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::"Positive Adjmt.", LocationTo.Code, false);
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Valuation Date", WorkDate);
     end;
 
@@ -1882,7 +1882,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost Item Entries] [Item Charge]
         // [SCENARIO 385318] Eliminate rounding errors in cost adjustment of FIFO item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] FIFO item.
         LibraryInventory.CreateItem(Item);
@@ -1952,7 +1952,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost Item Entries] [Item Charge] [Assembly] [Transfer]
         // [SCENARIO 385318] Eliminate rounding errors in cost adjustment of assembled item after its component is revalued.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Locations "Blue", "Red".
         LibraryWarehouse.CreateTransferLocations(LocationBlue, LocationRed, LocationInTransit);
@@ -2019,10 +2019,10 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost - Item Entries] [Rounding]
         // [SCENARIO 391424] Eliminate negative cost amount residue after running cost adjustment for average cost item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Average cost is calculated per Item, period = Month.
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryInventory.SetAverageCostSetup(
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
 
@@ -2198,8 +2198,8 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Costing Bugs II");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         // Lazy Setup.
 
         if isInitialized then
@@ -2207,9 +2207,9 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Bugs II");
 
         LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
@@ -2322,7 +2322,7 @@ codeunit 137621 "SCM Costing Bugs II"
 
         PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure CreateAndPostPurchaseInvoiceForItemCharge(PurchRcptLine: Record "Purch. Rcpt. Line"; DirectUnitCost: Decimal)
@@ -2416,7 +2416,7 @@ codeunit 137621 "SCM Costing Bugs II"
         CompItem.Modify();
 
         QtyPer := LibraryRandom.RandInt(10);
-        RoutingLink.FindFirst;
+        RoutingLink.FindFirst();
         LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, CompItem, QtyPer, RoutingLink.Code);
         LibraryPatterns.MAKERouting(RoutingHeader, ParentItem, RoutingLink.Code, 0);
 
@@ -2574,7 +2574,7 @@ codeunit 137621 "SCM Costing Bugs II"
         with SalesLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", OrderNo);
-            FindFirst;
+            FindFirst();
             Validate(Quantity, NewQuantity);
             Modify(true);
         end;
@@ -2596,7 +2596,7 @@ codeunit 137621 "SCM Costing Bugs II"
             SetRange("Entry Type", EntryType);
             SetRange("Location Code", LocationCode);
             SetRange(Positive, IsPositive);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2612,14 +2612,14 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindOutputItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure MakeItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
@@ -2740,7 +2740,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemLedgerEntry.FindSet();
         repeat
             ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-            ItemApplnEntry.FindFirst;
+            ItemApplnEntry.FindFirst();
             Assert.IsTrue(ItemApplnEntry."Outbound Entry is Updated", OutbndEntryIsNotUpdatedErr);
         until ItemLedgerEntry.Next = 0;
     end;
@@ -2755,7 +2755,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ValueEntry.SetRange("Order No.", ProductionOrder."No.");
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Output);
         ValueEntry.SetRange("Cost Amount (Actual)", 0);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 PostValueEntryToGL.SetRange("Value Entry No.", ValueEntry."Entry No.");
                 PostValueEntryToGL.SetRange("Item No.", ValueEntry."Item No.");
@@ -2771,7 +2771,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Expected)");
             Assert.AreEqual(
               ExpectedCostAmount, "Cost Amount (Expected)", StrSubstNo(WrongCostAmountErr, FieldCaption("Cost Amount (Expected)")));
@@ -2838,7 +2838,7 @@ codeunit 137621 "SCM Costing Bugs II"
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
             SetRange(Positive, true);
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Actual)");
             Assert.AreEqual(
               CostAmount, "Cost Amount (Actual)", StrSubstNo(WrongCostAmountErr, FieldCaption("Cost Amount (Actual)")));
@@ -2902,7 +2902,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate, -Qty, 0);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Applies-to Entry", EntryNo);
         ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -2955,11 +2955,11 @@ codeunit 137621 "SCM Costing Bugs II"
 
         PositiveItemLedgerEntry.SetRange("Item No.", Item."No.");
         PositiveItemLedgerEntry.SetRange(Positive, true);
-        PositiveItemLedgerEntry.FindLast;
+        PositiveItemLedgerEntry.FindLast();
 
         NegativeItemLedgerEntry.SetRange("Item No.", Item."No.");
         NegativeItemLedgerEntry.SetRange(Positive, false);
-        NegativeItemLedgerEntry.FindLast;
+        NegativeItemLedgerEntry.FindLast();
     end;
 
     local procedure PostAndUnapplyPositiveAndNegativeAdjustments(Item: Record Item; Quantity: Decimal; var PositiveItemLedgerEntry: Record "Item Ledger Entry"; var NegativeItemLedgerEntry: Record "Item Ledger Entry"; AreUnappliedWithApplWorksheet: Boolean)
@@ -2975,7 +2975,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Direct Unit Cost", NewUnitCost);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -3006,7 +3006,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", RevaluedUnitCost);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -3049,7 +3049,7 @@ codeunit 137621 "SCM Costing Bugs II"
         with ItemApplicationEntry do begin
             SetRange("Inbound Item Entry No.", PosItemLedgEntryNo);
             SetRange("Outbound Item Entry No.", NegItemLedgEntryNo);
-            FindFirst;
+            FindFirst();
             ItemJnlPostLine.UnApply(ItemApplicationEntry);
         end;
     end;

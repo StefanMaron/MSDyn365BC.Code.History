@@ -43,7 +43,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 184721] Create posted and unposted Sales invoices and use pdfDocument navigation property to get the corresponding PDF
         // [GIVEN] 2 invoices, one posted and one unposted
-        Initialize;
+        Initialize();
         CreateSalesInvoices(InvoiceID1, InvoiceID2);
         SalesInvoiceHeader.Get(InvoiceID1);
         ID1 := SalesInvoiceHeader."Draft Invoice SystemId";
@@ -95,7 +95,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 184721] Create posted and unposted Sales credit memos and use pdfDocument navigation property to get the corresponding PDF
         // [GIVEN] 2 credit memos, one posted and one unposted
-        Initialize;
+        Initialize();
         CreateSalesCreditMemos(SCMID1, SCMID2);
         SalesCrMemoHeader.Get(SCMID1);
         ID1 := SalesCrMemoHeader."Draft Cr. Memo SystemId";
@@ -146,7 +146,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 184721] Create Sales quote and use pdfDocument navigation property to get the corresponding PDF
         // [GIVEN] a sales quote
-        Initialize;
+        Initialize();
         CreateSalesQuote(QuoteID1);
         SalesHeader.Get(SalesHeader."Document Type"::Quote, QuoteID1);
         ID1 := SalesHeader.SystemId;
@@ -182,7 +182,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 184721] Create posted and unposted purchase invoices and use pdfDocument navigation property to get the corresponding PDF
         // [GIVEN] 2 invoices, one posted and one unposted
-        Initialize;
+        Initialize();
         CreatePurchaseInvoices(InvoiceID1, InvoiceID2);
         PurchInvHeader.Get(InvoiceID1);
         ID1 := PurchInvHeader."Draft Invoice SystemId";
@@ -262,7 +262,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, CustomerNo);
         QuoteID1 := SalesHeader."No.";
         Commit();

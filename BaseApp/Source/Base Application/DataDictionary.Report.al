@@ -504,7 +504,7 @@ report 10315 "Data Dictionary"
                         DataDictionary.SetRange(Type, Type);
                         DataDictionary.SetRange("Field No.", "Field No.");
                         DataDictionary.SetRange("Key No.", "Key No.");
-                        if DataDictionary.FindSet then
+                        if DataDictionary.FindSet() then
                             repeat
                                 TotalKey := TotalKey + DataDictionary.Value;
                             until (DataDictionary.Next() = 0)
@@ -721,7 +721,7 @@ report 10315 "Data Dictionary"
     begin
         FilePtr.Close;
         if DeleteData then begin
-            if DataDictionary.FindFirst then
+            if DataDictionary.FindFirst() then
                 DataDictionary.DeleteAll
         end;
     end;
@@ -734,7 +734,7 @@ report 10315 "Data Dictionary"
         if FileName = '' then
             FileName := FileMgt.UploadFile('', '*.txt');
 
-        if DataDictionary.FindFirst then
+        if DataDictionary.FindFirst() then
             DataDictionary.DeleteAll();
 
         ParseFile(FileName);
@@ -920,7 +920,7 @@ report 10315 "Data Dictionary"
     begin
         DataDictionary.SetRange("Table No.", CurrentTableNo);
         DataDictionary.SetRange(Type, DataDictionary.Type::Table);
-        if DataDictionary.FindFirst then;
+        if DataDictionary.FindFirst() then;
 
         while StrPos(InputText, PropertiesTag) = 0 do begin
             InputText := ReadData;
@@ -1313,7 +1313,7 @@ report 10315 "Data Dictionary"
         DataDictionary.SetRange("Table No.", CurrentTableNo);
         DataDictionary.SetRange(Type, DataDictionary.Type::Field);
         DataDictionary.SetRange("Field No.", CurrentFieldNo);
-        if DataDictionary.FindFirst then begin
+        if DataDictionary.FindFirst() then begin
             DataDictionary.OnValidate := true;
             DataDictionary.Modify();
         end;
@@ -1328,7 +1328,7 @@ report 10315 "Data Dictionary"
         DataDictionary.SetRange("Table No.", CurrentTableNo);
         DataDictionary.SetRange(Type, DataDictionary.Type::Field);
         DataDictionary.SetRange("Field No.", CurrentFieldNo);
-        if DataDictionary.FindFirst then begin
+        if DataDictionary.FindFirst() then begin
             DataDictionary.OnLookup := true;
             DataDictionary.Modify();
         end;

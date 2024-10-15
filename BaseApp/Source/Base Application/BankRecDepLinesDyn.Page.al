@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 36722 "Bank Rec. Dep. Lines - Dyn."
 {
     Caption = 'Bank Rec. Dep. Lines';
@@ -7,6 +8,9 @@ page 36722 "Bank Rec. Dep. Lines - Dyn."
     SourceTable = "Bank Rec. Line";
     SourceTableView = SORTING("Bank Account No.", "Statement No.", "Record Type", "Line No.")
                       WHERE("Record Type" = CONST(Deposit));
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -154,7 +158,7 @@ page 36722 "Bank Rec. Dep. Lines - Dyn."
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object Name", TableName);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         exit(AllObj."Object ID");
     end;
 
@@ -188,3 +192,4 @@ page 36722 "Bank Rec. Dep. Lines - Dyn."
     end;
 }
 
+#endif

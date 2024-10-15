@@ -31,7 +31,7 @@ codeunit 142081 "UT PAG Vendor 1099"
         // Purpose is to test OnAfterGetRecord trigger of Page 10016 - Vendor 1099 Statistics.
 
         // Setup: Create Vendor and Detailed Leger Entry.
-        Initialize;
+        Initialize();
         CreateMultipleVendorLedgerEntry(VendorLedgerEntry);
         VendorCard.OpenEdit;
         VendorCard.FILTER.SetFilter("No.", VendorLedgerEntry."Vendor No.");
@@ -54,9 +54,9 @@ codeunit 142081 "UT PAG Vendor 1099"
         // Purpose is to test Codeunit 10085 A/P Magnetic Media Management On Run trigger and AmtCodes function.
 
         // Setup.
-        Initialize;
+        Initialize();
         i := LibraryRandom.RandIntInRange(2, 10);
-        APMagneticMediaManagement.Run;
+        APMagneticMediaManagement.Run();
 
         // [WHEN] run AmtCodes()
         APMagneticMediaManagement.AmtCodes(CodeNos, i, i);  // Value is not required for CodeNos.
@@ -77,12 +77,12 @@ codeunit 142081 "UT PAG Vendor 1099"
         // [FEATURE] [A/P Magnetic Media]
         // Verify AmtCodes returned by Codeunit 10085 A/P Magnetic Media Management
         // in case of 'DIV-01-B' non-zero amount
-        Initialize;
+        Initialize();
 
         FormType := 2; // DIV type
         EndLine := 30; // AmtCodes array length
 
-        APMagneticMediaManagement.Run;
+        APMagneticMediaManagement.Run();
         APMagneticMediaManagement.UpdateLines(VendorLedgerEntry, FormType, EndLine, CodeDIV01B, LibraryRandom.RandDec(1000, 2));
         // [WHEN] run AmtCodes()
         APMagneticMediaManagement.AmtCodes(CodeNos, FormType, EndLine);
@@ -92,7 +92,7 @@ codeunit 142081 "UT PAG Vendor 1099"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedVendLedgerEntryNo: Integer; EntryType: Option; Amount: Decimal)
@@ -100,7 +100,7 @@ codeunit 142081 "UT PAG Vendor 1099"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;  // Adding 1 to take next Entry No.
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
         DetailedVendorLedgEntry."Applied Vend. Ledger Entry No." := AppliedVendLedgerEntryNo;
@@ -124,7 +124,7 @@ codeunit 142081 "UT PAG Vendor 1099"
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;  // Adding 1 to take next Entry No.
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         VendorLedgerEntry."Document Type" := DocumentType;

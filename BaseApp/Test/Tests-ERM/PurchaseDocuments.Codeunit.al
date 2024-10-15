@@ -32,6 +32,7 @@ codeunit 134099 "Purchase Documents"
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the purchase lines.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         UpdateManuallyMsg: Label 'You must update the existing purchase lines manually.';
+        ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
 
     [Test]
     [HandlerFunctions('RecallNotificationHandler,SendNotificationHandler')]
@@ -67,7 +68,7 @@ codeunit 134099 "Purchase Documents"
         VerifyNotificationData(
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::Invoice);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -104,7 +105,7 @@ codeunit 134099 "Purchase Documents"
         VerifyNotificationData(
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::Invoice);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -141,7 +142,7 @@ codeunit 134099 "Purchase Documents"
         VerifyNotificationData(
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::"Credit Memo");
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -179,7 +180,7 @@ codeunit 134099 "Purchase Documents"
         VerifyNotificationData(
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::"Credit Memo");
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -216,7 +217,7 @@ codeunit 134099 "Purchase Documents"
         VerifyNotificationData(
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::Invoice);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -256,7 +257,7 @@ codeunit 134099 "Purchase Documents"
         VerifyNotificationData(
           ExternalDocumentNo, GetLastVendorLedgerEntryNo(VendorNo), RefVendorLedgerEntry."Document Type"::"Credit Memo");
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -396,7 +397,7 @@ codeunit 134099 "Purchase Documents"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseQuoteRequestPageHandler')]
+    [HandlerFunctions('PurchaseQuoteRequestPageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure PrintPurchaseQuoteCardWithBlankQuantityIsFoundationFALSE()
     var
@@ -421,7 +422,7 @@ codeunit 134099 "Purchase Documents"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseQuoteRequestPageHandler')]
+    [HandlerFunctions('PurchaseQuoteRequestPageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure PrintPurchaseQuoteListWithBlankQuantityIsFoundationFALSE()
     var
@@ -446,7 +447,7 @@ codeunit 134099 "Purchase Documents"
     end;
 
     [Test]
-    [HandlerFunctions('PostOrderStrMenuHandler')]
+    [HandlerFunctions('PostOrderStrMenuHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure PostPurchaseOrderCardWithBlankQuantityIsFoundationFALSE()
     var
@@ -460,6 +461,9 @@ codeunit 134099 "Purchase Documents"
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         Commit();
 
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
+        LibraryVariableStorage.Enqueue(true);
+
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.Post.Invoke;
@@ -468,7 +472,7 @@ codeunit 134099 "Purchase Documents"
     end;
 
     [Test]
-    [HandlerFunctions('PostOrderStrMenuHandler')]
+    [HandlerFunctions('PostOrderStrMenuHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure PostPurchaseOrderListWithBlankQuantityIsFoundationFALSE()
     var
@@ -481,6 +485,9 @@ codeunit 134099 "Purchase Documents"
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         Commit();
+
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
+        LibraryVariableStorage.Enqueue(true);
 
         PurchaseOrderList.OpenView;
         PurchaseOrderList.GotoRecord(PurchaseHeader);
@@ -543,7 +550,7 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [Invoice] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase invoice having line with zero quantity from card page when foundation setup is enabled
         Initialize();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         Commit();
@@ -559,6 +566,31 @@ codeunit 134099 "Purchase Documents"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PostPurchaseReturnOrderCardWithBlankQuantity()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [FEATURE] [Invoice] [UI] [Application Area]
+        // [SCENARIO 266493] Stan can post purchase Return Order having line with zero quantity from card page when foundation setup is enabled
+        Initialize();
+
+        CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
+        Commit();
+
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
+        LibraryVariableStorage.Enqueue(false);
+
+        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.GotoRecord(PurchaseHeader);
+        asserterror PurchaseReturnOrder.Post.Invoke;
+
+        Assert.ExpectedError(ZeroQuantityInLineErr);
+
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PostPurchaseInvoiceListWithBlankQuantityIsFoundationTRUE()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -567,7 +599,7 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [Invoice] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase invoice having line with zero quantity from list page when foundation setup is enabled
         Initialize();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         Commit();
@@ -591,7 +623,7 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [Quote] [UI] [Application Area]
         // [SCENARIO 266493] Stan can print purchase quote having line with zero quantity from card page when foundation setup is enabled
         Initialize();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         Commit();
@@ -615,7 +647,7 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [Quote] [UI] [Application Area]
         // [SCENARIO 266493] Stan can print purchase quote having line with zero quantity from list page when foundation setup is enabled
         Initialize();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         Commit();
@@ -639,7 +671,7 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [Order] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase order having line with zero quantity from card page when foundation setup is enabled
         Initialize();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         Commit();
@@ -663,16 +695,19 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [Order] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase order having line with zero quantity from list page when foundation setup is enabled
         Initialize();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         Commit();
+
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
+        LibraryVariableStorage.Enqueue(false);
 
         PurchaseOrderList.OpenView;
         PurchaseOrderList.GotoRecord(PurchaseHeader);
         asserterror PurchaseOrderList.Post.Invoke;
 
-        Assert.ExpectedError(ZeroQuantityInLineErr);
+        Assert.ExpectedError(ConfirmZeroQuantityPostingMsg);
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -687,7 +722,7 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [Credit Memo] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase credit memo having line with zero quantity from card page when foundation setup is enabled
         Initialize();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         Commit();
@@ -711,7 +746,7 @@ codeunit 134099 "Purchase Documents"
         // [FEATURE] [Credit Memo] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase credit memo having line with zero quantity from list page when foundation setup is enabled
         Initialize();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         Commit();
@@ -1518,8 +1553,8 @@ codeunit 134099 "Purchase Documents"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Purchase Documents");
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -1573,8 +1608,8 @@ codeunit 134099 "Purchase Documents"
 
     local procedure CreatePostPurchDocWithExternalDocNo(var ExternalDocumentNo: Code[35]; var VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; var PurchaseHeader: Record "Purchase Header")
     begin
-        ExternalDocumentNo := LibraryUtility.GenerateGUID;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        ExternalDocumentNo := LibraryUtility.GenerateGUID();
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePurchaseDocument(PurchaseHeader, DocumentType, VendorNo);
         case DocumentType of
             PurchaseHeader."Document Type"::Invoice,
@@ -1656,7 +1691,7 @@ codeunit 134099 "Purchase Documents"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        if VendorLedgerEntry.FindLast then;
+        if VendorLedgerEntry.FindLast() then;
         exit(VendorLedgerEntry."Entry No.");
     end;
 

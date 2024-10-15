@@ -36,6 +36,12 @@ page 428 "Shipping Agents"
                     ToolTip = 'Specifies the account number that the shipping agent has assigned to your company.';
                     Visible = false;
                 }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the shipping agent is coupled to a shipping method in Dataverse.';
+                    Visible = CDSIntegrationEnabled;
+                }
             }
         }
         area(factboxes)
@@ -71,7 +77,127 @@ page 428 "Shipping Agents"
                     ToolTip = 'View the types of services that your shipping agent can offer you and their shipping time.';
                 }
             }
+            group(ActionGroupCRM)
+            {
+                Caption = 'Dataverse';
+                Image = Administration;
+                Visible = CDSIntegrationEnabled;
+                action(CRMSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send or get updated data to or from Dataverse.';
+
+                    trigger OnAction()
+                    var
+                        ShippingAgent: Record "Shipping Agent";
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        ShippingAgentRecordRef: RecordRef;
+                    begin
+                        CurrPage.SetSelectionFilter(ShippingAgent);
+                        ShippingAgentRecordRef.GetTable(ShippingAgent);
+                        CRMIntegrationManagement.UpdateMultipleNow(ShippingAgentRecordRef, true);
+                    end;
+                }
+                group(Coupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
+                    action(ManageCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Dataverse Shipping Method.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineOptionMapping(Rec.RecordId);
+                        end;
+                    }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledUnitOfMeasure;
+                        ToolTip = 'Couple shipping agent in Dataverse based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            ShippingAgent: Record "Shipping Agent";
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(ShippingAgent);
+                            RecRef.GetTable(ShippingAgent);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
+                        end;
+                    }
+                    action(DeleteCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = D;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CDSIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Dataverse Shipping Method.';
+
+                        trigger OnAction()
+                        var
+                            ShippingAgent: Record "Shipping Agent";
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(ShippingAgent);
+                            RecRef.GetTable(ShippingAgent);
+                            CRMIntegrationManagement.RemoveOptionMapping(RecRef);
+                        end;
+                    }
+                }
+                action(ShowLog)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for the shipping agent table.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowOptionLog(Rec.RecordId);
+                    end;
+                }
+            }
         }
     }
-}
 
+    trigger OnAfterGetCurrRecord()
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+    begin
+        CDSIsCoupledToRecord := CDSIntegrationEnabled;
+        if CDSIsCoupledToRecord then begin
+            CRMOptionMapping.SetRange("Record ID", Rec.RecordId);
+            CDSIsCoupledToRecord := not CRMOptionMapping.IsEmpty();
+        end;
+    end;
+
+    trigger OnOpenPage()
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled() and CRMIntegrationManagement.IsOptionMappingEnabled();
+    end;
+
+    var
+        CDSIntegrationEnabled: Boolean;
+        CDSIsCoupledToRecord: Boolean;
+}

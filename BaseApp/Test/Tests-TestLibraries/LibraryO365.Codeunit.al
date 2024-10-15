@@ -23,17 +23,17 @@ codeunit 131922 "Library - O365"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         CustomerConfigTemplateHeader.SetRange(Description, DefaultCustomerTemplateDescriptionTxt);
-        if not CustomerConfigTemplateHeader.FindFirst then
+        if not CustomerConfigTemplateHeader.FindFirst() then
             InsertConfigTemplateHeader(CustomerConfigTemplateHeader, DefaultCustomerTemplateDescriptionTxt);
         ItemConfigTemplateHeader.SetRange(Description, DefaultItemTemplateDescriptionTxt);
-        if ItemConfigTemplateHeader.FindFirst then;
+        if ItemConfigTemplateHeader.FindFirst() then;
 
         with O365SalesInitialSetup do begin
             Init;
             Validate("Default Payment Method Code", CHECKTxt);
             Validate("Default Payment Terms Code", X14DAYSTxt);
 
-            if VATProductPostingGroup.FindSet then
+            if VATProductPostingGroup.FindSet() then
                 Validate("Normal VAT Prod. Posting Gr.", VATProductPostingGroup.Code);
             if VATProductPostingGroup.Next <> 0 then
                 Validate("Reduced VAT Prod. Posting Gr.", VATProductPostingGroup.Code);

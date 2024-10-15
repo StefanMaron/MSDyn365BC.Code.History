@@ -269,7 +269,7 @@ codeunit 7308 Replenishment
         WhseWkshLine.SetRange("Worksheet Template Name", WhseWkshTemplateName2);
         WhseWkshLine.SetRange(Name, WhseWkshName2);
         WhseWkshLine.SetRange("Location Code", LocationCode2);
-        if WhseWkshLine.FindLast then
+        if WhseWkshLine.FindLast() then
             NextLineNo := WhseWkshLine."Line No." + 10000
         else
             NextLineNo := 10000;

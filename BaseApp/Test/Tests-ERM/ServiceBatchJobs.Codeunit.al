@@ -36,20 +36,20 @@ codeunit 136122 "Service Batch Jobs"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Batch Jobs");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Batch Jobs");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryService.SetupServiceMgtNoSeries();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
@@ -70,7 +70,7 @@ codeunit 136122 "Service Batch Jobs"
         // Test Service Order Invoiced after posting Service Invoice created through Get Shipment Lines.
 
         // 1. Setup: Create and Post Service Order with Service Line of Type Item.
-        Initialize;
+        Initialize();
         CreateAndPostServiceOrder(ServiceHeader);
         CustomerNo := ServiceHeader."Customer No.";
 
@@ -99,7 +99,7 @@ codeunit 136122 "Service Batch Jobs"
 
         // 1. Setup: Create and Post Service Order with Service Line of Type Item, Create Service Invoice from Get Shipment Lines and
         // Post it.
-        Initialize;
+        Initialize();
         CreateAndPostServiceOrder(ServiceHeader);
         CustomerNo := ServiceHeader."Customer No.";
 
@@ -130,13 +130,13 @@ codeunit 136122 "Service Batch Jobs"
     begin
         // [FEATURE] [Service Order] [Comments]
         // [SCENARIO 257848] REP5914 "Delete Invoiced Service Orders" removes comments for Service Order only.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order "SO" posted with Shipped flag only.
         CreateAndPostServiceOrder(ServiceHeader);
         OrderNo := ServiceHeader."No.";
         CustomerNo := ServiceHeader."Customer No.";
-        CommentText := LibraryUtility.GenerateGUID;
+        CommentText := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "SO" has comment "SO-TXT".
         LibraryService.CreateServiceCommentLine(
@@ -183,7 +183,7 @@ codeunit 136122 "Service Batch Jobs"
 
         // 1. Setup: Create Customer, Create Service Invoice with Service Lines of Type Item, Resource, Cost and G/L Account,
         // Save Service Lines in Temporary Table.
-        Initialize;
+        Initialize();
         CreateCustomerInvoiceDiscount(CustInvoiceDisc);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustInvoiceDisc.Code);
         GetServiceLines(ServiceLine, ServiceHeader);
@@ -195,7 +195,7 @@ codeunit 136122 "Service Batch Jobs"
         BatchPostServiceInvoices.SetTableView(ServiceHeader);
         BatchPostServiceInvoices.UseRequestPage(false);
         BatchPostServiceInvoices.InitializeRequest(WorkDate, true, true, true);
-        BatchPostServiceInvoices.Run;
+        BatchPostServiceInvoices.Run();
 
         // 3. Verify: Verify Service Invoice Line after run Batch Job.
         VerifyServiceInvoiceLine(TempServiceLine, ServiceHeader."No.", CustInvoiceDisc."Discount %");
@@ -217,7 +217,7 @@ codeunit 136122 "Service Batch Jobs"
 
         // 1. Setup: Create Customer, Customer Invoice Discount, Create Service Credit Memo with Service Lines of Type Item, Resource,
         // Cost and G/L Account, Save Service Lines in Temporary Table.
-        Initialize;
+        Initialize();
         CreateCustomerInvoiceDiscount(CustInvoiceDisc);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CustInvoiceDisc.Code);
         GetServiceLines(ServiceLine, ServiceHeader);
@@ -230,7 +230,7 @@ codeunit 136122 "Service Batch Jobs"
         BatchPostServiceCrMemos.SetTableView(ServiceHeader);
         BatchPostServiceCrMemos.UseRequestPage(false);
         BatchPostServiceCrMemos.InitializeRequest(WorkDate, true, true, true);
-        BatchPostServiceCrMemos.Run;
+        BatchPostServiceCrMemos.Run();
 
         // 3. Verify: Verify Service Credit Memo Line after run Batch Job.
         VerifyServiceCreditMemoLine(TempServiceLine, ServiceHeader."No.", CustInvoiceDisc."Discount %");
@@ -247,7 +247,7 @@ codeunit 136122 "Service Batch Jobs"
         // Test Service Item Log Entries after running Service Item Log Delete report.
 
         // 1.Setup: Creating a Service Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
 
         // 2.Exercise: Run the report for deleting the Service Item Log Entries.
@@ -266,7 +266,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         // Covers document number TC129092 TFS_TC_ID=13528.
         // [SCENARIO] Test Invoiced Service Order after running the Delete Invoiced Service Orders report.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post Service Order with multiple service lines and invoice rounding.
         LibraryERM.SetInvRoundingPrecisionLCY(0.5);
@@ -293,7 +293,7 @@ codeunit 136122 "Service Batch Jobs"
         // Test the error messages after running Insert Fault/Resolution Relationships without From Date.
 
         // 1. Setup: Create Fault Resolution Relationship code.
-        Initialize;
+        Initialize();
         CreateFaultResolCodesRlship(FaultResolCodRelationship);
 
         // 2.Exercise: Run the report for Insert Fault Resolution Relationship Code without From Date.
@@ -313,7 +313,7 @@ codeunit 136122 "Service Batch Jobs"
         // Test Fault/Resolution Relationships created manually after creating it.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2.Exercise: Creating Fault Resolution Code Relationship.
         CreateFaultResolCodesRlship(FaultResolCodRelationship);
@@ -332,7 +332,7 @@ codeunit 136122 "Service Batch Jobs"
         // Test the error messages after running Insert Fault/Resolution Relationships without To Date.
 
         // 1. Setup: Create Fault Resolution Relationship code.
-        Initialize;
+        Initialize();
         CreateFaultResolCodesRlship(FaultResolCodRelationship);
 
         // 2.Exercise: Run the report for Insert Fault Resolution Relationship Code without To Date.
@@ -356,7 +356,7 @@ codeunit 136122 "Service Batch Jobs"
 
         // 1.Setup: Creating a Service Contract, create Service Account Group Code, modify Service Contract,
         // sign Service Contract, post Service Invoice, create Contract Credit Memo and post Credit Memo.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader);
 
@@ -387,7 +387,7 @@ codeunit 136122 "Service Batch Jobs"
         // Test Service Contract Quote Line Discount percent after running the Update Discount percent On Contract report.
 
         // 1.Setup: Creating a Service Contract Quote.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote);
 
         // 2.Exercise: Run the report for Updating the Line Discount Percent.
@@ -431,7 +431,7 @@ codeunit 136122 "Service Batch Jobs"
         // [SCENARIO 263758] Service Ledger Entries posts by batch job "Post Prepaid Service Contract Entries" with filter of multiple Service Contracts when last one has posted Credit Memo
 
         // [GIVEN] Two service contracts "A" and "B" with posted service invoices
-        Initialize;
+        Initialize();
         OldWorkDate := WorkDate;
         WorkDate := CalcDate('<-CY>', WorkDate);
         for i := 1 to ArrayLen(ServiceContractHeader) do
@@ -463,7 +463,7 @@ codeunit 136122 "Service Batch Jobs"
         // [SCENARIO 265239] Service Ledger Entries posts by batch job "Post Prepaid Service Contract Entries" with filter of multiple Service Contracts when there is posted Credit Memo for contract before last
 
         // [GIVEN] Three service contracts "A", "B" and "C" with posted service invoices
-        Initialize;
+        Initialize();
         OldWorkDate := WorkDate;
         WorkDate := CalcDate('<-CY>', WorkDate);
         for i := 1 to ArrayLen(ServiceContractHeader) do
@@ -491,7 +491,7 @@ codeunit 136122 "Service Batch Jobs"
         ShipToCode: Code[10];
     begin
         // 1.Setup: Creating a Service Contract and selecting a Ship To Address.
-        Initialize;
+        Initialize();
         ShipToCode := '';
         CreateServiceContract(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract);
         SelectShipToAddress(ShipToAddress);
@@ -534,7 +534,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         LibraryService.CreateContractLineCreditMemo(ServiceContractLine, false);
     end;
 
@@ -710,7 +710,7 @@ codeunit 136122 "Service Batch Jobs"
         Clear(DeleteInvoicedServiceOrders);
         DeleteInvoicedServiceOrders.SetTableView(ServiceHeader);
         DeleteInvoicedServiceOrders.UseRequestPage(false);
-        DeleteInvoicedServiceOrders.Run;
+        DeleteInvoicedServiceOrders.Run();
     end;
 
     local procedure DeleteServiceItemLogEntries(ServiceItemNo: Code[20])
@@ -719,11 +719,11 @@ codeunit 136122 "Service Batch Jobs"
         DeleteServiceItemLog: Report "Delete Service Item Log";
     begin
         ServiceItemLog.SetRange("Service Item No.", ServiceItemNo);
-        ServiceItemLog.FindFirst;
+        ServiceItemLog.FindFirst();
         Clear(DeleteServiceItemLog);
         DeleteServiceItemLog.SetTableView(ServiceItemLog);
         DeleteServiceItemLog.UseRequestPage(false);
-        DeleteServiceItemLog.Run;
+        DeleteServiceItemLog.Run();
     end;
 
     local procedure DeleteServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -763,7 +763,7 @@ codeunit 136122 "Service Batch Jobs"
         Clear(InsertFaultResolRelations);
         InsertFaultResolRelations.InitializeRequest(FromDate, ToDate, BasedOnServItemGr, RetainManuallyInserted);
         InsertFaultResolRelations.UseRequestPage(false);
-        InsertFaultResolRelations.Run;
+        InsertFaultResolRelations.Run();
     end;
 
     local procedure MockServiceHeaderWithCommentLine(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; CommentText: Text[80])
@@ -808,7 +808,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceHeader.SetRange("Document Type", DocumentType);
         ServiceHeader.SetRange("Contract No.", ContractNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
     end;
 
@@ -837,7 +837,7 @@ codeunit 136122 "Service Batch Jobs"
         PostPrepaidContractEntries.SetTableView(ServiceLedgerEntry);
         PostPrepaidContractEntries.InitializeRequest(WorkDate, WorkDate, PostPrepaidContractAction::"Post Prepaid Transactions");
         PostPrepaidContractEntries.UseRequestPage(false);
-        PostPrepaidContractEntries.Run;
+        PostPrepaidContractEntries.Run();
     end;
 
     local procedure PostServiceInvoice(ServiceContractHeader: Record "Service Contract Header")
@@ -869,7 +869,7 @@ codeunit 136122 "Service Batch Jobs"
         Clear(DeleteInvoicedServiceOrders);
         DeleteInvoicedServiceOrders.SetTableView(ServiceHeader);
         DeleteInvoicedServiceOrders.UseRequestPage(false);
-        DeleteInvoicedServiceOrders.Run;
+        DeleteInvoicedServiceOrders.Run();
     end;
 
     local procedure SelectServiceCost(): Code[10]
@@ -878,7 +878,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceCost.SetFilter("Account No.", '<>''''');
         ServiceCost.SetRange("Service Zone Code", '');
-        ServiceCost.FindFirst;
+        ServiceCost.FindFirst();
         exit(ServiceCost.Code);
     end;
 
@@ -908,7 +908,7 @@ codeunit 136122 "Service Batch Jobs"
         ChangeCustomerInContract.SetRecord(ServiceContractHeader."Contract No.");
         ChangeCustomerInContract.InitializeRequest(CustomerNo, ShipToCode);
         ChangeCustomerInContract.UseRequestPage(false);
-        ChangeCustomerInContract.Run;
+        ChangeCustomerInContract.Run();
     end;
 
     local procedure UpdateDiscPercentOnContract(ContractNo: Code[20]) DiscountPercent: Decimal
@@ -918,7 +918,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type"::Quote);
         ServiceContractLine.SetRange("Contract No.", ContractNo);
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         Clear(UpdDiscPctOnContract);
         UpdDiscPctOnContract.SetTableView(ServiceContractLine);
         UpdDiscPctOnContract.UseRequestPage(false);
@@ -926,7 +926,7 @@ codeunit 136122 "Service Batch Jobs"
         // Use Random for Discount percent.
         DiscountPercent := LibraryRandom.RandInt(100);
         UpdDiscPctOnContract.InitializeRequest(DiscountPercent);
-        UpdDiscPctOnContract.Run;
+        UpdDiscPctOnContract.Run();
     end;
 
     local procedure VerifyChangeCustomer(ContractNo: Code[20]; CustomerNo: Code[20]; ShipToCode: Code[10])
@@ -944,7 +944,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         ServiceContractLine.TestField("Line Discount %", DiscountPercent);
     end;
 
@@ -971,7 +971,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         GeneralLedgerSetup.Get();
         TempServiceLine.FindSet();
         repeat
@@ -990,7 +990,7 @@ codeunit 136122 "Service Batch Jobs"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         GeneralLedgerSetup.Get();
         TempServiceLine.FindSet();
         repeat
@@ -1016,7 +1016,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
 
         // Use 0 for Fully Ship and Invoice.
         ServiceLine.TestField("Qty. to Ship", 0);
@@ -1075,9 +1075,9 @@ codeunit 136122 "Service Batch Jobs"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
 
         GetServiceShipmentLines.SetRecord(ServiceShipmentLine);
         GetServiceShipmentLines.GetShipmentLines;

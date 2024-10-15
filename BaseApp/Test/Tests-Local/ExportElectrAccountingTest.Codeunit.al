@@ -39,7 +39,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Chart Of Accounts]
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Chart Of Accounts"
-        Initialize;
+        Initialize();
 
         ExportAccounts.ExportChartOfAccounts(Year, Month);
 
@@ -54,7 +54,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Chart Of Accounts]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Chart Of Accounts"
-        Initialize;
+        Initialize();
 
         CreateGLAccount(GLAccount);
 
@@ -72,7 +72,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Trial Balance]
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Trial Balance", "Closing Balance Sheet" = FALSE
-        Initialize;
+        Initialize();
 
         ExportAccounts.ExportBalanceSheet(Date2DMY(WorkDate, 3), Month, 1, Today, false);
 
@@ -85,7 +85,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Trial Balance]
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Trial Balance", "Closing Balance Sheet" = TRUE
-        Initialize;
+        Initialize();
 
         ExportAccounts.ExportBalanceSheet(Date2DMY(WorkDate, 3), Month, 1, Today, true);
 
@@ -101,7 +101,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Trial Balance]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Trial Balance", "Closing Balance Sheet" = FALSE
-        Initialize;
+        Initialize();
 
         CreateGLEntry(GLEntry, BankAccountType::Customer);
 
@@ -122,7 +122,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Trial Balance]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Trial Balance", "Closing Balance Sheet" = TRUE
-        Initialize;
+        Initialize();
 
         CreateGLEntry(GLEntry, BankAccountType::Customer);
 
@@ -140,7 +140,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Transactions", "Request Type" = "AF", "Order Number" = "ABC6912345/12"
-        Initialize;
+        Initialize();
 
         CreateTestData;
 
@@ -155,7 +155,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Transactions", "Request Type" = "DE", "Process Number" = "AB012345678901"
-        Initialize;
+        Initialize();
 
         CreateTestData;
 
@@ -173,7 +173,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Transactions", "Request Type" = "AF", "Order Number" = "ABC6912345/12"
-        Initialize;
+        Initialize();
 
         // Mock of G/L Entry transaction
         CreateGLEntry(GLEntry, BankAccountType::Customer);
@@ -202,7 +202,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Transactions", national E-invoice
-        Initialize;
+        Initialize();
 
         // Mock of National Sales E-Invoice
         CreateGLEntry(GLEntry, BankAccountType::Customer);
@@ -227,7 +227,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Transactions", national receipt
-        Initialize;
+        Initialize();
 
         // Mock of National Vendor G/L Entry
         CreateGLEntry(GLEntry, BankAccountType::Customer);
@@ -250,7 +250,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Transactions", international receipt
-        Initialize;
+        Initialize();
 
         // Mock of International Bank Transfer
         CreateGLEntry(GLEntry, BankAccountType::Vendor);
@@ -274,7 +274,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Transactions", bank transfer vanedor
-        Initialize;
+        Initialize();
 
         // Mock of International Bank Transfer
         CreateGLEntry(GLEntry, BankAccountType::Vendor);
@@ -298,7 +298,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Transactions", bank transfer internal
-        Initialize;
+        Initialize();
 
         // Mock of International Bank Transfer
         CreateGLEntry(GLEntry, BankAccountType::Company);
@@ -323,7 +323,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Transactions", check payment
-        Initialize;
+        Initialize();
 
         // Mock of Check Payment
         CreateGLEntry(GLEntry, BankAccountType::Vendor);
@@ -348,7 +348,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Transactions]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Transactions", cash payment
-        Initialize;
+        Initialize();
 
         // Mock of International Cash Payment
         CreateGLEntry(GLEntry, BankAccountType::Vendor);
@@ -367,7 +367,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Auxiliary Accounts]
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "FC", "Order Number" = "ABC6912345/12"
-        Initialize;
+        Initialize();
 
         ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate, 3), Month, RequestType::FC, GetOrderNumber, '');
 
@@ -380,7 +380,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Auxiliary Accounts]
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "DE", "Process Number" = "AB012345678901"
-        Initialize;
+        Initialize();
 
         ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate, 3), Month, RequestType::DE, '', GetProcessNumber);
 
@@ -396,7 +396,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Auxiliary Accounts]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "FC", "Order Number" = "ABC6912345/12"
-        Initialize;
+        Initialize();
 
         CreateGLEntry(GLEntry, BankAccountType::Customer);
 
@@ -418,7 +418,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         // [FEATURE] [Export Electr. Accounting - Auxiliary Accounts]
         // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "DE", "Process Number" = "AB012345678901"
-        Initialize;
+        Initialize();
 
         CreateGLEntry(GLEntry, BankAccountType::Customer);
 
@@ -537,7 +537,7 @@ codeunit 142096 "Export Electr. Accounting Test"
           StrSubstNo(ValueMistmatchErr, 'SaldoFin'));
 
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         FindNodeByAttributeInXML(Node, 'Cuenta', 'DetalleAux', 'NumUnIdenPol', Format(GLEntry."Transaction No."));
         Assert.AreEqual(
           FormatDecimal(GLEntry."Credit Amount"), Node.Attributes.GetNamedItem('Haber').Value, StrSubstNo(ValueMistmatchErr, 'Haber'));
@@ -840,7 +840,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         RecipientBankAccount: Record "Bank Account";
     begin
         CreateGLAccount(GLAccount);
-        GLEntryLast.FindLast;
+        GLEntryLast.FindLast();
         SourceCodeSetup.Get();
 
         with GLEntry do begin
@@ -909,7 +909,7 @@ codeunit 142096 "Export Electr. Accounting Test"
 
         BankAccount."Bank Acc. Posting Group" := BankAccountPostingGroup.Code;
         BankAccount."Bank Code" := '006';
-        BankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        BankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         BankAccount.Modify();
     end;
 
@@ -958,7 +958,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateVendorWithBankAccount(Vendor, VendorBankAccount, GLEntry."G/L Account No.", IsNational);
 
         with VendorLedgerEntry do begin
-            FindLast;
+            FindLast();
             CreateDetailedVendorLedgerEntry("Entry No." + 1);
             Init;
             "Entry No." += 1;
@@ -981,7 +981,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateCustomerWithBankAccount(Customer, GLEntry."G/L Account No.", CustomerBankAccount, IsNational);
 
         with CustLedgerEntry do begin
-            FindLast;
+            FindLast();
             CreateDetailedCustLedgerEntry("Entry No." + 1);
             Init;
             "Entry No." += 1;
@@ -1000,7 +1000,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            FindLast;
+            FindLast();
             Init;
             "Entry No." += 1;
             "Cust. Ledger Entry No." := CustLedgerEntryNo;
@@ -1017,7 +1017,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendorLedgEntry do begin
-            FindLast;
+            FindLast();
             Init;
             "Entry No." += 1;
             "Vendor Ledger Entry No." := VendorLedgerEntryNo;
@@ -1050,7 +1050,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
 
         VendorBankAccount."Bank Code" := '009';
-        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         VendorBankAccount.Name :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(VendorBankAccount.Name)), 1, MaxStrLen(VendorBankAccount.Name));
 
@@ -1078,7 +1078,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
 
         CustomerBankAccount."Bank Code" := '012';
-        CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         CustomerBankAccount.Modify();
     end;
 
@@ -1117,7 +1117,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         GLAccount: Record "G/L Account";
     begin
         with GLAccount do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     CalcFields("Debit Amount", "Credit Amount");
                     if "Debit/Credit" = "Debit/Credit"::Both then begin

@@ -97,7 +97,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9320, Service Credit Memos without Tax Area.
 
         // Setup: Create Service Credit Memo. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo", '', '', false);  // Blank Tax Area and Tax Liable FALSE.
         VATAmount := ServiceLine.Quantity * ServiceLine."Unit Price" * ServiceLine."VAT %" / 100;
@@ -128,7 +128,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9320, Service Credit Memos with Tax Area.
 
         // Setup: Create Tax Setup and Service Credit Memo. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);  // Tax Liable TRUE.
@@ -158,7 +158,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9300, Sales Quotes without Tax Area.
 
         // Setup: Create a Sales Quote. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Quote, '', '', false);  // Blank Tax Area and Tax Liable FALSE.
         VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
         AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
@@ -184,7 +184,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9300, Sales Quotes with Tax Area.
 
         // Setup: Create Tax Setup, Create a Sales Quote. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Quote, TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
@@ -211,7 +211,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9305, Sales Order List without Tax Area.
 
         // Setup: Create a Sales Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, TaxGroup.Code, '', false);  // Blank Tax Area and Tax Liable FALSE.
         VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
         AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
@@ -237,7 +237,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9305, Sales Order List with Tax Area.
 
         // Setup: Create Tax Setup, Create a Sales Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
@@ -264,7 +264,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9301, Sales Invoice List without Tax Area.
 
         // Setup: Create a Sales Invoice. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, TaxGroup.Code, '', false);  // Blank Tax Area and Tax Liable FALSE.
         VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
         AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
@@ -290,7 +290,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9301, Sales Invoice List with Tax Area.
 
         // Setup: Create Tax Setup, Create a Sales Invoice. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
@@ -317,7 +317,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9303, Blanket Sales Orders without Tax Area.
 
         // Setup: Create a Blanket Sales Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order", TaxGroup.Code, '', false);  // Blank Tax Area and Tax Liable FALSE.
         VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
         AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
@@ -343,7 +343,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9303, Blanket Sales Orders with Tax Area.
 
         // Setup: Create Tax Setup. Create a Blanket Sales Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order", TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
@@ -370,7 +370,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9304, Sales Return Order List without Tax Area.
 
         // Setup: Create a Sales Return Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", TaxGroup.Code, '', false);  // Blank Tax Area and Tax Liable FALSE.
         VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
         AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
@@ -396,7 +396,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9304, Sales Return Order List with Tax Area.
 
         // Setup: Create Tax Setup, Create a Sales Return Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
@@ -423,7 +423,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9302, Sales Credit Memos without Tax Area.
 
         // Setup: Create a Sales Credit Memo. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", TaxGroup.Code, '', false);  // Blank Tax Area and Tax Liable FALSE.
         VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
         AmountIncVAT := SalesLine.Quantity * SalesLine."Unit Price" + VATAmount;
@@ -449,7 +449,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9302, Sales Credit Memos with Tax Area.
 
         // Setup: Create Tax Setup, Create a Sales Credit Memo. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
@@ -476,7 +476,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9307 Purchase Order List.
 
         // Setup: Create Purchase Order with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
@@ -502,7 +502,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9307 Purchase Order List.
 
         // Setup: Create Purchase Order without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order, '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
         VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
         AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
@@ -528,7 +528,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9311 Purchase Return Order List.
 
         // Setup: Create Purchase Return Order with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
@@ -554,7 +554,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9311 Purchase Return Order List.
 
         // Setup: Create Purchase Return Order without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order", '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
         VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
         AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
@@ -580,7 +580,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9310 Blanket Purchase Order List.
 
         // Setup: Create Blanket Purchase Order with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Blanket Order", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
@@ -606,7 +606,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9310 Blanket Purchase Order List.
 
         // Setup: Create Blanket Purchase Order without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Blanket Order", '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
         VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
         AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
@@ -632,7 +632,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9306 Purchase Quotes.
 
         // Setup: Create Purchase Quote with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Quote, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
@@ -658,7 +658,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9306 Purchase Quotes.
 
         // Setup: Create Purchase Quote without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Quote, '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
         VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
         AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
@@ -684,7 +684,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9309 Purchase Credit Memos.
 
         // Setup: Create Purchase Credit Memo with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
@@ -710,7 +710,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9309 Purchase Credit Memos.
 
         // Setup: Create Purchase Credit Memo without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
         VATAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * PurchaseLine."VAT %" / 100;
         AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
@@ -736,7 +736,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9308 Purchase Invoices.
 
         // Setup: Create Purchase Invoice with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
@@ -762,7 +762,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9308 Purchase Invoices.
 
         // Setup: Create Purchase Invoice without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
         VATAmount := PurchaseLine."VAT %" * PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity / 100;
         AmountIncVAT := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + VATAmount;
@@ -789,7 +789,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9319 Service Invoices.
 
         // Setup: Create Service Invoice with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
         CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
@@ -820,7 +820,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9319 Service Invoices.
 
         // Setup: Create Service Invoice without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice, '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
         VATAmount := ServiceLine."Unit Price" * ServiceLine.Quantity * ServiceLine."VAT %" / 100;
@@ -852,7 +852,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // [SCENARIO 375493] Statistics for Sales Order shows correct Tax Amount when complex fractional tax percents present for Tax Area.
 
         // [GIVEN] Tax Area with two Tax Jurisdictions, each with fractional tax percents: 6.875 % and 0.25 %.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxGroup;
         CreateTaxDetail(TaxDetail[1], TaxGroupCode, 6.875); // specific value needed for test
         CreateTaxDetail(TaxDetail[2], TaxGroupCode, 0.25); // specific value needed for test
@@ -885,7 +885,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // [SCENARIO 375322] Statistics for Sales Order shows correct Tax Amount when there are three Tax Area with fractional tax Amounts.
 
         // [GIVEN] Three Tax Areas with with tax percents: 10 %.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxGroup;
         CreateTaxDetail(TaxDetail, TaxGroupCode, 10); // specific value needed for test
         for i := 1 to 3 do
@@ -919,7 +919,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // [SCENARIO 381348] Statistics for Sales Order shows correct Tax Amount by rounding each Sales Tax Line per Tax Jurisdiction
 
         // [GIVEN] Tax Area with two Tax Jurisdictions for Country/Region = "CA", each with fractional tax percents: 6.875 % and 0.25 %.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxGroup;
         CreateTaxDetail(TaxDetail[1], TaxGroupCode, 6.875); // specific value needed for test
         CreateTaxDetail(TaxDetail[2], TaxGroupCode, 0.25); // specific value needed for test
@@ -949,7 +949,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         TaxGroupCode: Code[20];
     begin
         // [SCENARIO 318205] Statistics for Sales Invoice with positive and negative Line Amounts shows correct Tax Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax setup with Tax Detail having "Tax Below Maximum" := 1, "Maximum Amount/Qty." = 5000.
         TaxGroupCode := CreateTaxGroup;
@@ -1182,7 +1182,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure PapareSalesInvoiceWithNegAndPosLines(TaxPct: Decimal; LineAmountPos: Decimal; LineAmountNeg: Decimal): Code[20]
@@ -1264,7 +1264,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseLine."Document Type" := DocumentType;
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine."No." := LibraryInventory.CreateItemNo;
+        PurchaseLine."No." := LibraryInventory.CreateItemNo();
         PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDec(10, 2);
         PurchaseLine.Quantity := LibraryRandom.RandDec(10, 2);
         PurchaseLine."Line Amount" := LibraryRandom.RandDec(10, 2);

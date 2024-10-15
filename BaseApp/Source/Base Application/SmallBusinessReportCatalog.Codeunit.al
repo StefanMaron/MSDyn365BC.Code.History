@@ -50,7 +50,7 @@ codeunit 9025 "Small Business Report Catalog"
           NewPrintUnappliedEntries, NewIncludeAgingBand, NewPeriodLength, NewDateChoice,
           NewLogInteraction, NewStartDate, NewEndDate);
         CustomerStatementReport.UseRequestPage(UseRequestPage);
-        CustomerStatementReport.Run;
+        CustomerStatementReport.Run();
     end;
 
     procedure RunDetailTrialBalanceReport(UseRequestPage: Boolean)

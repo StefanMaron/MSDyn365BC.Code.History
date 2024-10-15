@@ -16,24 +16,6 @@ codeunit 138949 "BC O365 Settings Tests"
         LibraryRandom: Codeunit "Library - Random";
 
     [Test]
-    [Scope('OnPrem')]
-    procedure TestSMTPDefaultProviderIsOffice365()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        BCO365EmailAccountSettings: TestPage "BC O365 Email Account Settings";
-    begin
-        // [GIVEN] An Invoicing user with no SMTP email setup
-        LibraryLowerPermissions.SetInvoiceApp;
-        SMTPMailSetup.DeleteAll();
-
-        // [WHEN] The user opens settings
-        BCO365EmailAccountSettings.OpenEdit;
-
-        // [THEN] The default email provider is O365
-        Assert.AreEqual(BCO365EmailAccountSettings."Email Provider".Value, 'Office 365', 'Unexpected Email provider.');
-    end;
-
-    [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend,AddressModalPageHandler,HandleModalMySettings,ChooseBrandColorModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestBusinessInformationWeb()
@@ -111,7 +93,7 @@ codeunit 138949 "BC O365 Settings Tests"
         O365BrandColor: Record "O365 Brand Color";
     begin
         if not O365BrandColor.Get(BrandColorCode) then
-            O365BrandColor.FindFirst;
+            O365BrandColor.FindFirst();
 
         exit(O365BrandColor.Name);
     end;

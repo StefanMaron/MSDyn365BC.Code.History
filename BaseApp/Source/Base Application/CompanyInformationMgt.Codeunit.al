@@ -1,6 +1,8 @@
 codeunit 1306 "Company Information Mgt."
 {
 
+    Permissions = tabledata "Company Information" = r;
+
     trigger OnRun()
     begin
     end;

@@ -355,7 +355,7 @@ page 522 "View Applied Entries"
                 end;
         end;
 
-        if TempItemLedgEntry.FindSet then
+        if TempItemLedgEntry.FindSet() then
             repeat
                 Rec := TempItemLedgEntry;
                 Insert;
@@ -513,7 +513,7 @@ page 522 "View Applied Entries"
         Application.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.");
         Application.SetRange("Inbound Item Entry No.", Inbound);
         Application.SetRange("Outbound Item Entry No.", OutBound);
-        if Application.FindSet then
+        if Application.FindSet() then
             repeat
                 Apply.UnApply(Application);
                 Apply.LogUnapply(Application);
@@ -527,7 +527,7 @@ page 522 "View Applied Entries"
     begin
         Applyrec.Get(RecordToShow."Entry No.");
         CurrPage.SetSelectionFilter(TempItemLedgEntry);
-        if TempItemLedgEntry.FindSet then begin
+        if TempItemLedgEntry.FindSet() then begin
             repeat
                 AppliedItemLedgEntry.Get(TempItemLedgEntry."Entry No.");
                 if AppliedItemLedgEntry."Entry No." <> 0 then begin
@@ -550,7 +550,7 @@ page 522 "View Applied Entries"
     begin
         Applyrec.Get(RecordToShow."Entry No.");
         CurrPage.SetSelectionFilter(TempItemLedgEntry);
-        if TempItemLedgEntry.FindSet then
+        if TempItemLedgEntry.FindSet() then
             repeat
                 AppliedItemLedgEntry.Get(TempItemLedgEntry."Entry No.");
                 if AppliedItemLedgEntry."Entry No." <> 0 then begin

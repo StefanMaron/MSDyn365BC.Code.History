@@ -89,7 +89,7 @@ codeunit 141041 "Test Partner Integration NA"
         if not ServiceMgtSetup.Get then
             ServiceMgtSetup.Insert();
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
 
         LibraryUtility.UpdateSetupNoSeriesCode(
           DATABASE::"Service Mgt. Setup", ServiceMgtSetup.FieldNo("Service Quote Nos."));
@@ -125,7 +125,7 @@ codeunit 141041 "Test Partner Integration NA"
         with EventSubscription do begin
             SetFilter("Error Information", '<>%1', '');
             ErrorEventsCounter := Count;
-            if FindSet then
+            if FindSet() then
                 repeat
                     SubscribersWithError += StrSubstNo(' %1.%2="%3"', "Subscriber Codeunit ID", "Subscriber Function", "Error Information");
                 until Next = 0;
@@ -147,12 +147,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Quote card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Quote
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesQuote.Trap;
         SalesQuote.OpenView;
@@ -176,12 +176,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Quote list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Quote
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesQuotes.Trap;
         SalesQuotes.OpenView;
@@ -204,12 +204,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Order card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Order
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesOrder.Trap;
         SalesOrder.OpenView;
@@ -233,13 +233,13 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Order Shipment card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Order
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         Commit();
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesOrderShipment.Trap;
         SalesOrderShipment.OpenView;
@@ -270,12 +270,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Order list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Order
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesOrderList.Trap;
         SalesOrderList.OpenView;
@@ -299,12 +299,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Order Invoice card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Invoice
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesOrderInvoice.Trap;
         SalesOrderInvoice.OpenView;
@@ -335,12 +335,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Invoice card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Invoice
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesInvoice.Trap;
         SalesInvoice.OpenView;
@@ -363,12 +363,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Invoice list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Invoice
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesInvoiceList.Trap;
         SalesInvoiceList.OpenView;
@@ -391,12 +391,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Posted Sales Invoice will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Posted Sales Invoice
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         PostedSalesInvoice.Trap;
         PostedSalesInvoice.OpenView;
@@ -417,14 +417,14 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Posting a Sales Order will trigger OnBeforePostUpdateOrderLine.
 
         // [GIVEN] Sales Order
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] COD80.OnRun is executed
         PostSalesOrder(SalesHeader);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforePostUpdateOrderLineTxt);
@@ -442,12 +442,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Credit Memo will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Credit Memo
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesCreditMemo.Trap;
         SalesCreditMemo.OpenView;
@@ -470,12 +470,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Order Return card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Return Order
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesReturnOrder.Trap;
         SalesReturnOrder.OpenView;
@@ -498,12 +498,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Order Return list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Return Order
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         SalesReturnOrderList.Trap;
         SalesReturnOrderList.OpenView;
@@ -526,12 +526,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on the Posted Sales Credit Memo card page will trigger OnAfterCalculateSalesTaxStatistics.
 
         // [GIVEN] Posted Sales Credit Memo
-        Initialize;
+        Initialize();
         CreateSalesCreditMemo(SalesHeader);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         PostedSalesCreditMemo.Trap;
         PostedSalesCreditMemo.OpenView;
@@ -554,12 +554,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on the Posted Sales Credit Memos list page will trigger OnAfterCalculateSalesTaxStatistics.
 
         // [GIVEN] Posted Sales Credit Memo
-        Initialize;
+        Initialize();
         CreateSalesCreditMemo(SalesHeader);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         PostedSalesCreditMemos.Trap;
         PostedSalesCreditMemos.OpenView;
@@ -583,10 +583,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Sales-Post Prepayments.FillInvPostingBuffer will trigger OnFillInvPostingBuffer.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Header
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
         CreateSalesLine(SalesLine, SalesHeader);
 
@@ -611,12 +611,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Sales Blanket Order card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Blanket Order
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         BlanketSalesOrder.Trap;
         BlanketSalesOrder.OpenView;
@@ -639,12 +639,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Blanket Sales Order list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Sales Blanket Order
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         BlanketSalesOrders.Trap;
         BlanketSalesOrders.OpenView;
@@ -667,10 +667,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Report Sales Blanket Order will trigger OnAfterCalculateSalesTax.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Header
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
         CreateSalesLine(SalesLine, SalesHeader);
         Commit();
@@ -696,10 +696,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Report Sales Order will trigger OnAfterCalculateSalesTax.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Header
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         CreateSalesLine(SalesLine, SalesHeader);
         Commit();
@@ -725,10 +725,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Report Sales Quote will trigger OnAfterCalculateSalesTax.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Header
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
         CreateSalesLine(SalesLine, SalesHeader);
         Commit();
@@ -754,10 +754,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Report Sales Document Test will trigger OnAfterCalculateSalesTax.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Header
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         CreateSalesLine(SalesLine, SalesHeader);
         Commit();
@@ -784,12 +784,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Purchase Order card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Purchase Header
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         PurchaseOrder.Trap;
         PurchaseOrder.OpenView;
@@ -812,12 +812,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Purchase Order list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Purchase Header
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         PurchaseOrderList.Trap;
         PurchaseOrderList.OpenView;
@@ -840,12 +840,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Purchase Invoice card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Purchase Header
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         PurchaseInvoice.Trap;
         PurchaseInvoice.OpenView;
@@ -868,12 +868,12 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Purchase Invoices list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         // [GIVEN] Purchase Header
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
         PurchaseInvoices.Trap;
         PurchaseInvoices.OpenView;
@@ -893,10 +893,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Purch.-Post will trigger OnAfterPostGLAndVendor.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Purchase Header
-        Initialize;
+        Initialize();
 
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
@@ -921,10 +921,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Service Quote card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Quote
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote);
         BindSubscription(TestPartnerIntegrationNA);
@@ -953,10 +953,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Service Quote list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Quote
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote);
         BindSubscription(TestPartnerIntegrationNA);
@@ -984,10 +984,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Service Order card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Order
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
@@ -1015,10 +1015,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Service Order list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Order
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
@@ -1046,10 +1046,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Service Invoice card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Invoice
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
@@ -1077,10 +1077,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Service Invoice list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Invoice
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
@@ -1108,10 +1108,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Posted Service Invoice card page will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Invoice
-        Initialize;
+        Initialize();
 
         CreateServiceInvoice(ServiceHeader);
         BindSubscription(TestPartnerIntegrationNA);
@@ -1137,10 +1137,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Posted Service Invoices List page will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Invoice
-        Initialize;
+        Initialize();
 
         CreateServiceInvoice(ServiceHeader);
         BindSubscription(TestPartnerIntegrationNA);
@@ -1166,10 +1166,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Service Credit Memo card will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Credit Memo
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
         BindSubscription(TestPartnerIntegrationNA);
@@ -1197,10 +1197,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Service Credit Memos list will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Credit Memo
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
         BindSubscription(TestPartnerIntegrationNA);
@@ -1228,10 +1228,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Posted Service Credit Memo card page will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Posted Service Credit Memo
-        Initialize;
+        Initialize();
 
         CreateServiceCreditMemo(ServiceHeader);
         BindSubscription(TestPartnerIntegrationNA);
@@ -1257,9 +1257,9 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling the Statistics action on Posted Service Credit Memos list page will trigger OnBeforeCalculateSalesTaxStatistics.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [GIVEN] Posted Service Credit Memo
-        Initialize;
+        Initialize();
 
         CreateServiceCreditMemo(ServiceHeader);
         BindSubscription(TestPartnerIntegrationNA);
@@ -1285,10 +1285,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Report Service Order will trigger OnAfterCalculateSalesTax.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Order
-        Initialize;
+        Initialize();
 
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order);
         CreateServiceLine(ServiceLine, ServiceHeader);
@@ -1315,10 +1315,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Serv-Amounts Mgt.FillInvPostingBuffer will trigger OnFillInvPostingBuffer.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Header
-        Initialize;
+        Initialize();
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice.AsInteger());
         CreateServiceLine(ServiceLine, ServiceHeader);
 
@@ -1343,10 +1343,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Report Service Quote will trigger OnAfterCalculateSalesTax.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Header
-        Initialize;
+        Initialize();
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote);
         CreateServiceLine(ServiceLine, ServiceHeader);
         Commit();
@@ -1371,10 +1371,10 @@ codeunit 141041 "Test Partner Integration NA"
         // [SCENARIO] Calling Report Service Document Test will trigger OnAfterCalculateSalesTax.
 
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Header
-        Initialize;
+        Initialize();
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order);
         Commit();
 
@@ -1852,7 +1852,7 @@ codeunit 141041 "Test Partner Integration NA"
     var
         DataTypeBufferNA: Record "Data Type Buffer NA";
     begin
-        if DataTypeBufferNA.FindLast then;
+        if DataTypeBufferNA.FindLast() then;
 
         DataTypeBufferNA.Init();
         DataTypeBufferNA.ID += 1;

@@ -1,8 +1,12 @@
+#if not CLEAN20
 page 36728 "Bank Rec Worksheet FactBox"
 {
     Caption = 'Bank Rec Worksheet';
     PageType = CardPart;
     SourceTable = "Bank Rec. Header";
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -124,3 +128,4 @@ page 36728 "Bank Rec Worksheet FactBox"
     end;
 }
 
+#endif

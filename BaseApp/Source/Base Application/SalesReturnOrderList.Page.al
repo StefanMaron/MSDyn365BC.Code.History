@@ -14,7 +14,7 @@ page 9304 "Sales Return Order List"
     UsageCategory = Lists;
 
     AboutTitle = 'About sales return orders';
-    AboutText = 'Use a sales return order when you want to track receipt and potential refund of items being returned from a customer. If you don’t want to track receipt of items on a return, you can use a sales credit memo instead.';
+    AboutText = 'Use a sales return order when you want to track receipt and potential refund of items being returned from a customer. If you don’t want to track receipt of items on a return, you can use a [Sales Credit Memo](?page=9302 "Opens the Sales Credit Memos") instead.';
 
     layout
     {
@@ -171,6 +171,7 @@ page 9304 "Sales Return Order List"
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies if the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
+                    StyleExpr = StatusStyleTxt;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -421,7 +422,9 @@ page 9304 "Sales Return Order List"
                     Image = ReceiptLines;
                     RunObject = Page "Whse. Receipt Lines";
                     RunPageLink = "Source Type" = CONST(37),
+#pragma warning disable
                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                   "Source No." = FIELD("No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse receipts for the document, in advanced warehouse configurations.';
@@ -481,9 +484,10 @@ page 9304 "Sales Return Order List"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualRelease(SalesHeader);
                     end;
                 }
                 action(Reopen)
@@ -498,9 +502,10 @@ page 9304 "Sales Return Order List"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualReopen(SalesHeader);
                     end;
                 }
             }
@@ -764,6 +769,11 @@ page 9304 "Sales Return Order List"
         SetControlAppearance;
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        StatusStyleTxt := GetStatusStyleText();
+    end;
+
     trigger OnOpenPage()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -784,6 +794,8 @@ page 9304 "Sales Return Order List"
         CanCancelApprovalForRecord: Boolean;
         ReadyToPostQst: Label 'The number of return orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         NoSalesOrderErr: Label 'You must select a sales return order before you can perform this action.';
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     local procedure SetControlAppearance()
     var

@@ -60,6 +60,7 @@ page 9324 "Planned Production Orders"
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
@@ -100,6 +101,7 @@ page 9324 "Planned Production Orders"
                     ObsoleteReason = 'Ending Date-Time field should be used instead.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Starting Date-Time"; "Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -303,7 +305,7 @@ page 9324 "Planned Production Orders"
             }
         }
     }
-
+#if not CLEAN17
     trigger OnAfterGetRecord()
     begin
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
@@ -325,5 +327,6 @@ page 9324 "Planned Production Orders"
         StartingDate: Date;
         EndingDate: Date;
         DateAndTimeFieldVisible: Boolean;
+#endif
 }
 

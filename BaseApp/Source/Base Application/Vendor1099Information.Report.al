@@ -222,7 +222,7 @@ report 10110 "Vendor 1099 Information"
         with TempAppliedEntry do begin
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetFilter("IRS 1099 Amount", '<>0');
-            if FindSet then
+            if FindSet() then
                 repeat
                     Calculate1099Amount(TempAppliedEntry, "Amount to Apply");
                 until Next() = 0;

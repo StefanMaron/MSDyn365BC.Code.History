@@ -101,7 +101,7 @@ codeunit 10331 "EFT Export Mgt"
         DataExchMapping.Init();
         DataExchMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchMapping.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
-        if DataExchMapping.FindFirst then begin
+        if DataExchMapping.FindFirst() then begin
             TableID := DataExchMapping."Table ID";
             ProcessColumnMapping(DataExch, RecRef, LineNo, TableID);
         end;
@@ -175,7 +175,7 @@ codeunit 10331 "EFT Export Mgt"
         if DataExchDef."File Type" in [DataExchDef."File Type"::"Fixed Text", DataExchDef."File Type"::Xml] then begin
             DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
             DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDefCode);
-            if not DataExchColumnDef.FindSet then
+            if not DataExchColumnDef.FindSet() then
                 Error(DataExchLineDefNotFoundErr, DataExchDef.Name, DataExchLineDefCode);
             repeat
                 DataExchField.InsertRec(

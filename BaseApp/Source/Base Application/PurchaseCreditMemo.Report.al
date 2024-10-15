@@ -825,7 +825,7 @@ report 407 "Purchase - Credit Memo"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Purch. Cr. Memo Hdr.".FindSet then
+            if "Purch. Cr. Memo Hdr.".FindSet() then
                 repeat
                     SegManagement.LogDocument(
                       16, "Purch. Cr. Memo Hdr."."No.", 0, 0, DATABASE::Vendor, "Purch. Cr. Memo Hdr."."Buy-from Vendor No.",

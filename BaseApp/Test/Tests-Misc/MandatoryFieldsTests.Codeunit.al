@@ -40,7 +40,7 @@ codeunit 134590 "Mandatory Fields Tests"
         ItemCard: TestPage "Item Card";
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
         DeleteAllTemplates;
 
         ItemCard.OpenNew;
@@ -58,7 +58,7 @@ codeunit 134590 "Mandatory Fields Tests"
         CustomerCard: TestPage "Customer Card";
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
         DeleteAllTemplates;
 
         CustomerCard.OpenNew;
@@ -77,7 +77,7 @@ codeunit 134590 "Mandatory Fields Tests"
         VendorCard: TestPage "Vendor Card";
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
         DeleteAllTemplates;
 
         VendorCard.OpenNew;
@@ -99,7 +99,7 @@ codeunit 134590 "Mandatory Fields Tests"
         Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibrarySales.DisableWarningOnCloseUnreleasedDoc;
         LibrarySales.CreateCustomer(Customer);
         VerifyMandatoryFieldsOnSalesInvoice(Customer);
@@ -119,7 +119,7 @@ codeunit 134590 "Mandatory Fields Tests"
         // [FEATURE] [Purchase]
         LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        Initialize;
+        Initialize();
         LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
         LibraryPurchase.DisableWarningOnCloseUnreleasedDoc;
         LibraryPurchase.CreateVendor(Vendor);
@@ -138,13 +138,13 @@ codeunit 134590 "Mandatory Fields Tests"
         Reminder: TestPage Reminder;
     begin
         // [FEATURE] [Sales] [Reminder]
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Reminder.OpenNew;
         Assert.IsTrue(Reminder."Customer No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(Reminder."Reminder Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Reminder."Customer No.".SetValue(Customer."No.");
-        ReminderTerms.FindFirst;
+        ReminderTerms.FindFirst();
         Reminder."Reminder Terms Code".SetValue(ReminderTerms.Code);
         Reminder.ReminderLines.New;
         Assert.IsTrue(Reminder.ReminderLines.Type.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -172,13 +172,13 @@ codeunit 134590 "Mandatory Fields Tests"
         FinanceChargeMemo: TestPage "Finance Charge Memo";
     begin
         // [FEATURE] [Sales] [Finance Charge Memo]
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         FinanceChargeMemo.OpenNew;
         Assert.IsTrue(FinanceChargeMemo."Customer No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(FinanceChargeMemo."Fin. Charge Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         FinanceChargeMemo."Customer No.".SetValue(Customer."No.");
-        FinanceChargeTerms.FindFirst;
+        FinanceChargeTerms.FindFirst();
         FinanceChargeMemo."Fin. Charge Terms Code".SetValue(FinanceChargeTerms.Code);
         FinanceChargeMemo.FinChrgMemoLines.New;
         Assert.IsTrue(FinanceChargeMemo.FinChrgMemoLines.Type.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -203,7 +203,7 @@ codeunit 134590 "Mandatory Fields Tests"
         CompanyInformation: TestPage "Company Information";
     begin
         // [FEATURE] [Company Information]
-        Initialize;
+        Initialize();
         CompanyInformation.OpenEdit;
         Assert.IsTrue(CompanyInformation.Name.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation.Address.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -609,7 +609,7 @@ codeunit 134590 "Mandatory Fields Tests"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.FindFirst;
+        PurchasesPayablesSetup.FindFirst();
         PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := VendorInvoiceNoMandatory;
         PurchasesPayablesSetup.Modify();
     end;
@@ -618,7 +618,7 @@ codeunit 134590 "Mandatory Fields Tests"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.FindFirst;
+        SalesReceivablesSetup.FindFirst();
         SalesReceivablesSetup."Ext. Doc. No. Mandatory" := ExternalDocNoMandatory;
         SalesReceivablesSetup.Modify();
     end;

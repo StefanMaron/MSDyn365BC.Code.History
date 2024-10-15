@@ -25,7 +25,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         ERMVATToolHelper.SetupItemNos;
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
 
@@ -40,7 +40,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
         // Run the tool with no records in VAT Change Tool Setup table. Expected: tool shows an error message.
-        Initialize;
+        Initialize();
 
         // SETUP: Delete records in VAT Change Tool Setup.
         VATRateChangeSetup.Reset();
@@ -61,14 +61,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeConv: Record "VAT Rate Change Conversion";
     begin
         // Run the tool with VAT Posting Setup missing for new group. Expected: tool will return an error.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Remove VAT Posting Setup for new group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"VAT Prod. Posting Group");
-        VATRateChangeConv.FindFirst;
+        VATRateChangeConv.FindFirst();
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."To Code");
         VATPostingSetup.DeleteAll(true);
 
@@ -90,14 +90,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeConv: Record "VAT Rate Change Conversion";
     begin
         // Run the tool with VAT Posting Setup missing for old and new group. Expected: no errors.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Remove VAT Posting Setup for old and new group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"VAT Prod. Posting Group");
-        VATRateChangeConv.FindFirst;
+        VATRateChangeConv.FindFirst();
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."From Code");
         VATPostingSetup.DeleteAll(true);
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."To Code");
@@ -123,14 +123,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         ErrorText: Text[1000];
     begin
         // Run the tool with VAT Posting Setup missing VAT Identifier for new group. Expected: tool will return an error.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Remove VAT Identifier in VAT Posting Setup for new group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"VAT Prod. Posting Group");
-        VATRateChangeConv.FindFirst;
+        VATRateChangeConv.FindFirst();
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."To Code");
         VATPostingSetup.FindSet();
         repeat
@@ -163,14 +163,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeConv: Record "VAT Rate Change Conversion";
     begin
         // Run the tool with VAT Posting Setup missing VAT Identifier for old and new group. Expected: no errors.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Remove VAT Identifier in VAT Posting Setup for old and new group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"VAT Prod. Posting Group");
-        VATRateChangeConv.FindFirst;
+        VATRateChangeConv.FindFirst();
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."To Code");
         VATPostingSetup.FindSet();
         repeat
@@ -203,14 +203,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeConv: Record "VAT Rate Change Conversion";
     begin
         // Run the tool with Gen. Posting Setup missing for new group. Expected: no errors.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Remove Gen. Posting Setup for New Group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"Gen. Prod. Posting Group");
-        VATRateChangeConv.FindFirst;
+        VATRateChangeConv.FindFirst();
         GeneralPostingSetup.SetFilter("Gen. Prod. Posting Group", VATRateChangeConv."To Code");
         GeneralPostingSetup.DeleteAll(true);
 
@@ -232,7 +232,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
         // Run the tool and check if VAT Rate Change Tool Completed field is set to TRUE.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -265,14 +265,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeConv2: Record "VAT Rate Change Conversion";
     begin
         // Run the tool with circular setup of groups to convert. Expected: trigger on table will return an error.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // Exercise & Verify: Try to set circular reference for VAT Prod. Posting Group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"VAT Prod. Posting Group");
-        VATRateChangeConv.FindFirst;
+        VATRateChangeConv.FindFirst();
         VATRateChangeConv2.Init();
         VATRateChangeConv2.Validate(Type, VATRateChangeConv2.Type::"VAT Prod. Posting Group");
 
@@ -283,7 +283,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
 
         // Exercise & Verify: Try to set circular reference for Gen. Prod. Posting Group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"Gen. Prod. Posting Group");
-        VATRateChangeConv.FindFirst;
+        VATRateChangeConv.FindFirst();
         VATRateChangeConv2.Init();
         VATRateChangeConv2.Validate(Type, VATRateChangeConv2.Type::"Gen. Prod. Posting Group");
 

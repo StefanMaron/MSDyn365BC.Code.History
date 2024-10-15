@@ -672,7 +672,7 @@
     begin
         Item.SetRange("Item Tracking Code", Code);
         Item.SetFilter("Expiration Calculation", '<>%1', EmptyDateFormula);
-        if Item.FindSet then begin
+        if Item.FindSet() then begin
             if GuiAllowed then
                 if Confirm(StrSubstNo(ExpDateCalcSetOnItemsQst, Item.Count)) then begin
                     PAGE.RunModal(PAGE::"Item List", Item);

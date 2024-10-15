@@ -25,7 +25,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
         AccountingPeriod: Record "Accounting Period";
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // [HAVING] No accounting periods (first login).
         SetItemsToFiFoCosting;
@@ -38,7 +38,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
 
         // [THEN] The accounting periods are created for the first 5 years
         Assert.AreEqual(13, AccountingPeriod.Count, 'Wrong number of accounting periods');
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         Assert.IsTrue(AccountingPeriod."Starting Date" <= ReferenceDate, 'Start date is not less than ReferenceDate');
     end;
 
@@ -50,7 +50,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
         AccountingPeriod: Record "Accounting Period";
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // [HAVING] No accounting periods (first login).
         SetItemsToFiFoCosting;
@@ -65,7 +65,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
 
         // [THEN] The accounting periods are created for the next year
         Assert.AreEqual(13, AccountingPeriod.Count, 'Wrong number of accounting periods');
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         Assert.IsTrue(AccountingPeriod."Starting Date" > ReferenceDate + 365, 'Start date is not greater than ReferenceDate');
     end;
 
@@ -77,7 +77,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
         AccountingPeriod: Record "Accounting Period";
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // [HAVING] No accounting periods (first login).
         SetItemsToFiFoCosting;
@@ -92,7 +92,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
 
         // [THEN] The accounting periods are created for the first 5 years
         Assert.AreEqual(1, AccountingPeriod.Count, 'Wrong number of accounting periods');
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         Assert.IsTrue(AccountingPeriod."Starting Date" > ReferenceDate + 365, 'Start date is not greater than ReferenceDate');
     end;
 
@@ -118,9 +118,12 @@ codeunit 138903 "O365 Test Acc. Period Init"
 
     local procedure OpenCompany()
     var
+        CompanyTriggers: Codeunit "Company Triggers";
         LogInManagement: Codeunit LogInManagement;
     begin
         LogInManagement.CompanyOpen;
+        Commit(); // Need to commit before calling isolated event OnCompanyOpenCompleted
+        CompanyTriggers.OnCompanyOpenCompleted();
     end;
 
     local procedure Initialize()

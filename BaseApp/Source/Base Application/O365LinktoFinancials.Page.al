@@ -38,7 +38,7 @@ page 2196 "O365 Link to Financials"
 
     trigger OnInit()
     begin
-        Initialize;
+        Initialize();
     end;
 
     var

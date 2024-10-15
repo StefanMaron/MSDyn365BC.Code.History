@@ -112,7 +112,7 @@ table 9852 "Permission Buffer"
 
         AggregatePermissionSet.SetRange(Scope, Scope);
         AggregatePermissionSet.SetRange("Role ID", "Permission Set");
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         exit(AggregatePermissionSet."App ID");
     end;
 

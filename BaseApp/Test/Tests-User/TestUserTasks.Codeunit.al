@@ -34,7 +34,7 @@ codeunit 134769 "Test User Tasks"
         // [THEN] Various fields are defaulted.
         BaseDate := CreateDateTime(20121212D, 000000T);
         UserTaskCard.Trap;
-        UserTaskCard.OpenNew;
+        UserTaskCard.OpenNew();
         UserTaskCard.Title.Value('Task 1');
         Assert.AreEqual(0DT, UserTaskCard."Start DateTime".AsDateTime, 'Start DateTime should be 0DT');
         Assert.AreNearlyEqual(CurrentDateTime - BaseDate, UserTaskCard."Created DateTime".AsDateTime - BaseDate,
@@ -231,7 +231,7 @@ codeunit 134769 "Test User Tasks"
             repeat
                 TableInformation.SetFilter("Company Name", '%1|%2', '', Company.Name);
                 TableInformation.SetRange("Table No.", FieldRec.TableNo);
-                if TableInformation.FindFirst then begin
+                if TableInformation.FindFirst() then begin
                     RecRef.Open(FieldRec.TableNo, false, Company.Name);
                     if TempTablesAlreadyInserted.Get(FieldRec.TableNo) then begin
                         RecRef.FindFirst();
@@ -260,7 +260,7 @@ codeunit 134769 "Test User Tasks"
             repeat
                 TableInformation.SetFilter("Company Name", '%1|%2', '', Company.Name);
                 TableInformation.SetRange("Table No.", FieldRec.TableNo);
-                if TableInformation.FindFirst then begin
+                if TableInformation.FindFirst() then begin
                     RecRef.Open(FieldRec.TableNo, false, Company.Name);
                     FldRef := RecRef.Field(FieldRec."No.");
                     FldRef.SetRange('NEW');
@@ -297,7 +297,7 @@ codeunit 134769 "Test User Tasks"
 
         // [GIVEN] A task user card page with a valid page type associated with it.
         UserTaskCard.Trap;
-        UserTaskCard.OpenNew;
+        UserTaskCard.OpenNew();
         UserTaskCard."Object Type".Value('page');
         UserTaskCard."Object ID".Value('22');
 
@@ -319,7 +319,7 @@ codeunit 134769 "Test User Tasks"
 
         // [GIVEN] Creating a new user task.
         UserTaskCard.Trap;
-        UserTaskCard.OpenNew;
+        UserTaskCard.OpenNew();
         UserTaskCard.Title.Value := 'Test User Task';
         UserTaskCard."User Task Group Assigned To".Value(UserTaskGroup1.Code);
 
@@ -328,7 +328,7 @@ codeunit 134769 "Test User Tasks"
 
         // [THEN] Find User task created and verify that group code is assigned
         UserTask.SetFilter(Title, 'Test User Task');
-        UserTask.FindFirst;
+        UserTask.FindFirst();
         Assert.AreEqual(UserTaskGroup1.Code, UserTask."User Task Group Assigned To", 'Group code was not assigned to user task.');
     end;
 

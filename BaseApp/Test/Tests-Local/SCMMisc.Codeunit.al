@@ -45,7 +45,7 @@ codeunit 144020 "SCM Misc."
         // [SCENARIO] Can create Purchase Orders at once for several Items with different Vendors, if "Use Vendor's Tax Area Code" set to TRUE.
 
         // [GIVEN] "Use Vendor's Tax Area Code" = TRUE, two Items with different Vendors and Order reordering policy, each is on Sales Line.
-        Initialize;
+        Initialize();
         PrevUseVendorTaxArea := UpdateUseVendorTaxArea(true);
         ProdOrderCount := LibraryRandom.RandIntInRange(2, 4);
         for Counter := 1 to ProdOrderCount do begin
@@ -91,7 +91,7 @@ codeunit 144020 "SCM Misc."
         // [FEATURE] [Requisition Worksheet] [Carry Out Action Message]
         // [SCENARIO 376917] "Carry Out Action Message" creates one purchase order for multiple location codes when planning purchases without special order.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with purchase replenishment system and default vendor
         CreateItemPurchaseReplishment(Item);
@@ -125,7 +125,7 @@ codeunit 144020 "SCM Misc."
         // [FEATURE] [Requisition Worksheet] [Carry Out Action Message] [Special Order]
         // [SCENARIO 376917] "Carry Out Action Message" creates a separate purchase order per location code when planning purchases with special order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with purchase replenishment system and default vendor
         CreateItemPurchaseReplishment(Item);
@@ -159,7 +159,7 @@ codeunit 144020 "SCM Misc."
         // [SCENARIO 378319] "Pay-to Vendor No." can be changed in special purchase order
 
         // [GIVEN] Special sales order with linked purchase order for vendor "V1"
-        Initialize;
+        Initialize();
         CreateSpecialSalesOrderWithLinkedPurchase(SalesHeader, SalesLine);
 
         // [GIVEN] Vendor "V2" with Name = "N"
@@ -186,7 +186,7 @@ codeunit 144020 "SCM Misc."
         // [SCENARIO 378319] "Pay-to Vendor No." can be changed in purchase order with drop shipment
 
         // [GIVEN] Drop shipment sale with linked purchase order for vendor "V1"
-        Initialize;
+        Initialize();
         CreateDropShipSalesOrderWithLinkedPurchase(SalesHeader, SalesLine);
 
         // [GIVEN] Vendor "V2" with Name = "N"
@@ -213,7 +213,7 @@ codeunit 144020 "SCM Misc."
     begin
         // [FEATURE] [Drop Shipment] [Ship-to Code] [Location]
         // [SCENARIO 362455] Requisition Worksheet creates one Purchase Order if Sales Order Lines have different Location Code from Sales Header during Drop Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Ship-to Code" with Location "A" is assigned to a Sales Order
         CreateSalesHeaderWithShipToCodeAndItem(SalesHeader, Item);
@@ -246,15 +246,15 @@ codeunit 144020 "SCM Misc."
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Misc.");
 
-        LibraryERMCountryData.CreateVATData;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        NoSeriesSetup();
         ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        LocationSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LocationSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryInventory.UpdateGenProdPostingSetup;
 
         isInitialized := true;
@@ -318,7 +318,7 @@ codeunit 144020 "SCM Misc."
     begin
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
     end;
 
@@ -489,7 +489,7 @@ codeunit 144020 "SCM Misc."
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate(Name, LibraryUtility.GenerateGUID);
+        Vendor.Validate(Name, LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
     end;
 
@@ -511,21 +511,21 @@ codeunit 144020 "SCM Misc."
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         exit(PurchaseLine."Document No.");
     end;
 
     local procedure FindRequisitionWkshName(var RequisitionWkshName: Record "Requisition Wksh. Name")
     begin
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::"Req.");
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -541,7 +541,7 @@ codeunit 144020 "SCM Misc."
         RetrieveDimensionsFrom: Option Item,"Sales Line";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::"Sales Line");

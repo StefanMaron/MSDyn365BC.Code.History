@@ -56,7 +56,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup : Create Setup to generate Pick for a Item.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandDec(100, 2));
@@ -97,7 +97,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
         // Setup: Create Warehouse Setup, Create and Release Purchase Order, Post Warehouse Receipt.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, true);
         CreateItem(Item);
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandDec(100, 2));
@@ -133,7 +133,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup: Create Warehouse Setup, Create and Release Purchase Order, Post Warehouse Receipt.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandDec(100, 2));
@@ -170,7 +170,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Location: Record Location;
     begin
         // Setup:  Create Warehouse Setup, Create and Release Purchase Order.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         CreateAndReleasePurchaseOrder(PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandDec(10, 2));
@@ -183,7 +183,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // Verify.
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocumentNo_PurchLine', PurchaseHeader."No.");
         LibraryReportDataset.GetNextRow;
@@ -210,7 +210,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup: Create Warehouse Setup, Create and Release Purchase Order, Create Warehouse Receipt From Purchase Order.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         PurchaseQuantity := LibraryRandom.RandDec(10, 2);
@@ -253,7 +253,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup : Create Warehouse Setup, Zone, Bin, Bin Content And Update Inventory.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         UpdateRankingOnAllBins(Location.Code);
@@ -308,7 +308,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create Warehouse Setup, Zone, Bin, Bin Content And Update Inventory, Random Values Important.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(50, 2);
@@ -342,7 +342,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Bin: Record Bin;
     begin
         // Setup: Create Warehouse Setup, Zone, Bin.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
         UpdateRankingOnAllBins(Location.Code);
 
@@ -384,7 +384,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WhsePickRequest: Record "Whse. Pick Request";
     begin
         // Setup: Create Warehouse Setup, Create and Release Sales Order, Release Warehouse Shipment.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         CreateAndReleaseSalesOrder(SalesHeader, Location.Code, Item."No.", LibraryRandom.RandDec(10, 2));
@@ -425,7 +425,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup: Create Warehouse Setup, Zone, Bin, Bin Content And Update Inventory, Calculate Bin Replenishment and Create Movement.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         Zone.Get(Location.Code, 'PICK');
@@ -463,7 +463,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create Warehouse Setup, Zone, Bin, Bin Content And Update Inventory.
-        Initialize;
+        Initialize();
         CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         UpdateRankingOnAllBins(Location.Code);
@@ -496,7 +496,7 @@ codeunit 137305 "SCM Warehouse Reports"
         TransferQuantity: Decimal;
     begin
         // Setup: Create Item, Location and Transfer Order to New Location.
-        Initialize;
+        Initialize();
         CreateTransferOrderLocations(FromLocation, ToLocation, IntransitLocation);
         CreateItem(Item);
         CreatePurchaseOrder(
@@ -535,7 +535,7 @@ codeunit 137305 "SCM Warehouse Reports"
         TransferQuantity: Decimal;
     begin
         // Setup: Create Item, Location and Transfer Order to New Location And Post Transfer Shipment.
-        Initialize;
+        Initialize();
         CreateTransferOrderLocations(FromLocation, ToLocation, IntransitLocation);
         CreateItem(Item);
         CreatePurchaseOrder(
@@ -572,7 +572,7 @@ codeunit 137305 "SCM Warehouse Reports"
         TransferQuantity: Decimal;
     begin
         // Setup: Create Item, Location and Transfer Order to New Location And Post Transfer Receipt.
-        Initialize;
+        Initialize();
         CreateTransferOrderLocations(FromLocation, ToLocation, IntransitLocation);
         CreateItem(Item);
         CreatePurchaseOrder(
@@ -607,7 +607,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup : Create Setup to generate Warehouse receipt;
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -644,7 +644,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup : Create Setup to generate Pick for a Item.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -682,7 +682,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup : Create Setup to generate Pick for a Item.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(10, 2) + 5;
@@ -718,7 +718,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup : Create Setup to generate Pick for a Item.
-        Initialize;
+        Initialize();
         CreateWarehouseSetup(Location, WarehouseEmployee, false);
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(10, 2) + 5;
@@ -752,7 +752,7 @@ codeunit 137305 "SCM Warehouse Reports"
         "Count": Integer;
     begin
         // Setup : Create Customer, Item, Multiple Sales Order and Post Shipment.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateItem(Item);
         Count := LibraryRandom.RandInt(10);
@@ -764,7 +764,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // Verify : Check That Sales Invoice Created after Run Batch Report with Option Post Sales FALSE.
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
@@ -783,7 +783,7 @@ codeunit 137305 "SCM Warehouse Reports"
         "Count": Integer;
     begin
         // Setup : Create Customer, Item, Multiple Sales Order and Post Shipment.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateItem(Item);
         Count := LibraryRandom.RandInt(10);
@@ -793,7 +793,7 @@ codeunit 137305 "SCM Warehouse Reports"
 
         // Verify : Check That Posted Sales Invoice Created after Run Batch Report with Option Post Invoice TRUE.
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
         Assert.AreEqual(Count, SalesInvoiceLine.Count, ErrRecordMissing);
@@ -810,7 +810,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create and release Purchase Order. Create and Post Warehouse Receipt. Run Warehouse Calculate Inventory Report.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, LocationWhite.Code, Item."No.", Quantity);
@@ -837,7 +837,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create and Register Warehouse Journal Line.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         LibraryInventory.CreateItem(Item);
         CreateAndRegisterWhseJnlLine(LocationWhite, Item."No.", Quantity);
@@ -862,7 +862,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create and Post Item Journal. Run Calculate Inventory. Update Quantity Physical Inventory on Item Journal line.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItem(Item);
         CreateAndPostItemJournalLine(Item."No.", Quantity);
@@ -892,7 +892,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create two Items. Create two Sales Orders.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
         CreateItem(Item2);
@@ -928,7 +928,7 @@ codeunit 137305 "SCM Warehouse Reports"
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and Post Sales Order. Create and Post Sales Return Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -956,7 +956,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create Sales Order. Create and update Sales Comment Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -986,7 +986,7 @@ codeunit 137305 "SCM Warehouse Reports"
         PeriodLength: DateFormula;
     begin
         // Setup: Create and refresh Planned Production Order.
-        Initialize;
+        Initialize();
         CreateAndRefreshPlannedProductionOrder(ProductionOrder);
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
 
@@ -1016,7 +1016,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Update Inventory using Warehouse Journal.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         FindPickBin(Bin, LocationWhite.Code);
@@ -1050,7 +1050,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Create and Register Pur away from Purchase Order. Create Pick from Warehouse Shipment.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemWithPurchaseUnitOfMesaure(ItemUnitOfMeasure);
         FindPickBin(Bin, LocationWhite.Code);
@@ -1087,7 +1087,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         // Setup: Create Location with Bin. Create Bin Content. Create Inventory Put-away from Purchase Order.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateLocation(Location, WarehouseEmployee, true);  // TRUE for Bin Mandatory.
         LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
@@ -1117,7 +1117,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create Assembly Item with Component.
-        Initialize;
+        Initialize();
         Quantity := CreateAssemblyItemWithComponent(AssemblyItem, ComponentItem);
 
         // Exercise.
@@ -1143,7 +1143,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup: Create Location with Bin Content and Inventory Put-away from Purchase.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateLocation(Location, WarehouseEmployee, true);
         BinCode := CreateBinContent(Item, Location.Code);
@@ -1170,7 +1170,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // Setup: Create and register Warehouse Journal Line.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(50, 2);
         CreateAndRegisterWhseJnlLine2(
@@ -1248,7 +1248,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         // [FEATURE] [Combine Shipments] [Item Charge]
         // [SCENARIO 378180] Shipment with Item Charge Line first should not prevent Combine Shipments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with two lines: 1st - Item Charge, 2-nd - Item
         CreateCustomer(Customer);
@@ -1280,7 +1280,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Quantity: Decimal;
     begin
         // [SCENARIO 296916] Warehouse Journal Calculate Inventory report assigns Reason Code on the lines it generates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse setup
         CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
@@ -1292,7 +1292,7 @@ codeunit 137305 "SCM Warehouse Reports"
 
         // [GIVEN] Whse Physical Inventory Journal Batch with Reason Code = "X"
         FindWhseJnlTemplateAndBatch(WarehouseJournalBatch, Location.Code, WarehouseJournalBatch."Template Type"::"Physical Inventory");
-        WarehouseJournalBatch."Reason Code" := LibraryUtility.GenerateGUID;
+        WarehouseJournalBatch."Reason Code" := LibraryUtility.GenerateGUID();
         WarehouseJournalBatch.Modify();
 
         // [WHEN] Calculate Inventory report (7390) is ran
@@ -1318,7 +1318,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         // [FEATURE] [Combine Shipments]
         // [SCENARIO 312531] Combine Shipments creates invoice with correct "Sell-To Customer No." and "Bill-to Customer No." when they are not equal on the initial shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CU01"
         CreateCustomer(Customer[1]);
@@ -1356,7 +1356,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         // [FEATURE] [Put-away List]
         // [SCENARIO 312849] PrintInvtPutAwayHeader from codeunit Warehouse Document-Print prints report "Put-away List"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Put-away was created from Purchase Order
         LibraryWarehouse.CreateLocation(Location);
@@ -1364,9 +1364,9 @@ codeunit 137305 "SCM Warehouse Reports"
         Location.Modify(true);
         CreateInventoryPutAwayFromPurchaseOrder(Location.Code, LibraryInventory.CreateItemNo);
         PurchaseHeader.SetRange("Location Code", Location.Code);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
           WarehouseActivityLine."Activity Type"::"Invt. Put-away");
         Commit();
@@ -1397,7 +1397,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         // [FEATURE] [Combine Shipments]
         // [SCENARIO 335308] A user can select which sales orders will be included to a single invoice with Combine Shipments control on sales order page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Combine Shipments" = TRUE.
         CreateCustomer(Customer);
@@ -1430,7 +1430,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // [THEN] Only sales order "SO2" is included to the combined invoice.
         SalesHeader[2].Find;
         SalesHeader[2].CalcFields(Amount);
-        SalesHeaderInvoice.FindFirst;
+        SalesHeaderInvoice.FindFirst();
         SalesHeaderInvoice.CalcFields(Amount);
         SalesHeaderInvoice.TestField(Amount, SalesHeader[2].Amount);
 
@@ -1684,7 +1684,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         // [FEATURE] [Report Selection] [Movement]
         // [SCENARIO 358365] A report from Report Selection is used when you choose to print put-away being created from warehouse internal put-away.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
@@ -1724,7 +1724,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::Pick);
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1744,7 +1744,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Put-away");
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1764,7 +1764,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::Movement);
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1784,7 +1784,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Pick");
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1804,7 +1804,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Put-away");
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1824,7 +1824,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Movement");
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1844,7 +1844,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::Receipt);
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1864,7 +1864,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Posted Receipt");
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1884,7 +1884,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::Shipment);
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -1904,7 +1904,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedErrorCode('MissingUIHandler');
 
         ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Posted Shipment");
-        ReportSelectionWarehouse.FindFirst;
+        ReportSelectionWarehouse.FindFirst();
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
@@ -2228,17 +2228,17 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse Reports");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
         CreateLocationSetup;
 
         isInitialized := true;
@@ -2361,7 +2361,7 @@ codeunit 137305 "SCM Warehouse Reports"
             RecRef.GetTable(SalesLine);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
             Type := Type::" ";
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert(true);
         end;
     end;
@@ -2609,7 +2609,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         EntryNo := ItemLedgerEntry."Entry No.";
     end;
 
@@ -2618,7 +2618,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentNo(): Code[20]
@@ -2635,7 +2635,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         WarehouseEntry.SetRange("Item No.", ItemNo);
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         FromEntryNo := WarehouseEntry."Entry No.";
     end;
 
@@ -2652,7 +2652,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
         WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure FindLastRankingBin(var Bin: Record Bin; LocationCode: Code[10]; ZoneCode: Code[10])
@@ -2660,7 +2660,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Bin.SetCurrentKey("Location Code", "Warehouse Class Code", "Bin Ranking");
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Zone Code", ZoneCode);
-        Bin.FindLast;
+        Bin.FindLast();
     end;
 
     local procedure FindFirstBinRankingForZone(var Bin: Record Bin; ZoneCode: Code[10]; LocationCode: Code[10])
@@ -2668,21 +2668,21 @@ codeunit 137305 "SCM Warehouse Reports"
         Bin.SetCurrentKey("Location Code", "Warehouse Class Code", "Bin Ranking");
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Zone Code", ZoneCode);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; No: Code[20]; ItemNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("No.", No);
         WarehouseReceiptLine.SetRange("Item No.", ItemNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindPostedWarehouseReceiptHeader(var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; WhseReceiptNo: Code[20]; LocationCode: Code[10])
     begin
         PostedWhseReceiptHeader.SetRange("Whse. Receipt No.", WhseReceiptNo);
         PostedWhseReceiptHeader.SetRange("Location Code", LocationCode);
-        PostedWhseReceiptHeader.FindFirst;
+        PostedWhseReceiptHeader.FindFirst();
     end;
 
     local procedure FindAndUpdateWarehouseReceipt(WarehouseReceiptNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
@@ -2708,7 +2708,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, true));  // TRUE for Put-away and Pick.
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure PostWarehouseReceipt(WarehouseReceiptNo: Code[20])
@@ -2732,7 +2732,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseJournalLine.Validate("Location Code", LocationCode);
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate, LibraryUtility.GenerateGUID, false);
     end;
 
@@ -2751,7 +2751,7 @@ codeunit 137305 "SCM Warehouse Reports"
 
         Commit();
 
-        WhseCalculateInventory.Run;
+        WhseCalculateInventory.Run();
     end;
 
     local procedure RunCalculateInventory(ItemNo: Code[20]; ItemsNotOnInvt: Boolean)
@@ -2865,7 +2865,7 @@ codeunit 137305 "SCM Warehouse Reports"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetFilter(Quantity, '>%1', 0);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
     end;
 
     [Normal]
@@ -2938,7 +2938,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
     end;
 
@@ -2951,7 +2951,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseJournalLine.SetRange("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.SetRange("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.SetRange("Location Code", LocationCode);
-        WarehouseJournalLine.FindFirst;
+        WarehouseJournalLine.FindFirst();
         Assert.AreEqual(
           Quantity, WarehouseJournalLine."Qty. (Calculated)",
           StrSubstNo(ValidationErr, WarehouseJournalLine.FieldCaption("Qty. (Calculated)"), Quantity, WarehouseJournalLine.TableCaption));
@@ -2976,7 +2976,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate(
           "Qty. (Phys. Inventory)", ItemJournalLine."Qty. (Calculated)" - (ItemJournalLine."Qty. (Calculated)" / 2));  // Value required for the test.
         ItemJournalLine.Modify(true);
@@ -3022,7 +3022,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
 
         LibraryReportDataset.SetRange('ActionType_WhseActivLine', Format(WarehouseActivityLine."Action Type"));
         LibraryReportDataset.GetNextRow;
@@ -3038,7 +3038,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         with ItemJournalLine do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             TestField("Qty. (Calculated)", CalculatedQty);
             TestField("Qty. (Phys. Inventory)", PhysInvtQty);
             TestField(Quantity, Qty);
@@ -3052,14 +3052,14 @@ codeunit 137305 "SCM Warehouse Reports"
         with SalesInvoiceLine do begin
             SetRange("No.", ItemNo);
             SetRange(Quantity, Quantity1);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(Type::Item, Type, CombineShipmentErr);
             SetRange(Quantity, Quantity2);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(Type::Item, Type, CombineShipmentErr);
             Reset;
             SetRange(Description, SalesLineDescription);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(Type::" ", Type, CombineShipmentErr);
         end;
     end;
@@ -3072,7 +3072,7 @@ codeunit 137305 "SCM Warehouse Reports"
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         SalesHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);

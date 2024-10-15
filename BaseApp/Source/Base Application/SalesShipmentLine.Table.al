@@ -421,7 +421,7 @@
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -434,7 +434,7 @@
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -448,7 +448,7 @@
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -460,7 +460,7 @@
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -878,13 +878,13 @@
 
         FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
         ItemLedgEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ItemLedgEntry.FindSet then begin
+        if ItemLedgEntry.FindSet() then begin
             ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
             ValueEntry.SetFilter("Invoiced Quantity", '<>0');
             repeat
                 ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-                if ValueEntry.FindSet then
+                if ValueEntry.FindSet() then
                     repeat
                         if ValueEntry."Document Type" = ValueEntry."Document Type"::"Sales Invoice" then
                             if SalesInvLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
@@ -917,7 +917,7 @@
 
         RevUnitCostLCY := 0;
         FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 ShippedQtyNotReturned := ShippedQtyNotReturned - ItemLedgEntry."Shipped Qty. Not Returned";
                 if ExactCostReverse then begin
@@ -977,7 +977,7 @@
     procedure StartTrackingSite()
     begin
         SalesShptHeader.Get("Document No.");
-        SalesShptHeader.StartTrackingSite("Package Tracking No.");
+        SalesShptHeader.StartTrackingSite();
     end;
 
     procedure ShowLineComments()

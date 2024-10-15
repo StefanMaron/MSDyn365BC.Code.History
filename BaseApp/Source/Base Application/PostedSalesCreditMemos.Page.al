@@ -282,6 +282,13 @@ page 144 "Posted Sales Credit Memos"
                 ShowFilter = false;
                 Visible = NOT IsOfficeAddin;
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -317,7 +324,7 @@ page 144 "Posted Sales Credit Memos"
                     begin
                         CurrPage.SetSelectionFilter(SalesCrMemoHeader);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if SalesCrMemoHeader.FindSet then begin
+                        if SalesCrMemoHeader.FindSet() then begin
                             repeat
                                 SalesCrMemoHeader.RequestStampEDocument;
                                 ProgressWindow.Update(1, SalesCrMemoHeader."No.");
@@ -376,7 +383,7 @@ page 144 "Posted Sales Credit Memos"
                     begin
                         CurrPage.SetSelectionFilter(SalesCrMemoHeader);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if SalesCrMemoHeader.FindSet then begin
+                        if SalesCrMemoHeader.FindSet() then begin
                             repeat
                                 SalesCrMemoHeader.CancelEDocument;
                                 ProgressWindow.Update(1, SalesCrMemoHeader."No.");
@@ -494,7 +501,7 @@ page 144 "Posted Sales Credit Memos"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     Scope = Repeater;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
 
@@ -705,7 +712,7 @@ page 144 "Posted Sales Credit Memos"
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
         if HasFilters and not Find() then
-            if FindFirst then;
+            if FindFirst() then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
         SalesCrMemoHeader.CopyFilters(Rec);
         SalesCrMemoHeader.SetFilter("Document Exchange Status", '<>%1', "Document Exchange Status"::"Not Sent");

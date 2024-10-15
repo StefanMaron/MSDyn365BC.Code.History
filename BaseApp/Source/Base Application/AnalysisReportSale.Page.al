@@ -71,7 +71,7 @@ page 9376 "Analysis Report Sale"
                     SalesAnalysisReport: Page "Sales Analysis Report";
                 begin
                     SalesAnalysisReport.SetReportName(Name);
-                    SalesAnalysisReport.Run;
+                    SalesAnalysisReport.Run();
                 end;
             }
         }

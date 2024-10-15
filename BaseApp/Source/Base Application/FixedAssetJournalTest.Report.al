@@ -490,7 +490,7 @@ report 5602 "Fixed Asset Journal - Test"
                 OldFALedgEntry.SetRange("FA Posting Category", OldFALedgEntry."FA Posting Category"::" ");
                 OldFALedgEntry.SetRange("FA Posting Type", ConvertToLedgEntry("FA Journal Line"));
                 OldFALedgEntry.SetRange("Document No.", "Document No.");
-                if OldFALedgEntry.FindFirst then
+                if OldFALedgEntry.FindFirst() then
                     AddError(
                       StrSubstNo(
                         Text014,
@@ -501,7 +501,7 @@ report 5602 "Fixed Asset Journal - Test"
                 OldMaintenanceLedgEntry.SetRange("FA No.", "FA No.");
                 OldMaintenanceLedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
                 OldMaintenanceLedgEntry.SetRange("Document No.", "Document No.");
-                if OldMaintenanceLedgEntry.FindFirst then
+                if OldMaintenanceLedgEntry.FindFirst() then
                     AddError(
                       StrSubstNo(
                         Text014,

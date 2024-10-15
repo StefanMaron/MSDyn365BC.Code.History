@@ -368,7 +368,6 @@ page 5540 "Item Availability by Timeline"
     end;
 
     var
-        Item: Record Item;
         TempTimelineEvent: Record "Timeline Event" temporary;
         CalcItemAvailTimeline: Codeunit "Calc. Item Avail. Timeline";
         ItemNo: Code[20];
@@ -382,8 +381,6 @@ page 5540 "Item Availability by Timeline"
         ActionMsg: Enum "Action Message Type";
         State: Option " ",Initialized,"Unsaved Changes";
         LastUpdateTime: DateTime;
-        [InDataSet]
-        IncludeBlanketOrders: Boolean;
         Text001: Label 'The changes have been saved to the planning or requisition worksheet.';
         CurrReferenceNo: Text[200];
         BlockCurrRecNotifications: Boolean;
@@ -398,6 +395,11 @@ page 5540 "Item Availability by Timeline"
         ItemSelected: Boolean;
         Text008: Label 'New Supply %1';
         Text009: Label 'Do you want to delete?';
+
+    protected var
+        Item: Record Item;
+        [InDataSet]
+        IncludeBlanketOrders: Boolean;
 
     [Scope('OnPrem')]
     procedure InitAndCreateTimelineEvents()
@@ -500,7 +502,7 @@ page 5540 "Item Availability by Timeline"
     begin
         TempTimelineEventChange.Copy(Rec, true);
         CurrPage.SetSelectionFilter(TempTimelineEventChange);
-        if TempTimelineEventChange.FindSet then begin
+        if TempTimelineEventChange.FindSet() then begin
             IgnoreChanges := true;
             repeat
                 CurrPage.Visualization.DeleteTransaction(TempTimelineEventChange."Reference No.");
@@ -528,7 +530,7 @@ page 5540 "Item Availability by Timeline"
             exit;
 
         SetRange("Reference No.", RefNo);
-        if FindFirst then begin
+        if FindFirst() then begin
             CurrPage.SetRecord(Rec);
             CurrPage.Update(false);
         end;

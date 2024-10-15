@@ -32,7 +32,7 @@ codeunit 133504 "SCM Costing Performance"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Costing Performance");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -60,7 +60,7 @@ codeunit 133504 "SCM Costing Performance"
         if not CodeCoverageMgt.Running then
             CodeCoverageMgt.StartApplicationCoverage;
 
-        Initialize;
+        Initialize();
         SmallNoOfSales := LibraryRandom.RandIntInRange(2, 3);
         DurationSmallNo := PurchaseOnceManySales(SmallNoOfSales);
         DurationLargeNo := PurchaseOnceManySales(SmallNoOfSales * 4);
@@ -78,7 +78,7 @@ codeunit 133504 "SCM Costing Performance"
     [Scope('OnPrem')]
     procedure SalePurchSale_FIFO()
     begin
-        Initialize;
+        Initialize();
         SalePurchSale("Costing Method"::FIFO);
     end;
 
@@ -86,7 +86,7 @@ codeunit 133504 "SCM Costing Performance"
     [Scope('OnPrem')]
     procedure SalePurchSale_Avg()
     begin
-        Initialize;
+        Initialize();
         SalePurchSale("Costing Method"::Average);
     end;
 
@@ -94,7 +94,7 @@ codeunit 133504 "SCM Costing Performance"
     [Scope('OnPrem')]
     procedure Test_PurchReturnShptAnd2Sales_FIFO()
     begin
-        Initialize;
+        Initialize();
         PurchReturnShptAnd2Sales("Costing Method"::FIFO, false);
     end;
 
@@ -102,7 +102,7 @@ codeunit 133504 "SCM Costing Performance"
     [Scope('OnPrem')]
     procedure Test_PurchReturnShptAnd2Sales_AvgFixedAppln()
     begin
-        Initialize;
+        Initialize();
         PurchReturnShptAnd2Sales("Costing Method"::Average, false);
     end;
 
@@ -110,7 +110,7 @@ codeunit 133504 "SCM Costing Performance"
     [Scope('OnPrem')]
     procedure Test_PurchReturnShptAnd2Sales_AvgNoAppln()
     begin
-        Initialize;
+        Initialize();
         PurchReturnShptAnd2Sales("Costing Method"::Average, true);
     end;
 
@@ -118,7 +118,7 @@ codeunit 133504 "SCM Costing Performance"
     [Scope('OnPrem')]
     procedure Test_UndoReturnReceiptAnd2Sales_FIFO()
     begin
-        Initialize;
+        Initialize();
         UndoReturnReceiptAnd2Sales("Costing Method"::FIFO, false);
     end;
 
@@ -126,7 +126,7 @@ codeunit 133504 "SCM Costing Performance"
     [Scope('OnPrem')]
     procedure Test_UndoReturnReceiptAnd2Sales_AvgFixedAppln()
     begin
-        Initialize;
+        Initialize();
         UndoReturnReceiptAnd2Sales("Costing Method"::Average, false);
     end;
 
@@ -134,7 +134,7 @@ codeunit 133504 "SCM Costing Performance"
     [Scope('OnPrem')]
     procedure Test_UndoReturnReceiptAnd2Sales_AvgNoAppln()
     begin
-        Initialize;
+        Initialize();
         UndoReturnReceiptAnd2Sales("Costing Method"::Average, true);
     end;
 
@@ -148,7 +148,7 @@ codeunit 133504 "SCM Costing Performance"
         LinesWithThreeSKU: Integer;
     begin
         // Workitem VSTF-268387
-        Initialize;
+        Initialize();
         if not CodeCoverageMgt.Running then
             CodeCoverageMgt.StartApplicationCoverage;
 
@@ -214,7 +214,7 @@ codeunit 133504 "SCM Costing Performance"
         // [FEATURE] [Stockkeeping Unit]
         // [SCENARIO 263791] "Adjust Cost - Item Entries" job does not recalculate SKU unit cost when no adjustment entries were posted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Average Cost Calc. Type" is set to "Item & Location & Variant" to track cost by SKU
         LibraryInventory.SetAverageCostSetup(
@@ -281,7 +281,7 @@ codeunit 133504 "SCM Costing Performance"
         LibraryPatterns.POSTItemJournalLine(
           ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase, Item, '', '', '', PurchaseQty, Day1, 2);
 
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
 
         for jj := 1 to PurchaseQty - 1 do begin
             LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
@@ -378,7 +378,7 @@ codeunit 133504 "SCM Costing Performance"
         // Create and Post Purchase
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate, UnitCost, true, true);
         PurchRcptLine.SetRange("No.", Item."No.");
-        PurchRcptLine.FindLast;
+        PurchRcptLine.FindLast();
         FirstSaleItemApplnEntry.Find('+');
         FirstSaleItemApplnEntry.Next(-1);
 
@@ -401,7 +401,7 @@ codeunit 133504 "SCM Costing Performance"
 
         // Create and Post Second Sales
         LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty2, WorkDate, UnitPrice, true, true);
-        SecondSaleItemApplnEntry.FindLast;
+        SecondSaleItemApplnEntry.FindLast();
 
         // Adjust Cost
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -432,19 +432,19 @@ codeunit 133504 "SCM Costing Performance"
         // Create and Post Purchase
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate, UnitCost, true, true);
         PurchRcptLine.SetRange("No.", Item."No.");
-        PurchRcptLine.FindLast;
+        PurchRcptLine.FindLast();
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
 
         // Create and Post Return Order
         LibraryPatterns.MAKEPurchaseReturnOrder(ReturnPurchaseHeader, ReturnPurchaseLine, Item, '', '', Qty1, WorkDate, UnitCost);
         ReturnPurchaseLine.SetRange("Document Type", ReturnPurchaseLine."Document Type");
         ReturnPurchaseLine.SetRange("Document No.", ReturnPurchaseLine."Document No.");
-        ReturnPurchaseLine.FindFirst;
+        ReturnPurchaseLine.FindFirst();
         ReturnPurchaseLine.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
         ReturnPurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(ReturnPurchaseHeader, true, true);
-        PurchReturnItemApplnEntry.FindLast;
+        PurchReturnItemApplnEntry.FindLast();
 
         // Adjust Cost
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -454,7 +454,7 @@ codeunit 133504 "SCM Costing Performance"
 
         // Create and Post Sales
         PostSalesOrder(Item, Qty2 / 2, UnitPrice, not AvgCostNoApplication, ItemLedgerEntry."Entry No.");
-        FirstSaleItemApplnEntry.FindLast;
+        FirstSaleItemApplnEntry.FindLast();
 
         // Adjust Cost
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -478,7 +478,7 @@ codeunit 133504 "SCM Costing Performance"
 
         // Create and Post Second Sales
         PostSalesOrder(Item, Qty2 / 2, UnitPrice, not AvgCostNoApplication, ItemLedgerEntry."Entry No.");
-        SecondSaleItemApplnEntry.FindLast;
+        SecondSaleItemApplnEntry.FindLast();
         // Verify
         VerifyApplnEntry(PurchReturnItemApplnEntry, true, AvgCostNoApplication);
         VerifyApplnEntry(FirstSaleItemApplnEntry, true, AvgCostNoApplication);
@@ -517,24 +517,24 @@ codeunit 133504 "SCM Costing Performance"
         // Create and Post Purchase
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate, UnitCost, true, true);
         PurchItemLedgerEntry.SetRange("Item No.", Item."No.");
-        PurchItemLedgerEntry.FindLast;
+        PurchItemLedgerEntry.FindLast();
         PurchRcptLine.SetRange("No.", Item."No.");
-        PurchRcptLine.FindLast;
+        PurchRcptLine.FindLast();
 
         // Create and Post Sales
         PostSalesOrder(Item, Qty1, UnitPrice, not AvgCostNoApplication, PurchItemLedgerEntry."Entry No.");
         SalesItemLedgerEntry.SetRange("Item No.", Item."No.");
-        SalesItemLedgerEntry.FindLast;
+        SalesItemLedgerEntry.FindLast();
 
         // Create and Ship Sales Return Order
         LibraryPatterns.MAKESalesReturnOrder(ReturnSalesHeader, ReturnSalesLine, Item, '', '', Qty1, WorkDate, UnitCost, UnitPrice);
         ReturnSalesLine.SetRange("Document Type", ReturnSalesLine."Document Type");
         ReturnSalesLine.SetRange("Document No.", ReturnSalesLine."Document No.");
-        ReturnSalesLine.FindFirst;
+        ReturnSalesLine.FindFirst();
         ReturnSalesLine.Validate("Appl.-from Item Entry", SalesItemLedgerEntry."Entry No.");
         ReturnSalesLine.Modify(true);
         LibrarySales.PostSalesDocument(ReturnSalesHeader, true, false);
-        SalesReturnItemApplnEntry.FindLast;
+        SalesReturnItemApplnEntry.FindLast();
 
         // Adjust Cost
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -544,10 +544,10 @@ codeunit 133504 "SCM Costing Performance"
 
         // Undo Return Receipt
         ReturnRcptLine.SetRange("No.", Item."No.");
-        ReturnRcptLine.FindLast;
+        ReturnRcptLine.FindLast();
         UndoReturnReceiptLine.SetHideDialog(true);
         UndoReturnReceiptLine.Run(ReturnRcptLine);
-        UndoSalesReturnItemApplnEntry.FindLast;
+        UndoSalesReturnItemApplnEntry.FindLast();
 
         // Adjust Cost
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -568,7 +568,7 @@ codeunit 133504 "SCM Costing Performance"
 
         // Create and Post Second Sales
         PostSalesOrder(Item, Qty2, UnitPrice, not AvgCostNoApplication, PurchItemLedgerEntry."Entry No.");
-        SecondSaleItemApplnEntry.FindLast;
+        SecondSaleItemApplnEntry.FindLast();
         // Verify
         VerifyApplnEntry(SalesReturnItemApplnEntry, false, AvgCostNoApplication);
         VerifyApplnEntry(UndoSalesReturnItemApplnEntry, true, AvgCostNoApplication);
@@ -643,7 +643,7 @@ codeunit 133504 "SCM Costing Performance"
         CodeCover.SetRange("Object ID", ObjectID);
         CodeCover.SetFilter("No. of Hits", '>%1', 0);
         CodeCover.SetFilter(Line, '@*' + Line + '*');
-        if CodeCover.FindSet then
+        if CodeCover.FindSet() then
             repeat
                 NoOfHits += CodeCover."No. of Hits";
             until CodeCover.Next = 0;

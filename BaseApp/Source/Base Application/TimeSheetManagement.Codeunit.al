@@ -146,7 +146,7 @@ codeunit 950 "Time Sheet Management"
         if AccountingPeriod.IsEmpty() then
             exit;
         AccountingPeriod.SetFilter("Starting Date", '..%1', Date);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         AccountingPeriod.TestField(Closed, false);
     end;
 
@@ -158,7 +158,7 @@ codeunit 950 "Time Sheet Management"
         Resource.SetFilter("No.", '<>%1', CurrResourceNo);
         Resource.SetRange(Type, Resource.Type::Person);
         Resource.SetRange("Time Sheet Owner User ID", TimeSheetOwnerUserID);
-        if Resource.FindFirst then
+        if Resource.FindFirst() then
             Error(
               Text002,
               TimeSheetOwnerUserID,
@@ -199,7 +199,7 @@ codeunit 950 "Time Sheet Management"
         if Resource.Get(TimeSheetHeader."Resource No.") then begin
             Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
             Calendar.SetRange("Period Start", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
-            if Calendar.FindSet then
+            if Calendar.FindSet() then
                 repeat
                     i += 1;
                     DateDescription[i] := FormatDate(Calendar."Period Start", 0);
@@ -313,7 +313,7 @@ codeunit 950 "Time Sheet Management"
         TotalQuantity := 0;
         Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
         Calendar.SetRange("Period Start", TimeSheetHeaderArchive."Starting Date", TimeSheetHeaderArchive."Ending Date");
-        if Calendar.FindSet then
+        if Calendar.FindSet() then
             repeat
                 i += 1;
                 DateDescription[i] := FormatDate(Calendar."Period Start", 0);
@@ -346,7 +346,7 @@ codeunit 950 "Time Sheet Management"
             TimeSheetHeaderArchive.Insert();
 
             TimeSheetLine.SetRange("Time Sheet No.", "No.");
-            if TimeSheetLine.FindSet then begin
+            if TimeSheetLine.FindSet() then begin
                 repeat
                     TimeSheetLineArchive.TransferFields(TimeSheetLine);
                     TimeSheetLineArchive.Insert();
@@ -355,7 +355,7 @@ codeunit 950 "Time Sheet Management"
             end;
 
             TimeSheetDetail.SetRange("Time Sheet No.", "No.");
-            if TimeSheetDetail.FindSet then begin
+            if TimeSheetDetail.FindSet() then begin
                 repeat
                     TimeSheetDetailArchive.TransferFields(TimeSheetDetail);
                     TimeSheetDetailArchive.Insert
@@ -364,7 +364,7 @@ codeunit 950 "Time Sheet Management"
             end;
 
             TimeSheetCommentLine.SetRange("No.", "No.");
-            if TimeSheetCommentLine.FindSet then begin
+            if TimeSheetCommentLine.FindSet() then begin
                 repeat
                     TimeSheetCmtLineArchive.TransferFields(TimeSheetCommentLine);
                     TimeSheetCmtLineArchive.Insert();
@@ -498,7 +498,7 @@ codeunit 950 "Time Sheet Management"
         FillJobPlanningBuffer(TimeSheetHeader, TempJobPlanningLine);
 
         TempJobPlanningLine.Reset();
-        if TempJobPlanningLine.FindSet then
+        if TempJobPlanningLine.FindSet() then
             repeat
                 LineNo := LineNo + 10000;
                 CreatedLinesQty := CreatedLinesQty + 1;
@@ -536,7 +536,7 @@ codeunit 950 "Time Sheet Management"
         JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Resource);
         JobPlanningLine.SetRange("No.", TimeSheetHeader."Resource No.");
         JobPlanningLine.SetRange("Planning Date", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
-        if JobPlanningLine.FindSet then
+        if JobPlanningLine.FindSet() then
             repeat
                 SkipLine := TimesheetLineWithJobPlanningLineExists(TimeSheetHeader, JobPlanningLine);
                 OnCheckInsertJobPlanningLine(JobPlanningLine, JobPlanningLineBuffer, SkipLine);
@@ -623,7 +623,7 @@ codeunit 950 "Time Sheet Management"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         exit(ServiceItemLine."Service Item No.");
     end;
 
@@ -674,11 +674,11 @@ codeunit 950 "Time Sheet Management"
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
         TimeSheetHeader.SetFilter("Starting Date", '..%1', PostingDate);
         TimeSheetHeader.SetFilter("Ending Date", '%1..', PostingDate);
-        TimeSheetHeader.FindFirst;
+        TimeSheetHeader.FindFirst();
 
         with TimeSheetLine do begin
             SetRange("Time Sheet No.", TimeSheetHeader."No.");
-            if FindLast then;
+            if FindLast() then;
             LineNo := "Line No." + 10000;
 
             Init;
@@ -829,7 +829,7 @@ codeunit 950 "Time Sheet Management"
 
     procedure CopyFilteredTimeSheetLinesToBuffer(var TimeSheetLineFrom: Record "Time Sheet Line"; var TimeSheetLineTo: Record "Time Sheet Line")
     begin
-        if TimeSheetLineFrom.FindSet then
+        if TimeSheetLineFrom.FindSet() then
             repeat
                 TimeSheetLineTo := TimeSheetLineFrom;
                 TimeSheetLineTo.Insert();
@@ -917,7 +917,7 @@ codeunit 950 "Time Sheet Management"
         TimeSheetPostingEntry.FilterGroup(0);
         Clear(TimeSheetPostingEntries);
         TimeSheetPostingEntries.SetTableView(TimeSheetPostingEntry);
-        TimeSheetPostingEntries.RunModal;
+        TimeSheetPostingEntries.RunModal();
     end;
 
     procedure FindNearestTimeSheetStartDate(Date: Date): Date
@@ -940,11 +940,11 @@ codeunit 950 "Time Sheet Management"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        if ServiceLine.FindLast then;
+        if ServiceLine.FindLast() then;
         LineNo := ServiceLine."Line No." + 10000;
 
         ServiceLine.SetFilter("Time Sheet No.", '<>%1', '');
-        if ServiceLine.FindSet then
+        if ServiceLine.FindSet() then
             repeat
                 if not TempTimeSheetDetail.Get(
                      ServiceLine."Time Sheet No.",
@@ -968,7 +968,7 @@ codeunit 950 "Time Sheet Management"
             TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
         end;
         TimeSheetDetail.SetRange(Posted, false);
-        if TimeSheetDetail.FindSet then
+        if TimeSheetDetail.FindSet() then
             repeat
                 if not TempTimeSheetDetail.Get(
                      TimeSheetDetail."Time Sheet No.",

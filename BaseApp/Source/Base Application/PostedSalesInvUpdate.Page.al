@@ -48,6 +48,11 @@ page 1355 "Posted Sales Inv. - Update"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment of the sales invoice.';
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
             }
             group("Electronic Document")
             {
@@ -89,6 +94,7 @@ page 1355 "Posted Sales Inv. - Update"
     begin
         IsChanged := ("Payment Method Code" <> xSalesInvoiceHeader."Payment Method Code") or
           ("Payment Reference" <> xSalesInvoiceHeader."Payment Reference") or
+          ("Company Bank Account Code" <> xSalesInvoiceHeader."Company Bank Account Code") or
           ("CFDI Cancellation Reason Code" <> xSalesInvoiceHeader."CFDI Cancellation Reason Code") or
           ("Substitution Document No." <> xSalesInvoiceHeader."Substitution Document No.");
 

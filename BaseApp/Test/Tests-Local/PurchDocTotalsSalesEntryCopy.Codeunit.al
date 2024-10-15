@@ -43,7 +43,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [FEATURE] [Copy]
         // [SCENARIO 136987] Copy posted Inv to Invoice without recalculate will keep document totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
 
@@ -94,7 +94,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [FEATURE] [Copy]
         // [SCENARIO 136987] Copy posted Inv to Invoice with recalculate will update taxes and totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
 
@@ -145,7 +145,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [FEATURE] [Copy]
         // [SCENARIO 136987]  Copy unposted Inv to order without recalculate will keep document totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
 
@@ -193,7 +193,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [FEATURE] [Copy]
         // [SCENARIO 136987] Copy Invoice to Order with recalculate will update taxes and totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
 
@@ -244,7 +244,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [FEATURE] [Copy] [Invoice Discount Amount]
         // [SCENARIO 136987] Purchase Invoice Doc Totals, Tax and Inv Discount are calculated on copy when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -308,7 +308,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [FEATURE] [Standard Purchase Code]
         // [SCENARIO 136987] Applying Standard Purchase Codes will update document totals
         // Setup
-        Initialize;
+        Initialize();
         RoundingPrecision := 0.01;
 
         // [GIVEN] User has set up standard purchase codes and vendor
@@ -357,7 +357,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [FEATURE] [Standard Purchase Code] [Invoice Discount Amount]
         // [SCENARIO 136987] Applying Standard Purchase Codes will update totals and inv disc when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         RoundingPrecision := 0.01;
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -427,16 +427,16 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         InventorySetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateVATPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
         Commit();
@@ -571,7 +571,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
 
     local procedure GetRandomCode(FieldLength: Integer) RandomCode: Code[20]
     begin
-        RandomCode := LibraryUtility.GenerateGUID;
+        RandomCode := LibraryUtility.GenerateGUID();
         repeat
             RandomCode += Format(LibraryRandom.RandInt(9));  // Generating any Random integer value.
         until StrLen(RandomCode) = FieldLength;
@@ -704,7 +704,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
         CopyPurchaseDocument.SetParameters(DocumentType, DocumentNo, false, ReCalculateLines);
         CopyPurchaseDocument.UseRequestPage(false);
-        CopyPurchaseDocument.RunModal;
+        CopyPurchaseDocument.RunModal();
     end;
 
     local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Option; TaxGroupCode: Code[20]) ItemNo: Code[20]

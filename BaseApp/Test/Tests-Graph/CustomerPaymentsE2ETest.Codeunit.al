@@ -81,7 +81,7 @@ codeunit 135515 "Customer Payments E2E Test"
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryGraphJournalLines.CheckLineWithGenericLineValues(GenJournalLine, Amount);
         Assert.AreEqual(CustomerNo, GenJournalLine."Account No.", 'Journal Line ' + CustomerNo + ' should be changed');
         Assert.AreEqual(AppliesToDocNo, GenJournalLine."Applies-to Doc. No.", 'Journal Line ' + AppliesToDocNo + ' should be changed');
@@ -130,7 +130,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [THEN] the response text should contain the customer payment information and the integration record table should map the JournalLineID with the ID
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreNotEqual('', GenJournalLine."Document No.", 'Journal Line documentNumber should not be empty');
     end;
 
@@ -176,7 +176,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // to the supplied id and the number should match the id.
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         Assert.AreEqual(
           SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader), GenJournalLine."Applies-to Invoice Id",
@@ -250,7 +250,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         CustomerPaymentGUID := GenJournalLine.SystemId;
         Commit();
 
@@ -306,7 +306,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [GIVEN] the customer payment's unique GUID
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         CustomerPaymentGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', CustomerPaymentGUID, 'Customer Payment GUID should not be empty');
         Commit();
@@ -320,7 +320,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [THEN] the JournalLine in the table should have the values that were given
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", NewLineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryGraphJournalLines.CheckLineWithGenericLineValues(GenJournalLine, NewAmount);
         Assert.AreEqual(NewCustomerNo, GenJournalLine."Account No.", 'Journal Line ' + NewCustomerNo + ' should be changed');
         Assert.AreEqual(
@@ -364,9 +364,9 @@ codeunit 135515 "Customer Payments E2E Test"
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         CustomerPaymentGUID := GenJournalLine.SystemId;
-        RandomDocNo := LibraryUtility.GenerateGUID;
+        RandomDocNo := LibraryUtility.GenerateGUID();
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', AppliesToDocNoNameTxt, RandomDocNo);
 
         // [WHEN] we PATCH the existing customer payment and update the Doc. No. to a random value.
@@ -378,7 +378,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [THEN] the response text should contain the random Doc. No. but the Id should be blanked.
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         Assert.AreEqual(
           RandomDocNo, GenJournalLine."Applies-to Doc. No.",
@@ -414,7 +414,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [GIVEN] the customer payment's unique GUID
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         CustomerPaymentGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', CustomerPaymentGUID, 'CustomerPaymentGUID should not be empty');
         Commit();
@@ -471,7 +471,7 @@ codeunit 135515 "Customer Payments E2E Test"
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(CustomerNo, GenJournalLine."Account No.", 'Journal Line ' + CustomerNo + ' should be autofilled');
         Assert.AreEqual(AppliesToDocNo, GenJournalLine."Applies-to Doc. No.", 'Journal Line ' + AppliesToDocNo + ' should be changed');
     end;
@@ -518,7 +518,7 @@ codeunit 135515 "Customer Payments E2E Test"
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(CustomerNo[2], GenJournalLine."Account No.", 'Journal Line ' + CustomerNo[2] + ' should not be autofilled');
         Assert.AreEqual(AppliesToDocNo, GenJournalLine."Applies-to Doc. No.", 'Journal Line ' + AppliesToDocNo + ' should be changed');
     end;
@@ -573,7 +573,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [THEN] the response text should contain the customer payment information and the integration record table should map the JournalLineID with the ID
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[1]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           CustomerNo, GenJournalLine."Account No.", 'Customer Payment ' + CustomerNoNameTxt + ' should have the correct Customer No');
         Assert.AreEqual(
@@ -582,7 +582,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[2]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           CustomerNo, GenJournalLine."Account No.", 'Customer Payment ' + CustomerNoNameTxt + ' should have the correct Customer No');
         Assert.AreEqual(
@@ -591,7 +591,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[3]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           CustomerNo, GenJournalLine."Account No.", 'Customer Payment ' + CustomerNoNameTxt + ' should have the correct Customer No');
         Assert.AreEqual(
@@ -694,7 +694,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [THEN] the response text should contain the customer payment information and the integration record table should map the JournalLineID with the ID
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[1]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           AppliesToDocNo, GenJournalLine."Applies-to Doc. No.",
           'Customer Payment ' + AppliesToDocNoNameTxt + ' should have the correct AppliesToDoc No');
@@ -705,7 +705,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo[2]);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           AppliesToDocNo, GenJournalLine."Applies-to Doc. No.",
           'Customer Payment ' + AppliesToDocNoNameTxt + ' should have the correct AppliesToDoc No');
@@ -716,7 +716,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo[3]);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           AppliesToDocNo, GenJournalLine."Applies-to Doc. No.",
           'Customer Payment ' + AppliesToDocNoNameTxt + ' should have the correct AppliesToDoc No');
@@ -791,7 +791,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         Evaluate(LineNo, LineNoValue);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure VerifyCustomerFields(ExpectedCustomer: Record Customer; ResponseText: Text)

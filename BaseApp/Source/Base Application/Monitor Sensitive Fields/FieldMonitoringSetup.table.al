@@ -1,6 +1,7 @@
 table 1366 "Field Monitoring Setup"
 {
     LookupPageId = "Field Monitoring Setup";
+    ReplicateData = false;
 
     fields
     {

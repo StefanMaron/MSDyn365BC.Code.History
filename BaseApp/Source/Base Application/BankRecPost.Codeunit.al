@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 10120 "Bank Rec.-Post"
 {
     Permissions = TableData "Bank Account" = rm,
@@ -9,6 +10,9 @@ codeunit 10120 "Bank Rec.-Post"
                   TableData "Posted Bank Rec. Header" = rimd,
                   TableData "Posted Bank Rec. Line" = rimd;
     TableNo = "Bank Rec. Header";
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -332,7 +336,7 @@ codeunit 10120 "Bank Rec.-Post"
                 OnPostAdjustmentToGLOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, BankRecLine2);
                 GenJnlPostLine.RunWithCheck(GenJnlLine);
 
-                GLEntry.FindLast;
+                GLEntry.FindLast();
                 if GLEntry."Bal. Account Type" = GLEntry."Bal. Account Type"::"Bank Account" then
                     "Bank Ledger Entry No." := GLEntry."Entry No." - 1
                 else
@@ -389,3 +393,4 @@ codeunit 10120 "Bank Rec.-Post"
     end;
 }
 
+#endif

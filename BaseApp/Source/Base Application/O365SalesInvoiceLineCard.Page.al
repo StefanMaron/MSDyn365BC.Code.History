@@ -43,6 +43,44 @@ page 2157 "O365 Sales Invoice Line Card"
                             RedistributeTotalsOnAfterValidate;
                             DescriptionSelected := Description <> '';
                         end;
+
+                        trigger OnAfterLookup(Selected: RecordRef)
+                        var
+                            GLAccount: record "G/L Account";
+                            Item: record Item;
+                            Resource: record Resource;
+                            FixedAsset: record "Fixed Asset";
+                            ItemCharge: record "Item Charge";
+                        begin
+                            case Rec.Type of
+                                Rec.Type::Item:
+                                    begin
+                                        Selected.SetTable(Item);
+                                        Validate("No.", Item."No.");
+                                    end;
+                                Rec.Type::"G/L Account":
+                                    begin
+                                        Selected.SetTable(GLAccount);
+                                        Validate("No.", GLAccount."No.");
+                                    end;
+                                Rec.Type::Resource:
+                                    begin
+                                        Selected.SetTable(Resource);
+                                        Validate("No.", Resource."No.");
+                                    end;
+                                Rec.Type::"Fixed Asset":
+                                    begin
+                                        Selected.SetTable(FixedAsset);
+                                        Validate("No.", FixedAsset."No.");
+                                    end;
+                                Rec.Type::"Charge (Item)":
+                                    begin
+                                        Selected.SetTable(ItemCharge);
+                                        Validate("No.", ItemCharge."No.");
+                                    end;
+                            end;
+                        end;
+
                     }
                 }
                 group(grpEnterQuantity)
@@ -175,7 +213,7 @@ page 2157 "O365 Sales Invoice Line Card"
                                 else
                                     TaxGroup.SetFilter(Code, '%1', TaxSetup."Non-Taxable Tax Group Code")
                             end;
-                            if TaxGroup.FindFirst then
+                            if TaxGroup.FindFirst() then
                                 Validate("Tax Group Code", TaxGroup.Code);
                             RedistributeTotalsOnAfterValidate;
                         end;
@@ -361,7 +399,7 @@ page 2157 "O365 Sales Invoice Line Card"
         Type := Type::Item;
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "Document No.");
-        if SalesLine.FindLast then;
+        if SalesLine.FindLast() then;
         "Line No." := SalesLine."Line No." + 10000;
         TaxRate := 0;
         Clear(VATProductPostingGroupDescription);

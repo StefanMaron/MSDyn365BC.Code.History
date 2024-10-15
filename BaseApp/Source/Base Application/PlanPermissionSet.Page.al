@@ -1,9 +1,13 @@
+#if not CLEAN20
 page 9844 "Plan Permission Set"
 {
     Caption = 'Plan Permission Set';
     Editable = false;
     PageType = ListPart;
     SourceTable = "Plan Permission Set";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+    ObsoleteReason = 'No longer used.';
 
     layout
     {
@@ -31,4 +35,4 @@ page 9844 "Plan Permission Set"
     {
     }
 }
-
+#endif

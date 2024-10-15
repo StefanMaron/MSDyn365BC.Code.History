@@ -90,7 +90,7 @@ page 6509 "Serial No. Information List"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'View serial or lot numbers that are assigned to items.';
 
                     trigger OnAction()
@@ -135,7 +135,7 @@ page 6509 "Serial No. Information List"
                         ItemTracingBuffer.SetRange("Serial No.", "Serial No.");
                         ItemTracing.InitFilters(ItemTracingBuffer);
                         ItemTracing.FindRecords;
-                        ItemTracing.RunModal;
+                        ItemTracing.RunModal();
                     end;
                 }
             }
@@ -149,7 +149,7 @@ page 6509 "Serial No. Information List"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -159,7 +159,7 @@ page 6509 "Serial No. Information List"
                 begin
                     ItemTrackingSetup."Serial No." := Rec."Serial No.";
                     Navigate.SetTracking(ItemTrackingSetup);
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

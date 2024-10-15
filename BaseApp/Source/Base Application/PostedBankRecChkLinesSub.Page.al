@@ -206,7 +206,7 @@ page 10126 "Posted Bank Rec. Chk Lines Sub"
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object Name", TableName);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         exit(AllObj."Object ID");
     end;
 

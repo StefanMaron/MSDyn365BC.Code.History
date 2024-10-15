@@ -38,7 +38,7 @@ codeunit 144002 "Sales/Purchase Reports"
         // Verify Purchase Order Status Report when Purchase Order in foreign Currency.
 
         // Setup: Create Vendor with Currency and Invoice Discount %. Create Purchase Order and calculate Invoice Discount for it.
-        Initialize;
+        Initialize();
         CreateVendorWithCurrency(Vendor);
         CreateInvDiscForVendor(Vendor."No.", Vendor."Currency Code");
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", LibraryRandom.RandDec(10, 2));  // Taken Random Line Discount.
@@ -78,7 +78,7 @@ codeunit 144002 "Sales/Purchase Reports"
         // Verify Sales Order Status Report when Sales Order in foreign Currency.
 
         // Setup: Create Customer with Currency and Invoice Discount %. Create Sales Order and calculate Invoice Discount for it.
-        Initialize;
+        Initialize();
         CreateCustomerWithCurrency(Customer);
         CreateInvDiscForCustomer(Customer."No.", Customer."Currency Code");
         CreateSalesOrder(SalesLine, Customer."No.", LibraryRandom.RandDec(10, 2));  // Taken Random Line Discount.
@@ -108,9 +108,9 @@ codeunit 144002 "Sales/Purchase Reports"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportDataset);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
     end;
 
     local procedure CalcInvDiscountForPurchase(No: Code[20])

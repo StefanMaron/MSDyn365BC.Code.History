@@ -553,7 +553,7 @@ page 291 "Req. Worksheet"
                     Promoted = true;
                     PromotedCategory = Category6;
                     PromotedIsBig = true;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -583,7 +583,7 @@ page 291 "Req. Worksheet"
                     trigger OnAction()
                     begin
                         CalculatePlan.SetTemplAndWorksheet("Worksheet Template Name", "Journal Batch Name");
-                        CalculatePlan.RunModal;
+                        CalculatePlan.RunModal();
                         Clear(CalculatePlan);
                     end;
                 }
@@ -606,7 +606,7 @@ page 291 "Req. Worksheet"
                         begin
                             GetSalesOrder.SetReqWkshLine(Rec, 0);
                             OnGetSalesOrderActionOnBeforeGetSalesOrderRunModal(GetSalesOrder, Rec);
-                            GetSalesOrder.RunModal;
+                            GetSalesOrder.RunModal();
                             Clear(GetSalesOrder);
                         end;
                     }
@@ -626,7 +626,7 @@ page 291 "Req. Worksheet"
                             SalesHeader.SetRange("No.", "Sales Order No.");
                             SalesOrder.SetTableView(SalesHeader);
                             SalesOrder.Editable := false;
-                            SalesOrder.Run;
+                            SalesOrder.Run();
                         end;
                     }
                 }
@@ -649,7 +649,7 @@ page 291 "Req. Worksheet"
                         begin
                             GetSalesOrder.SetReqWkshLine(Rec, 1);
                             OnActionGetSalesOrdersOnBeforeGetSalesOrderRunModal(GetSalesOrder, Rec);
-                            GetSalesOrder.RunModal;
+                            GetSalesOrder.RunModal();
                             Clear(GetSalesOrder);
                         end;
                     }
@@ -669,7 +669,7 @@ page 291 "Req. Worksheet"
                             SalesHeader.SetRange("No.", "Sales Order No.");
                             SalesOrder.SetTableView(SalesHeader);
                             SalesOrder.Editable := false;
-                            SalesOrder.Run;
+                            SalesOrder.Run();
                         end;
                     }
                 }
@@ -730,7 +730,7 @@ page 291 "Req. Worksheet"
                         TrackingForm: Page "Order Tracking";
                     begin
                         TrackingForm.SetReqLine(Rec);
-                        TrackingForm.RunModal;
+                        TrackingForm.RunModal();
                     end;
                 }
             }
@@ -825,7 +825,8 @@ page 291 "Req. Worksheet"
             exit;
         end;
         OnBeforeTemplateSelection(Rec, CurrentJnlBatchName);
-        ReqJnlManagement.TemplateSelection(PAGE::"Req. Worksheet", false, 0, Rec, JnlSelected);
+        ReqJnlManagement.WkshTemplateSelection(
+            PAGE::"Req. Worksheet", false, "Req. Worksheet Template Type"::"Req.", Rec, JnlSelected);
         if not JnlSelected then
             Error('');
 
@@ -841,11 +842,11 @@ page 291 "Req. Worksheet"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ChangeExchangeRate: Page "Change Exchange Rate";
         SalesOrder: Page "Sales Order";
-        CurrentJnlBatchName: Code[10];
         ExtendedPriceEnabled: Boolean;
         OpenedFromBatch: Boolean;
 
     protected var
+        CurrentJnlBatchName: Code[10];
         Description2: Text[100];
         BuyFromVendorName: Text[100];
         ShortcutDimCode: array[8] of Code[20];
@@ -868,7 +869,7 @@ page 291 "Req. Worksheet"
             exit;
 
         CarryOutActionMsgReq.SetReqWkshLine(Rec);
-        CarryOutActionMsgReq.RunModal;
+        CarryOutActionMsgReq.RunModal();
         CarryOutActionMsgReq.GetReqWkshLine(Rec);
     end;
 

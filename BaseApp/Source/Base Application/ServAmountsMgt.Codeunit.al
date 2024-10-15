@@ -1,4 +1,4 @@
-﻿codeunit 5986 "Serv-Amounts Mgt."
+codeunit 5986 "Serv-Amounts Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "General Posting Setup" = imd,
@@ -821,7 +821,7 @@
         with ServLine do begin
             SetRange("Document Type", "Document Type");
             SetRange("Document No.", "Document No.");
-            if FindLast then;
+            if FindLast() then;
             exit("Line No.");
         end;
     end;

@@ -129,6 +129,7 @@ page 8850 "Bank Statement File Wizard"
                             CurrentCodeNumber: Integer;
                             CurrCode: Text;
                         begin
+                            LastCodeNumber := 0;
                             if SkipStep2 then begin
                                 NextActionEnabled := true;
                                 DataExchDef.SetFilter(Code, DataExchangeCodeLbl + '*');
@@ -178,6 +179,7 @@ page 8850 "Bank Statement File Wizard"
                         LineCount: Integer;
                         CRLF: Text[2];
                     begin
+                        LineCount := 0;
                         if FileUploaded then begin
                             Clear(FilePreviewHeaderTxt);
                             Clear(FilePreviewRestTxt);

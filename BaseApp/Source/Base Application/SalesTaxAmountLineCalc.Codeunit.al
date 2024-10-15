@@ -146,7 +146,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
                     TaxGroupCodeFieldRef.TestField;
                     SetRange("Tax Group Code", TaxGroupCode);
                     SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
-                    if not FindFirst then begin
+                    if not FindFirst() then begin
                         Init;
                         case TaxCountry of
                             TaxCountry::US:  // Area Code
@@ -205,7 +205,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
                     SetRange("Tax Group Code", TaxGroupCode);
                     SetRange("Use Tax", UseTax);
                     SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
-                    if not FindFirst then begin
+                    if not FindFirst() then begin
                         Init;
                         case TaxCountry of
                             TaxCountry::US:  // Area Code
@@ -242,7 +242,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
                             TaxDetail.SetFilter("Effective Date", '<=%1', PostingDate);
                         TaxDetail.SetFilter("Tax Type", '%1|%2', TaxDetail."Tax Type"::"Sales and Use Tax",
                           TaxDetail."Tax Type"::"Sales Tax Only");
-                        if TaxDetail.FindLast then
+                        if TaxDetail.FindLast() then
                             "Expense/Capitalize" := TaxDetail."Expense/Capitalize";
 
                         "Calculation Order" := TaxAreaLine."Calculation Order";

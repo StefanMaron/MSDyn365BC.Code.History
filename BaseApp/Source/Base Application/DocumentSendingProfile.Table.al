@@ -35,22 +35,18 @@ table 60 "Document Sending Profile"
             Caption = 'Email Format';
             TableRelation = "Electronic Document Format".Code;
         }
-        field(15; Disk; Option)
+        field(15; Disk; Enum "Doc. Sending Profile Disk")
         {
             Caption = 'Disk';
-            OptionCaption = 'No,PDF,Electronic Document,PDF & Electronic Document';
-            OptionMembers = No,PDF,"Electronic Document","PDF & Electronic Document";
         }
         field(16; "Disk Format"; Code[20])
         {
             Caption = 'Disk Format';
             TableRelation = "Electronic Document Format".Code;
         }
-        field(20; "Electronic Document"; Option)
+        field(20; "Electronic Document"; Enum "Doc. Sending Profile Elec.Doc.")
         {
             Caption = 'Electronic Document';
-            OptionCaption = 'No,Through Document Exchange Service';
-            OptionMembers = No,"Through Document Exchange Service";
         }
         field(21; "Electronic Format"; Code[20])
         {
@@ -72,11 +68,9 @@ table 60 "Document Sending Profile"
                 DocumentSendingProfile.ModifyAll(Default, false, false);
             end;
         }
-        field(50; "Send To"; Option)
+        field(50; "Send To"; Enum "Doc. Sending Profile Send To")
         {
             Caption = 'Send To';
-            OptionCaption = 'Disk,Email,Print,Electronic Document';
-            OptionMembers = Disk,Email,Print,"Electronic Document";
         }
         field(51; Usage; Enum "Document Sending Profile Usage")
         {
@@ -122,7 +116,7 @@ table 60 "Document Sending Profile"
             Error(CannotDeleteDefaultRuleErr);
 
         Customer.SetRange("Document Sending Profile", Code);
-        if Customer.FindFirst then begin
+        if Customer.FindFirst() then begin
             if Confirm(UpdateAssCustomerQst, false, Code) then
                 Customer.ModifyAll("Document Sending Profile", '')
             else
@@ -135,7 +129,7 @@ table 60 "Document Sending Profile"
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
         DocumentSendingProfile.SetRange(Default, true);
-        if not DocumentSendingProfile.FindFirst then
+        if not DocumentSendingProfile.FindFirst() then
             Default := true;
     end;
 
@@ -210,7 +204,7 @@ table 60 "Document Sending Profile"
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
         DocumentSendingProfile.SetRange(Default, true);
-        if not DocumentSendingProfile.FindFirst then begin
+        if not DocumentSendingProfile.FindFirst() then begin
             DocumentSendingProfile.Init();
             DocumentSendingProfile.Validate(Code, DefaultCodeTxt);
             DocumentSendingProfile.Validate(Description, DefaultDescriptionTxt);
@@ -279,7 +273,7 @@ table 60 "Document Sending Profile"
         if "E-Mail Attachment" <> "E-Mail Attachment"::PDF then
             Error(CannotSendMultipleSalesDocsErr);
 
-        if "Electronic Document" > "Electronic Document"::No then
+        if "Electronic Document".AsInteger() > "Electronic Document"::No.AsInteger() then
             Error(CannotSendMultipleSalesDocsErr);
     end;
 
@@ -673,7 +667,6 @@ table 60 "Document Sending Profile"
         SourceReference: RecordRef;
         ShowDialog: Boolean;
         ClientFilePath: Text[250];
-        ServerFilePath: Text[250];
         ClientZipFileName: Text[250];
         ServerEmailBodyFilePath: Text[250];
         SendToEmailAddress: Text[250];
@@ -697,8 +690,8 @@ table 60 "Document Sending Profile"
                 end;
             "E-Mail Attachment"::"PDF & Electronic Document":
                 begin
-                    ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "E-Mail Format");
-                    ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
+                    ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFilePath, RecordVariant, "E-Mail Format");
+                    ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, TempBlob, ClientFilePath, ClientZipFileName);
                     ReportSelections.SendToZipForCust(ReportUsage, RecordVariant, DocNo, ToCust, DataCompression);
 
                     DataCompression.SaveZipArchive(TempBlob);
@@ -735,7 +728,6 @@ table 60 "Document Sending Profile"
         SourceReference: RecordRef;
         ShowDialog: Boolean;
         ClientFilePath: Text[250];
-        ServerFilePath: Text[250];
         ClientZipFileName: Text[250];
         ServerEmailBodyFilePath: Text[250];
         SendToEmailAddress: Text[250];
@@ -759,8 +751,8 @@ table 60 "Document Sending Profile"
                 end;
             "E-Mail Attachment"::"PDF & Electronic Document":
                 begin
-                    ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "E-Mail Format");
-                    ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
+                    ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFilePath, RecordVariant, "E-Mail Format");
+                    ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, TempBlob, ClientFilePath, ClientZipFileName);
                     ReportSelections.SendToZipForVend(ReportUsage, RecordVariant, DocNo, ToVendor, DataCompression);
 
                     DataCompression.SaveZipArchive(TempBlob);
@@ -791,9 +783,8 @@ table 60 "Document Sending Profile"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         ReportDistributionManagement: Codeunit "Report Distribution Management";
         DataCompression: Codeunit "Data Compression";
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFilePath: Text[250];
-        ZipPath: Text[250];
         ClientZipFileName: Text[250];
         IsHandled: Boolean;
     begin
@@ -809,17 +800,17 @@ table 60 "Document Sending Profile"
                 ReportSelections.SendToDiskForCust(ReportUsage, RecordVariant, DocNo, DocName, ToCust);
             Disk::"Electronic Document":
                 begin
-                    ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "Disk Format");
-                    ReportDistributionManagement.SaveFileOnClient(ServerFilePath, ClientFilePath);
+                    ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFilePath, RecordVariant, "Disk Format");
+                    ReportDistributionManagement.SaveFileOnClient(TempBlob, ClientFilePath);
                 end;
             Disk::"PDF & Electronic Document":
                 begin
-                    ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "Disk Format");
-                    ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
+                    ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFilePath, RecordVariant, "Disk Format");
+                    ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, TempBlob, ClientFilePath, ClientZipFileName);
                     ReportSelections.SendToZipForCust(ReportUsage, RecordVariant, DocNo, ToCust, DataCompression);
-                    SaveZipArchiveToServerFile(DataCompression, ZipPath);
+                    SaveZipArchiveToBLOB(DataCompression, TempBlob);
 
-                    ReportDistributionManagement.SaveFileOnClient(ZipPath, ClientZipFileName);
+                    ReportDistributionManagement.SaveFileOnClient(TempBlob, ClientZipFileName);
                 end;
         end;
     end;
@@ -830,9 +821,8 @@ table 60 "Document Sending Profile"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         ReportDistributionManagement: Codeunit "Report Distribution Management";
         DataCompression: Codeunit "Data Compression";
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFilePath: Text[250];
-        ZipPath: Text[250];
         ClientZipFileName: Text[250];
     begin
         if Disk = Disk::No then
@@ -843,17 +833,17 @@ table 60 "Document Sending Profile"
                 ReportSelections.SendToDiskForVend(ReportUsage, RecordVariant, DocNo, DocName, ToVendor);
             Disk::"Electronic Document":
                 begin
-                    ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "Disk Format");
-                    ReportDistributionManagement.SaveFileOnClient(ServerFilePath, ClientFilePath);
+                    ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFilePath, RecordVariant, "Disk Format");
+                    ReportDistributionManagement.SaveFileOnClient(TempBlob, ClientFilePath);
                 end;
             Disk::"PDF & Electronic Document":
                 begin
-                    ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "Disk Format");
-                    ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
+                    ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFilePath, RecordVariant, "Disk Format");
+                    ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, TempBlob, ClientFilePath, ClientZipFileName);
                     ReportSelections.SendToZipForVend(ReportUsage, RecordVariant, DocNo, ToVendor, DataCompression);
-                    SaveZipArchiveToServerFile(DataCompression, ZipPath);
+                    SaveZipArchiveToBLOB(DataCompression, TempBlob);
 
-                    ReportDistributionManagement.SaveFileOnClient(ZipPath, ClientZipFileName);
+                    ReportDistributionManagement.SaveFileOnClient(TempBlob, ClientZipFileName);
                 end;
         end;
     end;
@@ -901,7 +891,7 @@ table 60 "Document Sending Profile"
         FieldRef: FieldRef;
     begin
         RecRef.GetTable(RecordVariant);
-        if not RecRef.FindSet then
+        if not RecRef.FindSet() then
             exit(false);
 
         if RecRef.Next() = 0 then
@@ -926,18 +916,13 @@ table 60 "Document Sending Profile"
         OnCheckElectronicSendingEnabled(ExchServiceEnabled);
     end;
 
-    local procedure SaveZipArchiveToServerFile(var DataCompression: Codeunit "Data Compression"; var ZipPath: Text)
+    local procedure SaveZipArchiveToBLOB(var DataCompression: Codeunit "Data Compression"; var TempBlob: Codeunit "Temp Blob")
     var
-        FileManagement: Codeunit "File Management";
-        ZipFile: File;
         ZipFileOutStream: OutStream;
     begin
-        ZipPath := CopyStr(FileManagement.ServerTempFileName('zip'), 1, 250);
-        ZipFile.Create(ZipPath);
-        ZipFile.CreateOutStream(ZipFileOutStream);
+        TempBlob.CreateOutStream(ZipFileOutStream);
         DataCompression.SaveZipArchive(ZipFileOutStream);
         DataCompression.CloseZipArchive;
-        ZipFile.Close;
     end;
 
     [IntegrationEvent(TRUE, false)]

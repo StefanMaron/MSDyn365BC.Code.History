@@ -186,7 +186,7 @@ codeunit 138916 "O365 Translation Tests"
         Language: Record Language;
     begin
         Language.SetRange(Code, FRCTxt);
-        Language.FindFirst;
+        Language.FindFirst();
         exit(Language."Windows Language ID");
     end;
 
@@ -201,7 +201,7 @@ codeunit 138916 "O365 Translation Tests"
     local procedure CreateCountry(var CountryRegion: Record "Country/Region")
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
-        CountryRegion.Name := LibraryUtility.GenerateGUID;
+        CountryRegion.Name := LibraryUtility.GenerateGUID();
         CountryRegion.Modify();
     end;
 
@@ -370,14 +370,14 @@ codeunit 138916 "O365 Translation Tests"
         InsertTaxAreaTranslation(TaxArea.Code, FRCTxt, TranslatedTaxAreaName);
 
         LibraryERM.CreatePaymentTerms(PaymentTerms);
-        PaymentTerms.Description := LibraryUtility.GenerateGUID;
+        PaymentTerms.Description := LibraryUtility.GenerateGUID();
         PaymentTerms.Modify();
         TranslatedPaymentTermsName :=
             CopyStr(PaymentTerms.Description + PaymentTerms.Description, 1, MaxStrLen(TranslatedPaymentTermsName));
         InsertPaymentTermsTranslation(PaymentTerms.Code, FRCTxt, TranslatedPaymentTermsName);
 
         LibraryERM.CreatePaymentMethod(PaymentMethod);
-        PaymentMethod.Description := LibraryUtility.GenerateGUID;
+        PaymentMethod.Description := LibraryUtility.GenerateGUID();
         PaymentMethod."Use for Invoicing" := true;
         PaymentMethod.Modify();
         TranslatedPaymentMethodName :=

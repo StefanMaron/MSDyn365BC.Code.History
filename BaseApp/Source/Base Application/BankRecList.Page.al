@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 10124 "Bank Rec. List"
 {
     Caption = 'Bank Rec. List';
@@ -5,6 +6,9 @@ page 10124 "Bank Rec. List"
     Editable = false;
     PageType = List;
     SourceTable = "Bank Rec. Header";
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -88,3 +92,4 @@ page 10124 "Bank Rec. List"
     }
 }
 
+#endif

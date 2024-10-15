@@ -34,7 +34,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnAfterGetRecordItemNoOfLabelsOneItemInvtLabels()
     begin
         // Purpose of the test is to validate Item - OnAfterGetRecord on Report ID - 10137 Inventory Labels.
-        Initialize;
+        Initialize();
         OnAfterGetRecordNoOfLabelsPerRowItemInvtLabels(1);  // Labels Per Row - 1(Minimum limit).
     end;
 
@@ -45,7 +45,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnAfterGetRecordItemNoOfLabelsInRangeItemInvtLabels()
     begin
         // Purpose of the test is to validate Item - OnAfterGetRecord on Report ID - 10137 Inventory Labels.
-        Initialize;
+        Initialize();
         OnAfterGetRecordNoOfLabelsPerRowItemInvtLabels(LibraryRandom.RandIntInRange(2, 3));  // Labels Per Row in Range 2 to 3(Maximum limit).
     end;
 
@@ -78,7 +78,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         // Purpose of the test is to validate Comment Line - OnAfterGetRecord Trigger of Report ID - 10141 Item Comment List.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCommentLineItemCommentList('', 'No Item Description');  // Blank Item No and Item Description text.
     end;
 
@@ -92,7 +92,7 @@ codeunit 141010 "UT REP Intercompany"
     begin
         // Purpose of the test is to validate Comment Line - OnAfterGetRecord Trigger of Report ID - 10141 Item Comment List.
         // Setup.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         OnAfterGetRecordCommentLineItemCommentList(Item."No.", Item.Description);  // Item No and Item Description.
     end;
@@ -118,7 +118,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnAfterGetRecordWithoutSourceCodeItemRegister()
     begin
         // Purpose of the test is to validate Item Register - OnAfterGetRecord of Report ID - 10144 Item Register.
-        Initialize;
+        Initialize();
         OnAfterGetRecordSourceCodeItemRegister(0, '', '');  // Blank Value for Quantity, Source Code and Source Code text.
     end;
 
@@ -129,7 +129,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnAfterGetRecordWithSourceCodeItemRegister()
     begin
         // Purpose of the test is to validate Item Register - OnAfterGetRecord of Report ID - 10144 Item Register.
-        Initialize;
+        Initialize();
         OnAfterGetRecordSourceCodeItemRegister(LibraryRandom.RandDec(10, 2), LibraryUTUtility.GetNewCode10, 'Source Code: ');  // Value for Quantity, Source Code and Source Code text.
     end;
 
@@ -164,7 +164,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10149 Location List.
 
         // Setup: Create location.
-        Initialize;
+        Initialize();
         LocationCode := CreateLocation;
 
         // Exercise.
@@ -183,7 +183,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnAfterGetRecordWithoutStockkeepingUnitOverStock()
     begin
         // Purpose of the test is to validate Item - OnAfterGetRecord Trigger of Report ID - 10150 Over Stock.
-        Initialize;
+        Initialize();
         OnAfterGetRecordItemOverStock(false);  // UseStockKeepingUnit - False on Report - Over Stock.
     end;
 
@@ -194,7 +194,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnAfterGetRecordWithStockkeepingUnitOverStock()
     begin
         // Purpose of the test is to validate Item - OnAfterGetRecord Trigger of Report ID - 10150 Over Stock.
-        Initialize;
+        Initialize();
         OnAfterGetRecordItemOverStock(true);  // UseStockKeepingUnit - TRUE on Report - Over Stock.
     end;
 
@@ -233,7 +233,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate Item Journal Line - OnAfterGetRecord Trigger of Report ID - 10151 Physical Inventory Count.
 
         // Setup: Create Item, Stockkeeping Unit, Item Journal Line.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         ItemShelfNo := CreateStockkeepingUnit(Item."No.");
         CreateItemJournalTemplateAndBatch(ItemJournalBatch);
@@ -263,7 +263,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate Item Ledger Entry - OnAfterGetRecord Trigger of Report ID - 10161 Serial Number Status/Aging.
 
         // Setup: Create Item, Item Ledger Entry and Value Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2),
           CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D' + '>', WorkDate));  // Posting Date before WORKDATE is required.
@@ -290,7 +290,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10164 Item/Vendor Catalog.
 
         // Setup: Create Item Vendor. SETCURRENTKEY - Vendor No, Item No, Variant Code on table - Item Vendor.
-        Initialize;
+        Initialize();
         CreateItemVendor(ItemVendor, LibraryUTUtility.GetNewCode, CreateVendor);
         ItemVendor.SetCurrentKey("Vendor No.", "Item No.", "Variant Code");
         ItemVendor.SetRange("Vendor No.", ItemVendor."Vendor No.");
@@ -314,7 +314,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10164 Item/Vendor Catalog.
 
         // Setup: Create Item Vendor. SETCURRENTKEY - Item No, Variant Code, Vendor No on table - Item Vendor.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItemVendor(ItemVendor, Item."No.", LibraryUTUtility.GetNewCode);
         ItemVendor.SetCurrentKey("Item No.", "Variant Code", "Vendor No.");
@@ -334,7 +334,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnPreReportAsOfDateInventoryToGLReconcileError()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10138 Inventory to G/L Reconcile.
-        Initialize;
+        Initialize();
         OnPreReportAsOfDateError(REPORT::"Inventory to G/L Reconcile");
     end;
 
@@ -345,7 +345,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnPreReportAsOfDateInventoryValuationError()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10139 Inventory Valuation.
-        Initialize;
+        Initialize();
         OnPreReportAsOfDateError(REPORT::"Inventory Valuation");
     end;
 
@@ -368,7 +368,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnPreReportWithoutAddReportingCurrencyInvtToGLReconcile()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10138 Inventory to G/L Reconcile.
-        Initialize;
+        Initialize();
         OnPreReportAdditionalReportingCurrency(REPORT::"Inventory to G/L Reconcile", '', false, ValuesAsOfLbl);  // Blank value for Currency and Use Additional Reporting Currency - False
     end;
 
@@ -379,7 +379,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnPreReportWithoutAddReportingCurrencyInvtValuation()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10139 Inventory Valuation.
-        Initialize;
+        Initialize();
         OnPreReportAdditionalReportingCurrency(REPORT::"Inventory Valuation", '', false, QuantitiesAndValuesLbl);  // Blank value for Currency and Use Additional Reporting Currency - False
     end;
 
@@ -390,7 +390,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnPreReportWithAddReportingCurrencyInvtToGLReconcile()
     begin
         // Purpose of the test is to validate  OnPreReport Trigger Of Report ID - 10138 Inventory to G/L Reconcile.
-        Initialize;
+        Initialize();
         OnPreReportAdditionalReportingCurrency(REPORT::"Inventory to G/L Reconcile", CreateCurrency, true, ValuesAsOfLbl);  // Use Additional Reporting Currency - True
     end;
 
@@ -401,7 +401,7 @@ codeunit 141010 "UT REP Intercompany"
     procedure OnPreReportWithAddReportingCurrencyInvtValuation()
     begin
         // Purpose of the test is to validate OnPreReport Trigger Of Report ID - 10139 Inventory Valuation.
-        Initialize;
+        Initialize();
         OnPreReportAdditionalReportingCurrency(REPORT::"Inventory Valuation", CreateCurrency, true, QuantitiesAndValuesLbl);  // Use Additional Reporting Currency - True
     end;
 
@@ -441,7 +441,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate OnPreReport Of Report ID - 10163 Vendor Purchases by Item.
 
         // Setup: Create Item, Item Ledger Entry and Value Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
         CreateValueEntry(ItemLedgerEntry);
@@ -470,7 +470,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate OnPreReport Of Report ID - 10163 Vendor Purchases by Item.
 
         // Setup: Create Item, Item Ledger Entry and Value Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDecInRange(10, 100, 2), WorkDate);
         CostAmountActual := CreateValueEntry(ItemLedgerEntry);
@@ -508,7 +508,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate OnPreReport Of Report ID - 10163 Vendor Purchases by Item.
 
         // Setup: Create Item, Item Ledger Entry and Value Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDecInRange(10, 100, 2), WorkDate);
         CostAmountActual := CreateValueEntry(ItemLedgerEntry);
@@ -543,7 +543,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate Item - OnAfterGetRecord OF Report ID - 10130 Availability Projection.
 
         // Setup: Create Item and Item Ledger Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate + 1);  // Calculated Posting date required on Report - Availability Projection.
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for AvailabilityProjectionRequestPageHandler.
@@ -569,7 +569,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate Item Variant - OnAfterGetRecord OF Report ID - 10130 Availability Projection.
 
         // Setup: Create Item, Create Item Variant, and Item Ledger Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate + 1);  // Calculated Posting date required on Report - Availability Projection.
         ItemLedgerEntry."Variant Code" := CreateItemVariant(Item."No.");
@@ -600,7 +600,7 @@ codeunit 141010 "UT REP Intercompany"
         // Purpose of the test is to validate PriorItemLedgerEntry - OnAfterGetRecord Trigger of Report ID - 10136 Item Transaction Detail.
 
         // Setup: Create Item, Item Ledger Entry, Prior Item Ledger Entry and Value Entry.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
         UpdateItemLedgerEntryVariantCode(ItemLedgerEntry, CreateItemVariant(Item."No."));
@@ -632,7 +632,7 @@ codeunit 141010 "UT REP Intercompany"
         // Verify the variants show correctly when run Report - Inventory to G/L Reconcial with Breakdown by Variants.
 
         // Setup: Create Items, Variants.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         VariantCode := CreateItemVariant(Item."No.");
@@ -670,7 +670,7 @@ codeunit 141010 "UT REP Intercompany"
         // Verify the locations show correctly when run Report - Inventory to G/L Reconcial with Breakdown by Location.
 
         // Setup: Create Items, Locations.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -700,8 +700,8 @@ codeunit 141010 "UT REP Intercompany"
         // [SCENARIO 274836] "As Of Date" field is visible when run Report "Inventory to G/L Reconciliation" in "Suite" plan
 
         // [GIVEN] Current company set to "Suite" plan
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
         Commit();
 
         // [WHEN] Run Report "Inventory to G/L Reconcile"
@@ -714,7 +714,7 @@ codeunit 141010 "UT REP Intercompany"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCommentLineForItem(No: Code[20])
@@ -928,14 +928,14 @@ codeunit 141010 "UT REP Intercompany"
     begin
         Clear(ItemVendorCatalog);  // Already Set Currentkey and filter applied on Item Vendor Record, so VAR - True required.
         ItemVendorCatalog.SetTableView(ItemVendor);
-        ItemVendorCatalog.Run;  // Opens handler - ItemVendorCatalogRequestPageHandler.
+        ItemVendorCatalog.Run();  // Opens handler - ItemVendorCatalogRequestPageHandler.
     end;
 
     local procedure SelectItemLedgerEntryNo(): Integer
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        if ItemLedgerEntry.FindLast then
+        if ItemLedgerEntry.FindLast() then
             exit(ItemLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -944,7 +944,7 @@ codeunit 141010 "UT REP Intercompany"
     var
         ItemRegister: Record "Item Register";
     begin
-        if ItemRegister.FindLast then
+        if ItemRegister.FindLast() then
             exit(ItemRegister."No." + 1);
         exit(1);
     end;
@@ -953,7 +953,7 @@ codeunit 141010 "UT REP Intercompany"
     var
         ValueEntry: Record "Value Entry";
     begin
-        if ValueEntry.FindLast then
+        if ValueEntry.FindLast() then
             exit(ValueEntry."Entry No." + 1);
         exit(1);
     end;
@@ -985,7 +985,7 @@ codeunit 141010 "UT REP Intercompany"
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry."Posting Date" := WorkDate;
         ValueEntry.Modify();
     end;

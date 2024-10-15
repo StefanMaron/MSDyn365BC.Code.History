@@ -384,7 +384,7 @@
     begin
         GeneralPostingSetup.SetFilter("Purch. Account", '<>%1', '');
         GeneralPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
-        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.FindFirst();
 
         Vendor.Init();
         Vendor.Insert(true);
@@ -470,7 +470,7 @@
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.FindFirst;
+        TaxArea.FindFirst();
         exit(TaxArea.Code);
     end;
 
@@ -479,7 +479,7 @@
         TaxGroup: Record "Tax Group";
     begin
         TaxGroup.SetFilter(Code, '<>NONTAXABLE');
-        TaxGroup.FindFirst;
+        TaxGroup.FindFirst();
         exit(TaxGroup.Code);
     end;
 
@@ -487,13 +487,13 @@
     var
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
     begin
-        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
         PurchPostPrepayments.Invoice(PurchHeader);
     end;
 
     local procedure PostPurchOrder(var PurchHeader: Record "Purchase Header"): Code[20]
     begin
-        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
         exit(LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
     end;
 
@@ -502,7 +502,7 @@
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Item.FindFirst;
+        Item.FindFirst();
 
         Item."No." := '';
         Item.Validate("Tax Group Code", FindTaxGroupCode);
@@ -540,7 +540,7 @@
     begin
         LibraryERM.FindGLAccount(GLAccount);
         CopyGLAccount := GLAccount;
-        CopyGLAccount."No." := LibraryUtility.GenerateGUID;
+        CopyGLAccount."No." := LibraryUtility.GenerateGUID();
         CopyGLAccount."Tax Group Code" := 'NONTAXABLE';
         CopyGLAccount.Insert();
         exit(CopyGLAccount."No.");
@@ -556,7 +556,7 @@
             GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
             GLAccount.SetRange("Gen. Prod. Posting Group", PurchLine."Gen. Prod. Posting Group");
             GLAccount.SetRange("VAT Prod. Posting Group", PurchLine."VAT Prod. Posting Group");
-            GLAccount.FindFirst;
+            GLAccount.FindFirst();
             GLAccount."Tax Group Code" := 'NONTAXABLE';
             GLAccount.Modify();
             "Purch. Prepayments Account" := GLAccount."No.";
@@ -570,7 +570,7 @@
     begin
         with VendorLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Original Amt. (LCY)");
             exit("Original Amt. (LCY)");
         end;
@@ -584,12 +584,12 @@
         with GLEntry do begin
             SetRange("Source Type", "Source Type"::Vendor);
             SetRange("Source No.", VendNo);
-            FindLast;
+            FindLast();
             Reset;
             SetRange("Transaction No.", "Transaction No.");
             VendPostingGroup.Get(VendPostingGroupCode);
             SetRange("G/L Account No.", VendPostingGroup."Invoice Rounding Account");
-            FindLast;
+            FindLast();
             Assert.AreEqual(
               Abs(Amount), LibraryERM.GetAmountRoundingPrecision, IncorrectInvRoundingErr);
         end;
@@ -600,7 +600,7 @@
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         with VendLedgEntry do begin
-            FindLast;
+            FindLast();
             CalcFields(Amount, "Amount (LCY)");
             Assert.AreEqual(0, Amount, 'Expected zero Vendor Ledger Entry due to 100% prepayment.');
             Assert.AreEqual(0, "Amount (LCY)", 'Expected zero Vendor Ledger Entry in LCY due to 100% prepayment.');
@@ -614,7 +614,7 @@
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, Amount,
               StrSubstNo(IncorrectAmountErr, DocumentNo, GLAccNo));
         end;

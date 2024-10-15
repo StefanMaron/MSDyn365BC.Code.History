@@ -7,7 +7,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Revenue Expense Deferral] [Deferral]
         isInitialized := false;
-        Initialize;
+        Initialize();
     end;
 
     var
@@ -21,6 +21,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryJournals: Codeunit "Library - Journals";
         DeferralUtilities: Codeunit "Deferral Utilities";
         CalcMethod: Enum "Deferral Calculation Method";
@@ -31,6 +32,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DecimalPlacesInDeferralPctErr: Label 'Wrong decimal places count in "Defferal %" field.';
         AccTypeMustBeGLAccountErr: Label 'Account Type must be equal to ''G/L Account''';
         PostedDeferralHeaderNumberErr: Label 'The number of Posted Deferral Headers with given parameters is not equal to expected.';
+        DeferralsPostingDateOutOfRangeErr: Label 'is not within the range of posting dates for deferrals for your company';
+        WrongAllowDeferralPostingDatesErr: Label 'The date in the Allow Deferral Posting From field must not be after the date in the Allow Deferral Posting To field.';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -42,9 +45,10 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GoodAccountNumber: Code[20];
     begin
         // [SCENARIO 127727] Phyllis can setup a Deferral template in the system
+        Initialize();
         // Setup
         DeferralCode := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
-        GoodAccountNumber := LibraryERM.CreateGLAccountNo;
+        GoodAccountNumber := LibraryERM.CreateGLAccountNo();
 
         // Exercise
         DeferralTemplate.Init();
@@ -438,7 +442,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralLine.SetRange("Document Type", 0);
         DeferralLine.SetRange("Document No.", '');
         DeferralLine.SetRange("Line No.", GenJournalLine."Line No.");
-        if DeferralLine.FindFirst then
+        if DeferralLine.FindFirst() then
             DeferralAmount := DeferralLine.Amount;
 
         // 2. Exercise: Post General Journal Lines.
@@ -501,7 +505,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralLine.SetRange("Document No.", DeferralHeader."Document No.");
         DeferralLine.SetRange("Line No.", DeferralHeader."Line No.");
         RunningDeferralTotal := 0;
-        if DeferralLine.FindSet then
+        if DeferralLine.FindSet() then
             repeat
                 RunningDeferralTotal := RunningDeferralTotal + DeferralLine.Amount;
             until (DeferralLine.Next = 0) or (DeferralLine.Amount = 0.0);
@@ -553,7 +557,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralLine.SetRange("Document Type", 0);
         DeferralLine.SetRange("Document No.", '');
         DeferralLine.SetRange("Line No.", GenJournalLine."Line No.");
-        if DeferralLine.FindLast then
+        if DeferralLine.FindLast() then
             // Validate : Changing the posting date to the "out of bounds" date should give an error.
             asserterror DeferralLine.Validate("Posting Date", OutOfBoundsDate);
     end;
@@ -611,7 +615,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         PostedDeferralHeader.SetRange("Line No.", GenJournalLine."Line No.");
         Clear(DeferralSummaryGL);
         DeferralSummaryGL.SetTableView(PostedDeferralHeader);
-        DeferralSummaryGL.Run;
+        DeferralSummaryGL.Run();
 
         // 3. Verify: Verify Values on Deferral Summary - G/L Report.
         PostedDeferralHeader.SetRange("Deferral Doc. Type", PostedDeferralHeader."Deferral Doc. Type"::"G/L");
@@ -620,7 +624,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         PostedDeferralHeader.SetRange("Document Type", 0);
         PostedDeferralHeader.SetRange("Document No.", '');
         PostedDeferralHeader.SetRange("Line No.", GenJournalLine."Line No.");
-        PostedDeferralHeader.FindFirst;
+        PostedDeferralHeader.FindFirst();
         VerifyValuesonGLDeferralSummary(PostedDeferralHeader);
     end;
 
@@ -705,7 +709,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 377994] Posted GL trx for Customer must have G/L entry for Customer Posting Group's Receivable Account with the posted amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Defferal setup - 5 equal periods
         // [GIVEN] Invoice with Customer Posting Group "G" and Amount = 100
@@ -719,7 +723,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
         GLEntry.SetRange("G/L Account No.", CustomerPostingGroup.GetReceivablesAccount);
         GLEntry.SetRange("Document No.", InvoiceNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, SalesLine."Amount Including VAT");
     end;
 
@@ -735,7 +739,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 377994] Posted GL trx for Vendor must have G/L entry for Vendo Posting Group's Receivable Account with the posted amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Defferal setup - 5 equal periods
         // [GIVEN] Invoice with Vendor Posting Group "G" and Amount = 100
@@ -749,7 +753,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
         GLEntry.SetRange("G/L Account No.", VendorPostingGroup.GetPayablesAccount);
         GLEntry.SetRange("Document No.", InvoiceNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, -PurchaseLine."Amount Including VAT");
     end;
 
@@ -761,7 +765,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = Customer
         // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with Account Type = Customer
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
@@ -781,7 +785,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = Vendor
         // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with Account Type = Vendor
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Vendor);
@@ -801,7 +805,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = Bank Account
         // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with Account Type = Vendor
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
@@ -821,7 +825,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = Fixed Asset
         // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with Account Type = Vendor
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Fixed Asset");
@@ -841,7 +845,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = IC Partner
         // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with Account Type = Vendor
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"IC Partner");
@@ -862,7 +866,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [General Journal] [Source Code]
         // [SCENARIO 217437] Cassie can post general journal with deferrals when "Source Code" differs from setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source codes "X" and "Y". "Source Code Setup".General = "X"
         // [GIVEN] General journal template "T" with "Source Code" = "Y"
@@ -918,7 +922,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [General Journal] [G/L Account] [VAT] [Sales]
         // [SCENARIO 251252] G/L Entry with VAT has been created when post general journal for a sales G/L Account with deferral
-        Initialize;
+        Initialize();
 
         // [GIVEN] General journal line with sales G/L Account "A" and deferral setup
         CreateSalesGenJournalLineWithDeferral(GenJournalLine);
@@ -939,7 +943,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [General Journal] [G/L Account] [VAT] [Purchase]
         // [SCENARIO 251252] G/L Entry with VAT has been created when post general journal for a purchase G/L Account with deferral
-        Initialize;
+        Initialize();
 
         // [GIVEN] General journal line with purchase G/L Account "A" and deferral setup
         CreatePurchaseGenJournalLineWithDeferral(GenJournalLine);
@@ -965,7 +969,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Deferral schedule] [UT]
         // [SCENARIO 304205] Calling RemoveOrSetDeferralSchedule with GenJournalBatchName <> '' and max length Description creates Deferral Description from these fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Code
         DeferralCode := CreateEqual5Periods80Percent;
@@ -1002,7 +1006,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Deferral schedule] [UT]
         // [SCENARIO 304205] Calling RemoveOrSetDeferralSchedule with GenJournalBatchName = '' and max length Description creates Deferral Description with DocNo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Code
         DeferralCode := CreateEqual5Periods80Percent;
@@ -1035,7 +1039,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Deferral schedule] [UT]
         // [SCENARIO 304205] Calling DeferralCodeOnValidate with GenJournalBatchName <> '' and max length Description creates Deferral Description from these fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Code
         DeferralCode := CreateEqual5Periods80Percent;
@@ -1072,7 +1076,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Deferral schedule] [UT]
         // [SCENARIO 304205] Calling DeferralCodeOnValidate with GenJournalBatchName = '' and max length Description creates Deferral Description with DocNo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Code
         DeferralCode := CreateEqual5Periods80Percent;
@@ -1106,7 +1110,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Deferral schedule] [UT]
         // [SCENARIO 304205] Calling OpenLineScheduleEdit with GenJournalBatchName <> '' and max length Description creates Deferral Description from these fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Code
         DeferralCode := CreateEqual5Periods80Percent;
@@ -1144,7 +1148,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Deferral schedule] [UT]
         // [SCENARIO 304205] Calling OpenLineScheduleEdit with GenJournalBatchName = '' and max length Description creates Deferral Description with DocNo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Code
         DeferralCode := CreateEqual5Periods80Percent;
@@ -1181,13 +1185,13 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Deferral schedule] [UI]
         // [SCENARIO 348150] Open deferral schedule for not inserted new general journal line
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal with new line that is not inserted and Line No = 0
         CreateGeneralJournalBatch(GenJournalBatch);
         GenJnlManagement.SetJournalSimplePageModePreference(false, Page::"General Journal");
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         DeferralCode := CreateEqual5Periods;
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         Commit;
@@ -1219,6 +1223,299 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
           LibraryERM.FindDeferralLine(
             DeferralLine, DeferralHeader."Deferral Doc. Type"::"G/L",
             GenJournalBatch.Name, GenJournalBatch."Journal Template Name", 0, '', 0);
+    end;
+
+    [Test]
+    procedure T100_DeferralLinePostingDateInRangeAllowedForDeferralPostingInUserSetup()
+    var
+        DeferralLine: Record "Deferral Line";
+        UserSetup: Record "User Setup";
+        DeferralDate: Date;
+    begin
+        // [SCENARIO 334609] Deferral posting date is in range of deferrals posting date, defined in User Setup.
+        Initialize();
+        // [GIVEN] G/L Setup has no setup on "Allow Deferrals Posting From/To" 
+        // [GIVEN] User Setup, where "Allow Posting From" is 010121 "Allow Posting To" 010121,
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup."Allow Posting From" := WorkDate();
+        UserSetup."Allow Posting To" := WorkDate();
+        // [GIVEN] "Allow Deferrals Posting From" is 020121 "Allow Deferrals Posting To" 020121
+        DeferralDate := WorkDate() + 1;
+        UserSetup."Allow Deferral Posting From" := DeferralDate;
+        UserSetup."Allow Deferral Posting To" := DeferralDate;
+        UserSetup.Modify();
+
+        // [WHEN] Deferral Line, where "Posting Date" is 020121
+        DeferralLine.Validate("Posting Date", DeferralDate);
+        // [THEN] No error, "Posting Date" is 020121 ("Allow Posting From/To" is ignored)
+        DeferralLine.TestField("Posting Date", DeferralDate);
+
+        UserSetup.Delete();
+    end;
+
+    [Test]
+    procedure T101_DeferralLinePostingDateOufOfRangeAllowedForDeferralPostingInUserSetup()
+    var
+        DeferralLine: Record "Deferral Line";
+        UserSetup: Record "User Setup";
+        DeferralDate: Date;
+    begin
+        // [SCENARIO 334609] Deferral posting date out of range for allowed deferral posting, defined in User Setup.
+        Initialize();
+        // [GIVEN] G/L Setup has no setup on "Allow Deferrals Posting From/To" 
+        // [GIVEN] User Setup, where "Allow Posting From" is 010121 "Allow Posting To" 010121
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup."Allow Posting From" := WorkDate();
+        UserSetup."Allow Posting To" := WorkDate();
+        // [GIVEN] "Allow Deferrals Posting From" is 020121 "Allow Deferrals Posting To" 020121
+        DeferralDate := WorkDate() + 1;
+        UserSetup."Allow Deferral Posting From" := DeferralDate;
+        UserSetup."Allow Deferral Posting To" := DeferralDate;
+        UserSetup.Modify();
+
+        // [WHEN] Deferral Line, where "Posting Date" is 010121
+        asserterror DeferralLine.Validate("Posting Date", WorkDate());
+        // [THEN] Error, "010121 is not within the range..." ("Allow Posting From/To" is ignored)
+        Assert.ExpectedError(DeferralsPostingDateOutOfRangeErr);
+    end;
+
+    [Test]
+    procedure T102_DeferralLinePostingDateInRangeAllowedForDeferralPostingInGLSetup()
+    var
+        DeferralLine: Record "Deferral Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DeferralDate: Date;
+    begin
+        // [SCENARIO 334609] Deferral posting date is in the range for allowed deferral posting, defined in G/L Setup.
+        Initialize();
+        // [GIVEN] User Setup has no setup on "Allow Deferrals Posting From/To" 
+        // [GIVEN] G/L Setup, where "Allow Posting From" is 010121 "Allow Posting To" 010121,
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Posting From" := WorkDate();
+        GeneralLedgerSetup."Allow Posting To" := WorkDate();
+        // [GIVEN] "Allow Deferrals Posting From" is 020121 "Allow Deferrals Posting To" 020121
+        DeferralDate := WorkDate + 1;
+        GeneralLedgerSetup."Allow Deferral Posting From" := DeferralDate;
+        GeneralLedgerSetup."Allow Deferral Posting To" := DeferralDate;
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Deferral Line, where "Posting Date" is 020121
+        DeferralLine.Validate("Posting Date", DeferralDate);
+        // [THEN] No error, "Posting Date" is 020121 ("Allow Posting From/To" is ignored)
+        DeferralLine.TestField("Posting Date", DeferralDate);
+    end;
+
+    [Test]
+    procedure T103_DeferralLinePostingDateOutOfRangeAllowedForDeferralPostingInGLSetup()
+    var
+        DeferralLine: Record "Deferral Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DeferralDate: Date;
+    begin
+        // [SCENARIO 334609] Deferral posting date is out of the range for allowed deferral posting, defined in G/L Setup.
+        Initialize();
+        // [GIVEN] User Setup has no setup on "Allow Deferrals Posting From/To" 
+        // [GIVEN] G/L Setup, where "Allow Posting From" is 010121 "Allow Posting To" 010121,
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Posting From" := WorkDate();
+        GeneralLedgerSetup."Allow Posting To" := WorkDate();
+        // [GIVEN] "Allow Deferrals Posting From" is 020121 "Allow Deferrals Posting To" 020121
+        DeferralDate := WorkDate() + 1;
+        GeneralLedgerSetup."Allow Deferral Posting From" := DeferralDate;
+        GeneralLedgerSetup."Allow Deferral Posting To" := DeferralDate;
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Deferral Line, where "Posting Date" is 010121
+        asserterror DeferralLine.Validate("Posting Date", WorkDate());
+        // [THEN] Error, "010121 is not within the range..." ("Allow Posting From/To" is ignored)
+        Assert.ExpectedError(DeferralsPostingDateOutOfRangeErr);
+    end;
+
+    [Test]
+    procedure T105_DeferralLinePostingDateOutOfRangeByGLSetupInRangeByUserSetup()
+    var
+        DeferralLine: Record "Deferral Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        UserSetup: Record "User Setup";
+        DeferralDate: Date;
+    begin
+        // [SCENARIO 334609] Deferral posting date is out of range defined in G/L Setup, but in range defined in User Setup.
+        Initialize();
+        // [GIVEN] User Setup, where "Allow Deferrals Posting From" is 020121 "Allow Deferrals Posting To" 020121
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        DeferralDate := WorkDate + 1;
+        UserSetup."Allow Deferral Posting From" := DeferralDate;
+        UserSetup."Allow Deferral Posting To" := DeferralDate;
+        UserSetup.Modify();
+        // [GIVEN] G/L Setup, where "Allow Deferrals Posting From" is 010121 "Allow Deferrals Posting To" 010121
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Deferral Posting From" := WorkDate();
+        GeneralLedgerSetup."Allow Deferral Posting To" := WorkDate();
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Deferral Line, where "Posting Date" is 020121
+        DeferralLine.Validate("Posting Date", DeferralDate);
+        // [THEN] No error, "Posting Date" is 020121, User Setup has priority over G/L Setup.
+        DeferralLine.TestField("Posting Date", DeferralDate);
+
+        UserSetup.Delete();
+    end;
+
+    [Test]
+    procedure T106_DeferralLinePostingDateInRangeByGLSetupOutOfRangeByUserSetup()
+    var
+        DeferralLine: Record "Deferral Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        UserSetup: Record "User Setup";
+        DeferralDate: Date;
+    begin
+        // [SCENARIO 334609] Deferral posting date is in range defined in G/L Setup, but out of range defined in User Setup.
+        Initialize();
+        // [GIVEN] User Setup, where "Allow Deferrals Posting From" is 020121 "Allow Deferrals Posting To" 020121
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        DeferralDate := WorkDate + 1;
+        UserSetup."Allow Deferral Posting From" := DeferralDate;
+        UserSetup."Allow Deferral Posting To" := DeferralDate;
+        UserSetup.Modify();
+        // [GIVEN] G/L Setup, where "Allow Deferrals Posting From" is 010121 "Allow Deferrals Posting To" 010121
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Deferral Posting From" := WorkDate();
+        GeneralLedgerSetup."Allow Deferral Posting To" := WorkDate();
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Deferral Line, where "Posting Date" is 010121
+        asserterror DeferralLine.Validate("Posting Date", WorkDate());
+        // [THEN] Error, "010121 is not within the range..."
+        Assert.ExpectedError(DeferralsPostingDateOutOfRangeErr);
+    end;
+
+    [Test]
+    procedure T110_GetDeferralStartDateNextCalendarYear()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+    begin
+        // [SCENARIO 334609] Deferral date for "Beginning of Next Calendar Year" gives the first day of the next calendar year.
+        Initialize();
+        // [GIVEN] DeferralTemplate, where "Start Date" is "Beginning of Next Calendar Year"
+        DeferralTemplate.Get(CreateDeferralCode());
+        DeferralTemplate."Start Date" := "Deferral Calculation Start Date"::"Beginning of Next Calendar Year";
+        DeferralTemplate.Modify();
+
+        // [THEN] GetDeferralStartDate returns 01.01.22 (beginning of the next calendar year) for 01.01.21
+        Assert.AreEqual(
+            20220101D, DeferralUtilities.GetDeferralStartDate(0, 0, '', 0, DeferralTemplate."Deferral Code", 20210101D),
+            'Wrong date for 20210101D');
+        // [THEN] GetDeferralStartDate returns 01.01.22 (beginning of the next calendar year) for 31.12.21
+        Assert.AreEqual(
+            20220101D, DeferralUtilities.GetDeferralStartDate(0, 0, '', 0, DeferralTemplate."Deferral Code", 20211231D),
+            'Wrong date for 20210101D');
+    end;
+
+    [Test]
+    procedure T120_AllowDeferralPostingFromToOnGLSetup()
+    var
+        GeneralLedgerSetup: TestPage "General Ledger Setup";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 334609] G/L Setup page has "Allow Deferral Posting From" and "Allow Deferral Posting To" fields.
+        Initialize();
+        // [GIVEN] Open G/L Setup page
+        GeneralLedgerSetup.OpenEdit();
+        // [GIVEN] "Allow Deferral Posting From" and "Allow Deferral Posting To" are visible and editable
+        Assert.IsTrue(GeneralLedgerSetup."Allow Deferral Posting From".Visible(), '"Allow Deferral Posting From".Visible');
+        Assert.IsTrue(GeneralLedgerSetup."Allow Deferral Posting From".Editable(), '"Allow Deferral Posting From".Editable');
+        Assert.IsTrue(GeneralLedgerSetup."Allow Deferral Posting To".Visible(), '"Allow Deferral Posting From".Visible');
+        Assert.IsTrue(GeneralLedgerSetup."Allow Deferral Posting To".Editable(), '"Allow Deferral Posting From".Editable');
+
+        // [WHEN] Set invalid dates so "From" is later than "To"
+        GeneralLedgerSetup."Allow Deferral Posting To".SetValue(WorkDate());
+        asserterror GeneralLedgerSetup."Allow Deferral Posting From".SetValue(WorkDate() + 1);
+
+        // [THEN] Error: 'The date in the Allow Deferral Posting From field must not be after ...'
+        Assert.ExpectedError(WrongAllowDeferralPostingDatesErr);
+    end;
+
+    [Test]
+    procedure T121_AllowDeferralPostingFromToOnUserSetup()
+    var
+        UserSetup: Record "User Setup";
+        UserSetupPage: TestPage "User Setup";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 334609] User Setup page has "Allow Deferral Posting From" and "Allow Deferral Posting To" fields.
+        Initialize();
+        // [GIVEN] Open "User Setup" page
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetupPage.OpenEdit();
+        UserSetupPage.Filter.SetFilter("User ID", UserId());
+        // [GIVEN] "Allow Deferral Posting From" and "Allow Deferral Posting To" are visible and editable
+        Assert.IsTrue(UserSetupPage."Allow Deferral Posting From".Visible(), '"Allow Deferral Posting From".Visible');
+        Assert.IsTrue(UserSetupPage."Allow Deferral Posting From".Editable(), '"Allow Deferral Posting From".Editable');
+        Assert.IsTrue(UserSetupPage."Allow Deferral Posting To".Visible(), '"Allow Deferral Posting From".Visible');
+        Assert.IsTrue(UserSetupPage."Allow Deferral Posting To".Editable(), '"Allow Deferral Posting From".Editable');
+
+        // [WHEN] Set invalid dates so "To" is earlier that "From"
+        UserSetupPage."Allow Deferral Posting From".SetValue(WorkDate());
+        asserterror UserSetupPage."Allow Deferral Posting To".SetValue(WorkDate() - 1);
+
+        // [THEN] Error: 'The date in the Allow Deferral Posting From field must not be after ...'
+        Assert.ExpectedError(WrongAllowDeferralPostingDatesErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T130_PostingVendorInvoiceOutOfAllowedDeferralPostingRange()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLEntry: Record "G/L Entry";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 334609] Vendor invoice should not be posted if deferrals dates are out of range, defined in G/L Setup.
+        Initialize();
+
+        // [GIVEN] Vendor Invoice with Defferal setup (5 periods as "Posting Date")
+        CreatePurchInvoiceWithLineDeferral(PurchaseHeader, PurchaseLine, CreateEqual5Periods, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] G/L Setup, where "Allow Deferrals Posting From" is 010121 "Allow Deferrals Posting To" 050121
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Deferral Posting From" := WorkDate();
+        GeneralLedgerSetup."Allow Deferral Posting To" := WorkDate() + 5;
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Post General Journal Line.
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Error, "060121 is not within the range..."
+        Assert.ExpectedError(DeferralsPostingDateOutOfRangeErr);
+    end;
+
+    [Test]
+    procedure T131_PostingGenJournalLineOutOfAllowedDeferralPostingRange()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        UserSetup: Record "User Setup";
+    begin
+        // [SCENARIO 334609] Post general journal line with deferral dates out of range set in user setup.
+        Initialize();
+        // [GIVEN] General Journal Line with Deferral (5 periods as "Posting Date")
+        CreateGenJournalLineWithDeferral(GenJournalLine);
+
+        // [GIVEN] User Setup, where "Allow Deferrals Posting From" is 010121 "Allow Deferrals Posting To" 010121
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup."Allow Deferral Posting From" := WorkDate();
+        UserSetup."Allow Deferral Posting To" := WorkDate() + 5;
+        UserSetup.Modify();
+
+        // [WHEN] Post General Journal Lines.
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Error, "060121 is not within the range..."
+        Assert.ExpectedError(DeferralsPostingDateOutOfRangeErr);
     end;
 
     [Test]
@@ -1325,22 +1622,23 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         CurrentPeriod: Date;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
         GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"General Journal");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         if CompanyInformation.IsCanada then begin
             CompanyInformation."Tax Area Code" := '';
@@ -1350,7 +1648,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         for Index := 1 to 5 do begin
             CurrentPeriod := CalcDate(StrSubstNo('<+%1M>', Index), WorkDate);
             AccountingPeriod.SetRange("Starting Date", CurrentPeriod);
-            if not AccountingPeriod.FindFirst then begin
+            if not AccountingPeriod.FindFirst() then begin
                 AccountingPeriod."Starting Date" := CurrentPeriod;
                 AccountingPeriod."New Fiscal Year" := true;
                 AccountingPeriod.Insert();
@@ -1385,7 +1683,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // Setup
         DeferralCode := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
-        GLAccountNumber := LibraryERM.CreateGLAccountNo;
+        GLAccountNumber := LibraryERM.CreateGLAccountNo();
 
         DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" := DeferralCode;
@@ -1510,7 +1808,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure CreateSalesInvoiceWithLineDeferral(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DeferralCode: Code[10]; DocumentType: Enum "Sales Document Type")
@@ -1569,7 +1867,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
           LibraryRandom.RandDecInRange(1000, 2000, 2));
 
-        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
         GenJournalLine.Validate("Source Code", GenJournalTemplate."Source Code");
         GenJournalLine.Validate("Deferral Code", CreateEqual5Periods);
         GenJournalLine.Modify(true);
@@ -1728,7 +2026,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         with GLEntry do begin
             SetRange("Document Type", GenJournalLine."Document Type");
             SetRange("Document No.", GenJournalLine."Document No.");
-            FindFirst;
+            FindFirst();
             exit("Transaction No.");
         end;
     end;
@@ -1784,7 +2082,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         GLEntry.SetRange("Posting Date", PostingDate);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Description, DefDescription);
     end;
 
@@ -1832,7 +2130,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
             SetFilter("VAT Amount", '<>%1', 0);
             FilterGLEntryGroups(GLEntry, GenJournalLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
+            FindFirst();
             PairAmount := Amount;
 
             // Verify paired GLEntry
@@ -1840,7 +2138,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
             SetFilter(Amount, '<%1', 0);
             FilterGLEntryGroups(GLEntry, DummyGenJournalLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
+            FindFirst();
             TestField(Amount, -PairAmount);
         end;
     end;

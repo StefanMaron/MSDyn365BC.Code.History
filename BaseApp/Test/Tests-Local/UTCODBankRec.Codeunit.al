@@ -32,7 +32,7 @@ codeunit 142076 "UT COD Bank Rec"
 
         // Verify: Verify the Posted Bank Rec. Header exist after Post and Print of the Bank Rec. Header.
         PostedBankRecHeader.SetRange("Bank Account No.", BankRecHeader."Bank Account No.");
-        PostedBankRecHeader.FindFirst;
+        PostedBankRecHeader.FindFirst();
     end;
 
     [Test]
