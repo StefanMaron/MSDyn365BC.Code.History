@@ -106,9 +106,10 @@ codeunit 6202 "Transact. Storage Export Data"
                 Clear(TableJsonArray);
                 foreach MasterDataCode in MasterDataCodes do begin
                     FieldRef.SetRange(MasterDataCode);
-                    RecRef.FindFirst();
-                    HandleTableFieldSet(RecordJsonObject, MasterData, TempFieldList, RecRef, false);
-                    TableJsonArray.Add(RecordJsonObject);
+                    if RecRef.FindFirst() then begin
+                        HandleTableFieldSet(RecordJsonObject, MasterData, TempFieldList, RecRef, false);
+                        TableJsonArray.Add(RecordJsonObject);
+                    end;
                 end;
                 DataJsonArrays.Add(RecRef.Number, TableJsonArray);
             end;

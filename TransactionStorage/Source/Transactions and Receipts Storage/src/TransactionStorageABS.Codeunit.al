@@ -15,10 +15,10 @@ codeunit 6205 "Transaction Storage ABS"
         TransactionStorageTok: Label 'Transaction Storage', Locked = true;
         JsonContentTypeHeaderTok: Label 'application/json', Locked = true;
         ExportLogFileNameTxt: Label 'ExportLog', Locked = true;
-        SendBlobBlockForTableTok: Label 'Send blob block for table %1 with name %2 to Azure Function', Comment = '%1 - table id, %2 - blob name';
-        ExportOfIncomingDocTok: Label 'Export of incoming document %1 with name %2', Comment = '%1 - incoming document file name, %2 - blob name';
-        ExportedDocCountTxt: Label 'Export of incoming documents completed. Collected %1 documents, exported %2 documents', Comment = '%1 - collected documents count, %2 - exported documents count';
-        ExportedTablesCountTxt: Label 'Export of tables completed. Collected %1 tables, exported %2 tables', Comment = '%1 - collected tables count, %2 - exported tables count';
+        SendBlobBlockForTableTok: Label 'Send blob block for table %1 with name %2 to Azure Function', Comment = '%1 - table id, %2 - blob name', Locked = true;
+        ExportOfIncomingDocTok: Label 'Export of incoming document %1 with name %2', Comment = '%1 - incoming document file name, %2 - blob name', Locked = true;
+        ExportedDocCountTxt: Label 'Export of incoming documents completed. Collected %1 documents, exported %2 documents', Comment = '%1 - collected documents count, %2 - exported documents count', Locked = true;
+        ExportedTablesCountTxt: Label 'Export of tables completed. Collected %1 tables, exported %2 tables', Comment = '%1 - collected tables count, %2 - exported tables count', Locked = true;
         BlobFolderNameTxt: Label '%1_%2/%3', Comment = '%1 - aad tenant id, %2 - environment name, %3 - date', Locked = true;
         JsonBlobNameTxt: Label '%1/%2.json', Comment = '%1 - blob folder name, %2 - table name', Locked = true;
         IncomingDocBlobNameTxt: Label '%1/%2-%3.%4', Comment = '%1 - blob folder name, %2 - incoming document entry no., %3 - incoming document name, %4 - incoming document extension', Locked = true;
@@ -271,8 +271,8 @@ codeunit 6205 "Transaction Storage ABS"
         end;
 
         if not AzureKeyVault.GetAzureKeyVaultSecret(AzFuncEndpointBase64KeyTok, EndpointForBase64) then begin
-            FeatureTelemetry.LogError('0000M7I', TransactionStorageTok, '', StrSubstNo(CannotGetEndpointBase64FromKeyVaultErr, AzFuncEndpointTextKeyTok));
-            Error(CannotGetEndpointBase64FromKeyVaultErr, AzFuncEndpointTextKeyTok);
+            FeatureTelemetry.LogError('0000M7I', TransactionStorageTok, '', StrSubstNo(CannotGetEndpointBase64FromKeyVaultErr, AzFuncEndpointBase64KeyTok));
+            Error(CannotGetEndpointBase64FromKeyVaultErr, AzFuncEndpointBase64KeyTok);
         end;
     end;
 

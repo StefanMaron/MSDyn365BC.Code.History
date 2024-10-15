@@ -3212,7 +3212,7 @@
         end;
 
         if "Exclude Contract Discount" then
-            if CurrFieldNo = FieldNo("Fault Reason Code") then
+            if (CurrFieldNo = FieldNo("Fault Reason Code")) and (not "Exclude Warranty") then
                 Discounts[2] := "Line Discount %"
             else
                 Discounts[2] := 0
@@ -5652,6 +5652,10 @@
 
         if ("Location Code" = '') or (Type <> Type::Item) then
             exit;
+
+        if Rec.IsNonInventoriableItem() then
+            exit;
+
         Location.Get("Location Code");
         if not Location."Bin Mandatory" then
             exit;
