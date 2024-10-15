@@ -2398,6 +2398,7 @@ codeunit 6500 "Item Tracking Management"
                 SumLot += TempTrackingSpecification."Quantity (Base)";
             until TempTrackingSpecification.Next() = 0;
         TempTrackingSpecification := TempTrackingSpecification2;
+        TempTrackingSpecification.SetRange("New Lot No.");
         exit(SumLot);
     end;
 

@@ -61,7 +61,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
 
         // Verify Header
         RefPmtExported.FindFirst();
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyValue(LibraryXPathXMLReader, 'GrpHdr/NbOfTxs[1]', '1');
         VerifyValue(LibraryXPathXMLReader, 'GrpHdr/CtrlSum[1]', Format(RefPmtExported.Amount, 0, 9));
         VerifyValue(LibraryXPathXMLReader, 'GrpHdr/Grpg[1]', 'MIXD');
@@ -77,7 +77,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
 
         // Verify Payment methode
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/PmtMtd[1]', 'TRF');
-        VerifyValue(LibraryXPathXMLReader, 'PmtInf/ReqdExctnDt[1]', Format(RefPmtExported."Payment Date", 0, 9));
+        VerifyValue(LibraryXPathXMLReader, 'PmtInf/ReqdExctnDt/Dt[1]', Format(RefPmtExported."Payment Date", 0, 9));
 
         // Verify Debitor info
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/Dbtr/Nm[1]', CompanyInfo.Name);
@@ -137,7 +137,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RunExport(BankAccountNo);
 
         // Verify Unstructured information
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/RmtInf/Strd/CdtrRefInf/CdtrRefTp/Cd[1]', 'SCOR');
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/RmtInf/Strd/CdtrRefInf/CdtrRef[1]', '00000000000000268745');
     end;
@@ -221,7 +221,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RunExport(BankAccountNo);
 
         // Verify Amount
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Amt/InstdAmt[1]', Format(RefPmtExported.Amount, 0, 9));
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Amt/InstdAmt/@Ccy', 'NOK');
 
@@ -265,7 +265,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RefPmtExported.FindFirst();
 
         // Verify Amount
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Amt/InstdAmt[1]', Format(RefPmtExported.Amount, 0, 9));
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Amt/InstdAmt/@Ccy', 'EUR');
 
@@ -307,7 +307,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RefPmtExported.FindFirst();
 
         // Verify Amount
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Amt/InstdAmt[1]', Format(RefPmtExported.Amount, 0, 9));
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/Amt/InstdAmt/@Ccy', 'EUR');
 
@@ -436,7 +436,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RunExport(BankAccountNo);
 
         // Verify that only one line exist and it is the right one
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyCount(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf', 1);
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/PmtId/EndToEndId[1]', DocNo[2]);
 
@@ -473,7 +473,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RunExport(BankAccountNo);
 
         // Verify that 2 payments are created
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyCount(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf', 2);
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf[1]/PmtId/EndToEndId[1]', DocNo[1]);
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf[2]/PmtId/EndToEndId[1]', DocNo[2]);
@@ -542,7 +542,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         // Verify Creditor Bank information
         Vendor.Get(VendorNo);
         VendorBankAccount.Get(VendorNo, Vendor."Preferred Bank Account Code");
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyValue(LibraryXPathXMLReader,
           'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/ClrSysMmbId[1]', VendorBankAccount."Clearing Code");
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/CmbndId/Nm[1]', VendorBankAccount.Name);
@@ -1205,19 +1205,19 @@ codeunit 144004 "Bank Payments - SEPA V2"
 
     local procedure VerifyValue(LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader"; XPath: Text; ExpectedValue: Text)
     begin
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('/Document/pain.001.001.02/' + XPath, ExpectedValue);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('/Document/pain.001.001.09/' + XPath, ExpectedValue);
     end;
 
     local procedure VerifyCount(LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader"; XPath: Text; NodeCount: Integer)
     begin
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/Document/pain.001.001.02/' + XPath, NodeCount)
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('/Document/pain.001.001.09/' + XPath, NodeCount)
     end;
 
     local procedure VerifySEPAValue(BankAccountNo: Code[20]; XPath: Text; ExpectedValue: Text)
     var
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
     begin
-        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
+        LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
         VerifyValue(LibraryXPathXMLReader, XPath, ExpectedValue);
     end;
 
