@@ -746,6 +746,40 @@ codeunit 134274 "Transformation Rules Tests"
     end;
 
     [Test]
+    procedure DateFormattingWrongInput()
+    var
+        TransformationRule: Record "Transformation Rule";
+        InputText: Text;
+    begin
+        // [SCENARIO 399408] Date Formatting returns the input string in case of a wrong input
+        Iniatialize;
+
+        TransformationRule.Init();
+        TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Date Formatting");
+        TransformationRule.Validate("Data Format", 'yyyyMMddHHmmss');
+
+        InputText := 'wrong date time';
+        Assert.AreEqual(InputText, TransformationRule.TransformText(InputText), '');
+    end;
+
+    [Test]
+    procedure DateTimeFormattingWrongInput()
+    var
+        TransformationRule: Record "Transformation Rule";
+        InputText: Text;
+    begin
+        // [SCENARIO 399408] Date and Time Formatting returns the input string in case of a wrong input
+        Iniatialize;
+
+        TransformationRule.Init();
+        TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Date and Time Formatting");
+        TransformationRule.Validate("Data Format", 'yyyyMMddHHmmss');
+
+        InputText := 'wrong date time';
+        Assert.AreEqual(InputText, TransformationRule.TransformText(InputText), '');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestUnixtimestamp()
     var
