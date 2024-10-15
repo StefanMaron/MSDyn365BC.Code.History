@@ -174,7 +174,7 @@ codeunit 1545 "Workflow Webhook Notification"
 
         if Company.ReadPermission then
             if Company.Get(CompanyName()) then
-                JsonPayload.Add('Company Id', LowerCase(Format(Company.SystemId, 0, 4)));
+                JsonPayload.Add('Company Id', LowerCase(Format(Company.Id, 0, 4)));
 
         if EnvironmentInformation.IsSaaS() then
             JsonPayload.Add('Environment Name', EnvironmentInformation.GetEnvironmentName());
