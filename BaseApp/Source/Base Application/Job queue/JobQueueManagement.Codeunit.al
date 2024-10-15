@@ -108,6 +108,20 @@ codeunit 456 "Job Queue Management"
         end;
     end;
 
+    procedure SetRecurringJobsOnHold(CompanyName: Text)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.ChangeCompany(CompanyName);
+        JobQueueEntry.SetRange("Recurring Job", true);
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
+        if JobQueueEntry.FindSet(true) then
+            repeat
+                JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+                JobQueueEntry.Modify();
+            until JobQueueEntry.Next() = 0;
+    end;
+
     procedure SetStatusToOnHoldIfInstanceInactiveFor(PeriodType: Option Day,Week,Month,Quarter,Year; NoOfPeriods: Integer; ObjectTypeToSetOnHold: Option; ObjectIdToSetOnHold: Integer): Boolean
     var
         UserLoginTimeTracker: Codeunit "User Login Time Tracker";

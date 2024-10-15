@@ -16,6 +16,8 @@ codeunit 8612 "Config. Template Management"
     var
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
+        OnBeforeUpdateFromTemplateSelection(ConfigTemplateHeader, RecRef);
+
         ConfigTemplateHeader.SetRange("Table ID", RecRef.Number);
         if PAGE.RunModal(PAGE::"Config. Template List", ConfigTemplateHeader, ConfigTemplateHeader.Code) = ACTION::LookupOK then
             UpdateRecord(ConfigTemplateHeader, RecRef);
@@ -569,6 +571,11 @@ codeunit 8612 "Config. Template Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateWithSkipFields(var SkipFieldValidation: Boolean; var RecRef: RecordRef; TempDummyField: Record "Field" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateFromTemplateSelection(var ConfigTemplateHeader: Record "Config. Template Header"; RecRef: RecordRef)
     begin
     end;
 

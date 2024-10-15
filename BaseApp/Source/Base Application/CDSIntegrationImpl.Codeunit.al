@@ -212,9 +212,10 @@ codeunit 7201 "CDS Integration Impl."
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         ConnectionBrokenMsg: Label 'The connection to Dataverse is disabled due to the following error: %1.\\Please contact your system administrator.', Comment = '%1 = Error text received from Dataverse';
         ConnectionDisabledNotificationMsg: Label 'Connection to Dataverse is broken and that it has been disabled due to an error: %1', Comment = '%1 = Error text received from Dataverse';
-        CDSConnectionSetupTxt: Label 'Set up Dataverse connection';
+        CDSConnectionSetupTitleTxt: Label 'Set up a connection to Dataverse';
+        CDSConnectionSetupShortTitleTxt: Label 'Connect to Dataverse';
         CDSConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115257', Locked = true;
-        CDSConnectionSetupDescriptionTxt: Label 'Connect to Dataverse for better insights across business applications.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated';
+        CDSConnectionSetupDescriptionTxt: Label 'Connect to Dataverse for better insights across business applications. Data will flow between the apps for better productivity.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated';
         BaseIntegrationSolutionNotInstalledErr: Label 'Base Dataverse integration solution %1 is not installed.', Comment = '%1 = Dataverse solution name';
         SolutionVersionErr: Label 'Version of the base Dataverse integration solution %1 is not the last one.', Comment = '%1 = solution version';
         SystemAdminErr: Label 'User %1 has the %2 role on server %3.\\You must choose a user that does not have the %2 role.', Comment = '%1 = user name, %2 = security role name, %3 = server address';
@@ -1985,11 +1986,11 @@ codeunit 7201 "CDS Integration Impl."
 
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         NavApp.GetCurrentModuleInfo(ModuleInfo);
-        GuidedExperience.InsertAssistedSetup(CDSConnectionSetupTxt, CopyStr(CDSConnectionSetupTxt, 1, 50), CDSConnectionSetupDescriptionTxt, 0, ObjectType::Page,
+        GuidedExperience.InsertAssistedSetup(CDSConnectionSetupTitleTxt, CDSConnectionSetupShortTitleTxt, CDSConnectionSetupDescriptionTxt, 10, ObjectType::Page,
             Page::"CDS Connection Setup Wizard", AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-            Page::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTxt);
+            Page::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTitleTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 
@@ -3831,6 +3832,26 @@ codeunit 7201 "CDS Integration Impl."
     local procedure GetCompanyExternalId(Company: Record Company) ExternalId: Text[36]
     begin
         ExternalId := CopyStr(Format(Company.SystemId).ToLower().Replace('{', '').Replace('}', ''), 1, MaxStrLen(ExternalId));
+    end;
+
+    [Scope('OnPrem')]
+    procedure ShowIntegrationUser(CDSConnectionSetup: Record "CDS Connection Setup")
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        IntegrationUserId: Guid;
+    begin
+        IntegrationUserId := GetIntegrationUserId(CDSConnectionSetup);
+        Hyperlink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(Database::"CRM Systemuser", IntegrationUserId));
+    end;
+
+    [Scope('OnPrem')]
+    procedure ShowOwningTeam(CDSConnectionSetup: Record "CDS Connection Setup")
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        OwningTeamId: Guid;
+    begin
+        OwningTeamId := GetOwningTeamId(CDSConnectionSetup);
+        Hyperlink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(Database::"CRM Team", OwningTeamId));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]

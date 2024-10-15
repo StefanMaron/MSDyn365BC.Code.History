@@ -15,11 +15,11 @@ codeunit 134035 "ERM Vend Date Compress Manual"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         IsInitialized: Boolean;
         EntryError: Label 'Entries posted after Date Compression End Date must not be compressed.';
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByWeek()
     var
@@ -32,7 +32,6 @@ codeunit 134035 "ERM Vend Date Compress Manual"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByMonth()
     var
@@ -55,7 +54,6 @@ codeunit 134035 "ERM Vend Date Compress Manual"
     begin
         // Setup: Close any open Fiscal Year. Create Vendor, Post multiple Invoice and Payment Entries on different dates for Vendor
         // and apply Payment over Invoice.
-        LibraryFiscalYear.CloseFiscalYear;
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         LibraryPurchase.CreateVendor(Vendor);
         for Counter := 1 to 1 + LibraryRandom.RandInt(2) do begin   // Using 1 + Random for creating multiple entries.
@@ -83,6 +81,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Vend Date Compress Manual");

@@ -617,6 +617,8 @@ codeunit 7110 "Analysis Report Management"
                     end;
             end;
         end;
+
+        OnAfterSetItemRowFilters(ItemStatisticsBuf, AnalysisLine);
     end;
 
     procedure SetItemColumnFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisColumn: Record "Analysis Column")
@@ -1368,6 +1370,8 @@ codeunit 7110 "Analysis Report Management"
             end else
                 ValueEntry.SetCurrentKey("Item No.", "Posting Date");
         end;
+
+        OnAfterFilterValueEntry(ItemStatisticsBuf, ValueEntry);
     end;
 
     local procedure FilterItemLedgEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemLedgEntry: Record "Item Ledger Entry")
@@ -1409,6 +1413,8 @@ codeunit 7110 "Analysis Report Management"
             end else
                 ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
         end;
+
+        OnAfterFilterItemLedgEntry(ItemStatisticsBuf, ItemLedgEntry);
     end;
 
     local procedure FilterItemBudgetEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemBudgetEntry: Record "Item Budget Entry")
@@ -1447,6 +1453,8 @@ codeunit 7110 "Analysis Report Management"
             end else
                 ItemBudgetEntry.SetCurrentKey("Analysis Area", "Budget Name", "Item No.");
         end;
+
+        OnAfterFilterItemBudgetEntry(ItemStatisticsBuf, ItemBudgetEntry);
     end;
 
     local procedure FilterItemAnalyViewEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry")
@@ -1496,6 +1504,8 @@ codeunit 7110 "Analysis Report Management"
             FilterGroup := 0;
             ItemAnalysisViewEntry.FilterGroup := 0;
         end;
+
+        OnAfterFilterItemAnalyViewEntry(ItemStatisticsBuf, ItemAnalysisViewEntry);
     end;
 
     local procedure FilterItemAnalyViewBudgEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry")
@@ -1537,6 +1547,8 @@ codeunit 7110 "Analysis Report Management"
             FilterGroup := 0;
             ItemAnalysisViewBudgEntry.FilterGroup := 0;
         end;
+
+        OnAfterFilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
     end;
 
     local procedure SetGroupDimFilter(var ItemStatisticsBuf: Record "Item Statistics Buffer"; GroupDimCode: Code[20]; DimValueFilter: Text[250])
@@ -1752,6 +1764,36 @@ codeunit 7110 "Analysis Report Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcItemStatistics(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; DrillDown: Boolean; var ColValue: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterItemAnalyViewEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterItemAnalyViewBudgEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterItemBudgetEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemBudgetEntry: Record "Item Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterItemLedgEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterValueEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemRowFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line")
     begin
     end;
 }

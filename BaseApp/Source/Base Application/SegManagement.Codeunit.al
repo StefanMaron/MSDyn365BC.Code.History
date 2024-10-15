@@ -295,6 +295,11 @@ codeunit 5051 SegManagement
         // Unwrap the attachment custom layout if only code is specified in the blob
         if SegmentLine."Attachment No." <> 0 then begin
             Attachment.Get(SegmentLine."Attachment No.");
+
+            // Don't do double processing of attachments.
+            if Attachment."Read Only" then
+                exit;
+
             Attachment.CalcFields("Attachment File");
             if Attachment.IsHTMLCustomLayout() then begin
                 TempAttachment.Copy(Attachment);

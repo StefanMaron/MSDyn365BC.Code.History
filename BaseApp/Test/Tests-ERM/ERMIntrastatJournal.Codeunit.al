@@ -1220,6 +1220,7 @@ codeunit 134150 "ERM Intrastat Journal"
         VerifyErrorMessageExists(IntrastatJnlLine);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('FieldListModalPageHandler')]
     [Scope('OnPrem')]
@@ -1254,6 +1255,7 @@ codeunit 134150 "ERM Intrastat Journal"
           IntrastatChecklistSetupPage."Field Name".Value,
           'field Type should exist on the page');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
@@ -3207,6 +3209,7 @@ codeunit 134150 "ERM Intrastat Journal"
         VendorLookup.OK.Invoke;
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FieldListModalPageHandler(var FieldsLookup: TestPage "Fields Lookup")
@@ -3214,8 +3217,9 @@ codeunit 134150 "ERM Intrastat Journal"
         FieldsLookup.First;
         FieldsLookup.OK.Invoke;
     end;
-
+#endif
     local procedure CreateIntrastatChecklistSetup()
+#if not CLEAN19
     var
         IntrastatChecklistSetup: Record "Intrastat Checklist Setup";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -3225,6 +3229,24 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatChecklistSetup.Init();
         IntrastatChecklistSetup.Validate("Field No.", IntrastatJnlLine.FieldNo("Document No."));
         IntrastatChecklistSetup.Insert();
+#else
+    begin
+        CreateAdvIntrastatChecklistSetup();
+#endif
+    end;
+
+    local procedure CreateAdvIntrastatChecklistSetup()
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        AdvancedIntrastatChecklist.DeleteAll();
+
+        AdvancedIntrastatChecklist.Init();
+        AdvancedIntrastatChecklist.Validate("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
+        AdvancedIntrastatChecklist.Validate("Object Id", Report::"Intrastat - Checklist");
+        AdvancedIntrastatChecklist.Validate("Field No.", IntrastatJnlLine.FieldNo("Document No."));
+        AdvancedIntrastatChecklist.Insert();
     end;
 
     local procedure CreateAndPostJobJournalLine(ShipmentMethodCode: Code[10]; LocationCode: Code[10]): Code[20]

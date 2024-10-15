@@ -7,10 +7,6 @@ codeunit 131302 "Library - Fiscal Year"
     begin
     end;
 
-    var
-        DateCompressErrorErr: Label '%1 must be equal to ''Yes''  in %2: %3=%4. Current value is ''No''.', Comment = '%1:FieldCaption1;%2:TableCaption;%3:FieldCaption2;%4:FieldValue';
-        Assert: Codeunit Assert;
-
     procedure CloseFiscalYear()
     var
         AccountingPeriod: Record "Accounting Period";
@@ -127,19 +123,6 @@ codeunit 131302 "Library - Fiscal Year"
         exit(AccountingPeriod."Starting Date");
     end;
 
-    procedure VerifyDateCompressFALedgerError()
-    var
-        AccountingPeriod: Record "Accounting Period";
-    begin
-        AccountingPeriod.SetRange("Date Locked", false);
-        AccountingPeriod.SetRange(Closed, false);
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindFirst;
-        Assert.ExpectedError(
-          StrSubstNo(DateCompressErrorErr, AccountingPeriod.FieldCaption("Date Locked"), AccountingPeriod.TableCaption,
-            AccountingPeriod.FieldCaption("Starting Date"), AccountingPeriod."Starting Date"));
-    end;
-
     procedure GetInitialPostingDate(): Date
     begin
         exit(GetFirstPostingDate(true));
@@ -160,6 +143,36 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod: Record "Accounting Period";
     begin
         exit(not AccountingPeriod.IsEmpty);
+    end;
+
+    procedure CreateClosedAccountingPeriods()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        GLEntry: Record "G/L Entry";
+        CreateFiscalYear: Report "Create Fiscal Year";
+        Period: DateFormula;
+        i, j : integer;
+    begin
+        AccountingPeriod.DeleteAll();
+        Evaluate(Period, '<1M>');
+
+        GLEntry.SetCurrentKey("Posting Date");
+        GLEntry.SetAscending("Posting Date", true);
+        if GLEntry.FindFirst() then;
+        j := ((Date2DMY(Today(), 3) - Date2DMY(GLEntry."Posting Date", 3))) + 3;
+        if j < 10 then
+            j := 10;
+
+        for i := j downto 0 do begin
+            CreateFiscalYear.UseRequestPage(false);
+            CreateFiscalYear.InitializeRequest(12, Period, DMY2Date(1, 1, Date2DMY(Today, 3) + 3 - i));
+            CreateFiscalYear.HideConfirmationDialog(true);
+            CreateFiscalYear.Run();
+            clear(CreateFiscalYear);
+
+            AccountingPeriod.ModifyAll(Closed, true);
+            AccountingPeriod.ModifyAll("Date Locked", true);
+        end;
     end;
 }
 

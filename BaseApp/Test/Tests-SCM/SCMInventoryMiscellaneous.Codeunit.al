@@ -417,7 +417,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     end;
 
     [Test]
-    [HandlerFunctions('PickSelectionHandler,MessageHandler,AutomaticReservationConfirmHandler,CreatePickHandler')]
+    [HandlerFunctions('PickSelectionHandler,MessageHandler,AutomaticReservationConfirmHandler,CreatePickHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure ReserverdQuantityOnSalesOrderAfterPick()
     var
@@ -425,6 +425,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Location: Record Location;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         CustomerNo: Code[20];
         Quantity: Decimal;
         QuantityToHandle: Decimal;
@@ -452,10 +453,12 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify: Verify Reserved Quantity on Sales Line.
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", QuantityToHandle);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('PickSelectionHandler,MessageHandler,CreatePickHandler,AutomaticReservationConfirmHandler')]
+    [HandlerFunctions('PickSelectionHandler,MessageHandler,CreatePickHandler,AutomaticReservationConfirmHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure PickWorksheetWithReservation()
     var
@@ -464,6 +467,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         Quantity: Decimal;
         QuantityToHandle: Decimal;
         CustomerNo: Code[20];
@@ -496,6 +500,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify: Verify Pick Worksheet Line.
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", Location.Code);
         VerifyPickWorksheet(SalesLine, QuantityToHandle);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2250,6 +2256,16 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [SendNotificationHandler]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [RecallNotificationHandler]
+    procedure RecallNotificationHandler(var Notification: Notification): Boolean
     begin
     end;
 }
