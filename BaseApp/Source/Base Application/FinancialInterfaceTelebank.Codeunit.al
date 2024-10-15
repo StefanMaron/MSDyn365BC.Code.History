@@ -24,6 +24,7 @@ codeunit 11000001 "Financial Interface Telebank"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         "Journal template": Record "Gen. Journal Template";
         DocumentIsNotOpenMsg: Label 'Document No. %1 of %2 %3 is not open.', Comment = '%1 Document No.; %2 Vendor or Customer or Employee caption; %3 - Source No.';
+        DifferentCurrencyQst: Label 'One of the applied document currency codes is different from the bank account''s currency code. This will lead to different currencies in the detailed ledger entries between the document and the applied payment. Document details:\Account Type: %1-%2\Ledger Entry No.: %3\Document Currency: %4\Bank Currency: %5\\Do you want to continue?', Comment = '%1 - account type (vendor\customer), %2 - account number, %3 - ledger entry no., %4 - document currency code, %5 -  bank currency code';
 
     [Scope('OnPrem')]
     procedure PostPaymReceived(var GenJnlLine: Record "Gen. Journal Line"; var PaymentHistLine: Record "Payment History Line"; var PaymentHist: Record "Payment History")
@@ -393,6 +394,57 @@ codeunit 11000001 "Financial Interface Telebank"
             ErrorMessages.Run;
             Error('');
         end;
+    end;
+
+    procedure CheckCBGStatementCurrencyBeforePost(CBGStatement: Record "CBG Statement")
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        PaymentHistoryLine: Record "Payment History Line";
+        DetailLine: Record "Detail Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if CBGStatement."Account Type" = CBGStatement."Account Type"::"G/L Account" then
+            exit;
+
+        CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+        CBGStatementLine.SetRange("No.", CBGStatement."No.");
+        PaymentHistoryLine.SetRange("Our Bank", CBGStatement."Account No.");
+        if CBGStatementLine.FindSet() then
+            repeat
+                PaymentHistoryLine.SetRange(Identification, CBGStatementLine.Identification);
+                if PaymentHistoryLine.FindSet() then
+                    repeat
+                        DetailLine.SetRange("Our Bank", PaymentHistoryLine."Our Bank");
+                        DetailLine.SetRange(Status, DetailLine.Status::"In process");
+                        DetailLine.SetRange("Connect Batches", PaymentHistoryLine."Run No.");
+                        DetailLine.SetRange("Connect Lines", PaymentHistoryLine."Line No.");
+                        DetailLine.SetFilter("Serial No. (Entry)", '<>%1', 0);
+                        DetailLine.SetFilter("Currency Code (Entry)", '<>%1', CBGStatement.Currency);
+                        if DetailLine.FindFirst() then begin
+                            if ConfirmManagement.GetResponseOrDefault(
+                                StrSubstNo(
+                                    DifferentCurrencyQst,
+                                    Format(PaymentHistoryLine."Account Type"), PaymentHistoryLine."Account No.", DetailLine."Serial No. (Entry)",
+                                    GetCurrencyCode(PaymentHistoryLine."Foreign Currency"), GetCurrencyCode(CBGStatement.Currency)),
+                                false)
+                            then
+                                exit;
+                            Error('');
+                        end;
+                    until PaymentHistoryLine.Next() = 0;
+            until CBGStatementLine.Next() = 0;
+    end;
+
+    local procedure GetCurrencyCode(CurrencyCode: Code[10]): Code[10]
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        if CurrencyCode = '' then begin
+            GLSetup.Get();
+            exit(GLSetup."LCY Code");
+        end;
+
+        exit(CurrencyCode);
     end;
 }
 

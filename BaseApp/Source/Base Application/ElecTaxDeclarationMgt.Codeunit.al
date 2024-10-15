@@ -1,11 +1,7 @@
 codeunit 11409 "Elec. Tax Declaration Mgt."
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
+        VATReportHeaderForResponseMessage: Record "VAT Report Header";
         SchemaVersionTxt: Label '2019v13.0', Locked = true;
         BDDataEndpointTxt: Label 'http://www.nltaxonomie.nl/nt14/bd/20191211/dictionary/bd-data', Locked = true;
         BDTuplesEndpointTxt: Label 'http://www.nltaxonomie.nl/nt14/bd/20191211/dictionary/bd-tuples', Locked = true;
@@ -16,18 +12,42 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         WindowStatusMsg: Label 'Submitting Electronic Tax Declaration...\\Status          #1##################', Comment = '%1 - any text that represents the status';
         WindowStatusBuildingMsg: Label 'Building document';
         WindowStatusSendMsg: Label 'Transmitting document';
-        DialogTxt: Label 'Receiving Electronic Tax Declaration Responses...\\Status          #1##################', Comment = '%1 = status text.';
-        WindowStatusRequestingMsg: Label 'Requesting status information';
+        WindowReceivingResponsesMsg: Label 'Receiving Electronic Tax Declaration Responses...\\Status          #1##################', Comment = '%1 = status text.';
         WindowStatusProcessingMsg: Label 'Processing data';
-        WindowStatusDeletingMsg: Label 'Removing old status data';
         BlobContentStatusMsg: Label 'Extended content';
+        DigipoortTok: Label 'DigipoortTelemetryCategoryTok', Locked = true;
+        SubmitDeclarationMsg: Label 'Submitting tax declaration', Locked = true;
+        SubmitDeclarationSuccessMsg: Label 'Tax declaration successfully submitted', Locked = true;
+        SubmitDeclarationErrMsg: Label 'Tax declaration submission failed with StatusCode: %1', Locked = true;
+        ReceiveResponseMsg: Label 'Receiving response', Locked = true;
+        ReceiveResponseSuccessMsg: Label 'Response successfully received', Locked = true;
+        ReceiveResponseErrMsg: Label 'The response contains a error', Locked = true;
+        UnknownStatusCodeErr: Label 'Unknown response status code', Locked = true;
+
+    /// <summary>
+    /// Submits  tax declaration in XML format to Digipoort.
+    /// </summary>
+    /// <param name="XmlContent">The tax declartion in XML format</param>
+    /// <param name="MessageType">The Message Type of the message</param>
+    /// <param name="IdentityType">The Identity Type of the tax declaration</param>
+    /// <param name="IdentityNumber">The Identity Number of the tax declaration</param>
+    /// <param name="Reference">The delivery reference to be send to Digipoort</param>
+    /// <param name="RequestUrl">The url the tax declaration needs to be send to</param>
+    /// <returns>The message ID to be received back from Digipoort</returns>
+    [NonDebuggable]
+    procedure SubmitDeclaration(XmlContent: Text; MessageType: Text; IdentityType: Text; IdentityNumber: Text; Reference: Text; RequestUrl: Text): Text
+    var
+        DotNet_SecureString: Codeunit DotNet_SecureString;
+        ClientCertificateBase64: Text;
+        ServiceCertificateBase64: Text;
+    begin
+        InitCertificatesWithPassword(ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
+        exit(SubmitDeclaration(XmlContent, MessageType, IdentityType, IdentityNumber, Reference, RequestUrl, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64));
+    end;
 
     [NonDebuggable]
-    procedure SubmitDeclaration(VATReportHeader: Record "VAT Report Header"; VATReportArchive: Record "VAT Report Archive"; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text): Text
+    procedure SubmitDeclaration(XmlContent: Text; MessageType: Text; IdentityType: Text; IdentityNumber: Text; Reference: Text; RequestUrl: Text; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text): Text
     var
-        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
-        CompanyInformation: Record "Company Information";
-        DotNet_StreamReader: Codeunit DotNet_StreamReader;
         Window: Dialog;
         DotNetSecureString: DotNet SecureString;
         DeliveryService: DotNet DigipoortServices;
@@ -37,11 +57,13 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         Content: DotNet berichtInhoudType;
         Fault: DotNet foutType;
         UTF8Encoding: DotNet UTF8Encoding;
-        RequestInStream: InStream;
-        RequestText: Text;
     begin
-        Window.Open(WindowStatusMsg);
-        Window.Update(1, WindowStatusBuildingMsg);
+        SendTraceTag('0000CJ9', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationMsg, DATACLASSIFICATION::SystemMetadata);
+        if GuiAllowed then begin
+            Window.Open(WindowStatusMsg);
+            Window.Update(1, WindowStatusBuildingMsg);
+        end;
+
         Request := Request.aanleverRequest();
         Response := Response.aanleverResponse();
         Identity := Identity.identiteitType();
@@ -50,46 +72,185 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
 
         UTF8Encoding := UTF8Encoding.UTF8Encoding();
 
-        ElecTaxDeclarationSetup.Get();
-        CompanyInformation.Get();
-        with Identity do begin
-            nummer := CompanyInformation.GetVATIdentificationNo(ElecTaxDeclarationSetup."Part of Fiscal Entity");
-            type := 'Fi';
-        end;
+        Identity.nummer := IdentityNumber;
+        Identity.type := IdentityType;
 
-        with Content do begin
-            mimeType := 'application/xml';
-            bestandsnaam := StrSubstNo('%1.xbrl', GetSubmissionDocType());
-            VATReportArchive."Submission Message BLOB".CreateInStream(RequestInStream);
-            DotNet_StreamReader.StreamReader(RequestInStream, false);
-            RequestText := DotNet_StreamReader.ReadToEnd();
-            inhoud := UTF8Encoding.GetBytes(RequestText);
-        end;
+        Content.mimeType := 'application/xml';
+        Content.bestandsnaam := StrSubstNo('%1.xbrl', MessageType);
+        Content.inhoud := UTF8Encoding.GetBytes(XmlContent);
 
-        with Request do begin
-            berichtsoort := GetSubmissionDocType();
-            aanleverkenmerk := VATReportHeader."Additional Information";
-            identiteitBelanghebbende := Identity;
-            rolBelanghebbende := 'Bedrijf';
-            berichtInhoud := Content;
-            autorisatieAdres := 'http://geenausp.nl'
-        end;
+        Request.berichtsoort := MessageType;
+        Request.aanleverkenmerk := Reference;
+        Request.identiteitBelanghebbende := Identity;
+        Request.rolBelanghebbende := 'Bedrijf';
+        Request.berichtInhoud := Content;
+        Request.autorisatieAdres := 'http://geenausp.nl';
 
-        Window.Update(1, WindowStatusSendMsg);
+        if GuiAllowed then
+            Window.Update(1, WindowStatusSendMsg);
 
         DotNet_SecureString.GetSecureString(DotNetSecureString);
+
         Response := DeliveryService.Deliver(Request,
-            ElecTaxDeclarationSetup."Digipoort Delivery URL",
+            RequestUrl,
             ClientCertificateBase64,
             DotNetSecureString,
             ServiceCertificateBase64,
             30);
 
         Fault := Response.statusFoutcode();
-        if Fault.foutcode() <> '' then
-            Error(SubmitErr, VATReportHeader."No.", Fault.foutcode(), Fault.foutbeschrijving());
-        Window.Close();
+
+        if Fault.foutcode() <> '' then begin
+            SendTraceTag('0000CJA', DigipoortTok, VERBOSITY::Error, StrSubstNo(SubmitDeclarationErrMsg, Fault.foutcode), DATACLASSIFICATION::SystemMetadata);
+            Error(SubmitErr, Reference, Fault.foutcode, Fault.foutbeschrijving);
+        end;
+
+        if GuiAllowed then
+            Window.Close();
+
+        SendTraceTag('0000CJB', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+
         exit(Response.kenmerk());
+    end;
+
+    [NonDebuggable]
+    procedure SubmitDeclaration(VATReportHeader: Record "VAT Report Header"; VATReportArchive: Record "VAT Report Archive"; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text): Text
+    var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
+        CompanyInformation: Record "Company Information";
+        DotNet_StreamReader: Codeunit DotNet_StreamReader;
+        RequestInStream: InStream;
+        XmlContent: Text;
+        MessageType: Text;
+        IdentityType: Text;
+        IdentityNumber: Text;
+        Reference: Text;
+        RequestUrl: Text;
+    begin
+        // XML Content
+        VATReportArchive."Submission Message BLOB".CreateInStream(RequestInStream);
+        DotNet_StreamReader.StreamReader(RequestInStream, false);
+        XmlContent := DotNet_StreamReader.ReadToEnd();
+
+        // Message Type
+        MessageType := GetSubmissionDocType();
+
+        // Identity Type
+        IdentityType := 'Fi';
+
+        // Identity Number
+        CompanyInformation.Get();
+        ElecTaxDeclarationSetup.Get();
+        IdentityNumber := CompanyInformation.GetVATIdentificationNo(ElecTaxDeclarationSetup."Part of Fiscal Entity");
+
+        // Reference
+        Reference := VATReportHeader."Additional Information";
+
+        // Request Url
+        RequestUrl := ElecTaxDeclarationSetup."Digipoort Delivery URL";
+
+        exit(SubmitDeclaration(XmlContent, MessageType, IdentityType, IdentityNumber, Reference, RequestUrl, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64));
+    end;
+
+    /// <summary>
+    /// Receive responses messages from Digipoort.
+    /// </summary>
+    /// <param name="MessageID">The message ID received from Digipoort</param>
+    /// <param name="ResponseUrl">The url the response message need to be requested from</param>
+    /// <param name="ResponseNo">ResponseNo of the first response message</param>
+    /// <param name="ElecTaxDeclResponseMsg">Record where the response messages will get stored in</param>
+    [NonDebuggable]
+    procedure ReceiveResponse(MessageID: Text; ResponseUrl: Text; ResponseNo: Integer; VAR ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.")
+    var
+        DotNet_SecureString: Codeunit DotNet_SecureString;
+        ClientCertificateBase64: Text;
+        ServiceCertificateBase64: Text;
+    begin
+        InitCertificatesWithPassword(ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
+        ReceiveResponse(MessageID, ResponseUrl, ResponseNo, ElecTaxDeclResponseMsg, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
+    end;
+
+    [NonDebuggable]
+    procedure ReceiveResponse(MessageID: Text; ResponseUrl: Text; ResponseNo: Integer; VAR ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg."; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text)
+    var
+        Request: DotNet getStatussenProcesRequest;
+        StatusService: DotNet DigipoortServices;
+        StatusResultatQueue: DotNet Queue;
+        StatusResultat: DotNet StatusResultaat;
+        DotNetSecureString: DotNet SecureString;
+        MessageBLOB: OutStream;
+        FoundXmlContent: Boolean;
+        StatusDetails: Text;
+        StatusErrorDescription: Text;
+        Window: Dialog;
+    begin
+        SendTraceTag('0000CJC', DigipoortTok, VERBOSITY::Normal, ReceiveResponseMsg, DATACLASSIFICATION::SystemMetadata);
+        Window.Open(WindowReceivingResponsesMsg);
+        Request := Request.getStatussenProcesRequest();
+        Request.kenmerk := MessageID;
+        Request.autorisatieAdres := 'http://geenausp.nl';
+
+        DotNet_SecureString.GetSecureString(DotNetSecureString);
+        StatusResultatQueue := StatusService.GetStatus(
+                Request,
+                ResponseUrl,
+                ClientCertificateBase64,
+                DotNetSecureString,
+                ServiceCertificateBase64,
+                30);
+
+        Window.Update(1, WindowStatusProcessingMsg);
+        ElecTaxDeclResponseMsg.Reset();
+
+        while StatusResultatQueue.Count() > 0 do begin
+            StatusResultat := StatusResultatQueue.Dequeue();
+            if StatusResultat.statuscode() <> '-1' then begin
+                ElecTaxDeclResponseMsg.Init();
+                ElecTaxDeclResponseMsg."No." := ResponseNo;
+                ResponseNo += 1;
+
+                SetVATReportHeaderOnResponseMessage(ElecTaxDeclResponseMsg);
+
+                ElecTaxDeclResponseMsg.Subject := CopyStr(StatusResultat.statusomschrijving(), 1, MaxStrLen(ElecTaxDeclResponseMsg.Subject));
+                ElecTaxDeclResponseMsg."Status Code" := CopyStr(StatusResultat.statuscode(), 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Code"));
+
+                FoundXmlContent := false;
+                ElecTaxDeclResponseMsg.Message.CreateOutStream(MessageBLOB);
+
+                StatusErrorDescription := StatusResultat.statusFoutcode().foutbeschrijving();
+                if StatusErrorDescription <> '' then
+                    if StatusErrorDescription[1] = '<' then begin
+                        MessageBLOB.WriteText(StatusErrorDescription);
+                        FoundXmlContent := true;
+                    end;
+
+                StatusDetails := StatusResultat.statusdetails();
+                if StatusDetails <> '' then
+                    if StatusDetails[1] = '<' then begin
+                        MessageBLOB.WriteText(StatusDetails);
+                        FoundXmlContent := true;
+                    end;
+
+                if FoundXmlContent then begin
+                    ElecTaxDeclResponseMsg."Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"));
+                    SendTraceTag('0000CJD', DigipoortTok, VERBOSITY::Normal, ReceiveResponseSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+                end else begin
+                    SendTraceTag('0000CJE', DigipoortTok, VERBOSITY::Error, ReceiveResponseErrMsg, DATACLASSIFICATION::SystemMetadata);
+                    if StatusErrorDescription <> '' then
+                        ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusErrorDescription, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"))
+                    else
+                        ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusDetails, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"));
+                end;
+
+                ElecTaxDeclResponseMsg."Date Sent" := Format(StatusResultat.tijdstempelStatus());
+                ElecTaxDeclResponseMsg.Status := ElecTaxDeclResponseMsg.Status::Received;
+                ElecTaxDeclResponseMsg.Insert(true);
+            end else begin
+                SendTraceTag('0000CJF', DigipoortTok, VERBOSITY::Error, UnknownStatusCodeErr, DATACLASSIFICATION::SystemMetadata);
+                Error(StatusResultat.statusFoutcode().foutbeschrijving());
+            end;
+        end;
+        Window.Close();
     end;
 
     [NonDebuggable]
@@ -98,98 +259,56 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.";
         ErrorLog: Record "Elec. Tax Decl. Error Log";
-        Window: Dialog;
-        StatusService: DotNet DigipoortServices;
-        Request: DotNet getStatussenProcesRequest;
-        StatusResultatQueue: DotNet Queue;
-        StatusResultat: DotNet StatusResultaat;
-        DotNetSecureString: DotNet SecureString;
-        MessageBLOB: OutStream;
-        NextNo: Integer;
-        FoundXmlContent: Boolean;
-        StatusDetails: Text;
-        StatusErrorDescription: Text;
+        MessageID: Text;
+        ResponseUrl: Text;
+        ResponseNo: Integer;
     begin
-        with VATReportHeader do begin
-            if "Message Id" = '' then
-                exit;
+        if VATReportHeader."Message Id" = '' then
+            exit;
 
-            Window.Open(DialogTxt);
-            Window.Update(1, WindowStatusDeletingMsg);
-            ElecTaxDeclResponseMsg.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
-            ElecTaxDeclResponseMsg.SetRange("VAT Report No.", "No.");
-            ElecTaxDeclResponseMsg.DeleteAll();
-            ElecTaxDeclResponseMsg.Reset();
+        ElecTaxDeclResponseMsg.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
+        ElecTaxDeclResponseMsg.SetRange("VAT Report No.", VATReportHeader."No.");
+        ElecTaxDeclResponseMsg.DeleteAll();
+        ElecTaxDeclResponseMsg.Reset();
 
-            ErrorLog.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
-            ErrorLog.SetRange("VAT Report No.", "No.");
-            ErrorLog.DeleteAll();
+        ErrorLog.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
+        ErrorLog.SetRange("VAT Report No.", VATReportHeader."No.");
+        ErrorLog.DeleteAll();
 
-            Window.Update(1, WindowStatusRequestingMsg);
-            Request := Request.getStatussenProcesRequest();
-            Request.kenmerk := "Message Id";
-            Request.autorisatieAdres := 'http://geenausp.nl';
+        // Message ID
+        MessageID := VATReportHeader."Message Id";
 
-            DotNet_SecureString.GetSecureString(DotNetSecureString);
-            ElecTaxDeclarationSetup.Get();
-            StatusResultatQueue := StatusService.GetStatus(Request,
-                ElecTaxDeclarationSetup."Digipoort Status URL",
-                ClientCertificateBase64,
-                DotNetSecureString,
-                ServiceCertificateBase64,
-                30);
+        // Response URL
+        ElecTaxDeclarationSetup.Get();
+        ResponseUrl := ElecTaxDeclarationSetup."Digipoort Status URL";
 
-            Window.Update(1, WindowStatusProcessingMsg);
-            ElecTaxDeclResponseMsg.Reset();
-            if not ElecTaxDeclResponseMsg.FindLast() then
-                ElecTaxDeclResponseMsg."No." := 0;
-            NextNo := ElecTaxDeclResponseMsg."No." + 1;
+        // Response No
+        if not ElecTaxDeclResponseMsg.FindLast() then
+            ElecTaxDeclResponseMsg."No." := 0;
+        ResponseNo := ElecTaxDeclResponseMsg."No." + 1;
 
-            while StatusResultatQueue.Count() > 0 do begin
-                StatusResultat := StatusResultatQueue.Dequeue();
-                if StatusResultat.statuscode() <> '-1' then begin
-                    ElecTaxDeclResponseMsg.Init();
-                    ElecTaxDeclResponseMsg."No." := NextNo;
-                    NextNo += 1;
-                    ElecTaxDeclResponseMsg."VAT Report Config. Code" := "VAT Report Config. Code";
-                    ElecTaxDeclResponseMsg."VAT Report No." := "No.";
-                    ElecTaxDeclResponseMsg.Subject := CopyStr(StatusResultat.statusomschrijving(), 1, MaxStrLen(ElecTaxDeclResponseMsg.Subject));
-                    ElecTaxDeclResponseMsg."Status Code" :=
-                    CopyStr(StatusResultat.statuscode(), 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Code"));
+        AddVATReportHeaderFieldsToResponseMessage(VATReportHeader);
+        ReceiveResponse(MessageID, ResponseUrl, ResponseNo, ElecTaxDeclResponseMsg, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
+        ClearVATReportHeaderOnResponseMessage();
+    end;
 
-                    FoundXmlContent := false;
-                    ElecTaxDeclResponseMsg.Message.CreateOutStream(MessageBLOB);
+    local procedure AddVATReportHeaderFieldsToResponseMessage(VATReportHeader: Record "VAT Report Header")
+    begin
+        VATReportHeaderForResponseMessage := VATReportHeader;
+    end;
 
-                    StatusErrorDescription := StatusResultat.statusFoutcode().foutbeschrijving();
-                    if StatusErrorDescription <> '' then
-                        if StatusErrorDescription[1] = '<' then begin
-                            MessageBLOB.WriteText(StatusErrorDescription);
-                            FoundXmlContent := true;
-                        end;
+    local procedure SetVATReportHeaderOnResponseMessage(VAR ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.")
+    begin
+        if VATReportHeaderForResponseMessage."Message Id" = '' then
+            exit;
 
-                    StatusDetails := StatusResultat.statusdetails();
-                    if StatusDetails <> '' then
-                        if StatusDetails[1] = '<' then begin
-                            MessageBLOB.WriteText(StatusDetails);
-                            FoundXmlContent := true;
-                        end;
+        ElecTaxDeclResponseMsg."VAT Report Config. Code" := VATReportHeaderForResponseMessage."VAT Report Config. Code";
+        ElecTaxDeclResponseMsg."VAT Report No." := VATReportHeaderForResponseMessage."No.";
+    end;
 
-                    if FoundXmlContent then
-                        ElecTaxDeclResponseMsg."Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"))
-                    else
-                        if StatusErrorDescription <> '' then
-                            ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusErrorDescription, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"))
-                        else
-                            ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusDetails, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"));
-
-                    ElecTaxDeclResponseMsg."Date Sent" := Format(StatusResultat.tijdstempelStatus());
-                    ElecTaxDeclResponseMsg.Status := ElecTaxDeclResponseMsg.Status::Received;
-                    ElecTaxDeclResponseMsg.Insert(true);
-                end else
-                    Error(StatusResultat.statusFoutcode().foutbeschrijving());
-            end;
-            Window.Close();
-        end;
+    local procedure ClearVATReportHeaderOnResponseMessage()
+    begin
+        clear(VATReportHeaderForResponseMessage);
     end;
 
     procedure GetSchemaVersion() SchemaVersion: Text[10]
@@ -247,14 +366,24 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     procedure InitCertificatesWithPassword(var ClientCertificateBase64: Text; var DotNet_SecureString: Codeunit DotNet_SecureString; var ServiceCertificateBase64: Text)
     var
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
+        ClientCertificateCode: Code[20];
+        ServiceCertificateCode: Code[20];
+    begin
+        ElecTaxDeclarationSetup.Get();
+        ClientCertificateCode := ElecTaxDeclarationSetup."Client Certificate Code";
+        ServiceCertificateCode := ElecTaxDeclarationSetup."Service Certificate Code";
+        GetCertificates(ClientCertificateCode, ServiceCertificateCode, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
+    end;
+
+    local procedure GetCertificates(ClientCertificateCode: Code[20]; ServiceCertificateCode: Code[20]; VAR ClientCertificateBase64: Text; VAR DotNet_SecureString: Codeunit DotNet_SecureString; VAR ServiceCertificateBase64: Text)
+    var
         IsolatedCertificate: Record "Isolated Certificate";
         CertificateManagement: Codeunit "Certificate Management";
     begin
-        ElecTaxDeclarationSetup.Get();
-        IsolatedCertificate.Get(ElecTaxDeclarationSetup."Client Certificate Code");
+        IsolatedCertificate.Get(ClientCertificateCode);
         CertificateManagement.GetPasswordAsSecureString(DotNet_SecureString, IsolatedCertificate);
         ClientCertificateBase64 := CertificateManagement.GetCertAsBase64String(IsolatedCertificate);
-        IsolatedCertificate.Get(ElecTaxDeclarationSetup."Service Certificate Code");
+        IsolatedCertificate.Get(ServiceCertificateCode);
         ServiceCertificateBase64 := CertificateManagement.GetCertAsBase64String(IsolatedCertificate);
     end;
 

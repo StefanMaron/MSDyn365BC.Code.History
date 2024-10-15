@@ -101,7 +101,6 @@ codeunit 144037 "ERM Telebank"
         AmountExceedsMsg: Label 'Amount exceeds the maximum limit, Nature of the Payment must be entered. The default value is ''goods''.';
         BankAccountNoTxt: Label 'P5234567', Comment = 'aejhdwjqedf';
         CheckIDTxt: Label 'No Check ID entered in Export Protocol ';
-        CurrencyEuroTxt: Label 'Currency is not Euro in the proposal lines. ';
         ErrorMatchMsg: Label 'Error Messages must match.';
         ErrorTxt: Label '%1 must be';
         ExpectedTxt: Label '%1 of';
@@ -172,14 +171,16 @@ codeunit 144037 "ERM Telebank"
     end;
 
     [Test]
-    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure BankAccWithCurrencyTelebankProposalError()
     var
         BankAccount: Record "Bank Account";
     begin
-        // Test to Verify Error on Telebank Proposal page after update Currency Code on Bank Account.
-        UpdateBankAccAndGetEntriesOnTelebankProposal(BankAccount.FieldNo("Currency Code"), CreateCurrency, CurrencyEuroTxt);
+        // [SCENARIO 363009] There is no currency check error on Telebank Proposal page after update Currency Code on Bank Account.
+        asserterror UpdateBankAccAndGetEntriesOnTelebankProposal(BankAccount.FieldNo("Currency Code"), CreateCurrency(), '');
+        Assert.ExpectedErrorCode('RecordNotFound');
+        Assert.ExpectedError('The Freely Transferable Maximum does not exist');
     end;
 
     [Test]
@@ -519,27 +520,29 @@ codeunit 144037 "ERM Telebank"
     end;
 
     [Test]
-    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VendBankAccWithCurrencyTelebankProposalError()
     var
         CompanyInformation: Record "Company Information";
         TransactionMode: Record "Transaction Mode";
     begin
-        // Test to Verify Error on Telebank Proposal page with Currency Euro on General Ledger Setup.
+        // [SCENARIO 363009] There is no currency check error on Telebank Proposal page with Currency Euro on General Ledger Setup.
         // Setup.
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         UpdateGeneralLedgerSetup(CreateCurrency);
 
         // Exercise and Verify.
-        PostPurchaseInvAndGetEntriesOnTelebankProposal(
+        asserterror PostPurchaseInvAndGetEntriesOnTelebankProposal(
           true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit, CurrencyEuroTxt);
+            CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, '');
+        Assert.ExpectedErrorCode('RecordNotFound');
+        Assert.ExpectedError('The Freely Transferable Maximum does not exist');
     end;
 
     [Test]
-    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VendBankAccWithBlankCurrencyTelebankProposalError()
     var
@@ -547,17 +550,19 @@ codeunit 144037 "ERM Telebank"
         GeneralLedgerSetup: Record "General Ledger Setup";
         TransactionMode: Record "Transaction Mode";
     begin
-        // Test to Verify Error on Telebank Proposal page with blank Currency Euro on General Ledger Setup.
+        // [SCENARIO 363009] There is no currency check error on Telebank Proposal page with blank Currency Euro on General Ledger Setup.
         // Setup.
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         UpdateGeneralLedgerSetup('');  // Currency Euro as blank.
 
         // Exercise and Verify.
-        PostPurchaseInvAndGetEntriesOnTelebankProposal(
+        asserterror PostPurchaseInvAndGetEntriesOnTelebankProposal(
           true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit,
+            CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit,
           StrSubstNo(ErrorTxt, GeneralLedgerSetup.FieldCaption("Currency Euro")));
+        Assert.ExpectedErrorCode('RecordNotFound');
+        Assert.ExpectedError('The Freely Transferable Maximum does not exist');
     end;
 
     [Test]
@@ -626,9 +631,10 @@ codeunit 144037 "ERM Telebank"
     begin
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CurrencyCode := CreateCurrency;
         UpdateGeneralLedgerSetup(CurrencyCode);
+        LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLine(VendorBankAccount, CompanyInformation, CurrencyCode);
         GetEntriesOnTelebankProposal(TelebankProposal, VendorBankAccount."Bank Account No.");
         UpdateProposalLine(
@@ -643,6 +649,7 @@ codeunit 144037 "ERM Telebank"
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
+        RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         TelebankProposal.Close;
     end;
 
@@ -713,8 +720,9 @@ codeunit 144037 "ERM Telebank"
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
         Initialize;
         CurrencyCode := CreateCurrency;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         UpdateGeneralLedgerSetup(CurrencyCode);
+        LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLine(VendorBankAccount, CompanyInformation, CurrencyCode);
         GetEntriesOnTelebankProposal(TelebankProposal, VendorBankAccount."Bank Account No.");
         UpdateProposalLine(
@@ -729,11 +737,12 @@ codeunit 144037 "ERM Telebank"
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
+        RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         TelebankProposal.Close;
     end;
 
     [Test]
-    [HandlerFunctions('GetProposalEntriesRequestPageHandler,VendorLedgerEntriesPageHandler,MessageHandler')]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,VendorLedgerEntriesPageHandler')]
     [Scope('OnPrem')]
     procedure ProposalDetailLineSeriolNoErr()
     var
@@ -747,7 +756,7 @@ codeunit 144037 "ERM Telebank"
 
         // Setup: Create Bank Account, Create and post Purchase Invoice and open Proposal Detail line page.
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         UpdateGeneralLedgerSetup(DummyCurrencyCode);
         SetupForProposalLine(VendorBankAccount, CompanyInformation, DummyCurrencyCode);
         GetEntriesOnTelebankProposal(TelebankProposal, VendorBankAccount."Bank Account No.");
@@ -765,7 +774,7 @@ codeunit 144037 "ERM Telebank"
     end;
 
     [Test]
-    [HandlerFunctions('GetProposalEntriesRequestPageHandler,VendorLedgerEntriesPageHandler,MessageHandler')]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,VendorLedgerEntriesPageHandler')]
     [Scope('OnPrem')]
     procedure ProposalDetailLineUpdateDescription()
     var
@@ -803,7 +812,7 @@ codeunit 144037 "ERM Telebank"
     end;
 
     [Test]
-    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure UpdateTransactionDateInProcess()
     var
@@ -818,9 +827,10 @@ codeunit 144037 "ERM Telebank"
 
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CurrencyCode := CreateCurrency;
         UpdateGeneralLedgerSetup(CurrencyCode);
+        LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLine(VendorBankAccount, CompanyInformation, CurrencyCode);
         GetEntriesOnTelebankProposal(TelebankProposal, VendorBankAccount."Bank Account No.");
         UpdateProposalLine(
@@ -838,6 +848,7 @@ codeunit 144037 "ERM Telebank"
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
+        RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         TelebankProposal.Close;
     end;
 
@@ -907,9 +918,10 @@ codeunit 144037 "ERM Telebank"
     begin
         // Setup: Create Bank Account, Create and post Invoice and Get Telebank Proposal Entries.
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CurrencyCode := CreateCurrency;
         UpdateGeneralLedgerSetup(CurrencyCode);
+        LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLineWithAccountType(AccountType, CompanyInformation, CurrencyCode, BankAccountNo, AccountNo);
         SetupForPaymentHistory(
           CompanyInformation."Country/Region Code", CurrencyCode, BankAccountNo, AccountNo);
@@ -929,6 +941,7 @@ codeunit 144037 "ERM Telebank"
         end;
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
+        RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
     end;
 
     [Test]
@@ -1446,9 +1459,10 @@ codeunit 144037 "ERM Telebank"
         // Setup: Create Bank Account, Create and post Invoice and Get Entries on Telebank Proposal Page.
         // Update Freely Transferable Maximum, Proposal Line and Transaction Mode. Run Process on Telebank Proposal Page.
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CurrencyCode := CreateCurrency;
         UpdateGeneralLedgerSetup(CurrencyCode);
+        LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLineWithAccountType(AccountType, CompanyInformation, CurrencyCode, BankAccountNo, AccountNo);
         SetupForPaymentHistory(
           CompanyInformation."Country/Region Code", CurrencyCode, BankAccountNo, AccountNo);
@@ -1468,6 +1482,7 @@ codeunit 144037 "ERM Telebank"
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
+        RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         PaymentHistoryCard.Close;
     end;
 

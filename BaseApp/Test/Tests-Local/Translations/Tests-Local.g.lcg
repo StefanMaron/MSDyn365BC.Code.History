@@ -212,6 +212,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType ProposalLinesProcessedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 757409969 - NamedType 1414317576" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One of the applied document currency codes is different from the bank account's currency code. This will lead to different currencies in the detailed ledger entries between the document and the applied payment. Document details:\Account Type: %1-%2\Ledger Entry No.: %3\Document Currency: %4\Bank Currency: %5\\Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - account type (vendor\customer), %2 - account number, %3 - ledger entry no., %4 - document currency code, %5 - bank currency code]D;]A;(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType DifferentCurrencyQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 757409969 - NamedType 2451862616" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Process proposal lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType ProcessProposalLinesQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 450493964 - NamedType 1578357169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[MEI 12APRIL 13, SP 888298+]]></Val>
@@ -608,15 +626,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Telebank - NamedType CheckIDTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 933252864 - NamedType 2336742574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Currency is not Euro in the proposal lines. ]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Telebank - NamedType CurrencyEuroTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 933252864 - NamedType 1955778790" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Error Messages must match.]]></Val>
@@ -957,6 +966,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA CT v03 - NamedType DataExportedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3972830013 - NamedType 227001468" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be entered in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA CT v03 - NamedType MustBeEnteredMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1426705760 - NamedType 1707647923" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

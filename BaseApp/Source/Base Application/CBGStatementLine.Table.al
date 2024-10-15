@@ -643,7 +643,7 @@ table 11401 "CBG Statement Line"
         CBGStatementLine.Reset;
         CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
         CBGStatementLine.SetRange("No.", CBGStatement."No.");
-        if (CBGStatement.Type = CBGStatement.Type::"Bank/Giro") and CBGStatementLine.IsEmpty then
+        if (CBGStatement.Type = CBGStatement.Type::"Bank/Giro") and CBGStatementLine.IsEmpty and (Date = 0D) then
             Date := CBGStatement.Date;
     end;
 

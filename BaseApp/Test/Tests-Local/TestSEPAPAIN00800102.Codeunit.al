@@ -41,6 +41,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ProcessProposalLines: Codeunit "Process Proposal Lines";
         LibraryRandom: Codeunit "Library - Random";
         XMLReadHelper: Codeunit "NL XML Read Helper";
+        LibraryNLLocalization: Codeunit "Library - NL Localization";
         IsInitialized: Boolean;
         ExportFileName: Text[250];
         DateErr: Label 'The Valid To date must be after the Valid From date.';
@@ -730,7 +731,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         exit(
           LibraryERM.CreateCurrencyWithExchangeRate(
-            WorkDate, LibraryRandom.RandDec(30, 2), LibraryRandom.RandDec(30, 2)));
+            Today(), LibraryRandom.RandDec(30, 2), LibraryRandom.RandDec(30, 2)));
     end;
 
     local procedure CreateMandate(var DirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustomerNo: Code[20]; BankAccountCode: Code[10]; ValidFromDate: Date; ValidToDate: Date)
@@ -1189,6 +1190,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
           TransactionMode, BankAccount."No.", LibraryRandom.RandIntInRange(1, 2), TransactionMode."Account Type"::Vendor);
         CreateVendorWithBankAccount(
           Vendor, BankAccount, TransactionMode.Code, TransactionMode."Partner Type", CurrencyCode);
+        LibraryNLLocalization.CreateFreelyTransferableMaximum(BankAccount."Country/Region Code", CurrencyCode);
     end;
 
     local procedure SetUpTransactionMode(var TransactionMode: Record "Transaction Mode"; BankAccountCode: Code[20]; PartnerType: Option ,Company,Person; AccountType: Option)
