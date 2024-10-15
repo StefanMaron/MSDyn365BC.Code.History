@@ -511,7 +511,8 @@ table 81 "Gen. Journal Line"
                     if ("Currency Code" <> xRec."Currency Code") or
                        ("Posting Date" <> xRec."Posting Date") or
                        (CurrFieldNo = FieldNo("Currency Code")) or
-                       ("Currency Factor" = 0)
+                       ("Currency Factor" = 0) or
+                       (("Currency Factor" <> CurrExchRate.ExchangeRate("Posting Date", "Currency Code")) and ("WHT Business Posting Group" = ''))
                     then begin
                         OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(Rec, CurrExchRate);
                         "Currency Factor" := CurrExchRate.ExchangeRate("Posting Date", "Currency Code");
@@ -9049,6 +9050,7 @@ table 81 "Gen. Journal Line"
         PurchInvHeader: Record "Purch. Inv. Header";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
+        AppliestoInvoiceId: Guid;
     begin
         if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::Invoice then
             exit;
@@ -9064,14 +9066,18 @@ table 81 "Gen. Journal Line"
                     if not SalesInvoiceHeader.Get("Applies-to Doc. No.") then
                         exit;
 
-                    "Applies-to Invoice Id" := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
+                    AppliestoInvoiceId := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
+                    if Rec."Applies-to Invoice Id" <> AppliestoInvoiceId then
+                        Rec."Applies-to Invoice Id" := AppliestoInvoiceId;
                 end;
             "Account Type"::Vendor:
                 begin
                     if not PurchInvHeader.Get("Applies-to Doc. No.") then
                         exit;
 
-                    "Applies-to Invoice Id" := PurchInvAggregator.GetPurchaseInvoiceHeaderId(PurchInvHeader);
+                    AppliestoInvoiceId := PurchInvAggregator.GetPurchaseInvoiceHeaderId(PurchInvHeader);
+                    if Rec."Applies-to Invoice Id" <> AppliestoInvoiceId then
+                        Rec."Applies-to Invoice Id" := AppliestoInvoiceId;
                 end;
         end;
     end;

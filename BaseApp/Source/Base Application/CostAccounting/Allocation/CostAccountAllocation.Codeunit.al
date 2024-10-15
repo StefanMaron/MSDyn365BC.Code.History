@@ -140,12 +140,17 @@ codeunit 1104 "Cost Account Allocation"
         GLEntry.SetCurrentKey("Posting Date", "G/L Account No.", "Dimension Set ID");
         GLEntry.SetRange("Posting Date", StartDate, EndDate);
         GLEntry.SetFilter("G/L Account No.", CostAllocationTarget."No. Filter");
-        if SetCostAccDimFilters(CostAllocationTarget) then begin
-            DimFilter := DimensionManagement.GetDimSetFilter();
-            GLEntry.SetFilter("Dimension Set ID", DimFilter);
+        TotalShare := 0;
+        if SetCostAccDimFilters(CostAllocationTarget) then
+            foreach DimFilter in DimensionManagement.GetDimSetFilters() do begin
+                GLEntry.SetFilter("Dimension Set ID", DimFilter);
+                GLEntry.CalcSums(Amount);
+                TotalShare += GLEntry.Amount;
+            end
+        else begin
+            GLEntry.CalcSums(Amount);
+            TotalShare := GLEntry.Amount;
         end;
-        GLEntry.CalcSums(Amount);
-        TotalShare := GLEntry.Amount;
     end;
 
     local procedure CalcGLBudgetEntryShare(CostAllocationTarget: Record "Cost Allocation Target")
@@ -157,12 +162,17 @@ codeunit 1104 "Cost Account Allocation"
         GLBudgetEntry.SetFilter("G/L Account No.", CostAllocationTarget."No. Filter");
         GLBudgetEntry.SetFilter("Budget Name", CostAllocationTarget."Group Filter");
         GLBudgetEntry.SetRange(Date, StartDate, EndDate);
-        if SetCostAccDimFilters(CostAllocationTarget) then begin
-            DimFilter := DimensionManagement.GetDimSetFilter();
-            GLBudgetEntry.SetFilter("Dimension Set ID", DimFilter);
+        TotalShare := 0;
+        if SetCostAccDimFilters(CostAllocationTarget) then
+            foreach DimFilter in DimensionManagement.GetDimSetFilters() do begin
+                GLBudgetEntry.SetFilter("Dimension Set ID", DimFilter);
+                GLBudgetEntry.CalcSums(Amount);
+                TotalShare += GLBudgetEntry.Amount;
+            end
+        else begin
+            GLBudgetEntry.CalcSums(Amount);
+            TotalShare := GLBudgetEntry.Amount;
         end;
-        GLBudgetEntry.CalcSums(Amount);
-        TotalShare := GLBudgetEntry.Amount;
     end;
 
     local procedure CalcCostEntryShare(CostAllocationTarget: Record "Cost Allocation Target")
@@ -247,11 +257,14 @@ codeunit 1104 "Cost Account Allocation"
         ValueEntry.SetRange("Posting Date", StartDate, EndDate);
         ValueEntry.SetFilter("Item No.", CostAllocationTarget."No. Filter");
         ValueEntry.SetFilter("Inventory Posting Group", CostAllocationTarget."Group Filter");
-        if SetCostAccDimFilters(CostAllocationTarget) then begin
-            DimFilter := DimensionManagement.GetDimSetFilter();
-            ValueEntry.SetFilter("Dimension Set ID", DimFilter);
-        end;
-        TotalShare := SumValueEntryField(ValueEntry, SumFieldNo);
+        TotalShare := 0;
+        if SetCostAccDimFilters(CostAllocationTarget) then
+            foreach DimFilter in DimensionManagement.GetDimSetFilters() do begin
+                ValueEntry.SetFilter("Dimension Set ID", DimFilter);
+                TotalShare += SumValueEntryField(ValueEntry, SumFieldNo);
+            end
+        else
+            TotalShare := SumValueEntryField(ValueEntry, SumFieldNo);
     end;
 
     local procedure SumValueEntryField(var ValueEntry: Record "Value Entry"; SumFieldNo: Integer): Decimal
