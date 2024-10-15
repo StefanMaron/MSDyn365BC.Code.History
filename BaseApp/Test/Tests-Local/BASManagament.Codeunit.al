@@ -20,6 +20,7 @@ codeunit 145301 "BAS Managament"
         ExportedBASCalcSheetErr: Label 'The BAS calculation sheet cannot be exported.';
         CannotEditFieldErr: Label 'You cannot edit this field. Use the import function.';
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MPHBASCalcSheduleList,RPHBASUpdate,MessageHandler')]
     [Scope('OnPrem')]
@@ -39,6 +40,7 @@ codeunit 145301 "BAS Managament"
         // Test
         VerifyScenarioImportSubsidiaries(DocumentNo, BASVersion, T2Value);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -148,6 +150,7 @@ codeunit 145301 "BAS Managament"
         end;
     end;
 
+#if not CLEAN19
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHBASUpdate(var RequestPage: TestRequestPage "BAS-Update")
@@ -164,6 +167,7 @@ codeunit 145301 "BAS Managament"
         RequestPage.SaveAsPdf(ReportFilePath);
         FileMgt.DeleteClientFile(ReportFilePath);
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

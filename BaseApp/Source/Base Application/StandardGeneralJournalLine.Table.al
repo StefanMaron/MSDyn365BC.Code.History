@@ -1,4 +1,4 @@
-﻿table 751 "Standard General Journal Line"
+table 751 "Standard General Journal Line"
 {
     Caption = 'Standard General Journal Line';
 
@@ -943,6 +943,10 @@
             begin
                 Validate(Amount);
             end;
+        }
+        field(77; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
         }
         field(78; "Source Type"; Option)
         {

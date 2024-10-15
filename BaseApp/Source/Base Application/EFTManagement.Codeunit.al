@@ -188,7 +188,7 @@ codeunit 11603 "EFT Management"
                 WriteFile(
                   120, '1' + TFR(FormatBranchNumber(VendBankAcc."EFT BSB No."), 7) + TFL(VendBankAcc."Bank Account No.", 9) +
                   BLK(1) + TypeOfLine + NFL(Value100(Amount - "WHT Absorb Base", 10), 10) + TFR(Vend.Name, 32) +
-                  TFR("Payment Reference", 18) + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(
+                  TFR(GetPmtRefOrDocNoFromGenJnlLine(TempGenJournalLine), 18) + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(
                     BankAccount."Bank Account No.", 9) +
                   TFR(BankAccount."EFT Security Name", 16) + NFL(Value100("WHT Absorb Base", 8), 8));
             until Next() = 0;
@@ -535,6 +535,13 @@ codeunit 11603 "EFT Management"
         GenJournalLine.ModifyAll("EFT Register No.", 0);
 
         Message(EFTRegisterExportCanceledMsg, EFTRegister."No.");
+    end;
+
+    local procedure GetPmtRefOrDocNoFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line"): Text[250]
+    begin
+        if GenJnlLine."Payment Reference" = '' then
+            exit(GenJnlLine."Document No.");
+        exit(GenJnlLine."Payment Reference");
     end;
 
     [IntegrationEvent(false, false)]

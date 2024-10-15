@@ -4,7 +4,7 @@ page 746 "VAT Reports Configuration"
     Caption = 'VAT Reports Configuration';
     PageType = List;
     SourceTable = "VAT Reports Configuration";
-    UsageCategory = ReportsAndAnalysis;
+    UsageCategory = Administration;
 
     layout
     {

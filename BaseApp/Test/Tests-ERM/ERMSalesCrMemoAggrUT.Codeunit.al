@@ -1763,6 +1763,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesCrMemoEntityBuffer.FieldNo("External Document No."), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo(Id), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo("Reason Code"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
+        AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo("Shortcut Dimension 1 Code"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
+        AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo("Shortcut Dimension 2 Code"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
     end;
 
     local procedure GetFieldsThatMustMatchWithSalesLine(var TempField: Record "Field" temporary)

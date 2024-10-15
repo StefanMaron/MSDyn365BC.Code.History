@@ -337,7 +337,6 @@ codeunit 1639 "Office Line Generation"
             TempOfficeSuggestedLineItem.SetRange("Item No.", ItemNo);
 
         if TempOfficeSuggestedLineItem.FindFirst then begin
-            TempOfficeSuggestedLineItem.Validate(Add, false);
             if (TempOfficeSuggestedLineItem.Quantity = 0) and (Quantity > 0) then
                 TempOfficeSuggestedLineItem.Validate(Quantity, Quantity);
             TempOfficeSuggestedLineItem.Modify(true);
@@ -346,10 +345,8 @@ codeunit 1639 "Office Line Generation"
             TempOfficeSuggestedLineItem.Validate("Line No.", LastLineNo + 1000);
             if Matches = 1 then
                 TempOfficeSuggestedLineItem.Validate("Item No.", CopyStr(ItemNo, 1, 20))
-            else begin
+            else
                 TempOfficeSuggestedLineItem.Validate("Item Description", CopyStr(SearchKeyword, 1, 50));
-                TempOfficeSuggestedLineItem.Validate(Add, false);
-            end;
             TempOfficeSuggestedLineItem.Validate(Quantity, Quantity);
             TempOfficeSuggestedLineItem.Validate(Matches, Matches);
             TempOfficeSuggestedLineItem.Insert(true);

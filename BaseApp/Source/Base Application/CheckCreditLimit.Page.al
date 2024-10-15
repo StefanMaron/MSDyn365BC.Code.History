@@ -205,7 +205,6 @@ page 343 "Check Credit Limit"
         exit(Result);
     end;
 
-    [Scope('OnPrem')]
     procedure SalesLineShowWarning(SalesLine: Record "Sales Line") Result: Boolean
     var
         IsHandled: Boolean;

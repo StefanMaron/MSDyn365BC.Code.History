@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5511 "Attachments Entity"
 {
     Caption = 'attachments', Locked = true;
@@ -173,4 +174,4 @@ page 5511 "Attachments Entity"
         "Byte Size" := GraphMgtAttachmentBuffer.GetContentLength(TempBlob);
     end;
 }
-
+#endif

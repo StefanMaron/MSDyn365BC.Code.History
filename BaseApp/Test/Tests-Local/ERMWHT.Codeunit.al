@@ -1804,8 +1804,8 @@ codeunit 141012 "ERM WHT"
             exit;
 
         IsInitialized := true;
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.Save(Database::"General Ledger Setup");
+        LibrarySetupStorage.Save(Database::"Purchases & Payables Setup");
     end;
 
     local procedure PrepareVendorAndTwoItemsWithDiffSetup(var VendorNo: Code[20]; var ItemNo: array[2] of Code[20]; PurchPrepmtAccNo: array[2] of Code[20])

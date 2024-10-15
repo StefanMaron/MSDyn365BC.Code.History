@@ -755,7 +755,7 @@ page 1020 "Job G/L Journal"
                     trigger OnAction()
                     begin
                         CheckAdjustmentAppliesto;
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -768,6 +768,7 @@ page 1020 "Job G/L Journal"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category5;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -793,7 +794,7 @@ page 1020 "Job G/L Journal"
                     trigger OnAction()
                     begin
                         CheckAdjustmentAppliesto;
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);

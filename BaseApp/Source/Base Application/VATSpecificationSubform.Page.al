@@ -151,7 +151,7 @@ page 576 "VAT Specification Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net amount (amount excluding VAT) in your additional reporting currency.';
-                    Visible = "VAT Base (ACY)Visible";
+                    Visible = VATBaseACYVisible;
                 }
                 field("VAT Amount (ACY)"; "VAT Amount (ACY)")
                 {
@@ -207,7 +207,7 @@ page 576 "VAT Specification Subform"
         "Amount (ACY)Visible" := true;
         AmountIncludingVATACYVisible := true;
         "VAT Amount (ACY)Visible" := true;
-        "VAT Base (ACY)Visible" := true;
+        VATBaseACYVisible := true;
         InvoiceDiscountAmountEditable := true;
         VATAmountEditable := true;
     end;
@@ -244,7 +244,7 @@ page 576 "VAT Specification Subform"
         [InDataSet]
         InvoiceDiscountAmountEditable: Boolean;
         [InDataSet]
-        "VAT Base (ACY)Visible": Boolean;
+        VATBaseACYVisible: Boolean;
         [InDataSet]
         "VAT Amount (ACY)Visible": Boolean;
         [InDataSet]
@@ -275,9 +275,7 @@ page 576 "VAT Specification Subform"
             until Next() = 0;
     end;
 
-    procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal; Type: Option Purchase,Sales,Services)
-    var
-        PurchSetup: Record "Purchases & Payables Setup";
+    procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal)
     begin
         OnBeforeInitGlobals(NewCurrencyCode, NewAllowVATDifference, NewAllowVATDifferenceOnThisTab, NewPricesIncludingVAT, NewAllowInvDisc, NewVATBaseDiscPct);
         CurrencyCode := NewCurrencyCode;
@@ -288,24 +286,40 @@ page 576 "VAT Specification Subform"
         VATBaseDiscPct := NewVATBaseDiscPct;
         VATAmountEditable := AllowVATDifference;
         InvoiceDiscountAmountEditable := AllowInvDisc;
-        if Type = Type::Purchase then begin
-            PurchSetup.Get();
-            "VAT Base (ACY)Visible" := PurchSetup."Enable Vendor GST Amount (ACY)";
-            "VAT Amount (ACY)Visible" := PurchSetup."Enable Vendor GST Amount (ACY)";
-            AmountIncludingVATACYVisible := PurchSetup."Enable Vendor GST Amount (ACY)";
-            "Amount (ACY)Visible" := PurchSetup."Enable Vendor GST Amount (ACY)";
-            "VAT Difference (ACY)Visible" := PurchSetup."Enable Vendor GST Amount (ACY)";
-        end else begin
-            "VAT Base (ACY)Visible" := false;
-            "VAT Amount (ACY)Visible" := false;
-            AmountIncludingVATACYVisible := false;
-            "Amount (ACY)Visible" := false;
-            "VAT Difference (ACY)Visible" := false;
-        end;
-        if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get(CurrencyCode);
+        Currency.Initialize(CurrencyCode);
+        CurrPage.Update(false);
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by W1 InitGlobals and ShowGSTAmountACY().', '19.0')]
+    procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal; Type: Option Purchase,Sales,Services)
+    begin
+        OnBeforeInitGlobals(NewCurrencyCode, NewAllowVATDifference, NewAllowVATDifferenceOnThisTab, NewPricesIncludingVAT, NewAllowInvDisc, NewVATBaseDiscPct);
+        CurrencyCode := NewCurrencyCode;
+        AllowVATDifference := NewAllowVATDifference;
+        AllowVATDifferenceOnThisTab := NewAllowVATDifferenceOnThisTab;
+        PricesIncludingVAT := NewPricesIncludingVAT;
+        AllowInvDisc := NewAllowInvDisc;
+        VATBaseDiscPct := NewVATBaseDiscPct;
+        VATAmountEditable := AllowVATDifference;
+        InvoiceDiscountAmountEditable := AllowInvDisc;
+        Currency.Initialize(CurrencyCode);
+        if Type = Type::Purchase then
+            ShowGSTAmountACY();
+        CurrPage.Update(false);
+    end;
+#endif
+
+    procedure ShowGSTAmountACY()
+    var
+        PurchSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchSetup.Get();
+        VATBaseACYVisible := PurchSetup."Enable Vendor GST Amount (ACY)";
+        "VAT Amount (ACY)Visible" := PurchSetup."Enable Vendor GST Amount (ACY)";
+        AmountIncludingVATACYVisible := PurchSetup."Enable Vendor GST Amount (ACY)";
+        "Amount (ACY)Visible" := PurchSetup."Enable Vendor GST Amount (ACY)";
+        "VAT Difference (ACY)Visible" := PurchSetup."Enable Vendor GST Amount (ACY)";
         CurrPage.Update(false);
     end;
 

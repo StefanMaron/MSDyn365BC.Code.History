@@ -1,4 +1,4 @@
-﻿codeunit 22 "Item Jnl.-Post Line"
+codeunit 22 "Item Jnl.-Post Line"
 {
     Permissions = TableData Item = imd,
                   TableData "Item Ledger Entry" = imd,
@@ -299,7 +299,7 @@
         OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment, CalledFromInvtPutawayPick);
     end;
 
-    local procedure PostSplitJnlLine(var ItemJnlLineToPost: Record "Item Journal Line"; TrackingSpecExists: Boolean): Boolean
+    procedure PostSplitJnlLine(var ItemJnlLineToPost: Record "Item Journal Line"; TrackingSpecExists: Boolean): Boolean
     var
         PostItemJnlLine: Boolean;
     begin
@@ -472,6 +472,7 @@
         PostWhseJnlLine: Boolean;
         SkipPost: Boolean;
         ShouldFlushOperation: Boolean;
+        GetItemResult: Boolean;
     begin
         OnBeforePostOutput(ItemJnlLine);
 
@@ -590,8 +591,11 @@
                 if PostWhseJnlLine then begin
                     GetLocation("Location Code");
                     if Location."Bin Mandatory" and (not CalledFromInvtPutawayPick) then begin
-                        WMSMgmt.CreateWhseJnlLineFromOutputJnl(ItemJnlLine, WhseJnlLine);
-                        WMSMgmt.CheckWhseJnlLine(WhseJnlLine, 2, 0, false);
+                        GetItemResult := GetItem("Item No.", false);
+                        if not GetItemResult or Item.IsInventoriableType() then begin
+                            WMSMgmt.CreateWhseJnlLineFromOutputJnl(ItemJnlLine, WhseJnlLine);
+                            WMSMgmt.CheckWhseJnlLine(WhseJnlLine, 2, 0, false);
+                        end;
                     end;
                 end;
                 OnPostOutputOnAfterCreateWhseJnlLine(ItemJnlLine);
@@ -759,6 +763,7 @@
     local procedure InsertConsumpEntry(var ProdOrderComp: Record "Prod. Order Component"; ProdOrderCompLineNo: Integer; QtyBase: Decimal; ModifyProdOrderComp: Boolean)
     var
         PostWhseJnlLine: Boolean;
+        GetItemResult: Boolean;
     begin
         OnBeforeInsertConsumpEntry(ProdOrderComp, QtyBase, ModifyProdOrderComp, ItemJnlLine, TempSplitItemJnlLine);
 
@@ -778,9 +783,12 @@
             if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
                 GetLocation("Location Code");
                 if Location."Bin Mandatory" and (not CalledFromInvtPutawayPick) then begin
-                    WMSMgmt.CreateWhseJnlLineFromConsumJnl(ItemJnlLine, WhseJnlLine);
-                    WMSMgmt.CheckWhseJnlLine(WhseJnlLine, 3, 0, false);
-                    PostWhseJnlLine := true;
+                    GetItemResult := GetItem("Item No.", false);
+                    if GetItemResult and Item.IsInventoriableType() then begin
+                        WMSMgmt.CreateWhseJnlLineFromConsumJnl(ItemJnlLine, WhseJnlLine);
+                        WMSMgmt.CheckWhseJnlLine(WhseJnlLine, 3, 0, false);
+                        PostWhseJnlLine := true;
+                    end;
                 end;
             end;
         end;
@@ -1505,6 +1513,8 @@
                     OnUpdateUnitCostOnBeforeUpdateUnitCost(ItemJnlLine, ValueEntry, Item, UpdateSKU);
                     ItemCostMgt.SetProperties(false, "Invoiced Quantity");
                     ItemCostMgt.UpdateUnitCost(Item, "Location Code", "Variant Code", LastDirectCost, 0, UpdateSKU, true, false, 0);
+                    if ItemCostMgt.IsItemUnitCostUpdated() then
+                        ItemCostMgt.UpdateCostPlusPrices(Item."No.");
                 end;
             end;
         OnAfterUpdateUnitCost(ValueEntry, LastDirectCost, ItemJnlLine);
@@ -5168,18 +5178,16 @@
     var
         InvtSetup: Record "Inventory Setup";
         InventoryPeriod: Record "Inventory Period";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
+        InventoryAdjustmentHandler: Codeunit "Inventory Adjustment Handler";
         Opendate: Date;
     begin
         InvtSetup.Get();
         InventoryPeriod.IsValidDate(Opendate);
-        if InvtSetup."Automatic Cost Adjustment" <>
-           InvtSetup."Automatic Cost Adjustment"::Never
-        then begin
+        if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
             if Opendate <> 0D then
                 Opendate := CalcDate('<+1D>', Opendate);
-            InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-            InvtAdjmt.MakeMultiLevelAdjmt;
+
+            InventoryAdjustmentHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
         end;
     end;
 
@@ -5693,14 +5701,6 @@
     begin
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by event OnBeforeCheckItemTrackingInformation', '16.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemTrackingInfo(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var SNInfoRequired: Boolean; var LotInfoRequired: Boolean; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var ItemTrackingSetup: Record "Item Tracking Setup"; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean)
     begin
@@ -5715,14 +5715,6 @@
     local procedure OnAfterCheckItemTracking(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup"; GlobalItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by event OnAfterCheckItemTrackingInformation', '16.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckItemTrackingInfo(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; SNInfoRequired: Boolean; LotInfoRequired: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup"; Item: Record Item)

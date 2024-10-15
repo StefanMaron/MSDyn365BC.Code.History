@@ -260,20 +260,17 @@ page 398 "Sales Credit Memo Statistics"
 
         SalesCrMemoLine.CalcVATAmountLines(Rec, TempVATAmountLine);
         CurrPage.Subform.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.Subform.PAGE.InitGlobals("Currency Code", false, false, false, false, "VAT Base Discount %", 1);
+        CurrPage.Subform.PAGE.InitGlobals("Currency Code", false, false, false, false, "VAT Base Discount %");
     end;
 
     var
         Text000: Label 'VAT Amount';
         Text001: Label '%1% VAT';
         CurrExchRate: Record "Currency Exchange Rate";
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
-        Currency: Record Currency;
         TotalAdjCostLCY: Decimal;
         CustAmount: Decimal;
-        AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
         VATAmount: Decimal;
         ProfitLCY: Decimal;
@@ -290,6 +287,9 @@ page 398 "Sales Credit Memo Statistics"
         VATAmountText: Text[30];
 
     protected var
+        Currency: Record Currency;
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        AmountInclVAT: Decimal;
         AmountLCY: Decimal;
         CostLCY: Decimal;
 

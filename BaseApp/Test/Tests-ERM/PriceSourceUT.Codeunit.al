@@ -771,7 +771,7 @@ codeunit 134120 "Price Source UT"
         //IPriceSource := PriceSource."Source Type";
         Assert.IsTrue(IPriceSource.IsLookupOK(PriceSource), 'Lookup');
 
-        // [THEN] Open page "Customer List" and returned Customer 'B'
+        // [THEN] Open page "Customer Lookup" and returned Customer 'B'
         PriceSource.TestField("Source No.", NewPriceSource."Source No.");
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -1346,7 +1346,7 @@ codeunit 134120 "Price Source UT"
         //IPriceSource := PriceSource."Source Type";
         Assert.IsTrue(IPriceSource.IsLookupOK(PriceSource), 'Lookup');
 
-        // [THEN] Open page "Vendor List" and returned Vendor 'B'
+        // [THEN] Open page "Vendor Lookup" and returned Vendor 'B'
         PriceSource.TestField("Source No.", NewPriceSource."Source No.");
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -2072,7 +2072,7 @@ codeunit 134120 "Price Source UT"
         PriceListLine.Insert();
 
         // [WHEN] Run upgrade for seeting Price Source group
-        PriceSourceGroupUpgrade(true);
+        PriceSourceGroupUpgrade();
 
         // [THEN] Price Line, where Status is Active, "Source Group" is Customer
         PriceListLine.Find();
@@ -2105,12 +2105,12 @@ codeunit 134120 "Price Source UT"
         PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
         PriceListLine."Source Type" := PriceListLine."Source Type"::"All Jobs";
         PriceListLine."Source Group" := PriceListLine."Source Group"::All;
-        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Status := "Price Status"::Draft;
         PriceListLine.Insert();
 
-        // [WHEN] Run upgrade for setting Price Source group (with uncontrolled status change)
-        PriceSourceGroupUpgrade(false);
-        // [THEN] Price Line, where Status is Draft (!), "Source Group" is Job
+        // [WHEN] Run upgrade for setting Price Source group 
+        PriceSourceGroupUpgrade();
+        // [THEN] Price Line, where Status is Draft, "Source Group" is Job
         PriceListLine.Find();
         PriceListLine.TestField(Status, "Price Status"::Draft);
         PriceListLine.TestField("Source Group", PriceListLine."Source Group"::Job);
@@ -2303,7 +2303,7 @@ codeunit 134120 "Price Source UT"
         PriceSource.VerifyAmountTypeForSourceType(AmountType::Any);
     end;
 
-    local procedure PriceSourceGroupUpgrade(New: Boolean)
+    local procedure PriceSourceGroupUpgrade()
     var
         PriceListLine: Record "Price List Line";
     begin
@@ -2324,16 +2324,7 @@ codeunit 134120 "Price Source UT"
                             PriceListLine."Source Group" := "Price Source Group"::Customer;
                     end;
                 if PriceListLine."Source Group" <> "Price Source Group"::All then
-                    if New then begin
-                        if PriceListLine.Status = "Price Status"::Active then begin
-                            PriceListLine.Status := "Price Status"::Draft;
-                            PriceListLine.Modify();
-                            PriceListLine.Status := "Price Status"::Active;
-                            PriceListLine.Modify();
-                        end else
-                            PriceListLine.Modify();
-                    end else
-                        PriceListLine.Modify();
+                    PriceListLine.Modify();
             until PriceListLine.Next() = 0;
     end;
 
@@ -2359,15 +2350,15 @@ codeunit 134120 "Price Source UT"
     end;
 
     [ModalPageHandler]
-    procedure NewCustomersMPHandler(var CustomerList: TestPage "Customer List")
+    procedure NewCustomersMPHandler(var CustomerLookup: TestPage "Customer Lookup")
     var
         Customer: Record Customer;
         NewCustomerNo: Code[20];
     begin
         NewCustomerNo := LibraryVariableStorage.DequeueText();
         Customer.Get(NewCustomerNo);
-        CustomerList.GoToRecord(Customer);
-        CustomerList.OK().Invoke();
+        CustomerLookup.GoToRecord(Customer);
+        CustomerLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2395,15 +2386,15 @@ codeunit 134120 "Price Source UT"
     end;
 
     [ModalPageHandler]
-    procedure NewVendorsMPHandler(var VendorList: TestPage "Vendor List")
+    procedure NewVendorsMPHandler(var VendorLookup: TestPage "Vendor Lookup")
     var
         Vendor: Record Vendor;
         NewVendorNo: Code[20];
     begin
         NewVendorNo := LibraryVariableStorage.DequeueText();
         Vendor.Get(NewVendorNo);
-        VendorList.GoToRecord(Vendor);
-        VendorList.OK().Invoke();
+        VendorLookup.GoToRecord(Vendor);
+        VendorLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]

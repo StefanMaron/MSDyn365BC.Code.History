@@ -10,6 +10,7 @@ codeunit 132458 "Library - Job Queue"
         TempJobQueueEntry: Record "Job Queue Entry" temporary;
         DoNotHandleCodeunitJobQueueEnqueueEvent: Boolean;
         DoNotHandleTableJobQueueEntryEvent: Boolean;
+        DoNotHandleSendNotificationEvent: Boolean;
         TrackingJobQueueEntryID: Guid;
         MultipleTrackJobQueueEntryErr: Label 'Can''t track multiple job queue entries';
         DoNotSkipProcessBatchInBackground: Boolean;
@@ -24,6 +25,12 @@ codeunit 132458 "Library - Job Queue"
     procedure SetDoNotHandleTableJobQueueEntryEvent(NewDoNotHandleTableJobQueueEntryEvent: Boolean)
     begin
         DoNotHandleTableJobQueueEntryEvent := NewDoNotHandleTableJobQueueEntryEvent;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetDoNotHandleSendNotificationEvent(NewDoNotHandleSendNotificationEvent: Boolean)
+    begin
+        DoNotHandleSendNotificationEvent := NewDoNotHandleSendNotificationEvent;
     end;
 
     [Scope('OnPrem')]
@@ -43,6 +50,12 @@ codeunit 132458 "Library - Job Queue"
 
     [Scope('OnPrem')]
     procedure FindAndRunJobQueueEntryByRecordId(RecordIdToProcess: RecordId)
+    begin
+        FindAndRunJobQueueEntryByRecordId(RecordIdToProcess, false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure FindAndRunJobQueueEntryByRecordId(RecordIdToProcess: RecordId; WithErrorHandler: Boolean)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
@@ -50,7 +63,30 @@ codeunit 132458 "Library - Job Queue"
         JobQueueEntry.FindSet();
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
         JobQueueEntry.Modify();
+        if WithErrorHandler then begin
+            asserterror RunJobQueueDispatcher(JobQueueEntry);
+            RunJobQueueErrorHandler(JobQueueEntry);
+        end
+        else
+            RunJobQueueDispatcher(JobQueueEntry);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RunJobQueueDispatcher(var JobQueueEntry: Record "Job Queue Entry")
+    begin
         Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RunJobQueueErrorHandler(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+        Codeunit.Run(Codeunit::"Job Queue Error Handler", JobQueueEntry);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RunSendNotification(JobQueueEntry: Record "Job Queue Entry")
+    begin
+        Codeunit.Run(Codeunit::"Job Queue - Send Notification", JobQueueEntry);
     end;
 
     procedure SetDoNotSkipProcessBatchInBackground(NewDoNotSkipProcessBatchInBackground: Boolean)
@@ -146,6 +182,16 @@ codeunit 132458 "Library - Job Queue"
     local procedure OnBeforeBatchShouldBeProcessedInBackgroundHandler(var IsProcessed: Boolean)
     begin
         IsProcessed := not DoNotSkipProcessBatchInBackground;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeTryRunJobQueueSendNotification', '', false, false)]
+    local procedure OnBeforeTryRunJobQueueSendNotification(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+        if DoNotHandleSendNotificationEvent then
+            exit;
+
+        IsHandled := true;
+        RunSendNotification(JobQueueEntry);
     end;
 }
 

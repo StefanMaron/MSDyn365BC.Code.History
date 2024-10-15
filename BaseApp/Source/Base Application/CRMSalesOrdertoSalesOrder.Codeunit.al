@@ -94,27 +94,21 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMOptionMapping: Record "CRM Option Mapping";
     begin
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMSalesorder.ShippingMethodCodeEnum.AsInteger()) or
-           CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMSalesorder.ShippingMethodCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMSalesorder.ShippingMethodCodeEnum.AsInteger())
         then
             SalesHeader.Validate(
               "Shipping Agent Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMSalesorder.PaymentTermsCodeEnum.AsInteger()) or
-           CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCode), CRMSalesorder.PaymentTermsCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMSalesorder.PaymentTermsCodeEnum.AsInteger())
         then
             SalesHeader.Validate(
               "Payment Terms Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Payment Terms Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMSalesorder.FreightTermsCodeEnum.AsInteger()) or
-           CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCode), CRMSalesorder.FreightTermsCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMSalesorder.FreightTermsCodeEnum.AsInteger())
         then
             SalesHeader.Validate(
               "Shipment Method Code",
@@ -252,7 +246,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
         IsHandled := false;
         OnCreateInNAVOnBeforeCheckState(CRMSalesorder, IsHandled);
-	if not IsHandled then
+        if not IsHandled then
             CRMSalesorder.TestField(StateCode, CRMSalesorder.StateCode::Submitted);
         exit(CreateNAVSalesOrder(CRMSalesorder, SalesHeader));
     end;
@@ -371,7 +365,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             if not TryResetLastBackofficeSubmitOnCRMSalesOrder(CRMSalesOrderId) then
                 Session.LogMessage('0000ERB', StrSubstNo(FailedToResetLastBackofficeSubmitOnCRMSalesOrderTxt, CRMProductName.CDSServiceName(), CRMSalesOrderId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         end else
-            Session.LogMessage('0000DEZ', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesOrderId, Rec.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            Session.LogMessage('0000DEZ', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Assemble-to-Order Link", 'OnBeforeSalesLineCheckAvailShowWarning', '', false, false)]
@@ -413,6 +407,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesHeader.InitInsert;
         GetCoupledCustomer(CRMSalesorder, Customer);
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Validate("Sell-to Contact No.");
         SalesHeader.Validate("Your Reference", CopyStr(CRMSalesorder.OrderNumber, 1, MaxStrLen(SalesHeader."Your Reference")));
         SalesHeader.Validate("Currency Code", CRMSynchHelper.GetNavCurrencyCode(CRMSalesorder.TransactionCurrencyId));
         SalesHeader.Validate("Requested Delivery Date", CRMSalesorder.RequestDeliveryBy);
@@ -681,11 +676,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
                 CRMProduct.ProductTypeCode::Services:
                     InitializeSalesOrderLineFromResource(CRMProduct, SalesLine);
                 else begin
-		    IsHandled := false;
-                    OnInitializeSalesOrderLineOnBeforeUnexpectedProductTypeErr(CRMSalesorderdetail, CRMProduct, SalesLine, SalesHeader, IsHandled);
-		    if not IsHandled then
-                        Error(UnexpectedProductTypeErr, CannotCreateSalesOrderInNAVTxt, CRMProduct.ProductNumber);
-		end;
+                        IsHandled := false;
+                        OnInitializeSalesOrderLineOnBeforeUnexpectedProductTypeErr(CRMSalesorderdetail, CRMProduct, SalesLine, SalesHeader, IsHandled);
+                        if not IsHandled then
+                            Error(UnexpectedProductTypeErr, CannotCreateSalesOrderInNAVTxt, CRMProduct.ProductNumber);
+                    end;
             end;
         end;
 

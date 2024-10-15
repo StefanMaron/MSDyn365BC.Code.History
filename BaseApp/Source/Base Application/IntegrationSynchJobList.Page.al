@@ -49,6 +49,12 @@ page 5338 "Integration Synch. Job List"
                     ToolTip = 'Specifies the number of records that were uncoupled during the integration synchronization job.';
                     Visible = UncouplingSpecificColumnsVisible;
                 }
+                field(Coupled; Coupled)
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the number of records that were coupled by matching an existing entity during the integration synchronization job.';
+                    Visible = CouplingSpecificColumnsVisible;
+                }
                 field(Inserted; Inserted)
                 {
                     ApplicationArea = Suite;
@@ -109,7 +115,7 @@ page 5338 "Integration Synch. Job List"
                     ApplicationArea = Suite;
                     Caption = 'Type';
                     ToolTip = 'Specifies the type of the integration synchronization job.';
-                    Visible = SynchSpecificColumnsVisible and UncouplingSpecificColumnsVisible;
+                    Visible = SynchSpecificColumnsVisible and UncouplingSpecificColumnsVisible and CouplingSpecificColumnsVisible;
                 }
                 field(Message; Message)
                 {
@@ -166,11 +172,16 @@ page 5338 "Integration Synch. Job List"
         if JobTypeFilter <> '' then begin
             TempIntegrationSynchJob.SetRange(Type, TempIntegrationSynchJob.Type::Uncoupling);
             UncouplingSpecificColumnsVisible := GetFilter(Type) = TempIntegrationSynchJob.GetFilter(Type);
-            SynchSpecificColumnsVisible := not UncouplingSpecificColumnsVisible;
+            TempIntegrationSynchJob.SetRange(Type, TempIntegrationSynchJob.Type::Coupling);
+            CouplingSpecificColumnsVisible := GetFilter(Type) = TempIntegrationSynchJob.GetFilter(Type);
+            SynchSpecificColumnsVisible := (not UncouplingSpecificColumnsVisible) and (not CouplingSpecificColumnsVisible);
             if UncouplingSpecificColumnsVisible then
                 CurrPage.Caption(IntegrationUncouplingJobsCaptionTxt);
+            if CouplingSpecificColumnsVisible then
+                CurrPage.Caption(IntegrationCouplingJobsCaptionTxt);
         end else begin
             UncouplingSpecificColumnsVisible := true;
+            CouplingSpecificColumnsVisible := true;
             SynchSpecificColumnsVisible := true;
         end;
     end;
@@ -180,11 +191,10 @@ page 5338 "Integration Synch. Job List"
         IntegrationTableMapping: Record "Integration Table Mapping";
         TableMetadata: Record "Table Metadata";
     begin
+        SynchDirection := '';
         if IntegrationTableMapping.Get("Integration Table Mapping Name") then begin
             TableMetadata.Get(IntegrationTableMapping."Table ID");
-            if Type = Type::Uncoupling then
-                SynchDirection := ''
-            else
+            if not (Type in [Type::Uncoupling, Type::Coupling]) then
                 if "Synch. Direction" = "Synch. Direction"::ToIntegrationTable then
                     SynchDirection :=
                       StrSubstNo(SynchDirectionTxt, TableMetadata.Caption, IntegrationTableMapping.GetExtendedIntegrationTableCaption())
@@ -204,10 +214,12 @@ page 5338 "Integration Synch. Job List"
     var
         SynchDirectionTxt: Label '%1 to %2.', Comment = '%1 = Source table caption, %2 = Destination table caption';
         IntegrationUncouplingJobsCaptionTxt: Label 'Integration Uncoupling Jobs';
+        IntegrationCouplingJobsCaptionTxt: Label 'Integration Coupling Jobs';
         SynchDirection: Text;
         DoHideDuration: Boolean;
         Duration: Duration;
         HasRecords: Boolean;
+        CouplingSpecificColumnsVisible: Boolean;
         UncouplingSpecificColumnsVisible: Boolean;
         SynchSpecificColumnsVisible: Boolean;
 }

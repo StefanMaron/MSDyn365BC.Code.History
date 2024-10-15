@@ -20,12 +20,11 @@ page 99000771 "Work Ctr. Group Calendar"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        MATRIX_GenerateColumnCaptions(SetWanted::Initial);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(CapacityUoM; CapacityUoM)
@@ -82,7 +81,7 @@ page 99000771 "Work Ctr. Group Calendar"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SerWanted::Previus);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -97,7 +96,7 @@ page 99000771 "Work Ctr. Group Calendar"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SerWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -105,7 +104,7 @@ page 99000771 "Work Ctr. Group Calendar"
 
     trigger OnOpenPage()
     begin
-        MATRIX_GenerateColumnCaptions(SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
         MATRIX_UseNameForCaption := false;
         MATRIX_CurrentSetLenght := ArrayLen(MATRIX_CaptionSet);
         MfgSetup.Get();
@@ -119,20 +118,18 @@ page 99000771 "Work Ctr. Group Calendar"
         MatrixMgt: Codeunit "Matrix Management";
         MATRIX_CaptionSet: array[32] of Text[80];
         MATRIX_CaptionRange: Text;
-        MATRIX_SerWanted: Option Initial,Previus,Same,Next;
         MATRIX_PrimKeyFirstCaptionInCu: Text;
         MATRIX_CurrentSetLenght: Integer;
         MATRIX_UseNameForCaption: Boolean;
         MATRIX_DateFilter: Text;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        SetWanted: Option Initial,Previus,Same,Next;
+        PeriodType: Enum "Analysis Period Type";
         CapacityUoM: Code[10];
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option Initial,Previus,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, ArrayLen(MATRIX_CaptionSet), MATRIX_UseNameForCaption, PeriodType, MATRIX_DateFilter,
-          MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentSetLenght, MATRIX_MatrixRecords
-          );
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), MATRIX_UseNameForCaption, PeriodType, MATRIX_DateFilter,
+            MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentSetLenght, MATRIX_MatrixRecords);
     end;
 }
 

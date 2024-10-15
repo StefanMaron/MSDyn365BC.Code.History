@@ -1,4 +1,4 @@
-﻿table 5200 Employee
+table 5200 Employee
 {
     Caption = 'Employee';
     DataCaptionFields = "No.", "First Name", "Middle Name", "Last Name";

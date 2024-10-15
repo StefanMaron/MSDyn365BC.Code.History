@@ -466,11 +466,9 @@ table 5970 "Filed Service Contract Header"
             OptionCaption = ' ,Contract Signed,Contract Canceled';
             OptionMembers = " ","Contract Signed","Contract Canceled";
         }
-        field(105; "Contract Type Relation"; Option)
+        field(105; "Contract Type Relation"; Enum "Service Contract Type")
         {
             Caption = 'Contract Type Relation';
-            OptionCaption = 'Quote,Contract';
-            OptionMembers = Quote,Contract;
         }
         field(106; "Contract No. Relation"; Code[20])
         {

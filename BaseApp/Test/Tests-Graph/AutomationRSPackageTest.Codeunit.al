@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135542 "Automation RSPackage Test"
 {
     Subtype = Test;
@@ -345,4 +346,4 @@ codeunit 135542 "Automation RSPackage Test"
         ConfigPackage.Insert(true);
     end;
 }
-
+#endif

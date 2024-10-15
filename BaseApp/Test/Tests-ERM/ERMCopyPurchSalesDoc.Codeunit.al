@@ -32,6 +32,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         WrongCopyPurchaseResourceErr: Label 'Wrong data after copy purchase resource';
         AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CopyPurchOrdCopyHeadRecalcLine()
@@ -185,6 +186,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           ItemCost,
           PurchaseLineDiscount."Line Discount %");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -346,6 +348,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         VerifyPurchaseLinesAreEqual(OriginalPurchHeader, DestinationPurchHeader);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CopySalesOrdCopyHeadRecalcLine()
@@ -494,7 +497,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         ValidateSalesLine(DestinationSalesLine, OriginalSalesLine.Quantity, ItemPrice, ExpectedDiscount);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure CopySalesOrdWithInvRoundingLine()
@@ -3583,6 +3586,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Item.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateVendorItemDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount"; VendorCode: Code[20]; Item: Record Item)
     begin
         // Create a random discount without item quantity limitation (to be sure it is applied when recalculating lines)
@@ -3602,6 +3606,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(100));
         SalesLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure CreateItemWithExtText(): Code[20]
     var

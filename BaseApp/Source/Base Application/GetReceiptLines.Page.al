@@ -46,6 +46,13 @@ page 5709 "Get Receipt Lines"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of additional receipts posted.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Currency Code"; "Currency Code")
                 {
                     ApplicationArea = Suite;
@@ -121,6 +128,36 @@ page 5709 "Get Receipt Lines"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity of the received item that has been posted as received but that has not yet been posted as invoiced.';
+                }
+                field(OrderNo; OrderNo)
+                {
+                    Caption = 'Order No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the line number of the order that created the entry.';
+                }
+                field(VendorOrderNo; VendorOrderNo)
+                {
+                    Caption = 'Vendor Order No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the vendor''s order number.';
+                }
+                field(VendorShptNo; VendorShptNo)
+                {
+                    Caption = 'Vendor Shipment No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the vendor''s shipment number. It is inserted in the corresponding field on the source document during posting.';
+                }
+                field("Vendor Item No."; "Vendor Item No.")
+                {
+                    Caption = 'Vendor Item No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the number that the vendor uses for this item.';
+                }
+                field(ItemReferenceNo; ItemReferenceNo)
+                {
+                    Caption = 'Item Reference No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
                 }
             }
         }
@@ -201,6 +238,12 @@ page 5709 "Get Receipt Lines"
     begin
         DocumentNoHideValue := false;
         DocumentNoOnFormat;
+        GetDataFromRcptHeader();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        GetDataFromRcptHeader();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -216,6 +259,10 @@ page 5709 "Get Receipt Lines"
         GetReceipts: Codeunit "Purch.-Get Receipt";
         [InDataSet]
         DocumentNoHideValue: Boolean;
+        VendorOrderNo: Code[35];
+        VendorShptNo: Code[35];
+        OrderNo: Code[20];
+        ItemReferenceNo: Code[50];
 
     procedure SetPurchHeader(var PurchHeader2: Record "Purchase Header")
     begin
@@ -254,6 +301,18 @@ page 5709 "Get Receipt Lines"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    local procedure GetDataFromRcptHeader()
+    var
+        SrcPurchRcptHeader: Record "Purch. Rcpt. Header";
+    begin
+        SrcPurchRcptHeader.Get("Document No.");
+        VendorOrderNo := SrcPurchRcptHeader."Vendor Order No.";
+        VendorShptNo := SrcPurchRcptHeader."Vendor Shipment No.";
+        OrderNo := SrcPurchRcptHeader."Order No.";
+
+        ItemReferenceNo := "Item Reference No.";
     end;
 }
 

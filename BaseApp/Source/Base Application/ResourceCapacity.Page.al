@@ -24,25 +24,23 @@ page 213 "Resource Capacity"
                 {
                     ApplicationArea = Jobs;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        SetColumns(SetWanted::Initial);
-                        UpdateMatrixSubform;
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(QtyType; QtyType)
                 {
                     ApplicationArea = Jobs;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
                     begin
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
             }
@@ -69,8 +67,8 @@ page 213 "Resource Capacity"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Previous);
-                    UpdateMatrixSubform;
+                    SetMatrixColumns("Matrix Page Step Type"::Previous);
+                    UpdateMatrixSubform();
                 end;
             }
             action("Previous Column")
@@ -85,8 +83,8 @@ page 213 "Resource Capacity"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::PreviousColumn);
-                    UpdateMatrixSubform;
+                    SetMatrixColumns("Matrix Page Step Type"::PreviousColumn);
+                    UpdateMatrixSubform();
                 end;
             }
             action("Next Column")
@@ -101,8 +99,8 @@ page 213 "Resource Capacity"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::NextColumn);
-                    UpdateMatrixSubform;
+                    SetMatrixColumns("Matrix Page Step Type"::NextColumn);
+                    UpdateMatrixSubform();
                 end;
             }
             action("Next Set")
@@ -117,8 +115,8 @@ page 213 "Resource Capacity"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Next);
-                    UpdateMatrixSubform;
+                    SetMatrixColumns("Matrix Page Step Type"::Next);
+                    UpdateMatrixSubform();
                 end;
             }
         }
@@ -126,31 +124,39 @@ page 213 "Resource Capacity"
 
     trigger OnOpenPage()
     begin
-        SetColumns(SetWanted::Initial);
-        UpdateMatrixSubform;
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubform();
     end;
 
     var
         MatrixRecords: array[32] of Record Date;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        QtyType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        QtyType: Enum "Analysis Amount Type";
         MatrixColumnCaptions: array[32] of Text[1024];
         ColumnSet: Text[1024];
-        SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
         PKFirstRecInCurrSet: Text[100];
         CurrSetLength: Integer;
 
-    procedure SetColumns(SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn)
+#if not CLEAN19
+    [Obsolete('Replaced by SetMatrixColumns().', '19.0')]
+    procedure SetColumns(SetType: Option)
+    begin
+        SetMatrixColumns("Matrix Page Step Type".FromInteger(SetType));
+    end;
+#endif
+
+    local procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, 12, false, PeriodType, '',
-          PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), 12, false, PeriodType, '',
+            PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
     end;
 
     local procedure UpdateMatrixSubform()
     begin
-        CurrPage.MatrixForm.PAGE.Load(QtyType, MatrixColumnCaptions, MatrixRecords, CurrSetLength);
+        CurrPage.MatrixForm.PAGE.LoadMatrix(QtyType, MatrixColumnCaptions, MatrixRecords, CurrSetLength);
         CurrPage.Update(false);
     end;
 }

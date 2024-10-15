@@ -869,6 +869,7 @@ codeunit 136306 "Job Invoicing"
           DimensionSetEntrySalesLine."Dimension Value Code", WrongSalesInvoiceDimensionsErr);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ChangeQuantityInJobJournalLine()
@@ -905,6 +906,7 @@ codeunit 136306 "Job Invoicing"
         // [THEN] Line's "Unit Price" must be calculated using Item's Unit Cost and Job Item Price factor.
         Assert.AreEqual(Round(ExpectedUnitPrice, 2), Round(JobJournalLine."Unit Price", 2), UnitPriceMustNotBeZeroErr);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
@@ -1073,6 +1075,7 @@ codeunit 136306 "Job Invoicing"
         VATBusPostingGroup: Record "VAT Business Posting Group";
         VATProdPostingGroupArray: array[6] of Record "VAT Product Posting Group";
         VATPostingSetupArray: array[6] of Record "VAT Posting Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
         ItemNo: Code[20];
         GLAccountNo: Code[20];
         CustomerNo: Code[20];
@@ -1100,7 +1103,10 @@ codeunit 136306 "Job Invoicing"
 
         // [THEN] Posted Job Ledger Entries, where "Ledger Entry Type" is "G/L Account", are mapped 1-to-1 and 1-to-many to G/L Entries by "Ledger Entry No.".
         // [THEN] Posted Job Ledger Entries, where "Ledger Entry Type" is "Item", are mapped 1-to-1 to Item Ledger Entries by "Ledger Entry No.".
-        VerifyJobLedgerEntriesWithGLEntries(JobTask, PostedDocumentNo, GLAccountNo);
+        // Workaround for APAC
+        SalesSetup.Get();
+        if SalesSetup."Invoice Posting Setup" = "Sales Invoice Posting"::"Invoice Posting (Default)" then
+            VerifyJobLedgerEntriesWithGLEntries(JobTask, PostedDocumentNo, GLAccountNo);
     end;
 
     [Test]
@@ -2095,7 +2101,7 @@ codeunit 136306 "Job Invoicing"
         PostedDocNo: Code[20];
     begin
         // [FEATURE] [Update Job Item Cost] [Item Charge]
-        // [SCENARIO 252306] "Update Job Item Cost" should carry item charge amount from purchase entry to job consumption for an item with Type = Service
+        // [SCENARIO 252306] "Update Job Item Cost" should carry item charge amount from purchase entry to the applied job consumption entry
 
         Initialize;
 
@@ -2226,7 +2232,7 @@ codeunit 136306 "Job Invoicing"
         ArchiveManagement: Codeunit ArchiveManagement;
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO 292637] Job Task No. field is copied to sales archive
+        // [SCENARIO 292637] Job related fields are copied to sales archive
         Initialize;
 
         // [GIVEN] Crated Job with Job task "JT"
@@ -2237,16 +2243,18 @@ codeunit 136306 "Job Invoicing"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Job No.", JobTask."Job No.");
         SalesLine.Validate("Job Task No.", JobTask."Job Task No.");
+        SalesLine."Job Contract Entry No." := LibraryRandom.RandIntInRange(10, 100); // mock entry number
         SalesLine.Modify();
 
         // [WHEN] Sales order is being archived
         ArchiveManagement.StoreSalesDocument(SalesHeader, false);
 
-        // [THEN] Sales Line Archive created with Job Task No. = "JT"
+        // [THEN] Sales Line Archive created with same job related fields
         SalesLineArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesHeader."No.");
         SalesLineArchive.FindFirst();
         SalesLineArchive.TestField("Job Task No.", JobTask."Job Task No.");
+        SalesLineArchive.TestField("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
     end;
 
     [Test]
@@ -2271,16 +2279,17 @@ codeunit 136306 "Job Invoicing"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
         PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        MockPurchaseLineJobRelatedFields(PurchaseLine);
         PurchaseLine.Modify();
 
         // [WHEN] Purchase order is being archived
         ArchiveManagement.StorePurchDocument(PurchaseHeader, false);
 
-        // [THEN] Purchase Line Archive created with Job Task No. = "JT"
+        // [THEN] Purchase Line Archive created with same job related fields
         PurchaseLineArchive.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLineArchive.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLineArchive.FindFirst();
-        PurchaseLineArchive.TestField("Job Task No.", JobTask."Job Task No.");
+        VerifyPurchaseLineArchive(PurchaseLine, PurchaseLineArchive);
     end;
 
     [Test]
@@ -3358,6 +3367,7 @@ codeunit 136306 "Job Invoicing"
         SalesInvoiceLine.FindFirst;
     end;
 
+#if not CLEAN19
     local procedure CreateJobJnlLine(var JobJournalLine: Record "Job Journal Line"): Decimal
     var
         Item: Record Item;
@@ -3383,6 +3393,7 @@ codeunit 136306 "Job Invoicing"
         end;
         exit(JobItemPrice."Unit Cost Factor" * Item."Unit Cost");
     end;
+#endif
 
     local procedure UpdateDesriptionInSalesLine(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"): Text[50]
     var
@@ -3610,6 +3621,7 @@ codeunit 136306 "Job Invoicing"
     var
         GLEntry: Record "G/L Entry";
         JobLedgerEntry: Record "Job Ledger Entry";
+        SalesSetup: Record "Sales & Receivables Setup";
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.SetRange(Type, JobLedgerEntry.Type::"G/L Account");
@@ -3621,11 +3633,12 @@ codeunit 136306 "Job Invoicing"
             with JobLedgerEntry do begin
                 SetRange("Ledger Entry No.", GLEntry."Entry No.");
                 SetRange("Ledger Entry Type", "Ledger Entry Type"::"G/L Account");
-                FindFirst;
+                FindFirst();
                 CalcSums("Line Amount (LCY)");
-                TestField("Line Amount (LCY)", GLEntry.Amount);
+                if SalesSetup."Invoice Posting Setup" = "Sales Invoice Posting"::"Invoice Posting (Default)" then
+                    TestField("Line Amount (LCY)", GLEntry.Amount);
             end;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyJobLedgerEntryUnitCost(JobTask: Record "Job Task"; ItemNo: Code[20]; ExpectedCost: Decimal)

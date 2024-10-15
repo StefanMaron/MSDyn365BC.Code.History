@@ -1,4 +1,4 @@
-﻿codeunit 407 "Adjust Gen. Journal Balance"
+codeunit 407 "Adjust Gen. Journal Balance"
 {
     TableNo = "Gen. Journal Line";
 

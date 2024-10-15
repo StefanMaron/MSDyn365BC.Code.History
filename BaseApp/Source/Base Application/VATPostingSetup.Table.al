@@ -270,13 +270,13 @@ table 325 "VAT Posting Setup"
 
         if Unrealized then begin
             if "Sales VAT Unreal. Account" = '' then
-                PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Sales VAT Unreal. Account"));
-            TestField("Sales VAT Unreal. Account");
+                PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Sales VAT Unreal. Account"));
+
             exit("Sales VAT Unreal. Account");
         end;
         if "Sales VAT Account" = '' then
-            PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Sales VAT Account"));
-        TestField("Sales VAT Account");
+            PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Sales VAT Account"));
+
         exit("Sales VAT Account");
     end;
 
@@ -291,13 +291,13 @@ table 325 "VAT Posting Setup"
 
         if Unrealized then begin
             if "Purch. VAT Unreal. Account" = '' then
-                PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Purch. VAT Unreal. Account"));
-            TestField("Purch. VAT Unreal. Account");
+                PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Purch. VAT Unreal. Account"));
+
             exit("Purch. VAT Unreal. Account");
         end;
         if "Purchase VAT Account" = '' then
-            PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Purchase VAT Account"));
-        TestField("Purchase VAT Account");
+            PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Purchase VAT Account"));
+
         exit("Purchase VAT Account");
     end;
 
@@ -305,13 +305,13 @@ table 325 "VAT Posting Setup"
     begin
         if Unrealized then begin
             if "Reverse Chrg. VAT Unreal. Acc." = '' then
-                PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Reverse Chrg. VAT Unreal. Acc."));
-            TestField("Reverse Chrg. VAT Unreal. Acc.");
+                PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Reverse Chrg. VAT Unreal. Acc."));
+
             exit("Reverse Chrg. VAT Unreal. Acc.");
         end;
         if "Reverse Chrg. VAT Acc." = '' then
-            PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Reverse Chrg. VAT Acc."));
-        TestField("Reverse Chrg. VAT Acc.");
+            PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Reverse Chrg. VAT Acc."));
+
         exit("Reverse Chrg. VAT Acc.");
     end;
 

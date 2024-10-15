@@ -144,17 +144,16 @@ report 7132 "Export Item Budget to Excel"
                             repeat
                                 ColumnNo := ColumnNo + 1;
                                 ColumnValue :=
-                                  ItemBudgetManagement.CalcAmount(
+                                  ItemBudgetManagement.CalculateAmount(
                                     ValueType, true,
                                     ItemStatisticsBuffer, ItemBudgetName,
-                                    ItemFilter, SourceTypeFilter.AsInteger(), SourceNoFilter, DateFilter,
+                                    ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
                                     GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
-                                    LineDimOption, LineDimCodeBuffer,
-                                    ColumnDimOption, ColumnDimCodeBuffer);
+                                    LineDimType, LineDimCodeBuffer, ColumnDimType, ColumnDimCodeBuffer);
                                 EnterCell(
                                   RowNo,
                                   ColumnNo,
-                                  MatrixMgt.FormatValue(ColumnValue, RoundingFactor, false),
+                                  MatrixMgt.FormatAmount(ColumnValue, RoundingFactor, false),
                                   LineDimCodeBuffer."Show in Bold",
                                   false,
                                   false,
@@ -231,16 +230,16 @@ report 7132 "Export Item Budget to Excel"
         ItemFilter: Text;
         ColumnValue: Decimal;
         AnalysisArea: Enum "Analysis Area Type";
-        ValueType: Option "Sales Amount","Cost Amount",Quantity;
+        ValueType: Enum "Item Analysis Value Type";
         Text003: Label 'Date Filter';
         Text004: Label 'Item Filter';
         Text005: Label 'Customer Filter';
         Text006: Label 'Vendor Filter';
         SourceTypeFilter: Enum "Analysis Source Type";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4";
-        ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4";
-        RoundingFactor: Option "None","1","1000","1000000";
+        PeriodType: Enum "Analysis Period Type";
+        LineDimType: Enum "Item Budget Dimension Type";
+        ColumnDimType: Enum "Item Budget Dimension Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         PeriodInitialized: Boolean;
         Text007: Label 'Table Data';
         Text008: Label 'Show as Lines';
@@ -255,9 +254,25 @@ report 7132 "Export Item Budget to Excel"
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
         TestMode: Boolean;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetParameters()', '19.0')]
     procedure SetOptions(NewAnalysisArea: Integer; NewBudgName: Code[10]; NewValueType: Integer; NewGlobalDim1Filter: Text; NewGlobalDim2Filter: Text; NewBudgDim1Filter: Text; NewBudgDim2Filter: Text; NewBudgDim3Filter: Text; NewDateFilter: Text; NewSourceTypeFilter: Integer; NewSourceNoFilter: Text; NewItemFilter: Text; NewInternalDateFilter: Text; NewPeriodInitialized: Boolean; NewPeriodType: Integer; NewLineDimOption: Integer; NewColumnDimOption: Integer; NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewRoundingFactor: Option "None","1","1000","1000000")
     begin
-        AnalysisArea := "Analysis Area Type".FromInteger(NewAnalysisArea);
+        SetParameters(
+            "Analysis Area Type".FromInteger(NewAnalysisArea), NewBudgName,
+            "Item Analysis Value Type".FromInteger(NewValueType), NewGlobalDim1Filter, NewGlobalDim2Filter,
+            NewBudgDim1Filter, NewBudgDim2Filter, NewBudgDim3Filter, NewDateFilter,
+            "Analysis Source Type".FromInteger(NewSourceTypeFilter), NewSourceNoFilter, NewItemFilter, NewInternalDateFilter,
+            NewPeriodInitialized, "Analysis Period Type".FromInteger(NewPeriodType),
+            "Item Budget Dimension Type".FromInteger(NewLineDimOption),
+            "Item Budget Dimension Type".FromInteger(NewColumnDimOption), NewLineDimCode, NewColumnDimCode,
+            "Analysis Rounding Factor".FromInteger(NewRoundingFactor));
+    end;
+#endif
+
+    procedure SetParameters(NewAnalysisArea: Enum "Analysis Area Type"; NewBudgName: Code[10]; NewValueType: Enum "Item Analysis Value Type"; NewGlobalDim1Filter: Text; NewGlobalDim2Filter: Text; NewBudgDim1Filter: Text; NewBudgDim2Filter: Text; NewBudgDim3Filter: Text; NewDateFilter: Text; NewSourceTypeFilter: Enum "Analysis Source Type"; NewSourceNoFilter: Text; NewItemFilter: Text; NewInternalDateFilter: Text; NewPeriodInitialized: Boolean; NewPeriodType: Enum "Analysis Period Type"; NewLineDimType: Enum "Item Budget Dimension Type"; NewColumnDimType: Enum "Item Budget Dimension Type"; NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewRoundingFactor: Enum "Analysis Rounding Factor")
+    begin
+        AnalysisArea := NewAnalysisArea;
         BudgetName := NewBudgName;
         ValueType := NewValueType;
         GlobalDim1Filter := NewGlobalDim1Filter;
@@ -267,13 +282,13 @@ report 7132 "Export Item Budget to Excel"
         BudgetDim3Filter := NewBudgDim3Filter;
         DateFilter := NewDateFilter;
         ItemFilter := NewItemFilter;
-        SourceTypeFilter := "Analysis Source Type".FromInteger(NewSourceTypeFilter);
+        SourceTypeFilter := NewSourceTypeFilter;
         SourceNoFilter := NewSourceNoFilter;
         InternalDateFilter := NewInternalDateFilter;
         PeriodInitialized := NewPeriodInitialized;
         PeriodType := NewPeriodType;
-        LineDimOption := NewLineDimOption;
-        ColumnDimOption := NewColumnDimOption;
+        LineDimType := NewLineDimType;
+        ColumnDimType := NewColumnDimType;
         LineDimCode := NewLineDimCode;
         ColumnDimCode := NewColumnDimCode;
         RoundingFactor := NewRoundingFactor;
@@ -303,8 +318,8 @@ report 7132 "Export Item Budget to Excel"
     local procedure FindLine(Which: Text[1024]): Boolean
     begin
         exit(
-          ItemBudgetManagement.FindRec(
-            ItemBudgetName, LineDimOption, LineDimCodeBuffer, Which,
+          ItemBudgetManagement.FindRecord(
+            ItemBudgetName, LineDimType, LineDimCodeBuffer, Which,
             ItemFilter, SourceNoFilter, PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
             GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter));
     end;
@@ -312,8 +327,8 @@ report 7132 "Export Item Budget to Excel"
     local procedure NextLine(Steps: Integer): Integer
     begin
         exit(
-          ItemBudgetManagement.NextRec(
-            ItemBudgetName, LineDimOption, LineDimCodeBuffer, Steps,
+          ItemBudgetManagement.NextRecord(
+            ItemBudgetName, LineDimType, LineDimCodeBuffer, Steps,
             ItemFilter, SourceNoFilter, PeriodType, DateFilter,
             GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter));
     end;
@@ -321,8 +336,8 @@ report 7132 "Export Item Budget to Excel"
     local procedure FindColumn(Which: Text[1024]): Boolean
     begin
         exit(
-          ItemBudgetManagement.FindRec(
-            ItemBudgetName, ColumnDimOption, ColumnDimCodeBuffer, Which,
+          ItemBudgetManagement.FindRecord(
+            ItemBudgetName, ColumnDimType, ColumnDimCodeBuffer, Which,
             ItemFilter, SourceNoFilter, PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
             GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter));
     end;
@@ -330,8 +345,8 @@ report 7132 "Export Item Budget to Excel"
     local procedure NextColumn(Steps: Integer): Integer
     begin
         exit(
-          ItemBudgetManagement.NextRec(
-            ItemBudgetName, ColumnDimOption, ColumnDimCodeBuffer, Steps,
+          ItemBudgetManagement.NextRecord(
+            ItemBudgetName, ColumnDimType, ColumnDimCodeBuffer, Steps,
             ItemFilter, SourceNoFilter, PeriodType, DateFilter,
             GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter));
     end;

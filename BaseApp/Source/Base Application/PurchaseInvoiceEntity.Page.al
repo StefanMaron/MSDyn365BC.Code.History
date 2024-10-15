@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5527 "Purchase Invoice Entity"
 {
     Caption = 'purchaseInvoices', Locked = true;
@@ -441,4 +442,4 @@ page 5527 "Purchase Invoice Entity"
         SetActionResponse(ActionContext, PurchInvAggregator.GetPurchaseInvoiceHeaderId(PurchInvHeader));
     end;
 }
-
+#endif

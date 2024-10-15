@@ -1,7 +1,7 @@
 page 9257 "Opportunities Matrix"
 {
     Caption = 'Opportunities Matrix';
-    DataCaptionExpression = Format(SelectStr(OutPutOption + 1, Text002));
+    DataCaptionExpression = Format(SelectStr(OutPutOption.AsInteger() + 1, Text002));
     Editable = false;
     LinksAllowed = false;
     PageType = List;
@@ -29,20 +29,20 @@ page 9257 "Opportunities Matrix"
                         SalesPurchPerson: Record "Salesperson/Purchaser";
                         Contact: Record Contact;
                     begin
-                        case TableOption of
-                            TableOption::SalesPerson:
+                        case TableType of
+                            TableType::"Sales Person":
                                 begin
-                                    SalesPurchPerson.Get("No.");
+                                    SalesPurchPerson.Get(Rec."No.");
                                     PAGE.RunModal(0, SalesPurchPerson);
                                 end;
-                            TableOption::Campaign:
+                            TableType::Campaign:
                                 begin
-                                    Campaign.Get("No.");
+                                    Campaign.Get(Rec."No.");
                                     PAGE.RunModal(0, Campaign);
                                 end;
-                            TableOption::Contact:
+                            TableType::Contact:
                                 begin
-                                    Contact.Get("No.");
+                                    Contact.Get(Rec."No.");
                                     PAGE.RunModal(0, Contact);
                                 end;
                         end;
@@ -612,7 +612,7 @@ page 9257 "Opportunities Matrix"
         MATRIX_CurrentColumnOrdinal: Integer;
     begin
         StyleIsStrong := Type = Type::Company;
-        if (Type = Type::Person) and (TableOption = TableOption::Contact) then
+        if (Type = Type::Person) and (TableType = TableType::Contact) then
             NameIndent := 1
         else
             NameIndent := 0;
@@ -626,7 +626,7 @@ page 9257 "Opportunities Matrix"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindRec(TableOption, Rec, Which));
+        exit(FindRec(TableType, Rec, Which));
     end;
 
     trigger OnInit()
@@ -667,7 +667,7 @@ page 9257 "Opportunities Matrix"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(TableOption, Rec, Steps));
+        exit(NextRec(TableType, Rec, Steps));
     end;
 
     trigger OnOpenPage()
@@ -690,9 +690,9 @@ page 9257 "Opportunities Matrix"
         Campaign: Record Campaign;
         MatrixMgt: Codeunit "Matrix Management";
         OptionStatusFilter: Option "In Progress",Won,Lost;
-        OutPutOption: Option "No of Opportunities","Estimated Value (LCY)","Calc. Current Value (LCY)","Avg. Estimated Value (LCY)","Avg. Calc. Current Value (LCY)";
-        RoundingFactor: Option "None","1","1000","1000000";
-        TableOption: Option SalesPerson,Campaign,Contact;
+        OutputOption: Enum "Opportunity Output";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        TableType: Enum "Opportunity Table Type";
         Text002: Label 'No of Opportunities,Estimated Value (LCY),Calc. Current Value (LCY),Avg. Estimated Value (LCY),Avg. Calc. Current Value (LCY)';
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Text[80];
@@ -776,18 +776,18 @@ page 9257 "Opportunities Matrix"
 
     local procedure SetFilters()
     begin
-        case TableOption of
-            TableOption::SalesPerson:
-                SetRange("Salesperson Filter", "No.");
-            TableOption::Campaign:
-                SetRange("Campaign Filter", "No.");
-            TableOption::Contact:
-                if Type = Type::Company then begin
-                    SetRange("Contact Filter");
-                    SetRange("Contact Company Filter", "Company No.");
+        case TableType of
+            TableType::"Sales Person":
+                Rec.SetRange("Salesperson Filter", Rec."No.");
+            TableType::Campaign:
+                Rec.SetRange("Campaign Filter", Rec."No.");
+            TableType::Contact:
+                if Rec.Type = Rec.Type::Company then begin
+                    Rec.SetRange("Contact Filter");
+                    Rec.SetRange("Contact Company Filter", Rec."Company No.");
                 end else begin
-                    SetRange("Contact Filter", "No.");
-                    SetRange("Contact Company Filter", "Company No.");
+                    Rec.SetRange("Contact Filter", Rec."No.");
+                    Rec.SetRange("Contact Company Filter", Rec."Company No.");
                 end;
         end;
     end;
@@ -816,7 +816,7 @@ page 9257 "Opportunities Matrix"
             Evaluate(Amount, Text);
             if OutPutOption = OutPutOption::"No of Opportunities" then
                 Text := Format(Amount, 0, Text000);
-            Amount := MatrixMgt.RoundValue(Amount, RoundingFactor);
+            Amount := MatrixMgt.RoundAmount(Amount, RoundingFactor);
             if Amount = 0 then
                 Text := ''
             else
@@ -829,12 +829,12 @@ page 9257 "Opportunities Matrix"
         end;
     end;
 
-    local procedure FindRec(TableOpt: Option Salesperson,Campaign,Contact; var RMMatrixMgt: Record "RM Matrix Management"; Which: Text[250]): Boolean
+    local procedure FindRec(TableType: Enum "Opportunity Table Type"; var RMMatrixMgt: Record "RM Matrix Management"; Which: Text[250]): Boolean
     var
         Found: Boolean;
     begin
-        case TableOpt of
-            TableOpt::Salesperson:
+        case TableType of
+            TableType::"Sales Person":
                 begin
                     RMMatrixMgt."No." := CopyStr(RMMatrixMgt."No.", 1, MaxStrLen(SalespersonPurchaser.Code));
                     SalespersonPurchaser.Code := CopyStr(RMMatrixMgt."No.", 1, MaxStrLen(SalespersonPurchaser.Code));
@@ -842,14 +842,14 @@ page 9257 "Opportunities Matrix"
                     if Found then
                         CopySalespersonToBuf(SalespersonPurchaser, RMMatrixMgt);
                 end;
-            TableOpt::Campaign:
+            TableType::Campaign:
                 begin
                     Campaign."No." := RMMatrixMgt."No.";
                     Found := Campaign.Find(Which);
                     if Found then
                         CopyCampaignToBuf(Campaign, RMMatrixMgt);
                 end;
-            TableOpt::Contact:
+            TableType::Contact:
                 begin
                     Cont."Company Name" := RMMatrixMgt."Company Name";
                     Cont.Type := RMMatrixMgt.Type;
@@ -864,12 +864,12 @@ page 9257 "Opportunities Matrix"
         exit(Found);
     end;
 
-    local procedure NextRec(TableOpt: Option Salesperson,Campaign,Contact; var RMMatrixMgt: Record "RM Matrix Management"; Steps: Integer): Integer
+    local procedure NextRec(TableType: Enum "Opportunity Table Type"; var RMMatrixMgt: Record "RM Matrix Management"; Steps: Integer): Integer
     var
         ResultSteps: Integer;
     begin
-        case TableOpt of
-            TableOpt::Salesperson:
+        case TableType of
+            TableType::"Sales Person":
                 begin
                     RMMatrixMgt."No." := CopyStr(RMMatrixMgt."No.", 1, MaxStrLen(SalespersonPurchaser.Code));
                     SalespersonPurchaser.Code := CopyStr(RMMatrixMgt."No.", 1, MaxStrLen(SalespersonPurchaser.Code));
@@ -877,14 +877,14 @@ page 9257 "Opportunities Matrix"
                     if ResultSteps <> 0 then
                         CopySalespersonToBuf(SalespersonPurchaser, RMMatrixMgt);
                 end;
-            TableOpt::Campaign:
+            TableType::Campaign:
                 begin
                     Campaign."No." := RMMatrixMgt."No.";
                     ResultSteps := Campaign.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyCampaignToBuf(Campaign, RMMatrixMgt);
                 end;
-            TableOpt::Contact:
+            TableType::Contact:
                 begin
                     Cont."Company Name" := RMMatrixMgt."Company Name";
                     Cont.Type := RMMatrixMgt.Type;
@@ -949,26 +949,26 @@ page 9257 "Opportunities Matrix"
 
     local procedure ValidateFilter()
     begin
-        case TableOption of
-            TableOption::SalesPerson:
+        case TableType of
+            TableType::"Sales Person":
                 begin
-                    SetRange("Campaign Filter");
-                    SetRange("Contact Filter");
-                    SetRange("Contact Company Filter");
-                    UpdateSalespersonFilter;
+                    Rec.SetRange("Campaign Filter");
+                    Rec.SetRange("Contact Filter");
+                    Rec.SetRange("Contact Company Filter");
+                    UpdateSalespersonFilter();
                 end;
-            TableOption::Campaign:
+            TableType::Campaign:
                 begin
-                    SetRange("Salesperson Filter");
-                    SetRange("Contact Filter");
-                    SetRange("Contact Company Filter");
-                    UpdateCampaignFilter;
+                    Rec.SetRange("Salesperson Filter");
+                    Rec.SetRange("Contact Filter");
+                    Rec.SetRange("Contact Company Filter");
+                    UpdateCampaignFilter();
                 end;
-            TableOption::Contact:
+            TableType::Contact:
                 begin
-                    SetRange("Salesperson Filter");
-                    SetRange("Campaign Filter");
-                    UpdateContactFilter;
+                    Rec.SetRange("Salesperson Filter");
+                    Rec.SetRange("Campaign Filter");
+                    UpdateContactFilter();
                 end;
         end;
         CurrPage.Update(false);
@@ -1063,24 +1063,36 @@ page 9257 "Opportunities Matrix"
         Cont.SetRange("Opportunity Entry Exists", true);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix()', '19.0')]
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date; TableOptionLocal: Option SalesPerson,Campaign,Contact; OutPutOptionLocal: Option "No of Opportunities","Estimated Value (LCY)","Calc. Current Value (LCY)","Avg. Estimated Value (LCY)","Avg. Calc. Current Value (LCY)"; RoundingFactorLocal: Option "None","1","1000","1000000"; OptionStatusFilterLocal: Option "In Progress",Won,Lost; CloseOpportunityFilterLocal: Text; SuccessChanceFilterLocal: Text; ProbabilityFilterLocal: Text; CompletedFilterLocal: Text; EstimatedValueFilterLocal: Text; CalcdCurrentValueFilterLocal: Text; SalesCycleFilterLocal: Text; SalesCycleStageFilterLocal: Text; NoOfColumns: Integer)
     begin
-        CopyArray(MATRIX_CaptionSet, MatrixColumns1, 1);
-        CopyArray(MatrixRecords, MatrixRecords1, 1);
-        TableOption := TableOptionLocal;
-        OutPutOption := OutPutOptionLocal;
-        RoundingFactor := RoundingFactorLocal;
-        OptionStatusFilter := OptionStatusFilterLocal;
-        "Close Opportunity Filter" := CloseOpportunityFilterLocal;
-        SuccessChanceFilter := SuccessChanceFilterLocal;
-        ProbabilityFilter := ProbabilityFilterLocal;
-        CompletedFilter := CompletedFilterLocal;
-        CalcdCurrentValueFilter := CalcdCurrentValueFilterLocal;
-        SalesCycleFilter := SalesCycleFilterLocal;
-        SalesCycleStageFilter := SalesCycleStageFilterLocal;
-        EstimatedValueFilter := EstimatedValueFilterLocal;
-        MATRIX_CurrentNoOfMatrixColumn := NoOfColumns;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, "Opportunity Table Type".FromInteger(TableOptionLocal), 
+            "Opportunity Output".FromInteger(OutPutOptionLocal), "Analysis Rounding Factor".FromInteger(RoundingFactorLocal), 
+            OptionStatusFilterLocal, CloseOpportunityFilterLocal, SuccessChanceFilterLocal, ProbabilityFilterLocal, CompletedFilterLocal,
+            EstimatedValueFilterLocal, CalcdCurrentValueFilterLocal, SalesCycleFilterLocal, SalesCycleStageFilterLocal, NoOfColumns);
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Date; NewTableType: Enum "Opportunity Table Type"; NewOutput: Enum "Opportunity Output"; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewOptionStatusFilter: Option "In Progress",Won,Lost; NewCloseOpportunityFilter: Text; NewSuccessChanceFilter: Text; NewProbabilityFilter: Text; NewCompletedFilter: Text; NewEstimatedValueFilter: Text; NewCalcdCurrentValueFilter: Text; NewSalesCycleFilter: Text; NewSalesCycleStageFilter: Text; NewNoOfColumns: Integer)
+    begin
+        CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);
+        CopyArray(MatrixRecords, NewMatrixRecords, 1);
+        TableType := NewTableType;
+        OutPutOption := NewOutput;
+        RoundingFactor := NewRoundingFactor;
+        OptionStatusFilter := NewOptionStatusFilter;
+        "Close Opportunity Filter" := NewCloseOpportunityFilter;
+        SuccessChanceFilter := NewSuccessChanceFilter;
+        ProbabilityFilter := NewProbabilityFilter;
+        CompletedFilter := NewCompletedFilter;
+        CalcdCurrentValueFilter := NewCalcdCurrentValueFilter;
+        SalesCycleFilter := NewSalesCycleFilter;
+        SalesCycleStageFilter := NewSalesCycleStageFilter;
+        EstimatedValueFilter := NewEstimatedValueFilter;
+        MATRIX_CurrentNoOfMatrixColumn := NewNoOfColumns;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
     end;
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
@@ -1092,43 +1104,43 @@ page 9257 "Opportunities Matrix"
 
         OppEntry.SetRange(Active, true);
 
-        case TableOption of
-            TableOption::SalesPerson:
-                OppEntry.SetFilter("Salesperson Code", "No.");
-            TableOption::Campaign:
-                OppEntry.SetFilter("Campaign No.", "No.");
-            TableOption::Contact:
-                OppEntry.SetFilter("Contact No.", "No.");
+        case TableType of
+            TableType::"Sales Person":
+                OppEntry.SetFilter("Salesperson Code", Rec."No.");
+            TableType::Campaign:
+                OppEntry.SetFilter("Campaign No.", Rec."No.");
+            TableType::Contact:
+                OppEntry.SetFilter("Contact No.", Rec."No.");
         end;
 
-        if GetFilter("Contact Company Filter") <> '' then
-            OppEntry.SetFilter("Contact Company No.", "Company No.");
+        if Rec.GetFilter("Contact Company Filter") <> '' then
+            OppEntry.SetFilter("Contact Company No.", Rec."Company No.");
 
-        if GetFilter("Sales Cycle Filter") <> '' then
+        if Rec.GetFilter("Sales Cycle Filter") <> '' then
             OppEntry.SetFilter("Sales Cycle Code", GetFilter("Sales Cycle Filter"));
 
-        if GetFilter("Sales Cycle Stage Filter") <> '' then
+        if Rec.GetFilter("Sales Cycle Stage Filter") <> '' then
             OppEntry.SetFilter("Sales Cycle Stage", GetFilter("Sales Cycle Stage Filter"));
 
-        if GetFilter("Action Taken Filter") <> '' then
+        if Rec.GetFilter("Action Taken Filter") <> '' then
             OppEntry.SetFilter("Action Taken", GetFilter("Action Taken Filter"));
 
-        if GetFilter("Probability % Filter") <> '' then
+        if Rec.GetFilter("Probability % Filter") <> '' then
             OppEntry.SetFilter("Probability %", GetFilter("Probability % Filter"));
 
-        if GetFilter("Completed % Filter") <> '' then
+        if Rec.GetFilter("Completed % Filter") <> '' then
             OppEntry.SetFilter("Completed %", GetFilter("Completed % Filter"));
 
-        if GetFilter("Close Opportunity Filter") <> '' then
+        if Rec.GetFilter("Close Opportunity Filter") <> '' then
             OppEntry.SetFilter("Close Opportunity Code", GetFilter("Close Opportunity Filter"));
 
-        if GetFilter("Chances of Success % Filter") <> '' then
+        if Rec.GetFilter("Chances of Success % Filter") <> '' then
             OppEntry.SetFilter("Chances of Success %", GetFilter("Chances of Success % Filter"));
 
-        if GetFilter("Estimated Value Filter") <> '' then
+        if Rec.GetFilter("Estimated Value Filter") <> '' then
             OppEntry.SetFilter("Estimated Value (LCY)", GetFilter("Estimated Value Filter"));
 
-        if GetFilter("Calcd. Current Value Filter") <> '' then
+        if Rec.GetFilter("Calcd. Current Value Filter") <> '' then
             OppEntry.SetFilter("Calcd. Current Value (LCY)", GetFilter("Calcd. Current Value Filter"));
 
         if OppEntry.Find('-') then

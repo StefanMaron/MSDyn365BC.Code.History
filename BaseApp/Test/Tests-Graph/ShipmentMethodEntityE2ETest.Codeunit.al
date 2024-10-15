@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135506 "ShipmentMethod Entity E2E Test"
 {
     Subtype = Test;
@@ -95,4 +96,4 @@ codeunit 135506 "ShipmentMethod Entity E2E Test"
         end;
     end;
 }
-
+#endif

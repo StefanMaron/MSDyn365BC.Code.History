@@ -1,10 +1,15 @@
 table 7002 "Sales Price"
 {
     Caption = 'Sales Price';
+#if not CLEAN19
     LookupPageID = "Sales Prices";
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
 
     fields
     {
@@ -14,6 +19,7 @@ table 7002 "Sales Price"
             NotBlank = true;
             TableRelation = Item;
 
+#if not CLEAN19
             trigger OnValidate()
             var
                 IsHandled: Boolean;
@@ -37,10 +43,12 @@ table 7002 "Sales Price"
 
                 UpdateValuesFromItem;
             end;
+#endif
         }
         field(2; "Sales Code"; Code[20])
         {
             Caption = 'Sales Code';
+#if not CLEAN19
             TableRelation = IF ("Sales Type" = CONST("Customer Price Group")) "Customer Price Group"
             ELSE
             IF ("Sales Type" = CONST(Customer)) Customer
@@ -78,6 +86,7 @@ table 7002 "Sales Price"
                             end;
                     end;
             end;
+#endif
         }
         field(3; "Currency Code"; Code[10])
         {
@@ -132,6 +141,7 @@ table 7002 "Sales Price"
         {
             Caption = 'Sales Type';
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if "Sales Type" <> xRec."Sales Type" then begin
@@ -139,6 +149,7 @@ table 7002 "Sales Price"
                     UpdateValuesFromItem;
                 end;
             end;
+#endif
         }
         field(14; "Minimum Quantity"; Decimal)
         {
@@ -162,6 +173,11 @@ table 7002 "Sales Price"
                         Error(Text002, "Sales Type");
             end;
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+        }
         field(5400; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
@@ -169,7 +185,9 @@ table 7002 "Sales Price"
 
             trigger OnValidate()
             begin
+#if not CLEAN19
                 UpdateUnitPrice;
+#endif
             end;
         }
         field(5700; "Variant Code"; Code[10])
@@ -184,14 +202,14 @@ table 7002 "Sales Price"
         }
         field(28060; "Published Price"; Decimal)
         {
-            CalcFormula = Lookup (Item."Unit Price" WHERE("No." = FIELD("Item No.")));
+            CalcFormula = Lookup(Item."Unit Price" WHERE("No." = FIELD("Item No.")));
             Caption = 'Published Price';
             Editable = false;
             FieldClass = FlowField;
         }
         field(28061; Cost; Decimal)
         {
-            CalcFormula = Lookup (Item."Unit Cost" WHERE("No." = FIELD("Item No.")));
+            CalcFormula = Lookup(Item."Unit Cost" WHERE("No." = FIELD("Item No.")));
             Caption = 'Cost';
             Editable = false;
             FieldClass = FlowField;
@@ -204,7 +222,9 @@ table 7002 "Sales Price"
 
             trigger OnValidate()
             begin
+#if not CLEAN19
                 UpdateUnitPrice;
+#endif
             end;
         }
         field(28063; "Discount Amount"; Decimal)
@@ -216,7 +236,9 @@ table 7002 "Sales Price"
 
             trigger OnValidate()
             begin
+#if not CLEAN19
                 UpdateUnitPrice;
+#endif
             end;
         }
     }
@@ -231,6 +253,9 @@ table 7002 "Sales Price"
         {
         }
         key(Key3; SystemModifiedAt)
+        {
+        }
+        key(Key4; "Coupled to CRM")
         {
         }
     }
@@ -259,15 +284,18 @@ table 7002 "Sales Price"
     end;
 
     var
-        CustPriceGr: Record "Customer Price Group";
-        Text000: Label '%1 cannot be after %2';
-        Cust: Record Customer;
+#if not CLEAN19
         Text001: Label '%1 must be blank.';
+        CustPriceGr: Record "Customer Price Group";
+        Cust: Record Customer;
         Campaign: Record Campaign;
         Item: Record Item;
-        Text002: Label 'If Sales Type = %1, then you can only change Starting Date and Ending Date from the Campaign Card.';
         ItemUnitOfMeasure: Record "Item Unit of Measure";
+#endif
+        Text000: Label '%1 cannot be after %2';
+        Text002: Label 'If Sales Type = %1, then you can only change Starting Date and Ending Date from the Campaign Card.';
 
+#if not CLEAN19
     [Scope('OnPrem')]
     procedure UpdateUnitPrice()
     begin
@@ -337,5 +365,6 @@ table 7002 "Sales Price"
     local procedure OnValidateSalesCodeOnAfterGetCustomerPriceGroup(var Salesprice: Record "Sales Price"; CustPriceGroup: Record "Customer Price Group")
     begin
     end;
+#endif
 }
 

@@ -6,7 +6,7 @@ page 610 "IC General Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Prepare,Posting,Post/Print,Line,Account';
+    PromotedActionCategories = 'New,Process,Report,Prepare,Posting,Post/Print,Line,Account,Page';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -685,7 +685,7 @@ page 610 "IC General Journal"
                     trigger OnAction()
                     begin
                         CheckAdjustmentAppliesto;
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         Commit();
                         SetJobQueueVisibility();
@@ -699,6 +699,7 @@ page 610 "IC General Journal"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -722,7 +723,7 @@ page 610 "IC General Journal"
                     trigger OnAction()
                     begin
                         CheckAdjustmentAppliesto;
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         Commit();
                         SetJobQueueVisibility();
@@ -785,6 +786,30 @@ page 610 "IC General Journal"
                     end;
                 }
             }
+            group("Page")
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        ODataUtility: Codeunit ODataUtility;
+                    begin
+                        ODataUtility.EditJournalWorksheetInExcel(CopyStr(CurrPage.Caption, 1, 240), CurrPage.ObjectId(false), Rec."Journal Batch Name", Rec."Journal Template Name");
+                    end;
+                }
+            }
         }
     }
 
@@ -820,9 +845,11 @@ page 610 "IC General Journal"
 
     trigger OnOpenPage()
     var
+        ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
         SetDimensionsVisibility;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
 
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
@@ -861,6 +888,7 @@ page 610 "IC General Journal"
         JobQueueVisible: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

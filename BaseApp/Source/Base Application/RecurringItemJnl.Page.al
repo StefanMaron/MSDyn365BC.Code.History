@@ -58,10 +58,18 @@ page 286 "Recurring Item Jnl."
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Entry Type"; Rec."Entry Type")
+                field("Entry Type"; EntryType)
                 {
                     ApplicationArea = Suite;
+                    Caption = 'Entry Type';
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
+
+                    trigger OnValidate()
+                    begin
+                        CheckEntryType();
+
+                        Rec.Validate("Entry Type", EntryType);
+                    end;
                 }
                 field("Document No."; Rec."Document No.")
                 {
@@ -697,12 +705,14 @@ page 286 "Recurring Item Jnl."
     trigger OnAfterGetCurrRecord()
     begin
         ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
+        EntryType := Rec."Entry Type";
     end;
 
     trigger OnAfterGetRecord()
     begin
         Rec.ShowShortcutDimCode(ShortcutDimCode);
         Rec.ShowNewShortcutDimCode(NewShortcutDimCode);
+        EntryType := Rec."Entry Type";
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -717,8 +727,7 @@ page 286 "Recurring Item Jnl."
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
-            Error(Text000, Rec."Entry Type");
+        CheckEntryType();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -744,7 +753,7 @@ page 286 "Recurring Item Jnl."
     end;
 
     var
-        Text000: Label 'You cannot use entry type %1 in this journal.';
+        EntryTypeErr: Label 'You cannot use entry type %1 in this journal.', Comment = '%1 - Entry Type';
         Text001: Label '1,2,3,New ';
         Text002: Label '1,2,4,New ';
         Text003: Label '1,2,5,New ';
@@ -758,6 +767,7 @@ page 286 "Recurring Item Jnl."
         ItemDescription: Text[100];
 
     protected var
+        EntryType: Enum "Item Journal Entry Type";
         ShortcutDimCode: array[8] of Code[20];
         NewShortcutDimCode: array[8] of Code[20];
 
@@ -772,6 +782,12 @@ page 286 "Recurring Item Jnl."
     begin
         ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
         Rec.ShowShortcutDimCode(ShortcutDimCode);
+    end;
+
+    local procedure CheckEntryType()
+    begin
+        if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
+            Error(EntryTypeErr, Rec."Entry Type");
     end;
 }
 

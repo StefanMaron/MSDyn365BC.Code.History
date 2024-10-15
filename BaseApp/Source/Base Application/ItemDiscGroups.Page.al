@@ -48,6 +48,7 @@ page 513 "Item Disc. Groups"
             group("Item &Disc. Groups")
             {
                 Caption = 'Item &Disc. Groups';
+#if not CLEAN19
                 action("Sales &Line Discounts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -71,6 +72,7 @@ page 513 "Item Disc. Groups"
                         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
                     end;
                 }
+#endif
             }
             group(Discounts)
             {

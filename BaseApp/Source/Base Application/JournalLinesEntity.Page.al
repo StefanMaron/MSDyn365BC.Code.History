@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5478 "Journal Lines Entity"
 {
     Caption = 'journalLines', Locked = true;
@@ -264,4 +265,4 @@ page 5478 "Journal Lines Entity"
         end;
     end;
 }
-
+#endif

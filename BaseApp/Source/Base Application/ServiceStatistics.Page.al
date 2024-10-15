@@ -782,7 +782,7 @@ page 6030 "Service Statistics"
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
         CurrPage.SubForm.PAGE.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference,
-          "Prices Including VAT", AllowInvDisc, "VAT Base Discount %", 2);
+          "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
     end;
 
     local procedure UpdateTotalAmount(IndexNo: Integer)

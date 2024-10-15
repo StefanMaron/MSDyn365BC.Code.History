@@ -12,12 +12,11 @@ codeunit 9200 "Matrix Management"
         RoundingFormatTxt: Label '<Precision,%1><Standard Format,0>', Locked = true;
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
-        SetOption: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
 
-    procedure SetPeriodColumnSet(DateFilter: Text; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; Direction: Option Backward,Forward; var FirstColumn: Date; var LastColumn: Date; NoOfColumns: Integer)
+    procedure SetPeriodColumnSet(DateFilter: Text; PeriodType: Enum "Analysis Period Type"; Direction: Option Backward,Forward; var FirstColumn: Date; var LastColumn: Date; NoOfColumns: Integer)
     var
         Period: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Steps: Integer;
         TmpFirstColumn: Date;
         TmpLastColumn: Date;
@@ -25,9 +24,9 @@ codeunit 9200 "Matrix Management"
         Period.SetRange("Period Type", PeriodType);
         if DateFilter = '' then begin
             Period."Period Start" := WorkDate;
-            if PeriodFormMgt.FindDate('<=', Period, PeriodType) then
+            if PeriodPageMgt.FindDate('<=', Period, PeriodType) then
                 Steps := 1;
-            PeriodFormMgt.NextDate(Steps, Period, PeriodType);
+            PeriodPageMgt.NextDate(Steps, Period, PeriodType);
             DateFilter := '>=' + Format(Period."Period Start");
         end else begin
             Period.SetFilter("Period Start", DateFilter);
@@ -80,15 +79,15 @@ codeunit 9200 "Matrix Management"
             DimVal.SetFilter(Code, DimFilter);
         OnSetDimColumnSetOnAfterDimValSetFilters(DimensionCode, DimFilter, DimVal);
 
-        case SetWanted of
-            SetOption::Initial:
+        case "Matrix Page Step Type".FromInteger(SetWanted) of
+            "Matrix Page Step Type"::Initial:
                 if DimVal.Find('-') then begin
                     RecordPosition := DimVal.GetPosition;
                     FirstColumn := DimVal.Code;
                     TmpSteps := DimVal.Next(NoOfColumns - 1);
                     LastColumn := DimVal.Code;
                 end;
-            SetOption::Same:
+            "Matrix Page Step Type"::Same:
                 if RecordPosition <> '' then begin
                     DimVal.SetPosition(RecordPosition);
                     DimVal.Find('=');
@@ -96,7 +95,7 @@ codeunit 9200 "Matrix Management"
                     TmpSteps := DimVal.Next(NoOfColumns - 1);
                     LastColumn := DimVal.Code;
                 end;
-            SetOption::Next:
+            "Matrix Page Step Type"::Next:
                 if RecordPosition <> '' then begin
                     DimVal.SetPosition(RecordPosition);
                     DimVal.Find('=');
@@ -110,9 +109,10 @@ codeunit 9200 "Matrix Management"
                             LastColumn := TmpLastColumn;
                         end;
                     end else
-                        SetDimColumnSet(DimensionCode, DimFilter, SetOption::Same, RecordPosition, FirstColumn, LastColumn, NoOfColumns);
+                        SetDimColumnSet(
+                            DimensionCode, DimFilter, "Matrix Page Step Type"::Same.AsInteger(), RecordPosition, FirstColumn, LastColumn, NoOfColumns);
                 end;
-            SetOption::Previous:
+            "Matrix Page Step Type"::Previous:
                 if RecordPosition <> '' then begin
                     DimVal.SetPosition(RecordPosition);
                     DimVal.Find('=');
@@ -126,9 +126,10 @@ codeunit 9200 "Matrix Management"
                             LastColumn := TmpLastColumn;
                         end;
                     end else
-                        SetDimColumnSet(DimensionCode, DimFilter, SetOption::Same, RecordPosition, FirstColumn, LastColumn, NoOfColumns);
+                        SetDimColumnSet(
+                            DimensionCode, DimFilter, "Matrix Page Step Type"::Same.AsInteger(), RecordPosition, FirstColumn, LastColumn, NoOfColumns);
                 end;
-            SetOption::NextColumn:
+            "Matrix Page Step Type"::NextColumn:
                 if RecordPosition <> '' then begin
                     DimVal.SetPosition(RecordPosition);
                     DimVal.Find('=');
@@ -142,9 +143,10 @@ codeunit 9200 "Matrix Management"
                             LastColumn := TmpLastColumn;
                         end;
                     end else
-                        SetDimColumnSet(DimensionCode, DimFilter, SetOption::Same, RecordPosition, FirstColumn, LastColumn, NoOfColumns);
+                        SetDimColumnSet(
+                            DimensionCode, DimFilter, "Matrix Page Step Type"::Same.AsInteger(), RecordPosition, FirstColumn, LastColumn, NoOfColumns);
                 end;
-            SetOption::PreviousColumn:
+            "Matrix Page Step Type"::PreviousColumn:
                 if RecordPosition <> '' then begin
                     DimVal.SetPosition(RecordPosition);
                     DimVal.Find('=');
@@ -158,7 +160,8 @@ codeunit 9200 "Matrix Management"
                             LastColumn := TmpLastColumn;
                         end;
                     end else
-                        SetDimColumnSet(DimensionCode, DimFilter, SetOption::Same, RecordPosition, FirstColumn, LastColumn, NoOfColumns);
+                        SetDimColumnSet(
+                            DimensionCode, DimFilter, "Matrix Page Step Type"::Same.AsInteger(), RecordPosition, FirstColumn, LastColumn, NoOfColumns);
                 end;
         end;
 
@@ -219,10 +222,10 @@ codeunit 9200 "Matrix Management"
             exit;
         end;
 
-        case SetWanted of
-            SetOption::Initial:
+        case "Matrix Page Step Type".FromInteger(SetWanted) of
+            "Matrix Page Step Type"::Initial:
                 RecRef.FindFirst;
-            SetOption::Previous:
+            "Matrix Page Step Type"::Previous:
                 begin
                     RecRef.SetPosition(RecordPosition);
                     RecRef.Get(RecRef.RecordId);
@@ -230,12 +233,12 @@ codeunit 9200 "Matrix Management"
                     if not (Steps in [-MaximumSetLength, 0]) then
                         Error(Text001);
                 end;
-            SetOption::Same:
+            "Matrix Page Step Type"::Same:
                 begin
                     RecRef.SetPosition(RecordPosition);
                     RecRef.Get(RecRef.RecordId);
                 end;
-            SetOption::Next:
+            "Matrix Page Step Type"::Next:
                 begin
                     RecRef.SetPosition(RecordPosition);
                     RecRef.Get(RecRef.RecordId);
@@ -244,7 +247,7 @@ codeunit 9200 "Matrix Management"
                         RecRef.Get(RecRef.RecordId);
                     end;
                 end;
-            SetOption::PreviousColumn:
+            "Matrix Page Step Type"::PreviousColumn:
                 begin
                     RecRef.SetPosition(RecordPosition);
                     RecRef.Get(RecRef.RecordId);
@@ -252,7 +255,7 @@ codeunit 9200 "Matrix Management"
                     if not (Steps in [-1, 0]) then
                         Error(Text001);
                 end;
-            SetOption::NextColumn:
+            "Matrix Page Step Type"::NextColumn:
                 begin
                     RecRef.SetPosition(RecordPosition);
                     RecRef.Get(RecRef.RecordId);
@@ -286,10 +289,10 @@ codeunit 9200 "Matrix Management"
         OnAfterGetCaption(RecRef, CaptionFieldNo, Caption);
     end;
 
-    procedure GeneratePeriodMatrixData(SetWanted: Option; MaximumSetLength: Integer; UseNameForCaption: Boolean; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; DateFilter: Text; var RecordPosition: Text; var CaptionSet: array[32] of Text[80]; var CaptionRange: Text; var CurrSetLength: Integer; var PeriodRecords: array[32] of Record Date temporary)
+    procedure GeneratePeriodMatrixData(SetWanted: Option; MaximumSetLength: Integer; UseNameForCaption: Boolean; PeriodType: Enum "Analysis Period Type"; DateFilter: Text; var RecordPosition: Text; var CaptionSet: array[32] of Text[80]; var CaptionRange: Text; var CurrSetLength: Integer; var PeriodRecords: array[32] of Record Date temporary)
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Steps: Integer;
     begin
         Clear(CaptionSet);
@@ -297,17 +300,17 @@ codeunit 9200 "Matrix Management"
         CurrSetLength := 0;
         Clear(PeriodRecords);
         Clear(Calendar);
-        Clear(PeriodFormMgt);
+        Clear(PeriodPageMgt);
 
-        Calendar.SetFilter("Period Start", PeriodFormMgt.GetFullPeriodDateFilter(PeriodType, DateFilter));
+        Calendar.SetFilter("Period Start", PeriodPageMgt.GetFullPeriodDateFilter(PeriodType, DateFilter));
 
         if not FindDate('-', Calendar, PeriodType, false) then begin
             RecordPosition := '';
             Error(Text003);
         end;
 
-        case SetWanted of
-            SetOption::Initial:
+        case "Matrix Page Step Type".FromInteger(SetWanted) of
+            "Matrix Page Step Type"::Initial:
                 begin
                     if (PeriodType = PeriodType::"Accounting Period") or (DateFilter <> '') then begin
                         FindDate('-', Calendar, PeriodType, true);
@@ -315,41 +318,41 @@ codeunit 9200 "Matrix Management"
                         Calendar."Period Start" := 0D;
                     FindDate('=><', Calendar, PeriodType, true);
                 end;
-            SetOption::Previous:
+            "Matrix Page Step Type"::Previous:
                 begin
                     Calendar.SetPosition(RecordPosition);
                     FindDate('=', Calendar, PeriodType, true);
-                    Steps := PeriodFormMgt.NextDate(-MaximumSetLength, Calendar, PeriodType);
+                    Steps := PeriodPageMgt.NextDate(-MaximumSetLength, Calendar, PeriodType);
                     if not (Steps in [-MaximumSetLength, 0]) then
                         Error(Text001);
                 end;
-            SetOption::PreviousColumn:
+            "Matrix Page Step Type"::PreviousColumn:
                 begin
                     Calendar.SetPosition(RecordPosition);
                     FindDate('=', Calendar, PeriodType, true);
-                    Steps := PeriodFormMgt.NextDate(-1, Calendar, PeriodType);
+                    Steps := PeriodPageMgt.NextDate(-1, Calendar, PeriodType);
                     if not (Steps in [-1, 0]) then
                         Error(Text001);
                 end;
-            SetOption::NextColumn:
+            "Matrix Page Step Type"::NextColumn:
                 begin
                     Calendar.SetPosition(RecordPosition);
                     FindDate('=', Calendar, PeriodType, true);
-                    if not (PeriodFormMgt.NextDate(1, Calendar, PeriodType) = 1) then begin
+                    if not (PeriodPageMgt.NextDate(1, Calendar, PeriodType) = 1) then begin
                         Calendar.SetPosition(RecordPosition);
                         FindDate('=', Calendar, PeriodType, true);
                     end;
                 end;
-            SetOption::Same:
+            "Matrix Page Step Type"::Same:
                 begin
                     Calendar.SetPosition(RecordPosition);
                     FindDate('=', Calendar, PeriodType, true)
                 end;
-            SetOption::Next:
+            "Matrix Page Step Type"::Next:
                 begin
                     Calendar.SetPosition(RecordPosition);
                     FindDate('=', Calendar, PeriodType, true);
-                    if not (PeriodFormMgt.NextDate(MaximumSetLength, Calendar, PeriodType) = MaximumSetLength) then begin
+                    if not (PeriodPageMgt.NextDate(MaximumSetLength, Calendar, PeriodType) = MaximumSetLength) then begin
                         Calendar.SetPosition(RecordPosition);
                         FindDate('=', Calendar, PeriodType, true);
                     end;
@@ -360,7 +363,7 @@ codeunit 9200 "Matrix Management"
 
         repeat
             GeneratePeriodAndCaption(CaptionSet, PeriodRecords, CurrSetLength, Calendar, UseNameForCaption, PeriodType);
-        until (CurrSetLength = MaximumSetLength) or (PeriodFormMgt.NextDate(1, Calendar, PeriodType) <> 1);
+        until (CurrSetLength = MaximumSetLength) or (PeriodPageMgt.NextDate(1, Calendar, PeriodType) <> 1);
 
         if CurrSetLength = 1 then
             CaptionRange := CaptionSet[1]
@@ -371,9 +374,9 @@ codeunit 9200 "Matrix Management"
           PeriodRecords[CurrSetLength]."Period End");
     end;
 
-    local procedure GeneratePeriodAndCaption(var CaptionSet: array[32] of Text[80]; var PeriodRecords: array[32] of Record Date temporary; var CurrSetLength: Integer; var Calendar: Record Date; UseNameForCaption: Boolean; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period")
+    local procedure GeneratePeriodAndCaption(var CaptionSet: array[32] of Text[80]; var PeriodRecords: array[32] of Record Date temporary; var CurrSetLength: Integer; var Calendar: Record Date; UseNameForCaption: Boolean; PeriodType: Enum "Analysis Period Type")
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -385,17 +388,17 @@ codeunit 9200 "Matrix Management"
         if UseNameForCaption then
             CaptionSet[CurrSetLength] := Format(Calendar."Period Name")
         else
-            CaptionSet[CurrSetLength] := PeriodFormMgt.CreatePeriodFormat(PeriodType, Calendar."Period Start");
+            CaptionSet[CurrSetLength] := PeriodPageMgt.CreatePeriodFormat(PeriodType, Calendar."Period Start");
         PeriodRecords[CurrSetLength].Copy(Calendar);
     end;
 
-    local procedure FindDate(SearchString: Text[3]; var Calendar: Record Date; PeriodType: Option; ErrorWhenNotFound: Boolean): Boolean
+    local procedure FindDate(SearchString: Text[3]; var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"; ErrorWhenNotFound: Boolean): Boolean
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
-        Clear(PeriodFormMgt);
-        Found := PeriodFormMgt.FindDate(SearchString, Calendar, PeriodType);
+        Clear(PeriodPageMgt);
+        Found := PeriodPageMgt.FindDate(SearchString, Calendar, PeriodType);
         if ErrorWhenNotFound and not Found then
             Error(Text002);
         exit(Found);
@@ -458,27 +461,45 @@ codeunit 9200 "Matrix Management"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by RoundAmount().', '19.0')]
     procedure RoundValue(Value: Decimal; RoundingFactor: Option "None","1","1000","1000000"): Decimal
     begin
-        if Value <> 0 then
-            case RoundingFactor of
-                RoundingFactor::"1":
-                    exit(Round(Value, 1));
-                RoundingFactor::"1000":
-                    exit(Round(Value / 1000, 0.1));
-                RoundingFactor::"1000000":
-                    exit(Round(Value / 1000000, 0.1));
-            end;
+        exit(RoundAmount(Value, "Analysis Rounding Factor".FromInteger(RoundingFactor)));
+    end;
+#endif
 
-        exit(Value);
+    procedure RoundAmount(Amount: Decimal; RoundingFactor: Enum "Analysis Rounding Factor"): Decimal
+    begin
+        if Amount = 0 then
+            exit(0);
+
+        case RoundingFactor of
+            RoundingFactor::"1":
+                exit(Round(Amount, 1));
+            RoundingFactor::"1000":
+                exit(Round(Amount / 1000, 0.1));
+            RoundingFactor::"1000000":
+                exit(Round(Amount / 1000000, 0.1));
+        end;
+
+        exit(Amount);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by FormatAmount().', '19.0')]
     procedure FormatValue(Value: Decimal; RoundingFactor: Option "None","1","1000","1000000"; AddCurrency: Boolean): Text[30]
     begin
-        Value := RoundValue(Value, RoundingFactor);
+        exit(FormatAmount(Value, "Analysis Rounding Factor".FromInteger(RoundingFactor), AddCurrency));
+    end;
+#endif
+
+    procedure FormatAmount(Value: Decimal; RoundingFactor: Enum "Analysis Rounding Factor"; AddCurrency: Boolean): Text[30]
+    begin
+        Value := RoundAmount(Value, RoundingFactor);
 
         if Value <> 0 then
-            exit(Format(Value, 0, GetFormatString(RoundingFactor, AddCurrency)));
+            exit(Format(Value, 0, FormatRoundingFactor(RoundingFactor, AddCurrency)));
     end;
 
     local procedure ReadNormalDecimalFormat(AddCurrency: Boolean): Text
@@ -500,7 +521,15 @@ codeunit 9200 "Matrix Management"
         exit(GeneralLedgerSetup."Amount Decimal Places");
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by FormatRoundingFactor().', '19.0')]
     procedure GetFormatString(RoundingFactor: Option "None","1","1000","1000000"; AddCurrency: Boolean): Text
+    begin
+        exit(FormatRoundingFactor("Analysis Rounding Factor".FromInteger(RoundingFactor), AddCurrency));
+    end;
+#endif
+
+    procedure FormatRoundingFactor(RoundingFactor: Enum "Analysis Rounding Factor"; AddCurrency: Boolean): Text
     var
         AmountDecimal: Text;
     begin
@@ -521,7 +550,7 @@ codeunit 9200 "Matrix Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGeneratePeriodAndCaption(PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; Calendar: Record Date; var IsHandled: Boolean)
+    local procedure OnBeforeGeneratePeriodAndCaption(PeriodType: Enum "Analysis Period Type"; Calendar: Record Date; var IsHandled: Boolean)
     begin
     end;
 

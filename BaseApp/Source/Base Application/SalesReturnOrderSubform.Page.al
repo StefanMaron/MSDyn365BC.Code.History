@@ -72,7 +72,7 @@ page 6631 "Sales Return Order Subform"
 #if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
                     ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
@@ -97,7 +97,7 @@ page 6631 "Sales Return Order Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -177,6 +177,13 @@ page 6631 "Sales Return Order Subform"
                         UpdateTypeText();
                         DeltaUpdateTotals();
                     end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -386,6 +393,8 @@ page 6631 "Sales Return Order Subform"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
+                    AboutTitle = 'The quantity that is returned';
+                    AboutText = 'If the customer is not returning the full quantity, adjust the ‘Qty. to Receive’ value. Similarly, choose the quantity to credit the customer in the ‘Qty to Invoice’ field.';
                 }
                 field("Return Qty. Received"; "Return Qty. Received")
                 {
@@ -672,6 +681,32 @@ page 6631 "Sales Return Order Subform"
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
+                }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the sales statistics window, the net weight on the line is included in the total net weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
+                    Visible = false;
                 }
             }
             group(Control37)
@@ -1091,7 +1126,6 @@ page 6631 "Sales Return Order Subform"
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
@@ -1141,10 +1175,8 @@ page 6631 "Sales Return Order Subform"
         if IsHandled then
             exit;
 
-        // Set default type Item
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -1347,7 +1379,7 @@ page 6631 "Sales Return Order Subform"
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := 
+        InvDiscAmountEditable :=
             CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
             (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 

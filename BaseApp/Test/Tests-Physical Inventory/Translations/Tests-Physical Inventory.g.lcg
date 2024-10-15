@@ -14,6 +14,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Phys. Invt. Item Tracking - NamedType AlreadyExistsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2507221943 - NamedType 518004169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[is of lesser precision than expected]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Phys. Invt. Item Tracking - NamedType RoundingErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2507221943 - NamedType 1609326224" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Rounding of the field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Phys. Invt. Item Tracking - NamedType RoundingTo0Err)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1215155537 - NamedType 1526356973" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Physical Inventory Comment Line exists.]]></Val>

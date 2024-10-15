@@ -61,11 +61,11 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalEntrySummary.SetCurrentKey("Expiration Date");
         TempGlobalEntrySummary.SetFilter("Expiration Date", '<>%1', 0D);
         if TempGlobalEntrySummary.IsEmpty() then
-            TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+            TempGlobalEntrySummary.SetTrackingKey();
         TempGlobalEntrySummary.SetRange("Expiration Date");
         ItemTrackingSummaryForm.SetTableView(TempGlobalEntrySummary);
 
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+        TempGlobalEntrySummary.SetTrackingKey();
         OnAssistEditTrackingNoOnBeforeLookupMode(TempGlobalEntrySummary, TempTrackingSpecification);
         case LookupMode of
             LookupMode::"Serial No.":
@@ -206,7 +206,7 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalEntrySummary.SetCurrentKey("Expiration Date");
         TempGlobalEntrySummary.SetFilter("Expiration Date", '<>%1', 0D);
         if TempGlobalEntrySummary.IsEmpty() then
-            TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+            TempGlobalEntrySummary.SetTrackingKey();
         TempGlobalEntrySummary.SetRange("Expiration Date");
 
         // Initialize form
@@ -218,6 +218,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemTrackingSummaryForm.SetSelectionMode(MaxQuantity <> 0);
         ItemTrackingSummaryForm.LookupMode(true);
         ItemTrackingSummaryForm.SetMaxQuantity(MaxQuantity);
+        ItemTrackingSummaryForm.SetQtyRoundingPrecision(TempTrackingSpecification."Qty. Rounding Precision (Base)");
         ItemTrackingSummaryForm.SetCurrentBinAndItemTrkgCode(CurrBinCode, CurrItemTrackingCode);
 
         // Run preselection on form
@@ -261,7 +262,7 @@ codeunit 6501 "Item Tracking Data Collection"
             RetrieveLookupData(TempTrackingSpecification, true);
 
         TempGlobalEntrySummary.Reset();
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+        TempGlobalEntrySummary.SetTrackingKey();
 
         TempGlobalReservEntry.Reset();
 
@@ -469,7 +470,7 @@ codeunit 6501 "Item Tracking Data Collection"
         OnBeforeCreateEntrySummary2(TempGlobalEntrySummary, TempReservEntry, TempTrackingSpecification);
 
         TempGlobalEntrySummary.Reset();
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+        TempGlobalEntrySummary.SetTrackingKey();
 
         if SerialNoLookup then begin
             if TempReservEntry."Serial No." = '' then
@@ -651,7 +652,7 @@ codeunit 6501 "Item Tracking Data Collection"
             RetrieveLookupData(TempTrackingSpecification, true);
 
         TempGlobalEntrySummary.Reset();
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+        TempGlobalEntrySummary.SetTrackingKey();
         TempGlobalEntrySummary.SetTrackingFilterFromSpec(TempTrackingSpecification);
         TempGlobalEntrySummary.CalcSums("Total Available Quantity");
         if CheckJobInPurchLine(TempTrackingSpecification) then
@@ -685,7 +686,7 @@ codeunit 6501 "Item Tracking Data Collection"
             NewQuantity := -NewQuantity;
 
         TempGlobalChangedEntrySummary.Reset();
-        TempGlobalChangedEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+        TempGlobalChangedEntrySummary.SetTrackingKey();
         TempGlobalChangedEntrySummary.SetTrackingFilterFromSpec(TempTrackingSpecificationChanged);
         if not TempGlobalChangedEntrySummary.FindFirst() then begin
             TempGlobalChangedEntrySummary.Reset();
@@ -716,7 +717,7 @@ codeunit 6501 "Item Tracking Data Collection"
         TempLastGlobalEntrySummary: Record "Entry Summary" temporary;
     begin
         TempGlobalChangedEntrySummary.Reset();
-        TempGlobalChangedEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+        TempGlobalChangedEntrySummary.SetTrackingKey();
         if TempGlobalChangedEntrySummary.FindSet() then
             repeat
                 if TempGlobalChangedEntrySummary.HasNonSerialTracking() then begin
@@ -738,7 +739,7 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalEntrySummary.Reset();
         LastEntryNo := TempGlobalEntrySummary.GetLastEntryNo();
 
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+        TempGlobalEntrySummary.SetTrackingKey();
         OnUpdateTempSummaryWithChangeOnAfterSetCurrentKey(TempGlobalEntrySummary, TempChangedEntrySummary);
         if TempChangedEntrySummary."Serial No." <> '' then begin
             TempGlobalEntrySummary.SetTrackingFilterFromEntrySummary(TempChangedEntrySummary);
@@ -823,7 +824,7 @@ codeunit 6501 "Item Tracking Data Collection"
         PartialGlobalDataSetExists := false;
         RetrieveLookupData(TempTrackingSpecification, false);
 
-        TempTrackingSpecification.SetCurrentKey("Lot No.", "Serial No.");
+        TempTrackingSpecification.SetTrackingKey();
         TempTrackingSpecification.Find('-');
         LookupMode := LookupMode::"Serial No.";
         repeat
@@ -1171,7 +1172,7 @@ codeunit 6501 "Item Tracking Data Collection"
             RetrieveLookupData(TrackingSpecification, true);
 
         TempGlobalEntrySummary.Reset();
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
+        TempGlobalEntrySummary.SetTrackingKey();
         TempGlobalEntrySummary.SetRange("Serial No.", TrackingSpecification."Serial No.");
         TempGlobalEntrySummary.SetFilter("Lot No.", '<>%1', '');
         if not TempGlobalEntrySummary.FindFirst() then
@@ -1190,7 +1191,7 @@ codeunit 6501 "Item Tracking Data Collection"
             RetrieveLookupData(TrackingSpecification, true);
 
         TempGlobalEntrySummary.Reset();
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
+        TempGlobalEntrySummary.SetTrackingKey();
         TempGlobalEntrySummary.SetRange("Lot No.", TrackingSpecification."Lot No.");
         TempGlobalEntrySummary.CalcSums("Total Available Quantity");
         exit(TempGlobalEntrySummary."Total Available Quantity");

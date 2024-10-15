@@ -153,46 +153,6 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     end;
 
     [Test]
-    [HandlerFunctions('SalesInvoiceReportHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoicetReport()
-    var
-        SalesHeader: Record "Sales Header";
-        DocumentNo: Code[20];
-        VATAmount: Decimal;
-    begin
-        // [FEATURE] [Sales] [Invoice]
-        // [SCENARIO 362109] Print VAT Amount in "Sales - Invoice" report
-        Initialize;
-        // [GIVEN] Posted Sales Invoice with tax amount = "X"
-        CreateAndPostSalesDocument(DocumentNo, VATAmount, SalesHeader."Document Type"::Invoice);
-        // [WHEN] Preview "Sales - Invoice" report
-        RunSalesInvoiceReport(DocumentNo);
-        // [THEN] VAT Amount in report VAT specification = "X"
-        VerifySalesDocumentVATAmount(VATAmount);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCrMemoReportHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCrMemoReport()
-    var
-        SalesHeader: Record "Sales Header";
-        DocumentNo: Code[20];
-        VATAmount: Decimal;
-    begin
-        // [FEATURE] [Sales] [Credit Memo]
-        // [SCENARIO 362109] Print VAT Amount in "Sales - Credit Memo" report
-        Initialize;
-        // [GIVEN] Posted Sales Credit Memo with tax amount = "X"
-        CreateAndPostSalesDocument(DocumentNo, VATAmount, SalesHeader."Document Type"::"Credit Memo");
-        // [WHEN] Preview "Sales - Credit Memo" report
-        RunSalesCreditMemoReport(DocumentNo);
-        // [THEN] VAT Amount in report VAT specification = "X"
-        VerifySalesDocumentVATAmount(VATAmount);
-    end;
-
-    [Test]
     [HandlerFunctions('BankAccountReconciliationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ReversedEntriesAreNotShownInBankAccountReconciliation()
@@ -673,28 +633,6 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         PurchaseCreditMemo.Run;
     end;
 
-    local procedure RunSalesInvoiceReport(DocumentNo: Code[20])
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoice: Report "Sales - Invoice";
-    begin
-        SalesInvoiceHeader.SetRange("No.", DocumentNo);
-        SalesInvoice.SetTableView(SalesInvoiceHeader);
-        SalesInvoice.InitializeRequest(0, false, false, false, false, false, false, false);
-        SalesInvoice.Run;
-    end;
-
-    local procedure RunSalesCreditMemoReport(DocumentNo: Code[20])
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCreditMemoReport: Report "Sales - Credit Memo";
-    begin
-        SalesCrMemoHeader.SetRange("No.", DocumentNo);
-        SalesCreditMemoReport.SetTableView(SalesCrMemoHeader);
-        SalesCreditMemoReport.InitializeRequest(0, false, false, false, false, false);
-        SalesCreditMemoReport.Run;
-    end;
-
     local procedure VerifyReceivedQuantityCostAndAmountOnStockCardReport(PurchaseLine: Record "Purchase Line")
     begin
         LibraryReportDataset.LoadDataSetFile;
@@ -791,20 +729,6 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     procedure PurchaseCrMemoReportHandler(var PurchaseCrMemo: TestRequestPage "Purchase - Credit Memo")
     begin
         PurchaseCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceReportHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    begin
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCrMemoReportHandler(var SalesCrMemo: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

@@ -17,12 +17,10 @@
                 end;
             end;
         }
-        field(2; "VAT Report Config. Code"; Option)
+        field(2; "VAT Report Config. Code"; Enum "VAT Report Configuration")
         {
             Caption = 'VAT Report Config. Code';
             Editable = true;
-            OptionCaption = 'EC Sales List,VAT Return,,BAS Report';
-            OptionMembers = "EC Sales List","VAT Return",,"BAS Report";
             TableRelation = "VAT Reports Configuration"."VAT Report Type";
 
             trigger OnValidate()
@@ -361,6 +359,7 @@
                     exit(VATReportSetup."BAS Report No. Series");
                 end;
         end;
+
         VATReportSetup.TestField("No. Series");
         exit(VATReportSetup."No. Series");
     end;
@@ -393,6 +392,7 @@
                     "End Date" := WorkDate;
                 end;
         end;
+
         VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Config. Code");
         if VATReportsConfiguration.FindFirst and (VATReportsConfiguration.Count = 1) then begin
             "VAT Report Version" := VATReportsConfiguration."VAT Report Version";

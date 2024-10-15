@@ -1,4 +1,4 @@
-﻿table 7001 "Price List Line"
+table 7001 "Price List Line"
 {
     fields
     {
@@ -520,6 +520,16 @@
             Error(CannotDeleteActivePriceListLineErr, "Price List Code", "Line No.");
     end;
 
+    trigger OnInsert()
+    begin
+        if ("Price List Code" = '') and ("Price Type" = "Price Type"::Sale) and ("Amount Type" <> "Amount Type"::Discount) then begin
+            if not ("Source Type" in ["Source Type"::Customer, "Source Type"::"Customer Price Group"]) then
+                "Allow Line Disc." := true;
+            if ("Source Type" <> "Source Type"::"Customer Price Group") and ("Asset Type" <> "Asset Type"::Item) then
+                "Allow Invoice Disc." := true;
+        end;
+    end;
+
     protected var
         PriceListHeader: Record "Price List Header";
         PriceAsset: Record "Price Asset";
@@ -870,20 +880,16 @@
 
         Item.Get("Asset No.");
         if "Cost-plus %" <> 0 then begin
-            CalcFields(Cost);
+            "Unit Price" := Item."Unit Cost" * (1 + "Cost-plus %" / 100);
+            if "Unit of Measure Code" <> Item."Base Unit of Measure" then
+                if ItemUnitOfMeasure.Get("Asset No.", "Unit of Measure Code") then
+                    "Unit Price" := ItemUnitOfMeasure."Qty. per Unit of Measure" * "Unit Price";
+        end else
             if "Unit of Measure Code" = Item."Base Unit of Measure" then
-                "Unit Price" := Cost * (1 + "Cost-plus %" / 100)
+                "Unit Price" := Item."Unit Price" - "Discount Amount"
             else
                 if ItemUnitOfMeasure.Get("Asset No.", "Unit of Measure Code") then
-                    "Unit Price" := ItemUnitOfMeasure."Qty. per Unit of Measure" * (Cost * (1 + "Cost-plus %" / 100))
-        end else begin
-            CalcFields("Published Price");
-            if "Unit of Measure Code" = Item."Base Unit of Measure" then
-                "Unit Price" := "Published Price" - "Discount Amount"
-            else
-                if ItemUnitOfMeasure.Get("Asset No.", "Unit of Measure Code") then
-                    "Unit Price" := (ItemUnitOfMeasure."Qty. per Unit of Measure" * "Published Price") - "Discount Amount";
-        end;
+                    "Unit Price" := (ItemUnitOfMeasure."Qty. per Unit of Measure" * Item."Unit Price") - "Discount Amount";
     end;
 
     procedure Verify()

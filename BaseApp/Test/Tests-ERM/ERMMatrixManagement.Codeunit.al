@@ -258,7 +258,7 @@ codeunit 134490 "ERM Matrix Management"
         ZeroValue := 0;
         ZeroDecimalTxt := CopyStr(Format(ZeroValue, 0, LibraryAccSchedule.GetCustomFormatString('1')), 2);
         Assert.IsTrue(
-          StrPos(MatrixMgt.FormatValue(Value, RoundingFactorRef::"1000", false), ZeroDecimalTxt) > 0,
+          StrPos(MatrixMgt.FormatAmount(Value, RoundingFactorRef::"1000", false), ZeroDecimalTxt) > 0,
           StrSubstNo(WrongFormatValueErr, RoundingFactorRef::"1000"));
     end;
 
@@ -281,7 +281,7 @@ codeunit 134490 "ERM Matrix Management"
     begin
         Assert.AreEqual(
           ExpectedValue,
-          MatrixMgt.RoundValue(Value, RoundingFactor),
+          MatrixMgt.RoundAmount(Value, RoundingFactor),
           StrSubstNo(WrongRoundedValueErr, RoundingFactor));
     end;
 
@@ -291,7 +291,7 @@ codeunit 134490 "ERM Matrix Management"
     begin
         Assert.AreEqual(
           ExpectedValue,
-          MatrixMgt.FormatValue(Value, RoundingFactor, AddCurrency),
+          MatrixMgt.FormatAmount(Value, RoundingFactor, AddCurrency),
           StrSubstNo(WrongFormatValueErr, RoundingFactor));
     end;
 

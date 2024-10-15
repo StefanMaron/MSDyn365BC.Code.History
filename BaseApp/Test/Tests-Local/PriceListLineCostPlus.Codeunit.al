@@ -2,6 +2,7 @@ codeunit 141052 "Price List Line Cost Plus"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -15,12 +16,13 @@ codeunit 141052 "Price List Line Cost Plus"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         UnitPriceMustBeSameMsg: Label 'Unit Price must be same.';
         IsInitialized: Boolean;
-
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        ModifiedLines: Dictionary of [Integer, Integer];
 
     [Test]
     [Scope('OnPrem')]
@@ -127,6 +129,7 @@ codeunit 141052 "Price List Line Cost Plus"
         VerifyUnitPriceOnSalesLine(PriceListLine."Asset No.", SalesLine."Unit Price", 0);  // Discount Amount - 0.
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
     [Scope('OnPrem')]
@@ -158,7 +161,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Assert.AreNearlyEqual(
           PriceListLine."Unit Price", SalesLine."Unit Price", LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure SingleCustomerSalesPriceCostPlusMultipleLine()
@@ -288,6 +291,7 @@ codeunit 141052 "Price List Line Cost Plus"
         VerifyUnitPriceOnSalesLine(PriceListLine."Asset No.", SalesLine."Unit Price", 0);  // Discount Amount - 0.
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
     [Scope('OnPrem')]
@@ -317,6 +321,7 @@ codeunit 141052 "Price List Line Cost Plus"
         // Verify: Verify Unit Price on Sales line with Unit Price of Item and deduct Discount Amount.
         VerifyUnitPriceOnSalesLine(PriceListLine."Asset No.", SalesLine."Unit Price", PriceListLine."Discount Amount");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -474,9 +479,176 @@ codeunit 141052 "Price List Line Cost Plus"
         PriceWorksheet."Unit Price".AssertEquals(Item."Unit Price" - 10);
     end;
 
+    [Test]
+    procedure AutoAdjCostDoesNotModifyCostPlusPriceIfCostHasNotChanged()
+    var
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        PriceListLine2: Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PriceListLineCostPlus: Codeunit "Price List Line Cost Plus";
+        UnitCost: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 409350] Cost adjust does not call for 'Cost-Plus %' price line update if cost is not changed.
+        Initialize();
+        // [GIVEN] Allow editing active prices
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+
+        // [GIVEN] Enable automatic cost adjustment and automatic cost posting on Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
+        // [GIVEN] Item 'I', where "Costing Method" is 'Average', "Unit Cost" is 100
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
+        UnitCost := Item."Unit Cost";
+        // [GIVEN] 2 Sales Price List lines, where "Asset No." is 'I', "Cost-Plus %" is 50
+        CreateCostPlusSalesPriceLine(PriceListLine2, LibraryInventory.CreateItemNo());
+        CreateCostPlusSalesPriceLine(PriceListLine, Item."No.");
+        UnitPrice := PriceListLine."Unit Price";
+
+        // [GIVEN] Purchase Invoice, where "Direct Unit Cost" is 100
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        BindSubscription(PriceListLineCostPlus); // to count modify calls
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Item 'I', where "Unit Cost" is 100 (not changed)
+        Item.Find();
+        Item.TestField("Unit Cost", UnitCost);
+        // [THEN] Price List Line for 'I', where "Unit Price" is 'X' (not changed)
+        PriceListLine.Find();
+        PriceListLine.Testfield("Unit Price", UnitPrice);
+        // [THEN] Price lines were not modified
+        Assert.AreEqual(0, PriceListLineCostPlus.GetModifiedLines(PriceListLine."Line No."), 'number of modified Price List Lines');
+        Assert.AreEqual(0, PriceListLineCostPlus.GetModifiedLines(PriceListLine2."Line No."), 'number of modified Price List Line #2');
+    end;
+
+    [Test]
+    procedure AutoAdjCostModifiesJustOneCostPlusPriceIfCostHasBeenChangedByLostDirectCost()
+    var
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        PriceListLine2: Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PriceListLineCostPlus: Codeunit "Price List Line Cost Plus";
+        UnitCost: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 409350] 'Cost-Plus %' price line updated by posting a document with the new "last direct cost"
+        Initialize();
+        // [GIVEN] Allow editing active prices
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+
+        // [GIVEN] Enable automatic cost adjustment and automatic cost posting on Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
+        // [GIVEN] Item 'I', where "Costing Method" is 'Average', "Unit Cost" is 100
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
+        UnitCost := Item."Unit Cost";
+        // [GIVEN] 2 Sales Price List lines, where "Asset No." is 'I', "Cost-Plus %" is 50
+        CreateCostPlusSalesPriceLine(PriceListLine2, LibraryInventory.CreateItemNo());
+        CreateCostPlusSalesPriceLine(PriceListLine, Item."No.");
+        UnitPrice := PriceListLine."Unit Price";
+
+        // [GIVEN] Purchase Invoice, where "Direct Unit Cost" is 101
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost + 1);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        BindSubscription(PriceListLineCostPlus); // to count modify calls
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Item 'I', where "Unit Cost" is 101 (changed)
+        Item.Find();
+        Item.TestField("Unit Cost", UnitCost + 1);
+        // [THEN] Price List Line for 'I', where "Unit Price" is proportionally changed
+        PriceListLine.Find();
+        Assert.AreNearlyEqual(UnitPrice * Item."Unit Cost" / UnitCost, PriceListLine."Unit Price", 0.01, 'Wromg new price');
+        // [THEN] Price line is modified once
+        Assert.AreEqual(1, PriceListLineCostPlus.GetModifiedLines(PriceListLine."Line No."), 'number of modified Price List Lines');
+        Assert.AreEqual(0, PriceListLineCostPlus.GetModifiedLines(PriceListLine2."Line No."), 'number of modified Price List Line #2');
+    end;
+
+    [Test]
+    procedure AutoAdjCostModifiesJustOneCostPlusPriceIfCostHasBeenChangedByAdjustment()
+    var
+        Item: Record Item;
+        PriceListLine: array[4] of Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PriceListLineCostPlus: Codeunit "Price List Line Cost Plus";
+        UnitCost: Decimal;
+        UnitPrice: array[2] of Decimal;
+    begin
+        // [SCENARIO 409350] 'Cost-Plus %' price lines updated by automatic cost adjustment
+        Initialize();
+        // [GIVEN] Allow editing active prices
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+
+        // [GIVEN] Enable automatic cost adjustment and automatic cost posting on Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
+        // [GIVEN] Item 'I', where "Costing Method" is 'Average', "Unit Cost" is 100
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
+        UnitCost := Item."Unit Cost";
+        // [GIVEN] 2 Sales Price List lines, where "Asset No." is 'I', "Cost-Plus %" is 50
+        UnitPrice[1] := CreateCostPlusSalesPriceLine(PriceListLine[1], Item."No.");
+        UnitPrice[2] := CreateCostPlusSalesPriceLine(PriceListLine[2], Item."No.");
+        // [GIVEN] Price lines with Item 'I' and another Item, where "Cost-Plus %" is 0
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[3], '', "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[4], '', "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        // [GIVEN] Purchase Invoice with 2 lines for 'I', where "Direct Unit Cost" is 101 and 103
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost + 1);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost + 3);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        BindSubscription(PriceListLineCostPlus); // to count modify calls
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Item 'I', where "Unit Cost" is 102 (changed)
+        Item.Find();
+        Item.TestField("Unit Cost", UnitCost + 2);
+        // [THEN] Price List Lines for 'I', where "Unit Price" are proportionally changed
+        PriceListLine[1].Find();
+        Assert.AreNearlyEqual(UnitPrice[1] * Item."Unit Cost" / UnitCost, PriceListLine[1]."Unit Price", 0.01, 'Wromg new price #1');
+        PriceListLine[2].Find();
+        Assert.AreNearlyEqual(UnitPrice[2] * Item."Unit Cost" / UnitCost, PriceListLine[2]."Unit Price", 0.01, 'Wromg new price #2');
+        // [THEN] Each Price line with 'I' and "Cost-Plus %" is modified twice
+        Assert.AreEqual(2, PriceListLineCostPlus.GetModifiedLines(PriceListLine[1]."Line No."), 'number of modified Price List Lines #1');
+        Assert.AreEqual(2, PriceListLineCostPlus.GetModifiedLines(PriceListLine[2]."Line No."), 'number of modified Price List Lines #2');
+        // [THEN] Other price lines are not modified
+        Assert.AreEqual(0, PriceListLineCostPlus.GetModifiedLines(PriceListLine[3]."Line No."), 'number of modified Price List Line #3');
+        Assert.AreEqual(0, PriceListLineCostPlus.GetModifiedLines(PriceListLine[4]."Line No."), 'number of modified Price List Line #4');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price List Line Cost Plus");
+
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Price List Line Cost Plus");
@@ -501,6 +673,7 @@ codeunit 141052 "Price List Line Cost Plus"
         exit(Campaign."No.");
     end;
 
+#if not CLEAN18
     local procedure CreateContactWithCustomer(): Code[20]
     var
         Contact: Record Contact;
@@ -512,6 +685,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Contact.CreateCustomer(CustomerTemplate.Code);
         exit(Contact."No.")
     end;
+#endif
 
     local procedure CreateCustomer(): Code[20]
     var
@@ -526,6 +700,14 @@ codeunit 141052 "Price List Line Cost Plus"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Price", LibraryRandom.RandDecInDecimalRange(100, 200, 2));
         Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", CostingMethod);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
         Item.Modify(true);
     end;
 
@@ -616,6 +798,16 @@ codeunit 141052 "Price List Line Cost Plus"
         Assert.AreNearlyEqual(UnitPrice, Item."Unit Price" - DiscountAmount, LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
     end;
 
+    local procedure CreateCostPlusSalesPriceLine(var PriceListLine: Record "Price List Line"; ItemNo: Code[20]): Decimal;
+    begin
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, LibrarySales.CreateCustomerNo(), "Price Asset Type"::Item, ItemNo);
+        PriceListLine.Validate("Cost-plus %", 10 + LibraryRandom.RandInt(50));
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+        exit(PriceListLine."Unit Price");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -627,6 +819,21 @@ codeunit 141052 "Price List Line Cost Plus"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    procedure GetModifiedLines(LineNo: Integer): Integer;
+    begin
+        if ModifiedLines.ContainsKey(LineNo) then
+            exit(ModifiedLines.Get(LineNo));
+        exit(0);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Price List Line", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure OnBeforeModifyPriceLine(var Rec: Record "Price List Line");
+    begin
+        if not ModifiedLines.ContainsKey(Rec."Line No.") then
+            ModifiedLines.Add(Rec."Line No.", 0);
+        ModifiedLines.Set(Rec."Line No.", ModifiedLines.Get(Rec."Line No.") + 1);
     end;
 }
 

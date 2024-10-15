@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 139057 "Exchange PS Runner Test"
 {
     Subtype = Test;
@@ -256,4 +257,4 @@ codeunit 139057 "Exchange PS Runner Test"
         Reply := false;
     end;
 }
-
+#endif

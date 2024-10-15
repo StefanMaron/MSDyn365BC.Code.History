@@ -1,4 +1,4 @@
-﻿table 174 "Standard Purchase Line"
+table 174 "Standard Purchase Line"
 {
     Caption = 'Standard Purchase Line';
 

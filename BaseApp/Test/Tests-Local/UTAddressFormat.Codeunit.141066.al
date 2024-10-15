@@ -90,45 +90,6 @@ codeunit 141066 "UT Address Format"
     end;
 
     [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecSalesInvHdrWithoutCommaAddrFormatSalesInv()
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        // [SCENARIO] verify displaying address, first city, then county, and after that Post Code will be displayed without comma.
-        SalesInvoiceWithAddressFormatType(CreateCountryRegion(CountryRegion."Address Format"::"City+County+Post Code (no comma)"));
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecSalesInvHdrWithCommaAddrFormatSalesInv()
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        // [SCENARIO] verify displaying address, first city, then county, and after that Post Code will be displayed with comma.
-        SalesInvoiceWithAddressFormatType(CreateCountryRegion(CountryRegion."Address Format"::"City+County+Post Code"));
-    end;
-
-    local procedure SalesInvoiceWithAddressFormatType(BillToCountryRegionCode: Code[10])
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // Setup.
-        Initialize;
-        CreatePostedSalesInvoiceHeader(SalesInvoiceHeader, BillToCountryRegionCode);
-        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue for SalesInvoiceRequestPageHandler.
-        Commit();  // COMMIT is explicitly called on OnRun of COD315 - Sales Inv.-Printed.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales - Invoice");
-
-        // Verify.
-        VerifyValuesOnSalesInvoice(SalesInvoiceHeader);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure StateFieldIsRelatedToCountiesNegative()
     var
@@ -484,17 +445,6 @@ codeunit 141066 "UT Address Format"
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegionCode);
         CustomAddressFormat.FindLast;
         CustomAddressFormat.TestField("Line Format", ExpectedLineFormat);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [ModalPageHandler]

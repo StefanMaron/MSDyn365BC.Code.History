@@ -108,6 +108,7 @@ table 208 "Job Posting Group"
     end;
 
     var
+        PostingSetupMgt: Codeunit PostingSetupManagement;
         YouCannotDeleteErr: Label 'You cannot delete %1.', Comment = '%1 = Code';
 
     local procedure CheckGroupUsage()
@@ -126,85 +127,113 @@ table 208 "Job Posting Group"
 
     procedure GetWIPCostsAccount(): Code[20]
     begin
-        TestField("WIP Costs Account");
+        if "WIP Costs Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("WIP Costs Account"));
+
         exit("WIP Costs Account");
     end;
 
     procedure GetWIPAccruedCostsAccount(): Code[20]
     begin
-        TestField("WIP Accrued Costs Account");
+        if "WIP Accrued Costs Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("WIP Accrued Costs Account"));
+
         exit("WIP Accrued Costs Account");
     end;
 
     procedure GetWIPAccruedSalesAccount(): Code[20]
     begin
-        TestField("WIP Accrued Sales Account");
+        if "WIP Accrued Sales Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("WIP Accrued Sales Account"));
+
         exit("WIP Accrued Sales Account");
     end;
 
     procedure GetWIPInvoicedSalesAccount(): Code[20]
     begin
-        TestField("WIP Invoiced Sales Account");
+        if "WIP Invoiced Sales Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("WIP Invoiced Sales Account"));
+
         exit("WIP Invoiced Sales Account");
     end;
 
     procedure GetJobCostsAppliedAccount(): Code[20]
     begin
-        TestField("Job Costs Applied Account");
+        if "Job Costs Applied Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("Job Costs Applied Account"));
+
         exit("Job Costs Applied Account");
     end;
 
     procedure GetJobCostsAdjustmentAccount(): Code[20]
     begin
-        TestField("Job Costs Adjustment Account");
+        if "Job Costs Adjustment Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("Job Costs Adjustment Account"));
+
         exit("Job Costs Adjustment Account");
     end;
 
     procedure GetGLExpenseAccountContract(): Code[20]
     begin
-        TestField("G/L Expense Acc. (Contract)");
+        if "G/L Expense Acc. (Contract)" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("G/L Expense Acc. (Contract)"));
+
         exit("G/L Expense Acc. (Contract)");
     end;
 
     procedure GetJobSalesAdjustmentAccount(): Code[20]
     begin
-        TestField("Job Sales Adjustment Account");
+        if "Job Sales Adjustment Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("Job Sales Adjustment Account"));
+
         exit("Job Sales Adjustment Account");
     end;
 
     procedure GetJobSalesAppliedAccount(): Code[20]
     begin
-        TestField("Job Sales Applied Account");
+        if "Job Sales Applied Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("Job Sales Applied Account"));
+
         exit("Job Sales Applied Account");
     end;
 
     procedure GetRecognizedCostsAccount(): Code[20]
     begin
-        TestField("Recognized Costs Account");
+        if "Recognized Costs Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("Recognized Costs Account"));
+
         exit("Recognized Costs Account");
     end;
 
     procedure GetRecognizedSalesAccount(): Code[20]
     begin
-        TestField("Recognized Sales Account");
+        if "Recognized Sales Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("Recognized Sales Account"));
+
         exit("Recognized Sales Account");
     end;
 
     procedure GetItemCostsAppliedAccount(): Code[20]
     begin
-        TestField("Item Costs Applied Account");
+        if "Item Costs Applied Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("Item Costs Applied Account"));
+
         exit("Item Costs Applied Account");
     end;
 
     procedure GetResourceCostsAppliedAccount(): Code[20]
     begin
-        TestField("Resource Costs Applied Account");
+        if "Resource Costs Applied Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("Resource Costs Applied Account"));
+
         exit("Resource Costs Applied Account");
     end;
 
     procedure GetGLCostsAppliedAccount(): Code[20]
     begin
-        TestField("G/L Costs Applied Account");
+        if "G/L Costs Applied Account" = '' then
+            PostingSetupMgt.LogJobPostingGroupFieldError(Rec, FieldNo("G/L Costs Applied Account"));
+
         exit("G/L Costs Applied Account");
     end;
 }

@@ -163,7 +163,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Normal]
-    local procedure CreateAssemblyListComponent(var BOMComponent: Record "BOM Component"; ComponentType: Option; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10])
+    local procedure CreateAssemblyListComponent(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10])
     begin
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, 1, UOM);
         with BOMComponent do begin
@@ -1354,7 +1354,7 @@ codeunit 137093 "SCM Kitting - D4"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.FindFirst;
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(
           FullAutoReservation, '', AssemblyLine."Due Date",
           AssemblyLine."Remaining Quantity" div 2, AssemblyLine."Remaining Quantity (Base)" div 2);

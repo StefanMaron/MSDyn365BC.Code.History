@@ -7,7 +7,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
     var
         Item: Record Item;
         SourceCodeSetup: Record "Source Code Setup";
-        InvtSetup: Record "Inventory Setup";
         InvtCommentLine: Record "Inventory Comment Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
@@ -109,12 +108,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     InsertTransShptLine(TransShptHeader);
                 until TransLine.Next() = 0;
 
-            InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt;
-                OnAfterInvtAdjmt(TransHeader, TransShptHeader);
-            end;
+            MakeInventoryAdjustment();
 
             if WhseShip then
                 WhseShptLine.LockTable();
@@ -148,7 +142,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             end;
 
             "Last Shipment No." := TransShptHeader."No.";
-            Modify;
+            Modify();
 
             FinalizePosting(TransHeader, TransLine);
 
@@ -159,10 +153,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 UpdateItemAnalysisView.UpdateAll(0, true);
             end;
             Clear(WhsePostShpt);
-            Clear(InvtAdjmt);
 
-            if GuiAllowed then
-                Window.Close;
+            if GuiAllowed() then
+                Window.Close();
         end;
 
         Rec := TransHeader;
@@ -178,6 +171,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         Text005: Label 'The combination of dimensions used in transfer order %1 is blocked. %2';
         Text006: Label 'The combination of dimensions used in transfer order %1, line no. %2 is blocked. %3';
         Text007: Label 'The dimensions that are used in transfer order %1, line no. %2 are not valid. %3.';
+        InvtSetup: Record "Inventory Setup";
         TransShptHeader: Record "Transfer Shipment Header";
         TransShptLine: Record "Transfer Shipment Line";
         TransHeader: Record "Transfer Header";
@@ -198,7 +192,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         WhseShip: Boolean;
@@ -211,8 +204,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
         Text009: Label 'Item %1 is not in inventory.';
         PostCodeCheck: Codeunit "Post Code Check";
         SuppressCommit: Boolean;
-
-    protected var
         TransferDirection: Enum "Transfer Direction";
         HideValidationDialog: Boolean;
 
@@ -699,6 +690,17 @@ codeunit 5704 "TransferOrder-Post Shipment"
             if not SuppressCommit then
                 Commit();
             TransferHeader.Status := TransferHeader.Status::Released;
+        end;
+    end;
+
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InvtSetup.Get();
+        if InvtSetup.AutomaticCostAdjmtRequired() then begin
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+            OnAfterInvtAdjmt(TransHeader, TransShptHeader);
         end;
     end;
 

@@ -6,6 +6,7 @@ codeunit 28 "Error Message Management"
     end;
 
     var
+        LastErrorContextElement: Codeunit "Last Error Context Element";
         JoinedErr: Label '%1 %2.', Locked = true;
         JobQueueErrMsgProcessingTxt: Label 'Job Queue Error Message Processing.', Locked = true;
         NullJSONTxt: Label 'null', Locked = true;
@@ -17,8 +18,14 @@ codeunit 28 "Error Message Management"
 
     procedure Activate(var ErrorMessageHandler: Codeunit "Error Message Handler"): Boolean
     begin
+        exit(Activate(ErrorMessageHandler, true));
+    end;
+
+    internal procedure Activate(var ErrorMessageHandler: Codeunit "Error Message Handler"; ClearError: Boolean): Boolean
+    begin
         if not IsActive then begin
-            ClearLastError;
+            if ClearError then
+                ClearLastError();
             exit(ErrorMessageHandler.Activate(ErrorMessageHandler));
         end;
         exit(false);
@@ -38,6 +45,14 @@ codeunit 28 "Error Message Management"
                 Session.LogMessage('000097V', TempErrorMessage.Description, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', JobQueueErrMsgProcessingTxt);
             StopTransaction;
         end;
+    end;
+
+    procedure FinishTopContext()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        if GetTopContext(TempErrorMessage) then
+            Finish(TempErrorMessage."Context Record ID");
     end;
 
     local procedure StopTransaction()
@@ -62,6 +77,30 @@ codeunit 28 "Error Message Management"
         if DividerPos > 0 then
             exit(CopyStr(CallStack, 1, DividerPos - 1));
         exit(CallStack);
+    end;
+
+    procedure GetCurrCallStack() CallStack: Text;
+    var
+        Len: Integer;
+        Pos: Integer;
+        SubString: Text;
+    begin
+        if ThrowError() then;
+        CallStack := GetLastErrorCallStack();
+        SubString := '"Error Message Management"(CodeUnit 28)';
+        Len := StrLen(SubString);
+        repeat
+            Pos := StrPos(CallStack, SubString);
+            CallStack := CopyStr(CallStack, Pos + Len);
+        until Pos = 0;
+        CallStack := CopyStr(CallStack, StrPos(CallStack, '\') + 1);
+    end;
+
+    [TryFunction]
+    local procedure ThrowError()
+    begin
+        // Throw an error to get the call stack by GetLastErrorCallstack
+        Error('');
     end;
 
     local procedure GetContextRecID(ContextVariant: Variant; var ContextRecID: RecordID)
@@ -381,7 +420,7 @@ codeunit 28 "Error Message Management"
         exit(xValue = Value);
     end;
 
-    local procedure FldRefHasValue(FldRef: FieldRef): Boolean
+    procedure FldRefHasValue(FldRef: FieldRef): Boolean
     var
         HasValue: Boolean;
         Int: Integer;
@@ -522,6 +561,19 @@ codeunit 28 "Error Message Management"
     begin
     end;
 
+    procedure PopContext(var ErrorContextElement: Codeunit "Error Context Element") TopElementID: Integer
+    var
+        ContextRecID: RecordID;
+        ContextFldNo: Integer;
+        AdditionalInfo: Text[250];
+    begin
+        if IsActive() then begin
+            UnbindSubscription(ErrorContextElement);
+            OnGetTopElementData(TopElementID, ContextRecID, ContextFldNo, AdditionalInfo);
+            LastErrorContextElement.Set(TopElementID, ContextRecID, ContextFldNo, AdditionalInfo);
+        end;
+    end;
+
     procedure PushContext(var ErrorContextElement: Codeunit "Error Context Element"; ContextVariant: Variant; ContextFieldNo: Integer; AdditionalInfo: Text[250]) ID: Integer
     var
         RecID: RecordID;
@@ -535,8 +587,15 @@ codeunit 28 "Error Message Management"
             end;
             GetContextRecID(ContextVariant, RecID);
             ErrorContextElement.Set(ID, RecID, ContextFieldNo, AdditionalInfo);
-            OnPushContext;
+            LastErrorContextElement.Set(ErrorContextElement);
+            OnPushContext();
         end;
+    end;
+
+    procedure GetLastContext(var ErrorMessage: Record "Error Message"): Boolean
+    begin
+        LastErrorContextElement.GetErrorMessage(ErrorMessage);
+        exit(ErrorMessage.ID > 0);
     end;
 
     [IntegrationEvent(false, false)]
@@ -546,6 +605,11 @@ codeunit 28 "Error Message Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetTopElement(var TopElementID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTopElementData(var TopElementID: Integer; var ContextRecID: RecordID; var ContextFldNo: Integer; var AdditionalInfo: Text[250])
     begin
     end;
 

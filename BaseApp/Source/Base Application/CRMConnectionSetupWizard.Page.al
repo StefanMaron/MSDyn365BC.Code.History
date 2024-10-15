@@ -289,9 +289,10 @@ page 1817 "CRM Connection Setup Wizard"
 
                     if not FinalizeSetup() then
                         exit;
+                    Page.Run(Page::"CRM Connection Setup");
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CRM Connection Setup Wizard");
                     Commit();
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }

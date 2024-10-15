@@ -452,6 +452,74 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntry.TestField("Recurring Job", false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueEntriesPageStaleJob()
+    var
+        JobQueueEntries: TestPage "Job Queue Entries";
+        JobQueueEntry: Record "Job Queue Entry";
+        FirstJQId: Guid;
+        SecondJQId: Guid;
+    begin
+        // [Scenario] Given stale (in process) jobs, when the page opens, it should update the stale jobs to error state
+
+        // [Given] Stale job queues
+        CreateJobQueueEntry(JobQueueEntry, 0, 0, JobQueueEntry.Status::"In Process");
+        FirstJQId := JobQueueEntry.ID;
+
+        CreateJobQueueEntry(JobQueueEntry, 0, 0, JobQueueEntry.Status::"In Process");
+        SecondJQId := JobQueueEntry.ID;
+
+        // [When] Open JQE list page
+        JobQueueEntries.OpenView();
+
+        // [Then] Job queues should be in error state
+        JobQueueEntries.GoToKey(FirstJQId);
+        Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntries.Status, 'The first job queue is not in error state.');
+        JobQueueEntries.GoToKey(SecondJQId);
+        Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntries.Status, 'The second job queue is not in error state.');
+        JobQueueEntries.Close();
+
+        JobQueueEntry.Get(FirstJQId);
+        Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntry.Status, 'The first job queue is not in error state.');
+        JobQueueEntry.Get(SecondJQId);
+        Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntry.Status, 'The second job queue is not in error state.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueLogEntriesPageStaleJob()
+    var
+        JobQueueLogEntries: TestPage "Job Queue Log Entries";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        FirstJQId: Integer;
+        SecondJQId: Integer;
+    begin
+        // [Scenario] Given stale (in process) jobs, when the page opens, it should update the stale jobs to error state
+
+        // [Given] Stale job queues log entries
+        CreateJobQueueLogEntry(JobQueueLogEntry, 0, 0, JobQueueLogEntry.Status::"In Process");
+        FirstJQId := JobQueueLogEntry."Entry No.";
+
+        CreateJobQueueLogEntry(JobQueueLogEntry, 0, 0, JobQueueLogEntry.Status::"In Process");
+        SecondJQId := JobQueueLogEntry."Entry No.";
+
+        // [When] Open JQLE list page
+        JobQueueLogEntries.OpenView();
+
+        // [Then] Job queue log entries should be in error state
+        JobQueueLogEntries.GoToKey(FirstJQId);
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntries.Status, 'The first job queue log entry is not in error state.');
+        JobQueueLogEntries.GoToKey(SecondJQId);
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntries.Status, 'The second job queue log entry is not in error state.');
+        JobQueueLogEntries.Close();
+
+        JobQueueLogEntry.Get(FirstJQId);
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'The first job queue log entry is not in error state.');
+        JobQueueLogEntry.Get(SecondJQId);
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'The second job queue log entry is not in error state.');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -460,14 +528,22 @@ codeunit 139026 "Test Job Queue"
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; ObjectType: Integer; ObjectID: Integer; JQEntryStatus: Option)
     begin
-        with JobQueueEntry do begin
-            Init;
-            Clear(ID);
-            Validate("Object Type to Run", ObjectType);
-            Validate("Object ID to Run", ObjectID);
-            Status := JQEntryStatus;
-            Insert(true);
-        end;
+        JobQueueEntry.Init();
+        Clear(JobQueueEntry."ID");
+        JobQueueEntry.Validate("Object Type to Run", ObjectType);
+        JobQueueEntry.Validate("Object ID to Run", ObjectID);
+        JobQueueEntry.Status := JQEntryStatus;
+        JobQueueEntry.Insert(true);
+    end;
+
+    local procedure CreateJobQueueLogEntry(var JobQueueLogEntry: Record "Job Queue Log Entry"; ObjectType: Integer; ObjectID: Integer; JQLogEntryStatus: Option)
+    begin
+        JobQueueLogEntry.Init();
+        Clear(JobQueueLogEntry."Entry No.");
+        JobQueueLogEntry.Validate("Object Type to Run", ObjectType);
+        JobQueueLogEntry.Validate("Object ID to Run", ObjectID);
+        JobQueueLogEntry.Status := JQLogEntryStatus;
+        JobQueueLogEntry.Insert(true);
     end;
 
     local procedure CreateRecurringJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; Duration: Integer; JQEntryStatus: Option)

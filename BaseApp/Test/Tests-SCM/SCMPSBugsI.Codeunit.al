@@ -100,72 +100,6 @@ codeunit 137035 "SCM PS Bugs-I"
         FindProdOrder(ProductionOrder, ProductionOrder.Status::Planned, ItemNo);
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure CrossRefDisconBarCode()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        SalesHeader: Record "Sales Header";
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemNo: Code[20];
-        PurchOrderNoQty: Decimal;
-    begin
-        // 1. Setup : Update Sales Setup.Create Item with Variant and Item cross Reference.Create Purchase Order.
-        // Update Purchase Line with Cross reference number of Type Bar Code.
-        Initialize(false);
-        ItemCrossReferenceSetup(
-          PurchaseLine, ItemCrossReference, ItemCrossReference."Cross-Reference Type"::"Bar Code",
-          CopyStr(
-            PurchaseLine."Buy-from Vendor No.", 1,
-            LibraryUtility.GetFieldLength(DATABASE::"Purchase Line", PurchaseLine.FieldNo("Buy-from Vendor No."))), true);
-
-        UpdateItemCrossReference(PurchaseLine, ItemCrossReference."Cross-Reference No.");
-        ItemNo := PurchaseLine."No.";
-        PurchOrderNoQty := PurchaseLine.Quantity;
-
-        // Execute : Post Purchase Order.
-        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // Verify Cross Reference Number in Item Ledger Entry.
-        VerifyCrossReferenceNo(PurchaseHeader."No.", ItemCrossReference."Cross-Reference No.");
-
-        // Execute : Update Cross reference in Item Card.Create Sales Order and Update Cross Reference in Sales Line.
-        ItemCrossReference.Validate("Discontinue Bar Code", true);
-        ItemCrossReference.Modify(true);
-        CreateSalesOrder(SalesHeader, ItemNo, PurchOrderNoQty);
-        asserterror UpdateSalesLine(SalesHeader, ItemCrossReference."Cross-Reference No.", '');
-
-        // Verify : Verify Error message generated on Validation Cross reference Number.
-        Assert.AreEqual(
-          StrSubstNo(ErrCrossReferenceNo, ItemCrossReference."Cross-Reference No."), GetLastErrorText, ErrorGeneratedMustBeSame);
-    end;
-#endif
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure CrossRefPurchaseOrderUnitCost()
-    var
-        PurchaseLine: Record "Purchase Line";
-        ItemCrossReference: Record "Item Cross Reference";
-        DirectUnitCost: Decimal;
-    begin
-        // 1. Setup : Update Sales Setup.Create Item. Create Purchase Order and Item cross Reference.
-        Initialize(false);
-        ItemCrossReferenceSetup(PurchaseLine, ItemCrossReference, 0, '', false);
-
-        // 2. Execute : Update Cross Reference in Purchase Line.
-        DirectUnitCost := PurchaseLine."Direct Unit Cost";
-        UpdateItemCrossReference(PurchaseLine, ItemCrossReference."Cross-Reference No.");
-
-        // 3. Verify : Verify Direct Unit Cost of Purchase Line.
-        PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure ItemRefPurchaseOrderUnitCost()
@@ -855,31 +789,6 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderLine.TestField("Routing No.", Item2."Routing No.");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemCrossReferenceDescriptionInPurchOrder()
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        VendNo: Code[20];
-    begin
-        // Check that purchase order description validates with cross reference description
-
-        Initialize(false);
-        VendNo := LibraryPurchase.CreateVendorNo;
-        CreateItemWithCrossReference(
-          ItemCrossReference, ItemCrossReference."Cross-Reference Type"::Vendor, VendNo);
-        LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, VendNo);
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemCrossReference."Item No.", LibraryRandom.RandInt(100));
-        Assert.AreEqual(
-          ItemCrossReference.Description, PurchaseLine.Description, StrSubstNo(WrongDescriptionInOrderErr, PurchaseHeader.TableCaption));
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure ItemReferenceDescriptionInPurchOrder()
@@ -901,31 +810,6 @@ codeunit 137035 "SCM PS Bugs-I"
         Assert.AreEqual(
           ItemReference.Description, PurchaseLine.Description, StrSubstNo(WrongDescriptionInOrderErr, PurchaseHeader.TableCaption));
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemCrossReferenceDescriptionInSalesOrder()
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        CustNo: Code[20];
-    begin
-        // Check that sales order description validates with cross reference description
-
-        Initialize(false);
-        CustNo := LibrarySales.CreateCustomerNo;
-        CreateItemWithCrossReference(
-          ItemCrossReference, ItemCrossReference."Cross-Reference Type"::Customer, CustNo);
-        LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Order, CustNo);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, ItemCrossReference."Item No.", LibraryRandom.RandInt(100));
-        Assert.AreEqual(
-          ItemCrossReference.Description, SalesLine.Description, StrSubstNo(WrongDescriptionInOrderErr, SalesHeader.TableCaption));
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1422,19 +1306,6 @@ codeunit 137035 "SCM PS Bugs-I"
         Item.Modify(true);
     end;
 
-#if not CLEAN16
-    local procedure CreateItemWithCrossReference(var ItemCrossReference: Record "Item Cross Reference"; CrossRefType: Option; CrossRefTypeNo: Code[30])
-    var
-        Item: Record Item;
-    begin
-        LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItemCrossReference(
-          ItemCrossReference, Item."No.", CrossRefType, CrossRefTypeNo);
-        ItemCrossReference.Validate(Description, LibraryUtility.GenerateGUID);
-        ItemCrossReference.Modify(true);
-    end;
-#endif
-
     local procedure CreateItemWithItemReference(var ItemReference: Record "Item Reference"; RefType: Enum "Item Reference Type"; RefTypeNo: Code[30])
     var
         Item: Record Item;
@@ -1649,7 +1520,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::"Invt. Pick";
         WarehouseActivityLine."Source Type" := DATABASE::"Prod. Order Component";
-        WarehouseActivityLine."Source Subtype" := ProdOrderComponent.Status;
+        WarehouseActivityLine."Source Subtype" := ProdOrderComponent.Status.AsInteger();
         WarehouseActivityLine."Source No." := ProdOrderComponent."Prod. Order No.";
         WarehouseActivityLine."Source Line No." := ProdOrderComponent."Prod. Order Line No.";
         WarehouseActivityLine."Source Subline No." := ProdOrderComponent."Line No.";
@@ -1740,27 +1611,6 @@ codeunit 137035 "SCM PS Bugs-I"
         GetSalesOrders.UseRequestPage(false);
         GetSalesOrders.Run;
     end;
-
-#if not CLEAN16
-    local procedure ItemCrossReferenceSetup(var PurchaseLine: Record "Purchase Line"; var ItemCrossReference: Record "Item Cross Reference"; CrossReferenceType: Option; CrossReferenceTypeNo: Code[10]; VariantExist: Boolean)
-    var
-        PurchaseHeader: Record "Purchase Header";
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-    begin
-        // Update Sales Setup.Create Item and Item Variant.Create Item cross Reference.
-        // Random values used are not important for test.
-
-        CreateItem(
-          Item, Item."Costing Method", '', '', Item."Manufacturing Policy"::"Make-to-Order", Item."Reordering Policy",
-          Item."Replenishment System"::"Prod. Order");
-        if VariantExist then
-            LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandInt(100), Item."Unit Cost");
-        LibraryInventory.CreateItemCrossReference(ItemCrossReference, Item."No.", CrossReferenceType, CrossReferenceTypeNo);
-        FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
-    end;
-#endif
 
     local procedure ItemReferenceSetup(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference"; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[10]; VariantExist: Boolean)
     var
@@ -1869,12 +1719,6 @@ codeunit 137035 "SCM PS Bugs-I"
         Item.Modify(true);
     end;
 
-    local procedure UpdateItemCrossReference(var PurchaseLine: Record "Purchase Line"; ItemCrossReferenceNo: Code[20])
-    begin
-        PurchaseLine.Validate("Cross-Reference No.", ItemCrossReferenceNo);
-        PurchaseLine.Modify(true);
-    end;
-
     local procedure UpdateItemReference(var PurchaseLine: Record "Purchase Line"; ItemReferenceNo: Code[20])
     begin
         PurchaseLine.Validate("Item Reference No.", ItemReferenceNo);
@@ -1923,13 +1767,13 @@ codeunit 137035 "SCM PS Bugs-I"
         RequisitionLine.Modify(true);
     end;
 
-    local procedure UpdateSalesLine(SalesHeader: Record "Sales Header"; ItemCrossReferenceNo: Code[20]; PurchasingCode: Code[10])
+    local procedure UpdateSalesLine(SalesHeader: Record "Sales Header"; ItemReferenceNo: Code[20]; PurchasingCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
         FindSalesLine(SalesHeader, SalesLine);
         SalesLine.Validate("Purchasing Code", PurchasingCode);
-        SalesLine.Validate("Cross-Reference No.", ItemCrossReferenceNo);
+        SalesLine.Validate("Item Reference No.", ItemReferenceNo);
         SalesLine.Modify(true);
     end;
 
@@ -1938,17 +1782,6 @@ codeunit 137035 "SCM PS Bugs-I"
         PurchaseHeader.Validate(
           "Vendor Invoice No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
         PurchaseHeader.Modify(true);
-    end;
-
-    local procedure VerifyCrossReferenceNo(OrderNo: Code[20]; CrossReferenceNo: Code[20])
-    var
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-    begin
-        PurchRcptHeader.SetRange("Order No.", OrderNo);
-        PurchRcptHeader.FindFirst;
-        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchRcptHeader."No.");
-        ItemLedgerEntry.TestField("Cross-Reference No.", CrossReferenceNo);
     end;
 
     local procedure VerifyFamilyProdOrderQuantity(ProdOrderNo: Code[20]; FamilyNo: Code[20])

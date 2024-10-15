@@ -58,19 +58,7 @@ codeunit 99000842 "Service Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
-    procedure CreateReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
-    var
-        ForReservEntry: Record "Reservation Entry";
-    begin
-        ForReservEntry."Serial No." := ForSerialNo;
-        ForReservEntry."Lot No." := ForLotNo;
-        CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
-    end;
-#endif
-
-    local procedure CreateBindingReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    procedure CreateBindingReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
         DummyReservEntry: Record "Reservation Entry";
     begin
@@ -86,14 +74,6 @@ codeunit 99000842 "Service Line-Reserve"
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced ServiceLine.SetReservationFilters(FilterReservEntry)', '16.0')]
-    procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
-    begin
-        ServiceLine.SetReservationFilters(FilterReservEntry);
-    end;
-#endif
 
     procedure Caption(ServiceLine: Record "Service Line") CaptionText: Text
     begin
@@ -294,7 +274,7 @@ codeunit 99000842 "Service Line-Reserve"
         if ((ServiceLine."Document Type" = ServiceLine."Document Type"::Invoice) and
             (ServiceLine."Shipment No." <> ''))
         then
-            ItemTrackingLines.SetFormRunMode(2); // Combined shipment/receipt
+            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Combined Ship/Rcpt");
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ServiceLine."Needed by Date");
         ItemTrackingLines.SetInbound(ServiceLine.IsInbound);
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ServiceLine, ItemTrackingLines);

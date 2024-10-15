@@ -54,6 +54,13 @@ page 6626 "Purchase Line Archive List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the record.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Location Code"; "Location Code")
                 {
                     ApplicationArea = Location;
