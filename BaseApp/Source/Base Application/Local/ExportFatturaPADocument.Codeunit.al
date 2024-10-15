@@ -764,6 +764,7 @@ codeunit 12179 "Export FatturaPA Document"
 
         for Index := 1 to Length do begin
             InputChar := InputValue[Index];
+            InputChar := NormalizeChar(InputChar);
             SubstText := Format(InputChar);
             if not IsValidFatturaCharacter(InputChar) then
                 SubstText := GetFatturaValidSubstText(InputChar);
@@ -771,6 +772,45 @@ codeunit 12179 "Export FatturaPA Document"
         end;
 
         InputValue := DotNet_StringBuilder.ToString();
+    end;
+
+    local procedure NormalizeChar(InputChar: Char): Char
+    var
+        CharCode: Integer;
+    begin
+        CharCode := InputChar;
+        case CharCode of
+            192:
+                exit('A');
+            224:
+                exit('a');
+            200:
+                exit('E');
+            232:
+                exit('e');
+            201:
+                exit('E');
+            233:
+                exit('e');
+            204:
+                exit('I');
+            236:
+                exit('i');
+            210:
+                exit('O');
+            242:
+                exit('o');
+            211:
+                exit('O');
+            243:
+                exit('o');
+            217:
+                exit('U');
+            249:
+                exit('u');
+            else
+                exit(InputChar);
+        end;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"XML Buffer", 'OnNormalizeElementValue', '', false, false)]

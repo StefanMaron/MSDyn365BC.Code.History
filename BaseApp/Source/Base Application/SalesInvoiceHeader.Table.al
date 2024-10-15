@@ -932,7 +932,7 @@ table 112 "Sales Invoice Header"
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
-        TestField("No. Printed");
+        CheckNoPrinted();
         LockTable();
         PostSalesDelete.DeleteSalesInvLines(Rec);
 
@@ -962,6 +962,18 @@ table 112 "Sales Invoice Header"
     begin
         CalcFields("Amount Including VAT", "Remaining Amount");
         exit("Amount Including VAT" = "Remaining Amount");
+    end;
+
+    procedure CheckNoPrinted()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNoPrinted(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.TestField("No. Printed");
     end;
 
     procedure SendRecords()
@@ -1151,7 +1163,7 @@ table 112 "Sales Invoice Header"
         exit('');
     end;
 
-    procedure GetRemainingAmount(): Decimal
+    procedure GetRemainingAmount() RemainingAmt: Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1159,12 +1171,15 @@ table 112 "Sales Invoice Header"
         CustLedgerEntry.SetRange("Posting Date", "Posting Date");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", "No.");
-        CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
 
-        if not CustLedgerEntry.FindFirst() then
+        if not CustLedgerEntry.FindSet() then
             exit(0);
 
-        exit(CustLedgerEntry."Remaining Amount");
+        repeat
+            CustLedgerEntry.CalcFields("Remaining Amount");
+            RemainingAmt += CustLedgerEntry."Remaining Amount";
+        until CustLedgerEntry.Next() = 0;
+        exit(RemainingAmt);
     end;
 
     procedure ShowDimensions()
@@ -1319,6 +1334,11 @@ table 112 "Sales Invoice Header"
     procedure GetDefaultEmailDocumentName(): Text[150]
     begin
         exit(DocTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoPrinted(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

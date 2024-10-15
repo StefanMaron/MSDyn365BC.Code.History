@@ -73,6 +73,13 @@
         OverdueTxt: Label 'Your VAT return is overdue since %1 (%2 days)', Comment = '%1 - date; %2 - days count';
         OpenTxt: Label 'Your VAT return is due %1 (in %2 days)', Comment = '%1 - date; %2 - days count';
 
+    internal procedure FindVATPeriodByDate(VATReportingDate: Date): Boolean
+    begin
+        Rec.SetFilter("End Date", '>=%1', VATReportingDate);
+        Rec.SetFilter("Start Date", '<=%1', VATReportingDate);
+        exit(Rec.FindFirst());
+    end;
+    
     local procedure GetVATReportSetup()
     begin
         if VATReportSetupGot then

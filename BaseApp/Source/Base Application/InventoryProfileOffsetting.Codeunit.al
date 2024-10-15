@@ -187,7 +187,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         TransAsmHeaderToProfile(InventoryProfile, Item, ToDate);
         TransRcptTransLineToProfile(InventoryProfile, Item, ToDate);
 
-        OnAfterSupplyToInvProfile(InventoryProfile, Item, ToDate, TempItemTrkgEntry, LineNo, TempSKU);
+        OnAfterSupplyToInvProfile(InventoryProfile, Item, ToDate, TempItemTrkgEntry, LineNo, TempSKU, TempTransferSKU);
 
         Item.Copy(CopyOfItem);
     end;
@@ -688,7 +688,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         for ComponentForecast := ComponentForecastFrom to true do begin
             if ComponentForecast then begin
-                if not ReplenishmentLocationFound then
+                if not FindReplishmentLocation(ReplenishmentLocation, Item) then
                     ReplenishmentLocation := ManufacturingSetup."Components at Location";
                 if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
                     exit;
@@ -1481,7 +1481,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
                     if not DemandInvtProfile.IsEmpty() then
                         DemandInvtProfile.ModifyAll("Untracked Quantity", 0);
-                    
+
                     // Initial Safety Stock Warning
                     if LastAvailableInventory < TempSKU."Safety Stock Quantity" then
                         InsertInitialSafetyStockWarningSupply(SupplyInvtProfile, LastAvailableInventory, LastProjectedInventory, PlanningStartDate, RespectPlanningParm, IsReorderPointPlanning);
@@ -1645,6 +1645,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             end;
         end;
 
+        OnPlanItemNextStateCloseDemandOnBeforeDemandInvtProfileDelete(DemandInvtProfile, ReqLine);
         DemandInvtProfile.Delete();
 
         // If just handled demand was safetystock
@@ -1785,7 +1786,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
         CanBeRescheduled: Boolean;
         DemandDueDate: Date;
         LimitedHorizon: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePlanItemNextStateMatchDates(DemandInvtProfile, SupplyInvtProfile, NextState, IsHandled);
+        if IsHandled then
+            exit;
+
         if FromLotAccumulationPeriodStartDate(LotAccumulationPeriodStartDate, DemandInvtProfile."Due Date") then begin
             NewSupplyDate := LotAccumulationPeriodStartDate;
             SupplyInvtProfile."Fixed Date" := NewSupplyDate;
@@ -2262,6 +2269,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         TrackQty: Decimal;
         DecreaseSupply: Boolean;
     begin
+        OnBeforeTrack(FromProfile, ToProfile, IsSurplus, IssueActionMessage, Binding);
         DecreaseSupply :=
           FromProfile.IsSupply and
           (FromProfile."Action Message" in [FromProfile."Action Message"::"Change Qty.",
@@ -2406,6 +2414,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             end;
         end;
 
+        OnTrackBeforePrepareTempTracking(TrkgReservEntryArray, SplitState, IsSurplus, IssueActionMessage, Binding);
         case SplitState of
             SplitState::NoSplit:
                 PrepareTempTracking(TrkgReservEntryArray[1], TrkgReservEntryArray[2], IsSurplus, IssueActionMessage, Binding);
@@ -2427,6 +2436,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             SplitState::Cancel:
                 PrepareTempTracking(TrkgReservEntryArray[1], TrkgReservEntryArray[3], IsSurplus, IssueActionMessage, Binding);
         end;
+        OnAfterTrack(FromProfile, ToProfile, IsSurplus, IssueActionMessage, Binding);
     end;
 
     local procedure PrepareTempTracking(var FromTrkgReservEntry: Record "Reservation Entry"; var ToTrkgReservEntry: Record "Reservation Entry"; IsSurplus: Boolean; IssueActionMessage: Boolean; Binding: Enum "Reservation Binding")
@@ -3346,6 +3356,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         // Calculates the sum of queued up adjustments to the projected inventory level
         xReminderInvtProfile.Copy(TempReminderInvtProfile);
 
+        FilterDemandSupplyRelatedToSKU(TempReminderInvtProfile);
         TempReminderInvtProfile.SetRange("Due Date", LatestBucketStartDate, AtDate);
         if TempReminderInvtProfile.FindSet() then
             repeat
@@ -5152,7 +5163,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSupplyToInvProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ToDate: Date; var ReservEntry: Record "Reservation Entry"; var NextLineNo: Integer; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary)
+    local procedure OnAfterSupplyToInvProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ToDate: Date; var ReservEntry: Record "Reservation Entry"; var NextLineNo: Integer; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var TempTransferStockkeepingUnit: Record "Stockkeeping Unit" temporary)
     begin
     end;
 
@@ -5292,6 +5303,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTrack(var FromProfile: Record "Inventory Profile"; var ToProfile: Record "Inventory Profile"; IsSurplus: Boolean; IssueActionMessage: Boolean; Binding: Enum "Reservation Binding")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransItemLedgEntryToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -5382,6 +5398,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePlanItemNextStateMatchDates(var DemandInventoryProfile: Record "Inventory Profile"; var SupplyInventoryProfile: Record "Inventory Profile"; NextState: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPrePlanDateSupplyProc(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean; var TempSKU: Record "Stockkeeping Unit" temporary; var TempTrkgReservEntry: Record "Reservation Entry" temporary; var ReqLine: Record "Requisition Line")
     begin
     end;
@@ -5453,6 +5474,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnMaintainPlanningLineOnBeforeReqLineInsert(var RequisitionLine: Record "Requisition Line"; var SupplyInvtProfile: Record "Inventory Profile"; PlanToDate: Date; CurrentForecast: Code[10]; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward; DemandInvtProfile: Record "Inventory Profile"; ExcludeForecastBefore: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemNextStateCloseDemandOnBeforeDemandInvtProfileDelete(DemandInventoryProfile: Record "Inventory Profile"; RequisitionLine: Record "Requisition Line")
     begin
     end;
 
@@ -5621,7 +5647,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindCombinationOnBeforeSKUFindSet(var SKU: Record "Stockkeeping Unit"; var Item: Record Item)
     begin
     end;
@@ -5638,6 +5664,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnPlanItemOnBeforeTempSKUFind(var TempSKU: Record "Stockkeeping Unit" temporary; var PlanningStartDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrack(FromProfile: Record "Inventory Profile"; ToProfile: Record "Inventory Profile"; IsSurplus: Boolean; IssueActionMessage: Boolean; Binding: Enum "Reservation Binding")
     begin
     end;
 
@@ -5693,6 +5724,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMaintainPlanningLine(var ReqLine: Record "Requisition Line"; SupplyInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTrackBeforePrepareTempTracking(var TrkgReservEntryArray: array[6] of Record "Reservation Entry"; SplitState: Option; var IsSurplus: Boolean; var IssueActionMessage: Boolean; var Binding: Enum "Reservation Binding")
     begin
     end;
 

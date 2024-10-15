@@ -1852,6 +1852,7 @@ codeunit 7201 "CDS Integration Impl."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AddUsersToDefaultOwningTeam(var CDSConnectionSetup: Record "CDS Connection Setup"; var TempCRMSystemuser: Record "CRM Systemuser" temporary): Integer;
     var
         TempCDSTeammembership: Record "CDS Teammembership" temporary;
@@ -3433,7 +3434,7 @@ codeunit 7201 "CDS Integration Impl."
         if AccessToken = '' then
             if (FirstPartyAppId <> '') and (FirstPartyAppCertificate <> '') then begin
                 Session.LogMessage('0000GII', AttemptingClientCredentialsTokenWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                OAuth2.AcquireTokensFromCacheWithCertificate(FirstPartyAppId, FirstPartyAppCertificate, RedirectUrl, ClientCredentialsTokenAuthorityUrlTxt, Scopes, AccessToken, IdToken);
+                OAuth2.AcquireTokensWithCertificate(FirstPartyAppId, FirstPartyAppCertificate, RedirectUrl, ClientCredentialsTokenAuthorityUrlTxt, Scopes, AccessToken, IdToken);
             end else begin
                 Session.LogMessage('0000GIJ', AttemptingClientCredentialsTokenWithClientSecretTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 OAuth2.AcquireTokenWithClientCredentials(ClientId, ClientSecret, ClientCredentialsTokenAuthorityUrlTxt, RedirectUrl, Scopes, AccessToken);
@@ -4662,6 +4663,7 @@ codeunit 7201 "CDS Integration Impl."
         Session.LogMessage('0000AV0', SynchronizationSetupUpdatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
+    [NonDebuggable]
     local procedure PromptForAdminCredentials(var CDSConnectionSetup: Record "CDS Connection Setup"; var AdminUser: Text; var AdminPassword: Text; var AdminADDomain: Text): Boolean
     var
         TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;

@@ -609,7 +609,7 @@
         field(26; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -845,9 +845,7 @@
 
                 CheckBalAccountNoOnJobNoValidation();
 
-                Job.Get("Job No.");
-                Job.TestBlocked();
-                "Job Currency Code" := Job."Currency Code";
+                AssignJobCurrencyCode();
 
                 CreateDimFromDefaultDim(FieldNo("Job No."));
             end;
@@ -2511,7 +2509,14 @@
             TableRelation = Campaign;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCampaignNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CreateDimFromDefaultDim(FieldNo("Campaign No."));
             end;
         }
@@ -3624,6 +3629,7 @@
             SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Bal. Account No.");
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
+            SetRange("Check Printed", false);
             LastGenJnlLine.Init();
             First := true;
             if FindSet() then begin
@@ -5274,6 +5280,7 @@
             CustLedgEntry.Reset();
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             CustLedgEntry.SetRange(Open, true);
+            OnGetCustLedgerEntryOnAfterSetFilters(Rec, CustLedgEntry);
             if not CustLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
@@ -6036,6 +6043,20 @@
         "Account No." := AccountNo;
         Insert();
         exit(true);
+    end;
+
+    local procedure AssignJobCurrencyCode()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAssignJobCurrencyCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Job.Get("Job No.");
+        Job.TestBlocked();
+        Rec."Job Currency Code" := Job."Currency Code";
     end;
 
     procedure IsCustVendICAdded(GenJournalLine: Record "Gen. Journal Line"): Boolean
@@ -7520,7 +7541,7 @@
             FAGenJournalLine.Modify(true)
         end;
 
-        OnAfterCreateFAAcquisitionLines(FAGenJournalLine, Rec);
+        OnAfterCreateFAAcquisitionLines(FAGenJournalLine, Rec, BalancingGenJnlLine);
 
         // Inserting Source Code
         if "Source Code" = '' then begin
@@ -7995,6 +8016,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignJobCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
     begin
     end;
@@ -8033,7 +8059,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateFAAcquisitionLines(var FAGenJournalLine: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterCreateFAAcquisitionLines(var FAGenJournalLine: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line"; var BalancingGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -8305,6 +8331,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateAmountLCY(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCampaignNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9145,6 +9176,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromIssuedReminderHeader(IssuedReminderHeader: Record "Issued Reminder Header"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustLedgerEntryOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

@@ -148,6 +148,7 @@
             var
                 TempSalesLine: Record "Sales Line" temporary;
                 IsHandled: Boolean;
+                ShouldStopValidation: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateNo(Rec, xRec, CurrFieldNo, IsHandled);
@@ -196,7 +197,9 @@
                 Type := TempSalesLine.Type;
                 "No." := TempSalesLine."No.";
                 OnValidateNoOnCopyFromTempSalesLine(Rec, TempSalesLine, xRec, CurrFieldNo);
-                if "No." = '' then
+                ShouldStopValidation := "No." = '';
+                OnValidateNoOnAfterCalcShouldStopValidation(Rec, xRec, CurrFieldNo, ShouldStopValidation);
+                if ShouldStopValidation then
                     exit;
 
                 if HasTypeToFillMandatoryFields() then
@@ -276,7 +279,7 @@
                 end;
 
                 IsHandled := false;
-                OnValidateNoOnBeforeCreateDimFromDefaultDim(Rec, IsHandled);
+                OnValidateNoOnBeforeCreateDimFromDefaultDim(Rec, IsHandled, TempSalesLine);
                 if not IsHandled then
                     CreateDimFromDefaultDim(Rec.FieldNo("No."));
 
@@ -398,7 +401,7 @@
                 IsHandled: boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateShipmentDate(IsHandled, Rec);
+                OnBeforeValidateShipmentDate(IsHandled, Rec, xRec);
                 if IsHandled then
                     exit;
 
@@ -1117,7 +1120,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateWorkTypeCode(xRec, IsHandled);
+                OnBeforeValidateWorkTypeCode(xRec, IsHandled, Rec);
                 if IsHandled then
                     exit;
 
@@ -1465,7 +1468,7 @@
 
                 TestStatusOpen();
                 CheckPrepmtAmtInvEmpty();
-                
+
                 if CurrFieldNo = FieldNo("VAT Prod. Posting Group") then begin
                     CustLedgEntry.SetCurrentKey("Document Type", "Document No.");
                     CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
@@ -2476,7 +2479,7 @@
                             "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                             "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
-                            OnAfterAssignItemUOM(Rec, Item, CurrFieldNo);
+                            OnAfterAssignItemUOM(Rec, Item, CurrFieldNo, xRec);
                             if (xRec."Unit of Measure Code" <> "Unit of Measure Code") and (Quantity <> 0) then
                                 WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                             if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
@@ -2792,7 +2795,7 @@
                     SetReserveWithoutPurchasingCode();
                 end;
 
-                OnValidatePurchasingCodeOnAfterSetReserveWithoutPurchasingCode(Rec, CurrFieldNo);
+                OnValidatePurchasingCodeOnAfterSetReserveWithoutPurchasingCode(Rec, CurrFieldNo, xRec);
 
                 if ("Purchasing Code" <> xRec."Purchasing Code") and
                    (not "Drop Shipment") and
@@ -4025,7 +4028,7 @@
 
         InitDeferralCode();
         SetDefaultItemQuantity();
-        OnAfterAssignItemValues(Rec, Item);
+        OnAfterAssignItemValues(Rec, Item, SalesHeader);
     end;
 
     local procedure CopyFromResource()
@@ -4623,6 +4626,10 @@
         if IsHandled then
             exit;
 
+        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Shipped Not Invoiced" = 0) then
+            if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then
+                exit;
+
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then begin
@@ -4666,6 +4673,10 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceChargeLine() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text047, FieldCaption("Prepayment %")));
             if "Unit Price" < 0 then
@@ -5388,7 +5399,7 @@
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales,
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", DATABASE::Customer);
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", 0);
 
         OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -8670,7 +8681,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemValues(var SalesLine: Record "Sales Line"; Item: Record Item)
+    local procedure OnAfterAssignItemValues(var SalesLine: Record "Sales Line"; Item: Record Item; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8690,7 +8701,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemUOM(var SalesLine: Record "Sales Line"; Item: Record Item; CurrentFieldNo: Integer)
+    local procedure OnAfterAssignItemUOM(var SalesLine: Record "Sales Line"; Item: Record Item; CurrentFieldNo: Integer; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -9520,6 +9531,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnAfterCalcShouldStopValidation(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CallingFieldNo: Integer; var ShouldStopValidation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnAfterUpdateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
@@ -9928,7 +9944,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidatePurchasingCodeOnAfterSetReserveWithoutPurchasingCode(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
+    local procedure OnValidatePurchasingCodeOnAfterSetReserveWithoutPurchasingCode(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -9973,7 +9989,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidateWorkTypeCode(xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateWorkTypeCode(var xSalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -9988,7 +10004,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidateShipmentDate(var IsHandled: Boolean; var SalesLine: Record "Sales Line")
+    local procedure OnBeforeValidateShipmentDate(var IsHandled: Boolean; var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -10208,7 +10224,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateNoOnBeforeCreateDimFromDefaultDim(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnValidateNoOnBeforeCreateDimFromDefaultDim(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 

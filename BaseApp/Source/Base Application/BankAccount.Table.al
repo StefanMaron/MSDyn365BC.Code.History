@@ -186,7 +186,7 @@
         field(29; "Our Contact Code"; Code[20])
         {
             Caption = 'Our Contact Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(35; "Country/Region Code"; Code[10])
         {
@@ -1017,6 +1017,7 @@
         else
             BBAN := '';
         IBAN := '';
+        OnAfterGetBBAN(Rec);
     end;
 
     [Scope('OnPrem')]
@@ -1438,6 +1439,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsUpdateNeeded(BankAccount: Record "Bank Account"; xBankAccount: Record "Bank Account"; var UpdateNeeded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetBBAN(var BankAccount: Record "Bank Account")
     begin
     end;
 

@@ -80,6 +80,8 @@ table 5878 "Phys. Invt. Record Line"
                 "Bin Code" := PhysInvtRecordHeader."Bin Code";
                 "Use Item Tracking" := PhysInvtTrackingMgt.SuggestUseTrackingLines(Item);
                 GetShelfNo();
+
+                OnAfterValidateItemNo(Rec, PhysInvtRecordHeader, Item);
             end;
         }
         field(21; "Variant Code"; Code[10])
@@ -530,6 +532,11 @@ table 5878 "Phys. Invt. Record Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowUsedTrackLines(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateItemNo(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; Item: Record Item)
     begin
     end;
 }

@@ -151,6 +151,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TempVATPostingSetup: Record "VAT Posting Setup" temporary;
         IsSplitPayment: Boolean;
         DocLineNo: Integer;
+        VATEntryCount: Integer;
     begin
         CollectShipmentInfo(TempShptFatturaLine, LineRecRef, TempFatturaHeader);
         BuildOrderDataBuffer(TempFatturaLine, TempShptFatturaLine, TempFatturaHeader);
@@ -167,11 +168,12 @@ codeunit 12184 "Fattura Doc. Helper"
             IsSplitPayment := HasSplitPayment(LineRecRef);
             Clear(TempFatturaLine);
             TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::VAT;
+            VATEntryCount := TempVATEntry.Count();
             repeat
                 if not IsSplitVATEntry(TempVATEntry) then
                     InsertVATFatturaLine(
                       TempFatturaLine, TempFatturaHeader."Document Type" = TempFatturaHeader."Document Type"::Invoice,
-                      TempVATEntry, TempFatturaHeader."Customer No", IsSplitPayment);
+                      TempVATEntry, TempFatturaHeader."Customer No", IsSplitPayment, VATEntryCount);
             until TempVATEntry.Next() = 0;
         end;
     end;
@@ -1177,7 +1179,6 @@ codeunit 12184 "Fattura Doc. Helper"
         UnitPrice: Decimal;
         InvDiscAmountByQty: Decimal;
         LineDiscountPct: Decimal;
-        LineAmount: Decimal;
     begin
         if Format(LineRecRef.Field(LineTypeFieldNo).Value) = ' ' then
             exit;
@@ -1215,10 +1216,15 @@ codeunit 12184 "Fattura Doc. Helper"
             TempFatturaLine."Discount Amount" := InvDiscAmountByQty;
         end;
 
-        LineAmount := LineRecRef.Field(LineAmountFieldNo).Value;
-        LineAmount := CalcForPricesIncludingVAT(
-            LineAmount, PricesIncludingVAT, TempFatturaLine."VAT %", Currency."Amount Rounding Precision");
-        TempFatturaLine.Amount := ExchangeToLCYAmount(TempFatturaHeader, LineAmount) - TempFatturaLine."Discount Amount";
+        TempFatturaLine.Amount := LineRecRef.Field(LineAmountFieldNo).Value;
+        if (TempFatturaLine.Amount <> 0) and (InvDiscAmountByQty = 0) and (LineDiscountPct = 0) and (TempFatturaLine."Discount Amount" = 0) then
+            TempFatturaLine.Amount := Round(TempFatturaLine.Quantity * TempFatturaLine."Unit Price") - TempFatturaLine."Discount Amount"
+        else
+            TempFatturaLine.Amount :=
+              ExchangeToLCYAmount(
+                TempFatturaHeader, CalcForPricesIncludingVAT(
+                TempFatturaLine.Amount, PricesIncludingVAT, TempFatturaLine."VAT %", Currency."Amount Rounding Precision")) -
+              TempFatturaLine."Discount Amount";
 
         if TempFatturaLine."VAT %" = 0 then begin
             GetVATPostingSetup(VATPostingSetup, LineRecRef);
@@ -1244,13 +1250,25 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
     end;
 
-    local procedure InsertVATFatturaLine(var TempFatturaLine: Record "Fattura Line" temporary; IsInvoice: Boolean; VATEntry: Record "VAT Entry"; CustNo: Code[20]; IsSplitPayment: Boolean)
+    local procedure InsertVATFatturaLine(var TempFatturaLine: Record "Fattura Line" temporary; IsInvoice: Boolean; VATEntry: Record "VAT Entry"; CustNo: Code[20]; IsSplitPayment: Boolean; VATEntryCount: Integer)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATIdentifier: Record "VAT Identifier";
         VATNatureDescription: Text[100];
         VATExemptionDescription: Text[50];
+        VATBase: Decimal;
     begin
+        if VATEntryCount = 1 then begin
+            TempFatturaLine.Reset();
+            TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Document);
+            TempFatturaLine.CalcSums(Amount);
+            if VATEntry.Base > 0 then
+                VATBase := TempFatturaLine.Amount
+            else
+                VATBase := -TempFatturaLine.Amount;
+        end else
+            VATBase := VATEntry.Base;
+
         TempFatturaLine.Init();
         TempFatturaLine."Line No." += 1;
         TempFatturaLine."VAT %" := VATEntry."VAT %";
@@ -1264,7 +1282,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 VATNatureDescription += StrSubstNo(' %1 %2', VATExemptionPrefixTok, VATExemptionDescription);
             TempFatturaLine."VAT Nature Description" := VATNatureDescription;
         end;
-        TempFatturaLine."VAT Base" := VATEntry.Base;
+        TempFatturaLine."VAT Base" := VATBase;
         TempFatturaLine."VAT Amount" := VATEntry.Amount;
         if IsInvoice then begin
             TempFatturaLine."VAT Base" := -TempFatturaLine."VAT Base";

@@ -2571,4 +2571,3 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
     end;
 }
-

@@ -86,7 +86,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 WhseRqst.LockTable();
             TransRcptLine.LockTable();
             TransLine.SetRange(Quantity);
-            TransLine.SetFilter("Qty. to Receive", '<>0');
+            TransLine.SetRange("Qty. to Receive");
             OnRunOnAfterTransLineSetFiltersForRcptLines(TransLine, TransHeader, Location, WhseReceive);
             if TransLine.Find('-') then
                 repeat
@@ -94,7 +94,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     if GuiAllowed then
                         Window.Update(2, LineCount);
 
-                    if TransLine."Item No." <> '' then begin
+                    if (TransLine."Item No." <> '') and (TransLine."Qty. to Receive" <> 0) then begin
                         Item.Get(TransLine."Item No.");
                         IsHandled := false;
                         OnRunOnBeforeCheckItemBlocked(TransLine, Item, TransHeader, Location, WhseReceive, IsHandled);

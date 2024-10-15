@@ -886,6 +886,7 @@
 
             "Payment Terms Code" := '';
 
+            OnInsertCFLineForCustLedgerEntryOnBeforeInsertTempCFWorksheetLine(CFWorksheetLine2, "Cash Flow Forecast", "Cust. Ledger Entry");
             InsertTempCFWorksheetLine(CFWorksheetLine2, MaxPmtTolerance);
         end;
     end;
@@ -1743,6 +1744,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetTaxPayableDateFromSourceOnBeforeExit(SourceTableNum: Integer; SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header"; VATEntry: Record "VAT Entry"; var DocumentDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCFLineForCustLedgerEntryOnBeforeInsertTempCFWorksheetLine(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; CashFlowForecast: Record "Cash Flow Forecast"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

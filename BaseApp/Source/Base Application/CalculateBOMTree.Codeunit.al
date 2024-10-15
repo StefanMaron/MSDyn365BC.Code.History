@@ -660,7 +660,9 @@ codeunit 5870 "Calculate BOM Tree"
                         ParentBOMBuffer.AddCapOvhdCost("Single-Level Cap. Ovhd Cost", "Rolled-up Capacity Ovhd. Cost");
                         ParentBOMBuffer.AddMfgOvhdCost("Single-Level Mfg. Ovhd Cost", "Rolled-up Mfg. Ovhd Cost");
                         ParentBOMBuffer.AddScrapCost("Single-Level Scrap Cost", "Rolled-up Scrap Cost");
+#if not CLEAN22
                         OnTraverseCostTreeOnAfterAddCost(ParentBOMBuffer, BOMBuffer);
+#endif
                     end else begin
                         ParentBOMBuffer.AddMaterialCost(
                           "Single-Level Material Cost" +
@@ -675,6 +677,7 @@ codeunit 5870 "Calculate BOM Tree"
                         ParentBOMBuffer.AddMfgOvhdCost(0, "Rolled-up Mfg. Ovhd Cost");
                         ParentBOMBuffer.AddScrapCost(0, "Rolled-up Scrap Cost");
                     end;
+                    OnTraverseCostTreeOnAfterAddCosts(ParentBOMBuffer, BOMBuffer);
                 end;
 
             BOMBuffer := ParentBOMBuffer;
@@ -1112,9 +1115,16 @@ codeunit 5870 "Calculate BOM Tree"
     local procedure OnGenerateProdCompSubTreeOnBeforeBOMBufferModify(var BOMBuffer: Record "BOM Buffer"; var ParentBOMBuffer: Record "BOM Buffer"; ParentItem: Record Item)
     begin
     end;
+#if not CLEAN22
+    [IntegrationEvent(false, false)]
+    [Obsolete('Replaced with a more generic OnTraverseCostTreeOnAfterAddCosts', '22.0')]
+    local procedure OnTraverseCostTreeOnAfterAddCost(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnTraverseCostTreeOnAfterAddCost(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")
+    local procedure OnTraverseCostTreeOnAfterAddCosts(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")
     begin
     end;
 

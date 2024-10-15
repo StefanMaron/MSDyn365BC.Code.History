@@ -34,6 +34,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         RoundingEntryErr: Label 'Rounding Entry must exist for Sales Document No.: %1.', Comment = '.';
         TooManyValuableSalesEntriesErr: Label 'Too many valuable Sales Lines found.', Comment = '.';
         TooManyValuablePurchaseEntriesErr: Label 'Too many valuable Purchase Lines found.', Comment = '.';
+        VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2353,44 +2354,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
     end;
 
-    local procedure CorrectVATDateAndVerifyChange(VATEntryNr: Integer; VATDate: Date)
-    var
-        VATEntryPage: TestPage "VAT Entries";
-    begin
-        VATEntryPage.OpenEdit();
-        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNr));
-        VATEntryPage.First();
-        VATEntryPage."VAT Reporting Date".SetValue(VATDate);
-        Assert.AreEqual(VATDate, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);
-    end;
-
-    local procedure VerifyVATEntry(DocNr: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date): Integer
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.Reset();
-        VATEntry.SetRange("Document No.", DocNr);
-        VATEntry.SetRange("Document Type", DocType);
-        VATEntry.SetRange(Type, Type);
-        VATEntry.FindFirst();
-        Assert.AreEqual(VATDate, VATEntry."VAT Reporting Date", VATDateOnRecordErr);
-        exit(VATEntry."Entry No.");
-    end;
-
-    local procedure VerifyGLEntry(DocNr: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date)
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.Reset();
-        GLEntry.SetRange("Document No.", DocNr);
-        GLEntry.SetRange("Document Type", DocType);
-        GLEntry.SetRange("Gen. Posting Type", Type);
-        GLEntry.FindSet();
-        repeat
-            Assert.AreEqual(VATDate, GLEntry."VAT Reporting Date", VATDateOnRecordErr);
-        until GLEntry.Next() = 0;
-    end;
-
     local procedure SetupForSalesOrderAndVAT(var VATAmountLine: Record "VAT Amount Line")
     var
         SalesHeader: Record "Sales Header";
@@ -3381,6 +3344,20 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure InvoicingVATAmountSalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         SalesOrderStatistics.VATAmount_Invoicing.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+    
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

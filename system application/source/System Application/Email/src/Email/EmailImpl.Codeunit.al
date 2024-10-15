@@ -144,6 +144,36 @@ codeunit 8900 "Email Impl"
         exit(EmailEditor.Open(EmailOutbox, IsModal));
     end;
 
+    procedure OpenInEditorWithScenario(EmailMessage: Codeunit "Email Message"; EmailAccountId: Guid; EmailConnector: Enum "Email Connector"; IsModal: Boolean; Scenario: Enum "Email Scenario"): Enum "Email Action"
+    var
+        EmailOutbox: Record "Email Outbox";
+        EmailMessageImpl: Codeunit "Email Message Impl.";
+        EmailScenarioAttachmentsImpl: Codeunit "Email Scenario Attach Impl.";
+        EmailEditor: Codeunit "Email Editor";
+        IsNew, IsEnqueued : Boolean;
+    begin
+        if not EmailMessageImpl.Get(EmailMessage.GetId()) then
+            Error(EmailMessageDoesNotExistMsg);
+
+        if EmailMessageImpl.IsRead() then
+            Error(EmailMessageCannotBeEditedErr);
+
+        IsNew := not GetEmailOutbox(EmailMessageImpl.GetId(), EmailOutbox);
+        IsEnqueued := (not IsNew) and IsOutboxEnqueued(EmailOutbox);
+
+        if not IsEnqueued then begin
+            // Modify the outbox only if it hasn't been enqueued yet
+            CreateOrUpdateEmailOutbox(EmailMessageImpl, EmailAccountId, EmailConnector, Enum::"Email Status"::Draft, '', EmailOutbox);
+
+            // Set the record as new so that there is a save prompt and no arrows
+            EmailEditor.SetAsNew();
+        end;
+
+        EmailScenarioAttachmentsImpl.AddAttachmentToMessage(EmailMessage, Scenario);
+
+        exit(EmailEditor.OpenWithScenario(EmailOutbox, IsModal, Scenario));
+    end;
+
     local procedure GetEmailOutbox(EmailMessageId: Guid; var EmailOutbox: Record "Email Outbox"): Boolean
     begin
         EmailOutbox.SetRange("Message Id", EmailMessageId);
@@ -539,6 +569,20 @@ codeunit 8900 "Email Impl"
     begin
         SentEmails.SetRelatedRecord(TableId, SystemId);
         SentEmails.Run();
+    end;
+
+    procedure GetEmailOutboxSentEmailWithinRateLimit(var SentEmail: Record "Sent Email"; var EmailOutbox: Record "Email Outbox"; AccountId: Guid): Duration
+    var
+        EmailCheckWindowTime: DateTime;
+        RateLimitDuration: Duration;
+    begin
+        RateLimitDuration := 1000 * 60; // one minute, rate limit is defined as emails per minute
+        EmailCheckWindowTime := CurrentDateTime() - RateLimitDuration;
+        SentEmail.SetRange("Account Id", AccountId);
+        SentEmail.SetFilter("Date Time Sent", '>%1', EmailCheckWindowTime);
+        EmailOutbox.SetRange("Account Id", AccountId);
+        EmailOutbox.SetRange(Status, Enum::"Email Status"::Processing);
+        exit(RateLimitDuration);
     end;
 
     internal procedure GetRecordRef(RecRelatedVariant: Variant; var ResultRecordRef: RecordRef): Boolean

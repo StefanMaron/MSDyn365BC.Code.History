@@ -500,6 +500,7 @@
             end else
                 "Cash Flow Date" := CalcDate(PaymentLines."Due Date Calculation", "Document Date");
 
+            OnInsertNewLinesForUnpostedDocumentsOnBeforeInsert(Rec, PaymentLines);
             if "Amount (LCY)" <> 0 then
                 Insert(true);
 
@@ -577,6 +578,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnCalculateCFAmountAndCFDateOnBeforeCalcPaymentDiscount(CFDiscountDate: Date; PaymentLines: record "Payment Lines"; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewLinesForUnpostedDocumentsOnBeforeInsert(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; PaymentLines: Record "Payment Lines")
     begin
     end;
 }

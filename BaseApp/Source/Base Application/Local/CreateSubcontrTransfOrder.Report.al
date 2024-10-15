@@ -134,6 +134,7 @@ report 12152 "Create Subcontr.Transf. Order"
             TransferHeader."Transfer-to City" := Vendor.City;
             TransferHeader."Transfer-to County" := Vendor.County;
             TransferHeader."Trsf.-from Country/Region Code" := Vendor."Country/Region Code";
+            OnInsertTransferHeaderOnBeforeModify(TransferHeader, Vendor, "Purchase Header");
             TransferHeader.Modify();
             LineNum := 0;
         end else begin
@@ -158,6 +159,7 @@ report 12152 "Create Subcontr.Transf. Order"
         PurchLine.SetFilter("Prod. Order No.", '<>''''');
         PurchLine.SetFilter("Prod. Order Line No.", '<>0');
         PurchLine.SetFilter("Operation No.", '<>0');
+        OnCheckExistComponentOnAfterSetFilters(PurchLine, "Purchase Header");
         if PurchLine.FindSet() then
             repeat
                 if CheckPurchLine(PurchLine, false, QtyToPost) then
@@ -287,9 +289,19 @@ report 12152 "Create Subcontr.Transf. Order"
     local procedure OnBeforeShowDocument(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
-    
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckExistComponentOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnCheckPurchLineOnAfterTransferLineInsert(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransferHeaderOnBeforeModify(var TransferHeader: Record "Transfer Header"; Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

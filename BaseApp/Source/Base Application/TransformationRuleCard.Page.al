@@ -152,6 +152,16 @@ page 1238 "Transformation Rule Card"
                         ToolTip = 'Specifies the type of the field lookup. In case of Target the value from the Target Field ID will be taken as is, even if it is blank. In case of Original If Target Is Blank the original value will be taken if target one is blank.';
                     }
                 }
+                group(ExtractFromDate)
+                {
+                    Caption = 'Extract From Date';
+                    Visible = ExtractFromDateVisibleExpr;
+                    field("Extract From Date Type"; "Extract From Date Type")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies what should be extracted from the date.';
+                    }
+                }
             }
             group(RoundGroup)
             {
@@ -221,6 +231,7 @@ page 1238 "Transformation Rule Card"
         DateFormatVisibleExpr: Boolean;
         LookupGroupVisibleExpr: Boolean;
         RoundGroupVisibleExpr: Boolean;
+        ExtractFromDateVisibleExpr: Boolean;
         TestText: Text;
         ResultText: Text;
         UpdateResultLbl: Label 'Update';
@@ -239,5 +250,6 @@ page 1238 "Transformation Rule Card"
         DateFormatVisibleExpr := IsDataFormatUpdateAllowed();
         LookupGroupVisibleExpr := "Transformation Type" = "Transformation Type"::"Field Lookup";
         RoundGroupVisibleExpr := "Transformation Type" = "Transformation Type"::Round;
+        ExtractFromDateVisibleExpr := "Transformation Type" = "Transformation Type"::"Extract From Date";
     end;
 }

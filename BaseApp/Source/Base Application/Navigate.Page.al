@@ -912,10 +912,11 @@
         end else begin
             IsHandled := false;
             OnFindRecordsOnBeforeMessagePostingDateFilter(Rec, PostingDateFilter, IsHandled);
-            if PostingDateFilter = '' then
-                Message(Text013)
-            else
-                Message(Text014);
+            if not IsHandled then
+                if PostingDateFilter = '' then
+                    Message(Text013)
+                else
+                    Message(Text014);
         end;
 
         OnAfterFindRecords(Rec, DocNoFilter, PostingDateFilter);
@@ -2623,7 +2624,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindRecordsOnBeforeMessagePostingDateFilter(DocumentEntry: Record "Document Entry"; PostingDateFilter: Text; IsHandled: Boolean)
+    local procedure OnFindRecordsOnBeforeMessagePostingDateFilter(DocumentEntry: Record "Document Entry"; PostingDateFilter: Text; var IsHandled: Boolean)
     begin
     end;
 

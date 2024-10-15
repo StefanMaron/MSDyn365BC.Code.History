@@ -198,6 +198,8 @@ table 12170 "Payment Lines"
             TempPaymentLines.SetRange(Code, Rec.Code);
         end;
 
+        OnCheckTotalPaymentsPercOnAfterSetFilters(TempPaymentLines, Rec);
+
         if TempPaymentLines.CalcSums("Payment %") then
             TotalPaymentPerc := TempPaymentLines."Payment %" + NewValue;
 
@@ -295,6 +297,7 @@ table 12170 "Payment Lines"
                         if PaymentLines."Due Date" < SalesHeader."Document Date" then
                             PaymentLines."Due Date" := SalesHeader."Document Date";
                     end;
+                    OnCreatePaymentLinesSalesOnAfterSetDueDate(PaymentLines, SalesHeader, DeferringDueDates);
 
                     OldDate := PaymentLines."Due Date";
                     FixedDueDates.SetRange("Payment Days", Date2DMY(PaymentLines."Due Date", 1), 99);
@@ -330,7 +333,7 @@ table 12170 "Payment Lines"
 
                 if PaymentLines."Pmt. Discount Date" < SalesHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := SalesHeader."Document Date";
-                OnCreatePaymentLinesSalesOnBeforePaymentLinesInsert(PaymentLines, SalesHeader);
+                OnCreatePaymentLinesSalesOnBeforePaymentLinesInsert(PaymentLines, SalesHeader, PaymentLinesTerms);
                 PaymentLines.Insert();
             until PaymentLinesTerms.Next() = 0;
         end;
@@ -426,7 +429,7 @@ table 12170 "Payment Lines"
                 if PaymentLines."Pmt. Discount Date" < PurchaseHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := PurchaseHeader."Document Date";
 
-                OnCreatePaymentLiensPurchasesOnBeforePaymentLinesInsert(PaymentLines, PurchaseHeader);
+                OnCreatePaymentLiensPurchasesOnBeforePaymentLinesInsert(PaymentLines, PurchaseHeader, PaymentLinesTerms);
                 PaymentLines.Insert();
             until PaymentLinesTerms.Next() = 0;
         end;
@@ -497,6 +500,7 @@ table 12170 "Payment Lines"
                         if PaymentLines."Due Date" < ServiceHeader."Document Date" then
                             PaymentLines."Due Date" := ServiceHeader."Document Date";
                     end;
+                    OnCreatePaymentLinesServicesOnAfterSetDueDate(PaymentLines, ServiceHeader, DeferringDueDates);
 
                     OldDate := PaymentLines."Due Date";
                     FixedDueDates.SetRange("Payment Days", Date2DMY(PaymentLines."Due Date", 1), 99);
@@ -532,7 +536,7 @@ table 12170 "Payment Lines"
 
                 if PaymentLines."Pmt. Discount Date" < ServiceHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := ServiceHeader."Document Date";
-                OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(PaymentLines, ServiceHeader);
+                OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(PaymentLines, ServiceHeader, PaymentLinesTerms);
                 PaymentLines.Insert();
             until PaymentLinesTerms.Next() = 0;
         end;
@@ -600,17 +604,32 @@ table 12170 "Payment Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePaymentLiensPurchasesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnCheckTotalPaymentsPercOnAfterSetFilters(var TempPaymentLines: Record "Payment Lines"; var PaymentLines: Record "Payment Lines")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePaymentLinesSalesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; SalesHeader: Record "Sales Header")
+    local procedure OnCreatePaymentLiensPurchasesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; PurchaseHeader: Record "Purchase Header"; PaymentLinesTerms: Record "Payment Lines")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record "Service Header")
+    local procedure OnCreatePaymentLinesSalesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; SalesHeader: Record "Sales Header"; PaymentLinesTerms: Record "Payment Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLinesSalesOnAfterSetDueDate(var PaymentLines: Record "Payment Lines"; var SalesHeader: Record "Sales Header"; DeferringDueDates: Record "Deferring Due Dates")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLinesServicesOnAfterSetDueDate(var PaymentLines: Record "Payment Lines"; var ServiceHeader: Record "Service Header"; DeferringDueDates: Record "Deferring Due Dates")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record "Service Header"; PaymentLinesTerms: Record "Payment Lines")
     begin
     end;
 

@@ -243,7 +243,7 @@
         field(29; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -780,7 +780,7 @@
             begin
                 IsHandled := false;
                 OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
-                if not IsHandled then;
+                if not IsHandled then
                     PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidatePostCode(Rec, xRec);
@@ -1625,7 +1625,13 @@
             trigger OnValidate()
             var
                 LocalAppMgt: Codeunit LocalApplicationManagement;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateFiscalCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Resident, Resident::Resident);
                 if "Fiscal Code" <> '' then
                     LocalAppMgt.CheckDigit("Fiscal Code");
@@ -3411,9 +3417,10 @@
         CustomerTempl.ModifyAll("Invoice Disc. Code", "No.");
     end;
 
-    procedure IsPublicCompany(): Boolean
+    procedure IsPublicCompany() Result: Boolean
     begin
-        exit(StrLen("PA Code") = 6);
+        Result := StrLen("PA Code") = 6;
+        OnAfterIsPublicCompany(Rec, Result);
     end;
 
     [IntegrationEvent(false, false)]
@@ -3443,6 +3450,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterHasDifferentAddress(Customer: Record Customer; OtherCustomer: Record Customer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsPublicCompany(Customer: Record Customer; var Result: Boolean)
     begin
     end;
 
@@ -3598,6 +3610,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateFiscalCode(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

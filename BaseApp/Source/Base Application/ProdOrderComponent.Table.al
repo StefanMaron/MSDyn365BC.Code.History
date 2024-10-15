@@ -524,7 +524,14 @@
             Caption = 'Calculation Formula';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCalculationFormula(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CalculateQuantity(Quantity);
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
@@ -539,7 +546,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityper(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
                 TestField("Item No.");
                 Validate("Calculation Formula");
@@ -2072,7 +2086,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCalculationFormula(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ProdOrderComponent: Record "Prod. Order Component"; var xProdOrderComponent: Record "Prod. Order Component"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityper(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 

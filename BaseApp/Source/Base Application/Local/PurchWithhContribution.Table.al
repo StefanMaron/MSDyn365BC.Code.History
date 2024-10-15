@@ -44,11 +44,7 @@ table 12137 "Purch. Withh. Contribution"
 
             trigger OnValidate()
             begin
-                if "Base - Excluded Amount" > ("Total Amount" - "Non Taxable Amount By Treaty") then
-                    Error(InvalidBaseExcludedAmountErr, "Total Amount" - "Non Taxable Amount By Treaty");
-
-                if "Base - Excluded Amount" > "Total Amount" then
-                    Error(BaseExcludedAmtGreaterThanTotalErr);
+                CheckBaseExcludedAmount();
 
                 GetHeader();
 
@@ -70,8 +66,7 @@ table 12137 "Purch. Withh. Contribution"
 
             trigger OnValidate()
             begin
-                if "Non Taxable Amount By Treaty" > ("Total Amount" - "Base - Excluded Amount") then
-                    Error(InvalidNonTaxableAmountByTreatyErr, "Total Amount" - "Base - Excluded Amount");
+                CheckNonTaxableAmountByTreaty();
 
                 GetHeader();
 
@@ -513,6 +508,35 @@ table 12137 "Purch. Withh. Contribution"
         end;
     end;
 
+    local procedure CheckBaseExcludedAmount()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBaseExcludedAmount(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Rec."Base - Excluded Amount" > (Rec."Total Amount" - Rec."Non Taxable Amount By Treaty") then
+            Error(InvalidBaseExcludedAmountErr, Rec."Total Amount" - Rec."Non Taxable Amount By Treaty");
+
+        if Rec."Base - Excluded Amount" > Rec."Total Amount" then
+            Error(BaseExcludedAmtGreaterThanTotalErr);
+    end;
+
+    local procedure CheckNonTaxableAmountByTreaty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNonTaxableAmountByTreaty(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Rec."Non Taxable Amount By Treaty" > (Rec."Total Amount" - Rec."Base - Excluded Amount") then
+            Error(InvalidNonTaxableAmountByTreatyErr, Rec."Total Amount" - Rec."Base - Excluded Amount");
+    end;
+
     [Scope('OnPrem')]
     procedure GetHeader()
     begin
@@ -633,6 +657,16 @@ table 12137 "Purch. Withh. Contribution"
     begin
         if PurchWithhContribution.Get(PurchaseHeader."Document Type", PurchaseHeader."No.") then
             PurchWithhContribution.Delete(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBaseExcludedAmount(var PurchWithhContribution: Record "Purch. Withh. Contribution"; xPurchWithhContribution: Record "Purch. Withh. Contribution"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNonTaxableAmountByTreaty(var PurchWithhContribution: Record "Purch. Withh. Contribution"; xPurchWithhContribution: Record "Purch. Withh. Contribution"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -114,7 +114,7 @@
             begin
                 ConvertBankAccNo();
                 GetBBAN();
-		        OnValidateBankAccount(Rec, 'Bank Account No.');
+                OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])
@@ -316,6 +316,7 @@
             BBAN := AbiCabCodes.CalcBBAN(ABI, CAB, "Bank Account No.")
         else
             BBAN := '';
+        OnAfterGetBBAN(Rec);
     end;
 
     [Scope('OnPrem')]
@@ -365,6 +366,11 @@
 
         if "Bank Account No." <> '' then
             exit("Bank Account No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetBBAN(var CustomerBankAccount: Record "Customer Bank Account")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
