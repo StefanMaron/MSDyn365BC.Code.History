@@ -27,6 +27,7 @@ codeunit 10673 "Generate SAF-T File"
             exit;
         end;
         ExportHeader(SAFTExportHeader);
+        GLEntry.SetCurrentKey("Document No.", "Posting Date");
         GLEntry.SetRange("Posting Date", "Starting Date", "Ending Date");
         ExportGeneralLedgerEntries(GLEntry, Rec);
         if GuiAllowed() then
@@ -690,15 +691,17 @@ codeunit 10673 "Generate SAF-T File"
         ExchangeRate: Decimal;
         EntryAmount: Decimal;
         EntryAmountLCY: Decimal;
-        LastTransactionNo: Integer;
+        CurrentTransactionID: Text;
+        PrevTransactionID: Text;
         IsHandled: Boolean;
     begin
         repeat
-            if LastTransactionNo <> GLEntry."Transaction No." then begin
-                if LastTransactionNo <> 0 then
+            CurrentTransactionID := GetSAFTTransactionIDFromGLEntry(GLEntry);
+            if CurrentTransactionID <> PrevTransactionID then begin
+                if PrevTransactionID <> '' then
                     SAFTXMLHelper.FinalizeXMLNode();
-                ExportGLEntryTransactionInfo(GLEntry);
-                LastTransactionNo := GLEntry."Transaction No.";
+                ExportGLEntryTransactionInfo(GLEntry, CurrentTransactionID);
+                PrevTransactionID := GetSAFTTransactionIDFromGLEntry(GLEntry);
                 GetFCYData(CurrencyCode, ExchangeRate, EntryAmount, EntryAmountLCY, SAFTExportHeader, GLEntry);
             end;
             SAFTXMLHelper.AddNewXMLNode('Line', '');
@@ -750,13 +753,13 @@ codeunit 10673 "Generate SAF-T File"
         SAFTXMLHelper.FinalizeXMLNode();
     end;
 
-    local procedure ExportGLEntryTransactionInfo(GLEntry: Record "G/L Entry")
+    local procedure ExportGLEntryTransactionInfo(GLEntry: Record "G/L Entry"; TransactionID: Text)
     var
         SystemEntryDate: Date;
         TransactionTypeValue: Text;
     begin
         SAFTXMLHelper.AddNewXMLNode('Transaction', '');
-        SAFTXMLHelper.AppendXMLNode('TransactionID', format(GLEntry."Document No."));
+        SAFTXMLHelper.AppendXMLNode('TransactionID', TransactionID);
         SAFTXMLHelper.AppendXMLNode('Period', format(Date2DMY(GLEntry."Posting Date", 2)));
         SAFTXMLHelper.AppendXMLNode('PeriodYear', format(Date2DMY(GLEntry."Posting Date", 3)));
         SAFTXMLHelper.AppendXMLNode('TransactionDate', FormatDate(GLEntry."Document Date"));
@@ -1146,6 +1149,11 @@ codeunit 10673 "Generate SAF-T File"
     begin
         Currency.Get(CurrencyCode);
         exit(GLAccNo in [Currency."Unrealized Gains Acc.", Currency."Unrealized Losses Acc.", Currency."Realized Gains Acc.", Currency."Realized Losses Acc."]);
+    end;
+
+    local procedure GetSAFTTransactionIDFromGLEntry(GLEntry: Record "G/L Entry"): Text
+    begin
+        exit(GLEntry."Document No." + Format(GLEntry."Posting Date", 0, '<Day,2><Month,2><Year,2>'));
     end;
 
     [IntegrationEvent(false, false)]
