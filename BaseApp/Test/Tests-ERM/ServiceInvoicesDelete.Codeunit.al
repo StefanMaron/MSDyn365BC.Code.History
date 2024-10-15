@@ -37,15 +37,16 @@ codeunit 136147 "Service Invoices Delete"
 
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, false);
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         WorkDate(CalcDate('<1M>', WorkDate()));
         CreateServiceInvoice(ServiceContractHeader);
 
         // [WHEN] Delete service invoice.
-        asserterror ServiceHeader.Delete(true);
+        asserterror DeleteServiceInvoice(ServiceHeader);
 
         Assert.ExpectedError(CannotDeleteWhenNextInvExistsErr);
 
@@ -67,29 +68,26 @@ codeunit 136147 "Service Invoices Delete"
 
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, false);
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         // Mock close service ledger entry.
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::" ");
         ServiceLedgerEntry.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLedgerEntry.FindLast();
-        ServiceLedgerEntry.Open := false;
-        ServiceLedgerEntry.Modify();
+        ServiceLedgerEntry.ModifyAll(Open, false);
 
         WorkDate(CalcDate('<1M>', WorkDate()));
         LaterServiceHeader.Get(LaterServiceHeader."Document Type"::Invoice, CreateServiceInvoice(ServiceContractHeader));
         LibraryService.PostServiceOrder(LaterServiceHeader, true, false, true);
 
         // Mock reopen service ledger entry.
-        ServiceLedgerEntry.Find();
-        ServiceLedgerEntry.Open := true;
-        ServiceLedgerEntry.Modify();
+        ServiceLedgerEntry.ModifyAll(Open, true);
 
         // [WHEN] Delete service invoice.
-        asserterror ServiceHeader.Delete(true);
+        asserterror DeleteServiceInvoice(ServiceHeader);
 
         Assert.ExpectedError(CannotDeleteWhenNextInvPostedErr);
 
@@ -110,8 +108,9 @@ codeunit 136147 "Service Invoices Delete"
 
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, false);
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         ServiceDocumentRegister.Get(
@@ -125,7 +124,7 @@ codeunit 136147 "Service Invoices Delete"
         ServiceDocumentRegister.Modify();
 
         // [WHEN] Delete service invoice.
-        asserterror ServiceHeader.Delete(true);
+        asserterror DeleteServiceInvoice(ServiceHeader);
 
         Assert.ExpectedError(CannotRestoreInvoiceDatesErr);
 
@@ -145,8 +144,9 @@ codeunit 136147 "Service Invoices Delete"
 
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, false);
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         ServiceContractHeader.Find();
@@ -154,7 +154,7 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractHeader.Modify();
 
         // [WHEN] Delete service invoice.
-        asserterror ServiceHeader.Delete(true);
+        asserterror DeleteServiceInvoice(ServiceHeader);
 
         Assert.ExpectedError(InvoicePeriodChangedErr);
 
@@ -180,8 +180,9 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractHeaderInitialState := ServiceContractHeader;
         ServiceContractLineInitialState := ServiceContractLine;
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         ServiceDocumentRegister.Get(
@@ -194,7 +195,7 @@ codeunit 136147 "Service Invoices Delete"
         ServiceDocumentRegister.TestField("Next Invoice Period End", ServiceContractHeaderInitialState."Next Invoice Period End");
 
         // [WHEN] Delete service invoice.
-        ServiceHeader.Delete(true);
+        DeleteServiceInvoice(ServiceHeader);
 
         VerifyServiceContract(ServiceContractHeader, ServiceContractHeaderInitialState, 0);
 
@@ -238,8 +239,9 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractHeaderInitialState[1] := ServiceContractHeader;
         ServiceContractLineInitialState[1] := ServiceContractLine;
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader[1], ServiceHeader[1]."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         ServiceContractHeader.Find();
@@ -251,12 +253,12 @@ codeunit 136147 "Service Invoices Delete"
         ServiceHeader[2].Get(ServiceHeader[2]."Document Type"::Invoice, CreateServiceInvoice(ServiceContractHeader));
 
         // [WHEN] Delete the second and then the first service invoice.
-        ServiceHeader[2].Delete(true);
+        DeleteServiceInvoice(ServiceHeader[2]);
         VerifyServiceContract(ServiceContractHeader, ServiceContractHeaderInitialState[2], 1);
         ServiceContractLine.Find();
         ServiceContractLine.TestField("Invoiced to Date", ServiceContractLineInitialState[2]."Invoiced to Date");
 
-        ServiceHeader[1].Delete(true);
+        DeleteServiceInvoice(ServiceHeader[1]);
         VerifyServiceContract(ServiceContractHeader, ServiceContractHeaderInitialState[1], 0);
         ServiceContractLine.Find();
         ServiceContractLine.TestField("Invoiced to Date", ServiceContractLineInitialState[1]."Invoiced to Date");
@@ -279,8 +281,9 @@ codeunit 136147 "Service Invoices Delete"
 
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, true);
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader[1], ServiceHeader[1]."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         ServiceContractHeader.Find();
@@ -294,7 +297,7 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractLineNewState := ServiceContractLine;
 
         // [WHEN] Delete the second service invoice, post the first one, and then recreate and post the second one.
-        ServiceHeader[2].Delete(true);
+        DeleteServiceInvoice(ServiceHeader[2]);
 
         LibraryService.PostServiceOrder(ServiceHeader[1], true, false, true);
 
@@ -329,8 +332,9 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractHeaderInitialState := ServiceContractHeader;
         ServiceContractLineInitialState := ServiceContractLine;
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         ServiceDocumentRegister.Get(
@@ -342,7 +346,7 @@ codeunit 136147 "Service Invoices Delete"
         ServiceDocumentRegister.TestField("Next Invoice Period End", ServiceContractHeaderInitialState."Next Invoice Period End");
 
         // [WHEN] Delete service invoice.
-        ServiceHeader.Delete(true);
+        DeleteServiceInvoice(ServiceHeader);
 
         VerifyServiceContract(ServiceContractHeader, ServiceContractHeaderInitialState, 0);
 
@@ -381,8 +385,9 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractHeaderInitialState[1] := ServiceContractHeader;
         ServiceContractLineInitialState[1] := ServiceContractLine;
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader[1], ServiceHeader[1]."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         ServiceContractHeader.Find();
@@ -394,12 +399,12 @@ codeunit 136147 "Service Invoices Delete"
         ServiceHeader[2].Get(ServiceHeader[2]."Document Type"::Invoice, CreateServiceInvoice(ServiceContractHeader));
 
         // [WHEN] Delete the second and then the first service invoice.
-        ServiceHeader[2].Delete(true);
+        DeleteServiceInvoice(ServiceHeader[2]);
         VerifyServiceContract(ServiceContractHeader, ServiceContractHeaderInitialState[2], 1);
         ServiceContractLine.Find();
         ServiceContractLine.TestField("Invoiced to Date", ServiceContractLineInitialState[2]."Invoiced to Date");
 
-        ServiceHeader[1].Delete(true);
+        DeleteServiceInvoice(ServiceHeader[1]);
         VerifyServiceContract(ServiceContractHeader, ServiceContractHeaderInitialState[1], 0);
         ServiceContractLine.Find();
         ServiceContractLine.TestField("Invoiced to Date", ServiceContractLineInitialState[1]."Invoiced to Date");
@@ -422,8 +427,9 @@ codeunit 136147 "Service Invoices Delete"
 
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, false);
 
-        SignContractSilent(ServiceContractHeader);
+        SignContract(ServiceContractHeader);
 
+        CreateRemainingPeriodInvoice(ServiceContractHeader);
         FindServiceDocumentHeader(ServiceHeader[1], ServiceHeader[1]."Document Type"::Invoice, ServiceContractHeader."Contract No.");
 
         ServiceContractHeader.Find();
@@ -437,7 +443,7 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractLineNewState := ServiceContractLine;
 
         // [WHEN] Delete the second service invoice, post the first one, and then recreate and post the second one.
-        ServiceHeader[2].Delete(true);
+        DeleteServiceInvoice(ServiceHeader[2]);
 
         LibraryService.PostServiceOrder(ServiceHeader[1], true, false, true);
 
@@ -460,7 +466,9 @@ codeunit 136147 "Service Invoices Delete"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Service Invoices Delete");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-        WorkDate(CurrentWorkDate);
+        if CurrentWorkDate = 0D then
+            CurrentWorkDate := WorkDate();
+        WorkDate(CalcDate('<CM-1W>', CurrentWorkDate));
 
         if IsInitialized then
             exit;
@@ -477,7 +485,6 @@ codeunit 136147 "Service Invoices Delete"
         CreateServiceContractTemplates();
 
         IsInitialized := true;
-        CurrentWorkDate := WorkDate();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Service Invoices Delete");
     end;
 
@@ -514,6 +521,7 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractAccountGroup: Record "Service Contract Account Group";
         CustomerNo: Code[20];
     begin
+        LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(IsPrepaid);
 
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -541,6 +549,16 @@ codeunit 136147 "Service Invoices Delete"
         ServiceContractLine.Modify(true);
     end;
 
+    local procedure CreateRemainingPeriodInvoice(ServiceContractHeader: Record "Service Contract Header") InvoiceNo: Code[20]
+    var
+        ServContractManagement: Codeunit ServContractManagement;
+    begin
+        LibraryVariableStorage.Enqueue(true);
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        ServContractManagement.InitCodeUnit();
+        InvoiceNo := ServContractManagement.CreateRemainingPeriodInvoice(ServiceContractHeader);
+    end;
+
     local procedure CreateServiceInvoice(ServiceContractHeader: Record "Service Contract Header") InvoiceNo: Code[20]
     var
         ServContractManagement: Codeunit ServContractManagement;
@@ -550,6 +568,12 @@ codeunit 136147 "Service Invoices Delete"
         InvoiceNo := ServContractManagement.CreateInvoice(ServiceContractHeader);
     end;
 
+    local procedure DeleteServiceInvoice(var ServiceHeader: Record "Service Header")
+    begin
+        LibraryVariableStorage.Enqueue(true);
+        ServiceHeader.Delete(true);
+    end;
+
     local procedure FindServiceDocumentHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; ContractNo: Code[20])
     begin
         ServiceHeader.SetRange("Document Type", DocumentType);
@@ -557,11 +581,12 @@ codeunit 136147 "Service Invoices Delete"
         ServiceHeader.FindLast();
     end;
 
-    local procedure SignContractSilent(var ServiceContractHeader: Record "Service Contract Header")
+    local procedure SignContract(var ServiceContractHeader: Record "Service Contract Header")
     var
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
-        SignServContractDoc.SetHideDialog(true);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
         SignServContractDoc.SignContract(ServiceContractHeader);
     end;
 
@@ -591,6 +616,6 @@ codeunit 136147 "Service Invoices Delete"
     [ConfirmHandler]
     procedure ConfirmHandler(Message: Text[1024]; var Reply: Boolean)
     begin
-        Reply := true;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }

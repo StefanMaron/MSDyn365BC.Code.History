@@ -74,6 +74,7 @@ page 6755 "Reminder Actions Part"
                 Caption = 'New';
                 ToolTip = 'Create new reminder action.';
                 Image = New;
+                Enabled = EnableAction;
                 trigger OnAction()
                 begin
                     CreateNewReminderAction();
@@ -86,6 +87,7 @@ page 6755 "Reminder Actions Part"
                 Caption = 'Setup';
                 ToolTip = 'Setup reminder action.';
                 Image = Setup;
+                Enabled = EnableAction;
                 trigger OnAction()
                 begin
                     UpdateReminderAction();
@@ -98,6 +100,7 @@ page 6755 "Reminder Actions Part"
                 Caption = 'Delete';
                 ToolTip = 'Delete the reminder action.';
                 Image = Delete;
+                Enabled = EnableAction;
                 trigger OnAction()
                 begin
                     UpdateReminderAction();
@@ -111,6 +114,7 @@ page 6755 "Reminder Actions Part"
                 Caption = 'Move up';
                 ToolTip = 'Move reminder action up in the list. This will change the order of when the action is performed.';
                 Image = MoveUp;
+                Enabled = EnableAction;
                 trigger OnAction()
                 begin
                     Rec.MoveUp();
@@ -122,6 +126,7 @@ page 6755 "Reminder Actions Part"
                 Caption = 'Move down';
                 ToolTip = 'Move reminder action down in the list. This will change the order of when the action is performed.';
                 Image = MoveDown;
+                Enabled = EnableAction;
                 trigger OnAction()
                 begin
                     Rec.MoveDown();
@@ -133,6 +138,7 @@ page 6755 "Reminder Actions Part"
                 Caption = 'Set stop on error';
                 ToolTip = 'Choosing this option will set stop on error, which means if the error occurs during this action job will stop immediatelly and will not proceed with other actions.';
                 Image = ErrorLog;
+                Enabled = EnableAction;
 
                 trigger OnAction()
                 begin
@@ -146,6 +152,7 @@ page 6755 "Reminder Actions Part"
                 Caption = 'Clear stop on error';
                 ToolTip = 'Choosing this option will remove set stop on error, which means if the error occurs during this action job will log the error and proceed with other actions.';
                 Image = Log;
+                Enabled = EnableAction;
 
                 trigger OnAction()
                 begin
@@ -156,14 +163,12 @@ page 6755 "Reminder Actions Part"
         }
     }
 
-
     trigger OnOpenPage()
     begin
         Rec.SetCurrentKey(Rec.Order);
         Rec.Ascending(true);
         UpdateReminderAction();
     end;
-
 
     local procedure SelectReminderAction(var ReminderActionCode: Code[50]; var NewEnumReminderAction: Enum "Reminder Action"): Interface "Reminder Action"
     var
@@ -230,7 +235,14 @@ page 6755 "Reminder Actions Part"
         exit(ReminderActionGroupCode);
     end;
 
+    internal procedure EnableActions()
+    begin
+        EnableAction := true;
+        CurrPage.Update();
+    end;
+
     var
         ReminderAction: Interface "Reminder Action";
         SummaryText: Text;
+        EnableAction: Boolean;
 }

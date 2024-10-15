@@ -169,7 +169,14 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     local procedure UpdateCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCustLedgEntry(CustLedgEntry, GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         CustLedgEntry.CalcFields("Remaining Amount");
         CustLedgEntry."Remaining Amount" :=
           CurrExchRate.ExchangeAmount(
@@ -189,7 +196,14 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     local procedure UpdateVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateVendLedgEntry(VendLedgEntry, GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         VendLedgEntry.CalcFields("Remaining Amount");
         VendLedgEntry."Remaining Amount" :=
           CurrExchRate.ExchangeAmount(
@@ -883,12 +897,22 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyCustomerLedgerEntryOnAfterSetCustomerAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnApplyCustomerLedgerEntryOnAfterSetCustomerAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyVendorLedgerEntryOnAfterSetVendorAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

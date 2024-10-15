@@ -107,7 +107,7 @@ page 2750 "Universal Printer Settings"
                     UniversalPrinterSetup.LookupPaperTrays(Rec);
                 end;
             }
-            field(Landscape; Landscape)
+            field(Landscape; Rec.Landscape)
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies whether the paper is in Landscape orientation.';

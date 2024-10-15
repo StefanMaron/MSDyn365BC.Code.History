@@ -2,10 +2,12 @@
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Projects.Project.Ledger;
+using Microsoft.Integration.Dataverse;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Reports;
 using Microsoft.Projects.Project.WIP;
 using Microsoft.Purchases.Document;
+using Microsoft.Integration.FieldService;
 
 page 1002 "Job Task Lines"
 {
@@ -197,6 +199,12 @@ page 1002 "Job Task Lines"
                         PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
                     end;
                 }
+                field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
+                {
+                    ApplicationArea = Jobs;
+                    Visible = FSIntegrationEnabled;
+                    ToolTip = 'Specifies if the project task is coupled to an entity in Field Service.';
+                }
             }
         }
         area(factboxes)
@@ -367,6 +375,91 @@ page 1002 "Job Task Lines"
                     RunPageView = sorting("Job No.", "Job Task No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the project ledger entries.';
+                }
+            }
+            group(ActionGroupFS)
+            {
+                Caption = 'Dynamics 365 Field Service';
+                Enabled = FSActionGroupEnabled;
+                action(CRMGoToProduct)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Project Task in Field Service';
+                    Image = CoupledItem;
+                    ToolTip = 'Open the coupled Dynamics 365 Field Service entity.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(Rec.RecordId);
+                    end;
+                }
+                action(CRMSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send updated data to Dynamics 365 Field Service.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.UpdateOneNow(Rec.RecordId);
+                    end;
+                }
+                group(Coupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Field Service entity.';
+                    action(ManageCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Field Service entity.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineCoupling(Rec.RecordId);
+                        end;
+                    }
+                    action(DeleteCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = D;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Dynamics 365 Field Service entity.';
+
+                        trigger OnAction()
+                        var
+                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                        begin
+                            CRMCouplingManagement.RemoveCoupling(Rec.RecordId);
+                        end;
+                    }
+                }
+                action(ShowLog)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for this table.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowLog(Rec.RecordId);
+                    end;
                 }
             }
         }
@@ -685,6 +778,20 @@ page 1002 "Job Task Lines"
         }
     }
 
+    trigger OnAfterGetCurrRecord()
+    var
+        Job: Record Job;
+        CRMCouplingManagement: Codeunit "CRM Coupling Management";
+    begin
+        if FSIntegrationEnabled then
+            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
+
+        if not Job.Get(Rec."Job No.") then
+            FSActionGroupEnabled := false
+        else
+            FSActionGroupEnabled := FSIntegrationEnabled and (Rec."Job Task Type" = Rec."Job Task Type"::Posting) and Job."Apply Usage Link";
+    end;
+
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := Rec.Indentation;
@@ -696,9 +803,21 @@ page 1002 "Job Task Lines"
         Rec.ClearTempDim();
     end;
 
+    trigger OnOpenPage()
     var
+        FSConnectionSetup: Record "FS Connection Setup";
+    begin
+        if CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            FSIntegrationEnabled := FSConnectionSetup.IsEnabled();
+    end;
+
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         DescriptionIndent: Integer;
         StyleIsStrong: Boolean;
+        FSIntegrationEnabled: Boolean;
+        FSActionGroupEnabled: Boolean;
+        CRMIsCoupledToRecord: Boolean;
 
     procedure SetPurchLineFilters(var PurchLine: Record "Purchase Line"; JobNo: Code[20]; JobTaskNo: Code[20])
     begin

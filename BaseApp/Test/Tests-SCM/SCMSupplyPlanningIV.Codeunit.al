@@ -53,6 +53,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         PeriodType: Option Day,Week,Month,Quarter,Year,Period;
         AmountType: Option "Net Change","Balance at Date";
         AppliesToEntryMissingErr: Label 'Applies-to Entry must have a value';
+        ItemNoErr: Label 'Item No. must be equal';
 
     [Test]
     [Scope('OnPrem')]
@@ -4209,6 +4210,49 @@ codeunit 137077 "SCM Supply Planning -IV"
         UpdManufSetupComponentsAtLocation(PrevComponentsAtLocation);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyNoErrorWhenReceivingSubContractingPurchaseOrder()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        RoutingHeader: Record "Routing Header";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 490899] Receiving a purchase order for Subcontracting results in No error
+        Initialize();
+
+        // [GIVEN] Create Item
+        CreateItem(Item);
+
+        // [GIVEN] Create Routing Setup
+        CreateRoutingSetup(WorkCenter, RoutingHeader);
+
+        // [GIVEN] Update Item Routing
+        UpdateItemRoutingNo(Item, RoutingHeader."No.");
+
+        // [GIVEN] Create and refresh Released Production Order with Location and Bin.
+        LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);
+        CreateAndRefreshReleasedProductionOrderWithLocationAndBin(ProductionOrder, Item."No.", LocationSilver.Code, Bin.Code);
+
+        // [GIVEN] Calculate Subcontracts from Subcontracting worksheet.
+        CalculateSubcontractOrder(WorkCenter);
+
+        // [GIVEN] Carry Out Action Message for Subcontracting worksheet.
+        CarryOutActionMessageSubcontractWksh(Item."No.");
+
+        // [WHEN] Post and Receive Purchase Order
+        SelectPurchaseOrderLine(PurchaseLine, Item."No.");
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Verify Purchase Order is received with warehouse entry.
+        VerifyWareHouseEntry(PurchaseLine."No.")
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -5735,6 +5779,14 @@ codeunit 137077 "SCM Supply Planning -IV"
         InternalMovementLine.Validate("From Bin Code", FromBin.Code);
         InternalMovementLine.Validate("To Bin Code", ToBin.Code);
         InternalMovementLine.Modify(true);
+    end;
+
+    local procedure VerifyWareHouseEntry(ItemNo: Code[20])
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        WarehouseEntry.FindLast();
+        Assert.AreEqual(WarehouseEntry."Item No.", ItemNo, ItemNoErr);
     end;
 
     [RequestPageHandler]

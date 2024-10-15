@@ -52,7 +52,7 @@ table 9178 "Application Area Setup"
         }
         field(400; Jobs; Boolean)
         {
-            Caption = 'Jobs';
+            Caption = 'Projects';
         }
         field(500; "Fixed Assets"; Boolean)
         {

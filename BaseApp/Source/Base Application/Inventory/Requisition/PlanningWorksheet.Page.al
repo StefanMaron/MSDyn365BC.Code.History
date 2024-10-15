@@ -1121,12 +1121,12 @@ page 99000852 "Planning Worksheet"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalculateRegenerativePlan(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalculateNetChangePlan(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;

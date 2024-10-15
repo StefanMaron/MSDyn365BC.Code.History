@@ -90,7 +90,9 @@ page 5784 "Filters to Get Source Docs."
 
                     GetSourceBatch.SetSkipBlockedItem(true);
                     GetSourceBatch.UseRequestPage(ShowRequestForm);
+                    OnActionRunOnBeforeGetSourceBatchRunModal(Rec, GetSourceBatch);
                     GetSourceBatch.RunModal();
+                    OnActionRunOnAfterGetSourceBatchRunModal(Rec, GetSourceBatch);
                     if GetSourceBatch.NotCancelled() then
                         CurrPage.Close();
                 end;
@@ -115,6 +117,7 @@ page 5784 "Filters to Get Source Docs."
                     end;
                     SourceDocFilterCard.SetRecord(Rec);
                     SourceDocFilterCard.SetTableView(Rec);
+                    OnActionRunOnBeforeSourceDocFilterCardRunModal(Rec, SourceDocFilterCard);
                     SourceDocFilterCard.RunModal();
                     CurrPage.Close();
                 end;
@@ -170,6 +173,21 @@ page 5784 "Filters to Get Source Docs."
     begin
         RequestType := RequestType::Receive;
         WhseReceiptHeader := WhseReceiptHeader2;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnActionRunOnBeforeGetSourceBatchRunModal(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceBatch: Report "Get Source Documents")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnActionRunOnAfterGetSourceBatchRunModal(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceBatch: Report "Get Source Documents")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnActionRunOnBeforeSourceDocFilterCardRunModal(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var SourceDocumentFilterCard: Page "Source Document Filter Card")
+    begin
     end;
 }
 

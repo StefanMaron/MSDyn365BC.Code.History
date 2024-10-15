@@ -2606,9 +2606,7 @@ table 38 "Purchase Header"
 
         InitInsert();
 
-        if GetFilter("Buy-from Vendor No.") <> '' then
-            if GetRangeMin("Buy-from Vendor No.") = GetRangeMax("Buy-from Vendor No.") then
-                Validate("Buy-from Vendor No.", GetRangeMin("Buy-from Vendor No."));
+        SetBuyFromVendorFromFilter();
 
         if "Purchaser Code" = '' then
             SetDefaultPurchaser();
@@ -3158,11 +3156,16 @@ table 38 "Purchase Header"
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         NoOfSelected: Integer;
         NoOfSkipped: Integer;
+        PrevFilterGroup: Integer;
     begin
         NoOfSelected := PurchaseHeader.Count();
+        PrevFilterGroup := PurchaseHeader.FilterGroup();
+        PurchaseHeader.FilterGroup(10);
         PurchaseHeader.SetFilter(Status, '<>%1', PurchaseHeader.Status::Released);
         NoOfSkipped := NoOfSelected - PurchaseHeader.Count;
         BatchProcessingMgt.BatchProcess(PurchaseHeader, Codeunit::"Purchase Manual Release", Enum::"Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
+        PurchaseHeader.SetRange(Status);
+        PurchaseHeader.FilterGroup(PrevFilterGroup);
     end;
 
     internal procedure PerformManualRelease()
@@ -3574,9 +3577,11 @@ table 38 "Purchase Header"
     end;
 
     procedure ConfirmCurrencyFactorUpdate(): Boolean
+    var
+        ForceConfirm: Boolean;
     begin
-        OnBeforeConfirmUpdateCurrencyFactor(Rec, HideValidationDialog);
-        if GetHideValidationDialog() or not GuiAllowed then
+        OnBeforeConfirmUpdateCurrencyFactor(Rec, HideValidationDialog, ForceConfirm);
+        if GetHideValidationDialog() or not GuiAllowed or ForceConfirm then
             Confirmed := true
         else
             Confirmed := Confirm(Text022, false);
@@ -5715,6 +5720,28 @@ table 38 "Purchase Header"
         Commit();
     end;
 
+    procedure BatchConfirmUpdatePostingDate(ReplacePostingDate: Boolean; PostingDateReq: Date; ReplaceDocDate: Boolean)
+    begin
+        if not ReplacePostingDate then
+            exit;
+        if (PostingDateReq = "Posting Date") then
+            exit;
+        if DeferralHeadersExist() then
+            exit;
+
+        if ReplacePostingDate then begin
+            "Posting Date" := PostingDateReq;
+            Validate("Currency Code");
+        end;
+
+        if ReplacePostingDate and ReplaceDocDate and ("Document Date" <> PostingDateReq) then begin
+            SetReplaceDocumentDate();
+            Validate("Document Date", PostingDateReq);
+        end;
+
+        Commit();
+    end;
+
     procedure SetAllowSelectNoSeries()
     begin
         SelectNoSeriesAllowed := true;
@@ -6947,7 +6974,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; var HideValidationDialog: Boolean)
+    local procedure OnBeforeConfirmUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; var HideValidationDialog: Boolean; var ForceConfirm: Boolean)
     begin
     end;
 
