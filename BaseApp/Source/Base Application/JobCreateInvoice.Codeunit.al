@@ -28,7 +28,6 @@ codeunit 1002 "Job Create-Invoice"
         Text010: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the job. Do you want to continue?';
         Text011: Label 'The currency exchange rate on all planning lines will be updated based on the exchange rate on the sales invoice. Do you want to continue?';
         Text012: Label 'The %1 %2 does not exist anymore. A printed copy of the document was created before the document was deleted.', Comment = 'The Sales Invoice Header 103001 does not exist in the system anymore. A printed copy of the document was created before deletion.';
-        QuantityNegativeErr: Label 'must be positive to create Sales Invoice';
 
     procedure CreateSalesInvoice(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
     var
@@ -946,9 +945,6 @@ codeunit 1002 "Job Create-Invoice"
         OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine, IsHandled);
         if IsHandled then
             exit;
-
-        if JobPlanningLine.Quantity < 0 then
-            JobPlanningLine.FieldError(Quantity, QuantityNegativeErr);
     end;
 
     [IntegrationEvent(false, false)]

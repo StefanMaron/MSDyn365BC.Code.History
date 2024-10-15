@@ -1,4 +1,4 @@
-codeunit 137038 "SCM Transfers"
+﻿codeunit 137038 "SCM Transfers"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1680,6 +1680,45 @@ codeunit 137038 "SCM Transfers"
         // [SCENARIO] Intransit Transfer Order shipped with blocked item on a previously shipped line
         Initialize();
         PostTransferShipmentPartiallyWithBlockedItem(false); //DirectTransfer = false
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostDirectTransferWithPartialShipmentEnableDirectTransfers()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 463842] [Direct Transfer] [Order] [Partial Shipment]
+        // [SCENARIO] Post partial shipment in direct transfer order with posting direct transfer
+        Initialize();
+        EnableDirectTransfersInInventorySetup();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] Locations "A" and "B".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationFrom);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post positive inventory adjustment to location "A".
+        // [GIVEN] Post negative inventory adjustment from blank location.
+        CreateAndPostItemJnlWithCostLocationVariant(
+          "Item Ledger Entry Type"::"Positive Adjmt.", Item."No.", QtyToShip, 0, LocationFrom.Code, '');
+        CreateAndPostItemJnlWithCostLocationVariant(
+          "Item Ledger Entry Type"::"Negative Adjmt.", Item."No.", QtyToShip, 0, '', '');
+
+        // [GIVEN] Direct transfer order from "A" to "B".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", QtyToShip);
+
+        // [WHEN] Post the direct transfer.
+        asserterror TransferLine.validate("Qty. to Ship", QtyToShip - 1);
     end;
 
     [Test]

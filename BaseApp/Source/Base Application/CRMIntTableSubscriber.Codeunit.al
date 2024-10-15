@@ -468,8 +468,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
                     UpdateSalesOrderQuoteNo(SourceRecordRef, DestinationRecordRef);
             'Sales Line-CRM Salesorderdetail':
-                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
                     SetWriteInProduct(SourceRecordRef, DestinationRecordRef);
+                    ApplySalesLineTax(SourceRecordRef, DestinationRecordRef);
+                end;
         end;
 
         case DestinationRecordRef.Number() of
@@ -684,6 +686,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                         UpdateCRMSalesOrderPriceList(SourceRecordRef, DestinationRecordRef);
                     SetCompanyId(DestinationRecordRef);
                 end;
+            'Sales Line-CRM Salesorderdetail':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    ApplySalesLineTax(SourceRecordRef, DestinationRecordRef);
         end;
     end;
 
@@ -1243,7 +1248,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
         CRMConnectionSetup.Get();
 
-        if CRMConnectionSetup."Is S.Order Integration Enabled" then begin
+        if CRMConnectionSetup."Is S.Order Integration Enabled" or CRMConnectionSetup."Bidirectional Sales Order Int." then begin
             DocumentTotals.CalculatePostedSalesInvoiceTotals(SalesInvoiceHeader, TaxAmount, SalesInvoiceLine);
             CRMInvoice.TotalAmount := SalesInvoiceHeader."Amount Including VAT";
             CRMInvoice.TotalTax := TaxAmount;
@@ -1587,6 +1592,12 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         if not SalesLine.IsEmpty() then begin
             SalesLineRecordRef.GetTable(SalesLine);
             CRMIntegrationTableSynch.SynchRecordsToIntegrationTable(SalesLineRecordRef, false, false);
+
+            SalesLine.CalcSums("Line Discount Amount");
+            if CRMSalesorder.TotalLineItemDiscountAmount <> SalesLine."Line Discount Amount" then begin
+                CRMSalesorder.TotalLineItemDiscountAmount := SalesLine."Line Discount Amount";
+                CRMSalesorder.Modify();
+            end;
         end;
     end;
 
@@ -1646,6 +1657,17 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             CRMSalesorderdetailRecordRef.GetTable(CRMSalesorderdetail2);
             CRMIntegrationTableSynch.SynchRecordsFromIntegrationTable(CRMSalesorderdetailRecordRef, Database::"Sales Line", false, false);
         end;
+    end;
+
+    local procedure ApplySalesLineTax(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        SalesLine: Record "Sales Line";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+    begin
+        SourceRecordRef.SetTable(SalesLine);
+        DestinationRecordRef.SetTable(CRMSalesorderdetail);
+        CRMSalesorderdetail.Tax := SalesLine."Amount Including VAT" - SalesLine.Amount;
+        DestinationRecordRef.GetTable(CRMSalesorderdetail);
     end;
 
     local procedure ApplySalesOrderDiscounts(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
