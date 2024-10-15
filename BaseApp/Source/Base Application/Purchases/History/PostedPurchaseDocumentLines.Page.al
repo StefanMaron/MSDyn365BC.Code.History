@@ -179,7 +179,6 @@ page 5855 "Posted Purchase Document Lines"
         OldMenuType: Integer;
         CurrentMenuType: Integer;
         LinesNotCopied: Integer;
-        ShowRevLinesOnly: Boolean;
         MissingExCostRevLink: Boolean;
         Text000: Label 'The document lines that have a G/L account that does not allow direct posting have not been copied to the new document.';
         OriginalQuantity: Boolean;
@@ -193,6 +192,7 @@ page 5855 "Posted Purchase Document Lines"
     protected var
         ToPurchHeader: Record "Purchase Header";
         ShowRevLineEnable: Boolean;
+        ShowRevLinesOnly: Boolean;
 
     [Scope('OnPrem')]
     procedure CopyLineToDoc()

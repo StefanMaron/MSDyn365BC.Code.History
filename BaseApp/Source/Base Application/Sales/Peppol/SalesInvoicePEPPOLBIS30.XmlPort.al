@@ -2127,12 +2127,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
                     if ServiceInvoiceLine.FindSet() then
                         repeat
-                            SalesLine.TransferFields(ServiceInvoiceLine);
+                            PEPPOLMgt.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
+                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(ServiceInvoiceLine.Type);
                             PEPPOLMgt.GetInvoiceRoundingLine(TempSalesLineRounding, SalesLine);
                         until ServiceInvoiceLine.Next() = 0;
                     if TempSalesLineRounding."Line No." <> 0 then
                         ServiceInvoiceLine.SetFilter("Line No.", '<>%1', TempSalesLineRounding."Line No.");
-
 
                     ProcessedDocType := ProcessedDocType::Service;
                 end;

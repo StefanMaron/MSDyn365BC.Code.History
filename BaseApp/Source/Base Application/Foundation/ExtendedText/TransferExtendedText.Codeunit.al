@@ -38,10 +38,16 @@ codeunit 378 "Transfer Extended Text"
         exit(SalesCheckIfAnyExtText(SalesLine, Unconditionally, SalesHeader));
     end;
 
-    procedure SalesCheckIfAnyExtText(var SalesLine: Record "Sales Line"; Unconditionally: Boolean; SalesHeader: Record "Sales Header"): Boolean
+    procedure SalesCheckIfAnyExtText(var SalesLine: Record "Sales Line"; Unconditionally: Boolean; SalesHeader: Record "Sales Header") Result: Boolean
     var
         ExtTextHeader: Record "Extended Text Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesCheckIfAnyExtText(SalesLine, SalesHeader, Unconditionally, MakeUpdateRequired, AutoText, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         MakeUpdateRequired := false;
         if IsDeleteAttachedLines(SalesLine."Line No.", SalesLine."No.", SalesLine."Attached to Line No.") and not SalesLine.IsExtendedText() then
             MakeUpdateRequired := DeleteSalesLines(SalesLine);
@@ -167,10 +173,16 @@ codeunit 378 "Transfer Extended Text"
         exit(PurchCheckIfAnyExtText(PurchaseLine, Unconditionally, PurchaseHeader));
     end;
 
-    procedure PurchCheckIfAnyExtText(var PurchLine: Record "Purchase Line"; Unconditionally: Boolean; PurchaseHeader: Record "Purchase Header"): Boolean
+    procedure PurchCheckIfAnyExtText(var PurchLine: Record "Purchase Line"; Unconditionally: Boolean; PurchaseHeader: Record "Purchase Header") Result: Boolean
     var
         ExtTextHeader: Record "Extended Text Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchCheckIfAnyExtText(PurchLine, PurchaseHeader, Unconditionally, MakeUpdateRequired, AutoText, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         MakeUpdateRequired := false;
         if IsDeleteAttachedLines(PurchLine."Line No.", PurchLine."No.", PurchLine."Attached to Line No.") and not PurchLine.IsExtendedText() then
             MakeUpdateRequired := DeletePurchLines(PurchLine);
@@ -578,12 +590,18 @@ codeunit 378 "Transfer Extended Text"
         OnAfterReadLines(TempExtTextLine, ExtTextHeader, LanguageCode);
     end;
 
-    procedure ServCheckIfAnyExtText(var ServiceLine: Record "Service Line"; Unconditionally: Boolean): Boolean
+    procedure ServCheckIfAnyExtText(var ServiceLine: Record "Service Line"; Unconditionally: Boolean) Result: Boolean
     var
         ServHeader: Record "Service Header";
         ExtTextHeader: Record "Extended Text Header";
         ServCost: Record "Service Cost";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServCheckIfAnyExtText(ServiceLine, Unconditionally, MakeUpdateRequired, AutoText, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         MakeUpdateRequired := false;
         if IsDeleteAttachedLines(ServiceLine."Line No.", ServiceLine."No.", ServiceLine."Attached to Line No.") then
             MakeUpdateRequired := DeleteServiceLines(ServiceLine);
@@ -924,6 +942,21 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertPurchExtTextRetLastOnBeforeFindTempExtTextLine(var TempExtendedTextLine: Record "Extended Text Line" temporary; PurchaseLine: Record "Purchase Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesCheckIfAnyExtText(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean; var AutoText: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchCheckIfAnyExtText(var PurchLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean; var AutoText: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServCheckIfAnyExtText(var ServiceLine: Record "Service Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean; var AutoText: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

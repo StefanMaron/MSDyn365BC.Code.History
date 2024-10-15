@@ -267,7 +267,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         }
         field(86; "Pay-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Pay-to Country/Region Code";
+            CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
             DataClassification = CustomerContent;
         }
@@ -288,7 +288,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         }
         field(89; "Buy-from County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Buy-from Country/Region Code";
+            CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
             DataClassification = CustomerContent;
         }
@@ -309,7 +309,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         }
         field(92; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
             DataClassification = CustomerContent;
         }

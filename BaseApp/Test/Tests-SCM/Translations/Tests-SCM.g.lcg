@@ -941,6 +941,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly UT - Method CannotCreateAssembleOrderForBlockedItemVariant - NamedType BlockedItemErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3927120637 - NamedType 3795635838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Zone Code must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Whse. Handling - NamedType ZoneCodeMustMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3927120637 - Method 3709003853 - NamedType 1794134907" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Nothing to handle.]]></Val>
@@ -2451,24 +2460,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Extend Warehouse - NamedType Text006)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1260548562 - NamedType 4041362505" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[To Bin Code should not be blank.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Extend Warehouse - NamedType ToBinCodeShouldNotBeBlankErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1260548562 - NamedType 4155369400" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[To Zone Code should not be blank.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Extend Warehouse - NamedType ToZoneCodeShouldNotBeBlankErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3787785576 - NamedType 2642447006" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -14756,6 +14747,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - III - NamedType WrongNoOfWhseActivityLinesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2987310544 - NamedType 3795635838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Zone Code must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - III - NamedType ZoneCodeMustMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 144115856 - NamedType 2720269651" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Bin Content should be deleted by registration Whse Journal Line]]></Val>
@@ -15415,7 +15415,7 @@
   </Item>
   <Item ItemId=";Codeunit 2728740681 - NamedType 1794134907" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Nothing to handle. .]]></Val>
+      <Val><![CDATA[Nothing to handle.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -16072,7 +16072,7 @@
   </Item>
   <Item ItemId=";Codeunit 2700410155 - NamedType 4162906760" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are no Warehouse Receipt Lines created.]]></Val>
+      <Val><![CDATA[There are no warehouse receipt lines created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -16081,7 +16081,7 @@
   </Item>
   <Item ItemId=";Codeunit 2700410155 - NamedType 2656867124" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are no Warehouse Shipment Lines created.]]></Val>
+      <Val><![CDATA[There are no warehouse shipment lines created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -16430,6 +16430,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse IV - NamedType UnknownFailure)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3694926601 - NamedType 123642940" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Warranty Date must be %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse IV - NamedType WarrantyDateError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1396728725 - NamedType 2375870101" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Bin Code should be blanked for prod. line as it does not match class code.]]></Val>
@@ -16693,7 +16702,7 @@
   </Item>
   <Item ItemId=";Codeunit 3297871101 - NamedType 576562387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are no Warehouse Receipt Lines created.]]></Val>
+      <Val><![CDATA[There are no warehouse receipt lines created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -16711,7 +16720,7 @@
   </Item>
   <Item ItemId=";Codeunit 3297871101 - NamedType 2157826791" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are no Warehouse Shipment Lines created.]]></Val>
+      <Val><![CDATA[There are no warehouse shipment lines created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

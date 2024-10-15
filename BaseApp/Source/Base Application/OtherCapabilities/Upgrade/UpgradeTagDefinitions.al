@@ -157,6 +157,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetAllowInventoryAdjmtUpgradeTag());
         PerCompanyUpgradeTags.Add(GetLocationGranularWarehouseHandlingSetupsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATSetupUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetVATSetupAllowVATDateTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -174,6 +175,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetHideBlankProfileUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetSharePointConnectionUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetCreateDefaultAADApplicationTag());
+        PerDatabaseUpgradeTags.Add(GetCreateDefaultPowerPagesAADApplicationsTag());
 #if not CLEAN23
         PerDatabaseUpgradeTags.Add(GetDefaultAADApplicationDescriptionTag());
 #endif
@@ -189,6 +191,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetUserGroupsMigrationUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetCustLedgerEntryYourReferenceUpdateTag());
         PerDatabaseUpgradeTags.Add(GetEssentialAttachUserGroupUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetRenderWordReportsInPlatformFeatureKeyUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Data Upgrade", 'OnGetAPIUpgradeTags', '', false, false)]
@@ -612,6 +615,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetCreateDefaultAADApplicationTag(): Code[250]
     begin
         exit('MS-366236-CreateDefaultAADApplication-20200813');
+    end;
+
+    internal procedure GetCreateDefaultPowerPagesAADApplicationsTag(): Code[250]
+    begin
+        exit('MS-486050-CreateDefaultAADApplication-20230927');
     end;
 
     internal procedure GetMonitorSensitiveFieldPermissionUpgradeTag(): Code[250];
@@ -1157,4 +1165,14 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-471211-NewTimeSheetExperienceUpgradeTag-20230720');
     end;
 #endif
+
+    internal procedure GetVATSetupAllowVATDateTag(): Code[250]
+    begin
+        exit('MS-474992-VATSetupAllowVATDateUpgrade-20230905');
+    end;
+
+    internal procedure GetRenderWordReportsInPlatformFeatureKeyUpgradeTag(): Code[250]
+    begin
+        exit('MS-487929-TurnOnRenderWordReportsInPlatformFeatureKey-20231018');
+    end;
 }

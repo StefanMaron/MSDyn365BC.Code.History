@@ -165,7 +165,7 @@ codeunit 392 "Reminder-Make"
             if not ReminderLevel.FindLast() then
                 ReminderLevel.Init();
             ShouldMakeDoc := MakeDoc and (CustAmount > 0) and (CustAmountLCY(CurrencyCode, CustAmount) >= ReminderTerms."Minimum Amount (LCY)");
-            OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq, ReminderHeader, Cust, ShouldMakeDoc, MakeDoc);
+            OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq, ReminderHeader, Cust, ShouldMakeDoc, MakeDoc, CustLedgEntry);
             if ShouldMakeDoc then begin
                 if CheckCustomerIsBlocked(Cust) then
                     exit(false);
@@ -226,6 +226,9 @@ codeunit 392 "Reminder-Make"
 
                     OnMakeReminderOnAfterReminderLevelLoop(ReminderLevel, NextLineNo, StartLineInserted, ReminderHeaderReq, ReminderHeader, Cust);
                 until ReminderLevel.Next(-1) = 0;
+
+                OnAfterReminderLinesInsertLoop(ReminderHeader, CurrencyCode, NextLineNo, MaxReminderLevel, OverdueEntriesOnly);
+
                 ReminderHeader."Reminder Level" := MaxReminderLevel;
                 ReminderHeader.Validate("Reminder Level");
                 OnMakeReminderOnBeforeReminderHeaderInsertLines(ReminderHeader);
@@ -757,7 +760,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header"; Customer: Record Customer; var ShouldMakeDoc: Boolean; MakeDoc: Boolean)
+    local procedure OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header"; Customer: Record Customer; var ShouldMakeDoc: Boolean; MakeDoc: Boolean; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -828,6 +831,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetReminderLine(var LineLevel2: Integer; var ReminderDueDate2: Date; var IsHandled: Boolean; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReminderLinesInsertLoop(var ReminderHeader: Record "Reminder Header"; CurrencyCode: Code[10]; var NextLineNo: Integer; var MaxReminderLevel: Integer; OverdueEntriesOnly: Boolean);
     begin
     end;
 }

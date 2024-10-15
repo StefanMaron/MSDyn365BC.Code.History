@@ -35,7 +35,6 @@ page 9631 "Page Inspection"
                 ShowCaption = false;
                 field(ExploreInVsCodeTextLbl; ExploreInVsCodeTextLbl)
                 {
-                    AccessByPermission = System "Tools, Zoom" = X;
                     ApplicationArea = All;
                     DrillDown = true;
                     ExtendedDatatype = URL;

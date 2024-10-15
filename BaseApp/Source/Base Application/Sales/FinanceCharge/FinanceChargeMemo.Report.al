@@ -26,6 +26,7 @@ report 118 "Finance Charge Memo"
     ApplicationArea = Basic, Suite;
     Caption = 'Finance Charge Memo';
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = "Issued Fin. Charge Memo Header";
 
     dataset
     {

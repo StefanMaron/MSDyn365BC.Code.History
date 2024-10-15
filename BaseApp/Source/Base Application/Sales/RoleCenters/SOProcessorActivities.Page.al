@@ -37,6 +37,17 @@ page 9060 "SO Processor Activities"
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of sales orders that are not fully posted.';
                 }
+                field(SalesOrdersReservedFromStock; SalesOrdersReservedFromStock)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Completely Reserved from Stock';
+                    ToolTip = 'Specifies the number of sales orders that are completely reserved from stock.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownNoOfReservedFromStockSalesOrders();
+                    end;
+                }
 
                 actions
                 {
@@ -278,6 +289,7 @@ page 9060 "SO Processor Activities"
         AverageDaysDelayed := Rec."Average Days Delayed";
         DelayedOrders := Rec.Delayed;
         PartiallyShipped := Rec."Partially Shipped";
+        SalesOrdersReservedFromStock := Rec."S. Ord. - Reserved From Stock";
 
         UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo("Ready to Ship"), ReadyToShip, ReadyToShipStyle);
         UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo("Average Days Delayed"), AverageDaysDelayed, AverageDaysDelayedStyle);
@@ -307,6 +319,7 @@ page 9060 "SO Processor Activities"
         PartiallyShipped: Integer;
         DelayedOrders: Integer;
         CalcTaskId: Integer;
+        SalesOrdersReservedFromStock: Integer;
         ShowDocumentsPendingDodExchService: Boolean;
         IsAddInReady: Boolean;
         IsPageReady: Boolean;

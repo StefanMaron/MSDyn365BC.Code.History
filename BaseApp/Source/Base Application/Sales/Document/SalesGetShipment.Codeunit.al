@@ -418,7 +418,11 @@ codeunit 64 "Sales-Get Shipment"
         OrderSalesHeader: Record "Sales Header";
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
         OrderNo: Code[20];
+        Handled: Boolean;
     begin
+        OnBeforeCopyDocumentAttachments(SalesHeader2, Handled);
+        if Handled then
+            exit;
         OrderSalesHeader.ReadIsolation := IsolationLevel::ReadCommitted;
         OrderSalesHeader.SetLoadFields("Document Type", "No.");
         foreach OrderNo in OrderNoList do
@@ -532,6 +536,11 @@ codeunit 64 "Sales-Get Shipment"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCreateInvLines(var SalesShipmentLine2: Record "Sales Shipment Line"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDocumentAttachments(var DestinationSalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
 }

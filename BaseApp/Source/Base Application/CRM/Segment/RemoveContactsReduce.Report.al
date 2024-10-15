@@ -155,7 +155,7 @@ report 5197 "Remove Contacts - Reduce"
             ReduceRefineSegment.RunModal();
     end;
 
-    var
+    protected var
         ReduceRefineSegment: Report "Remove Contacts";
         EntireCompanies: Boolean;
 

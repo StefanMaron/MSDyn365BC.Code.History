@@ -27,6 +27,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         OutOfBalanceErr: Label 'is out of balance';
         ConfirmManualCheckTxt: Label 'A balancing account is not specified for one or more lines. If you print checks without specifying balancing accounts you will not be able to void the checks, if needed. Do you want to continue?';
         WrongDocNoErr: Label 'Document should be other than old document no. : %1', Comment = '%1 - Document no.';
+        LastDocNoAndLastNoUsedMustMatchErr: Label 'Last Document No and Last No Used must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1522,6 +1523,132 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
             StrSubstNo(WrongDocNoErr, LastGenJournalLine."Document No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure LastNoUsedInNoSeriesMustBeUpdatedWhenPostGenJnlLineWithForceDocBalFalse()
+    var
+        Vendor1: Record Vendor;
+        Vendor2: Record Vendor;
+        Vendor3: Record Vendor;
+        Vendor4: Record Vendor;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine1: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        GLAccount: Record "G/L Account";
+        BankAccount: Record "Bank Account";
+        StartingNo: Integer;
+        GLAccountNo: Code[20];
+        BankAccountNo: Code[20];
+        DocumentNo: Code[20];
+        LastDocumentNo: Code[20];
+    begin
+        // [SCENARIO 483548] The "Last no. used" gets not updated under No. Series page if you Edit in Excel some lines to a General Journal, renumber the lines and post them.
+        Initialize();
+
+        // [GIVEN] Create a No Series.
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
+
+        // [GIVEN] Generate & save Starting No in a Variable.
+        StartingNo := LibraryRandom.RandInt(5);
+
+        // [GIVEN] Create a No Series Line with Last No Used & Increment by 1.
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, Format(StartingNo), Format(StartingNo + 10));
+        NoSeriesLine."Last No. Used" := Format(StartingNo + 1);
+        NoSeriesLine."Increment-by No." := 1;
+        NoSeriesLine.Modify(true);
+
+        // [GIVEN] Generate & Save Document No in a Variable.
+        DocumentNo := Format(LibraryRandom.RandInt(15));
+
+        // [GIVEN] Create a General Journal Batch & Validate No Series Code.
+        CreateGeneralJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("No. Series", NoSeries.Code);
+        GenJournalBatch.Modify(true);
+
+        // [GIVEN] Create four different Vendors.
+        LibraryPurchase.CreateVendor(Vendor1);
+        LibraryPurchase.CreateVendor(Vendor2);
+        LibraryPurchase.CreateVendor(Vendor3);
+        LibraryPurchase.CreateVendor(Vendor4);
+
+        // [GIVEN] Create a GL Account & save GL Account No in a Variable.
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccountNo := GLAccount."No.";
+
+        // [GIVEN] Create a Bank Account & save Bank Account No in a Variable.
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccountNo := BankAccount."No.";
+
+        // [GIVEN] Find & Validate Force Doc Balance as False in General Journal Template.
+        GenJournalTemplate.SetRange(Name, GenJournalBatch."Journal Template Name");
+        GenJournalTemplate.FindFirst();
+        GenJournalTemplate.Validate("Force Doc. Balance", false);
+        GenJournalTemplate.Modify(true);
+
+        // [GIVEN] Create General Journal Lines for Vendor 1.
+        CreateGeneralJournalLineWithBalAccountNo(
+            GenJournalLine,
+            GenJournalBatch,
+            Vendor1."No.",
+            DocumentNo,
+            WorkDate(),
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            GLAccountNo);
+
+        // [GIVEN] Create General Journal Lines for Vendor 2.
+        CreateGeneralJournalLineWithBalAccountNo(
+            GenJournalLine,
+            GenJournalBatch,
+            Vendor2."No.",
+            DocumentNo,
+            WorkDate() + 1,
+            GenJournalLine."Bal. Account Type"::"Bank Account",
+            BankAccountNo);
+
+        // [GIVEN] Create General Journal Lines for Vendor 3.
+        CreateGeneralJournalLineWithBalAccountNo(
+            GenJournalLine,
+            GenJournalBatch,
+            Vendor3."No.",
+            DocumentNo,
+            WorkDate() + 1,
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            GLAccountNo);
+
+        // [GIVEN] Create General Journal Lines for Vendor 4.
+        CreateGeneralJournalLineWithBalAccountNo(
+            GenJournalLine,
+            GenJournalBatch,
+            Vendor4."No.",
+            DocumentNo,
+            WorkDate() - 1,
+            GenJournalLine."Bal. Account Type"::"Bank Account",
+            BankAccountNo);
+
+        // [GIVEN] Run Renumber Document No.
+        Commit();
+        GenJournalLine.SetRange("Line No.", 10000, 40000);
+        GenJournalLine.RenumberDocumentNo();
+
+        // [GIVEN] Find Last Document No populated in General Journal Lines & save it in a Variable.
+        GenJournalLine1.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine1.SetCurrentKey("Bal. Account No.");
+        GenJournalLine1.FindLast();
+        LastDocumentNo := GenJournalLine1."Document No.";
+
+        // [GIVEN] Post General Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Get No Series Line.
+        NoSeriesLine.Get(NoSeries.Code, NoSeriesLine."Line No.");
+
+        // [VERIFY] Verify Last Document No of General Journal Lines & Last No Used in No Series Line are same.
+        Assert.AreEqual(LastDocumentNo, NoSeriesLine."Last No. Used", LastDocNoAndLastNoUsedMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2134,6 +2261,24 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         GenJournalLine.SetUpNewLine(LastGenJournalLine, LastGenJournalLine."Balance (LCY)", true);
         GenJournalLine.Insert(true);
+    end;
+
+    local procedure CreateGeneralJournalLineWithBalAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; DocNo: Code[20]; PostingDate: Date; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor,
+            VendorNo,
+            LibraryRandom.RandInt(20));
+
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate("Document No.", DocNo);
+        GenJournalLine.Validate("Bal. Account Type", BalAccountType);
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Modify(true);
     end;
 
     [ConfirmHandler]

@@ -15,6 +15,7 @@ report 123 "Finance Charge Memo - Test"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/FinanceCharge/FinanceChargeMemoTest.rdlc';
     Caption = 'Finance Charge Memo - Test';
+    WordMergeDataItem = "Finance Charge Memo Header";
 
     dataset
     {

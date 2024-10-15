@@ -124,6 +124,7 @@ codeunit 394 "FinChrgMemo-Make"
         if not HeaderExists then
             MakeHeader(CurrencyCode, true);
         FinChrgTerms.Get(FinChrgMemoHeader."Fin. Charge Terms Code");
+        OnFinChrgMemoCheckOnBeforeMakeLines(FinChrgMemoHeader, FinChrgTerms);
         MakeLines(CurrencyCode, true);
     end;
 
@@ -299,6 +300,11 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeLines2OnBeforeCheckInsertFinChrgMemoLine(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Checking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinChrgMemoCheckOnBeforeMakeLines(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var FinanceChargeTerms: Record "Finance Charge Terms")
     begin
     end;
 }

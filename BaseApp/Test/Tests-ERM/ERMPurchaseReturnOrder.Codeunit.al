@@ -22,6 +22,7 @@ codeunit 134329 "ERM Purchase Return Order"
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         VATAmountError: Label 'VAT %1 must be %2 in %3.';
         LineAmountError: Label 'Total Amount must be equal to %1 in %2.';
         AmountError: Label '%1 must be equal to %2 in %3.';
@@ -1274,6 +1275,104 @@ codeunit 134329 "ERM Purchase Return Order"
         asserterror RequestPageXML := Report.RunRequestPage(Report::"Batch Post Purch. Ret. Orders", RequestPageXML);
 
         // [THEN] The saved request page values are overridden.
+    end;
+
+    [Test]
+    procedure VerifyBinCodeMustBeBlankWhenLocationIsChangedInPurchaseReturnLine()
+    var
+        Bin: Record Bin;
+        BinNew: Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        LocationNew: Record Location;
+        BinContent: Record "Bin Content";
+        BinContentNew: Record "Bin Content";
+        ReturnReason: Record "Return Reason";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseReturnOrderSubform: TestPage "Purchase Return Order Subform";
+    begin
+        // [SCENARIO 482714] Verify that the Bin Code is blank when the location is changed in the purchase return line.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, Item.Type::Inventory);
+        Item.Modify(true);
+
+        // [GIVEN] Create a location and set "Bin Mandatory" to true.
+        LibraryWarehouse.CreateLocation(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+
+        // [GIVEN] Create another Location and set "Bin Mandatory" to true.
+        LibraryWarehouse.CreateLocation(LocationNew);
+        LocationNew.Validate("Bin Mandatory", true);
+        LocationNew.Modify(true);
+
+        // [GIVEN] Create a bin for both Locations.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(BinNew, LocationNew.Code, '', '', '');
+
+        // [GIVEN] Create Bin Contents for both Bins.
+        LibraryWarehouse.CreateBinContent(
+            BinContent,
+            Bin."Location Code",
+            '',
+            Bin.Code,
+            Item."No.",
+            '',
+            Item."Base Unit of Measure");
+
+        LibraryWarehouse.CreateBinContent(
+            BinContentNew,
+            BinNew."Location Code",
+            '',
+            BinNew.Code,
+            Item."No.",
+            '',
+            Item."Base Unit of Measure");
+
+        // [GIVEN] Create a return reason code and assign a first location value in "Default Location Code".
+        LibraryERM.CreateReturnReasonCode(ReturnReason);
+        ReturnReason.Validate("Default Location Code", Location.Code);
+        ReturnReason.Modify(true);
+
+        // [GIVEN] Create a new Purchase Return Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Create a Purchase Return Line and validated its fields.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Return Reason Code", ReturnReason.Code);
+        PurchaseLine.Validate("Bin Code", Bin.Code);
+        PurchaseLine.Modify(true);
+
+        // [VERIFY] Verify that the location code must have a default Location Code in the purchase line.
+        Assert.AreEqual(
+            PurchaseLine."Location Code",
+            ReturnReason."Default Location Code",
+            StrSubstNo(
+                FieldError,
+                PurchaseLine.FieldCaption("Location Code"),
+                ReturnReason."Default Location Code",
+                PurchaseLine.TableCaption));
+
+        // [WHEN] Update Location Code in Purchase Line.
+        PurchaseReturnOrderSubform.OpenEdit();
+        PurchaseReturnOrderSubform.GoToRecord(PurchaseLine);
+        PurchaseReturnOrderSubform."Location Code".SetValue(LocationNew.Code);
+        PurchaseReturnOrderSubform.Close();
+
+        // [VERIFY] Verify that "Bin Code" must be blank in the Purchase Line.
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
+        Assert.AreEqual(
+            '',
+            PurchaseLine."Bin Code",
+            StrSubstNo(
+                FieldError,
+                PurchaseLine.FieldCaption("Bin Code"),
+                PurchaseLine."Bin Code",
+                PurchaseLine.TableCaption));
     end;
 
     local procedure Initialize()

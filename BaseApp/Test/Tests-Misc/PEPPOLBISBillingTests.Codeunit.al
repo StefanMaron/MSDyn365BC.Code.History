@@ -1282,6 +1282,53 @@ codeunit 139145 "PEPPOL BIS BillingTests"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ExportXml_ServiceInvoiceLCY_InvRounding_Positive()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Invoice Rounding] [Service]
+        // [SCENARIO 486744] PEPPOL BIS3. Export Service Invoice with positive invoice rounding
+        Initialize();
+        // [GIVEN] Invoice Rounging = 0.05 in General Ledger Setup
+        UpdateGLSetupInvoiceRounding(0.05);
+        LibrarySales.SetInvoiceRounding(true);
+
+        // [GIVEN] Posted Service Invoice has two lines with Amount = 100.01 and 100.01, VAT% = 25, invoice rounding amount = 0.02.
+        Customer.Get(CreateCustomerWithAddressAndGLN);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
+        ServiceHeader.Validate("Due Date", LibraryRandom.RandDate(10));
+        ServiceHeader.Modify(true);
+        CreateVATPostingSetupWithTATCalcType(
+          VATPostingSetup, ServiceHeader."VAT Bus. Posting Group", GetTaxCategoryS,
+          25, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateServiceLineWithVAT(ServiceLine, ServiceHeader, VATPostingSetup."VAT Prod. Posting Group", 100.01);
+        CreateServiceLineWithVAT(ServiceLine, ServiceHeader, VATPostingSetup."VAT Prod. Posting Group", 100.01);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
+        ServiceInvoiceHeader.FindFirst();
+
+        // [WHEN] Export Service Invoice with PEPPOL BIS3
+        ServiceInvoiceHeader.SetRecFilter();
+        XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, CreateBISElectronicDocumentFormatServiceInvoice());
+
+        // [THEN] 'TaxTotal' node has 'cbc:TaxableAmount' = 200.02
+        // [THEN] Two 'InvoiceLine' nodes with 'cbc:LineExtensionAmount' = 100.01 and 100.01
+        // [THEN] 'LegalMonetaryTotal' node with 'cbc:PayableRoundingAmount' = 0.02 and 'cbc:PayableAmount' = 250.05
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyTaxTotalNode('Invoice', 1);
+        VerifyTaxTotalAmounts(200.02, 25, 0, 0);
+        VerifyInvoiceLineAmounts(100.01, 25, 1, 1);
+        VerifyInvoiceLineAmounts(100.01, 25, 2, 2);
+        VerifyLegalMonetaryTotalAmounts(200.02, 200.02, 250.03, 0.02, 250.05);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ExportXmlToVerifyFileName()
     var
         SalesHeader: Record "Sales Header";
@@ -1470,6 +1517,15 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.Modify(true);
+    end;
+
+    local procedure CreateServiceLineWithVAT(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; VATProdPostingGroup: Code[20]; UnitPrice: Decimal)
+    begin
+        LibraryService.CreateServiceLineWithQuantity(
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        ServiceLine.Validate("Unit Price", UnitPrice);
+        ServiceLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        ServiceLine.Modify(true);
     end;
 
     local procedure CreatePostSalesDocWithTaxCategory(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; TaxCategory: Code[10]; VATPct: Decimal): Code[20]

@@ -140,7 +140,7 @@ page 7201 "CDS Connection Setup Wizard"
             }
             group(StepApplication)
             {
-                InstructionalText = 'Specify the ID, secret and redirect URL of the Azure Active Directory application that will be used to connect to Dataverse.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                InstructionalText = 'Specify the ID, secret and redirect URL of the Microsoft Entra application that will be used to connect to Dataverse.', Comment = 'Dataverse and Microsoft Entra are names of Microsoft services and should not be translated.';
                 ShowCaption = false;
                 Visible = ApplicationStepVisible;
 
@@ -148,14 +148,14 @@ page 7201 "CDS Connection Setup Wizard"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Client ID';
-                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the ID of the Microsoft Entra application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Microsoft Entra are names of Microsoft services and should not be translated.';
                 }
                 field("Client Secret"; ClientSecret)
                 {
                     ApplicationArea = Suite;
                     ExtendedDatatype = Masked;
                     Caption = 'Client Secret';
-                    ToolTip = 'Specifies the secret of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the secret of the Microsoft Entra application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Microsoft Entra are names of Microsoft services and should not be translated.';
 
                     trigger OnValidate()
                     begin
@@ -165,7 +165,7 @@ page 7201 "CDS Connection Setup Wizard"
                 field("Redirect URL"; Rec."Redirect URL")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the Redirect URL of the Microsoft Entra application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Microsoft Entra are names of Microsoft services and should not be translated.';
                 }
             }
             group(Step1)
@@ -718,6 +718,7 @@ page 7201 "CDS Connection Setup Wizard"
                 trigger OnAction()
                 begin
                     VirtualTableAppInstalled := IsVirtualTablesAppInstalled();
+                    ShowBusinessEventsStep();
                     CurrPage.Update();
                 end;
             }

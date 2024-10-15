@@ -249,21 +249,23 @@ page 7015 "Sales Price Lists"
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-#endif
+#endif   
+
     trigger OnAfterGetRecord()
     begin
         CurrRec := Rec;
-        CurrRec.BlankDefaults();
+        OnAfterSetCurrRecOnAfterGetRecord(Rec, CurrRec);
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        CurrRec := Rec;
-        CurrRec.BlankDefaults();
         CRMIntegrationAllowed := Rec.IsCRMIntegrationAllowed(StatusActiveFilterApplied, AllowUpdatingDefaultsFilterApplied);
         CRMIsCoupledToRecord := CRMIntegrationEnabled;
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
+
+        CurrRec := Rec;
+        OnAfterSetCurrRecOnAfterGetCurrRecord(Rec, CurrRec);
     end;
 
     trigger OnOpenPage()
@@ -309,5 +311,15 @@ page 7015 "Sales Price Lists"
         PriceUXManagement: Codeunit "Price UX Management";
     begin
         PriceUXManagement.SetPriceListsFilters(Rec, PriceAsset."Price Type", AmountType);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCurrRecOnAfterGetRecord(var PriceListHeader: Record "Price List Header"; var PriceListHeaderCurrRec: Record "Price List Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCurrRecOnAfterGetCurrRecord(var PriceListHeader: Record "Price List Header"; var PriceListHeaderCurrRec: Record "Price List Header")
+    begin
     end;
 }

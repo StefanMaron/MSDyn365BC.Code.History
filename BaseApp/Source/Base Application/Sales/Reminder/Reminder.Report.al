@@ -26,6 +26,7 @@ report 117 Reminder
     Caption = 'Reminder';
     UsageCategory = ReportsAndAnalysis;
     DefaultRenderingLayout = "Reminder.rdlc";
+    WordMergeDataItem = "Issued Reminder Header";
 
     dataset
     {
