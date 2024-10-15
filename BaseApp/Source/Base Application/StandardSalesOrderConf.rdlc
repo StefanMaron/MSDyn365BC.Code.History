@@ -6358,6 +6358,12 @@ End Function
         <Field Name="AmountExemptFromSalesTaxLbl">
           <DataField>AmountExemptFromSalesTaxLbl</DataField>
         </Field>
+        <Field Name="CurrencyCode">
+          <DataField>CurrencyCode</DataField>
+        </Field>
+        <Field Name="CurrencySymbol">
+          <DataField>CurrencySymbol</DataField>
+        </Field>
       </Fields>
       <Query>
         <DataSourceName>DataSource</DataSourceName>
