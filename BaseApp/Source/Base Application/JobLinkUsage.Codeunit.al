@@ -89,15 +89,22 @@ codeunit 1026 "Job Link Usage"
         PostedQtyBase: Decimal;
         TotalQtyBase: Decimal;
         TotalRemainingQtyPrePostBase: Decimal;
+        PartialJobPlanningLineQuantityPosting: Boolean;
     begin
         PostedQtyBase := JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)";
         TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)";
         TotalQtyBase := PostedQtyBase + TotalRemainingQtyPrePostBase;
         JobPlanningLine.SetBypassQtyValidation(true);
-        JobPlanningLine.Validate(Quantity,
-            UOMMgt.CalcQtyFromBase(
-                JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
-                TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
+
+        if Abs(UOMMgt.CalcQtyFromBase(JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code", TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure")) < Abs(JobPlanningLine.Quantity) then begin
+            PartialJobPlanningLineQuantityPosting := (JobLedgerEntry."Serial No." <> '') or (JobLedgerEntry."Lot No." <> '');
+            HandleMatchUsageSpecifiedJobPlanningLineOnAfterCalcPartialJobPlanningLineQuantityPosting(JobPlanningLine, JobJournalLine, JobLedgerEntry, PartialJobPlanningLineQuantityPosting);
+        end;
+        if not PartialJobPlanningLineQuantityPosting then
+            JobPlanningLine.Validate(Quantity,
+                UOMMgt.CalcQtyFromBase(
+                    JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
+                    TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
         JobPlanningLine.CopyTrackingFromJobLedgEntry(JobLedgerEntry);
         JobPlanningLine.Use(
             UOMMgt.CalcQtyFromBase(
@@ -272,6 +279,11 @@ codeunit 1026 "Job Link Usage"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindMatchingJobPlanningLineOnBeforeMatchJobPlanningLineLocation(var JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure HandleMatchUsageSpecifiedJobPlanningLineOnAfterCalcPartialJobPlanningLineQuantityPosting(JobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line"; JobLedgerEntry: Record "Job Ledger Entry"; var PartialJobPlanningLineQuantityPosting: Boolean)
     begin
     end;
 }
