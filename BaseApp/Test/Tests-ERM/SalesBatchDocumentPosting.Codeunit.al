@@ -23,6 +23,7 @@ codeunit 134891 "Sales Batch Document Posting"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
         DoYouWantToPostQst: Label 'Do you want to post the %1?';
+        ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
@@ -34,7 +35,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
         // [SCENARIO] Cassie can post selected invoice from Sales Invoice List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with Amount = 100 each
         // [GIVEN] Cassie selects invoice "Y" on Sales Invoice List page and calls "Post Selected" action
@@ -66,7 +67,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
         // [SCENARIO] Cassie can post selected credit memo from Sales Credit Memos page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Credit Memos "X", "Y" and "Z" for Customer "C" with Amount = 100 each
         // [GIVEN] Cassie selects credit memo "Y" on Sales Credit Memos page and calls "Post Selected" action
@@ -100,7 +101,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesOrderList: TestPage "Sales Order List";
     begin
         // [SCENARIO] Cassie can post selected order from Sales Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
         // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Post Selected" action
@@ -137,7 +138,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesReturnOrderList: TestPage "Sales Return Order List";
     begin
         // [SCENARIO] Cassie can post selected return order from Sales Return Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
         // [GIVEN] Cassie selects return order "Y" on Sales Return Order List page and calls "Post Selected" action
@@ -174,7 +175,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorCount: Integer;
     begin
         // [SCENARIO] One of three invoices failed during batch posting does not stop other invoices to be posted.
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(false);
 
         // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C", with Amount = 0 each
@@ -217,7 +218,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorCount: Integer;
     begin
         // [SCENARIO] Cassie can't post selected invoices with 0 amounts and gets error message pages with wrong documents
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(false);
 
         // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with Amount = 0 each
@@ -257,7 +258,7 @@ codeunit 134891 "Sales Batch Document Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         // [SCENARIO] Cassie can post selected only invoices in background
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -296,7 +297,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO] Cassie can see posting errors after batch posting from Sales Invoice List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with Amount = 0 each
         // [GIVEN] Cassie selects invoice "Y" on Sales Invocie List page and call "Post Selected" action
@@ -308,6 +309,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesInvoiceList.Trap;
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
         ErrorMessagesPage.Trap;
         InvokePostSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
@@ -327,7 +329,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO] Cassie can see posting errors after batch posting from Sales Credit Memos page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Credit Memos "X", "Y" and "Z" for Customer "C" with Amount = 0 each
         // [GIVEN] Cassie selects credit memo "Y" on Sales Credit Memos page and call "Post Selected" action
@@ -339,6 +341,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesCreditMemos.Trap;
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
         ErrorMessagesPage.Trap;
         InvokePostSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
@@ -348,7 +351,7 @@ codeunit 134891 "Sales Batch Document Posting"
     end;
 
     [Test]
-    [HandlerFunctions('PostStrMenuHandler')]
+    [HandlerFunctions('PostStrMenuHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ErrorOnPostSelectedOrder()
     var
@@ -358,7 +361,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO] Cassie can see posting errors after batch posting from Sales Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 0 each
         // [GIVEN] Cassie selects order "Y" on Sales Order List page and call "Post Selected" action
@@ -370,6 +373,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesOrderList.Trap;
         PAGE.Run(PAGE::"Sales Order List", SalesHeaderUI);
 
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(3); // Ship and Invoice menu choice
         ErrorMessagesPage.Trap;
         InvokePostSelectedOrders(SalesOrderList, SalesHeader[2]);
@@ -389,7 +393,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO] Cassie can see posting errors after batch posting from Sales Return Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return Orders "X", "Y" and "Z" for Customer "C" with Amount = 0 each
         // [GIVEN] Cassie selects return order "Y" on Sales Return Order List page and call "Post Selected" action
@@ -409,10 +413,388 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader[2].RecordId));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedQuotes()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesQuotes: TestPage "Sales Quotes";
+    begin
+        // [SCENARIO] Cassie can release selected quote from Sales Quotes page
+        Initialize();
+
+        // [GIVEN] Quotes "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects quote "Y" on Sales Quotes page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 quotes
+        // [THEN] Quotes "X" and "Z" remain unreleased
+        // [THEN] Quote "Y" is released
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Quote, LibraryRandom.RandIntInRange(10, 20));
+
+        SalesQuotes.Trap;
+        PAGE.Run(PAGE::"Sales Quotes", SalesHeaderUI);
+
+        InvokeReleaseSelectedQuotes(SalesQuotes, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedQuotes()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesQuotes: TestPage "Sales Quotes";
+    begin
+        // [SCENARIO] Cassie can release selected uote from Sales Quotes page
+        Initialize();
+
+        // [GIVEN] Quotes "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Quotes "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects quote "Y" on Sales Quotes page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 quotes
+        // [THEN] Quotes "X" and "Z" remain released
+        // [THEN] Quote "Y" is reopened
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Quote, LibraryRandom.RandIntInRange(10, 20));
+
+        SalesQuotes.Trap;
+        PAGE.Run(PAGE::"Sales Quotes", SalesHeaderUI);
+
+        InvokeReleaseSelectedQuotes(SalesQuotes, SalesHeader[1]);
+        InvokeReleaseSelectedQuotes(SalesQuotes, SalesHeader[2]);
+        InvokeReleaseSelectedQuotes(SalesQuotes, SalesHeader[3]);
+
+        InvokeReopenSelectedQuotes(SalesQuotes, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedOrders()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesOrderList: TestPage "Sales Order List";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain unreleased
+        // [THEN] Order "Y" is released
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
+
+        SalesOrderList.Trap;
+        PAGE.Run(PAGE::"Sales Order List", SalesHeaderUI);
+
+        InvokeReleaseSelectedOrders(SalesOrderList, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedOrders()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesOrderList: TestPage "Sales Order List";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain released
+        // [THEN] Order "Y" is reopened
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
+
+        SalesOrderList.Trap;
+        PAGE.Run(PAGE::"Sales Order List", SalesHeaderUI);
+
+        InvokeReleaseSelectedOrders(SalesOrderList, SalesHeader[1]);
+        InvokeReleaseSelectedOrders(SalesOrderList, SalesHeader[2]);
+        InvokeReleaseSelectedOrders(SalesOrderList, SalesHeader[3]);
+
+        InvokeReopenSelectedOrders(SalesOrderList, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedInvoices()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesInvoiceList: TestPage "Sales Invoice List";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain unreleased
+        // [THEN] Order "Y" is released
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
+
+        SalesInvoiceList.Trap;
+        PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
+
+        InvokeReleaseSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedInvoices()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesInvoiceList: TestPage "Sales Invoice List";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain released
+        // [THEN] Order "Y" is reopened
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
+
+        SalesInvoiceList.Trap;
+        PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
+
+        InvokeReleaseSelectedInvoices(SalesInvoiceList, SalesHeader[1]);
+        InvokeReleaseSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
+        InvokeReleaseSelectedInvoices(SalesInvoiceList, SalesHeader[3]);
+
+        InvokeReopenSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedCreditMemos()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesCreditMemos: TestPage "Sales Credit Memos";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain unreleased
+        // [THEN] Order "Y" is released
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
+
+        SalesCreditMemos.Trap;
+        PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
+
+        InvokeReleaseSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedCreditMemos()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesCreditMemos: TestPage "Sales Credit Memos";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain released
+        // [THEN] Order "Y" is reopened
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
+
+        SalesCreditMemos.Trap;
+        PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
+
+        InvokeReleaseSelectedCreditMemos(SalesCreditMemos, SalesHeader[1]);
+        InvokeReleaseSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
+        InvokeReleaseSelectedCreditMemos(SalesCreditMemos, SalesHeader[3]);
+
+        InvokeReopenSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedReturnOrders()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesReturnOrderList: TestPage "Sales Return Order List";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain unreleased
+        // [THEN] Order "Y" is released
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
+
+        SalesReturnOrderList.Trap;
+        PAGE.Run(PAGE::"Sales Return Order List", SalesHeaderUI);
+
+        InvokeReleaseSelectedReturnOrders(SalesReturnOrderList, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedReturnOrders()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        SalesReturnOrderList: TestPage "Sales Return Order List";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain released
+        // [THEN] Order "Y" is reopened
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
+
+        SalesReturnOrderList.Trap;
+        PAGE.Run(PAGE::"Sales Return Order List", SalesHeaderUI);
+
+        InvokeReleaseSelectedReturnOrders(SalesReturnOrderList, SalesHeader[1]);
+        InvokeReleaseSelectedReturnOrders(SalesReturnOrderList, SalesHeader[2]);
+        InvokeReleaseSelectedReturnOrders(SalesReturnOrderList, SalesHeader[3]);
+
+        InvokeReopenSelectedReturnOrders(SalesReturnOrderList, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedBlanketOrders()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        BlanketSalesOrders: TestPage "Blanket Sales Orders";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain unreleased
+        // [THEN] Order "Y" is released
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
+
+        BlanketSalesOrders.Trap;
+        PAGE.Run(PAGE::"Blanket Sales Orders", SalesHeaderUI);
+
+        InvokeReleaseSelectedBlanketOrders(BlanketSalesOrders, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedBlanketOrders()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderUI: Record "Sales Header";
+        BlanketSalesOrders: TestPage "Blanket Sales Orders";
+    begin
+        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain released
+        // [THEN] Order "Y" is reopened
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
+
+        BlanketSalesOrders.Trap;
+        PAGE.Run(PAGE::"Blanket Sales Orders", SalesHeaderUI);
+
+        InvokeReleaseSelectedBlanketOrders(BlanketSalesOrders, SalesHeader[1]);
+        InvokeReleaseSelectedBlanketOrders(BlanketSalesOrders, SalesHeader[2]);
+        InvokeReleaseSelectedBlanketOrders(BlanketSalesOrders, SalesHeader[3]);
+
+        InvokeReopenSelectedBlanketOrders(BlanketSalesOrders, SalesHeader[2]);
+
+        VerifySaleDocumentStatus(SalesHeader[1], SalesHeader[1].Status::Released);
+        VerifySaleDocumentStatus(SalesHeader[2], SalesHeader[2].Status::Open);
+        VerifySaleDocumentStatus(SalesHeader[3], SalesHeader[3].Status::Released);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Batch Document Posting");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -459,10 +841,82 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesOrderList.Post.Invoke;
     end;
 
+    local procedure InvokeReleaseSelectedQuotes(var SalesQuotes: TestPage "Sales Quotes"; SalesHeaderToRelease: Record "Sales Header")
+    begin
+        SalesQuotes.GotoRecord(SalesHeaderToRelease);
+        SalesQuotes.Release.Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedQuotes(var SalesQuotes: TestPage "Sales Quotes"; SalesHeaderToReopen: Record "Sales Header")
+    begin
+        SalesQuotes.GotoRecord(SalesHeaderToReopen);
+        SalesQuotes.Reopen.Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedOrders(var SalesOrderList: TestPage "Sales Order List"; SalesHeaderToRelease: Record "Sales Header")
+    begin
+        SalesOrderList.GotoRecord(SalesHeaderToRelease);
+        SalesOrderList.Release.Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedOrders(var SalesOrderList: TestPage "Sales Order List"; SalesHeaderToReopen: Record "Sales Header")
+    begin
+        SalesOrderList.GotoRecord(SalesHeaderToReopen);
+        SalesOrderList.Reopen.Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedInvoices(var SalesInvoiceList: TestPage "Sales Invoice List"; SalesHeaderToRelease: Record "Sales Header")
+    begin
+        SalesInvoiceList.GotoRecord(SalesHeaderToRelease);
+        SalesInvoiceList."Re&lease".Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedInvoices(var SalesInvoiceList: TestPage "Sales Invoice List"; SalesHeaderToReopen: Record "Sales Header")
+    begin
+        SalesInvoiceList.GotoRecord(SalesHeaderToReopen);
+        SalesInvoiceList."Re&open".Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedCreditMemos(var SalesCreditMemos: TestPage "Sales Credit Memos"; SalesHeaderToRelease: Record "Sales Header")
+    begin
+        SalesCreditMemos.GotoRecord(SalesHeaderToRelease);
+        SalesCreditMemos."Re&lease".Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedCreditMemos(var SalesCreditMemos: TestPage "Sales Credit Memos"; SalesHeaderToReopen: Record "Sales Header")
+    begin
+        SalesCreditMemos.GotoRecord(SalesHeaderToReopen);
+        SalesCreditMemos."Re&open".Invoke;
+    end;
+
     local procedure InvokePostSelectedReturnOrders(var SalesReturnOrderList: TestPage "Sales Return Order List"; SalesHeaderToPost: Record "Sales Header")
     begin
         SalesReturnOrderList.GotoRecord(SalesHeaderToPost);
         SalesReturnOrderList.Post.Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedReturnOrders(var SalesReturnOrderList: TestPage "Sales Return Order List"; SalesHeaderToRelease: Record "Sales Header")
+    begin
+        SalesReturnOrderList.GotoRecord(SalesHeaderToRelease);
+        SalesReturnOrderList.Release.Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedReturnOrders(var SalesReturnOrderList: TestPage "Sales Return Order List"; SalesHeaderToReopen: Record "Sales Header")
+    begin
+        SalesReturnOrderList.GotoRecord(SalesHeaderToReopen);
+        SalesReturnOrderList.Reopen.Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedBlanketOrders(var BlanketSalesOrders: TestPage "Blanket Sales Orders"; SalesHeaderToRelease: Record "Sales Header")
+    begin
+        BlanketSalesOrders.GotoRecord(SalesHeaderToRelease);
+        BlanketSalesOrders."Re&lease".Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedBlanketOrders(var BlanketSalesOrders: TestPage "Blanket Sales Orders"; SalesHeaderToReopen: Record "Sales Header")
+    begin
+        BlanketSalesOrders.GotoRecord(SalesHeaderToReopen);
+        BlanketSalesOrders."Re&open".Invoke;
     end;
 
     local procedure MarkDocumentsToPost(var SalesHeaderToPost: Record "Sales Header"; var SalesHeader: array[3] of Record "Sales Header"; var SalesHeaderCreated: Record "Sales Header")
@@ -509,7 +963,7 @@ codeunit 134891 "Sales Batch Document Posting"
     local procedure VerifyTwoOfThreeDocumentsUnposted(var SalesHeaderUI: Record "Sales Header"; var SalesHeader: array[3] of Record "Sales Header")
     begin
         Assert.RecordCount(SalesHeaderUI, ArrayLen(SalesHeader) - 1);
-        SalesHeaderUI.FindFirst;
+        SalesHeaderUI.FindFirst();
         SalesHeaderUI.TestField("No.", SalesHeader[1]."No.");
         SalesHeaderUI.Next;
         SalesHeaderUI.TestField("No.", SalesHeader[3]."No.");
@@ -531,6 +985,16 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         Assert.RecordCount(SalesInvoiceHeader, 0);
         Assert.IsTrue(SalesHeader.Find, '');
+    end;
+
+    local procedure VerifySaleDocumentStatus(var SalesHeader: Record "Sales Header"; ExpectedStatus: Enum "Sales Document Status")
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.RecordCount(SalesInvoiceHeader, 0);
+        SalesHeader.Find();
+        SalesHeader.TestField(Status, ExpectedStatus);
     end;
 }
 

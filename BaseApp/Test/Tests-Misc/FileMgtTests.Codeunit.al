@@ -43,7 +43,7 @@ codeunit 139016 "File Mgt. Tests"
         ClientFileName: Text;
         BLOBContent: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         WriteToBlob(TempBlob, BLOBExportTxt);
@@ -61,213 +61,13 @@ codeunit 139016 "File Mgt. Tests"
         DeleteClientFile(ClientFileName);
     end;
 
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure BlobExportFileNameWithFolderAndCommonDialog()
-    var
-        TempBlob: Codeunit "Temp Blob";
-        ClientFileName: Text;
-        ClientTempFileName: Text;
-    begin
-        // [FEATURE] [BLOB Export]
-        // [SCENARIO] BLOB exported with predefined filename with folder and Common Dialog window
-
-        Initialize;
-
-        // [GIVEN] Temporary file name with folder = "X"
-        WriteToBlob(TempBlob, BLOBExportTxt);
-        ClientTempFileName := FileMgt.ClientTempFileName('');
-
-        // [WHEN] Export BLOB using File Name = "X" and Common Dialog window
-        ClientFileName := FileMgt.BLOBExport(TempBlob, ClientTempFileName, true);
-
-        // [THEN] BLOB exported in File name = "X"
-        Assert.AreEqual(ClientTempFileName, ClientFileName, IncorrectFileNameErr);
-
-        // Cleanup
-        DeleteClientFile(ClientFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure TestClientTempFileNameReturnsNonExistingFileInExistingDirectory()
-    var
-        ClientTempFile: Text;
-    begin
-        Initialize;
-
-        ClientTempFile := FileMgt.ClientTempFileName('');
-
-        Assert.IsTrue(StrLen(ClientTempFile) > 0, 'ClientTempFileName should not return an empty string');
-        Assert.IsTrue(ClientDirectoryHelper.Exists(ClientPathHelper.GetDirectoryName(ClientTempFile)),
-          'The directory containing the temporary file should exist');
-        Assert.IsFalse(ClientFileHelper.Exists(ClientTempFile), 'The temporary file should not exist');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure TestClientTempFileNameLeavesNoTraceOnServer()
-    var
-        ServerFile: File;
-        ServerTempDir: Text;
-        NumFilesBefore: Integer;
-    begin
-        Initialize;
-
-        // Get the path to the temporary folder used on the server
-        ServerFile.CreateTempFile;
-        ServerTempDir := ServerPathHelper.GetDirectoryName(ServerFile.Name);
-        ServerFile.Close;
-
-        // Count the number of files in the server temp folder
-        NumFilesBefore := ServerDirectoryHelper.GetFiles(ServerTempDir).Length;
-
-        // Make the call
-        FileMgt.ClientTempFileName('');
-
-        // Make sure the number of files is still the same
-        if ServerDirectoryHelper.GetFiles(ServerTempDir).Length <> NumFilesBefore then
-            Assert.Fail('Creating a temporary file without extension on the client left garbage on the server.');
-
-        // Try again with extension
-        FileMgt.ClientTempFileName('.cfg');
-        if ServerDirectoryHelper.GetFiles(ServerTempDir).Length <> NumFilesBefore then
-            Assert.Fail('Creating a temporary file with extension on the client left garbage on the server.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure TestClientTempFileNameLeavesNoTraceOnClient()
-    var
-        ClientTempFile: Text;
-        ClientTempDir: Text;
-        NumFilesBefore: Integer;
-    begin
-        Initialize;
-
-        // Get the path to the temporary folder used on the client
-        ClientTempFile := FileMgt.ClientTempFileName('');
-        ClientTempDir := ClientPathHelper.GetDirectoryName(ClientTempFile);
-
-        // Count the number of files in the client temp folder
-        NumFilesBefore := ClientDirectoryHelper.GetFiles(ClientTempDir).Length;
-
-        // Make the call
-        FileMgt.ClientTempFileName('');
-
-        // Make sure the number of files is still the same
-        if ClientDirectoryHelper.GetFiles(ClientTempDir).Length <> NumFilesBefore then
-            Assert.Fail('Creating a temporary file without extension on the client left garbage on the client.');
-
-        // Try again with extension
-        FileMgt.ClientTempFileName('.cfg');
-        if ClientDirectoryHelper.GetFiles(ClientTempDir).Length <> NumFilesBefore then
-            Assert.Fail('Creating a temporary file with extension on the client left garbage on the client.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure TestClientTempFileNameHasRightExtension()
-    var
-        Extension: Text;
-        I: Integer;
-        ActualExtension: Text;
-        ClientTempFile: Text;
-    begin
-        Initialize;
-
-        // Test without extension
-        ClientTempFile := FileMgt.ClientTempFileName('');
-        ActualExtension := ClientPathHelper.GetExtension(ClientTempFile);
-        Assert.AreEqual('', ActualExtension, 'Extension for temporary file was ' + ActualExtension + ', but should be extensionless.');
-        Assert.IsFalse(ClientTempFile[StrLen(ClientTempFile)] = '.', 'Extensionless file name should not end in period.');
-
-        // Test with extensions of different length
-        for I := 1 to 10 do begin
-            Extension := PadStr('html', I, 'x');
-            ClientTempFile := FileMgt.ClientTempFileName(Extension);
-            ActualExtension := ClientPathHelper.GetExtension(ClientTempFile);
-            Assert.AreEqual('.' + Extension, ActualExtension,
-              'Extension for temporary file was "' + ActualExtension + '", but should be "' + Extension + '".');
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CreateClientTempSubDirectory will always throw an error.', '17.3')]
-    procedure TestCreateClientTempSubDirectoryReturnsExistingDirectory()
-    var
-        TempSubDir: Text;
-    begin
-        Initialize;
-
-        TempSubDir := FileMgt.CreateClientTempSubDirectory;
-
-        Assert.IsTrue(ClientDirectoryHelper.Exists(TempSubDir), 'The directory should exist');
-
-        ClientDirectoryHelper.Delete(TempSubDir);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CreateClientTempSubDirectory will always throw an error.', '17.3')]
-    procedure TestCreateClientTempSubDirectoryReturnsEmptyDirectory()
-    var
-        TempSubDir: Text;
-        TempDir: Text;
-        ExpectedCountOfFiles: Integer;
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 234665] Consequent calls of COD419.CreateClientTempSubDirectory function does not leave rubbish files
-        Initialize;
-
-        TempSubDir := FileMgt.CreateClientTempSubDirectory;
-        Assert.AreEqual(0, ClientDirectoryHelper.GetFiles(TempSubDir).Length, 'The temp sub directory should be empty');
-        TempDir := FileMgt.GetDirectoryName(TempSubDir);
-
-        ExpectedCountOfFiles := ClientDirectoryHelper.GetFiles(TempDir).Length;
-
-        TempSubDir := FileMgt.CreateClientTempSubDirectory;
-
-        Assert.AreEqual(0, ClientDirectoryHelper.GetFiles(TempSubDir).Length, 'The temp sub directory should be empty');
-        Assert.AreEqual(ExpectedCountOfFiles, ClientDirectoryHelper.GetFiles(TempDir).Length, 'The temp directory should be empty');
-
-        ClientDirectoryHelper.Delete(TempSubDir);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CreateClientTempSubDirectory will always throw an error.', '17.3')]
-    procedure TestCreateClientTempSubDirectoryReturnsTempSubDirectory()
-    var
-        ClientTempDir: Text;
-        TempSubDir: Text;
-    begin
-        Initialize;
-
-        ClientTempDir := ClientPathHelper.GetDirectoryName(FileMgt.ClientTempFileName(''));
-        TempSubDir := FileMgt.CreateClientTempSubDirectory;
-
-        Assert.AreEqual(ClientTempDir, ClientPathHelper.GetDirectoryName(TempSubDir),
-          'The directory should be in the client temp directory');
-
-        ClientDirectoryHelper.Delete(TempSubDir);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure GetServerTempFile()
     var
         ServerTempFile: Text;
     begin
-        Initialize;
+        Initialize();
         ServerTempFile := FileMgt.ServerTempFileName('');
 
         Assert.IsTrue(StrLen(ServerTempFile) > 0, 'The server temp file cannot be empty.');
@@ -275,106 +75,13 @@ codeunit 139016 "File Mgt. Tests"
           'The directory does not exist.');
     end;
 
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientFileExists will always return false.', '17.3')]
-    procedure ClientFileExist()
-    var
-        FileName: Text;
-        FileExist: Boolean;
-    begin
-        Initialize;
-
-        FileName := CreateClientFile;
-        FileExist := FileMgt.ClientFileExists(FileName);
-        Assert.IsTrue(FileExist, 'The client file does not exist');
-
-        // Cleanup
-        DeleteClientFile(FileName);
-
-        FileName := '';
-        FileExist := FileMgt.ClientFileExists(FileName);
-
-        Assert.IsFalse(FileExist, 'The client file does exist');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientDirectoryExists will always return false.', '17.3')]
-    procedure ClientDirectoryExist()
-    var
-        DirectoryName: Text;
-        FileName: Text;
-        DirectoryExist: Boolean;
-    begin
-        Initialize;
-
-        FileName := CreateClientFile;
-        DirectoryName := ClientPathHelper.GetDirectoryName(FileName);
-
-        DirectoryExist := FileMgt.ClientDirectoryExists(DirectoryName);
-        Assert.IsTrue(DirectoryExist, 'The directory does not exist');
-
-        // Cleanup
-        DeleteClientFile(FileName);
-
-        DirectoryName := '';
-        DirectoryExist := FileMgt.ClientDirectoryExists(DirectoryName);
-        Assert.IsFalse(DirectoryExist, 'The directory does exist');
-
-        DirectoryName := 'c:\doesnotexistsdirectory';
-        DirectoryExist := FileMgt.ClientDirectoryExists(DirectoryName);
-        Assert.IsFalse(DirectoryExist, 'The directory does exist');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('CopyClientFile will always throw an error.', '17.3')]
-    procedure CopyClientFile()
-    var
-        FileName: Text;
-        FileNameNew: Text;
-    begin
-        Initialize;
-
-        FileName := CreateClientFile;
-        FileNameNew := CreateClientFile;
-        FileMgt.CopyClientFile(FileName, FileNameNew, true);
-        Assert.IsTrue(VerifyClientFileExist(FileNameNew), 'The client file does not exist');
-
-        // Cleanup
-        DeleteClientFile(FileName);
-        DeleteClientFile(FileNameNew);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('DeleteClientFile will always throw an error.', '17.3')]
-    procedure ClientFileDelete()
-    var
-        FileName: Text;
-        FileExist: Boolean;
-    begin
-        Initialize;
-
-        FileName := CreateClientFile;
-        FileExist := FileMgt.DeleteClientFile(FileName);
-        Assert.IsTrue(FileExist, 'The client file is not deleted.');
-
-        FileName := '';
-        FileExist := FileMgt.DeleteClientFile(FileName);
-        Assert.IsFalse(FileExist, 'The client file does not exist.');
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure GetToFilterTextDoc()
     var
         "Filter": Text;
     begin
-        Initialize;
+        Initialize();
 
         Filter := FileMgt.GetToFilterText('Movie Files (*.avi)|*.avi', '');
         Assert.AreEqual('Movie Files (*.avi)|*.avi', Filter, 'Filter is not the expected one');
@@ -412,225 +119,6 @@ codeunit 139016 "File Mgt. Tests"
         Filter := FileMgt.GetToFilterText('', 'filename.rdlc');
         Assert.IsTrue(StrPos(Filter, '|*.rdl;*.rdlc') > 0, 'Filter for RDLC file type did not include both *.rdl and *.rdlc');
     end;
-
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('MoveAndRenameClientFile will always thrown an error.', '17.3')]
-    procedure MoveAndRenameClientFile()
-    var
-        NewFileName: Text;
-        OldFileName: Text;
-    begin
-        Initialize;
-
-        OldFileName := CreateClientFile;
-        NewFileName := FileMgt.MoveAndRenameClientFile(OldFileName, 'NewFileName.TMP', 'SubDir');
-        Assert.IsFalse(VerifyClientFileExist(OldFileName), 'The old client file does exist.');
-        Assert.IsTrue(VerifyClientFileExist(NewFileName), 'The new client file does not exist.');
-
-        // Cleanup
-        DeleteClientFile(NewFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('MoveAndRenameClientFile will always thrown an error.', '17.3')]
-    procedure MoveAndRenameClientFileBlankNewFileName()
-    var
-        OldFileName: Text;
-    begin
-        Initialize;
-
-        OldFileName := CreateClientFile;
-        asserterror FileMgt.MoveAndRenameClientFile(OldFileName, '', 'SubDir');
-
-        // Cleanup
-        DeleteClientFile(OldFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('MoveAndRenameClientFile will always thrown an error.', '17.3')]
-    procedure MoveAndRenameClientFileBlankOldFilePath()
-    begin
-        Initialize;
-
-        asserterror FileMgt.MoveAndRenameClientFile('', 'NewFileName.TMP', 'SubDir');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('MoveAndRenameClientFile will always thrown an error.', '17.3')]
-    procedure MoveAndRenameClientFileOldFilePathDoNotExist()
-    begin
-        Initialize;
-
-        asserterror FileMgt.MoveAndRenameClientFile('randomfilename.txt', 'NewFileName.TMP', 'SubDir');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('MoveFile will always thrown an error.', '17.3')]
-    procedure MoveFileToFileWithSameName()
-    var
-        OldFileName: Text;
-    begin
-        Initialize;
-
-        OldFileName := CreateClientFile;
-
-        // exercise
-        FileMgt.MoveFile(OldFileName, OldFileName);
-
-        // verify
-        // Bug 101134: When called with same source and target file name,
-        // the MoveFile would delete the target file (which is also the source file) and then fail to move it
-        // you would end up deleting the file
-        Assert.IsTrue(FileMgt.ClientFileExists(OldFileName), 'File ' + OldFileName + ' has been deleted.');
-
-        // Cleanup
-        DeleteClientFile(OldFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('MoveFile will always thrown an error.', '17.3')]
-    procedure MoveFileToFileWithSimilarName()
-    var
-        OldFileName: Text;
-    begin
-        Initialize;
-
-        OldFileName := CreateClientFile;
-
-        // exercise
-        FileMgt.MoveFile(LowerCase(OldFileName), UpperCase(OldFileName));
-
-        // verify
-        // Bug 101134: When called with same source and target file name,
-        // the MoveFile would delete the target file (which is also the source file) and then fail to move it
-        // you would end up deleting the file
-        Assert.IsTrue(FileMgt.ClientFileExists(OldFileName), 'File ' + OldFileName + ' has been deleted.');
-
-        // Cleanup
-        DeleteClientFile(OldFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('UploadFileSilent will always thrown an error.', '17.3')]
-    procedure UploadFileSilent()
-    var
-        ClientFileName: Text;
-        ServerFileName: Text;
-    begin
-        Initialize;
-
-        ClientFileName := CreateClientFile;
-        ServerFileName := FileMgt.UploadFileSilent(ClientFileName);
-        Assert.AreNotEqual(ClientFileName, ServerFileName, 'Server and client filename is the same.');
-
-        // Cleanup
-        DeleteClientFile(ClientFileName);
-        Erase(ServerFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('UploadFileToServer will always request an upload and not take a filepath directly.', '17.3')]
-    procedure UploadFileToServer()
-    var
-        ClientFileName: Text;
-        ServerFileName: Text;
-    begin
-        Initialize;
-
-        ClientFileName := CreateClientFile;
-        ServerFileName := FileMgt.UploadFileToServer(ClientFileName);
-        Assert.AreNotEqual(ClientFileName, ServerFileName, 'Expected taht the file is uploaded silently.');
-
-        // Cleanup
-        DeleteClientFile(ClientFileName);
-        Erase(ServerFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('DownloadToFile will always open a dialog for download with DownloadHandler.', '17.3')]
-    procedure DownloadFile()
-    var
-        ClientFileName: Text;
-        ServerFileName: Text;
-        TextArray: array[10] of Text[30];
-    begin
-        Initialize;
-
-        CreateExpectedTexts(TextArray, 1);
-        ServerFileName := CreateTextFileOnServerWithExtension(TextArray, 1, 'txt');
-        ClientFileName := CreateClientFile;
-        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
-
-        Assert.AreNotEqual(ClientFileName, ServerFileName, 'Server and client filename is the same.');
-        Assert.IsTrue(VerifyClientFileExist(ClientFileName), 'The client file does not exist.');
-
-        // Cleanup
-        DeleteClientFile(ClientFileName);
-        Erase(ServerFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('DownloadToFile will always open a dialog for download with DownloadHandler.', '17.3')]
-    procedure TestDownloadFileThrowsErrorIfSourceNotSpecified()
-    begin
-        Initialize;
-
-        asserterror FileMgt.DownloadToFile('', 'SomeTargetFileName');
-
-        Assert.ExpectedError(ServerFileErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('DownloadToFile will always open a dialog for download with DownloadHandler.', '17.3')]
-    procedure TestDownloadFileThrowsErrorIfTargetNotSpecified()
-    begin
-        Initialize;
-
-        asserterror FileMgt.DownloadToFile('SomeSourceFileName', '');
-
-        Assert.ExpectedError(ClientFileErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('AppendAllTextToClientFile will always throw an error.', '17.3')]
-    procedure TestErrorOnAppendToFileWhenServerFileNameIsBlank()
-    var
-        FileManagement: Codeunit "File Management";
-        ClientFileName: Text;
-    begin
-        Initialize;
-        ClientFileName := CreateClientFile;
-        asserterror FileManagement.AppendAllTextToClientFile('', ClientFileName);
-        Assert.ExpectedError(ServerFileErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('AppendAllTextToClientFile will always throw an error.', '17.3')]
-    procedure TestErrorOnAppendToFileWhenClientFileNameIsBlank()
-    var
-        FileManagement: Codeunit "File Management";
-        ServerFileName: Text;
-    begin
-        Initialize;
-        ServerFileName := FileManagement.ServerTempFileName('');
-        asserterror FileManagement.AppendAllTextToClientFile(ServerFileName, '');
-        Assert.ExpectedError(ClientFileErr);
-    end;
-#endif
 
     [Normal]
     local procedure CheckClientDirectoryExist(FileName: Text): Boolean
@@ -671,120 +159,6 @@ codeunit 139016 "File Mgt. Tests"
         BigStr.Write(OStream);
     end;
 
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
-    procedure UploadNormalFile()
-    var
-        FileMgt: Codeunit "File Management";
-        FileAttributes: DotNet FileAttributes;
-        Content: Text[1024];
-        FileName: Text;
-        UploadedFileName: Text;
-    begin
-        // Pre-Setup
-        Content := LibraryUtility.GenerateGUID;
-
-        // Setup
-        FileName := CreateNonEmptyTextFile(Content);
-        ClientFileHelper.SetAttributes(FileName, FileAttributes.Normal);
-
-        // Exercise
-        UploadedFileName := FileMgt.UploadFileSilent(FileName);
-
-        // Verify
-        VerifyUploadedFile(UploadedFileName, Content);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
-    procedure UploadReadOnlyFile()
-    var
-        FileMgt: Codeunit "File Management";
-        FileAttributes: DotNet FileAttributes;
-        Content: Text[1024];
-        FileName: Text;
-        UploadedFileName: Text;
-    begin
-        // Pre-Setup
-        Content := LibraryUtility.GenerateGUID;
-
-        // Setup
-        FileName := CreateNonEmptyTextFile(Content);
-        ClientFileHelper.SetAttributes(FileName, FileAttributes.ReadOnly);
-
-        // Exercise
-        UploadedFileName := FileMgt.UploadFileSilent(FileName);
-
-        // Verify
-        VerifyUploadedFile(UploadedFileName, Content);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientDirectoryExists will always return false.', '17.3')]
-    procedure ServerDirectoryExist()
-    var
-        DirectoryName: Text;
-        FileName: Text;
-        DirectoryExist: Boolean;
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-    begin
-        Initialize;
-
-        FileName := FileMgt.ServerTempFileName('txt');
-        DirectoryName := ServerPathHelper.GetDirectoryName(FileName);
-
-        DirectoryExist := FileMgt.ClientDirectoryExists(DirectoryName);
-        Assert.IsTrue(DirectoryExist, 'The directory does not exist');
-
-        DirectoryName += 'DummySuffix';
-        DirectoryExist := FileMgt.ServerDirectoryExists(DirectoryName);
-        Assert.IsFalse(DirectoryExist, 'The directory does exist');
-
-        DirectoryName := '';
-        DirectoryExist := FileMgt.ServerDirectoryExists(DirectoryName);
-        Assert.IsFalse(DirectoryExist, 'The directory does exist');
-
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        DirectoryName := 'c:\doesnotexistsdirectory';
-        asserterror DirectoryExist := FileMgt.ServerDirectoryExists(DirectoryName);
-        Assert.ExpectedError(StrSubstNo(NotAllowedPathErr, DirectoryName));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientDirectoryExists will always return false.', '17.3')]
-    procedure ServerCreateDirectory()
-    var
-        FileName: Text;
-    begin
-        FileName := FileMgt.ServerTempFileName('.txt');
-        Assert.IsFalse(FileMgt.ServerDirectoryExists(FileName), 'The directory should not exist.');
-        FileMgt.ServerCreateDirectory(FileName);
-        Assert.IsTrue(FileMgt.ServerDirectoryExists(FileName), 'The directory should exist.');
-        FileMgt.ServerCreateDirectory(FileName);
-        Assert.IsTrue(FileMgt.ServerDirectoryExists(FileName), 'The directory should exist.');
-        FileMgt.ServerRemoveDirectory(FileName, true);
-        Assert.IsFalse(FileMgt.ServerDirectoryExists(FileName), 'The directory should not exist.');
-        FileMgt.ServerRemoveDirectory(FileName, true);
-        Assert.IsFalse(FileMgt.ServerDirectoryExists(FileName), 'The directory should not exist.');
-
-        FileName := FileMgt.ClientTempFileName('.txt');
-        Assert.IsFalse(FileMgt.ClientDirectoryExists(FileName), 'The directory should not exist.');
-        FileMgt.CreateClientDirectory(FileName);
-        Assert.IsTrue(FileMgt.ClientDirectoryExists(FileName), 'The directory should exist.');
-        FileMgt.CreateClientDirectory(FileName);
-        Assert.IsTrue(FileMgt.ClientDirectoryExists(FileName), 'The directory should exist.');
-        FileMgt.DeleteClientDirectory(FileName);
-        Assert.IsFalse(FileMgt.ClientDirectoryExists(FileName), 'The directory should not exist.');
-        FileMgt.DeleteClientDirectory(FileName);
-        Assert.IsFalse(FileMgt.ClientDirectoryExists(FileName), 'The directory should not exist.');
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure GetSafeFileName()
@@ -795,7 +169,7 @@ codeunit 139016 "File Mgt. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 379537] GetSafeFileName should remove invalid characters (colon, etc) in the file name
-        Initialize;
+        Initialize();
 
         DotNetString := DotNetString.String(PathHelper.GetInvalidFileNameChars());
 
@@ -805,60 +179,6 @@ codeunit 139016 "File Mgt. Tests"
 
         Assert.AreEqual('Default.docx', FileName, '');
     end;
-
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure UploadClientDirectorySilentWithLastSlashUT()
-    var
-        RelativeServerPath: Text;
-        DirectoryPath: Text;
-        FileName: Text;
-        ClientFullPath: Text;
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 265298] Filemgt.UploadClientDirectorySilent must not cut 1st symbol of file name if DirectoryPath has ending slash
-        Initialize;
-
-        ClientFullPath := FileMgt.ClientTempFileName('.txt'); // c:\temp\Test\Test.txt
-        DirectoryPath := FileMgt.GetDirectoryName(ClientFullPath) + '\'; // c:\temp\Test\
-        FileName := FileMgt.GetFileName(ClientFullPath); // Test.txt
-
-        FileMgt.CreateClientDirectory(DirectoryPath);
-        FileMgt.CreateClientFile(FileMgt.CombinePath(DirectoryPath, FileName));
-        RelativeServerPath := FileMgt.UploadClientDirectorySilent(DirectoryPath, '*.*', false);
-        Assert.IsTrue(FileMgt.ServerFileExists(FileMgt.CombinePath(RelativeServerPath, FileName)), FileNameChangedErr);
-
-        FileMgt.DeleteClientFile(ClientFullPath);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure UploadClientDirectorySilentWithoutLastSlashUT()
-    var
-        RelativeServerPath: Text;
-        DirectoryPath: Text;
-        FileName: Text;
-        ClientFullPath: Text;
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 265298] Filemgt.UploadClientDirectorySilent must not cut 1st symbol of file name if DirectoryPath has no ending slash
-        Initialize;
-
-        ClientFullPath := FileMgt.ClientTempFileName('.txt'); // c:\temp\Test\Test.txt
-        DirectoryPath := FileMgt.GetDirectoryName(ClientFullPath); // c:\temp\Test
-        FileName := FileMgt.GetFileName(ClientFullPath); // Test.txt
-
-        FileMgt.CreateClientDirectory(DirectoryPath);
-        FileMgt.CreateClientFile(FileMgt.CombinePath(DirectoryPath, FileName));
-        RelativeServerPath := FileMgt.UploadClientDirectorySilent(DirectoryPath, '*.*', false);
-        Assert.IsTrue(FileMgt.ServerFileExists(FileMgt.CombinePath(RelativeServerPath, FileName)), FileNameChangedErr);
-
-        FileMgt.DeleteClientFile(ClientFullPath);
-    end;
-#endif
 
     [Normal]
     local procedure Initialize()
@@ -874,7 +194,7 @@ codeunit 139016 "File Mgt. Tests"
         FileManagement: Codeunit "File Management";
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         FileName := FileManagement.GetFileName('c:\temp\Test001.txt');
         Assert.AreEqual('Test001.txt', FileName, '');
     end;
@@ -886,7 +206,7 @@ codeunit 139016 "File Mgt. Tests"
         FileManagement: Codeunit "File Management";
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         FileName := FileManagement.GetFileName('');
         Assert.AreEqual('', FileName, '');
     end;
@@ -898,7 +218,7 @@ codeunit 139016 "File Mgt. Tests"
         FileManagement: Codeunit "File Management";
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         FileName := FileManagement.GetFileName('c:\temp\Test001');
         Assert.AreEqual('Test001', FileName, '');
     end;
@@ -910,7 +230,7 @@ codeunit 139016 "File Mgt. Tests"
         FileManagement: Codeunit "File Management";
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         FileName := FileManagement.GetFileName('c:\temp\Test 001.txt');
         Assert.AreEqual('Test 001.txt', FileName, '');
     end;
@@ -922,7 +242,7 @@ codeunit 139016 "File Mgt. Tests"
         ClientFileName: Text;
         PathName: Text;
     begin
-        Initialize;
+        Initialize();
 
         ClientFileName := CreateClientFile;
         PathName := FileMgt.GetDirectoryName(ClientFileName);
@@ -942,116 +262,11 @@ codeunit 139016 "File Mgt. Tests"
     var
         PathName: Text;
     begin
-        Initialize;
+        Initialize();
 
         PathName := FileMgt.GetDirectoryName('');
         Assert.AreEqual('', PathName, 'Path should be empty.');
     end;
-
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure GetClientDirectoryFilesListCount()
-    var
-        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-        [RunOnClient]
-        ClientStream: DotNet Stream;
-        ClientFileName: Text;
-        ClientDirectoryName: Text;
-        InitialFilesCount: Integer;
-    begin
-        // [SCENARIO 121134] "File Management".GetClientDirectoryFilesList() returns correct files count
-        Initialize;
-
-        // [GIVEN] Current client directory files count = InititalFilesCount
-        ClientFileName := FileMgt.ClientTempFileName('');
-        ClientDirectoryName := FileMgt.GetDirectoryName(ClientFileName);
-        FileMgt.GetClientDirectoryFilesList(TempNameValueBuffer, ClientDirectoryName);
-        InitialFilesCount := TempNameValueBuffer.Count();
-
-        // [WHEN] Create client file
-        ClientFileName := FileMgt.ClientTempFileName('');
-        ClientStream := ClientFileHelper.Create(ClientFileName);
-        ClientStream.Close;
-
-        // [THEN] Client directory new files count = InitialFilesCount + 1
-        FileMgt.GetClientDirectoryFilesList(TempNameValueBuffer, ClientDirectoryName);
-        Assert.AreEqual(1, TempNameValueBuffer.Count - InitialFilesCount, '');
-
-        // TearDown
-        FileMgt.DeleteClientFile(ClientFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure GetClientDirectoryFilesListName()
-    var
-        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-        ClientFileName: Text;
-        ClientDirectoryName: Text;
-        FileIsFound: Boolean;
-    begin
-        // [SCENARIO 121134] "File Management".GetClientDirectoryFilesList() return correct file name
-        Initialize;
-
-        // [GIVEN] Create client file
-        ClientFileName := FileMgt.ClientTempFileName('');
-        FileMgt.CreateClientFile(ClientFileName);
-        ClientDirectoryName := FileMgt.GetDirectoryName(ClientFileName);
-        FileMgt.GetClientDirectoryFilesList(TempNameValueBuffer, ClientDirectoryName);
-
-        // [WHEN] Find created file in client directory
-        FileIsFound := false;
-        if TempNameValueBuffer.FindSet then
-            repeat
-                FileIsFound := StrPos(TempNameValueBuffer.Name, ClientFileName) = 1;
-            until FileIsFound or (TempNameValueBuffer.Next = 0);
-
-        // [THEN] Created client file is found
-        Assert.IsTrue(FileIsFound, '');
-
-        // TearDown
-        FileMgt.DeleteClientFile(ClientFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure GetClientFileProperties()
-    var
-        TextArray: array[10] of Text[30];
-        ServerFileName: Text;
-        ClientFileName: Text;
-        FileDate: Date;
-        FileTime: Time;
-        FileSize: BigInteger;
-        ExpectedFileSize: BigInteger;
-    begin
-        // [SCENARIO 121134] "File Management".GetClientFileProperties()
-        Initialize;
-
-        // [GIVEN] Create server file with text string, download to client
-        TextArray[1] := TextStringTxt;
-        ServerFileName := CreateTextFileOnServer(TextArray, 1);
-        ClientFileName := FileMgt.ClientTempFileName('');
-        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
-
-        // [WHEN] Read client file properties
-        FileMgt.GetClientFileProperties(ClientFileName, FileDate, FileTime, FileSize);
-
-        // [THEN] Client file has: Date=TODAY, Time=CurrentTime+-10sec, Size=string length + 2(special symbols)
-        Assert.AreEqual(Today, FileDate, '');
-        Assert.IsTrue(Abs(Time - FileTime) < 10000, '');
-        ExpectedFileSize := StrLen(TextArray[1]) + 2;
-        Assert.AreEqual(ExpectedFileSize, FileSize, '');
-
-        // TearDown
-        FileMgt.DeleteServerFile(ServerFileName);
-        FileMgt.DeleteClientFile(ClientFileName);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1060,7 +275,7 @@ codeunit 139016 "File Mgt. Tests"
         TempBlob: Codeunit "Temp Blob";
         TempFileName: Text;
     begin
-        Initialize;
+        Initialize();
         TempFileName := FileMgt.ServerTempFileName('');
         asserterror FileMgt.BLOBImportFromServerFile(TempBlob, TempFileName);
         Assert.ExpectedError(ExpectedFileNotFoundErr);
@@ -1075,7 +290,7 @@ codeunit 139016 "File Mgt. Tests"
         ExportFileName: Text;
         TextArray: array[10] of Text[30];
     begin
-        Initialize;
+        Initialize();
         ExportFileName := FileMgt.ServerTempFileName('');
         CreateExpectedTexts(TextArray, 2);
         FileName := CreateTextFileOnServer(TextArray, 2);
@@ -1092,7 +307,7 @@ codeunit 139016 "File Mgt. Tests"
         FileName: Text;
         TextArray: array[10] of Text[30];
     begin
-        Initialize;
+        Initialize();
         CreateExpectedTexts(TextArray, 1);
         FileName := CreateTextFileOnServer(TextArray, 1);
         asserterror FileMgt.BLOBExportToServerFile(TempBlob, FileName);
@@ -1108,7 +323,7 @@ codeunit 139016 "File Mgt. Tests"
         FileName: Text;
         TempText: Text[1024];
     begin
-        Initialize;
+        Initialize();
         FileName := FileMgt.ServerTempFileName('');
         FileMgt.BLOBExportToServerFile(TempBlob, FileName);
         ExportedFile.WriteMode(false);
@@ -1129,7 +344,7 @@ codeunit 139016 "File Mgt. Tests"
         Content: Text;
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         TempBlob.CreateOutStream(OutStream);
         OutStream.WriteText('hello world');
         TempBlob.CreateInStream(InStream);
@@ -1149,7 +364,7 @@ codeunit 139016 "File Mgt. Tests"
         Content: Text;
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         FileName := FileMgt.CreateAndWriteToServerFile('hello world', 'html');
         File.Open(FileName);
         File.CreateInStream(InStream);
@@ -1212,10 +427,6 @@ codeunit 139016 "File Mgt. Tests"
         FileMgt.DeleteServerFile(DirectoryPath + '\file1.txt');
         FileMgt.DeleteServerFile(DirectoryPath + '\file2.txt');
         FileMgt.DeleteServerFile(DirectoryPath + '\file3.txt');
-#if not CLEAN17
-        FileMgt.DeleteClientDirectory(DirectoryPath + '\Temp');
-        FileMgt.DeleteClientDirectory(DirectoryPath);
-#endif
     end;
 
     local procedure CreateTextFileOnServerWithExtension(TextArray: array[10] of Text[30]; NoOfElements: Integer; FileExtension: Text[5]) FileName: Text
@@ -1327,27 +538,6 @@ codeunit 139016 "File Mgt. Tests"
         Assert.AreEqual('file name.txt (22).pdf', FileMgt.AppendFileNameWithIndex('file name.txt.pdf', 22), '');
         Assert.AreEqual('c:\temp\file name.txt (23).pdf', FileMgt.AppendFileNameWithIndex('c:\temp\file name.txt.pdf', 23), '');
     end;
-
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('AppendAllTextToClientFile will always throw an error.', '17.3')]
-    procedure AppendToFile()
-    var
-        ClientFileName: Text;
-        ServerFileName: Text;
-        TextArray: array[10] of Text[30];
-    begin
-        Initialize;
-        CreateExpectedTexts(TextArray, 2);
-        ServerFileName := CreateOneLineTextFileOnServer(TextArray[1]);
-        ClientFileName := CreateClientFile;
-        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
-        ServerFileName := CreateOneLineTextFileOnServer(TextArray[2]);
-        FileMgt.AppendAllTextToClientFile(ServerFileName, ClientFileName);
-        Assert.IsTrue(ValidateExportedClientFile(ClientFileName, TextArray, 2), AppendedFileErr); // check that both values are in the appended file
-    end;
-#endif
 
     local procedure CreateExpectedTexts(var TextArray: array[10] of Text[30]; NoOfElements: Integer)
     var

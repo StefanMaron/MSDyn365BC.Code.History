@@ -93,12 +93,12 @@ table 750 "Standard General Journal"
         LastGenJnlLine.SetRange("Journal Template Name", StdGenJnl."Journal Template Name");
         LastGenJnlLine.SetRange("Journal Batch Name", JnlBatchName);
 
-        if LastGenJnlLine.FindLast then;
+        if LastGenJnlLine.FindLast() then;
 
         GenJnlBatch.SetRange("Journal Template Name", StdGenJnl."Journal Template Name");
         GenJnlBatch.SetRange(Name, JnlBatchName);
 
-        if GenJnlBatch.FindFirst then;
+        if GenJnlBatch.FindFirst() then;
     end;
 
     local procedure CopyGenJnlFromStdJnl(StdGenJnlLine: Record "Standard General Journal Line"; DocumentNo: Code[20]; PostingDate: date)

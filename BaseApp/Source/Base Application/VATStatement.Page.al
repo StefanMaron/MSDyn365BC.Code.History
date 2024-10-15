@@ -205,7 +205,7 @@ page 317 "VAT Statement"
                     begin
                         VATStmtName.SetFilter(Name, CurrentStmtName);
                         VATStmtName.SetFilter("Statement Template Name", "Statement Template Name");
-                        VATStmtName.FindFirst;
+                        VATStmtName.FindFirst();
                         VATStmtName.SetRecFilter;
                         DocPrint.PrintSalesVATAdvNotAccProof(VATStmtName);
                     end;
@@ -226,7 +226,7 @@ page 317 "VAT Statement"
                     trigger OnAction()
                     begin
                         VATStmtName.SetFilter(Name, CurrentStmtName);
-                        VATStmtName.FindFirst;
+                        VATStmtName.FindFirst();
                         VATStmtName.SetRecFilter;
                         DocPrint.PrintVATStatementSchedule(VATStmtName);
                     end;

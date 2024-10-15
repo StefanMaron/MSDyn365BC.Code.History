@@ -21,7 +21,7 @@ codeunit 142080 "Test ServiceRep"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Excercise
         LibraryVariableStorage.Enqueue(Selection::Countries);
@@ -40,7 +40,7 @@ codeunit 142080 "Test ServiceRep"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Excercise
         LibraryVariableStorage.Enqueue(Selection::"Type of Services");
@@ -59,7 +59,7 @@ codeunit 142080 "Test ServiceRep"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Excercise
         LibraryVariableStorage.Enqueue(Selection::Both);
@@ -118,7 +118,7 @@ codeunit 142080 "Test ServiceRep"
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [RequestPageHandler]

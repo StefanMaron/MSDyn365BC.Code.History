@@ -61,7 +61,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         BankAccountNo: Code[20];
     begin
         // [SCENARIO 222118] Export Direct Debit Collection with ch03 xml schema for invoice in local currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] LCY Currency set to 'CHF' in G/L Setup
         LibraryERM.SetLCYCode('CHF');
@@ -101,7 +101,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         BankAccountNo: Code[20];
     begin
         // [SCENARIO 222118] Create xml via Export Direct Debit Collection with ch03 xml schema
-        Initialize;
+        Initialize();
 
         // [GIVEN] LCY Currency set to 'CHF' in G/L Setup
         LibraryERM.SetLCYCode('CHF');
@@ -123,7 +123,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Swiss SEPA Direct Debit");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Swiss SEPA Direct Debit");
@@ -195,7 +195,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
     begin
         with BankExportImportSetup do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Direction := Direction::Export;
             "Processing Codeunit ID" := GetSwissProcCodeunitID;
             "Processing XMLport ID" := GetSEPADDExportXMLPortID;
@@ -227,7 +227,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         DirectDebitCollection: Record "Direct Debit Collection";
     begin
         BankExportImportSetup.Init();
-        BankExportImportSetup.Code := LibraryUtility.GenerateGUID;
+        BankExportImportSetup.Code := LibraryUtility.GenerateGUID();
         BankExportImportSetup."Processing Codeunit ID" := ProcessingCodeunitID;
         BankExportImportSetup.Insert();
         DirectDebitCollection.Init();
@@ -256,7 +256,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         CustBankAccCode := CreateCustomerBankAccount(Customer."No.");
         Customer."Preferred Bank Account Code" := CustBankAccCode;
         Customer."Partner Type" := Customer."Partner Type"::Company;
-        Customer.Address := LibraryUtility.GenerateGUID;
+        Customer.Address := LibraryUtility.GenerateGUID();
         Customer.Modify();
 
         CreateMandate(SEPADirectDebitMandate, Customer."No.");
@@ -305,7 +305,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
     local procedure CreateMandate(var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustNo: Code[20])
     begin
         with SEPADirectDebitMandate do begin
-            ID := LibraryUtility.GenerateGUID;
+            ID := LibraryUtility.GenerateGUID();
             "Customer No." := CustNo;
             "Type of Payment" := "Type of Payment"::Recurrent;
             "Expected Number of Debits" := 10;

@@ -381,13 +381,13 @@ codeunit 1100 "Cost Account Mgt"
         GLAcc.ModifyAll("Cost Type No.", '');
         CostType.SetRange(Type, CostType.Type::"Cost Type");
         CostType.SetFilter("G/L Account Range", '<>%1', '');
-        if CostType.FindSet then
+        if CostType.FindSet() then
             repeat
                 Window.Update(1, CostType."No.");
                 NoOfCostTypes := NoOfCostTypes + 1;
                 GLAcc.SetFilter("No.", CostType."G/L Account Range");
                 GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
-                if GLAcc.FindSet then
+                if GLAcc.FindSet() then
                     repeat
                         if GLAcc."Cost Type No." <> '' then begin
                             Window.Close;
@@ -464,7 +464,7 @@ codeunit 1100 "Cost Account Mgt"
             Reset;
             if SpecialSort then begin
                 SetCurrentKey("Sorting Order");
-                if FindSet then
+                if FindSet() then
                     repeat
                         if "Line Type" = "Line Type"::"End-Total" then begin
                             Totaling := CostCenterRange;
@@ -491,7 +491,7 @@ codeunit 1100 "Cost Account Mgt"
                     until Next() = 0;
             end else begin
                 SetCurrentKey(Code);
-                if FindSet then
+                if FindSet() then
                     repeat
                         Window.Update(1, Code);
 
@@ -576,7 +576,7 @@ codeunit 1100 "Cost Account Mgt"
             Reset;
             if SpecialSort then begin
                 SetCurrentKey("Sorting Order");
-                if FindSet then
+                if FindSet() then
                     repeat
                         if "Line Type" = "Line Type"::"End-Total" then begin
                             Totaling := CostObjRange;
@@ -830,7 +830,7 @@ codeunit 1100 "Cost Account Mgt"
         CostBudgetReg: Record "Cost Budget Register";
     begin
         CostBudgetReg.LockTable();
-        if CostBudgetReg.FindLast then
+        if CostBudgetReg.FindLast() then
             CostBudgetReg."No." := CostBudgetReg."No." + 1
         else
             CostBudgetReg."No." := 1;
@@ -892,7 +892,7 @@ codeunit 1100 "Cost Account Mgt"
         GLAccCheck: Record "G/L Account";
     begin
         GLAccCheck.SetFilter("No.", CostType."G/L Account Range");
-        if GLAccCheck.FindFirst then
+        if GLAccCheck.FindFirst() then
             exit(GLAccNo = GLAccCheck."No.");
 
         exit(false);
@@ -910,12 +910,12 @@ codeunit 1100 "Cost Account Mgt"
             CostType.Reset();
             CostType.SetRange(Type, CostType.Type::"Cost Type");
             CostType.SetFilter("G/L Account Range", '<>%1', '');
-            if CostType.FindSet then
+            if CostType.FindSet() then
                 repeat
                     GLAcc.Reset();
                     GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
                     GLAcc.SetFilter("No.", CostType."G/L Account Range");
-                    if GLAcc.FindSet then
+                    if GLAcc.FindSet() then
                         repeat
                             if GLAccNo = GLAcc."No." then
                                 CostTypeExists := true

@@ -238,7 +238,7 @@ report 11570 "SR Cust. Paymt List Posting In"
         if (FcyAmt <> 0) and (FcyAmt <> LcyAmt) then begin
             CurrExchRate.SetRange("Currency Code", "Cust. Ledger Entry"."Currency Code");
             CurrExchRate.SetFilter("Starting Date", '<=%1', "Cust. Ledger Entry"."Posting Date");
-            if CurrExchRate.FindLast then;
+            if CurrExchRate.FindLast() then;
             ExRate := Round(LcyAmt * CurrExchRate."Exchange Rate Amount" / FcyAmt, 0.001);
         end else
             ExRate := 0;

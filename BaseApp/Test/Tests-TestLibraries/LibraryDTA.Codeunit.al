@@ -30,7 +30,7 @@ codeunit 143002 "Library - DTA"
             Validate("DTA Customer ID", LibraryUtility.GenerateRandomText(5));
             Validate("DTA Sender ID", LibraryUtility.GenerateRandomText(5));
             Validate("DTA File Folder", 'C:\Windows\Temp\'); // Cannot use TEMPORARYPATH due to field size.
-            Validate("DTA Filename", LibraryUtility.GenerateGUID);
+            Validate("DTA Filename", LibraryUtility.GenerateGUID());
             Validate("DTA Main Bank", true);
             if CurrencyCode <> '' then
                 Validate("DTA Currency Code", CurrencyCode);
@@ -38,7 +38,7 @@ codeunit 143002 "Library - DTA"
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             GLAccount.SetFilter("Account Type", 'Posting');
             GLAccount.SetFilter("Currency Code", CurrencyCode);
-            GLAccount.FindFirst;
+            GLAccount.FindFirst();
             Validate("Bal. Account No.", GLAccount."No.");
 
             if Backup then begin
@@ -88,7 +88,7 @@ codeunit 143002 "Library - DTA"
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             GLAccount.SetFilter("Account Type", 'Posting');
             GLAccount.SetFilter("Currency Code", CurrencyCode);
-            GLAccount.FindFirst;
+            GLAccount.FindFirst();
 
             Validate("Bal. Account No.", GLAccount."No.");
 
@@ -98,7 +98,7 @@ codeunit 143002 "Library - DTA"
             Validate("EZAG Bar Code", "EZAG Post Logo");
 
             Validate("EZAG File Folder", 'C:\Windows\Temp\');
-            Validate("DTA Filename", LibraryUtility.GenerateGUID);
+            Validate("DTA Filename", LibraryUtility.GenerateGUID());
 
             Insert;
         end;
@@ -149,7 +149,7 @@ codeunit 143002 "Library - DTA"
         PostCode: Record "Post Code";
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        PostCode.FindFirst;
+        PostCode.FindFirst();
         Vendor.Validate("Post Code", PostCode.Code);
         Vendor.Validate(Address, LibraryUtility.GenerateRandomText(10));
         Vendor.Validate(City, PostCode.City);

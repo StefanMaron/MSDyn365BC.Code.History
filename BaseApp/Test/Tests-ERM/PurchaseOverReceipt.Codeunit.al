@@ -288,7 +288,6 @@ codeunit 134851 "Purchase Over Receipt"
         Assert.IsTrue(PurchRcptLine."Over-Receipt Quantity" = PurchaseLine."Over-Receipt Quantity", 'Over Receipt Quantity is wrong in purchase receipt line.');
         Assert.IsTrue(PurchRcptLine."Over-Receipt Code 2" = PurchaseLine."Over-Receipt Code", 'Over Receipt Code is wrong in purchase receipt line.');
         Assert.IsTrue(PurchRcptLine."Over-Receipt Code 2" <> '', '2');
-        Assert.IsTrue(PurchRcptLine."Over-Receipt Code" = '', 'empty');
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -1397,11 +1396,49 @@ codeunit 134851 "Purchase Over Receipt"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OverReceiptToleranceMoreThan100Pct()
+    var
+        OverReceiptCode: Record "Over-Receipt Code";
+    begin
+        // [SCENARIO 426728] Enter more than 100 % in "Over-Receipt Tolerance %"
+        Initialize();
+
+        // [GIVEN] Over receipt code
+        OverReceiptCode.Get(CreateOverReceiptCode());
+
+        // [WHEN] "Over-Receipt Tolerance %" = 101
+        asserterror OverReceiptCode.Validate("Over-Receipt Tolerance %", 101);
+
+        // [THEN] Error message is appeared
+        Assert.ExpectedError('Over-Receipt Tolerance % must not be 101 in Over-Receipt Code');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OverReceiptToleranceLessThanZeroPct()
+    var
+        OverReceiptCode: Record "Over-Receipt Code";
+    begin
+        // [SCENARIO 426728] Enter less than 0 % in "Over-Receipt Tolerance %"
+        Initialize();
+
+        // [GIVEN] Over receipt code
+        OverReceiptCode.Get(CreateOverReceiptCode());
+
+        // [WHEN] "Over-Receipt Tolerance %" = -1
+        asserterror OverReceiptCode.Validate("Over-Receipt Tolerance %", -1);
+
+        // [THEN] Error message is appeared
+        Assert.ExpectedError('Over-Receipt Tolerance % must not be -1 in Over-Receipt Code');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Purchase Over Receipt");
         LibraryVariableStorage.Clear();
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;

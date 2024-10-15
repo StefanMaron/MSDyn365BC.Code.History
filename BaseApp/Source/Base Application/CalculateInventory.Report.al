@@ -171,7 +171,7 @@ report 790 "Calculate Inventory"
                     if ItemJnlBatch."No. Series" <> '' then begin
                         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
                         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
-                        if not ItemJnlLine.FindFirst then
+                        if not ItemJnlLine.FindFirst() then
                             NextDocNo := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", PostingDate, false);
                         ItemJnlLine.Init();
                     end;
@@ -299,12 +299,9 @@ report 790 "Calculate Inventory"
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJnlLine: Record "Item Journal Line";
         WhseEntry: Record "Warehouse Entry";
-        QuantityOnHandBuffer: Record "Inventory Buffer" temporary;
         SourceCodeSetup: Record "Source Code Setup";
         DimSetEntry: Record "Dimension Set Entry";
         OldWhseEntry: Record "Warehouse Entry";
-        SKU: Record "Stockkeeping Unit";
-        TempSKU: Record "Stockkeeping Unit" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         SelectedDim: Record "Selected Dimension";
         TempSelectedDim: Record "Selected Dimension" temporary;
@@ -315,24 +312,26 @@ report 790 "Calculate Inventory"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         Window: Dialog;
-        PostingDate: Date;
         CycleSourceType: Option " ",Item,SKU;
         PhysInvtCountCode: Code[10];
-        NextDocNo: Code[20];
         NextLineNo: Integer;
-        ZeroQty: Boolean;
         ZeroQtySave: Boolean;
-        IncludeItemWithNoTransaction: Boolean;
         AdjustPosQty: Boolean;
         ItemTrackingSplit: Boolean;
         SkipDim: Boolean;
-        ColumnDim: Text[250];
         PosQty: Decimal;
         NegQty: Decimal;
         ItemNotOnInventoryErr: Label 'Items Not on Inventory.';
 
     protected var
+        QuantityOnHandBuffer: Record "Inventory Buffer" temporary;
+        TempSKU: Record "Stockkeeping Unit" temporary;
         HideValidationDialog: Boolean;
+        PostingDate: Date;
+        NextDocNo: Code[20];
+        ZeroQty: Boolean;
+        IncludeItemWithNoTransaction: Boolean;
+        ColumnDim: Text[250];
 
     procedure SetItemJnlLine(var NewItemJnlLine: Record "Item Journal Line")
     begin
@@ -464,7 +463,7 @@ report 790 "Calculate Inventory"
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
             SetRange("Variant Code", VariantCode);
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Reset;
                 Init;
                 "Item No." := ItemNo;
@@ -759,6 +758,8 @@ report 790 "Calculate Inventory"
 
     [Scope('OnPrem')]
     procedure AddZeroQtySKU()
+    var
+        SKU: Record "Stockkeeping Unit";
     begin
         if not ZeroQty then
             exit;
@@ -794,9 +795,9 @@ report 790 "Calculate Inventory"
         Item.CopyFilter("Variant Filter", ItemVariant.Code);
         Item.CopyFilter("Location Filter", Location.Code);
         Location.SetRange("Use As In-Transit", false);
-        if (Item.GetFilter("Location Filter") <> '') and Location.FindSet then
+        if (Item.GetFilter("Location Filter") <> '') and Location.FindSet() then
             repeat
-                if (Item.GetFilter("Variant Filter") <> '') and ItemVariant.FindSet then
+                if (Item.GetFilter("Variant Filter") <> '') and ItemVariant.FindSet() then
                     repeat
                         InsertQuantityOnHandBuffer(ItemNo, Location.Code, ItemVariant.Code);
                     until ItemVariant.Next() = 0
@@ -804,7 +805,7 @@ report 790 "Calculate Inventory"
                     InsertQuantityOnHandBuffer(ItemNo, Location.Code, '');
             until Location.Next() = 0
         else
-            if (Item.GetFilter("Variant Filter") <> '') and ItemVariant.FindSet then
+            if (Item.GetFilter("Variant Filter") <> '') and ItemVariant.FindSet() then
                 repeat
                     InsertQuantityOnHandBuffer(ItemNo, '', ItemVariant.Code);
                 until ItemVariant.Next() = 0
@@ -814,12 +815,11 @@ report 790 "Calculate Inventory"
 
     local procedure CalcPhysInvQtyAndInsertItemJnlLine()
     begin
-
-        AddZeroQtySKU;
+        AddZeroQtySKU();
 
         with QuantityOnHandBuffer do begin
             Reset;
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     PosQty := 0;
                     NegQty := 0;
@@ -878,7 +878,7 @@ report 790 "Calculate Inventory"
             SetRange("No.", QuantityOnHandBuffer."Item No.");
             SetRange("Table ID", DATABASE::Item);
             SetFilter("Dimension Value Code", '<>%1', '');
-            if FindSet then
+            if FindSet() then
                 repeat
                     InsertDim(DATABASE::Item, 0, "Dimension Code", "Dimension Value Code");
                 until Next() = 0;

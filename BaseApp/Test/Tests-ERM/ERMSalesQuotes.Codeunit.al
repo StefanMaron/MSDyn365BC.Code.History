@@ -58,7 +58,7 @@ codeunit 134379 "ERM Sales Quotes"
         // Test if the system allows to create New Sales Quote for Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
@@ -88,7 +88,7 @@ codeunit 134379 "ERM Sales Quotes"
         // Test if the system calculates applicable VAT in Sales Quote.
 
         // Setup: Create Sales Quote with Multiple Sales Quote Line.
-        Initialize;
+        Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
@@ -124,7 +124,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [SCENARIO] Test Create Sales Order from Sales Quote.
 
         // [GIVEN] Sales Quote "Q" where "Responsibility Center" = "RC" and Total no. of Lines = "NumL"
-        Initialize;
+        Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
@@ -154,9 +154,9 @@ codeunit 134379 "ERM Sales Quotes"
         // Create Sales Quote with Contact and check Sell to Customer is getting updated.
 
         // Setup: Find Contact from Contact Business Relation that have setup for a Customer.
-        Initialize;
+        Initialize();
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
 
         // Exercise: Create Sales Quote for Contact.
         SalesHeader.Insert(true);
@@ -184,7 +184,7 @@ codeunit 134379 "ERM Sales Quotes"
         // Check if the system allows changing Sell to Contact No. in Sales Quote and Check Sales Line updated for the same.
 
         // Setup: Create Sales Quote with Multiple Sales Quote Line.
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         OldStockoutWarning :=
@@ -220,7 +220,7 @@ codeunit 134379 "ERM Sales Quotes"
         // Check Invoice Discount has been flow correctly on Sales Order after Make Order from Sales Quote.
 
         // Setup: Create Sales Quote and Calculate Invoice Discount with 1 Fix Sales Quote Line.
-        Initialize;
+        Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesQuote(SalesHeader, SalesLine, CreateCustomerInvDiscount(CreateCustomer), 1);
@@ -256,7 +256,7 @@ codeunit 134379 "ERM Sales Quotes"
         // Convert Sales Quote to an Order. Click No on Confirmation Dialog Box to invoke NO Button Using Handler.
 
         // Setup: Create Sales Quote and store Total no. of Lines count in a variable with Multiple Sales Quote Line.
-        Initialize;
+        Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
@@ -288,7 +288,7 @@ codeunit 134379 "ERM Sales Quotes"
         // Convert Sales Quote to an Order. Click Yes on Confirmation Dialog Box to invoke YES Button Using Handler.
 
         // Setup: Create Sales Quote and store Total no. of Lines count in a variable with Multiple Sales Quote Line.
-        Initialize;
+        Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
@@ -325,7 +325,7 @@ codeunit 134379 "ERM Sales Quotes"
         // Check that blank Posting Date is populating on created Sales Order from Sales Quote while Default Posting Date is set to No Date on the Sales & Receivables Setup.
 
         // Setup: Update Sales & Receivables Setup and create Sales Quote.
-        Initialize;
+        Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"No Date", false);
         CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
@@ -354,7 +354,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UT] [Resource]
         // [SCENARIO 376793] Not possible to delete resource which exists in Sales Quote
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Line with Type = "Resource" and "Resouce No." = "X"
         SalesLine.Init();
         SalesLine."Document Type" := SalesLine."Document Type"::Quote;
@@ -482,7 +482,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UT] [Customer Template]
         // [SCENARIO 382435] Isaac can assign "Customer Template" after confirmation when validate "Contact No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template "CUST"
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
@@ -517,7 +517,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI] [Customer Template]
         // [SCENARIO 382435] Isaac can assign "Customer Template" after confirmation when lookup "Contact No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template "CUST"
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
@@ -558,7 +558,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [SCENARIO 201839] Extended Texts are being pulled into the sales document if there are more than just one Extended Text for an item
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Extended Texts "X" and "Y"
         Item.Get(CreateItem);
@@ -593,10 +593,10 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI]
         // [Scenario] Actions on Sales Quote Page not enabled if no customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Quote page is opened on SaaS
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [THEN] All controls related to customer (and on SaaS) are disabled
         Assert.IsFalse(SalesQuote.MakeOrder.Enabled, ControlShouldBeDisabledErr);
@@ -611,7 +611,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [WHEN] Sales Quotes page is opened with no application area
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [THEN] All controls related to customer (and not on SaaS) are disabled
         Assert.IsFalse(SalesQuote.Statistics.Enabled, ControlShouldBeDisabledErr);
@@ -628,7 +628,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UI]
         // [Scenario] Actions on Sales Quote Page are enabled if customer is selected
-        Initialize;
+        Initialize();
 
         // [Given] A sample sales quote
         CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
@@ -667,10 +667,10 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Quote Page not editable if no customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Quote page is opened
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [THEN] Contact Field is not editable
         Assert.IsFalse(SalesQuote."Sell-to Contact".Editable, ContactShouldNotBeEditableErr);
@@ -686,7 +686,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Quote Page editable if customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer);
@@ -709,7 +709,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI]
         // [Scenario] Sell-to Address Fields on Sales Quote Page not editable if Customer selected equals sell-to Customer
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer);
@@ -738,7 +738,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI]
         // [Scenario] Sell-to Address Fields on Sales Quote Page editable if Customer selected not equals Sell-to Customer
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer);
@@ -773,7 +773,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [SCENARIO 209065] "Credit Limit" notification is shown when create Sales Order from Sales Quote
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Credit Warnings"  set to "Credit Limit" in "Sales & Receivables Setup"
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
@@ -801,7 +801,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] Notification "Credit Limit" is shown
         // Verification done in CreditLimitNotificationHandler
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -817,7 +817,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [SCENARIO 209065] "Item Availability" notification is shown when create Sales Order from Sales Quote
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Credit Warnings"  set to "Credit Limit" in "Sales & Receivables Setup"
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"No Warning"); // make sure no "credit limit" notification will be send
@@ -840,7 +840,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] Notification "Item Availability" is shown
         // Verification done in ItemAvailabilityNotificationHandler
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -861,7 +861,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI] [Contact] [Customer Template]
         // [SCENARIO 228972] If you create a new sales quote from template, it must be possible to populate the Ship-to fields
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote is created for new Contact with Customer Template Code
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -870,7 +870,7 @@ codeunit 134379 "ERM Sales Quotes"
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code); // for CustomerTemplateListModalPageHandler
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
         SalesQuoteNo := SalesQuote."No.".Value;
 
@@ -878,13 +878,13 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote."Ship-to Contact".SetValue(Contact."No.");
 
         // [GIVEN] "Shipment Method Code" field is updated on Shipping and Billing tab of the Sales Quote with "SMC" value
-        ShipmentMethod.FindFirst;
+        ShipmentMethod.FindFirst();
         SalesQuote."Shipment Method Code".SetValue(ShipmentMethod.Code);
 
         // [GIVEN] "Shipping Agent Code" field is updated on Shipping and Billing tab of the Sales Quote with "SAC" value
-        ShippingAgentServices.FindFirst;
+        ShippingAgentServices.FindFirst();
         ShippingAgent.SetRange(Code, ShippingAgentServices."Shipping Agent Code");
-        ShippingAgent.FindFirst;
+        ShippingAgent.FindFirst();
         SalesQuote."Shipping Agent Code".SetValue(ShippingAgent.Code);
 
         // [GIVEN] "Shipping Agent Service Code" field is updated on Shipping and Billing tab of the Sales Quote with "SASC" value
@@ -897,7 +897,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [WHEN] Make Sales Order from the Sales Quote
         SalesQuote.MakeOrder.Invoke;
         SalesHeader.SetRange("Quote No.", SalesQuoteNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         // [THEN] Sales Order has "Ship-to Contact" = "STC"
         SalesHeader.TestField("Ship-to Contact", Contact."No.");
@@ -923,7 +923,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 234080] Lines of a blank sales quote should not be editable.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         Assert.IsFalse(SalesQuote.SalesLines.Description.Editable, LinesUneditableErr);
     end;
 
@@ -951,7 +951,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 234080] When open sales quote with populated "Sell-to Customer Template Code" lines are editable.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
         SalesQuote."Sell-to Customer Templ. Code".SetValue(CustomerTemplate.Code);
         Assert.IsTrue(SalesQuote.SalesLines.Description.Editable, LinesEditableErr);
@@ -967,7 +967,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 234080] When open sales quote with populated "Sell-to Contact No." lines are editable.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         LibraryMarketing.CreateCompanyContact(Contact);
         SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
         Assert.IsTrue(SalesQuote.SalesLines.Description.Editable, LinesEditableErr);
@@ -1016,7 +1016,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [SCENARIO 253884] Fields "Your Reference" and "Quote Valid Until Date" can be edited on Sales Quote page
 
         // [GIVEN] Sales Quote page opened
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer No.".SetValue(LibrarySales.CreateCustomerNo);
 
         // [WHEN] "Your Reference" = Y and "Quote Valid Until Date" = D are filled on Sales Quote page
@@ -1047,7 +1047,7 @@ codeunit 134379 "ERM Sales Quotes"
         CustomerTemplate: Record "Customer Templ.";
     begin
         // [SCENARIO 262275] Create customers function from quote with contact of person type which is linked to contact of company type causes creating customer based on contact-company
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact COMP1 with type Company
         // [GIVEN] Contact PERS1 with type Person linked to contact COMP1
@@ -1095,7 +1095,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UT] [Contact]
         // [SCENARIO 262275] Lookup customer template from contact-person which is linked to contact-company opens list of templates filtered by Contact Type = Company
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create customer templates with both contact types: TEMP_PERSON and TEMP_COMPANY
         CreateCustomerTemplateWithContactType(CustomerTemplateCompany, CustomerTemplateCompany."Contact Type"::Company);
@@ -1137,7 +1137,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UT] [Contact]
         // [SCENARIO 262275] Lookup customer template from contact-person which is not linked to contact-company opens list of templates filtered by Contact Type = Person
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create customer templates with both contact types: TEMP_PERSON and TEMP_COMPANY
         CreateCustomerTemplateWithContactType(CustomerTemplateCompany, CustomerTemplateCompany."Contact Type"::Company);
@@ -1174,7 +1174,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [Quote Valid To Date]
         // [SCENARIO 280680] "Quote Valid Until Date" calculated based on "Document Date" and SalesSetup."Quote Validity Calculation"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create sales qoute
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -1198,7 +1198,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [Quote Valid To Date]
         // [SCENARIO 280680] "Quote Valid Until Date" calculated when new quote is being created
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set SalesSetup."Quote Validity Calculation" = 30D
         SetSalesSetupQuoteValidUntilDate('<30D>');
@@ -1221,7 +1221,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [Quote Valid To Date]
         // [SCENARIO 280680] Report "Delete Overdue Sales Quotes" deletes overdue after confirmation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create overdue quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -1246,7 +1246,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [Quote Valid To Date]
         // [SCENARIO 280680] Report "Delete Overdue Sales Quotes" does not delete overdue after decline confirmation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create overdue quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -1272,7 +1272,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [Quote Valid To Date]
         // [SCENARIO 282997] Report "Delete Overdue Sales Quotes" does not delete quotes with empty "Quote Valid Until Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] No Sales Quote exist
         DeleteSalesQuotes;
@@ -1298,13 +1298,13 @@ codeunit 134379 "ERM Sales Quotes"
         CustomerTemplateCard: TestPage "Customer Templ. Card";
     begin
         // [SCENARIO 210447] Copy customer template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer template 'CT1'
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code);
         // [GIVEN] New customer template 'CT2'
-        CustomerTemplateCard.OpenNew;
+        CustomerTemplateCard.OpenNew();
         CustomerTemplateCard.Code.SetValue('CT2');
         // [WHEN] Copy from customer template 'CT1' to 'CT2'
         CustomerTemplateCard.CopyTemplate.Invoke;
@@ -1337,7 +1337,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UI] [Credit Limit] [Notification]
         // [SCENARIO 290301] "Credit Limit" notification is shown when Amount change is less than Credit Limit on Sales Quote
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Credit Warnings"  set to "Credit Limit" in "Sales & Receivables Setup"
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
@@ -1375,7 +1375,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [THEN] Notification "Credit Limit" is shown
         // Verification done in CreditLimitNotificationHandler
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         SalesQuote.Close;
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1390,14 +1390,14 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE]
         // [SCENARIO 307204] Setting Company Contact without Customer on new Sales Quote page leads to fields "Sell-to Contact" and "Bill-to Contact" being equal to ''.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Contact "X" without Customer
         ContactNo := LibraryMarketing.CreateCompanyContactNo;
         LibraryVariableStorage.Enqueue(ContactNo);
 
         // [WHEN] "Sell-to Contact" is set to Contact "X" on new Sales Quote page.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Contact".Lookup;
 
         // [THEN] Fields "Sell-to Contact" and "Bill-to Contact" are equal to ''.
@@ -1418,7 +1418,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UI] [Order]
         // [SCENARIO 305396] Stan can switch to other documents from sales order created from quote.
-        Initialize;
+        Initialize();
 
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"No Warning");
         LibrarySales.SetStockoutWarning(false);
@@ -1460,7 +1460,7 @@ codeunit 134379 "ERM Sales Quotes"
         DocumentNo: array[2] of Code[20];
     begin
         // [SCENARIO 328279] Assigning Sales Quotes for Contact to Customer created from a different Customer Template raises a warning
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Contact "COMP"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1503,7 +1503,7 @@ codeunit 134379 "ERM Sales Quotes"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 331392] Assigning Sales Quote without Customer Template for Contact to Customer created from a Customer Template raises a warning
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Contact "COMP"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1658,8 +1658,8 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Quotes");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -1667,8 +1667,8 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Quotes");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
         Commit();
@@ -1691,7 +1691,7 @@ codeunit 134379 "ERM Sales Quotes"
         Counter: Integer;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CustomerNo);
-        ResponsibilityCenter.FindFirst;
+        ResponsibilityCenter.FindFirst();
         SalesHeader.Validate("Responsibility Center", ResponsibilityCenter.Code);
         SalesHeader.Modify(true);
 
@@ -1817,10 +1817,10 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Quote No.", QuoteNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSalesLineCount(DocumentNo: Code[20]): Integer
@@ -1836,14 +1836,14 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         SalesHeader.SetRange("Quote No.", SalesHeader."No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure VerifyPostingDateOnOrder(var SalesHeader: Record "Sales Header"; QuoteNo: Code[20])
     begin
         SalesHeader.SetRange("Quote No.", QuoteNo);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesHeader.TestField("Posting Date", 0D);
     end;
 

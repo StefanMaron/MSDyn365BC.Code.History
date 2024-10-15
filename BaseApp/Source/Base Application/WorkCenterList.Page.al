@@ -218,7 +218,7 @@ page 99000755 "Work Center List"
                         begin
                             CurrPage.SetSelectionFilter(Work);
                             DefaultDimMultiple.SetMultiRecord(Work, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

@@ -70,7 +70,7 @@ report 3010833 "LSV Close Collection"
 
                 SetRange("LSV Journal No.", LsvJournal."No.");
 
-                if not FindFirst then
+                if not FindFirst() then
                     Error(Text007);
 
                 Window.Open(
@@ -167,7 +167,7 @@ report 3010833 "LSV Close Collection"
     begin
         // Cust entry according to application ID exists, open? Adapt cash discount?
 
-        if not CustLedgEntry.FindFirst then
+        if not CustLedgEntry.FindFirst() then
             Error(Text016, "LSV Journal Line"."Applies-to Doc. No.", "LSV Journal Line"."Customer No.");
 
         // Invoice not open

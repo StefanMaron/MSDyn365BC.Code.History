@@ -149,6 +149,8 @@ codeunit 1633 "Office Host Provider"
             end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Please use OnGetEmailAndAttachmentsForEntity which uses RecordRef instead of Vendor number.', '20.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachments', '', false, false)]
     local procedure OnGetEmailAndAttachments(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; VendorNumber: Code[20])
     var
@@ -169,6 +171,28 @@ codeunit 1633 "Office Host Provider"
                     GetEmailAndAttachments(TempOfficeAddinContextInternal."Item ID", TempExchangeObject, Action, VendorNumber);
                     TempExchangeObjectInternal.Copy(TempExchangeObject, true);
                 end;
+    end;
+#endif
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachmentsForEntity', '', false, false)]
+    local procedure OnGetEmailAndAttachmentsForEntity(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments; RecRef: RecordRef)
+    var
+        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
+    begin
+        if not CanHandle() then
+            exit;
+
+        if not TempExchangeObjectInternal.IsEmpty() then begin
+            Clear(TempExchangeObject);
+            TempExchangeObjectInternal.ModifyAll(InitiatedAction, Action);
+            TempExchangeObjectInternal.ModifyAll(RecId, RecRef.RecordId());
+            TempExchangeObject.Copy(TempExchangeObjectInternal, true)
+        end else
+            if not (OfficeHost.CallbackToken() in ['', ' ']) then begin
+                ExchangeWebServicesServer.InitializeWithOAuthToken(OfficeHost.CallbackToken(), ExchangeWebServicesServer.GetEndpoint());
+                ExchangeWebServicesServer.GetEmailAndAttachments(TempOfficeAddinContextInternal."Item ID", TempExchangeObject, Action, RecRef);
+                TempExchangeObjectInternal.Copy(TempExchangeObject, true);
+            end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailBody', '', false, false)]

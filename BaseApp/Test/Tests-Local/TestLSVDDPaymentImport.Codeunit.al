@@ -32,7 +32,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         LSVSetup: Record "LSV Setup";
         LSVMgt: Codeunit LSVMgt;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, CurrencyCode, LSVSetup."Bal. Account Type"::"G/L Account");
@@ -119,7 +119,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         LSVSetup: Record "LSV Setup";
         LSVMgt: Codeunit LSVMgt;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, CurrencyCode, LSVSetup."Bal. Account Type"::"G/L Account");
@@ -280,7 +280,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '', LSVSetup."Bal. Account Type"::"G/L Account");
@@ -292,7 +292,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("No.", '<>%1', '');
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Line Amount", LibraryRandom.RandDec(SalesLine."Line Amount", 2));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -338,7 +338,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         LSVSetup: Record "LSV Setup";
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         GenJournalLine.DeleteAll();
@@ -374,7 +374,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         LSVSetup: Record "LSV Setup";
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '', LSVSetup."Bal. Account Type"::"G/L Account");
@@ -396,7 +396,7 @@ codeunit 144044 "Test LSV DD Payment Import"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test LSV DD Payment Import");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -466,9 +466,6 @@ codeunit 144044 "Test LSV DD Payment Import"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         CreateLSVSalesDoc(SalesHeader, Customer."No.", SalesHeader."Document Type"::Invoice);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-#if not CLEAN17
-        FileMgt.DeleteClientFile(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
-#endif
     end;
 
     local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Option)
@@ -555,9 +552,6 @@ codeunit 144044 "Test LSV DD Payment Import"
         OutputFileName: Text;
         LineNo: Integer;
     begin
-#if not CLEAN17
-        InputFileName := CopyStr(FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename"), 1, 1024);
-#endif
         OutputFileName := FileMgt.ServerTempFileName('');
         DDFile.TextMode(true);
         DDFile.WriteMode(true);
@@ -585,11 +579,6 @@ codeunit 144044 "Test LSV DD Payment Import"
         until NextLine = '';
 
         DDFile.Close;
-
-#if not CLEAN17
-        FileMgt.DeleteClientDirectory(LSVSetup."DebitDirect Import Filename");
-        FileMgt.CopyClientFile(OutputFileName, LSVSetup."DebitDirect Import Filename", true);
-#endif
     end;
 
     local procedure FindCustLedgerEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]) CollectionAmount: Decimal
@@ -647,7 +636,7 @@ codeunit 144044 "Test LSV DD Payment Import"
     begin
         LSVJnlLine.SetRange("Cust. Ledg. Entry No.", CustLedgEntry."Entry No.");
         Assert.AreEqual(1, LSVJnlLine.Count, 'Unexpected lsv jnl lines.');
-        LSVJnlLine.FindFirst;
+        LSVJnlLine.FindFirst();
 
         LSVJnlLine.TestField("Customer No.", CustLedgEntry."Customer No.");
         LSVJnlLine.TestField("Collection Amount",
@@ -677,7 +666,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         until LSVJournalLine.Next = 0;
 
         LSVJournalLine.SetRange("DD Rejection Reason", LSVJournalLine."DD Rejection Reason"::"Customer protestation");
-        if LSVJournalLine.FindSet then
+        if LSVJournalLine.FindSet() then
             repeat
                 VerifyGenJournalLine(GenJournalLine, LSVJnl, LSVJournalLine, GenJournalLine."Document Type"::Refund, 1);
             until LSVJournalLine.Next = 0;
@@ -685,7 +674,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         LSVJournalLine.SetRange("DD Rejection Reason",
           LSVJournalLine."DD Rejection Reason"::"Customer account number and address do not match",
           LSVJournalLine."DD Rejection Reason"::"Postal account number non-existent");
-        if LSVJournalLine.FindSet then
+        if LSVJournalLine.FindSet() then
             repeat
                 VerifyGenJournalLine(GenJournalLine, LSVJnl, LSVJournalLine, GenJournalLine."Document Type"::Payment, 0);
             until LSVJournalLine.Next = 0;
@@ -727,7 +716,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Source Code", 'ESR');
         Assert.AreEqual(ExpCount, GenJournalLine.Count, 'Unexpected balancing gen. journal line.');
-        if GenJournalLine.FindFirst then
+        if GenJournalLine.FindFirst() then
             GenJournalLine.TestField(Amount, ExpBalAmt);
     end;
 

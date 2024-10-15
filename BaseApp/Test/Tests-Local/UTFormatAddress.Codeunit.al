@@ -62,7 +62,7 @@ codeunit 142079 "UT Format Address"
         GLSetup: Record "General Ledger Setup";
     begin
         // No County expected for address if Country not specified
-        GLSetup.FindFirst;
+        GLSetup.FindFirst();
         GLSetup."Local Address Format" := GLSetup."Local Address Format"::"Post Code+City";
         GLSetup.Modify();
         CountryRegion.Init();

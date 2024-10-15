@@ -20,7 +20,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Cust. Due Amt. Report");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Test]
@@ -33,7 +33,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
         PeriodLength: DateFormula;
         Balance: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -62,7 +62,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
         PeriodLength: DateFormula;
         Balance: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -90,7 +90,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
         "Layout": Option "Columns before Key Date","Columns after Key Date";
         Balance: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -119,7 +119,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
         Balance: array[5] of Decimal;
         CurrencyCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);

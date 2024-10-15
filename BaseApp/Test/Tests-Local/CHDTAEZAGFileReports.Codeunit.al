@@ -32,7 +32,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         DTASetupPage: TestPage "DTA Setup";
         File: Text;
     begin
-        Initialize;
+        Initialize();
 
         LibraryDTA.CreateDTASetup(DTASetup, '', false);
         DTASetup.Validate("DTA File Folder", TemporaryPath);
@@ -65,7 +65,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         File: Text;
         Line: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         Dates[1] := WorkDate;
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
@@ -86,9 +86,6 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         REPORT.Run(REPORT::"DTA File");
 
         // Verify
-#if not CLEAN17
-        File := FileMgt.UploadFileSilent(DTASetup."DTA File Folder" + DTASetup."DTA Filename");
-#endif
         Line := CopyStr(LibraryTextFileValidation.ReadLine(CopyStr(File, 1, 1024), 1), 1, 1024);
 
         // Check the previous value on 3rd line would be on first line
@@ -199,7 +196,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         Line: Text[1024];
     begin
         // [SCENARIO 371966] "DTA File" -> Record 830 -> Section 4 -> Vendor Bank Account No. -> 21 chars length in position [6,26]
-        Initialize;
+        Initialize();
 
         // [GIVEN] DTA Setup
         TestOption := TestOption::"Bank Payment Abroad";
@@ -223,9 +220,6 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         REPORT.Run(REPORT::"DTA File");
 
         // [THEN] Generated DTA File has Vendor Bank Account No. with 21 chars length in Section 4 position [6,26] = '123456789012345678901'
-#if not CLEAN17
-        File := FileMgt.UploadFileSilent(DTASetup."DTA File Folder" + DTASetup."DTA Filename");
-#endif
         Line := CopyStr(LibraryTextFileValidation.ReadLine(CopyStr(File, 1, 1024), 4), 1, 1024);
         CheckColumnValue(VendorBankAccount."Bank Account No.", Line, 6);
     end;
@@ -245,7 +239,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 166131] DTA File report exports country specific symbols with correct encoding
-        Initialize;
+        Initialize();
 
         // [GIVEN] DTA Setup with DTA Sender Address contains country specific symbols
         LibraryDTA.CreateDTASetup(DTASetup, '', false);
@@ -283,7 +277,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 166131] EZAG File report exports country specific symbols with correct encoding
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted payment for vendor which has address with country specific symbols
         LibraryDTA.CreateEZAGSetup(DTASetup, '');
@@ -310,12 +304,12 @@ codeunit 144350 "CH DTA/EZAG File Reports"
     begin
         // Lazy Setup.
         if not isInitialized then begin
-            LibraryERMCountryData.CreateVATData;
-            LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-            LibraryERMCountryData.UpdateGeneralPostingSetup;
-            LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-            LibraryERMCountryData.UpdateGenJournalTemplate;
-            LibraryERMCountryData.UpdateGeneralLedgerSetup;
+            LibraryERMCountryData.CreateVATData();
+            LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+            LibraryERMCountryData.UpdateGeneralPostingSetup();
+            LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+            LibraryERMCountryData.UpdateGenJournalTemplate();
+            LibraryERMCountryData.UpdateGeneralLedgerSetup();
             isInitialized := true;
             Commit();
             exit;
@@ -355,7 +349,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         DTASuggestVendorPayments.SetTableView(Vendor);
         DTASuggestVendorPayments.UseRequestPage(true);
         Commit();
-        DTASuggestVendorPayments.RunModal;
+        DTASuggestVendorPayments.RunModal();
     end;
 
     [HandlerFunctions('DTASuggestVendorPaymentsRequestPageHandler,MessageHandler,DTAFileRequestPageHandler')]
@@ -370,7 +364,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         Amounts: array[3] of Decimal;
     begin
         // Setup: Create and Post General Journal Line for Payment and Suggest Vendor Payment.
-        Initialize;
+        Initialize();
 
         Dates[1] := WorkDate;
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
@@ -403,7 +397,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         Amounts: array[3] of Decimal;
     begin
         // Setup: Create and Post General Journal Line for Payment and Suggest Vendor Payment.
-        Initialize;
+        Initialize();
 
         Dates[1] := WorkDate;
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
@@ -471,9 +465,6 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         Line: Text[1024];
         BackupFile: Text;
     begin
-#if not CLEAN17
-        File := FileMgt.UploadFileSilent(DTASetup."DTA File Folder" + DTASetup."DTA Filename");
-#endif
 
         // Common Check: Sender Info
         Line := CopyStr(LibraryTextFileValidation.ReadLine(CopyStr(File, 1, 1024), 1), 1, 1024);
@@ -524,9 +515,6 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         FileName: Text;
         Line: Text;
     begin
-#if not CLEAN17
-        FileName := FileMgt.UploadFileSilent(DTASetup."DTA File Folder" + DTASetup."DTA Filename");
-#endif
         Line := FindLineContainingValue(FileName, 15, 24, DTASetup."DTA Sender Name");
         Assert.ExpectedMessage(DTASetup."DTA Sender Address", Line);
     end;
@@ -536,9 +524,6 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         File: Text;
         Line: Text[1024];
     begin
-#if not CLEAN17
-        File := FileMgt.UploadFileSilent(DTASetup."EZAG File Folder" + DTASetup."EZAG Filename");
-#endif
         Line := CopyStr(LibraryTextFileValidation.ReadLine(CopyStr(File, 1, 1024), 1), 1, 1024);
 
         // Navision ID
@@ -636,9 +621,6 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         FileName: Text;
         Line: Text;
     begin
-#if not CLEAN17
-        FileName := FileMgt.UploadFileSilent(DTASetup."EZAG File Folder" + DTASetup."EZAG Filename");
-#endif
         Line := FindLineContainingValue(FileName, 263, 24, Vendor.Name);
         Assert.ExpectedMessage(Vendor.Address, Line);
     end;

@@ -56,7 +56,7 @@ codeunit 3010801 QuoteMgt
 
             Window.Update(2, Count);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     // Update dialog
                     Counter := Counter + 1;
@@ -215,7 +215,7 @@ codeunit 3010801 QuoteMgt
 
             Window.Update(2, Count);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     // Update dialog
                     Counter := Counter + 1;
@@ -353,7 +353,7 @@ codeunit 3010801 QuoteMgt
 
             // Increment levels
             SetRange("Document No.", SalesCrMemoHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     // Update dialog
                     Counter := Counter + 1;

@@ -43,7 +43,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO] Covers document TFS_TC_ID = 7421.
 
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and post Gen. Journal Lines and Run Close Income Statement Batch job.
         DocumentNo := PostGeneralJournalLinesAndCloseIncomeStatement(GenJournalLine);
@@ -64,7 +64,7 @@ codeunit 134228 "ERM Close Income Statement"
 
         // [GIVEN] Posted Gen. Journal Lines
         // [WHEN] Run Close Income Statement Batch job twice.
-        Initialize;
+        Initialize();
         DocumentNo := CloseIncomeStatementWithPostingLines(GenJournalLine);
 
         // [THEN]: Verify Balance in GL Account.
@@ -83,7 +83,7 @@ codeunit 134228 "ERM Close Income Statement"
         // [SCENARIO] Covers document TFS_TC_ID = 7423, 4252
 
         // [GIVEN] Create and Post Gen. Journal Lines and Run Close Income Statement Batch job two times.
-        Initialize;
+        Initialize();
         DocumentNo := CloseIncomeStatementWithPostingLines(GenJournalLine);
 
         // [GIVEN] Update General Ledger Setup for Additional Reporting Currency.
@@ -111,11 +111,11 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO 287733] Check that no one general journal line with zero amount has been created
 
-        Initialize;
+        Initialize();
         // [GIVEN] New Fiscal Year
         LibraryFiscalYear.CloseFiscalYear;
         ExecuteUIHandler;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         AdditionalReportingCurrency := UpdateCurOnGeneralLedgerSetup(CreateCurrency);
         Amount := 1;
 
@@ -156,11 +156,11 @@ codeunit 134228 "ERM Close Income Statement"
         // [SCENARIO 128966] Check that New Fiscal Year has been Created.
 
         // [GIVEN] Find Last Fiscal Year.
-        Initialize;
+        Initialize();
         StartingDate := LibraryFiscalYear.GetLastPostingDate(false);
 
         // [WHEN] Create Fiscal Year.
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // [THEN] Verify that New Fiscal Year created.
         Assert.AreNotEqual(StartingDate, LibraryFiscalYear.GetLastPostingDate(false), 'Fiscal Year must not be equal');
@@ -180,10 +180,10 @@ codeunit 134228 "ERM Close Income Statement"
         // [SCENARIO 244918] Check Last No. Used field value on No. Series after closing Income Statement using an Additional Reporting Currency.
 
         // [GIVEN] Close and create new Fiscal year and Update General Ledger Setup.
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CloseFiscalYear;
         ExecuteUIHandler;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         AddtionalReportingCurrency := UpdateCurOnGeneralLedgerSetup(CreateCurrency);
 
         // [GIVEN] Posted Gen. Journal Lines.
@@ -220,10 +220,10 @@ codeunit 134228 "ERM Close Income Statement"
         // [GIVEN] Created new Fiscal Year
         // [GIVEN] Posted General Journal Lines to create entries in last Fiscal Year,
         // [GIVEN] Created General Journal Line by "Close Income Statement" report
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CloseFiscalYear;
         ExecuteUIHandler;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         CreateGeneralJournalLines(GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -231,10 +231,10 @@ codeunit 134228 "ERM Close Income Statement"
         CloseIncomeStatement(GenJournalLine, GenJournalLine."Document No.");
 
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindLast;
+        GenJournalLine.FindLast();
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         NoSeriesLine.SetRange("Series Code", GenJournalBatch."Posting No. Series");
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         LastNoUsed := NoSeriesLine."Starting No.";
 
         // [WHEN] Post created Gen. Journal Line
@@ -247,7 +247,7 @@ codeunit 134228 "ERM Close Income Statement"
         // Tear Down: Delete the new General Journal Batch created earlier.
         GenJournalBatch.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalBatch.SetRange(Description, GenJournalBatch.Name);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
         GenJournalBatch.Delete(true);
     end;
 
@@ -265,9 +265,9 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [FEATURE] [Dimension] [Business Unit]
         // [SCENARIO 364446] "Close Income Statement" report with Global Dimension Selected and grouped by Business Unit should post G/L Entry per Business Unit
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         // [GIVEN] Global Dimension Code "G"
         CreateDimensionSet(TempDimensionSetEntry);
         // [GIVEN] Posted Documents without dimenions at date "Date1"
@@ -311,7 +311,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO 258044] Stan can confirm to delete G/L Account having posted G/L entries in closed accounting period with posting date later GLSetup."Allow G/L Acc. Deletion Before"
 
-        Initialize;
+        Initialize();
 
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(0D);
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
@@ -334,7 +334,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO 258044] Stan can delete G/L Account having posted G/L entries in closed accounting period with posting date later GLSetup."Allow G/L Acc. Deletion Before".
         // [SCENARIO 258044] He must approve confirmation.
-        Initialize;
+        Initialize();
 
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
@@ -344,6 +344,31 @@ codeunit 134228 "ERM Close Income Statement"
 
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         Assert.RecordIsEmpty(GLEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure BlockDeleteGLAccountWhenBlockIsTrue()
+    var
+        GLAccount: Record "G/L Account";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [SCENARIO 317281] Stan can not delete a G/L Account when "Block Deleteon of G/L Accounts" is True in GL Setup
+        Initialize();
+
+        // [GIVEN] GL Account with entries exists
+        IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
+
+        // [GIVEN] "Block Deleteon of G/L Accounts" was set to TRUE is GL Setup
+        GeneralLedgerSetup.Validate("Block Deletion of G/L Accounts", true);
+        GeneralLedgerSetup.Modify(true);
+
+        // [WHEN] Stan tries to delete GL Account
+        asserterror GLAccount.Delete(true);
+
+        // [THEN] Testfield error is shown
+        Assert.ExpectedErrorCode('TestField');
     end;
 
     [Test]
@@ -357,7 +382,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO 258044] Stan cannot delete G/L Account having posted G/L entries in closed accounting period with posting date later GLSetup."Allow G/L Acc. Deletion Before".
         // [SCENARIO 258044] He must reject confirmation.
-        Initialize;
+        Initialize();
 
         AllowDeleteDate := LibraryFiscalYear.GetPastNewYearDate(5);
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(AllowDeleteDate);
@@ -385,7 +410,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO 258044] Stan cannot delete G/L Account having G/L budget entries in closed accounting period with posting date later GLSetup."Allow G/L Acc. Deletion Before".
         // [SCENARIO 258044] He must reject confirmation. G/L entries do not exist
-        Initialize;
+        Initialize();
 
         AllowDeleteDate := LibraryFiscalYear.GetPastNewYearDate(5);
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(AllowDeleteDate);
@@ -416,7 +441,7 @@ codeunit 134228 "ERM Close Income Statement"
         AccountingPeriod: Record "Accounting Period";
     begin
         // [SCENARIO 258044] Stan cannot delete G/L Account having G/L entries in open accounting period.
-        Initialize;
+        Initialize();
 
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
@@ -444,9 +469,9 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO 296670] "Close Income Statement" report with "Post to Retained Earnings Acc." = Details
         // should suggested Gen. Journal with the Retained Earnings account as a balancing account on each line
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // [GIVEN] Posted Document
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
@@ -463,7 +488,7 @@ codeunit 134228 "ERM Close Income Statement"
         // [THEN] All lines have Retained Earnings Account as balance account
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 GenJournalLine.TestField("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
                 GenJournalLine.TestField("Bal. Account No.", RetainedEarningsAccountNo);
@@ -482,9 +507,9 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO 296670] "Close Income Statement" report with "Post to Retained Earnings Acc." = Balance
         // should suggested Gen. Journal with the Retained Earnings account on an extra line with a summarized amount
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // [GIVEN] Posted Document
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
@@ -501,13 +526,13 @@ codeunit 134228 "ERM Close Income Statement"
         // [THEN] Last line have Retained Earnings Account
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindLast;
+        GenJournalLine.FindLast();
         GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.TestField("Account No.", RetainedEarningsAccountNo);
 
         // [THEN] All lines have empty balance account
         GenJournalLine.SetFilter("Line No.", '<>%1', GenJournalLine."Line No.");
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 GenJournalLine.TestField("Bal. Account No.", '');
             until GenJournalLine.Next = 0;
@@ -525,9 +550,9 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // [SCENARIO 361507] "Close Income Statement" report with "Post to Retained Earnings Acc." = Details
         // [SCENARIO 361507] Must have balance zero for each line generated (since each line is balanced against itself)
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // [GIVEN] Posted Document
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
@@ -554,14 +579,15 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Close Income Statement");
         // Lazy Setup.
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Close Income Statement");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERM.SetBlockDeleteGLAccount(false);
         IsInitialized := true;
         Commit();
 
@@ -738,7 +764,7 @@ codeunit 134228 "ERM Close Income Statement"
         // Run the Close Income Statement Batch Job.
         Date.SetRange("Period Type", Date."Period Type"::Month);
         Date.SetRange("Period Start", LibraryFiscalYear.GetLastPostingDate(true));
-        Date.FindFirst;
+        Date.FindFirst();
 
         RunCloseIncomeStatement(GenJournalLine, NormalDate(Date."Period End"), LibraryERM.CreateGLAccountNo, 0, true, false, DocumentNo);
     end;
@@ -750,7 +776,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         LibraryFiscalYear.CloseFiscalYear;
         ExecuteUIHandler;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         Amount := LibraryRandom.RandIntInRange(10, 20);
         LibraryERM.CreateGLAccount(GLAccount);
 
@@ -775,7 +801,7 @@ codeunit 134228 "ERM Close Income Statement"
         // Close existing Fiscal Year and Create new Fiscal Year.
         LibraryFiscalYear.CloseFiscalYear;
         ExecuteUIHandler;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // Create random Transactions in General Journal Line, Post the Journal Lines, Close the Fiscal Year and run Close Income Statement Batch Job.
         CreateGeneralJournalLines(
@@ -838,7 +864,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         GLEntry.SetRange("Posting Date", PostingDate);
         GLEntry.SetRange("Source Code", SourceCode);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Document No.", DocumentNo);
     end;
 
@@ -862,7 +888,7 @@ codeunit 134228 "ERM Close Income Statement"
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeriesLine.SetRange("Series Code", SeriesCode);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         NoSeriesLine.TestField("Last No. Used", LastNoUsed);
     end;
 
@@ -879,7 +905,7 @@ codeunit 134228 "ERM Close Income Statement"
         GLEntryCloseIncome.SetRange("G/L Account No.", GLAccountNo);
         GLEntryCloseIncome.SetRange("Business Unit Code", BusinessUnitCode);
         GLEntryCloseIncome.SetRange("Document No.", CloseIncomeDocumentNo);
-        GLEntryCloseIncome.FindFirst;
+        GLEntryCloseIncome.FindFirst();
 
         Assert.AreEqual(GLEntryPosted.Amount, -GLEntryCloseIncome.Amount, 'Closed Income Entry has invalid amount');
     end;

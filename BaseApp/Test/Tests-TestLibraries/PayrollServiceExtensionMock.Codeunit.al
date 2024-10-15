@@ -14,7 +14,7 @@ codeunit 132473 "Payroll Service Extension Mock"
     local procedure RegisterPayrollService(var TempServiceConnection: Record "Service Connection" temporary)
     begin
         TempAvailableServiceConnection.Reset();
-        if TempAvailableServiceConnection.FindSet then
+        if TempAvailableServiceConnection.FindSet() then
             repeat
                 TempServiceConnection.Copy(TempAvailableServiceConnection);
                 TempServiceConnection.Insert(true);
@@ -25,7 +25,7 @@ codeunit 132473 "Payroll Service Extension Mock"
     procedure ImportPayrollTransactions(var TempServiceConnection: Record "Service Connection" temporary; GenJournalLine: Record "Gen. Journal Line")
     begin
         TempNewGenJournalLine.Reset();
-        if TempNewGenJournalLine.FindSet then
+        if TempNewGenJournalLine.FindSet() then
             repeat
                 GenJournalLine.SetRange("Line No.");
                 GenJournalLine.Init();
@@ -40,7 +40,7 @@ codeunit 132473 "Payroll Service Extension Mock"
         TempAvailableServiceConnection.Reset();
         TempAvailableServiceConnection.DeleteAll();
 
-        if TempSetupAvailableServiceConnection.FindSet then
+        if TempSetupAvailableServiceConnection.FindSet() then
             repeat
                 TempAvailableServiceConnection.Copy(TempSetupAvailableServiceConnection);
                 TempAvailableServiceConnection.Insert();
@@ -52,7 +52,7 @@ codeunit 132473 "Payroll Service Extension Mock"
         TempNewGenJournalLine.Reset();
         TempNewGenJournalLine.DeleteAll();
 
-        if TempSetupGenJournalLine.FindSet then
+        if TempSetupGenJournalLine.FindSet() then
             repeat
                 TempNewGenJournalLine.Copy(TempSetupGenJournalLine);
                 TempNewGenJournalLine.Insert();
@@ -62,7 +62,7 @@ codeunit 132473 "Payroll Service Extension Mock"
     procedure GetAvailableServiceConnections(var TempSetupAvailableServiceConnection: Record "Service Connection" temporary)
     begin
         TempAvailableServiceConnection.Reset();
-        if TempAvailableServiceConnection.FindSet then
+        if TempAvailableServiceConnection.FindSet() then
             repeat
                 TempSetupAvailableServiceConnection.Copy(TempAvailableServiceConnection);
                 TempSetupAvailableServiceConnection.Insert();
@@ -76,7 +76,7 @@ codeunit 132473 "Payroll Service Extension Mock"
     begin
         LastGenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         LastGenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        if LastGenJournalLine.FindLast then
+        if LastGenJournalLine.FindLast() then
             LineNo := LastGenJournalLine."Line No." + 10000
         else
             LineNo := 10000;

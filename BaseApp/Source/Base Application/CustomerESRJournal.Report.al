@@ -219,7 +219,7 @@ report 3010531 "Customer ESR Journal"
                     CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                     CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     CustLedgEntry.SetRange("Customer No.", "Account No.");
-                    if not CustLedgEntry.FindFirst then begin
+                    if not CustLedgEntry.FindFirst() then begin
                         Comment := Text000;
                         exit;
                     end;

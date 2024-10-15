@@ -216,7 +216,7 @@ report 11557 "SR Vendor Ranking"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not VendAmt.FindSet then
+                    if not VendAmt.FindSet() then
                         CurrReport.Break();
                 end else
                     if (VendAmt.Next() = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then

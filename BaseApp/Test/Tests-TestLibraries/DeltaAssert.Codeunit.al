@@ -70,7 +70,7 @@ codeunit 130001 "Delta Assert"
     procedure AddWatch("Table": Integer; Position: Text[250]; "Field": Integer; Delta: Decimal)
     begin
         LibAssert.IsTrue(Initialized, 'Delta Assert library not initialized correctly.');
-        if Watches.FindLast then
+        if Watches.FindLast() then
             Watches."No." := Watches."No." + 1;
 
         Watches.Init();

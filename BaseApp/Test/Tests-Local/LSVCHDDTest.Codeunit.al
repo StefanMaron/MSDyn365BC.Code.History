@@ -274,7 +274,7 @@ codeunit 144001 "LSV CH DD Test"
         CustLedgEntry.SetRange("Customer No.", CustomerNo);
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
         CustLedgEntry.SetFilter("Payment Method Code", '<>%1', '');
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
     end;
 
     local procedure CheckCustLedgerEntriesAreOnHold(CustLedgEntry: Record "Cust. Ledger Entry")
@@ -354,9 +354,6 @@ codeunit 144001 "LSV CH DD Test"
         Line: Text[1024];
         i: Integer;
     begin
-#if not CLEAN17
-        PathToFile := FileMgt.UploadFileSilent(GetPathToDDFile(LSVJnl."LSV Bank Code", 0)); // DD Export file path
-#endif
         with InFile do begin
             TextMode(true);
             Open(PathToFile);
@@ -377,10 +374,6 @@ codeunit 144001 "LSV CH DD Test"
         end;
         InFile.Close;
         OutFile.Close;
-#if not CLEAN17
-        FileMgt.DownloadToFile(PathToFile + FileSuffixTxt, GetPathToDDFile(LSVJnl."LSV Bank Code", 1)); // DD Import file path
-        FileMgt.DeleteClientFile(GetPathToDDFile(LSVJnl."LSV Bank Code", 0));
-#endif
     end;
 
     local procedure ModifyLineForImport(Line: Text[1024]; SetRejected: Boolean): Text[1024]
@@ -467,7 +460,7 @@ codeunit 144001 "LSV CH DD Test"
     begin
         with LSVJnl do begin
             SetRange("LSV Bank Code", LSVBankCode);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual("Collection Completed On", Today, FieldCaption("Collection Completed On"));
             Assert.AreEqual("Collection Completed By", UserId, FieldCaption("Collection Completed By"));
             Assert.AreEqual("File Written On", Today, FieldCaption("File Written On"));

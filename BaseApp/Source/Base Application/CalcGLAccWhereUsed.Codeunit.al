@@ -159,7 +159,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         GLSetup.Get();
         if GLSetup."Check G/L Account Usage" then begin
             CheckPostingGroups(GLAccNo);
-            if GLAccWhereUsed.FindFirst then begin
+            if GLAccWhereUsed.FindFirst() then begin
                 Commit();
                 if ConfirmManagement.GetResponse(StrSubstNo(ShowWhereUsedQst, GLAcc.TableCaption), true) then
                     ShowGLAccWhereUsed;
@@ -334,7 +334,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
 
         TableRelationsMetadata.SetRange("Table ID", TableID);
         TableRelationsMetadata.SetRange("Related Table ID", DATABASE::"G/L Account");
-        if TableRelationsMetadata.FindSet then
+        if TableRelationsMetadata.FindSet() then
             repeat
                 Field.Get(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.");
                 if (Field.Class = Field.Class::Normal) and (Field.ObsoleteState <> Field.ObsoleteState::Removed) then
@@ -350,7 +350,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         FieldRef := RecRef.Field(TableRelationsMetadata."Field No.");
         FieldRef.SetRange(GLAccNo);
         SetConditionFilter(RecRef, TableRelationsMetadata);
-        if RecRef.FindSet then
+        if RecRef.FindSet() then
             repeat
                 InsertGroupFromRecRef(RecRef, FieldRef.Caption);
             until RecRef.Next() = 0;

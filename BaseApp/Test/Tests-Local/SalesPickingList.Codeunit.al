@@ -32,8 +32,8 @@ codeunit 144023 "Sales Picking List"
         NoOfItemsToSell := LibraryRandom.RandInt(10);
 
         // Create General Posting setup
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
         CustomerNo := CreateCustomer(PaymentTerms.Code);
@@ -42,7 +42,7 @@ codeunit 144023 "Sales Picking List"
         Commit();
 
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Picking List", true, false, SalesHeader);
@@ -139,7 +139,7 @@ codeunit 144023 "Sales Picking List"
             LibraryReportDataset.AssertCurrentRowValueEquals('HeadBilltoCustomerNo', CustomerNo);
 
             if Count = 1 then begin
-                SalesLine.FindFirst;
+                SalesLine.FindFirst();
                 Count := 0;
             end else begin
                 SalesLine.Next;

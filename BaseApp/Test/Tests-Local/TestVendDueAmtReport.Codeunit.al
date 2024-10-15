@@ -38,7 +38,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Test]
@@ -50,7 +50,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         "Layout": Option "Columns before Key Date","Columns after Key Date";
         Balance: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -72,7 +72,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         "Layout": Option "Columns before Key Date","Columns after Key Date";
         Balance: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -94,7 +94,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         "Layout": Option "Columns before Key Date","Columns after Key Date";
         Balance: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -138,7 +138,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         DueDate: array[5] of Date;
     begin
         // Setup: Create and post multiple Invoices for Vendor with different Currency Code.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         PostMultipleInvoicesAcrossKeyDateIntervals(Vendor, '<2M>', Balance, DueDate, '');
         PostMultipleInvoicesAcrossKeyDateIntervals(

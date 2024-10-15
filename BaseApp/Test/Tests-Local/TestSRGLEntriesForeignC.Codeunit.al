@@ -25,7 +25,7 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         GLAccountNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestData(GenJournalLine, GLAccountNo);
 
         // Execute report
@@ -48,11 +48,11 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         GLAccountNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestData(GenJournalLine, GLAccountNo);
 
         // Execute report
-        GLRegisterLine.FindLast;
+        GLRegisterLine.FindLast();
         LibraryVariableStorage.Enqueue(GLRegisterLine."No.");
         Commit();
 
@@ -72,11 +72,11 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         GLAccountNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestData(GenJournalLine, GLAccountNo);
 
         // Execute report
-        GLRegisterLine.FindLast;
+        GLRegisterLine.FindLast();
         LibraryVariableStorage.Enqueue('');
         Commit();
 
@@ -88,7 +88,7 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Normal]
@@ -106,7 +106,7 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate - 1, ExchangeRate, AdjustmentExchangeRate);
 
         // Create General and VAT Posting setup
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryCH.CreateGeneralPostingSetup(GeneralPostingSetup);
         LibraryCH.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
           '', '');

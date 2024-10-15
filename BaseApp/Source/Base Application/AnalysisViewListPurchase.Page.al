@@ -106,7 +106,7 @@ page 9370 "Analysis View List Purchase"
                     PurchAnalysisbyDim: Page "Purch. Analysis by Dimensions";
                 begin
                     PurchAnalysisbyDim.SetCurrentAnalysisViewCode(Code);
-                    PurchAnalysisbyDim.Run;
+                    PurchAnalysisbyDim.Run();
                 end;
             }
             action("&Update")

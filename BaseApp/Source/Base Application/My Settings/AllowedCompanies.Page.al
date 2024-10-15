@@ -103,16 +103,6 @@ page 9177 "Allowed Companies"
             end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Function moved to codeunit Company Information Management', '17.0')]
-    procedure GetCompanyDisplayNameDefaulted(Company: Record Company): Text[250]
-    var
-        CompanyInformationMgt: Codeunit "Company Information Mgt.";
-    begin
-        Exit(CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Company));
-    end;
-#endif
-
     var
         CompanySetupStatuses: Dictionary of [Text, Enum "Company Setup Status"];
         NameStyleExpr: Text;

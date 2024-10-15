@@ -383,7 +383,6 @@ page 1315 "Accountant Portal Finance Cues"
         SetFilter("Due Date Filter", '<=%1', Today);
         SetFilter("Overdue Date Filter", '<%1', Today);
         SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', Today), CalcDate('<1W>', Today));
-        SetRange("User ID Filter", UserId);
     end;
 
     var
@@ -528,16 +527,6 @@ page 1315 "Accountant Portal Finance Cues"
         OCRCompletedAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Finance Cue", FinanceCue.FieldNo("OCR Completed"), "OCR Completed", OCRCompletedStyle);
 
-        CalcFields("Requests to Approve");
-        TempString := Format("Requests to Approve");
-        RequestsToApproveAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
-        CuesAndKpis.SetCueStyle(Database::"Finance Cue", FinanceCue.FieldNo("Requests to Approve"), "Requests to Approve", RequestsToApproveStyle);
-
-        CalcFields("Requests Sent for Approval");
-        TempString := Format("Requests Sent for Approval");
-        RequestsSentForApprovalAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
-        CuesAndKpis.SetCueStyle(Database::"Finance Cue", FinanceCue.FieldNo("Requests Sent for Approval"), "Requests Sent for Approval", RequestsSentForApprovalStyle);
-
         "Cash Accounts Balance" := ActivitiesMgt.CalcCashAccountsBalances;
         CashAccountsBalanceAmountDecimal := "Cash Accounts Balance";
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString("Cash Accounts Balance");
@@ -571,7 +560,7 @@ page 1315 "Accountant Portal Finance Cues"
 
             if RegisterTime then begin
                 UserTimeRegister.SetRange("User ID", UserId);
-                if UserTimeRegister.FindFirst then
+                if UserTimeRegister.FindFirst() then
                     LastLoginDateAmount := Format(UserTimeRegister.Date)
                 else
                     LastLoginDateAmount := Format(Today);

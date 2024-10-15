@@ -151,7 +151,7 @@ page 2130 "O365 Business Info Settings"
 
     trigger OnInit()
     begin
-        Initialize;
+        Initialize();
     end;
 
     var
@@ -173,7 +173,7 @@ page 2130 "O365 Business Info Settings"
         O365BrandColor: Record "O365 Brand Color";
     begin
         if not O365BrandColor.Get("Brand Color Code") then
-            if O365BrandColor.FindFirst then
+            if O365BrandColor.FindFirst() then
                 Validate("Brand Color Code", O365BrandColor.Code);
 
         BrandColorName := O365BrandColor.Name;

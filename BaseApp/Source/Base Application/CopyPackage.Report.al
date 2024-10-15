@@ -17,7 +17,7 @@ report 8615 "Copy Package"
                 ConfigPackage.Insert();
 
                 ConfigPackageTable.SetRange("Package Code", Code);
-                if ConfigPackageTable.FindSet then
+                if ConfigPackageTable.FindSet() then
                     repeat
                         ConfigPackageTable2.TransferFields(ConfigPackageTable);
                         ConfigPackageTable2."Package Code" := ConfigPackage.Code;
@@ -25,7 +25,7 @@ report 8615 "Copy Package"
                     until ConfigPackageTable.Next() = 0;
 
                 ConfigPackageField.SetRange("Package Code", Code);
-                if ConfigPackageField.FindSet then
+                if ConfigPackageField.FindSet() then
                     repeat
                         ConfigPackageField2.TransferFields(ConfigPackageField);
                         ConfigPackageField2."Package Code" := ConfigPackage.Code;
@@ -33,7 +33,7 @@ report 8615 "Copy Package"
                     until ConfigPackageField.Next() = 0;
 
                 ConfigPackageFilter.SetRange("Package Code", Code);
-                if ConfigPackageFilter.FindSet then
+                if ConfigPackageFilter.FindSet() then
                     repeat
                         ConfigPackageFilter2.TransferFields(ConfigPackageFilter);
                         ConfigPackageFilter2."Package Code" := ConfigPackage.Code;
@@ -42,7 +42,7 @@ report 8615 "Copy Package"
 
                 if CopyData then begin
                     ConfigPackageRecord.SetRange("Package Code", Code);
-                    if ConfigPackageRecord.FindSet then
+                    if ConfigPackageRecord.FindSet() then
                         repeat
                             ConfigPackageRecord2.TransferFields(ConfigPackageRecord);
                             ConfigPackageRecord2."Package Code" := ConfigPackage.Code;
@@ -51,7 +51,7 @@ report 8615 "Copy Package"
                         until ConfigPackageRecord.Next() = 0;
 
                     ConfigPackageData.SetRange("Package Code", Code);
-                    if ConfigPackageData.FindSet then
+                    if ConfigPackageData.FindSet() then
                         repeat
                             ConfigPackageData2.TransferFields(ConfigPackageData);
                             ConfigPackageData2."Package Code" := ConfigPackage.Code;

@@ -292,7 +292,7 @@ table 3010831 "LSV Setup"
     trigger OnDelete()
     begin
         LsvJournal.SetRange("LSV Bank Code", "Bank Code");
-        if LsvJournal.FindFirst then
+        if LsvJournal.FindFirst() then
             Error(Text001, "Bank Code", LsvJournal.TableCaption);
     end;
 

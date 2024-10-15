@@ -141,7 +141,7 @@ page 3010834 "LSV Journal"
                     begin
                         Clear(LSVCollectSuggestion);
                         LSVCollectSuggestion.SetGlobals(CurrJourNumber);
-                        LSVCollectSuggestion.RunModal;
+                        LSVCollectSuggestion.RunModal();
                     end;
                 }
                 action("P&rint Journal")
@@ -155,7 +155,7 @@ page 3010834 "LSV Journal"
                     begin
                         Clear(LSVCollectionJournal);
                         LSVCollectionJournal.SetGlobals(Rec);
-                        LSVCollectionJournal.RunModal;
+                        LSVCollectionJournal.RunModal();
                     end;
                 }
                 action("&Close Collection")
@@ -171,7 +171,7 @@ page 3010834 "LSV Journal"
                         LSVJournal.Reset();
                         LSVJournal.Get("LSV Journal No.");
                         LsvCloseCollection.SetGlobals(LSVJournal);
-                        LsvCloseCollection.Run;
+                        LsvCloseCollection.Run();
                         UpdateForm;
                     end;
                 }
@@ -225,7 +225,7 @@ page 3010834 "LSV Journal"
     trigger OnOpenPage()
     begin
         if "LSV Journal No." = 0 then
-            FindFirst;
+            FindFirst();
 
         CurrJourNumber := "LSV Journal No.";
         FilterGroup := 2;
@@ -285,7 +285,7 @@ page 3010834 "LSV Journal"
 
         TempLSVJournalLine.Copy(Rec);
 
-        if TempLSVJournalLine.FindSet then
+        if TempLSVJournalLine.FindSet() then
             repeat
                 TotalAmount := TotalAmount + TempLSVJournalLine."Collection Amount";
             until TempLSVJournalLine.Next() = 0;
@@ -297,7 +297,7 @@ page 3010834 "LSV Journal"
         FilterGroup := 2;
         SetRange("LSV Journal No.", LSVJournal."No.");
         FilterGroup := 0;
-        if FindFirst then;
+        if FindFirst() then;
 
         CurrPage.Update(false);
         UpdateForm;

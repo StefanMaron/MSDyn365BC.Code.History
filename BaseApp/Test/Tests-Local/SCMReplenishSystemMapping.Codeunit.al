@@ -24,8 +24,8 @@ codeunit 144004 "SCM Replenish. System Mapping"
         if IsInitialzied then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialzied := true;
     end;
@@ -174,7 +174,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
         RequisitionLine: Record "Requisition Line";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateItemWithReplenishmentSystem(Item, ItemReplenishmentSystem);
 
         // EXERCISE
@@ -190,7 +190,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateItemWithReplenishmentSystem(Item, ItemReplenishmentSystem);
 
         // EXERCISE
@@ -206,7 +206,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateItemWithReplenishmentSystem(Item, ItemReplenishmentSystem);
 
         // EXERCISE
@@ -223,7 +223,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
         LibraryPlanning: Codeunit "Library - Planning";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
@@ -256,7 +256,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
         REPORT.Run(REPORT::"Create Stockkeeping Unit", false, false, Item);
         StockkeepingUnit.SetRange("Location Code", Location.Code);
         StockkeepingUnit.SetRange("Item No.", Item."No.");
-        StockkeepingUnit.FindFirst;
+        StockkeepingUnit.FindFirst();
     end;
 
     local procedure CreateLocation(): Code[10]

@@ -344,7 +344,7 @@ xmlport 11501 "SEPA DD pain.008.001.02.ch03"
           "Sender Bank BIC", "SEPA Instruction Priority Text", "Transfer Date",
           "SEPA Direct Debit Seq. Text", "SEPA Partner Type Text", "SEPA Batch Booking", "SEPA Charge Bearer Text");
 
-        if not PaymentExportData.FindSet then
+        if not PaymentExportData.FindSet() then
             Error(NoDataToExportErr, DirectDebitCollectionEntry.FieldCaption(Status),
               DirectDebitCollectionEntry.Status::Rejected, DirectDebitCollection.Status::Canceled);
 

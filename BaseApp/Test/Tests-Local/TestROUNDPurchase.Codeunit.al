@@ -122,12 +122,12 @@ codeunit 144063 "Test ROUND Purchase"
 
     local procedure Init()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         UpdateSetup(LibraryRandom.RandDec(0, 2));
 
         IsInitialized := true;
@@ -220,7 +220,7 @@ codeunit 144063 "Test ROUND Purchase"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst;
+            FindFirst();
             VATAmount := "VAT %" * (-Quantity * "Direct Unit Cost") / 100;
 
             case "Document Type" of
@@ -242,7 +242,7 @@ codeunit 144063 "Test ROUND Purchase"
         with GLEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(
               "VAT Amount",
               VATAmount, LibraryERM.GetAmountRoundingPrecision,
@@ -260,7 +260,7 @@ codeunit 144063 "Test ROUND Purchase"
             SetRange("Document Type", DocumentType);
             SetRange(Type, Type::Purchase);
 
-            FindFirst;
+            FindFirst();
 
             Assert.AreNearlyEqual(
               VATAmount, Amount, LibraryERM.GetAmountRoundingPrecision,

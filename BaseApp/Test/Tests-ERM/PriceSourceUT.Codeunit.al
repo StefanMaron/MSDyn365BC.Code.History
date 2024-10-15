@@ -2127,7 +2127,7 @@ codeunit 134120 "Price Source UT"
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price Source UT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         PriceCalculationSetup.DeleteAll();
         DtldPriceCalculationSetup.DeleteAll();
 

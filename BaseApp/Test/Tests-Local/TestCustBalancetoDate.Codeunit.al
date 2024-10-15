@@ -38,7 +38,7 @@ codeunit 144032 "Test Cust Balance to Date"
         AppliesToGenJournalLine: Record "Gen. Journal Line";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Create an Invoice and a payment
         LibrarySales.CreateCustomer(Customer);
@@ -71,7 +71,7 @@ codeunit 144032 "Test Cust Balance to Date"
         TotalCustLCYBalance: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Create random Invoices with random Currencies
         LibrarySales.CreateCustomer(Customer);
@@ -103,7 +103,7 @@ codeunit 144032 "Test Cust Balance to Date"
         AppliesToGenJournalLine: Record "Gen. Journal Line";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Create an Invoice and a payment
         LibrarySales.CreateCustomer(Customer);
@@ -115,7 +115,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // Unapply.
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
 
         Commit();
@@ -141,7 +141,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [FEATURE] [Application]
 
         // [SCENARIO 380055] Customer with Sales Invoice and two applied payments in "SR Cust. - Balance to Date" Report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice "SI" with amount 1000 for customer "C1"
         // [GIVEN] Payment "P1" with amount 300 and "P2" with amount 200 for customer "C1" have applied to invoice "SI"
@@ -173,7 +173,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [FEATURE] [Excel] [Application]
 
         // [SCENARIO 380055] Customer with sales invoice and two applied payments to invoice when "SR Cust. - Balance to Date" Report is run
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Sales Invoice "I1" with Amount 1000
@@ -224,7 +224,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [FEATURE] [Excel] [Application]
 
         // [SCENARIO 380055] Customer with two sales invoices applied to different payments when "SR Cust. - Balance to Date" Report is run
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Sales Invoice "I1" with Amount 1000
@@ -285,7 +285,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [FEATURE] [Excel] [Application]
 
         // [SCENARIO 380055] Customer with sales invoices and applied payments when "SR Cust. - Balance to Date" Report is run
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Sales Invoice "I1" with amount 1000
@@ -429,7 +429,7 @@ codeunit 144032 "Test Cust Balance to Date"
         CustomerPostingGroupCode: Code[20];
     begin
         // [SCENARIO 380482] Two Customers filtered on "Customer Posting Group" when "SR Cust. - Balance to Date" Report is run
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer posting group "CPG"
         // [GIVEN] Customer "C1", "C1"."Customer Posting Group" = "CPG"
@@ -473,7 +473,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [FEATURE] [Excel]
 
         // [SCENARIO 380482] Two Customers filtered on "Customer Posting Group" when "SR Cust. - Balance to Date" Report is saved as excel
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer posting group "CPG"
         // [GIVEN] Customer "C1", "C1"."Customer Posting Group" = "CPG"
@@ -504,7 +504,7 @@ codeunit 144032 "Test Cust Balance to Date"
         Amount: array[3] of Decimal;
     begin
         // [SCENARIO 251982] Report Totals are not moved to the new page if NewPagePerCustomer = FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] One Sales Invoice with Payments for Customer. One Invoice will occupy one line in the Report and will not exceed one page.
         CreateSalesInvoiceWithAppliedPayments(Customer, Amount);
@@ -534,7 +534,7 @@ codeunit 144032 "Test Cust Balance to Date"
         Amount: array[3] of Decimal;
     begin
         // [SCENARIO 251982] Report Totals are moved to the new page if NewPagePerCustomer = TRUE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] One Sales Invoice with Payments for Customer. One Invoice will occupy one line in the Report and will not exceed one page.
         CreateSalesInvoiceWithAppliedPayments(Customer, Amount);
@@ -559,7 +559,7 @@ codeunit 144032 "Test Cust Balance to Date"
     begin
         Clear(LibraryReportValidation);
         LibraryReportDataset.Reset();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
     local procedure CreateSalesInvoiceWithAppliedPayments(var Customer: Record Customer; var Amount: array[3] of Decimal)

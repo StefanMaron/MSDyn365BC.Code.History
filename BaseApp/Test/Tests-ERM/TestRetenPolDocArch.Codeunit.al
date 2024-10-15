@@ -519,7 +519,7 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
     local procedure CreateRetentionPeriod(var RetentionPeriod: Record "Retention Period"; RetentionPeriodEnum: Enum "Retention Period Enum")
     begin
         RetentionPeriod.SetRange("Retention Period", RetentionPeriodEnum);
-        if not RetentionPeriod.FindFirst then begin
+        if not RetentionPeriod.FindFirst() then begin
             RetentionPeriod.Code := Format(RetentionPeriodEnum);
             RetentionPeriod.Validate("Retention Period", RetentionPeriodEnum);
             RetentionPeriod.Insert();

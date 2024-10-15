@@ -50,7 +50,7 @@ codeunit 144021 "Swiss  It. Ven. Shp. Rem. Rep."
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Swiss  It. Ven. Shp. Rem. Rep.");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -66,8 +66,8 @@ codeunit 144021 "Swiss  It. Ven. Shp. Rem. Rep."
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
@@ -85,7 +85,7 @@ codeunit 144021 "Swiss  It. Ven. Shp. Rem. Rep."
         Vendor: Record Vendor;
         VendorToFilter: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(OnlyDueEntries);
 

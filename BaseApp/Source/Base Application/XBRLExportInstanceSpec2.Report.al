@@ -1,3 +1,4 @@
+#if not CLEAN20
 report 505 "XBRL Export Instance - Spec. 2"
 {
     DefaultLayout = RDLC;
@@ -5,6 +6,9 @@ report 505 "XBRL Export Instance - Spec. 2"
     ApplicationArea = XBRL;
     Caption = 'XBRL Specification 2 Instance Document';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -531,7 +535,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                             XBRLTaxonomyLabels: Page "XBRL Taxonomy Labels";
                         begin
                             XBRLTaxonomyLabel.SetRange("XBRL Taxonomy Name", XBRLTaxonomyName);
-                            if not XBRLTaxonomyLabel.FindFirst then
+                            if not XBRLTaxonomyLabel.FindFirst() then
                                 Error(Text022, XBRLTaxonomyName);
                             XBRLTaxonomyLabel.SetRange(
                               "XBRL Taxonomy Line No.", XBRLTaxonomyLabel."XBRL Taxonomy Line No.");
@@ -816,3 +820,5 @@ report 505 "XBRL Export Instance - Spec. 2"
     end;
 }
 
+
+#endif

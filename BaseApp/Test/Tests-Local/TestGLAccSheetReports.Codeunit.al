@@ -30,7 +30,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Bal Account]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -53,7 +53,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         Customer: Record Customer;
     begin
         // [FEATURE] [SR G/L Acc Sheet Bal Account]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -81,7 +81,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [SR G/L Acc Sheet Bal Account]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -109,7 +109,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         BankAccount: Record "Bank Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Bal Account]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -137,7 +137,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         FixedAsset: Record "Fixed Asset";
     begin
         // [FEATURE] [SR G/L Acc Sheet Bal Account]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -164,7 +164,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [SR G/L Acc Sheet Bal Account]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -191,7 +191,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         Customer: Record Customer;
     begin
         // [FEATURE] [SR G/L Acc Sheet Bal Account]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -220,7 +220,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Bal Account]
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -249,7 +249,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Foreign Curr]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -270,7 +270,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Foreign Curr]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate,
@@ -294,7 +294,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Foreign Curr]
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -324,7 +324,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [SR G/L Acc Sheet Foreign Curr]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -347,7 +347,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [SR G/L Acc Sheet Foreign Curr]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -374,7 +374,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         Customer: Record Customer;
     begin
         // [FEATURE] [SR G/L Acc Sheet Foreign Curr]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -402,7 +402,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Reportig Cur]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -423,7 +423,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Reportig Cur]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate,
@@ -447,7 +447,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Reportig Cur]
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -477,7 +477,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [SR G/L Acc Sheet Reportig Cur]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -500,7 +500,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [SR G/L Acc Sheet Reportig Cur]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -527,7 +527,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         Customer: Record Customer;
     begin
         // [FEATURE] [SR G/L Acc Sheet Reportig Cur]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -555,7 +555,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Posting Info]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -577,7 +577,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet Posting Info]
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -607,7 +607,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [SR G/L Acc Sheet Posting Info]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -630,7 +630,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [SR G/L Acc Sheet Posting Info]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -657,7 +657,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         Customer: Record Customer;
     begin
         // [FEATURE] [SR G/L Acc Sheet Posting Info]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
@@ -686,7 +686,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         VATPercentage: Decimal;
     begin
         // [FEATURE] [SR G/L Acc Sheet VAT Info]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         VATPercentage := LibraryRandom.RandDecInRange(10, 25, 2);
@@ -709,7 +709,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [SR G/L Acc Sheet VAT Info]
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -740,7 +740,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         VATPercentage: Decimal;
     begin
         // [FEATURE] [SR G/L Acc Sheet VAT Info]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         VATPercentage := LibraryRandom.RandDecInRange(10, 25, 2);
@@ -765,7 +765,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         VATPercentage: Decimal;
     begin
         // [FEATURE] [SR G/L Acc Sheet VAT Info]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         VATPercentage := LibraryRandom.RandDecInRange(10, 25, 2);
@@ -794,7 +794,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         VATPercentage: Decimal;
     begin
         // [FEATURE] [SR G/L Acc Sheet VAT Info]
-        Initialize;
+        Initialize();
 
         // Setup. Posted and provisional balance.
         VATPercentage := LibraryRandom.RandDecInRange(10, 25, 2);
@@ -827,7 +827,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
     begin
         // [FEATURE] [SR G/L Acc Sheet VAT Info] [Fixed Asset] [G/L Entry - VAT Entry Link] [VAT on Net Disposal Entries]
         // [SCENARIO 376686] "SR G/L Acc Sheet VAT Info" report correctly prints VAT% in case of Fixed Asset Disposal with Gain/Losses and "VAT on Net Disposal Entries" = TRUE
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup;
 
         // [GIVEN] Fixed Asset, where Depreciation Book has "VAT on Net Disposal Entries" = TRUE.
@@ -1031,7 +1031,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
     var
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         GenJnlTemplate.DeleteAll(true);
 
         if isInitialised then
@@ -1176,7 +1176,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         FAJournalSetup.Get(DepreciationBookCode, '');
         FAJournalLine.SetRange("Journal Template Name", FAJournalSetup."FA Jnl. Template Name");
         FAJournalLine.SetRange("Journal Batch Name", FAJournalSetup."FA Jnl. Batch Name");
-        FAJournalLine.FindFirst;
+        FAJournalLine.FindFirst();
 
         FAJournalBatch.Get(FAJournalLine."Journal Template Name", FAJournalLine."Journal Batch Name");
         FAJournalBatch.Validate("No. Series", '');
@@ -1210,7 +1210,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
             SetRange("Document No.", DocumentNo);
             SetRange("Gen. Posting Type", "Gen. Posting Type"::Sale);
             SetFilter("VAT Amount", '<>%1', 0);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1219,7 +1219,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         FAJournalSetup2: Record "FA Journal Setup";
     begin
         FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
-        FAJournalSetup2.FindFirst;
+        FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
     end;
@@ -1250,7 +1250,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         CalculateDepreciation.InitializeRequest(
           DepreciationBookCode, CalcDate('<1D>', WorkDate), false, 0, CalcDate('<1D>', WorkDate), FixedAssetNo, FixedAsset.Description, false);
         CalculateDepreciation.UseRequestPage(false);
-        CalculateDepreciation.Run;
+        CalculateDepreciation.Run();
     end;
 
     local procedure RunSRGLAccSheetBalAccountReport(var GLAccount: Record "G/L Account")
@@ -1475,7 +1475,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
 
     local procedure VerifyGenJnlLinesInReportData(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account"; ReportID: Integer; GLAccountNoTag: Text; GLAccountNameTag: Text; DocNoTag: Text; DescTag: Text; JnlBatchNameTag: Text)
     begin
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 LibraryReportDataset.Reset();
                 LibraryReportDataset.SetRange(GLAccountNoTag, GLAccount."No.");

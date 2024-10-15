@@ -24,7 +24,7 @@ codeunit 142074 "UT REP Reminder"
     begin
         // Purpose of the test is to validate ReminderLine - OnPreDataItem of Report ID - 122 Reminder - Test.
         // Setup.
-        Initialize;
+        Initialize();
         ReminderLineNo := CreateReminderLine;
 
         // Exercise.
@@ -45,7 +45,7 @@ codeunit 142074 "UT REP Reminder"
     begin
         // Purpose of the test is to validate IssuedReminderLine - OnPreDataItem of Report ID - 117 Reminder.
         // Setup.
-        Initialize;
+        Initialize();
         CreateIssuedReminderLine(IssuedReminderLine, IssuedReminderLine."Line Type"::"Reminder Line");
         Commit();  // Commit Required, Because Explicit commit is called by IncrNoPrinted function of Codeunit ID - 393 Reminder - Issue.
 
@@ -70,7 +70,7 @@ codeunit 142074 "UT REP Reminder"
         // Purpose of the test is to validate IssuedReminderLine2 - OnPreDataItem of Report ID - 117 Reminder.
 
         // Setup: Create Reminder Line for Line Type Not Due to verify description on report Reminder.
-        Initialize;
+        Initialize();
         OnPreDataItemIssuedReminderLineTypeReminder(IssuedReminderLine."Line Type"::"Not Due");
     end;
 
@@ -84,7 +84,7 @@ codeunit 142074 "UT REP Reminder"
         // Purpose of the test is to validate IssuedReminderLine2 - OnPreDataItem of Report ID - 117 Reminder.
 
         // Setup: Create Reminder Line for Line Type Ending Text to verify description on report Reminder.
-        Initialize;
+        Initialize();
         OnPreDataItemIssuedReminderLineTypeReminder(IssuedReminderLine."Line Type"::"Ending Text");
     end;
 
@@ -114,7 +114,7 @@ codeunit 142074 "UT REP Reminder"
     begin
         // Purpose of the test is to validate IssuedFinChargeMemoLine - OnPreDataItem of Report ID - 118 Finance Charge Memo.
         // Setup.
-        Initialize;
+        Initialize();
         CreateIssuedFinChargeMemoLine(IssuedFinChargeMemoLine);
         UpdateIssuedFinChargeMemoLineAmount(IssuedFinChargeMemoLine);
         Commit();  // Commit Required, Because Explicit commit is called by IncrNoPrinted function of Codeunit ID - 395 FinChrgMemo-Issue.
@@ -139,7 +139,7 @@ codeunit 142074 "UT REP Reminder"
     begin
         // Purpose of the test is to validate VATCounter - OnAfterGetRecord of Report ID - 118 Finance Charge Memo.
         // Setup.
-        Initialize;
+        Initialize();
         CreateIssuedFinChargeMemoLine(IssuedFinChargeMemoLine);
         UpdateIssuedFinChargeMemoLine(IssuedFinChargeMemoLine);
         Commit();  // Commit Required, Because Explicit commit is called by IncrNoPrinted function of Codeunit ID - 395 FinChrgMemo-Issue.
@@ -166,7 +166,7 @@ codeunit 142074 "UT REP Reminder"
     begin
         // Purpose of the test is to validate VATCounter - OnAfterGetRecord of Report ID - 118 Finance Charge Memo.
         // Setup.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(OldPrintVATSpecificationLCY, true);
 
         ExchangeRateAmount := CreateIssuedFinChargeMemoLine(IssuedFinChargeMemoLine);
@@ -188,7 +188,7 @@ codeunit 142074 "UT REP Reminder"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomerPostingGroup(var CustomerPostingGroup: Record "Customer Posting Group")
@@ -253,7 +253,7 @@ codeunit 142074 "UT REP Reminder"
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
     begin
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         GLAccount."No." := LibraryUTUtility.GetNewCode;
         GLAccount."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         GLAccount."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
@@ -267,7 +267,7 @@ codeunit 142074 "UT REP Reminder"
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         GLAccountNo: Code[20];
     begin
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         GLAccountNo := CreateGLAccount;
         ;
         CreateCustomerPostingGroup(CustomerPostingGroup);

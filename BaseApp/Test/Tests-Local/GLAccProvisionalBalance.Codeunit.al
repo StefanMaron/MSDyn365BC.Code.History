@@ -16,7 +16,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Test]
@@ -29,7 +29,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::"G/L Account",
@@ -55,7 +55,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::"G/L Account",
@@ -82,7 +82,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::Customer,
@@ -108,7 +108,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::"G/L Account",
@@ -134,7 +134,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::"Bank Account",
@@ -160,7 +160,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::Customer,
@@ -186,7 +186,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::Vendor,
@@ -212,7 +212,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::Vendor,
@@ -238,7 +238,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::"G/L Account",
@@ -264,7 +264,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         BalAccountNo: Code[20];
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountsWithBalance(AccountNo, BalAccountNo, GenJournalLine."Account Type"::"G/L Account",
@@ -333,7 +333,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure AddCurrencyToGLAccount(var GenJournalLine: Record "Gen. Journal Line")

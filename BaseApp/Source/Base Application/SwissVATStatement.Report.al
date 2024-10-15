@@ -52,7 +52,7 @@ report 26100 "Swiss VAT Statement"
                     if "VAT Statement Cipher" <> '' then begin
                         TempVATStmtLine.Reset();
                         TempVATStmtLine.SetRange("VAT Statement Cipher", "VAT Statement Cipher");
-                        if not TempVATStmtLine.FindFirst then begin
+                        if not TempVATStmtLine.FindFirst() then begin
                             TempVATStmtLine.Init();
                             TempVATStmtLine.TransferFields("VAT Statement Line");
                             TempVATStmtLine.Insert();
@@ -909,7 +909,7 @@ report 26100 "Swiss VAT Statement"
                     VATStmtLine2.SetRange("Statement Template Name", VATStmtLine2."Statement Template Name");
                     VATStmtLine2.SetRange("Statement Name", VATStmtLine2."Statement Name");
                     VATStmtLine2.SetFilter("Row No.", VATStmtLine2."Row Totaling");
-                    if VATStmtLine2.FindSet then
+                    if VATStmtLine2.FindSet() then
                         repeat
                             if not CalcLineTotal(VATStmtLine2, TotalAmount, Level) then begin
                                 if Level > 1 then
@@ -965,11 +965,11 @@ report 26100 "Swiss VAT Statement"
         BalVATEntry.SetRange("VAT Bus. Posting Group", VatStmtLineRgstrAmt."VAT Bus. Posting Group");
         BalVATEntry.SetRange("VAT Prod. Posting Group", VatStmtLineRgstrAmt."VAT Prod. Posting Group");
         BalVATEntry.SetRange("Entry No.", GLReg."From VAT Entry No.", GLReg."To VAT Entry No.");
-        if BalVATEntry.FindSet then
+        if BalVATEntry.FindSet() then
             repeat
                 VatEntry2.SetCurrentKey("Closed by Entry No.");
                 VatEntry2.SetRange("Closed by Entry No.", BalVATEntry."Entry No.");
-                if VatEntry2.FindSet then
+                if VatEntry2.FindSet() then
                     repeat
                         if (VatEntry2.Type = VatStmtLineRgstrAmt."Gen. Posting Type") or
                            (VatStmtLineRgstrAmt."Gen. Posting Type" = "General Posting Type"::" ")
@@ -1133,7 +1133,7 @@ report 26100 "Swiss VAT Statement"
         Fields.SetRange(TableNo, DATABASE::"VAT Cipher Setup");
         Fields.SetFilter(ObsoleteState, '<>%1', Fields.ObsoleteState::Removed);
         Fields.SetFilter("No.", '>1&<2000000000');
-        if Fields.FindSet then
+        if Fields.FindSet() then
             repeat
                 FieldRef := RecordRef.Field(Fields."No.");
                 FieldRef.TestField;

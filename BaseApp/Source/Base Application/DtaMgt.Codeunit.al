@@ -61,7 +61,7 @@ codeunit 3010541 DtaMgt
     begin
         with DtaSetup do begin
             SetRange("DTA/EZAG", "DTA/EZAG"::DTA);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TestField("DTA Customer ID");
                     TestField("DTA Sender ID");
@@ -275,7 +275,7 @@ codeunit 3010541 DtaMgt
 
         case VendBank.Count of
             1:
-                VendBank.FindFirst;  // Only one entry with this account
+                VendBank.FindFirst();  // Only one entry with this account
             0:
                 begin  // No bank and no vendor No.
                     if VendorNo = '' then
@@ -617,7 +617,7 @@ codeunit 3010541 DtaMgt
             VendEntry.SetCurrentKey("Document No.");
             VendEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
             VendEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
-            if VendEntry.FindFirst then
+            if VendEntry.FindFirst() then
                 if VendEntry."On Hold" = 'DTA' then begin
                     VendEntry."On Hold" := '';
                     VendEntry.Modify();
@@ -629,7 +629,7 @@ codeunit 3010541 DtaMgt
     procedure StartYellownet()
     begin
         DtaSetup.SetRange("DTA/EZAG", DtaSetup."DTA/EZAG"::EZAG);
-        if not DtaSetup.FindFirst then
+        if not DtaSetup.FindFirst() then
             Error(Text094Err);
 
         DtaSetup.TestField("Yellownet Home Page");
@@ -669,7 +669,7 @@ codeunit 3010541 DtaMgt
             GlLine.SetRange("Journal Batch Name", "Journal Batch Name");
             GlLine.SetRange("Currency Code", "Currency Code");
             GlLine.SetFilter("Line No.", '<>%1', "Line No.");
-            if GlLine.FindSet then begin
+            if GlLine.FindSet() then begin
                 if not Confirm(
                      Text101Qst,
                      false, GlLine.Count, "Currency Code")

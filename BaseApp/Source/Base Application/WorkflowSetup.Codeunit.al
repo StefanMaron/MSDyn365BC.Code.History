@@ -1872,7 +1872,7 @@ codeunit 1502 "Workflow Setup"
     begin
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Previous Workflow Step ID", PreviousStepID);
-        if WorkflowStep.FindLast then
+        if WorkflowStep.FindLast() then
             exit(WorkflowStep."Sequence No." + 1);
     end;
 

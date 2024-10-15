@@ -59,10 +59,6 @@ codeunit 11501 GeneralMgt
         SourceFile.Close;
         TempFileName := TargetFile.Name;
         TargetFile.Close;
-#if not CLEAN17
-        if FileMgt.IsLocalFileSystemAccessible then
-            FileMgt.DownloadToFile(TempFileName, FileName);
-#endif
 
         exit(TempFileName);
     end;

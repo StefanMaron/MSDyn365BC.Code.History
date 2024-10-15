@@ -25,4 +25,5 @@ enum 7311 "Warehouse Journal Source Document"
     value(19; "Job Jnl.") { Caption = 'Job Jnl.'; }
     value(20; "Assembly Consumption") { Caption = 'Assembly Consumption'; }
     value(21; "Assembly Order") { Caption = 'Assembly Order'; }
+    value(22; "Job Usage") { Caption = 'Job Usage'; }
 }

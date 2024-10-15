@@ -147,7 +147,7 @@ page 3010832 "LSV Journal List"
                     begin
                         Clear(LSVCollectSuggestion);
                         LSVCollectSuggestion.SetGlobals("No.");
-                        LSVCollectSuggestion.RunModal;
+                        LSVCollectSuggestion.RunModal();
                     end;
                 }
                 action("P&rint Journal")
@@ -164,9 +164,9 @@ page 3010832 "LSV Journal List"
                         Clear(LSVCollectionJournal);
                         LsvJournalLine.Reset();
                         LsvJournalLine.SetRange("LSV Journal No.", "No.");
-                        LsvJournalLine.FindFirst;
+                        LsvJournalLine.FindFirst();
                         LSVCollectionJournal.SetGlobals(LsvJournalLine);
-                        LSVCollectionJournal.RunModal;
+                        LSVCollectionJournal.RunModal();
                     end;
                 }
                 action(LSVCloseCollection)
@@ -183,7 +183,7 @@ page 3010832 "LSV Journal List"
                     begin
                         Clear(LsvCloseCollection);
                         LsvCloseCollection.SetGlobals(Rec);
-                        LsvCloseCollection.RunModal;
+                        LsvCloseCollection.RunModal();
                         Clear(LsvCloseCollection);
                     end;
                 }
@@ -201,7 +201,7 @@ page 3010832 "LSV Journal List"
                     begin
                         LsvJournalLine.Reset();
                         LsvJournalLine.SetRange("LSV Journal No.", "No.");
-                        LsvJournalLine.FindFirst;
+                        LsvJournalLine.FindFirst();
                         LsvMgt.ModifyPostingDate(LsvJournalLine);
                     end;
                 }
@@ -233,7 +233,7 @@ page 3010832 "LSV Journal List"
                     begin
                         Clear(WriteLSVFile);
                         WriteLSVFile.SetGlobals(Rec);
-                        WriteLSVFile.RunModal;
+                        WriteLSVFile.RunModal();
                     end;
                 }
                 action("&Send LSV File")
@@ -266,7 +266,7 @@ page 3010832 "LSV Journal List"
                     begin
                         Clear(WriteDebitDirect);
                         WriteDebitDirect.SetGlobals("No.");
-                        WriteDebitDirect.RunModal;
+                        WriteDebitDirect.RunModal();
                     end;
                 }
                 action("Start &Yellownet")
@@ -328,7 +328,7 @@ page 3010832 "LSV Journal List"
                     begin
                         Clear(LsvCollectionAdvice);
                         LsvCollectionAdvice.DefineJournalName(Rec);
-                        LsvCollectionAdvice.RunModal;
+                        LsvCollectionAdvice.RunModal();
                     end;
                 }
             }

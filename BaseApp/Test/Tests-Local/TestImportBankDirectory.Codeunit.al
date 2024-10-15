@@ -37,7 +37,7 @@ codeunit 144016 "Test Import Bank Directory"
         UpdateClearingNumbers: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         UpdateClearingNumbers := false;
         LibraryVariableStorage.Enqueue(UpdateClearingNumbers);
@@ -68,7 +68,7 @@ codeunit 144016 "Test Import Bank Directory"
         BankDirectoryPage: TestPage "Bank Directory";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         BankDirectoryPage.OpenView;
@@ -127,7 +127,7 @@ codeunit 144016 "Test Import Bank Directory"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 166131] NAV imports bank directory file containing country specific symbols with correct encoding
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank directory file which has address with country specific symbols
         UpdateClearingNumbers := false;
@@ -150,7 +150,7 @@ codeunit 144016 "Test Import Bank Directory"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         BankDirectory.DeleteAll();
         Commit();
     end;
@@ -170,7 +170,7 @@ codeunit 144016 "Test Import Bank Directory"
         BranchNo3: Code[5];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCustomerBankAccount(CustomerBankAccount1);
         CreateCustomerBankAccount(CustomerBankAccount2);
@@ -214,7 +214,7 @@ codeunit 144016 "Test Import Bank Directory"
         BranchNo3: Code[5];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateVendorBankAccount(VendorBankAccount1);
         CreateVendorBankAccount(VendorBankAccount2);

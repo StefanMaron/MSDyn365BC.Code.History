@@ -242,7 +242,7 @@ report 11540 "SR Cust. - Balance to Date"
                     if not PrintUnappliedEntries then
                         DtldCustLedgEntry.SetRange(Unapplied, false);
 
-                    if DtldCustLedgEntry.FindSet then
+                    if DtldCustLedgEntry.FindSet() then
                         repeat
                             "Entry No." := DtldCustLedgEntry."Cust. Ledger Entry No.";
                             Mark(true);
@@ -252,7 +252,7 @@ report 11540 "SR Cust. - Balance to Date"
                     SetRange("Customer No.", Customer."No.");
                     SetRange(Open, true);
                     SetRange("Posting Date", 0D, FixedDay);
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             Mark(true);
                         until Next() = 0;
@@ -501,7 +501,7 @@ report 11540 "SR Cust. - Balance to Date"
         TmpGLAcc: Record "G/L Account" temporary;
         TotalReceivables: Decimal;
     begin
-        if CustPostGroup.FindSet then begin
+        if CustPostGroup.FindSet() then begin
             // Insert Receivabels Accounts in temp. table because the same account can be in
             // more than one posting groups
             repeat
@@ -513,7 +513,7 @@ report 11540 "SR Cust. - Balance to Date"
                 end;
             until CustPostGroup.Next() = 0;
 
-            if TmpGLAcc.FindSet then
+            if TmpGLAcc.FindSet() then
                 repeat
                     GLAcc.Get(TmpGLAcc."No.");
                     GLAcc.SetFilter("Date Filter", '..%1', FixedDay);

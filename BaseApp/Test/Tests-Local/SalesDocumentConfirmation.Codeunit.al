@@ -28,7 +28,7 @@ codeunit 144045 "Sales Document Confirmation"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Create Return Order
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", Customer."No.");
@@ -49,7 +49,7 @@ codeunit 144045 "Sales Document Confirmation"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Create Return Order
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Blanket Order", Customer."No.");
@@ -71,7 +71,7 @@ codeunit 144045 "Sales Document Confirmation"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Create and Post Sales Credit Memo
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -102,8 +102,8 @@ codeunit 144045 "Sales Document Confirmation"
             // Add Shipment Term Translation
             CreateShipmentMethodTranslation(ShipmentMethodCode);
 
-            LibraryERMCountryData.CreateGeneralPostingSetupData;
-            LibraryERMCountryData.UpdateGeneralPostingSetup;
+            LibraryERMCountryData.CreateGeneralPostingSetupData();
+            LibraryERMCountryData.UpdateGeneralPostingSetup();
 
             // Create Customer
             CreateCustomer(PaymentTermsCode, ShipmentMethodCode);

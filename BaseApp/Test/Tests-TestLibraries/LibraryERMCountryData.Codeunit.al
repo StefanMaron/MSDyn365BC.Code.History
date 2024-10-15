@@ -274,7 +274,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -304,21 +310,21 @@ codeunit 131305 "Library - ERM Country Data"
                     if "Purch. Prepayments Account" = '' then
                         Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
                     if "Purch. Pmt. Disc. Debit Acc." = '' then
-                        "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
+                        "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
                     if "Purch. Pmt. Disc. Credit Acc." = '' then
-                        "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
+                        "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
                     if "Purch. Pmt. Tol. Debit Acc." = '' then
-                        "Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
+                        "Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
                     if "Purch. Pmt. Tol. Credit Acc." = '' then
-                        "Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
+                        "Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
                     if "Sales Pmt. Disc. Debit Acc." = '' then
-                        "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
+                        "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
                     if "Sales Pmt. Disc. Credit Acc." = '' then
-                        "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
+                        "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
                     if "Sales Pmt. Tol. Debit Acc." = '' then
-                        "Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
+                        "Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
                     if "Sales Pmt. Tol. Credit Acc." = '' then
-                        "Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
+                        "Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
                     if "Direct Cost Applied Account" = '' then
                         Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account");
                     if "Overhead Applied Account" = '' then
@@ -353,7 +359,7 @@ codeunit 131305 "Library - ERM Country Data"
             SetFilter("Gen. Prod. Posting Group", '<>%1', '');
             SetFilter("COGS Account", '<>%1', '');
             SetFilter("Inventory Adjmt. Account", '<>%1', '');
-            FindFirst;
+            FindFirst();
             if "COGS Account (Interim)" = '' then
                 Validate("COGS Account (Interim)", "COGS Account");
             if "Invt. Accrual Acc. (Interim)" = '' then

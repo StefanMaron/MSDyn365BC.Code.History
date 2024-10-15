@@ -159,7 +159,7 @@ report 11503 "Item ABC Analysis"
             trigger OnAfterGetRecord()
             begin
                 Buffer.SetRange("Item No.", "No.");
-                Buffer.FindFirst;
+                Buffer.FindFirst();
 
                 if (PrintZero = false) and (Buffer.Amount = 0) and (Buffer."Amount 2" = 0) then
                     CurrReport.Skip();
@@ -216,7 +216,7 @@ report 11503 "Item ABC Analysis"
                   Text006);
                 d.Update(1, Format(Count));
 
-                if FindSet then
+                if FindSet() then
                     repeat
                         for i := 1 to 2 do
                             case Column[i] of
@@ -293,12 +293,12 @@ report 11503 "Item ABC Analysis"
                         d.Update(2, Format(NoCalculated));
                         d.Update(3, Format("No."));
                     until Next() = 0;
-                FindFirst;
+                FindFirst();
 
                 ABlimit := Col1TotalAllRec / 100 * (Bpct + Cpct);
                 BClimit := Col1TotalAllRec / 100 * Cpct;
 
-                if Buffer.FindSet then
+                if Buffer.FindSet() then
                     repeat
                         CumAmt := CumAmt + Buffer.Amount;
                         if (CumAmt > BClimit) and (BminAmt = 0) then

@@ -635,7 +635,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 CdtrRefInf_CdOrPrtry_Prtry := '';
                                 CdtrRefInf_CdOrPrtry_Cd := '';
                                 TempPaymentExportRemittanceText.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
-                                if not TempPaymentExportRemittanceText.FindSet then
+                                if not TempPaymentExportRemittanceText.FindSet() then
                                     currXMLport.Skip();
                                 RemittanceText1 := TempPaymentExportRemittanceText.Text;
                                 if TempPaymentExportRemittanceText.Next <> 0 then
@@ -695,7 +695,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
         PaymentGroupNo: Integer;
     begin
         GenJournalLine.Copy("Gen. Journal Line");
-        if GenJournalLine.FindFirst then
+        if GenJournalLine.FindFirst() then
             SwissExport := CHMgt.IsSwissSEPACTExport(GenJournalLine);
         SEPACTFillExportBuffer.FillExportBuffer("Gen. Journal Line", PaymentExportData);
         PaymentExportData.GetRemittanceTexts(TempPaymentExportRemittanceText);
@@ -710,7 +710,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           "Sender Bank BIC", "SEPA Instruction Priority Text", "Transfer Date",
           "SEPA Batch Booking", "SEPA Charge Bearer Text");
 
-        if not PaymentExportData.FindSet then
+        if not PaymentExportData.FindSet() then
             Error(NoDataToExportErr);
 
         InitPmtGroup;

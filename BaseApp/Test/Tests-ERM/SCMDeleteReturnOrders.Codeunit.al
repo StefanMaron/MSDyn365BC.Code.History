@@ -31,7 +31,7 @@ codeunit 137040 "SCM Delete Return Orders"
         ReturnPONumber: Code[20];
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // Create a new return purchase order.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -47,7 +47,7 @@ codeunit 137040 "SCM Delete Return Orders"
         ReturnShipmentLine.SetRange("Buy-from Vendor No.", PurchHeader."Buy-from Vendor No.");
 
         // Find the last line we posted and filter by it (otherwise we will invoice all possible lines for the vendor).
-        ReturnShipmentLine.FindLast;
+        ReturnShipmentLine.FindLast();
         ReturnShipmentLine.SetRecFilter;
 
         PurchGetReturnShipments.SetPurchHeader(PurchHeader2);
@@ -86,7 +86,7 @@ codeunit 137040 "SCM Delete Return Orders"
         // because all its existing lines have been shipped and invoiced.
 
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // Create a new return purchase order with 2 lines
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -129,8 +129,8 @@ codeunit 137040 "SCM Delete Return Orders"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Delete Return Orders");
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Delete Return Orders");

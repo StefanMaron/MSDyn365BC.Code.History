@@ -236,7 +236,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 234977] When function SetVendorAsRecipient from "Payment Export Data" table is run for Payment Type "2.2" then text 'IBAN', all spaces and colons are removed from IBAN stored in "Recipient Bank Acc. No.".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Bank Account with payment type 2.2 with IBAN = 'CH 3808:8881: 2345 :6789 :: 012 :IBAN'
         Vendor.Get(CreateVendorWithBankAccount_Clearing);
@@ -450,13 +450,13 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 220991] TAB 288 "Vendor Bank Account".GetBankAccountNo() returns correct value
         with VendorBankAccount do begin
             Init;
-            "SWIFT Code" := LibraryUtility.GenerateGUID;
-            "ESR Account No." := LibraryUtility.GenerateGUID;
-            "Giro Account No." := LibraryUtility.GenerateGUID;
+            "SWIFT Code" := LibraryUtility.GenerateGUID();
+            "ESR Account No." := LibraryUtility.GenerateGUID();
+            "Giro Account No." := LibraryUtility.GenerateGUID();
             "Clearing No." := '12345';
-            IBAN := LibraryUtility.GenerateGUID;
-            "Bank Identifier Code" := LibraryUtility.GenerateGUID;
-            "Bank Account No." := LibraryUtility.GenerateGUID;
+            IBAN := LibraryUtility.GenerateGUID();
+            "Bank Identifier Code" := LibraryUtility.GenerateGUID();
+            "Bank Account No." := LibraryUtility.GenerateGUID();
 
             "Payment Form" := "Payment Form"::ESR;
             Assert.AreEqual("ESR Account No.", GetBankAccountNo, '');
@@ -526,7 +526,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [DTA]
         // [SCENARIO 220991] REP 3010546 "DTA Suggest Vendor Payments" inserts G\L balance line in case of "Insert Bank Balance Account" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted open purchase invoice
         CreatePostPurchaseInvoice(PurchaseLine);
@@ -557,7 +557,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [DTA]
         // [SCENARIO 220991] REP 3010546 "DTA Suggest Vendor Payments" inserts bank balance account inline in case of "Insert Bank Balance Account" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted open purchase invoice
         CreatePostPurchaseInvoice(PurchaseLine);
@@ -585,7 +585,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export in case of unknown "Payment Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Cash Outpayment Order Abroad"
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Cash Outpayment Order Abroad", '', '', '', '', '');
@@ -611,7 +611,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "1" in case of blanked journal line's "Reference No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "ESR" (typed "ESR Account No.")
         VendorNo := CreateVendorWithBankAccount_ESR;
@@ -639,7 +639,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "1" in case of blanked "ESR Account No." for Payment Form ESR
         // [SCENARIO 254013] Swiss SEPA CT export for "Payment Type" = "1" in case of blanked "ESR Account No." (and typed optional BIC, IBAN) for Payment Form ESR
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "ESR", "ESR Account No." = "", "Bank Identifier Code" = "A", IBAN = "B"
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::ESR, '', '', '', '', GetIBAN(true));
@@ -667,7 +667,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [FEATURE] [XML] [Export]
         // [SCENARIO 225490] Swiss SEPA CT export for "Payment Type" = "1" in case of blanked "ESR Account No." for Payment Form ESR+
         // [SCENARIO 254013] Swiss SEPA CT export for "Payment Type" = "1" in case of blanked "ESR Account No." (and typed optional BIC, IBAN) for Payment Form ESR
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "ESR+" and "ESR Account No." = "", "Bank Identifier Code" = "A", IBAN = "B"
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"ESR+", '', '', '', '', GetIBAN(true));
@@ -696,7 +696,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "1" in case of "Payment Form" = "ESR", currency code "CHF"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "ESR" (typed "ESR Account No.")
         VendorNo := CreateVendorWithBankAccount_ESR;
@@ -728,7 +728,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "1" in case of "Payment Form" = "ESR", currency code "EUR"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "ESR" (typed "ESR Account No.")
         VendorNo := CreateVendorWithBankAccount_ESR;
@@ -754,7 +754,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "2.1" in case of blanked "Giro Account No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Post Payment Domestic" and "Giro Account No." = ""
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Post Payment Domestic", '', '', '', '', '');
@@ -781,7 +781,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "2.1" in case of "Payment Form" = "Post Payment Domestic", currency code "CHF"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Post Payment Domestic" (typed "Giro Account No.")
         VendorNo := CreateVendorWithBankAccount_GiroPost;
@@ -813,7 +813,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "2.1" in case of "Payment Form" = "Post Payment Domestic", currency code "EUR"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Post Payment Domestic" (typed "Giro Account No.")
         VendorNo := CreateVendorWithBankAccount_GiroPost;
@@ -840,10 +840,10 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "2.2" in case of blanked "IBAN"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" (typed "Clearing No." and IBAN = "")
-        BankDirectory.FindFirst;
+        BankDirectory.FindFirst();
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Bank Payment Domestic", '', '', BankDirectory."Clearing No.", '', '');
         // [GIVEN] Vendor payment journal line with "Currency Code" = ""
         CreatePaymentJournalLine(GenJournalLine, VendorNo, '', '',
@@ -868,7 +868,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "2.2" in case of "Payment Form" = "Bank Payment Domestic", currency code "CHF"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" (typed "Clearing No." and IBAN)
         VendorNo := CreateVendorWithBankAccount_Clearing;
@@ -900,7 +900,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "2.2" in case of "Payment Form" = "Bank Payment Domestic", currency code "EUR"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" (typed "Clearing No." and IBAN)
         VendorNo := CreateVendorWithBankAccount_Clearing;
@@ -926,7 +926,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "3" in case of blanked "SWIFT Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" ("SWIFT Code" = "" and domestic IBAN)
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Bank Payment Domestic", '', '', '', '', GetIBAN(true));
@@ -951,7 +951,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "3" in case of blanked "IBAN"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" (typed domestic "SWIFT Code" = "" and IBAN = "")
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Bank Payment Domestic", '', '', '', GetSWIFT(true), '');
@@ -978,7 +978,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "3" in case of "Payment Form" = "Bank Payment Domestic", currency code "CHF"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" (typed domestic "SWIFT Code" and domestic IBAN)
         VendorNo := CreateVendorWithBankAccount_DomesticSWIFT;
@@ -1010,7 +1010,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "3" in case of "Payment Form" = "Bank Payment Domestic", currency code "EUR"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" (typed domestic "SWIFT Code" and domestic IBAN)
         VendorNo := CreateVendorWithBankAccount_DomesticSWIFT;
@@ -1036,7 +1036,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "4" in case of blanked "SWIFT Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" ("SWIFT Code" = "" and domestic IBAN)
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Bank Payment Domestic", '', '', '', '', GetIBAN(true));
@@ -1061,7 +1061,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "4" in case of blanked "IBAN"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" (domestic "SWIFT Code" and IBAN = "")
         VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Bank Payment Domestic", '', '', '', GetSWIFT(true), '');
@@ -1088,7 +1088,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "4" in case of "Payment Form" = "Bank Payment Domestic", currency code "USD"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" (typed domestic "SWIFT Code" and domestic IBAN)
         VendorNo := CreateVendorWithBankAccount_DomesticSWIFT;
@@ -1120,7 +1120,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "5" in case of "Payment Form" = "Bank Payment Abroad", currency code "EUR"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Abroad" (no "SWIFT Code" and abroad IBAN)
         CreateVendorWithBankAccount_AbroadSEPA(VendorBankAccount);
@@ -1151,7 +1151,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "6" for pair IBAN + SWIFT, currency code "CHF"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Abroad" (typed abroad "SWIFT Code" and abroad IBAN)
         VendorNo := CreateVendorWithBankAccount_Abroad;
@@ -1184,7 +1184,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "6" for pair IBAN + SWIFT, currency code "USD"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Abroad" (typed abroad "SWIFT Code" and abroad IBAN)
         VendorNo := CreateVendorWithBankAccount_Abroad;
@@ -1213,12 +1213,12 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 264198] Swiss SEPA CT export for "Payment Type" = "6" for pair IBAN + SWIFT, currency code "USD" and Postal Address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account of "Payment Form" = "Bank Payment Abroad" (abroad "SWIFT Code" and abroad IBAN)
         VendorNo := CreateVendorWithBankAccount_Abroad;
         VendorBankAccount.SetRange("Vendor No.", VendorNo);
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
         UpdateVendorBankAccNameAddr(VendorBankAccount);
         VendorBankAccount.Modify();
 
@@ -1247,12 +1247,12 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 264198] Swiss SEPA CT export for "Payment Type" = "6" for pair IBAN + SWIFT, currency code "USD" and Postal Address with blank Country/Region Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account of "Payment Form" = "Bank Payment Abroad" (abroad "SWIFT Code" and abroad IBAN) and blank Country/Region Code
         VendorNo := CreateVendorWithBankAccount_Abroad;
         VendorBankAccount.SetRange("Vendor No.", VendorNo);
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
         UpdateVendorBankAccNameAddr(VendorBankAccount);
         VendorBankAccount."Country/Region Code" := '';
         VendorBankAccount.Modify();
@@ -1281,7 +1281,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 225521] Swiss SEPA CT export for "Payment Type" = "6" for pair IBAN and Postal Address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Abroad" with IBAN and Postal Address
         CreateVendorWithBankAccount_AbroadWithIBANAndPstlAddr(VendorBankAccount);
@@ -1310,7 +1310,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 225521] Swiss SEPA CT export for "Payment Type" = "6" for pair Bank Account No and SWIFT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Abroad" with Bank Account No and SWIFT
         CreateVendorWithBankAccount_AbroadWithBankAccNoAndSWIFT(VendorBankAccount);
@@ -1339,7 +1339,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 225521] Swiss SEPA CT export for "Payment Type" = "6" for pair Bank Account No and Postal Address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Abroad" with Bank Account No and Postal Address
         CreateVendorWithBankAccount_AbroadWithBankAccNoAndPstlAddr(VendorBankAccount);
@@ -1367,7 +1367,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 235211] Swiss SEPA CT export for "Payment Type" = "6". When Stan exports a Payment Line to an XML file, "Message to Recipient" value gets to <Ustrd> section of the file.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account having "Swiss Payment Type" = "6"
         VendorNo := CreateVendorWithBankAccount_Abroad;
@@ -1397,7 +1397,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 220991] GetBankAccountNo from Vendor Bank Account removes dashes from ESR Account No.
-        Initialize;
+        Initialize();
         with VendorBankAccount do begin
             Init;
             "Payment Form" := "Payment Form"::ESR;
@@ -1448,7 +1448,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 220615] Swiss SEPA CT export for Bank Account with blank SWIFT Code and Payment Type 5
-        Initialize;
+        Initialize();
         CreateVendorWithBankAccount_AbroadSEPA(VendorBankAccount);
         // [GIVEN] Payment Journal line for Vendor with bank account of Payment Type 5
         CreatePaymentJournalLine(GenJournalLine, VendorBankAccount."Vendor No.", GetEURCurrency, '',
@@ -1479,11 +1479,11 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 264198] Swiss SEPA CT export requires SWIFT Code in Bank Account for Payment Type 6
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal line for Vendor with bank account of Payment Type 6
         VendorBankAccount.SetRange("Vendor No.", CreateVendorWithBankAccount_Abroad);
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
         CreatePaymentJournalLine(GenJournalLine, VendorBankAccount."Vendor No.", GetForeignCurrency, '',
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment);
 
@@ -1512,7 +1512,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 225483] Reference No. is transferred to Gen. Journal Line via Suggest Vendor Payments report without 'Summarize Per Vendor' option
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Invoice of vendor "V" is posted with Reference No. = "Ref00001"
         CreatePostGenJnlPurchInvoiceWithReferenceNo(GenJournalLineInvoice);
@@ -1535,7 +1535,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // [SCENARIO 229093] Post exported Payment Journal line for invoice with Reference No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Invoice of vendor "V" is posted with Reference No. = "Ref00001"
         CreatePostGenJnlPurchInvoiceWithReferenceNo(GenJournalLineInvoice);
@@ -1546,7 +1546,7 @@ codeunit 144352 "Swiss SEPA CT Export"
 
         // [WHEN] Post Payment Journal line
         GenJournalLine.SetRange("Account No.", GenJournalLineInvoice."Account No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Vendor Ledger Entry is closed and has Reference No. = "Ref00001"
@@ -1562,13 +1562,13 @@ codeunit 144352 "Swiss SEPA CT Export"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 229093] Post Payment Journal line for invoice with Reference No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Payment Journal Line with Reference No. = "Ref00001"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, CreateVendorWithBankAccount_ESR, LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Reference No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Reference No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         // [WHEN] Post Payment Journal line
@@ -1591,7 +1591,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 263854] Reference No. is transferred to Gen. Journal Line via Suggest Vendor Payments report for one vendor entry with 'Summarize per Vendor' option
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Invoice of vendor "V" is posted with Reference No. = "Ref00001"
         CreatePostGenJnlPurchInvoiceWithReferenceNo(GenJournalLineInvoice);
@@ -1619,13 +1619,13 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 263854] Reference No. is not transferred to Gen. Journal Line via Suggest Vendor Payments report for more than one vendor entry with 'Summarize per Vendor' option
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Vendor Invoices of vendor "V" are posted with Reference No. = "Ref00001" and "Ref00002"
         CreatePostGenJnlPurchInvoiceWithReferenceNo(GenJournalLineInvoice);
         CreatePostGenJnlPurchDoc(
           GenJournalLineInvoice, GenJournalLineInvoice."Document Type"::Invoice, GenJournalLineInvoice."Account No.",
-          -LibraryRandom.RandDecInRange(1000, 2000, 2), LibraryUtility.GenerateGUID);
+          -LibraryRandom.RandDecInRange(1000, 2000, 2), LibraryUtility.GenerateGUID());
 
         // [WHEN] Suggest Vendor Payments for vendor "V" with 'Summarize per Vendor' option
         InitGenJournalLine(GenJournalLine, FindSwissSEPACTBankExpImpCode);
@@ -1667,7 +1667,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 232397]  Recipient Bank Account is transferred from Vendor Ledger Entry to Gen. Journal Line via Suggest Vendor Payments report for Swiss SEPA
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" has Preferred Bank Account Code = "B"
         // [GIVEN] Vendor Invoice of vendor "V" is posted with Vendor Bank Account Code = "A"
@@ -1691,7 +1691,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 232397]  Recipient Bank Account is transferred from Vendor Ledger Entry to Gen. Journal Line via Suggest Vendor Payments report for W1 SEPA
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" has Preferred Bank Account Code = "B"
         // [GIVEN] Vendor Invoice of vendor "V" is posted with Vendor Bank Account Code = "A"
@@ -1715,7 +1715,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments] [UI]
         // [SCENARIO 233548] There is an action "Exclude Credit Memos" on a request page for REP 393 "Suggest Vendor Payments"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment jounral
         // [WHEN] Perform "Suggest Vendor Payments" action
@@ -1723,7 +1723,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.UseRequestPage(true);
         Commit();
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
 
         // [THEN] There is an action "Exclude Credit Memos" on a request page and it is visible, editable
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
@@ -1741,7 +1741,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 233548] Credit memo payment is suggested when run REP 393 "Suggest Vendor Payments" in case of "Exclude Credit Memos" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase invoice and credit memo
         CreatePostGenJnlPurchInvoiceWithReferenceNo(GenJournalLine);
@@ -1768,7 +1768,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 233548] Credit memo payment is not suggested when run REP 393 "Suggest Vendor Payments" in case of "Exclude Credit Memos" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase invoice and credit memo
         CreatePostGenJnlPurchInvoiceWithReferenceNo(GenJournalLine);
@@ -1797,7 +1797,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 235349] "Payment Jnl. Export Text" has no error when field "Payment Export Data"."Recipient Acc. No." is filled
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Gen. Journal Line" with "Recipient Acc. No." is not blanked
         // [GIVEN] SEPA export has value "Swiss Payment Type" = "1"
@@ -1824,7 +1824,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 234269] Suggest Vendor Payment report populates Description and Message to Recipient for Swiss.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" with bank account with "Payment Form" = "ESR".
         // [GIVEN] Posted Purchase Journal Line with Invoice for "V" and with External Document No = "EXT".
@@ -1855,7 +1855,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Report] [Suggest Vendor Payments]
         // [SCENARIO 264227] Suggest Vendor Payment report populates Description for Swiss in case of long vendor Name and long External Document No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Name = "AB", where "AB" - 50-chars including "A" - 13-chars string, "B" - 37-chars string
         // [GIVEN] Posted Purchase Journal Line with Invoice with External Document No = "E", where "E" - 35-chars string
@@ -1890,7 +1890,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 253444] Batch Booking is false when xml is exported with payment's quantity less than 'No Of Payments For BatchBooking' value (50)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account of "Payment Form" = "ESR"
         VendorNo := CreateVendorWithBankAccount_ESR;
@@ -1916,7 +1916,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export]
         // [SCENARIO 253444] Batch Booking is true when xml is exported with payment's quantity equals to 'No Of Payments For BatchBooking' value (50)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with bank account of "Payment Form" = "ESR"
         VendorNo := CreateVendorWithBankAccount_ESR;
@@ -1995,7 +1995,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export] [Customer]
         // [SCENARIO 275414] Swiss SEPA CT export for "Payment Type" = "2.2" in case of currency code "CHF"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with bank account with domestic IBAN and domestic currency
         CustomerNo := CreateCustomerWithBankAccount_DomesticIBAN;
@@ -2023,7 +2023,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export] [Customer]
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "2.2" in case of currency code "EUR"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with bank account with domestic IBAN and domestic currency
         CustomerNo := CreateCustomerWithBankAccount_DomesticIBAN;
@@ -2052,7 +2052,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export] [Customer]
         // [SCENARIO 225521] Swiss SEPA CT export for "Payment Type" = "6"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with bank account with IBAN and Bank Account No.
         CreateCustomerWithBankAccount_AbroadWithBankAccNoAndIBAN(CustomerBankAccount);
@@ -2107,7 +2107,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 275414] Function "Customer Bank Account"."GetPaymentType" returns Swiss Payment Type = 6 if "IBAN" has value and is domestic, "Bank Account No." has value
         CustomerBankAccount.Init();
         CustomerBankAccount.IBAN := GetIBAN(true);
-        CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         Assert.IsTrue(CustomerBankAccount.GetPaymentType(PaymentTypeGbl, GetCurrencyCode('')), GetPaymentTypeErr);
         Assert.AreEqual(PaymentTypeGbl::"6", PaymentTypeGbl, GetPaymentTypeErr);
     end;
@@ -2122,7 +2122,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export] [Customer]
         // [SCENARIO 275414] Swiss SEPA CT export for "Payment Type" = "6" in case of blanked bank account's "SWIFT Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with bank account with "IBAN" and "Bank Account No."
         CreateCustomerWithBankAccount_AbroadWithBankAccNoAndIBAN(CustomerBankAccount);
@@ -2157,11 +2157,11 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [XML] [Export] [Customer]
         // [SCENARIO 275414] Swiss SEPA CT export in case of blanked customer bank account's "IBAN"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with bank account with "IBAN" = '' and "Bank Account No."
         CreateCustomerWithPreferredBankAccount(CustomerBankAccount, '', GetSWIFT(false), '', '');
-        CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         CustomerBankAccount.Modify();
 
         // [GIVEN] Customer payment journal line with "Currency Code" = ""
@@ -2193,7 +2193,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         // [FEATURE] [Create Payment]
         // [SCENARIO 319395] Reference No. is transferred to Gen. Journal Line via Create Payment from Vendor Ledger Entries page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Invoice "VI001" is posted with Reference No. = "Ref00001"
         CreatePostGenJnlPurchInvoiceWithReferenceNo(GenJournalLineInvoice);
@@ -2208,7 +2208,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [THEN] Gen. Journal Line is created for vendor invoice "VI001" with Reference No. = "Ref00001"
         GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Reference No.", GenJournalLineInvoice."Reference No.");
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2514,9 +2514,9 @@ codeunit 144352 "Swiss SEPA CT Export"
         GLSetup: Record "General Ledger Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Swiss SEPA CT Export");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryXMLRead);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -2557,7 +2557,7 @@ codeunit 144352 "Swiss SEPA CT Export"
               GenJournalBatch."Bal. Account No.", LibraryRandom.RandDecInRange(1000, 2000, 2));
             Validate("Currency Code", CurrencyCode);
             Validate("Reference No.", ReferenceNo);
-            Validate("Message to Recipient", LibraryUtility.GenerateGUID);
+            Validate("Message to Recipient", LibraryUtility.GenerateGUID());
             Modify(true);
             SetRecFilter;
         end;
@@ -2575,7 +2575,7 @@ codeunit 144352 "Swiss SEPA CT Export"
               GenJournalBatch."Bal. Account No.", LibraryRandom.RandDecInRange(1000, 2000, 2));
             Validate("Currency Code", CurrencyCode);
             Validate("Payment Reference", PaymentReference);
-            Validate("Message to Recipient", LibraryUtility.GenerateGUID);
+            Validate("Message to Recipient", LibraryUtility.GenerateGUID());
             Modify(true);
             SetRecFilter();
         end;
@@ -2593,7 +2593,7 @@ codeunit 144352 "Swiss SEPA CT Export"
                   GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
                   "Document Type"::Payment, "Account Type"::Vendor, VendorNo, "Bal. Account Type"::"Bank Account",
                   GenJournalBatch."Bal. Account No.", LibraryRandom.RandDecInRange(1000, 2000, 2));
-                Validate("Reference No.", LibraryUtility.GenerateGUID);
+                Validate("Reference No.", LibraryUtility.GenerateGUID());
                 Modify(true);
             end;
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
@@ -2650,7 +2650,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     local procedure CreateCustomerWithBankAccount_AbroadWithBankAccNoAndIBAN(var CustomerBankAccount: Record "Customer Bank Account")
     begin
         CreateCustomerWithPreferredBankAccount(CustomerBankAccount, '', GetSWIFT(false), GetIBAN(false), '');
-        CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         CustomerBankAccount.Modify();
     end;
 
@@ -2678,7 +2678,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     var
         BankDirectory: Record "Bank Directory";
     begin
-        BankDirectory.FindFirst;
+        BankDirectory.FindFirst();
         exit(
           CreateVendorWithBankAccount(PaymentFormGbl::"Bank Payment Domestic", '', '', BankDirectory."Clearing No.", '', GetIBAN(true)));
     end;
@@ -2749,7 +2749,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         CreateVendorWithPreferredBankAccount(
           VendorBankAccount, PaymentFormGbl::"Bank Payment Abroad", '', '', '', GetSWIFT(false), '', '');
-        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         VendorBankAccount.Modify();
     end;
 
@@ -2757,7 +2757,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         CreateVendorWithPreferredBankAccount(
           VendorBankAccount, PaymentFormGbl::"Bank Payment Abroad", '', '', '', '', '', '');
-        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         UpdateVendorBankAccNameAddr(VendorBankAccount);
         VendorBankAccount.Modify();
     end;
@@ -2798,7 +2798,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         CreatePostGenJnlPurchDoc(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateVendorWithBankAccount_ESR,
-          -LibraryRandom.RandDecInRange(1000, 2000, 2), LibraryUtility.GenerateGUID);
+          -LibraryRandom.RandDecInRange(1000, 2000, 2), LibraryUtility.GenerateGUID());
     end;
 
     local procedure CreatePostGenJnlPurchCreditMemo(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; LineAmount: Decimal)
@@ -2817,7 +2817,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         CreateGenJnlPurchDoc(
           GenJournalLine, DocumentType, VendorNo,
-          -LibraryRandom.RandDecInRange(1000, 2000, 2), LibraryUtility.GenerateGUID);
+          -LibraryRandom.RandDecInRange(1000, 2000, 2), LibraryUtility.GenerateGUID());
         GenJournalLine.Validate("External Document No.", ExternalDocNo);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2831,7 +2831,7 @@ codeunit 144352 "Swiss SEPA CT Export"
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, CreateVendorWithBankAccount_ESR, -LibraryRandom.RandDec(100, 2));
         CreateVendorBankAccount(VendorBankAccount, GenJournalLine."Account No.", PaymentFormGbl::ESR, GetESRAccountNo, '', '', '', '', '');
-        GenJournalLine.Validate("Reference No.", LibraryUtility.GenerateGUID); // required for ESR
+        GenJournalLine.Validate("Reference No.", LibraryUtility.GenerateGUID()); // required for ESR
         GenJournalLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2843,7 +2843,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         with Vendor do begin
-            Validate(Name, LibraryUtility.GenerateGUID);
+            Validate(Name, LibraryUtility.GenerateGUID());
             Modify(true);
             exit("No.");
         end;
@@ -2855,7 +2855,7 @@ codeunit 144352 "Swiss SEPA CT Export"
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, CreateVendorWithBankAccount_DomesticSWIFT,
           GenJournalLine."Bal. Account Type"::"Bank Account", GenJournalBatch."Bal. Account No.", LibraryRandom.RandIntInRange(10, 100));
         GenJournalLine."Recipient Bank Account" := GetPrefferedBankAccountNo(GenJournalLine."Account No.");
-        GenJournalLine."Reference No." := LibraryUtility.GenerateGUID;
+        GenJournalLine."Reference No." := LibraryUtility.GenerateGUID();
         GenJournalLine.Modify();
     end;
 
@@ -2868,7 +2868,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("No. Series", NoSeries.Code);
         GenJournalBatch.Modify(true);
@@ -2902,8 +2902,8 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         with CompanyInformation do begin
             Get;
-            Name := LibraryUtility.GenerateGUID;
-            "VAT Registration No." := LibraryUtility.GenerateGUID;
+            Name := LibraryUtility.GenerateGUID();
+            "VAT Registration No." := LibraryUtility.GenerateGUID();
             Modify(true);
         end;
     end;
@@ -2912,9 +2912,9 @@ codeunit 144352 "Swiss SEPA CT Export"
     var
         CountryRegion: Record "Country/Region";
     begin
-        VendorBankAccount.Name := LibraryUtility.GenerateGUID;
-        VendorBankAccount.Address := LibraryUtility.GenerateGUID;
-        VendorBankAccount."Post Code" := LibraryUtility.GenerateGUID;
+        VendorBankAccount.Name := LibraryUtility.GenerateGUID();
+        VendorBankAccount.Address := LibraryUtility.GenerateGUID();
+        VendorBankAccount."Post Code" := LibraryUtility.GenerateGUID();
         CountryRegion.Next(LibraryRandom.RandInt(10));
         VendorBankAccount."Country/Region Code" := CountryRegion.Code;
     end;
@@ -2924,7 +2924,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         FindVendorBankAccount(VendorBankAccount, VendorNo);
-        VendorBankAccount."Bank Identifier Code" := LibraryUtility.GenerateGUID;
+        VendorBankAccount."Bank Identifier Code" := LibraryUtility.GenerateGUID();
         VendorBankAccount.Modify();
     end;
 
@@ -2933,7 +2933,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         VendorBankAccount.SetRange("Vendor No.", VendorNo);
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
         VendorBankAccount.Validate("Payment Fee Code", PaymentFee);
         VendorBankAccount.Modify(true);
     end;
@@ -2957,7 +2957,7 @@ codeunit 144352 "Swiss SEPA CT Export"
             SetRange("Processing Codeunit ID", ProcDodeunitID);
             SetRange("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.03");
             SetRange("Check Export Codeunit", CODEUNIT::"SEPA CT-Check Line");
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -2965,7 +2965,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     local procedure FindVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; VendorNo: Code[20])
     begin
         VendorBankAccount.SetRange("Vendor No.", VendorNo);
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
     end;
 
     local procedure GetSWIFT(Domestic: Boolean): Code[20]
@@ -3088,7 +3088,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         DTASuggestVendorPayments.DefineJournalName(GenJournalLine);
         DTASuggestVendorPayments.SetTableView(Vendor);
         DTASuggestVendorPayments.UseRequestPage(true);
-        DTASuggestVendorPayments.RunModal;
+        DTASuggestVendorPayments.RunModal();
     end;
 
     local procedure RunSuggestVendorPaymentsForVendor(GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; SummarizePerVendor: Boolean; ExcludeCreditMemos: Boolean)
@@ -3107,7 +3107,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.UseRequestPage(false);
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure SwissSEPACTExportFile(var GenJournalLine: Record "Gen. Journal Line") FileName: Text
@@ -3120,7 +3120,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         SwissSEPACTExportFile.EnableExportToServerFile;
         SwissSEPACTExportFile.Run(GenJournalLine);
 
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         CreditTransferRegister.TestField(Status, CreditTransferRegister.Status::"File Created");
         CreditTransferRegister.CalcFields("Exported File");
 
@@ -3192,7 +3192,7 @@ codeunit 144352 "Swiss SEPA CT Export"
             SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
             SetRange("Journal Line No.", GenJournalLine."Line No.");
-            FindFirst;
+            FindFirst();
             TestField("Error Text", ExpectedText);
         end;
     end;
@@ -3216,7 +3216,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Account No.", VendorNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Recipient Bank Account", VendorBankAccCode);
     end;
 
@@ -3226,7 +3226,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     begin
         with GenJournalLine do begin
             SetRange("Account No.", Vendor."No.");
-            FindFirst;
+            FindFirst();
             TestField(Description, ExpectedDescription);
             TestField(
               "Message to Recipient",
@@ -3238,7 +3238,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     local procedure VerifyReferenceNoOnGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; ReferenceNo: Code[35])
     begin
         GenJournalLine.SetRange("Account No.", AccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Reference No.", ReferenceNo);
     end;
 

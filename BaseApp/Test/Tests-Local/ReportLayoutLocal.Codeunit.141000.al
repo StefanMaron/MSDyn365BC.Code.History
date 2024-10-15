@@ -25,7 +25,7 @@ codeunit 141000 "Report Layout - Local"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
     end;
@@ -266,7 +266,7 @@ codeunit 141000 "Report Layout - Local"
         Commit();
         GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplName);
         Batches.SetTableView(GenJnlBatch);
-        Batches.Run;
+        Batches.Run();
     end;
 
     local procedure VerifyReportDataset(ExpectedRowCount: Integer; ExpectedAccountNo: Code[20])

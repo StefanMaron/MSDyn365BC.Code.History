@@ -11,7 +11,7 @@ codeunit 1180 "Data Privacy Mgmt"
         ActivityLog.SetRange(Context, ActivityContextTxt);
         ActivityLog.FilterGroup(0);
         ActivityLogPage.SetTableView(ActivityLog);
-        ActivityLogPage.Run;
+        ActivityLogPage.Run();
     end;
 
     var
@@ -51,7 +51,7 @@ codeunit 1180 "Data Privacy Mgmt"
         if TempDataPrivacyEntities.Get(EntityTypeTableNo) then begin
             RecRef.Open(EntityTypeTableNo);
             RecRefGet(RecRef, TempDataPrivacyEntities."Key Field No.", Format(EntityNo, 20));
-            if RecRef.FindFirst then
+            if RecRef.FindFirst() then
                 exit(true);
         end;
     end;
@@ -71,10 +71,10 @@ codeunit 1180 "Data Privacy Mgmt"
         FieldRef.SetRange(EntityNo);
 
         // If the user exists, create related data using the User Setup table
-        if UserRecRef.FindFirst then begin
+        if UserRecRef.FindFirst() then begin
             RecRef.Open(DATABASE::"User Setup");
             RecRefGet(RecRef, 1, EntityNo);
-            if RecRef.FindFirst then
+            if RecRef.FindFirst() then
                 exit(true);
         end;
     end;
@@ -264,7 +264,7 @@ codeunit 1180 "Data Privacy Mgmt"
         DataSensitivity: Record "Data Sensitivity";
     begin
         FilterDataSensitivityByDataSensitivityOption(DataSensitivity, TableNo, DataSensitivityOption);
-        if DataSensitivity.FindSet then begin
+        if DataSensitivity.FindSet() then begin
             CreatePackageTable(PackageCode, DataSensitivity."Table No");
 
             repeat
@@ -282,7 +282,7 @@ codeunit 1180 "Data Privacy Mgmt"
 
         ConfigProgressBar.Init(TableRelationsMetadata.Count, 1, CreatingFieldDataTxt);
 
-        if TableRelationsMetadata.FindSet then
+        if TableRelationsMetadata.FindSet() then
             CreateRelatedDataFields(TableRelationsMetadata, ConfigPackage, EntityNo, DataSensitivityOption, ProcessingOrder);
 
         ConfigProgressBar.Close;
@@ -500,7 +500,7 @@ codeunit 1180 "Data Privacy Mgmt"
         RecRef.Open(TableNo);
         RecRefGet(RecRef, 1, EntityNo);
 
-        if RecRef.FindFirst then begin
+        if RecRef.FindFirst() then begin
             PrivacyBlockedFieldRef := RecRef.Field(PrivacyBlockedFieldNo);
             PrivacyBlockedFieldRef.Validate(true);
             RecRef.Modify();

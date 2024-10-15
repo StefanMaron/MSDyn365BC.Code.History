@@ -36,7 +36,7 @@ page 769 "Aged Acc. Payable Chart"
 
                 trigger AddInReady()
                 begin
-                    Initialize;
+                    Initialize();
                 end;
 
                 trigger Refresh()

@@ -36,9 +36,9 @@ codeunit 136602 "ERM RS Create Journal Lines"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Create Journal Lines");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -58,7 +58,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for G/L Account without filter.
 
         // 1. Setup: Create General Journal Batch and Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
 
@@ -90,7 +90,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Customer without filter.
 
         // 1. Setup: Create General Journal Batch and Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
 
@@ -116,7 +116,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Vendor without filter.
 
         // 1. Setup: Create General Journal Batch and Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
 
@@ -141,7 +141,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Item without filter.
 
         // 1. Setup: Create Item Journal batch and Standard Item Journal.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
 
@@ -170,7 +170,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for G/L Account with filter.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and G/L Account.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryERM.CreateGLAccount(GLAccount);
@@ -201,7 +201,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Customer with filter.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Customer.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibrarySales.CreateCustomer(Customer);
@@ -227,7 +227,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Vendor with filter.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryPurchase.CreateVendor(Vendor);
@@ -253,7 +253,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Item with filter.
 
         // 1. Setup: Create Item Journal batch, Standard Item Journal and Item.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
         LibraryInventory.CreateItem(Item);
@@ -285,7 +285,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for G/L Account with correct Posting Date and Document Date.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and G/L Account.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryERM.CreateGLAccount(GLAccount);
@@ -315,7 +315,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Customer with correct posting and document date.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Customer.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibrarySales.CreateCustomer(Customer);
@@ -344,7 +344,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Vendor with correct posting and document date.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryPurchase.CreateVendor(Vendor);
@@ -373,7 +373,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Item with correct posting and document date.
 
         // 1. Setup: Create Item Journal batch, Standard Item Journal and Item.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
         LibraryInventory.CreateItem(Item);
@@ -406,7 +406,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Verify that due date is calculated from document date, batch creation of Journal Lines for Customer.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Customer with Payment Terms code.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         CreatePaymentTermsWithDiscount(PaymentTerms);
@@ -438,7 +438,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Verify that due date is calculated from document date, batch creation of Journal Lines for Vendor.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Vendor with Payment Terms code.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         CreatePaymentTermsWithDiscount(PaymentTerms);
@@ -469,7 +469,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Verify payment discount date, batch creation of Journal Lines for Customer.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Customer with Payment Terms code.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         CreatePaymentTermsWithDiscount(PaymentTerms);
@@ -499,7 +499,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Verify payment discount date, batch creation of Journal Lines for Vendor.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Vendor with Payment Terms code.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         CreatePaymentTermsWithDiscount(PaymentTerms);
@@ -529,7 +529,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, Multiple General Journal Line and G/L Account,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryERM.CreateGLAccount(GLAccount);
@@ -563,7 +563,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, Multiple General Journal Line and Customer,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibrarySales.CreateCustomer(Customer);
@@ -596,7 +596,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, Multiple General Journal Line and Vendor,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryPurchase.CreateVendor(Vendor);
@@ -629,7 +629,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create Item Journal batch, Standard Item Journal, Multiple Item Journal Line and Item,
         // Save Standard Item Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
         LibraryInventory.CreateItem(Item);
@@ -666,7 +666,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for G/L account and Dimensions are copied from G/L Account.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and G/L Account with Dimension.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         CreateGLAccountWithDimension(DefaultDimension);
@@ -698,7 +698,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Customer and Dimensions are copied from Customer.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Customer with Dimension.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         CreateCustomerWithDimension(DefaultDimension);
@@ -725,7 +725,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Vendor and Dimensions are copied from Vendor.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Vendor with Dimension.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         CreateVendorWithDimension(DefaultDimension);
@@ -753,7 +753,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Item and Dimensions are copied from Item.
 
         // 1. Setup: Create Item Journal batch, Standard Item Journal and Item with Dimension.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
         CreateItemWithDimension(DefaultDimension);
@@ -784,7 +784,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         SetupCreateCustomerJournalScenario(Customer, GenJournalBatch, StandardGeneralJournal);
 
@@ -803,7 +803,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         SetupCreateCustomerJournalScenario(Customer, GenJournalBatch, StandardGeneralJournal);
 
@@ -823,7 +823,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         SetupCreateVendorJournalScenario(Vendor, GenJournalBatch, StandardGeneralJournal);
 
@@ -842,7 +842,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         SetupCreateVendorJournalScenario(Vendor, GenJournalBatch, StandardGeneralJournal);
 
@@ -867,7 +867,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, General Journal Line and G/L Account,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryERM.CreateGLAccount(GLAccount);
@@ -905,7 +905,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, General Journal Line and Customer,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibrarySales.CreateCustomer(Customer);
@@ -943,7 +943,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, General Journal Line and Vendor,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryPurchase.CreateVendor(Vendor);
@@ -976,7 +976,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create Item Journal batch, Standard Item Journal, Item Journal Line and Item,
         // Save Standard Item Journal Line and Delete Item Journal Line.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
         LibraryInventory.CreateItem(Item);
@@ -1013,7 +1013,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for G/L Account with Document Type.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and G/L Account.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1048,7 +1048,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Customer with Document Type.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Customer.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibrarySales.CreateCustomer(Customer);
@@ -1079,7 +1079,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Vendor with Document Type.
 
         // 1. Setup: Create General Journal Batch, Standard General Journal and Vendor.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryPurchase.CreateVendor(Vendor);
@@ -1109,7 +1109,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test batch creation of Journal Lines for Item with Entry Type.
 
         // 1. Setup: Create Item Journal batch, Standard Item Journal and Item.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
         LibraryInventory.CreateItem(Item);
@@ -1147,7 +1147,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, General Journal Line with Dimension and G/L Account,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1186,7 +1186,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, General Journal Line with Dimension and Customer,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibrarySales.CreateCustomer(Customer);
@@ -1225,7 +1225,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create General Journal Batch, Standard General Journal, General Journal Line with Dimension and Vendor,
         // Save Standard General Journal Line and Delete General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
         LibraryPurchase.CreateVendor(Vendor);
@@ -1259,7 +1259,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 1. Setup: Create Item Journal batch, Standard Item Journal, Item Journal Line with Dimension and Item,
         // Save Standard Item Journal Line and Delete Item Journal Line.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
         LibraryInventory.CreateItem(Item);
@@ -1293,7 +1293,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test that Source Code is automatically filled when Standard Item Journal page is opened.
 
         // Setup: Create a new Item Journal Batch and standard Item Journal.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
 
@@ -1318,7 +1318,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test the increment of Line No. is correct before/after inserting record on Standard Item Journal with Multiple lines.
 
         // Setup: Create Item Journal batch, create Standard Item Journal.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch);
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
 
@@ -1351,7 +1351,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Verify the Error Message When Account Type of G/L Account is Heading for Payables Account in Vendor Posting Group.
 
         // Setup: Find Vendor Posting Group.
-        Initialize;
+        Initialize();
         VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup);
 
         // Exercise: Validate Payables Account from G/L Account With Account Type Heading.
@@ -1371,7 +1371,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Test the Account Type G/L Account must be Posting for Payables Account in Vendor Posting Group.
 
         // Setup: Find Vendor Posting Group and Create G/L Account.
-        Initialize;
+        Initialize();
         VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup);
         LibraryERM.CreateGLAccount(GLAccount);
 
@@ -1391,7 +1391,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         // Verify the Error Message When G/L Account is Blocked for Payables Account in Vendor Posting Group.
 
         // Setup: Find Vendor Posting Group.
-        Initialize;
+        Initialize();
         VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup);
 
         // Exercise: Validate Payables Account from  Blocked G/L Account.
@@ -1629,14 +1629,14 @@ codeunit 136602 "ERM RS Create Journal Lines"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
     begin
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure ItemJournalLineWithDimension(var ItemJournalLine: Record "Item Journal Line")
@@ -1663,7 +1663,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
           DocumentType.AsInteger(), PostingDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateGLAccJournalLines.UseRequestPage(false);
         Commit();  // Commit is required for Create Lines.
-        CreateGLAccJournalLines.Run;
+        CreateGLAccJournalLines.Run();
     end;
 
     local procedure RunCreateCustomerJournalLines(var Customer: Record Customer; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date; TemplateCode: Code[10])
@@ -1677,7 +1677,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateCustomerJournalLines.UseRequestPage(false);
         Commit();  // Commit is required for Create Lines.
-        CreateCustomerJournalLines.Run;
+        CreateCustomerJournalLines.Run();
     end;
 
     local procedure RunCreateVendorJournalLines(var Vendor: Record Vendor; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date; TemplateCode: Code[10])
@@ -1691,7 +1691,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateVendorJournalLines.UseRequestPage(false);
         Commit();  // Commit is required for Create Lines.
-        CreateVendorJournalLines.Run;
+        CreateVendorJournalLines.Run();
     end;
 
     local procedure RunCreateItemJournalLines(var Item: Record Item; ItemJournalBatch: Record "Item Journal Batch"; EntryTypes: Enum "Item Ledger Entry Type"; PostingDate: Date; TemplateCode: Code[10])
@@ -1705,7 +1705,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
           ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, TemplateCode);
         CreateItemJournalLines.UseRequestPage(false);
         Commit();  // Commit is required for Create Lines.
-        CreateItemJournalLines.Run;
+        CreateItemJournalLines.Run();
     end;
 
     local procedure SaveAsStandardJournal(GenJournalBatch: Record "Gen. Journal Batch"; "Code": Code[10])
@@ -1719,7 +1719,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         SaveAsStandardGenJournal.Initialise(GenJournalLine, GenJournalBatch);
         SaveAsStandardGenJournal.InitializeRequest(Code, '', true);
         SaveAsStandardGenJournal.UseRequestPage(false);
-        SaveAsStandardGenJournal.RunModal;
+        SaveAsStandardGenJournal.RunModal();
     end;
 
     local procedure SaveAsStandardItemJournal(ItemJournalBatch: Record "Item Journal Batch"; "Code": Code[10])
@@ -1733,7 +1733,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         SaveAsStandardItemJournal.Initialise(ItemJournalLine, ItemJournalBatch);
         SaveAsStandardItemJournal.InitializeRequest(Code, '', true, true);
         SaveAsStandardItemJournal.UseRequestPage(false);
-        SaveAsStandardItemJournal.RunModal;
+        SaveAsStandardItemJournal.RunModal();
     end;
 
     local procedure VerifyAccountInLine(GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20])

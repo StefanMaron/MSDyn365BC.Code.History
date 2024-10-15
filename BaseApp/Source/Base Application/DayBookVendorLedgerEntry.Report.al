@@ -288,7 +288,7 @@ report 2502 "Day Book Vendor Ledger Entry"
                         DtldVendLedgEntry.Reset();
                         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                         DtldVendLedgEntry.SetFilter("Entry Type", '<>%1', DtldVendLedgEntry."Entry Type"::Application);
-                        if DtldVendLedgEntry.FindSet then begin
+                        if DtldVendLedgEntry.FindSet() then begin
                             TransactionNoFilter := Format(DtldVendLedgEntry."Transaction No.");
                             while DtldVendLedgEntry.Next <> 0 do
                                 TransactionNoFilter := TransactionNoFilter + '|' + Format(DtldVendLedgEntry."Transaction No.");

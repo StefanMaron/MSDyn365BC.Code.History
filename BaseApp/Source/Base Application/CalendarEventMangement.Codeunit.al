@@ -152,7 +152,7 @@ codeunit 2160 "Calendar Event Mangement"
         CalendarEvent.SetRange(User, UserId);
         CalendarEvent.SetRange(State, CalendarEvent.State::Queued);
 
-        if not CalendarEvent.FindFirst then begin
+        if not CalendarEvent.FindFirst() then begin
             SetJobQueueOnHold(JobQueueEntry);
             exit;
         end;

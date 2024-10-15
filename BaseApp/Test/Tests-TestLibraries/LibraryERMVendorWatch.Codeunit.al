@@ -221,7 +221,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
         with WatchVendorLedgerEntry do begin
             Reset;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Line Level" = "Line Level"::"Ledger Entry" then begin
                         TotalLEDelta += "Delta Count";
@@ -235,7 +235,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
 
         with WatchVendor do begin
             Reset;
-            if FindFirst then begin
+            if FindFirst() then begin
                 // Check that all ledger entries are accounted for
                 if "Watch LE" then
                     DeltaCompareCount("Original LE Count", TotalLEDelta, LedgerEntryTotal("Vendor No."), "LE Comparison Method",
@@ -282,7 +282,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     begin
         VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        if VendorLedgerEntry.FindFirst then
+        if VendorLedgerEntry.FindFirst() then
             exit(VendorLedgerEntry.Count);
         exit(0);
     end;
@@ -293,7 +293,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     begin
         DtldVendorLedgEntry.Reset();
         DtldVendorLedgEntry.SetRange("Vendor No.", VendorNo);
-        if DtldVendorLedgEntry.FindFirst then
+        if DtldVendorLedgEntry.FindFirst() then
             exit(DtldVendorLedgEntry.Count);
         exit(0);
     end;
@@ -304,7 +304,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", LineType);
-        if VendorLedgerEntry.FindFirst then
+        if VendorLedgerEntry.FindFirst() then
             exit(VendorLedgerEntry.Count);
         exit(0);
     end;
@@ -315,7 +315,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", LineType);
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 VendorLedgerEntry.CalcFields(Amount);
                 Sum += VendorLedgerEntry.Amount;
@@ -331,7 +331,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
         DtldVendorLedgEntry.Reset();
         DtldVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         DtldVendorLedgEntry.SetRange("Entry Type", LineType);
-        if DtldVendorLedgEntry.FindFirst then
+        if DtldVendorLedgEntry.FindFirst() then
             exit(DtldVendorLedgEntry.Count);
         exit(0);
     end;
@@ -343,7 +343,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
         DtldVendorLedgEntry.Reset();
         DtldVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         DtldVendorLedgEntry.SetRange("Entry Type", LineType);
-        if DtldVendorLedgEntry.FindSet then
+        if DtldVendorLedgEntry.FindSet() then
             repeat
                 Sum += DtldVendorLedgEntry.Amount;
             until DtldVendorLedgEntry.Next = 0;
@@ -355,7 +355,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     var
         WatchVendor2: Record "Watch Vendor";
     begin
-        if WatchVendor2.FindLast then
+        if WatchVendor2.FindLast() then
             exit(WatchVendor2."Line No." + 1);
         exit(1);
     end;
@@ -364,7 +364,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     var
         WatchVendorLedgerEntry2: Record "Watch Vendor Ledger Entry";
     begin
-        if WatchVendorLedgerEntry2.FindLast then
+        if WatchVendorLedgerEntry2.FindLast() then
             exit(WatchVendorLedgerEntry2."Line No." + 1);
         exit(1);
     end;

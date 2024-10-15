@@ -40,7 +40,7 @@ codeunit 144054 "Test CH FCY"
         GLEntry: Record "G/L Entry";
         ReversalEntry: Record "Reversal Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupFCYGLEntries(GenJournalLine,
@@ -50,19 +50,19 @@ codeunit 144054 "Test CH FCY"
         // Exercise.
         GLEntry.SetRange("Document Type", GenJournalLine."Document Type");
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         ReversalEntry.ReverseTransaction(GLEntry."Transaction No.");
 
         // Verify.
         GLEntry.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type");
         GLEntry.SetRange("Bal. Account No.", GenJournalLine."Bal. Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, GenJournalLine."Amount (LCY)");
         GLEntry.TestField("Amount (FCY)", 0);
 
         GLEntry.SetRange("Bal. Account Type", GenJournalLine."Account Type");
         GLEntry.SetRange("Bal. Account No.", GenJournalLine."Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, -GenJournalLine."Amount (LCY)");
         GLEntry.TestField("Amount (FCY)", -GenJournalLine.Amount);
     end;
@@ -79,7 +79,7 @@ codeunit 144054 "Test CH FCY"
         DateCompressGeneralLedger: Report "Date Compress General Ledger";
         SaveWorkDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryFiscalYear.CreateClosedAccountingPeriods();
@@ -99,13 +99,13 @@ codeunit 144054 "Test CH FCY"
           DateComprRegister."Period Length"::Month, '', false, false, false, true, false, '');
         DateCompressGeneralLedger.UseRequestPage(false);
         DateCompressGeneralLedger.SetTableView(GLEntry);
-        DateCompressGeneralLedger.Run;
+        DateCompressGeneralLedger.Run();
 
         // Verify.
         SourceCodeSetup.Get();
         GLEntry.Reset();
         GLEntry.SetRange("G/L Account No.", GenJournalLine."Bal. Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Source Code", SourceCodeSetup."Compress G/L");
         GLEntry.TestField("Document Type", GLEntry."Document Type"::" ");
         GLEntry.TestField("Document No.", '');
@@ -123,7 +123,7 @@ codeunit 144054 "Test CH FCY"
         GLAccount: Record "G/L Account";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice journal line in currency 'USD'
         SetupFCYGLEntries(GenJournalLine,
@@ -135,7 +135,7 @@ codeunit 144054 "Test CH FCY"
           CurrencyExchangeRate."Relational Exch. Rate Amount" + LibraryRandom.RandDec(10, 2), true);
         CurrencyExchangeRate.ModifyAll("Relational Adjmt Exch Rate Amt",
           CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" + LibraryRandom.RandDec(10, 2), true);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         // [GIVEN] Unrealized Gain/Loss accounts are set for 'USD'
         LibraryERM.CreateGLAccount(GLAccount);
         Currency.Get(GenJournalLine."Currency Code");
@@ -181,7 +181,7 @@ codeunit 144054 "Test CH FCY"
         DocumentNo: Code[20];
         GlobalDimCode: array[2] of Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupVATForFCY(VATPostingSetup, CurrencyExchangeRate, VATCalcType);
@@ -265,7 +265,7 @@ codeunit 144054 "Test CH FCY"
         DocumentNo: Code[20];
         GlobalDimCode: array[2] of Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupVATForFCY(VATPostingSetup, CurrencyExchangeRate, VATCalcType);
@@ -342,7 +342,7 @@ codeunit 144054 "Test CH FCY"
         // Verify that correct number of VAT Entries created after running Currency Adjustment.
 
         // Init
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
 
         // Exercize
@@ -366,7 +366,7 @@ codeunit 144054 "Test CH FCY"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 263230] VAT Exch. Rate Adjustment for FCY entry when ARC has different currency
-        Initialize;
+        Initialize();
         GLRegister.FindLast();
 
         // [GIVEN] Additional Reporting Currency is 'EUR' with exch.rate = 0.9212
@@ -400,7 +400,7 @@ codeunit 144054 "Test CH FCY"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 263230] VAT Exch. Rate Adjustment for FCY entry when ARC has same currency
-        Initialize;
+        Initialize();
         UpdateReportingOnGLSetup;
         GLRegister.FindLast();
 
@@ -501,14 +501,14 @@ codeunit 144054 "Test CH FCY"
         AccountingPeriod: Record "Accounting Period";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test CH FCY");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test CH FCY");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         AnalysisView.DeleteAll();
         AccountingPeriod.ModifyAll("Date Locked", true);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -526,7 +526,7 @@ codeunit 144054 "Test CH FCY"
 
         with CurrencyExchangeRate do begin
             SetRange("Currency Code", CurrencyCode);
-            FindFirst;
+            FindFirst();
             Validate("VAT Exch. Rate Amount", "Exchange Rate Amount");
             Validate("Relational VAT Exch. Rate Amt", "Relational Exch. Rate Amount");
             Modify(true);
@@ -585,7 +585,7 @@ codeunit 144054 "Test CH FCY"
             RaiseValue := 3;
         with CurrencyExchangeRate do begin
             SetRange("Currency Code", CurrencyCode);
-            FindFirst;
+            FindFirst();
             Validate("Relational Exch. Rate Amount", "Relational Exch. Rate Amount" * RaiseValue);
             Validate("Relational Adjmt Exch Rate Amt", "Relational Exch. Rate Amount" * RaiseValue);
             Validate("Relational VAT Exch. Rate Amt", "Relational Exch. Rate Amount" * RaiseValue);
@@ -600,7 +600,7 @@ codeunit 144054 "Test CH FCY"
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         exit(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
     end;
 
@@ -672,7 +672,7 @@ codeunit 144054 "Test CH FCY"
         Amount: Decimal;
     begin
         FindGenJournalTemplateAndBatch(GenJournalTemplate, GenJournalBatch, GenJournalTemplate.Type::Purchases);
-        ExtDocNo := LibraryUtility.GenerateGUID;
+        ExtDocNo := LibraryUtility.GenerateGUID();
 
         AddPurchaseInvJournalLine(
           GenJournalLine, GenJournalBatch, ExtDocNo, CurrencyCode, GenJournalLine."Account Type"::"G/L Account",
@@ -849,7 +849,7 @@ codeunit 144054 "Test CH FCY"
         VATEntry.SetRange("Exchange Rate Adjustment", false);
         VATEntry.SetRange("Bill-to/Pay-to No.", CustomerNo);
         Assert.AreEqual(1, VATEntry.Count, 'Unexpected VAT entries.');
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type");
         VATEntry.TestField("VAT %", VATPostingSetup."VAT %");
         VATEntry.TestField("Currency Factor", CurrencyExchangeRate.GetCurrentCurrencyFactor(CurrencyExchangeRate."Currency Code"));
@@ -907,7 +907,7 @@ codeunit 144054 "Test CH FCY"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Exchange Rate Adjustment", true);
         Assert.RecordCount(VATEntry, 1);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('EntryNo_VATEntry', VATEntry."Entry No.");

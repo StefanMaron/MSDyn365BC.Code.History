@@ -98,8 +98,8 @@ codeunit 144082 "Mandatory Fields Tests CH"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
-        LibrarySales.DisableWarningOnCloseUnreleasedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
+        LibrarySales.DisableWarningOnCloseUnreleasedDoc();
         VerifyMandatoryFieldsOnSalesInvoice(Customer."No.", LineType, ExpectedMandatory);
         // VerifyMandatoryFieldsOnSalesOrder(Customer."No.", LineType, ExpectedMandatory);
         VerifyMandatoryFieldsOnSalesReturnOrder(Customer."No.", LineType, ExpectedMandatory);
@@ -112,7 +112,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         SetExternalDocNoMandatory(true);
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.IsTrue(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerNo);
@@ -130,7 +130,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsFalse(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
         SalesInvoice.Close;
     end;
@@ -141,7 +141,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
         SalesOrder: TestPage "Sales Order";
     begin
         SetExternalDocNoMandatory(true);
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
         SalesOrder."Sell-to Customer Name".SetValue(CustomerNo);
@@ -162,7 +162,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
         SalesOrder.Close;
     end;
@@ -171,7 +171,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         Assert.IsTrue(SalesReturnOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
         SalesReturnOrder."Sell-to Customer Name".SetValue(CustomerNo);
         SalesReturnOrder.SalesLines.New;
@@ -193,7 +193,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
         Customer: Record Customer;
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         Assert.IsTrue(SalesQuote."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
         Customer.Get(CustomerNo);
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
@@ -215,7 +215,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         SetExternalDocNoMandatory(true);
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.IsTrue(SalesCreditMemo."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.IsTrue(SalesCreditMemo."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
         SalesCreditMemo."Sell-to Customer Name".SetValue(CustomerNo);
@@ -233,7 +233,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.IsFalse(SalesCreditMemo."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
         SalesCreditMemo.Close;
     end;

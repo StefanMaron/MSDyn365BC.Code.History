@@ -25,7 +25,7 @@ codeunit 130509 "Library - Sales"
         BatchPostSalesOrders.UseRequestPage(false);
         BatchPostSalesOrders.InitializeRequest(Ship, Invoice, PostingDate, ReplacePostingDate, ReplaceDocumentDate, CalcInvDiscount);
         BatchPostSalesOrders.SetTableView(SalesHeader);
-        BatchPostSalesOrders.RunModal;
+        BatchPostSalesOrders.RunModal();
     end;
 
     procedure BlanketSalesOrderMakeOrder(var SalesHeader: Record "Sales Header"): Code[20]
@@ -313,7 +313,7 @@ codeunit 130509 "Library - Sales"
     begin
         LibraryERM.CreatePrepaymentVATSetup(
           LineGLAccount, PrepmtGLAccount, LineGLAccount."Gen. Posting Type"::Sale, VATCalculationType, VATCalculationType);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         exit(PrepmtGLAccount."No.");
     end;
 
@@ -330,7 +330,7 @@ codeunit 130509 "Library - Sales"
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         if ItemNo = '' then
-            ItemNo := LibraryInventory.CreateItemNo;
+            ItemNo := LibraryInventory.CreateItemNo();
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         if LocationCode <> '' then
             SalesLine.Validate("Location Code", LocationCode);
@@ -373,10 +373,10 @@ codeunit 130509 "Library - Sales"
         case Type of
             SalesLine.Type::Item:
                 if No = '' then
-                    No := LibraryInventory.CreateItemNo;
+                    No := LibraryInventory.CreateItemNo();
             SalesLine.Type::Resource:
                 if No = '' then
-                    No := LibraryResource.CreateResourceNo;
+                    No := LibraryResource.CreateResourceNo();
             SalesLine.Type::"Charge (Item)":
                 if No = '' then
                     No := LibraryInventory.CreateItemChargeNo;
@@ -478,6 +478,22 @@ codeunit 130509 "Library - Sales"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify();
+    end;
+
+    procedure CreateSalesReturnOrder(var SalesHeader: Record "Sales Header")
+    begin
+        CreateSalesReturnOrderForCustomerNo(SalesHeader, CreateCustomerNo());
+    end;
+
+    procedure CreateSalesReturnOrderForCustomerNo(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+          Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
     end;
 
     procedure CreateSalesLineWithUnitPrice(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
@@ -604,7 +620,7 @@ codeunit 130509 "Library - Sales"
     begin
         StandardText.Init();
         StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
-        StandardText.Description := LibraryUtility.GenerateGUID;
+        StandardText.Description := LibraryUtility.GenerateGUID();
         StandardText.Insert();
         exit(StandardText.Code);
     end;
@@ -616,7 +632,7 @@ codeunit 130509 "Library - Sales"
     begin
         StandardText.Init();
         StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
-        StandardText.Description := LibraryUtility.GenerateGUID;
+        StandardText.Description := LibraryUtility.GenerateGUID();
         StandardText.Insert();
         LibrarySmallBusiness.CreateExtendedTextHeader(
           ExtendedTextHeader, ExtendedTextHeader."Table Name"::"Standard Text", StandardText.Code);
@@ -664,7 +680,7 @@ codeunit 130509 "Library - Sales"
         end;
         CombineReturnReceipts.SetTableView(TmpReturnReceiptHeader);
         CombineReturnReceipts.UseRequestPage(false);
-        CombineReturnReceipts.RunModal;
+        CombineReturnReceipts.RunModal();
     end;
 
     procedure CombineShipments(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; PostingDate: Date; DocumentDate: Date; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
@@ -690,7 +706,7 @@ codeunit 130509 "Library - Sales"
         end;
         CombineShipments.SetTableView(TmpSalesShipmentHeader);
         CombineShipments.UseRequestPage(false);
-        CombineShipments.RunModal;
+        CombineShipments.RunModal();
     end;
 
     procedure DeleteInvoicedSalesOrders(var SalesHeader: Record "Sales Header")
@@ -707,7 +723,7 @@ codeunit 130509 "Library - Sales"
         end;
         DeleteInvoicedSalesOrders.SetTableView(TmpSalesHeader);
         DeleteInvoicedSalesOrders.UseRequestPage(false);
-        DeleteInvoicedSalesOrders.RunModal;
+        DeleteInvoicedSalesOrders.RunModal();
     end;
 
     procedure DeleteInvoicedSalesReturnOrders(var SalesHeader: Record "Sales Header")
@@ -724,7 +740,7 @@ codeunit 130509 "Library - Sales"
         end;
         DeleteInvdSalesRetOrders.SetTableView(TmpSalesHeader);
         DeleteInvdSalesRetOrders.UseRequestPage(false);
-        DeleteInvdSalesRetOrders.RunModal;
+        DeleteInvdSalesRetOrders.RunModal();
     end;
 
     procedure ExplodeBOM(var SalesLine: Record "Sales Line")
@@ -739,7 +755,7 @@ codeunit 130509 "Library - Sales"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        if not CustomerPostingGroup.FindFirst then
+        if not CustomerPostingGroup.FindFirst() then
             CreateCustomerPostingGroup(CustomerPostingGroup);
         exit(CustomerPostingGroup.Code);
     end;
@@ -748,7 +764,7 @@ codeunit 130509 "Library - Sales"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     procedure FindItem(var Item: Record Item)

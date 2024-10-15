@@ -228,7 +228,7 @@ report 3010545 "DTA Payment Journal"
                     VendorLedgerEntry.SetRange("Document Type", "Applies-to Doc. Type");
                     VendorLedgerEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     VendorLedgerEntry.SetRange("Vendor No.", "Account No.");
-                    if not VendorLedgerEntry.FindFirst then
+                    if not VendorLedgerEntry.FindFirst() then
                         xTxt := Text001Err
                     else begin
                         if not VendorLedgerEntry.Open then

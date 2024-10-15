@@ -45,13 +45,13 @@ codeunit 137093 "SCM Kitting - D4"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - D4");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - D4");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         GlobalSetup;
 
         isInitialized := true;
@@ -243,7 +243,7 @@ codeunit 137093 "SCM Kitting - D4"
             SetRange(Status, ProductionOrder.Status);
             SetRange("Prod. Order No.", ProductionOrder."No.");
 
-            if FindLast then
+            if FindLast() then
                 LineNo := "Line No." + 10000
             else
                 LineNo := 10000;
@@ -370,7 +370,7 @@ codeunit 137093 "SCM Kitting - D4"
         Clear(PostedAssemblyHeader);
         PostedAssemblyHeader.SetRange("Order No.", SourceAssemblyHeaderNo);
         PostedAssemblyHeader.SetRange(Reversed, false);
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
     end;
 
     local procedure ClearJournal(ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch")
@@ -490,7 +490,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 411] Component is available when assembling an Item with enough Components in inventory
-        Initialize;
+        Initialize();
         LocationCode := LocationBlue.Code;
         // [GIVEN] Create the assembled Item "X"
         LibraryInventory.CreateItem(Item);
@@ -517,7 +517,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 412] Component is NOT available when assembling an Item with missing Components in inventory
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X"
@@ -544,7 +544,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 413] Components are available when assembling an Item with a Component with a Variant in inventory
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X" with 2 components:
@@ -577,7 +577,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 414] Components are NOT available when assembling an Item with a missing Component with a Variant in inventory
-        Initialize;
+        Initialize();
 
         LocationCode := LocationBlue.Code;
         // [GIVEN] Create the assembled Item "X" with 2 components:
@@ -609,7 +609,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 416] Component is available when assembling an Item on Location with Component in inventory
-        Initialize;
+        Initialize();
 
         LocationCodeFrom := '';
         LocationCodeTo := LocationBlue.Code;
@@ -644,7 +644,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 417] Component is NOT available when assembling an Item on Location where no Component in inventory
-        Initialize;
+        Initialize();
 
         LocationCodeFrom := LocationBlue.Code;
         LocationCodeTo := '';
@@ -685,7 +685,7 @@ codeunit 137093 "SCM Kitting - D4"
         // [SCENARIO] Validating Posting No. Series the value should be getting from Posted Assembly Order No. field in Assembly Setup
 
         // [GIVEN] Create Item and Assembly Header for this item
-        Initialize;
+        Initialize();
         AssemblySetup.Get();
         AssemblySetup."Posted Assembly Order Nos." := LibraryERM.CreateNoSeriesCode;
         AssemblySetup.Modify(true);
@@ -709,7 +709,7 @@ codeunit 137093 "SCM Kitting - D4"
         // [SCENARIO] Verify an error when insert Assembly Header Posted Assembly Order Nos. should not be empty
 
         // [GIVEN] Set Assembly Setup field to empty and create Item
-        Initialize;
+        Initialize();
         AssemblySetup.Get();
         AssemblySetup."Posted Assembly Order Nos." := '';
         AssemblySetup.Modify(true);
@@ -733,7 +733,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 418] Component is available after posting part of Assembly Order with Component in inventory
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X" with one component in inventory. Quantity = "Q"
@@ -761,7 +761,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 419] Component is NOT available after posting part of Assembly Order with not enough Component in inventory
-        Initialize;
+        Initialize();
 
         LocationCode := LocationBlue.Code;
         // [GIVEN] Create the assembled Item "X" with one component in inventory. Quantity = "Q"
@@ -791,7 +791,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 421] "Able To Assemble" is equal to Component's quantity in inventory when "Quantity To Assemble" is bigger
-        Initialize;
+        Initialize();
 
         LocationCode := LocationBlue.Code;
         // [GIVEN] Create the assembled Item "X" with one component in inventory. Quantity = "Q"
@@ -834,7 +834,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 421] "Able To Assemble" is equal to "Quantity To Assemble" when enough Component's quantity in inventory
-        Initialize;
+        Initialize();
 
         LocationCode := LocationBlue.Code;
         // [GIVEN] Create the assembled Item "X" with one component in inventory. Quantity = "Q"
@@ -910,7 +910,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 422] Assembly Availability page: Header's "Inventory" is equal to assembled Item's inventory
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X"
@@ -945,7 +945,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 423] Assembly Availability page: Header's "Inventory" is equal to assembled Item's inventory on Assembly Orders' Location
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := '';
@@ -983,7 +983,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 424] Assembly Availability page: Header's "Inventory" is equal to assembled Item Variant's inventory
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X" with Variant
@@ -1022,7 +1022,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 425] Assembly Availability page: Header's "Inventory" is increased by Assembly Order's partial posting
-        Initialize;
+        Initialize();
 
         LocationCode := LocationBlue.Code;
         // [GIVEN] Create the assembled Item "X"
@@ -1063,7 +1063,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 426] "Earliest Availability Date" is empty when no documents that add missing inventory in future
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X" with two components: "C1" and "C2"
@@ -1121,7 +1121,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 427] "Able To Assemble" is increased when added missing inventory for one of components
-        Initialize;
+        Initialize();
 
         LocationCode1 := '';
         LocationCode2 := LocationBlue.Code;
@@ -1186,7 +1186,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 428] "Earliest Availability Date" shows date of the first Production Order that adds missing inventory
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := '';
@@ -1219,7 +1219,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 429] "Earliest Availability Date" shows date of the first Purchase Order that adds missing inventory
-        Initialize;
+        Initialize();
 
         LocationCode1 := '';
         LocationCode2 := LocationBlue.Code;
@@ -1277,7 +1277,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Check-Avail. period]
         // [SCENARIO 360419] Future Asm. Order with reservation causes Availability warning
-        Initialize;
+        Initialize();
 
         // [GIVEN] Have a Component Item of an Assembly Item in inventory. Qty = Q
         // [GIVEN] Create an Assembly Order AO2 within Check-Avail. period with Qty = Q2, where (Q2 < Q)
@@ -1318,7 +1318,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Check-Avail. period]
         // [SCENARIO 360419] Reservation on Asm.Order does not affect "Able To Assemble"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Have a Component Item of an Assembly Item in inventory. Qty = Q
         // [GIVEN] Create an Assembly Order AO2 within Check-Avail. period with Qty = Q2, where (Q2 < Q)
@@ -1353,7 +1353,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(
           FullAutoReservation, '', AssemblyLine."Due Date",
@@ -1378,7 +1378,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Check-Avail. period]
         // [SCENARIO 360072] Assembly Availability page takes future requirements into account
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create the assembled Item "X" with one component in inventory
         CompQuantity := CreateItemWithComponentInventory(Item, BOMComponent, LocationBlue.Code);
@@ -1419,7 +1419,7 @@ codeunit 137093 "SCM Kitting - D4"
         AvailableToPromise: Codeunit "Available to Promise";
     begin
         CompanyInfo.Get();
-        exit(AvailableToPromise.AdjustedEndingDate(Date + 1, CompanyInfo."Check-Avail. Time Bucket"));
+        exit(AvailableToPromise.GetPeriodEndingDate(Date + 1, CompanyInfo."Check-Avail. Time Bucket"));
     end;
 
     [Test]
@@ -1437,7 +1437,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 4211] "Earliest Availability Date" shows date of the first Sales Returning Order that adds missing inventory
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := '';
@@ -1472,7 +1472,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 4212] "Able To Assemble" is not affected by inventory on different location or item variant
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := '';
@@ -1530,7 +1530,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4213] "Scheduled Receipts" on the page header counts Assembly Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := '';
@@ -1569,7 +1569,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4215] "Gross requirement" on the page header counts Sales Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := '';
@@ -1608,7 +1608,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4216] "Gross requirement" on the page header counts Purchase Return Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := '';
@@ -1647,7 +1647,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4217] "Gross requirement" on the page header counts Transfer Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := LocationRed.Code;
@@ -1689,7 +1689,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4218] "Gross requirement" on the page header counts Production Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := LocationRed.Code;
@@ -1736,7 +1736,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4219] "Scheduled Receipts" on the page header counts Purchase Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := '';
         LocationCode2 := LocationRed.Code;
@@ -1782,7 +1782,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4220] "Scheduled Receipts" on the page header counts Production Orders
-        Initialize;
+        Initialize();
 
         LocationCode := LocationBlue.Code;
         // [GIVEN] Create the assembled Item "X" with one component
@@ -1818,7 +1818,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4221] "Scheduled Receipts" on the page header counts Sales Return Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationBlue.Code;
         LocationCode2 := '';
@@ -1865,7 +1865,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Assembled Item]
         // [SCENARIO 4222] "Scheduled Receipts" on the page header counts Transfer Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationRed.Code;
         LocationCode2 := LocationBlue.Code;
@@ -1905,7 +1905,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Quantity Per]
         // [SCENARIO 4223] "Able To Assemble" is equal to the minimal quantity of two components in inventory, considering component's "Quantity per"
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X"
@@ -1952,7 +1952,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Quantity Per]
         // [SCENARIO 4224] "Gross requirement" on the page line counts Assembly Orders, considering "Quantity per"
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationRed.Code;
         LocationCode2 := LocationBlue.Code;
@@ -1991,7 +1991,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 4225] "Gross requirement" on the page line counts Sales Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationRed.Code;
         LocationCode2 := '';
@@ -2030,7 +2030,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 4226] "Gross requirement" on the page line counts Purchase Return Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := '';
         LocationCode2 := LocationBlue.Code;
@@ -2069,7 +2069,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component]
         // [SCENARIO 4227] "Gross requirement" on the page line counts Transfer Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationRed.Code;
         LocationCode2 := LocationBlue.Code;
@@ -2109,7 +2109,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component] [Quantity Per]
         // [SCENARIO 4228] "Gross requirement" on the page line counts Production Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationRed.Code;
         LocationCode2 := LocationBlue.Code;
@@ -2149,7 +2149,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component] [Quantity Per]
         // [SCENARIO 4229] "Scheduled Receipts" on the page line counts Purchase Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationRed.Code;
         LocationCode2 := LocationBlue.Code;
@@ -2193,7 +2193,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component] [Quantity Per]
         // [SCENARIO 4230] "Scheduled Receipts" on the page line counts Production Orders
-        Initialize;
+        Initialize();
 
         LocationCode := LocationRed.Code;
         // [GIVEN] Create the assembled Item "X" with a component "C"
@@ -2236,7 +2236,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component] [Quantity Per]
         // [SCENARIO 4231] "Scheduled Receipts" on the page line counts Sales Return Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationRed.Code;
         LocationCode2 := LocationBlue.Code;
@@ -2282,7 +2282,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Component] [Quantity Per]
         // [SCENARIO 4232] "Scheduled Receipts" on the page line counts Transfer Orders
-        Initialize;
+        Initialize();
 
         LocationCode1 := LocationRed.Code;
         LocationCode2 := LocationBlue.Code;
@@ -2332,7 +2332,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Quantity Per]
         // [SCENARIO 4233] "Able To Assemble" is calculated considering "Qty. Per Unit of Measure" of assembled Item
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X"
@@ -2390,7 +2390,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Quantity Per]
         // [SCENARIO 4234] "Able To Assemble" is calculated considering "Qty. Per Unit of Measure" of components
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X"
@@ -2438,7 +2438,7 @@ codeunit 137093 "SCM Kitting - D4"
         LocationCode: Code[10];
     begin
         // [SCENARIO] Assembly Availability header and line contains static data form the source Assembly Order
-        Initialize;
+        Initialize();
 
         LocationCode := '';
         // [GIVEN] Create the assembled Item "X"
@@ -2480,7 +2480,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Quantity Per]
         // [SCENARIO] Assembly Line quantities are calculated considering "Quantity per" on Component and on assembled Item
-        Initialize;
+        Initialize();
 
         LocationCode := LocationRed.Code;
         // [GIVEN] Create the assembled Item "X"
@@ -2501,7 +2501,7 @@ codeunit 137093 "SCM Kitting - D4"
         // [THEN] Assembly Line: "Quantity per" = ("Qp" * "Qp1")
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         Assert.AreEqual(
           ExpectedQtyPer, AssemblyLine."Quantity per", StrSubstNo(WrongValueInAsmLineErr, AssemblyLine.FieldName("Quantity per")));
         // [THEN] Assembly Line: "Quantity","Quantity to Consume","Remaining Quantity" = ("Quantity per" * "Q")
@@ -2529,7 +2529,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         // [FEATURE] [Undo Assembly Order]
         // [SCENARIO] "Able To Assemble" on page line is calculated correctly after Undo of posted Assembly Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create the assembled Item "X"
         LibraryInventory.CreateItem(Item);

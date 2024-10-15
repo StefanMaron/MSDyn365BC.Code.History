@@ -28,7 +28,7 @@ codeunit 1280 "Map Currency Exchange Rate"
         Commit();
 
         CurrentLineNo := -1;
-        if DataExchField.FindSet then
+        if DataExchField.FindSet() then
             repeat
                 if CurrentLineNo <> DataExchField."Line No." then begin
                     CurrentLineNo := DataExchField."Line No.";
@@ -58,39 +58,39 @@ codeunit 1280 "Map Currency Exchange Rate"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        if not AssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Starting Date"), DefinitionDataExchField, Today) then
+        if not GetAndAssignCurrencyCode(RecordRef, DefinitionDataExchField) then
             exit(false);
-        if not AssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Currency Code"), DefinitionDataExchField, '') then
+        if not GetAndAssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Starting Date"), DefinitionDataExchField, Today) then
             exit(false);
-        if not AssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Relational Currency Code"), DefinitionDataExchField, '') then
+        if not GetAndAssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Relational Currency Code"), DefinitionDataExchField, '') then
             exit(false);
-        if not AssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Exchange Rate Amount"), DefinitionDataExchField, 1) then
+        if not GetAndAssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Exchange Rate Amount"), DefinitionDataExchField, 1) then
             exit(false);
-        if not AssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Relational Exch. Rate Amount"), DefinitionDataExchField, 0) then
+        if not GetAndAssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Relational Exch. Rate Amount"), DefinitionDataExchField, 0) then
             exit(false);
 
         RecordRef.SetTable(CurrencyExchangeRate);
-        if not AssignValue(
+        if not GetAndAssignValue(
              RecordRef, CurrencyExchangeRate.FieldNo("Adjustment Exch. Rate Amount"), DefinitionDataExchField,
              CurrencyExchangeRate."Exchange Rate Amount")
         then
             exit(false);
-        if not AssignValue(
+        if not GetAndAssignValue(
              RecordRef, CurrencyExchangeRate.FieldNo("Relational Adjmt Exch Rate Amt"), DefinitionDataExchField,
              CurrencyExchangeRate."Relational Exch. Rate Amount")
         then
             exit(false);
-        if not AssignValue(
+        if not GetAndAssignValue(
              RecordRef, CurrencyExchangeRate.FieldNo("Fix Exchange Rate Amount"), DefinitionDataExchField,
              CurrencyExchangeRate."Fix Exchange Rate Amount"::Currency)
         then
             exit(false);
-        if not AssignValue(
+        if not GetAndAssignValue(
              RecordRef, CurrencyExchangeRate.FieldNo("Relational VAT Exch. Rate Amt"), DefinitionDataExchField,
              CurrencyExchangeRate."Relational Exch. Rate Amount")
         then
             exit(false);
-        if not AssignValue(
+        if not GetAndAssignValue(
              RecordRef, CurrencyExchangeRate.FieldNo("VAT Exch. Rate Amount"), DefinitionDataExchField,
              CurrencyExchangeRate."Exchange Rate Amount")
         then
@@ -113,29 +113,66 @@ codeunit 1280 "Map Currency Exchange Rate"
         exit(true);
     end;
 
-    [TryFunction]
-    local procedure AssignValue(var RecordRef: RecordRef; FieldNo: Integer; DefinitionDataExchField: Record "Data Exch. Field"; DefaultValue: Variant)
+    local procedure GetAndAssignCurrencyCode(var CurrencyExchangeRecordRef: RecordRef; DefinitionDataExchField: Record "Data Exch. Field"): Boolean
+    var
+        Currency: Record Currency;
+        DataExchField: Record "Data Exch. Field";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+    begin
+        if not GetFieldValue(CurrencyExchangeRecordRef, DataExchField, DefinitionDataExchField, DataExchFieldMapping, CurrencyExchangeRate.FieldNo("Currency Code")) then
+            exit(false);
+
+        if DataExchField.Value = '' then
+            exit(false);
+
+        if not Currency.Get(DataExchField.Value) then
+            exit(false);
+
+        exit(AssignValue(CurrencyExchangeRecordRef, DataExchField, DataExchFieldMapping, false, '', CurrencyExchangeRate.FieldNo("Currency Code")));
+    end;
+
+    local procedure GetAndAssignValue(var CurrencyExchangeRecordRef: RecordRef; FieldNo: Integer; DefinitionDataExchField: Record "Data Exch. Field"; DefaultValue: Variant): Boolean
     var
         DataExchField: Record "Data Exch. Field";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        UseDefaultValue: Boolean;
+    begin
+        UseDefaultValue := not GetFieldValue(CurrencyExchangeRecordRef, DataExchField, DefinitionDataExchField, DataExchFieldMapping, FieldNo);
+        exit(AssignValue(CurrencyExchangeRecordRef, DataExchField, DataExchFieldMapping, UseDefaultValue, DefaultValue, FieldNo));
+    end;
+
+    [TryFunction]
+    local procedure AssignValue(var CurrencyExchangeRecordRef: RecordRef; var DataExchField: Record "Data Exch. Field"; var DataExchFieldMapping: Record "Data Exch. Field Mapping"; UseDefaultValue: Boolean; DefaultValue: Variant; FieldNo: Integer)
+    var
         TempFieldIdsToNegate: Record "Integer" temporary;
         ProcessDataExch: Codeunit "Process Data Exch.";
-        FieldRef: FieldRef;
+        CurrencyExchFieldRef: FieldRef;
     begin
-        if GetFieldValue(DefinitionDataExchField, FieldNo, DataExchField) and
-           DataExchFieldMapping.Get(
-             DataExchField."Data Exch. Def Code",
-             DataExchField."Data Exch. Line Def Code",
-             RecordRef.Number,
-             DataExchField."Column No.",
-             FieldNo)
-        then begin
-            ProcessDataExch.SetField(RecordRef, DataExchFieldMapping, DataExchField, TempFieldIdsToNegate);
-            ProcessDataExch.NegateAmounts(RecordRef, TempFieldIdsToNegate);
+        if UseDefaultValue then begin
+            CurrencyExchFieldRef := CurrencyExchangeRecordRef.Field(FieldNo);
+            CurrencyExchFieldRef.Validate(DefaultValue);
         end else begin
-            FieldRef := RecordRef.Field(FieldNo);
-            FieldRef.Validate(DefaultValue);
+            ProcessDataExch.SetField(CurrencyExchangeRecordRef, DataExchFieldMapping, DataExchField, TempFieldIdsToNegate);
+            ProcessDataExch.NegateAmounts(CurrencyExchangeRecordRef, TempFieldIdsToNegate);
         end;
+    end;
+
+    local procedure GetFieldValue(var CurrencyExchangeRecordRef: RecordRef; var DataExchField: Record "Data Exch. Field"; var DefinitionDataExchField: Record "Data Exch. Field"; var DataExchFieldMapping: Record "Data Exch. Field Mapping"; FieldNo: Integer): Boolean
+    begin
+        if not GetFieldValue(DefinitionDataExchField, FieldNo, DataExchField) then
+            exit(false);
+
+        if not DataExchFieldMapping.Get(
+           DataExchField."Data Exch. Def Code",
+           DataExchField."Data Exch. Line Def Code",
+           CurrencyExchangeRecordRef.Number,
+           DataExchField."Column No.",
+           FieldNo)
+        then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure GetFieldValue(DefinitionDataExchField: Record "Data Exch. Field"; FieldNo: Integer; var DataExchField: Record "Data Exch. Field"): Boolean
@@ -152,7 +189,7 @@ codeunit 1280 "Map Currency Exchange Rate"
         DataExchField.SetRange("Column No.", ColumnNo);
         DataExchField.SetAutoCalcFields("Data Exch. Def Code");
 
-        if DataExchField.FindFirst then
+        if DataExchField.FindFirst() then
             exit(true);
 
         DataExchFieldMapping.SetRange("Data Exch. Def Code", DefinitionDataExchField."Data Exch. Def Code");
@@ -161,7 +198,7 @@ codeunit 1280 "Map Currency Exchange Rate"
         DataExchFieldMapping.SetRange("Use Default Value", true);
         DataExchFieldMapping.SetFilter("Default Value", '<>%1', '');
 
-        if DataExchFieldMapping.FindFirst then begin
+        if DataExchFieldMapping.FindFirst() then begin
             DataExchField.Copy(DefinitionDataExchField);
             DataExchField."Column No." := ColumnNo;
             DataExchField.Value := DataExchFieldMapping."Default Value";
@@ -181,7 +218,7 @@ codeunit 1280 "Map Currency Exchange Rate"
         DataExchFieldMapping.SetRange("Table ID", DATABASE::"Currency Exchange Rate");
         DataExchFieldMapping.SetRange("Field ID", FieldNo);
 
-        if not DataExchFieldMapping.FindFirst then
+        if not DataExchFieldMapping.FindFirst() then
             exit(false);
 
         ColumnNo := DataExchFieldMapping."Column No.";
@@ -245,7 +282,7 @@ codeunit 1280 "Map Currency Exchange Rate"
     begin
         CurrExchRateUpdateSetup.SetupService;
 
-        if CurrExchRateUpdateSetup.FindSet then
+        if CurrExchRateUpdateSetup.FindSet() then
             repeat
                 RecRef.GetTable(CurrExchRateUpdateSetup);
                 ServiceConnection.Status := ServiceConnection.Status::Disabled;

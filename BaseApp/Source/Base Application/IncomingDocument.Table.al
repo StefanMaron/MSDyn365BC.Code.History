@@ -909,19 +909,19 @@
             "Document Type"::Journal:
                 begin
                     GenJnlLine.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if GenJnlLine.FindFirst then
+                    if GenJnlLine.FindFirst() then
                         Error(AlreadyUsedInJnlErr, GenJnlLine."Journal Batch Name", GenJnlLine."Line No.");
                 end;
             "Document Type"::"Sales Invoice", "Document Type"::"Sales Credit Memo":
                 begin
                     SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if SalesHeader.FindFirst then
+                    if SalesHeader.FindFirst() then
                         Error(AlreadyUsedInDocHdrErr, SalesHeader."Document Type", SalesHeader."No.", SalesHeader.TableCaption);
                 end;
             "Document Type"::"Purchase Invoice", "Document Type"::"Purchase Credit Memo":
                 begin
                     PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if PurchaseHeader.FindFirst then
+                    if PurchaseHeader.FindFirst() then
                         Error(AlreadyUsedInDocHdrErr, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseHeader.TableCaption);
                 end;
         end;
@@ -1238,7 +1238,7 @@
             exit;
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         IncomingDocumentAttachment.SetFilter(Type, '<>%1', IncomingDocumentAttachment.Type::XML);
-        if IncomingDocumentAttachment.FindFirst then
+        if IncomingDocumentAttachment.FindFirst() then
             IncomingDocumentAttachment.Export('', true);
     end;
 
@@ -1246,7 +1246,7 @@
     begin
         SetRange("Document No.", DocumentNo);
         SetRange("Posting Date", PostingDate);
-        if not FindFirst then begin
+        if not FindFirst() then begin
             Message(NoDocumentMsg);
             exit(true);
         end;
@@ -1260,7 +1260,7 @@
     begin
         SetRange("Document No.", DocumentNo);
         SetRange("Posting Date", PostingDate);
-        if not FindFirst then
+        if not FindFirst() then
             exit;
         SetRecFilter;
         PAGE.Run(PAGE::"Incoming Document", Rec);
@@ -1379,7 +1379,7 @@
     begin
         // If purchase
         PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if PurchaseHeader.FindFirst then begin
+        if PurchaseHeader.FindFirst() then begin
             case PurchaseHeader."Document Type" of
                 PurchaseHeader."Document Type"::Invoice:
                     "Document Type" := "Document Type"::"Purchase Invoice";
@@ -1394,7 +1394,7 @@
 
         // If sales
         SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if SalesHeader.FindFirst then begin
+        if SalesHeader.FindFirst() then begin
             case SalesHeader."Document Type" of
                 SalesHeader."Document Type"::Invoice:
                     "Document Type" := "Document Type"::"Sales Invoice";
@@ -1409,7 +1409,7 @@
 
         // If general journal line
         GenJournalLine.SetRange("Incoming Document Entry No.", "Entry No.");
-        if GenJournalLine.FindFirst then begin
+        if GenJournalLine.FindFirst() then begin
             "Document No." := GenJournalLine."Document No.";
             exit;
         end;
@@ -1503,7 +1503,7 @@
     var
         EntryNo: Integer;
     begin
-        if not TempErrorMessageRef.FindSet then
+        if not TempErrorMessageRef.FindSet() then
             exit;
 
         Clear(TempErrorMessage);
@@ -1575,7 +1575,7 @@
             exit('');
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchangeType."Data Exch. Def. Code");
         DataExchLineDef.SetRange("Parent Code", '');
-        if not DataExchLineDef.FindFirst then
+        if not DataExchLineDef.FindFirst() then
             exit('');
         case FieldNumber of
             FieldNo("Vendor Name"):
@@ -1666,7 +1666,7 @@
                     GLEntry.SetCurrentKey("Document No.", "Posting Date");
                     GLEntry.SetRange("Document No.", "Document No.");
                     GLEntry.SetRange("Posting Date", "Posting Date");
-                    if GLEntry.FindFirst then begin
+                    if GLEntry.FindFirst() then begin
                         RelatedRecord := GLEntry;
                         exit(true);
                     end;
@@ -1719,7 +1719,7 @@
             "Document Type"::Journal:
                 begin
                     GenJournalLine.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if GenJournalLine.FindFirst then begin
+                    if GenJournalLine.FindFirst() then begin
                         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
                         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
                         RelatedRecord := GenJournalLine;
@@ -1730,7 +1730,7 @@
             "Document Type"::"Sales Credit Memo":
                 begin
                     SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if SalesHeader.FindFirst then begin
+                    if SalesHeader.FindFirst() then begin
                         RelatedRecord := SalesHeader;
                         exit(true);
                     end;
@@ -1739,7 +1739,7 @@
             "Document Type"::"Purchase Credit Memo":
                 begin
                     PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if PurchaseHeader.FindFirst then begin
+                    if PurchaseHeader.FindFirst() then begin
                         RelatedRecord := PurchaseHeader;
                         exit(true);
                     end;
@@ -1995,7 +1995,7 @@
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         IncomingDocumentAttachment.SetRange(Default, true);
 
-        if IncomingDocumentAttachment.FindFirst then
+        if IncomingDocumentAttachment.FindFirst() then
             exit(IncomingDocumentAttachment.Type = IncomingDocumentAttachment.Type::XML);
 
         exit(false);

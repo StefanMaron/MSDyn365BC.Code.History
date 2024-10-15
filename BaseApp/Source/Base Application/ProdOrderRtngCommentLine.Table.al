@@ -102,7 +102,7 @@ table 5415 "Prod. Order Rtng Comment Line"
         ProdOrderRtngComment.SetRange("Routing No.", "Routing No.");
         ProdOrderRtngComment.SetRange("Operation No.", "Operation No.");
         ProdOrderRtngComment.SetRange(Date, WorkDate);
-        if not ProdOrderRtngComment.FindFirst then
+        if not ProdOrderRtngComment.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, ProdOrderRtngComment);

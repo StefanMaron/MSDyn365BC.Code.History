@@ -27,7 +27,7 @@ codeunit 144544 "ERM G/L Account Where-Used CH"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         // [SCENARIO 263861] Vendor Bank Account should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Bank Account with "Balance Account No." = "G"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
@@ -58,7 +58,7 @@ codeunit 144544 "ERM G/L Account Where-Used CH"
         VendorBankAccountList: TestPage "Vendor Bank Account List";
     begin
         // [SCENARIO 263861] Vendor Bank Account List page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Bank Account "Vendor No." = "V", Code = "VBA" with "Balance Account No." = "G"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
@@ -75,7 +75,7 @@ codeunit 144544 "ERM G/L Account Where-Used CH"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 

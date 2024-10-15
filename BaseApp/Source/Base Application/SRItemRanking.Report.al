@@ -239,7 +239,7 @@ report 11577 "SR Item Ranking"
             begin
                 // Loop temp record ItemAmt. Break on last rec or at max. number
                 if Number = 1 then begin
-                    if not ItemAmount.FindSet then
+                    if not ItemAmount.FindSet() then
                         CurrReport.Break();
                 end else
                     if (ItemAmount.Next() = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then

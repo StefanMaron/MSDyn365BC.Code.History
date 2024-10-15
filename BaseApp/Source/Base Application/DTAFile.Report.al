@@ -110,7 +110,7 @@ report 3010541 "DTA File"
             if FileBank."Bank Code" = '' then begin
                 FileBank.SetRange("DTA Main Bank", true);
                 FileBank.SetRange("DTA/EZAG", FileBank."DTA/EZAG"::DTA);
-                if FileBank.FindFirst then;
+                if FileBank.FindFirst() then;
             end;
         end;
     }
@@ -134,11 +134,7 @@ report 3010541 "DTA File"
             FileBank.Modify();
             BackupFilename := FileBank."Backup Folder" + 'DTA' + FileBank."Last Backup No." + '.BAK';
             if FileBank."File Format" = FileBank."File Format"::"With CR/LF" then
-#if not CLEAN17
-                FileMgt.DownloadToFile(ServerTempFilename, BackupFilename)
-#else
                 FileMgt.DownloadHandler(ServerTempFilename, '', '', '', BackupFilename);
-#endif
         end;
 
         Message(Text006, NoOfGlLines, GlSetup."LCY Code",
@@ -259,7 +255,7 @@ report 3010541 "DTA File"
             VendEntry.SetRange("Document Type", VendEntry."Document Type"::Invoice);
             VendEntry.SetRange("Document No.", "Applies-to Doc. No.");
             VendEntry.SetRange("Vendor No.", "Account No.");
-            if VendEntry.FindFirst then begin
+            if VendEntry.FindFirst() then begin
                 if SummaryPmtTxt = '' then
                     SummaryPmtTxt := VendEntry."External Document No." // 1. Line: Ext. No.
                 else
@@ -357,7 +353,7 @@ report 3010541 "DTA File"
                         VendEntry.SetRange("Document Type", VendEntry."Document Type"::Invoice);
                         VendEntry.SetRange("Document No.", _AppDocNo);
                         VendEntry.SetRange("Vendor No.", _Vendor);
-                        if not VendEntry.FindFirst then
+                        if not VendEntry.FindFirst() then
                             Error(Text031, _AppDocNo, _Vendor);
 
                         VendBank.TestField("ESR Account No.");
@@ -1032,11 +1028,7 @@ report 3010541 "DTA File"
     [Scope('OnPrem')]
     procedure DownloadToFile()
     begin
-#if not CLEAN17
-        FileMgt.DownloadToFile(ServerTempFilename, FileBank."DTA File Folder" + FileBank."DTA Filename");
-#else
         FileMgt.DownloadHandler(ServerTempFilename, '', '', '', FileBank."DTA File Folder" + FileBank."DTA Filename");
-#endif
     end;
 }
 

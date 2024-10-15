@@ -39,7 +39,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         AppliesToGenJournalLine: Record "Gen. Journal Line";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Create an Invoice and a payment
         LibraryPurchase.CreateVendor(Vendor);
@@ -74,7 +74,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         AppliesToGenJournalLine: Record "Gen. Journal Line";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Create an Invoice and a payment
         LibraryPurchase.CreateVendor(Vendor);
@@ -85,7 +85,7 @@ codeunit 144033 "Test Vendor Balance to Date"
 
         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
 
         Commit();
@@ -115,7 +115,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [FEATURE] [Application]
 
         // [SCENARIO] Vendor with invoice and two applied payments in "SR Vendor - Balance to Date" Report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with amount 1000 for vendor "V1"
         // [GIVEN] Payment "P1" with amount 300 and "P2" with amount 200 for vendor "V1" have applied to invoice "PI"
@@ -147,7 +147,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [FEATURE] [Excel] [Application]
 
         // [SCENARIO 380055] Vendor with purchase invoice and two applied payments when "SR Vendor - Balance to Date" Report is run
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Purchase Invoice "I1" with Amount 1000
@@ -198,7 +198,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [FEATURE] [Excel] [Application]
 
         // [SCENARIO 380055] Vendor with two purchase invoices applied to different payments when "SR Vendor - Balance to Date" Report is run
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Purchase Invoice "I1" with Amount 1000
@@ -258,7 +258,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [FEATURE] [Excel] [Application]
 
         // [SCENARIO 380055] Vendor with purchase invoices and applied payments when "SR Vendor - Balance to Date" Report is run
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Purchase Invoice "I1" with amount 1000
@@ -400,7 +400,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         VendorPostingGroupCode: Code[20];
     begin
         // [SCENARIO 380482] Two Vendors filtered on "Vendor Posting Group" when "SR Vendor - Balance to Date" Report is run
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor posting group "VPG"
         // [GIVEN] Vendor "V1", "V1"."Vendor Posting Group" = "VPG"
@@ -444,7 +444,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [FEATURE] [Excel]
 
         // [SCENARIO 380482] Two Vendors filtered on "Vendor Posting Group" when "SR Vendor - Balance to Date" Report is saved as excel
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor posting group "VPG"
         // [GIVEN] Vendor "V1", "V1"."Vendor Posting Group" = "VPG"
@@ -475,7 +475,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         Amount: array[3] of Decimal;
     begin
         // [SCENARIO 251982] Report Totals are not moved to the new page if NewPagePerVendor = FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] One Purchase Invoice with Payments for Vendor. One Invoice will occupy one line in the Report and will not exceed one page.
         CreatePurchaseInvoiceWithAppliedPayments(Vendor, Amount);
@@ -505,7 +505,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         Amount: array[3] of Decimal;
     begin
         // [SCENARIO 251982] Report Totals are moved to the new page if NewPagePerVendor = TRUE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] One Purchase Invoice with Payments for Vendor. One Invoice will occupy one line in the Report and will not exceed one page.
         CreatePurchaseInvoiceWithAppliedPayments(Vendor, Amount);
@@ -531,7 +531,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Vendor Balance to Date");
         Clear(LibraryReportValidation);
         LibraryReportDataset.Reset();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
     local procedure CreatePurchaseInvoiceWithAppliedPayments(var Vendor: Record Vendor; var Amount: array[3] of Decimal)

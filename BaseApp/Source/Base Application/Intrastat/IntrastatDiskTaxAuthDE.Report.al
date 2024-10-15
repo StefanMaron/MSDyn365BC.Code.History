@@ -312,6 +312,10 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         TestSubmission: Boolean;
 
     local procedure FilterSourceLinesByIntrastatSetupExportTypes()
+#if CLEAN19
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+#endif
     begin
         if not IntrastatSetup.Get() then
             exit;

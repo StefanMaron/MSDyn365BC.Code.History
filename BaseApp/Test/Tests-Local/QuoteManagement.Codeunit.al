@@ -41,7 +41,7 @@ codeunit 144018 QuoteManagement
         SalespersonPurchaserCode: Code[10];
         ArchiveType: Option " ","Converted To Order","Posted Order",Deleted;
     begin
-        Initialize;
+        Initialize();
         LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
 
         LibrarySales.CreateCustomer(Customer);
@@ -94,7 +94,7 @@ codeunit 144018 QuoteManagement
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // Exercise
@@ -118,7 +118,7 @@ codeunit 144018 QuoteManagement
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        Initialize;
+        Initialize();
         CreateSalesInvoiceHeader(SalesInvoiceHeader);
 
         // Exercise
@@ -141,7 +141,7 @@ codeunit 144018 QuoteManagement
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        Initialize;
+        Initialize();
         CreateSalesMemoHeader(SalesCrMemoHeader);
 
         // Exercise
@@ -169,7 +169,7 @@ codeunit 144018 QuoteManagement
     begin
         // [FEATURE] [Recalculate Lines]
         // [SCENARIO 220610] The Recalculate Lines function works on Sales Order page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines in the following order: Item, Begin-Total, Item, End-Total
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
@@ -205,7 +205,7 @@ codeunit 144018 QuoteManagement
     begin
         // [FEATURE] [Recalculate Lines]
         // [SCENARIO 220610] The Recalculate Lines function works Sales Invoice page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines in the following order: Item, Begin-Total, Item, End-Total
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -241,7 +241,7 @@ codeunit 144018 QuoteManagement
     begin
         // [FEATURE] [Recalculate Lines]
         // [SCENARIO 220610] The Recalculate Lines function works on Sales Credit Memo page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines in the following order: Item, Begin-Total, Item, End-Total
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -277,7 +277,7 @@ codeunit 144018 QuoteManagement
     begin
         // [FEATURE] [Recalculate Lines]
         // [SCENARIO 220610] The Recalculate Lines function works on Blanket Sales Order page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines in the following order: Item, Begin-Total, Item, End-Total
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
@@ -313,7 +313,7 @@ codeunit 144018 QuoteManagement
     begin
         // [FEATURE] [Recalculate Lines]
         // [SCENARIO 220610] The Recalculate Lines function works on Sales Return Order page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines in the following order: Item, Begin-Total, Item, End-Total
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
@@ -349,7 +349,7 @@ codeunit 144018 QuoteManagement
     begin
         // [FEATURE] [Sales] [Quote] [Archive]
         // [SCENARIO 267323] "Quote Variant" option value is restored from archived sales quote.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote with a line set up for "Quote Variant" = "Variant".
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -498,7 +498,7 @@ codeunit 144018 QuoteManagement
     local procedure Initialize()
     begin
         if not Initialized then begin
-            LibraryERMCountryData.UpdateGeneralPostingSetup;
+            LibraryERMCountryData.UpdateGeneralPostingSetup();
             Initialized := true;
         end
     end;
@@ -641,7 +641,7 @@ codeunit 144018 QuoteManagement
     begin
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
     end;
 
     local procedure VerifySpecialSalesLine(SalesHeader: Record "Sales Header")
@@ -651,7 +651,7 @@ codeunit 144018 QuoteManagement
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::"End-Total");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Line Amount", 0);
         VerifyTextStartsWith(TotalTxt, SalesLine.Description, TotalErr);
     end;

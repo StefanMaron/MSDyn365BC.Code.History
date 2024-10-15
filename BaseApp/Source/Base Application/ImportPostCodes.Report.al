@@ -92,7 +92,7 @@ report 11502 "Import Post Codes"
         while TempCSVBuffer.ReadLines(100) do begin
             TempCSVBuffer.SetRange("Field No.", 1);
             TempCSVBuffer.SetFilter(Value, '1000..9999');
-            if TempCSVBuffer.FindSet then
+            if TempCSVBuffer.FindSet() then
                 repeat
                     PostCode.Init();
                     PostCode.Code := CopyStr(TempCSVBuffer.GetValueOfLineAt(1), 1, 20);

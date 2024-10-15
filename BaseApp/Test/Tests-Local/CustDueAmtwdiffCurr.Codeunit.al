@@ -33,7 +33,7 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
         ColumnDate: array[5] of Date;
         "Count": Integer;
     begin
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         // Create Customer
         LibrarySales.CreateCustomer(Customer);
@@ -143,7 +143,7 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
             DetailedCustLedgEntry.SetRange("Posting Date", PostingDate[Count]);
 
             TotalAmountLCY[Count] := 0;
-            if DetailedCustLedgEntry.FindSet then
+            if DetailedCustLedgEntry.FindSet() then
                 repeat
                     TotalAmountLCY[Count] += DetailedCustLedgEntry."Amount (LCY)";
                 until DetailedCustLedgEntry.Next = 0;

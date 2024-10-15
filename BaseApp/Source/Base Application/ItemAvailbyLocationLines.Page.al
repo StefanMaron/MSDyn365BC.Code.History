@@ -313,12 +313,12 @@ page 515 "Item Avail. by Location Lines"
         GetLocationsIncludingUnspecifiedLocation(false, false);
     end;
 
-    var
+    protected var
         Item: Record Item;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        AmountType: Enum "Analysis Amount Type";
         ExpectedInventory: Decimal;
         QtyAvailable: Decimal;
-        AmountType: Enum "Analysis Amount Type";
         PlannedOrderReleases: Decimal;
         GrossRequirement: Decimal;
         PlannedOrderRcpt: Decimal;
@@ -358,18 +358,20 @@ page 515 "Item Avail. by Location Lines"
         OnAfterSetLines(Item, AmountType);
     end;
 
+#if not CLEAN18
     [Obsolete('Replaced by GetItem().', '18.0')]
     procedure Get(var ItemOut: Record Item)
     begin
         GetItem(ItemOut);
     end;
+#endif
 
     procedure GetItem(var ItemOut: Record Item)
     begin
         ItemOut.Copy(Item);
     end;
 
-    local procedure SetItemFilter()
+    protected procedure SetItemFilter()
     begin
         if AmountType = AmountType::"Net Change" then
             Item.SetRange("Date Filter", PeriodStart, PeriodEnd)

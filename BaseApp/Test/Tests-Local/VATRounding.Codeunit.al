@@ -32,7 +32,7 @@ codeunit 144000 "VAT Rounding"
         PostedDocNo: Code[20];
     begin
         // [SCENARIO 360140] Sales Invoice with 100 percent invoice discount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup: Calculate all discounts.
         SalesSetup.Get();
@@ -54,7 +54,7 @@ codeunit 144000 "VAT Rounding"
 
         // [THEN] Posted Customer Ledger Entry amount is 0
         CustLedgEntry.SetRange("Document No.", PostedDocNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         CustLedgEntry.CalcFields(Amount);
         Assert.AreEqual(0, CustLedgEntry.Amount, NonZeroCustLedgEntryErr);
     end;
@@ -68,7 +68,7 @@ codeunit 144000 "VAT Rounding"
         // Check that Amounts in Sales Order Statistics are correct when using "Apply Inv. Round Amt. to VAT" option.
 
         // 1. Setup
-        Initialize;
+        Initialize();
         UpdateGLSetup(0.05, 0);
         UpdateSalesSetup(true);
 
@@ -88,7 +88,7 @@ codeunit 144000 "VAT Rounding"
         // Check that Amounts in Sales Order Statistics are correct when using "Apply Inv. Round Amt. to VAT" option.
 
         // 1. Setup
-        Initialize;
+        Initialize();
         // Inv. Rounding Precision (LCY), Appln. Rounding Precision, Apply Inv. Round. Amt. To VAT
         UpdateGLSetup(0.05, 0);
         UpdateSalesSetup(false);
@@ -110,7 +110,7 @@ codeunit 144000 "VAT Rounding"
         // Check that Credit Memo which is created as a Copy from Sales Order was successfully posted with correct Amount Incl. VAT
 
         // 1. Setup
-        Initialize;
+        Initialize();
         // Inv. Rounding Precision (LCY), Appln. Rounding Precision, Apply Inv. Round. Amt. To VAT
         UpdateSalesSetup(true);
 
@@ -134,7 +134,7 @@ codeunit 144000 "VAT Rounding"
         Price: Decimal;
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         RoundingPrecision := LibraryRandom.RandDecInDecimalRange(0.01, 0.9, 2);
         UpdateGLSetup(RoundingPrecision, 0);
@@ -150,7 +150,7 @@ codeunit 144000 "VAT Rounding"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesInvoiceHeader.SetRange("External Document No.", SalesHeader."External Document No.");
         SalesInvoiceHeader.SetAutoCalcFields(Amount);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         Assert.AreEqual(1, SalesInvoiceHeader.Count, 'There should be one sales invoice.');
         Assert.AreEqual(Round(Quantity * Price * PrepaymentPercent / 100, RoundingPrecision), SalesInvoiceHeader.Amount, 'Wrong amount.');
@@ -174,7 +174,7 @@ codeunit 144000 "VAT Rounding"
         Quantity: Integer;
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         InvRoundPrecision := LibraryRandom.RandDecInDecimalRange(0.01, 0.9, 2);
         ApplnRoundingPrecision := LibraryRandom.RandDecInDecimalRange(0.01, 0.9, 2);
@@ -201,7 +201,7 @@ codeunit 144000 "VAT Rounding"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesInvoiceHeader.SetRange("External Document No.", SalesHeader."External Document No.");
         SalesInvoiceHeader.SetAutoCalcFields(Amount);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         Assert.AreEqual(1, SalesInvoiceHeader.Count, 'There should be one sales invoice.');
 
@@ -224,7 +224,7 @@ codeunit 144000 "VAT Rounding"
         ExpectedAmount: Decimal;
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         UpdateGLSetup(LibraryRandom.RandDecInDecimalRange(0.01, 0.9, 2), 0);
         UpdateSalesSetup(false);
@@ -236,7 +236,7 @@ codeunit 144000 "VAT Rounding"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesInvoiceHeader.SetRange("External Document No.", SalesHeader."External Document No.");
         SalesInvoiceHeader.SetAutoCalcFields(Amount);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         Assert.AreEqual(1, SalesInvoiceHeader.Count, 'There should be one sales invoice.');
 
@@ -354,13 +354,13 @@ codeunit 144000 "VAT Rounding"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"VAT Rounding");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"VAT Rounding");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
@@ -491,7 +491,7 @@ codeunit 144000 "VAT Rounding"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindLast;
+            FindLast();
         end;
     end;
 

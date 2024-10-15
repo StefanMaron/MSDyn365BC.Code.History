@@ -75,7 +75,7 @@ codeunit 6 "Fiscal Year-Close"
     begin
         AccountingPeriod2.SetRange(Closed, false);
         AccountingPeriod2.SetRange("New Fiscal Year", true);
-        if not AccountingPeriod2.FindFirst then
+        if not AccountingPeriod2.FindFirst() then
             exit;
 
         GLSetup.Get();

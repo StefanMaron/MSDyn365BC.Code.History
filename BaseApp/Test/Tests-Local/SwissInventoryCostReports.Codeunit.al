@@ -22,13 +22,13 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Swiss Inventory Cost. Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Swiss Inventory Cost. Reports");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Swiss Inventory Cost. Reports");
     end;
@@ -41,7 +41,7 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
         ItemNumber: Variant;
         QuantityToBuy: Variant;
     begin
-        Initialize;
+        Initialize();
         RunReport(REPORT::"SR Item Acc Sheet Net Change");
 
         // Verify that that we had an increase in quantity.
@@ -69,7 +69,7 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
         QuantityToBuy: Integer;
         AmountToBuy: Decimal;
     begin
-        Initialize;
+        Initialize();
         RunReport(REPORT::"SR Item Acc Sheet Inv. Value");
 
         // Verify that the amounts match.
@@ -101,7 +101,7 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
         Column1: Integer;
         Column2: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // There are 14 option values. We want to test them all.
         for j := 0 to 13 do begin
@@ -109,7 +109,7 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
             Column2 := j + 1;
 
             // These must be dequeued in the request page handler.
-            LibraryVariableStorage.Clear;
+            LibraryVariableStorage.Clear();
             LibraryVariableStorage.Enqueue(Column1);
             LibraryVariableStorage.Enqueue(Column2);
             RunReport(REPORT::"SR Item Ranking");

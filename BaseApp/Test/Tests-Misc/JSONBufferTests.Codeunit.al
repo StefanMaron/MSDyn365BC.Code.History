@@ -64,7 +64,7 @@ codeunit 139210 "JSON Buffer Tests"
 
             // [THEN] The structure of the JSON buffer matches that JSON string
             Assert.AreEqual(13, Count, 'Not all JSON elements were read');
-            FindFirst;
+            FindFirst();
             VerifyJSONBufferAndFindNext(TempJSONBuffer, 0, "Token type"::"Start Object", '', '', '');
             VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"Property Name", 'Result', 'System.String', 'Result');
             VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"Start Array", '', '', 'Result');
@@ -80,7 +80,7 @@ codeunit 139210 "JSON Buffer Tests"
             VerifyJSONBuffer(TempJSONBuffer, 0, "Token type"::"End Object", '', '', '');
 
             // [THEN] We can fetch the array and variables using FindArray and GetPropertyValue
-            FindFirst;
+            FindFirst();
             Assert.IsTrue(FindArray(TempResultArrayJSONBuffer, 'Result'), 'Could not find result array');
             Assert.AreEqual(2, TempResultArrayJSONBuffer.Count, 'Wrong number of array entries');
             Assert.IsTrue(TempResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'MyVar'), 'could not find property value for MyVar');
@@ -109,7 +109,7 @@ codeunit 139210 "JSON Buffer Tests"
 
             // [THEN] The structure of the JSON buffer matches that JSON string
             Assert.AreEqual(8, Count, 'Not all JSON elements were read');
-            FindFirst;
+            FindFirst();
             VerifyJSONBufferAndFindNext(TempJSONBuffer, 0, "Token type"::"Start Object", '', '', '');
             VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"Property Name", 'test1', 'System.String', 'test1');
             VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::String, 'value1', 'System.String', 'test1');

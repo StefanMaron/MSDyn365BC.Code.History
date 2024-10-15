@@ -26,7 +26,9 @@ permissionset 8785 "Recievables Journals - Edit"
                   tabledata "Gen. Product Posting Group" = R,
                   tabledata "General Ledger Setup" = RM,
                   tabledata "General Posting Setup" = R,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Payment Terms" = R,
                   tabledata "Reason Code" = R,
                   tabledata "Salesperson/Purchaser" = R,

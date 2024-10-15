@@ -26,7 +26,7 @@ codeunit 139142 UpdateParentTest
         UpdateParentLine: Record "Update Parent Line";
         UpdateParentFactLine: Record "Update Parent Fact Line";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         UpdateParentRegisterMgt.Clear;
         UpdateParentRegisterMgt.Init('UpdateP');
@@ -89,7 +89,7 @@ codeunit 139142 UpdateParentTest
         Amount: Decimal;
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateData;
 
         UpdateParentHeaderPage.SetSubPagesToSave;
@@ -98,7 +98,7 @@ codeunit 139142 UpdateParentTest
         FirstLineNextAmount := '7';
         FirstLineNextQuantity := '7';
 
-        UpdateParentHeaderPage.Run;
+        UpdateParentHeaderPage.Run();
 
         LibraryVariableStorage.Dequeue(LinesAmountVar);
         LibraryVariableStorage.Dequeue(LinesQuantityVar);
@@ -150,7 +150,7 @@ codeunit 139142 UpdateParentTest
         Amount: Decimal;
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateData;
 
         UpdateParentHeaderPage.SetSubPagesToNotSave;
@@ -159,7 +159,7 @@ codeunit 139142 UpdateParentTest
         FirstLineNextAmount := '7';
         FirstLineNextQuantity := '7';
 
-        UpdateParentHeaderPage.Run;
+        UpdateParentHeaderPage.Run();
 
         LibraryVariableStorage.Dequeue(LinesAmountVar);
         LibraryVariableStorage.Dequeue(LinesQuantityVar);
@@ -204,7 +204,7 @@ codeunit 139142 UpdateParentTest
         Amount: Decimal;
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateData;
 
         UpdateParentHeaderPage.SetSubPagesToSave;
@@ -212,7 +212,7 @@ codeunit 139142 UpdateParentTest
         FirstLineNextAmount := '4';
         FirstLineNextQuantity := '5';
 
-        UpdateParentHeaderPage.Run;
+        UpdateParentHeaderPage.Run();
 
         // First validate the results
         LibraryVariableStorage.Dequeue(LinesAmountVar);
@@ -271,7 +271,7 @@ codeunit 139142 UpdateParentTest
         Amount: Decimal;
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateData;
 
         UpdateParentHeaderPage.SetSubPagesToNotSave;
@@ -280,7 +280,7 @@ codeunit 139142 UpdateParentTest
         FirstLineNextAmount := '4';
         FirstLineNextQuantity := '5';
 
-        UpdateParentHeaderPage.Run;
+        UpdateParentHeaderPage.Run();
 
         // First validate the results
         LibraryVariableStorage.Dequeue(LinesAmountVar);
@@ -334,13 +334,13 @@ codeunit 139142 UpdateParentTest
     var
         UpdateParentHeaderPage: Page "Update Parent Header Page";
     begin
-        Initialize;
+        Initialize();
         CreateData;
 
         UpdateParentHeaderPage.SetSubPagesToNotSave;
         UpdateParentHeaderPage.SetSubPageIds(LineId, LineUpdateParentId, FactLineId);
 
-        UpdateParentHeaderPage.Run;
+        UpdateParentHeaderPage.Run();
         UpdateParentHeaderPage.Close;
 
         // Validate the sequence of updates and visits.

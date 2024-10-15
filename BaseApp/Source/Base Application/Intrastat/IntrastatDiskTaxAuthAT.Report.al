@@ -90,7 +90,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
 
                 trigger OnPostDataItem()
                 begin
-                    if IntrastatJnlLineBuf.FindSet then
+                    if IntrastatJnlLineBuf.FindSet() then
                         repeat
                             IntraJnlLineTest.Get(
                               IntrastatJnlLineBuf."Journal Template Name",

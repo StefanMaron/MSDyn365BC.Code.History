@@ -14,7 +14,7 @@ report 5005341 "Issue Delivery Reminder"
                 IssueDeliveryReminder.Set("Delivery Reminder Header", ReplacePostingDate, PostingDateReq);
 
                 if NoOfRecords = 1 then begin
-                    IssueDeliveryReminder.Run;
+                    IssueDeliveryReminder.Run();
                     Mark := false;
                     IssueDeliveryReminder.GetIssDelivReminHeader(IssuedDeliveryReminderHeader);
                     IssuedDeliveryReminderHeader.Mark := true;

@@ -42,19 +42,16 @@ codeunit 143000 "Library - LSV"
             "LSV Sender ID" := Format(LibraryRandom.RandIntInRange(11111, 99999));
             "LSV Sender Clearing" := Format(LibraryRandom.RandIntInRange(11111, 99999));
             "LSV Payment Method Code" := PaymentMethod.Code;
-            "LSV Sender Name" := LibraryUtility.GenerateGUID;
-            "LSV Sender City" := LibraryUtility.GenerateGUID;
+            "LSV Sender Name" := LibraryUtility.GenerateGUID();
+            "LSV Sender City" := LibraryUtility.GenerateGUID();
             "LSV Currency Code" := GLSetup."LCY Code";
-            "LSV Sender IBAN" := LibraryUtility.GenerateGUID;
+            "LSV Sender IBAN" := LibraryUtility.GenerateGUID();
             "ESR Bank Code" := ESRSetup."Bank Code";
             "LSV File Folder" := 'C:\Windows\Temp\' + TenantId + Format(LibraryRandom.RandInt(10)); // Cannot use TEMPORARYPATH due to field size.
-            "LSV Filename" := LibraryUtility.GenerateGUID;
+            "LSV Filename" := LibraryUtility.GenerateGUID();
             "DebitDirect Customerno." := Format(LibraryRandom.RandIntInRange(111111, 999999));
-            "DebitDirect Import Filename" := LibraryUtility.GenerateGUID;
+            "DebitDirect Import Filename" := LibraryUtility.GenerateGUID();
             Insert;
-#if not CLEAN17
-            FileMgt.CreateClientDirectory("LSV File Folder");
-#endif
         end;
 
         exit(LSVSetup."Bank Code");
@@ -74,7 +71,7 @@ codeunit 143000 "Library - LSV"
     procedure CreateLSVCustomer(var Customer: Record Customer; PaymentMethodCode: Code[10])
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(City, LibraryUtility.GenerateGUID);
+        Customer.Validate(City, LibraryUtility.GenerateGUID());
         Customer.Validate("Payment Method Code", PaymentMethodCode);
         Customer.Modify(true);
     end;
@@ -86,9 +83,9 @@ codeunit 143000 "Library - LSV"
     begin
         with CustBankAcc do begin
             "Customer No." := Customer."No.";
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             "Bank Branch No." := Format(LibraryRandom.RandIntInRange(11111, 99999));
-            IBAN := LibraryUtility.GenerateGUID;
+            IBAN := LibraryUtility.GenerateGUID();
             "Giro Account No." := GetRandomGiroAccountNo;
             Insert;
         end;

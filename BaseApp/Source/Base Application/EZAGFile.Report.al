@@ -58,7 +58,7 @@ report 3010542 "EZAG File"
                 SetFilter(Amount, '<>%1', 0);
 
                 // Prepare debit date
-                if not FindFirst then
+                if not FindFirst() then
                     Error(Text007);
 
                 if Date2DWY("Posting Date", 1) >= 6 then
@@ -119,7 +119,7 @@ report 3010542 "EZAG File"
             DtaSetup.SetRange("DTA/EZAG", DtaSetup."DTA/EZAG"::EZAG);
 
             DiscTransfer := true;
-            if DtaSetup.FindFirst then
+            if DtaSetup.FindFirst() then
                 if DtaSetup."Yellownet Home Page" <> '' then
                     DiscTransfer := false;
         end;
@@ -135,11 +135,7 @@ report 3010542 "EZAG File"
 
         if DtaSetup."File Format" = DtaSetup."File Format"::"Without CR/LF" then
             GeneralMgt.RemoveCrLf(DtaSetup."EZAG File Folder" + DtaSetup."EZAG Filename", ServerTempFileName, false);
-#if not CLEAN17
-        FileMgt.DownloadToFile(ServerTempFileName, DtaSetup."EZAG File Folder" + DtaSetup."EZAG Filename");
-#else
         FileMgt.DownloadHandler(ServerTempFilename, '', '', '', DtaSetup."EZAG File Folder" + DtaSetup."EZAG Filename");
-#endif
 
         // Backup file
         if DtaSetup."Backup Copy" then begin
@@ -147,11 +143,7 @@ report 3010542 "EZAG File"
             DtaSetup."Last Backup No." := IncStr(DtaSetup."Last Backup No.");
             DtaSetup.Modify();
             BackupFilename := DtaSetup."Backup Folder" + 'EZA' + DtaSetup."Last Backup No." + '.BAK';
-#if not CLEAN17
-            FileMgt.DownloadToFile(ServerTempFileName, BackupFilename)
-#else
             FileMgt.DownloadHandler(ServerTempFilename, '', '', '', BackupFilename);
-#endif
         end;
 
         Message(Text006,
@@ -300,7 +292,7 @@ report 3010542 "EZAG File"
             VendEntry.SetRange("Document Type", VendEntry."Document Type"::Invoice);
             VendEntry.SetRange("Document No.", "Applies-to Doc. No.");
             VendEntry.SetRange("Vendor No.", "Account No.");
-            if VendEntry.FindFirst then begin
+            if VendEntry.FindFirst() then begin
                 if SummaryPmtTxt = '' then
                     SummaryPmtTxt := VendEntry."External Document No." // 1. Line: Ext. No.
                 else
@@ -541,7 +533,7 @@ report 3010542 "EZAG File"
                         VendEntry.SetRange("Document Type", VendEntry."Document Type"::Invoice);
                         VendEntry.SetRange("Document No.", _AppDocNo);
                         VendEntry.SetRange("Vendor No.", _Vendor);
-                        if not VendEntry.FindFirst then
+                        if not VendEntry.FindFirst() then
                             Error(Text031, _AppDocNo, _Vendor);
 
                         VendBank.TestField("ESR Account No.");

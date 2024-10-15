@@ -27,7 +27,7 @@ codeunit 144012 "Old Swiss VAT Statement"
         SalesInvoiceDocumentNumber: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create a new customer
         LibrarySales.CreateCustomer(Customer);
@@ -56,7 +56,7 @@ codeunit 144012 "Old Swiss VAT Statement"
         VendorNumber: Code[20];
         PurchaseInvoiceDocumentNumber: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup PostingSetup and VAT PostingSetup.
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
@@ -82,7 +82,7 @@ codeunit 144012 "Old Swiss VAT Statement"
     var
         SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         SalesAndReceivablesSetup.Get();
         SalesAndReceivablesSetup.Validate("Stockout Warning", false);
@@ -94,7 +94,7 @@ codeunit 144012 "Old Swiss VAT Statement"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
@@ -104,15 +104,15 @@ codeunit 144012 "Old Swiss VAT Statement"
 
     local procedure Initialize()
     begin
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateLocalData;
-        UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateLocalData();
+        UpdateSalesReceivablesSetup();
         UpdatePurchasesPayablesSetup;
     end;
 
@@ -177,7 +177,7 @@ codeunit 144012 "Old Swiss VAT Statement"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNumber);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile;
 

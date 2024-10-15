@@ -210,7 +210,7 @@ report 11537 "SR Cust. Due Amount per Period"
             begin
                 Currency2.Code := '';
                 Currency2.Insert();
-                if Currency.FindSet then
+                if Currency.FindSet() then
                     repeat
                         Currency2 := Currency;
                         Currency2.Insert();

@@ -24,13 +24,13 @@ codeunit 144047 "Test CH Item Features"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test CH Item Features");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test CH Item Features");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Invoice Rounding", false);
@@ -51,7 +51,7 @@ codeunit 144047 "Test CH Item Features"
         ShipToAddress: Record "Ship-to Address";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -70,7 +70,7 @@ codeunit 144047 "Test CH Item Features"
 
         // Verify.
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         ItemLedgerEntry.TestField("Customer No.", Customer."No.");
         ItemLedgerEntry.TestField("Ship-to Address Code", ShipToAddress.Code);
         ItemLedgerEntry.TestField("Customer Salesperson Code", SalespersonPurchaser.Code);
@@ -125,7 +125,7 @@ codeunit 144047 "Test CH Item Features"
         ShipToAddress: Record "Ship-to Address";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -147,7 +147,7 @@ codeunit 144047 "Test CH Item Features"
 
         // Verify.
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         ItemLedgerEntry.TestField("Customer No.", Customer."No.");
         ItemLedgerEntry.TestField("Ship-to Address Code", ShipToAddress.Code);
         ItemLedgerEntry.TestField("Customer Salesperson Code", SalespersonPurchaser.Code);
@@ -167,7 +167,7 @@ codeunit 144047 "Test CH Item Features"
         ShipToAddress: Record "Ship-to Address";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryCH.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT",
@@ -199,13 +199,13 @@ codeunit 144047 "Test CH Item Features"
 
         // Verify.
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         ItemLedgerEntry.TestField("Customer No.", Customer."No.");
         ItemLedgerEntry.TestField("Ship-to Address Code", ShipToAddress.Code);
         ItemLedgerEntry.TestField("Customer Salesperson Code", SalespersonPurchaser.Code);
 
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Base (FCY)", -ServiceLine.Amount);
         VATEntry.TestField("Currency Code", Customer."Currency Code");
         VATEntry.TestField("VAT %", VATPostingSetup."VAT %");

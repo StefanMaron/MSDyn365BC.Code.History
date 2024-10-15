@@ -57,7 +57,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                     CreditVendEntries.SetRange("Vendor No.", "No.");
                     CreditVendEntries.SetRange(Open, true);
                     CreditVendEntries.SetRange(Positive, true);
-                    if CreditVendEntries.FindFirst then begin
+                    if CreditVendEntries.FindFirst() then begin
                         NoOfVendorsWithCM := NoOfVendorsWithCM + 1;
                         VendWithCmTxt := CopyStr(VendWithCmTxt + Vendor."No." + ', ', 1, 250);
                     end;
@@ -354,7 +354,7 @@ report 3010546 "DTA Suggest Vendor Payments"
         ToGlLine := _GenJnlLine;
         ToGlLine.SetRange("Journal Template Name", ToGlLine."Journal Template Name");
         ToGlLine.SetRange("Journal Batch Name", ToGlLine."Journal Batch Name");
-        if ToGlLine.FindLast then
+        if ToGlLine.FindLast() then
             LastLineNo := ToGlLine."Line No."
     end;
 
@@ -433,14 +433,14 @@ report 3010546 "DTA Suggest Vendor Payments"
                         // Bank according to Currency available? Else, main Bank in LCY
                         if not (VendEntry."Currency Code" in ['', GlSetup."LCY Code"]) then begin
                             DtaSetup.SetRange("DTA Currency Code", VendEntry."Currency Code");
-                            if not DtaSetup.FindFirst then;
+                            if not DtaSetup.FindFirst() then;
                         end;
 
                         // Main bank with currency '' or LCY
                         if DtaSetup."Bank Code" = '' then begin
                             DtaSetup.SetFilter("DTA Currency Code", '%1|%2', '', GlSetup."LCY Code");
                             DtaSetup.SetRange("DTA Main Bank", true);
-                            if not DtaSetup.FindFirst then
+                            if not DtaSetup.FindFirst() then
                                 Error(Text021, GlSetup."LCY Code");
                         end;
                     end;
@@ -539,7 +539,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                 BalAccLine.SetFilter(Description, '%1', BalAccDesc);
 
                 // Create line
-                if not BalAccLine.FindFirst then begin
+                if not BalAccLine.FindFirst() then begin
                     BalAccLine.Init();
                     BalAccLine."Journal Template Name" := PmtLine."Journal Template Name";
                     BalAccLine."Journal Batch Name" := PmtLine."Journal Batch Name";

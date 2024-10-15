@@ -27,7 +27,7 @@ codeunit 144061 "Test ESR Localized Features"
         VendorBankAccountCard: TestPage "Vendor Bank Account Card";
     begin
         Init;
-        VendorBankAccountCard.OpenNew;
+        VendorBankAccountCard.OpenNew();
         VendorBankAccountCard.Code.SetValue('POST');
         VendorBankAccountCard."Payment Form".SetValue('Post Payment Domestic');
         VendorBankAccountCard."Giro Account No.".SetValue('60-010083-3');
@@ -72,7 +72,7 @@ codeunit 144061 "Test ESR Localized Features"
         CreateVendorBankAccounts(Vendor."No.");
 
         // Open the new purchase orders page
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
         PurchaseOrder."Posting Date".SetValue(WorkDate);
         PurchaseOrder."Vendor Invoice No.".SetValue(Format(LibraryRandom.RandIntInRange(11111, 99999)));
@@ -158,12 +158,12 @@ codeunit 144061 "Test ESR Localized Features"
 
     local procedure Init()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
     end;
 

@@ -12,7 +12,7 @@ codeunit 104100 "Upg Local Functionality"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
+
         UpdatePhysInventoryOrders();
         CleanupPhysOrders();
     end;
@@ -66,98 +66,98 @@ codeunit 104100 "Upg Local Functionality"
             SourceCodeSetup.Modify();
         END;
 
-        IF UPGPhysInventoryOrderHeader.FINDSET THEN
+        IF UPGPhysInventoryOrderHeader.FindSet() then
             REPEAT
                 PhysInvtOrderHeader.Init();
                 PhysInvtOrderHeader.TRANSFERFIELDS(UPGPhysInventoryOrderHeader, TRUE);
                 PhysInvtOrderHeader.Insert();
             UNTIL UPGPhysInventoryOrderHeader.Next() = 0;
 
-        IF UPGPhysInventoryOrderLine.FINDSET THEN
+        IF UPGPhysInventoryOrderLine.FindSet() then
             REPEAT
                 PhysInvtOrderLine.Init();
                 PhysInvtOrderLine.TRANSFERFIELDS(UPGPhysInventoryOrderLine, TRUE);
                 PhysInvtOrderLine.Insert();
             UNTIL UPGPhysInventoryOrderLine.Next() = 0;
 
-        IF UPGPhysInvtRecordingHeader.FINDSET THEN
+        IF UPGPhysInvtRecordingHeader.FindSet() then
             REPEAT
                 PhysInvtRecordHeader.Init();
                 PhysInvtRecordHeader.TRANSFERFIELDS(UPGPhysInvtRecordingHeader, TRUE);
                 PhysInvtRecordHeader.Insert();
             UNTIL UPGPhysInvtRecordingHeader.Next() = 0;
 
-        IF UPGPhysInvtRecordingLine.FINDSET THEN
+        IF UPGPhysInvtRecordingLine.FindSet() then
             REPEAT
                 PhysInvtRecordLine.Init();
                 PhysInvtRecordLine.TRANSFERFIELDS(UPGPhysInvtRecordingLine, TRUE);
                 PhysInvtRecordLine.Insert();
             UNTIL UPGPhysInvtRecordingLine.Next() = 0;
 
-        IF UPGPostPhysInvtOrderHeader.FINDSET THEN
+        IF UPGPostPhysInvtOrderHeader.FindSet() then
             REPEAT
                 PstdPhysInvtOrderHdr.Init();
                 PstdPhysInvtOrderHdr.TRANSFERFIELDS(UPGPostPhysInvtOrderHeader, TRUE);
                 PstdPhysInvtOrderHdr.Insert();
             UNTIL UPGPostPhysInvtOrderHeader.Next() = 0;
 
-        IF UPGPostedPhysInvtOrderLine.FINDSET THEN
+        IF UPGPostedPhysInvtOrderLine.FindSet() then
             REPEAT
                 PstdPhysInvtOrderLine.Init();
                 PstdPhysInvtOrderLine.TRANSFERFIELDS(UPGPostedPhysInvtOrderLine, TRUE);
                 PstdPhysInvtOrderLine.Insert();
             UNTIL UPGPostedPhysInvtOrderLine.Next() = 0;
 
-        IF UPGPostedPhysInvtRecHeader.FINDSET THEN
+        IF UPGPostedPhysInvtRecHeader.FindSet() then
             REPEAT
                 PstdPhysInvtRecordHdr.Init();
                 PstdPhysInvtRecordHdr.TRANSFERFIELDS(UPGPostedPhysInvtRecHeader, TRUE);
                 PstdPhysInvtRecordHdr.Insert();
             UNTIL UPGPostedPhysInvtRecHeader.Next() = 0;
 
-        IF UPGPostedPhysInvtRecLine.FINDSET THEN
+        IF UPGPostedPhysInvtRecLine.FindSet() then
             REPEAT
                 PstdPhysInvtRecordLine.Init();
                 PstdPhysInvtRecordLine.TRANSFERFIELDS(UPGPostedPhysInvtRecLine, TRUE);
                 PstdPhysInvtRecordLine.Insert();
             UNTIL UPGPostedPhysInvtRecLine.Next() = 0;
 
-        IF UPGPhysInventoryCommentLine.FINDSET THEN
+        IF UPGPhysInventoryCommentLine.FindSet() then
             REPEAT
                 PhysInvtCommentLine.Init();
                 PhysInvtCommentLine.TRANSFERFIELDS(UPGPhysInventoryCommentLine, TRUE);
                 PhysInvtCommentLine.Insert();
             UNTIL UPGPhysInventoryCommentLine.Next() = 0;
 
-        IF UPGPostedPhysInvtTrackLine.FINDSET THEN
+        IF UPGPostedPhysInvtTrackLine.FindSet() then
             REPEAT
                 PstdPhysInvtTracking.Init();
                 PstdPhysInvtTracking.TRANSFERFIELDS(UPGPostedPhysInvtTrackLine, TRUE);
                 PstdPhysInvtTracking.Insert();
             UNTIL UPGPostedPhysInvtTrackLine.Next() = 0;
 
-        IF UPGPhysInvtTrackingBuffer.FINDSET THEN
+        IF UPGPhysInvtTrackingBuffer.FindSet() then
             REPEAT
                 PhysInvtTracking.Init();
                 PhysInvtTracking.TRANSFERFIELDS(UPGPhysInvtTrackingBuffer);
                 PhysInvtTracking.Insert();
             UNTIL UPGPhysInvtTrackingBuffer.Next() = 0;
 
-        IF UPGExpectPhysInvTrackLine.FINDSET THEN
+        IF UPGExpectPhysInvTrackLine.FindSet() then
             REPEAT
                 ExpPhysInvtTracking.Init();
                 ExpPhysInvtTracking.TRANSFERFIELDS(UPGExpectPhysInvTrackLine);
                 ExpPhysInvtTracking.Insert();
             UNTIL UPGExpectPhysInvTrackLine.Next() = 0;
 
-        IF UPGPostExpPhInTrackLine.FINDSET THEN
+        IF UPGPostExpPhInTrackLine.FindSet() then
             REPEAT
                 PstdExpPhysInvtTrack.Init();
                 PstdExpPhysInvtTrack.TRANSFERFIELDS(UPGPostExpPhInTrackLine);
                 PstdExpPhysInvtTrack.Insert();
             UNTIL UPGPostExpPhInTrackLine.Next() = 0;
 
-        IF UPGPhysInvtDiffListBuffer.FINDSET THEN
+        IF UPGPhysInvtDiffListBuffer.FindSet() then
             REPEAT
                 PhysInvtCountBuffer.Init();
                 PhysInvtCountBuffer.TRANSFERFIELDS(UPGPhysInvtDiffListBuffer);
@@ -217,7 +217,7 @@ codeunit 104100 "Upg Local Functionality"
             EXIT;
 
         DACHReportSelections.SETRANGE(Usage, DACHReportSelections.Usage::"Sales VAT Acc. Proof");
-        IF DACHReportSelections.FINDFIRST THEN BEGIN
+        IF DACHReportSelections.FindFirst() then BEGIN
             DACHReportSelections."Report ID" := 11;
             DACHReportSelections.Modify();
         END;
@@ -225,8 +225,10 @@ codeunit 104100 "Upg Local Functionality"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForGLVATReconciliationTag);
     end;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Function will be removed', '20.0')]
     procedure UpgradeCheckPartnerVATID()
+#if not CLEAN19
     var
         CompanyInformation: Record "Company Information";
         UpgradeTag: Codeunit "Upgrade Tag";
@@ -243,6 +245,10 @@ codeunit 104100 "Upg Local Functionality"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCheckPartnerVATIDTag());
     end;
+#else
+    begin
+    end;
+#endif
 #endif
 }
 

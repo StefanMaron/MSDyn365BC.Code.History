@@ -18,8 +18,8 @@ codeunit 144025 "SR Cust. Orders per Period"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         NumberOfSalesQuotes := 5;
     end;
@@ -61,7 +61,7 @@ codeunit 144025 "SR Cust. Orders per Period"
         PeriodLength: DateFormula;
         PeriodLengthText: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);

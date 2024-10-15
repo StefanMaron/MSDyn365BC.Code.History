@@ -20,7 +20,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test CH Allowed Posting Dates");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test CH Allowed Posting Dates");
     end;
@@ -32,7 +32,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GeneralLedgerSetup.Get();
@@ -41,7 +41,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
 
         // Exercise.
         CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // Verify.
         GeneralLedgerSetup.Get();
@@ -56,7 +56,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
         GeneralLedgerSetup: Record "General Ledger Setup";
         OrigAllowPostingFromDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GeneralLedgerSetup.Get();
@@ -80,7 +80,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
         GeneralLedgerSetup: Record "General Ledger Setup";
         OrigAllowPostingFromDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GeneralLedgerSetup.Get();
@@ -90,7 +90,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
 
         // Exercise.
         CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // Verify.
         GeneralLedgerSetup.Get();
@@ -104,7 +104,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GeneralLedgerSetup.Get();
@@ -114,7 +114,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
 
         // Exercise.
         CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
 
         // Verify.
         GeneralLedgerSetup.Get();

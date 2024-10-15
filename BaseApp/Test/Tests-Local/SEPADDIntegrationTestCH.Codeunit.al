@@ -333,7 +333,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         CustBankAcc: Record "Customer Bank Account";
     begin
         CustBankAcc.SetRange("Customer No.", CustNo);
-        CustBankAcc.FindFirst;
+        CustBankAcc.FindFirst();
         SEPADirectDebitMandate.Validate("Customer No.", CustNo);
         SEPADirectDebitMandate.Validate("Customer Bank Account Code", CustBankAcc.Code);
         SEPADirectDebitMandate.Insert(true);
@@ -388,9 +388,9 @@ codeunit 144002 "SEPA DD Integration Test - CH"
 
     local procedure SpecifyBankAccountDetails(var BankAcc: Record "Bank Account")
     begin
-        BankAcc.IBAN := LibraryUtility.GenerateGUID;
-        BankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
-        BankAcc."Bank Account No." := LibraryUtility.GenerateGUID;
+        BankAcc.IBAN := LibraryUtility.GenerateGUID();
+        BankAcc."SWIFT Code" := LibraryUtility.GenerateGUID();
+        BankAcc."Bank Account No." := LibraryUtility.GenerateGUID();
         BankAcc.Modify();
     end;
 
@@ -399,7 +399,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing XMLport ID", XMLPORT::"SEPA DD pain.008.001.02");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         BankAcc.Validate("SEPA Direct Debit Exp. Format", BankExportImportSetup.Code);
         BankAcc.Modify(true);
     end;

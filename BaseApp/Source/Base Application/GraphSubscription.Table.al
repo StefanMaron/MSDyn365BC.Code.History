@@ -3,6 +3,14 @@ table 5455 "Graph Subscription"
     Caption = 'Graph Subscription';
     Permissions = TableData "Webhook Subscription" = rimd;
     TableType = MicrosoftGraph;
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
+    ObsoleteReason = 'This functionality is out of support';
 
     fields
     {
@@ -63,35 +71,13 @@ table 5455 "Graph Subscription"
     }
 
     procedure CreateGraphSubscription(var GraphSubscription: Record "Graph Subscription"; ResourceEndpoint: Text[250]): Boolean
-    var
-        GraphConnectionSetup: Codeunit "Graph Connection Setup";
-        GraphSubscriptionMgt: Codeunit "Graph Subscription Management";
-        GraphWebhookSyncToNAV: Codeunit "Graph Webhook Sync To NAV";
     begin
-        GraphSubscription.Reset();
-        GraphSubscription.Id := CreateGuid;
-        GraphSubscription.ChangeType := GraphWebhookSyncToNAV.GetGraphSubscriptionChangeTypes;
-        GraphSubscription.ExpirationDateTime := CurrentDateTime + GraphSubscriptionMgt.GetMaximumExpirationDateTimeOffset;
-        GraphSubscription.Resource := ResourceEndpoint;
-        GraphSubscription.ClientState := CreateGuid;
-        GraphSubscription.NotificationUrl := GraphConnectionSetup.GetGraphNotificationUrl;
-        GraphSubscription.Type := GraphSubscriptionMgt.GetGraphSubscriptionType;
-        exit(GraphSubscription.Insert);
+        exit(false);
     end;
 
     procedure CreateWebhookSubscription(var WebhookSubscription: Record "Webhook Subscription"): Boolean
-    var
-        MarketingSetup: Record "Marketing Setup";
-        GraphSubscriptionMgt: Codeunit "Graph Subscription Management";
     begin
-        GraphSubscriptionMgt.CleanExistingWebhookSubscription(Resource, CompanyName);
-        Clear(WebhookSubscription);
-        WebhookSubscription."Subscription ID" := Id;
-        WebhookSubscription.Endpoint := Resource;
-        WebhookSubscription."Client State" := ClientState;
-        WebhookSubscription."Company Name" := CompanyName;
-        WebhookSubscription."Run Notification As" := MarketingSetup.TrySetWebhookSubscriptionUserAsCurrentUser;
-        exit(WebhookSubscription.Insert);
+        exit(false);
     end;
 }
 

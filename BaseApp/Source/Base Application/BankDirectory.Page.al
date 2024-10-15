@@ -137,7 +137,7 @@ page 11501 "Bank Directory"
                     trigger OnAction()
                     begin
                         Clear(ImportBankDirectory);
-                        ImportBankDirectory.RunModal;
+                        ImportBankDirectory.RunModal();
                     end;
                 }
             }

@@ -11,7 +11,7 @@ page 16 "Chart of Accounts"
     UsageCategory = Lists;
 
     AboutTitle = 'About the chart of accounts';
-    AboutText = 'The chart of accounts is the core of the financials used to group income and expenses in the income statement and balance sheet. Define indentation levels for a structured overview of your financials. The chart of accounts should reflect how the business is organized.';
+    AboutText = 'The chart of accounts is the core of the financials. It''s used to group income and expenses in the income statement and balance sheet. Define indentation levels for a structured overview of your financials. The chart of accounts should reflect how the business is organized.';
 
     layout
     {
@@ -313,7 +313,7 @@ page 16 "Chart of Accounts"
                         begin
                             CurrPage.SetSelectionFilter(GLAcc);
                             DefaultDimMultiple.SetMultiRecord(GLAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                     action(SetDimensionFilter)

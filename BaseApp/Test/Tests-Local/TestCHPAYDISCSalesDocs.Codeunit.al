@@ -28,7 +28,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test CH PAYDISC Sales Docs");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Adjust for Payment Disc.", true);
         GeneralLedgerSetup.Modify(true);
@@ -50,7 +50,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         PmtGenJournalLine: Record "Gen. Journal Line";
         PmtDiscountFCY: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupVATForFCY(VATPostingSetup, CurrencyExchangeRate, Customer, GLAccount);
@@ -66,7 +66,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         // Verify.
         CustLedgerEntry.SetAutoCalcFields("Original Amt. (LCY)", "Original Amount");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         VerifyVATEntry(CurrencyExchangeRate, VATPostingSetup, CustLedgerEntry, PmtDiscountFCY, 2);
     end;
 
@@ -82,7 +82,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         PmtGenJournalLine: Record "Gen. Journal Line";
         PmtDiscountFCY: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupVATForFCY(VATPostingSetup, CurrencyExchangeRate, Customer, GLAccount);
@@ -96,13 +96,13 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
 
         // Exercise.
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
 
         // Verify.
         CustLedgerEntry.SetAutoCalcFields("Original Amt. (LCY)", "Original Amount");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         VerifyVATEntry(CurrencyExchangeRate, VATPostingSetup, CustLedgerEntry, PmtDiscountFCY, 4);
     end;
 
@@ -117,7 +117,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         PmtDiscountFCY: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupVATForFCY(VATPostingSetup, CurrencyExchangeRate, Customer, GLAccount);
@@ -130,7 +130,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         // Verify.
         CustLedgerEntry.SetAutoCalcFields("Original Amt. (LCY)", "Original Amount");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         VerifyVATEntry(CurrencyExchangeRate, VATPostingSetup, CustLedgerEntry, PmtDiscountFCY, 2);
     end;
 
@@ -145,7 +145,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         PmtDiscountFCY: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupVATForFCY(VATPostingSetup, CurrencyExchangeRate, Customer, GLAccount);
@@ -159,7 +159,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         // Verify.
         CustLedgerEntry.SetAutoCalcFields("Original Amt. (LCY)", "Original Amount");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         VerifyVATEntry(CurrencyExchangeRate, VATPostingSetup, CustLedgerEntry, PmtDiscountFCY, 3);
     end;
 
@@ -180,7 +180,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         PaymentToleranceManagement: Codeunit "Payment Tolerance Management";
         MaxToleranceAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GenJournalTemplate.DeleteAll();
@@ -202,7 +202,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         LibraryERM.PostGeneralJnlLine(InvGenJournalLine);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         CustLedgerEntry.Validate("Pmt. Disc. Tolerance Date", WorkDate + 1);
         CustLedgerEntry.Validate("Max. Payment Tolerance", MaxToleranceAmt);
         CustLedgerEntry.Modify(true);
@@ -326,7 +326,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
 
         LibrarySales.CreateCustomer(Customer);
         Customer."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
@@ -392,7 +392,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         until VATEntry.Next = 0;
 
         VATEntry.SetRange("Source Code", SourceCodeSetup.Reversal);
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 case VATEntry."Sales Tax Connection No." of
                     1, 3:
@@ -412,7 +412,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
             until VATEntry.Next = 0;
 
         VATEntry.SetRange("Source Code", SourceCodeSetup."Sales Entry Application");
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 Assert.AreNearlyEqual(PmtDiscountAmtFCY, VATEntry."Base (FCY)" + VATEntry."Amount (FCY)",
                   GeneralLedgerSetup."Inv. Rounding Precision (LCY)", 'Wrong Disc VAT FCY total.');

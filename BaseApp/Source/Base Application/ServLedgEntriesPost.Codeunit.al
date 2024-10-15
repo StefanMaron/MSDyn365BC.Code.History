@@ -631,7 +631,7 @@ codeunit 5912 "ServLedgEntries-Post"
 
             with TempNewServLedgEntry do begin
                 Reset;
-                if FindSet then
+                if FindSet() then
                     repeat
                         ServLedgEntry.Init();
                         ServLedgEntry.Copy(TempNewServLedgEntry);

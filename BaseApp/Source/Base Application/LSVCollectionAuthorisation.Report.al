@@ -261,7 +261,7 @@ report 3010836 "LSV Collection Authorisation"
         trigger OnOpenPage()
         begin
             if LsvSetup.Count = 1 then
-                LsvSetup.FindFirst;
+                LsvSetup.FindFirst();
         end;
     }
 

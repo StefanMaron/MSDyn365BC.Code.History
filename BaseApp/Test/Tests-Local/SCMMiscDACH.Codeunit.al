@@ -33,7 +33,7 @@ codeunit 142083 "SCM Misc. DACH"
         // [FEATURE] [Phys. Inventory Journal] [Calculate Inventory]
         // [SCENARIO 272317] Calculate Inventory report must omit items with no entries in Item Ledger Entry when "Include Item without Transactions" flag is down even if "Items Not on Inventory" flag is up
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a new item
         LibraryInventory.CreateItem(Item);
@@ -53,13 +53,13 @@ codeunit 142083 "SCM Misc. DACH"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LocationGreen.Get(CreateLocation(true, true, true, true));
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationGreen.Code, true);
 

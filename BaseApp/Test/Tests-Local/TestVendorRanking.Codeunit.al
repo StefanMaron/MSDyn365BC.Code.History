@@ -29,7 +29,7 @@ codeunit 144034 "Test Vendor Ranking"
         ExpectedNumberOfRecords: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         ExpectedNumberOfRecords := LibraryRandom.RandInt(20);
         LibraryVariableStorage.Enqueue(ExpectedNumberOfRecords);

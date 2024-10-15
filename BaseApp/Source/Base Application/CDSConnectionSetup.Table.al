@@ -48,7 +48,7 @@ table 7200 "CDS Connection Setup"
         }
         field(60; "Is Enabled"; Boolean)
         {
-            Caption = 'Is Enabled';
+            Caption = 'Synchronization Enabled';
             DataClassification = SystemMetadata;
 
             trigger OnValidate()
@@ -77,8 +77,44 @@ table 7200 "CDS Connection Setup"
 
                 if not CDSIntegrationImpl.TryCheckCredentials(Rec) then
                     Error(GetLastErrorText());
-                if rec."Is Enabled" and (CurrFieldNo <> 0) then
-                    Rec."Is Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
+                if Rec."Is Enabled" and (CurrFieldNo <> 0) then
+                    if Rec."Business Events Enabled" then
+                        Rec."Is Enabled" := true
+                    else
+                        Rec."Is Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
+            end;
+        }
+        field(61; "Business Events Enabled"; Boolean)
+        {
+            Caption = 'Business Events Enabled';
+            DataClassification = SystemMetadata;
+
+            trigger OnValidate()
+            var
+                CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+            begin
+                if not Rec."Business Events Enabled" then begin
+                    Session.LogMessage('0000CDG', BusinessEventsDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    exit;
+                end;
+
+                Session.LogMessage('0000GBC', BusinessEventsEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+
+                if IsTemporary() then begin
+                    CDSIntegrationImpl.CheckConnectionRequiredFields(Rec, false);
+                    exit;
+                end;
+
+                if not CDSIntegrationImpl.TryCheckCredentials(Rec) then
+                    Error(GetLastErrorText());
+                if not Rec."Business Events Enabled" then
+                    Clear(Rec."Virtual Tables Config Id")
+                else
+                    if CurrFieldNo <> 0 then
+                        if Rec."Is Enabled" then
+                            Rec."Business Events Enabled" := true
+                        else
+                            Rec."Business Events Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
             end;
         }
         field(76; "Proxy Version"; Integer)
@@ -188,6 +224,11 @@ table 7200 "CDS Connection Setup"
         {
             Caption = 'Redirect URL';
             DataClassification = OrganizationIdentifiableInformation;
+        }
+        field(156; "Virtual Tables Config Id"; Guid)
+        {
+            Caption = 'Virtual Tables Config ID';
+            DataClassification = SystemMetadata;
         }
     }
 
@@ -564,6 +605,8 @@ table 7200 "CDS Connection Setup"
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CDSConnDisabledTxt: Label 'Dataverse connection has been disabled.', Locked = true;
         CDSConnEnabledTxt: Label 'Dataverse connection has been enabled.', Locked = true;
+        BusinessEventsDisabledTxt: Label 'Business events have been disabled.', Locked = true;
+        BusinessEventsEnabledTxt: Label 'Business events have been enabled.', Locked = true;
         CRMConnEnabledErr: Label 'To set up the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales. Read more about it in this help topic: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
         CRMConnEnabledTelemetryErr: Label 'User is trying to set up the connection with Dataverse, while the existing connection with Dynamics 365 Sales is enabled.', Locked = true;
         CannotDisableCDSErr: Label 'To disable the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales.';

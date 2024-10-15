@@ -37,11 +37,11 @@ codeunit 139185 "CRM Synch. Notifications"
         Contact.DeleteAll();
         // [GIVEN] Contact "A" coupled to a CRM Contact
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
-        Contact."Company No." := LibraryUtility.GenerateGUID;
+        Contact."Company No." := LibraryUtility.GenerateGUID();
         Contact.Modify();
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
         // [GIVEN] CRM Integration record for Contact "A" marked as failed
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Contact.RecordId, CRMContact.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
@@ -85,10 +85,10 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] Synch. Job Error for "A" and "B" contains messages: "ErrA", "ErrB"
         // [GIVEN] CRM Integration records for Contact "A" and "B" marked as failed
-        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Contact[1].RecordId, CRMContact[1].RecordId, ExpectedErrorMsg[1], CurrentDateTime, false);
-        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Contact[2].RecordId, CRMContact[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
@@ -123,14 +123,14 @@ codeunit 139185 "CRM Synch. Notifications"
         Contact.DeleteAll();
         // [GIVEN] Contact "A" coupled to CRM Contact
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
-        Contact."Company No." := LibraryUtility.GenerateGUID; // to enable CRM actions
+        Contact."Company No." := LibraryUtility.GenerateGUID(); // to enable CRM actions
         Contact.Modify();
 
         // [GIVEN] 2 Synch Jobs for "CONTACT" mapping and 1 for "CUSTOMER" mapping
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::Contact, '');
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg := LibraryUtility.GenerateGUID;
+        Msg := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::Contact, Msg);
         CRMIntegrationRecord.FindByRecordID(Contact.RecordId);
         CRMIntegrationRecord."Last Synch. Job ID" := JobID[3];
@@ -171,7 +171,7 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
 
         // [GIVEN] 2 Synch Jobs for "CUSTOMER" mapping and 1 for "CONTACT" mapping
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::Contact, Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
@@ -215,7 +215,7 @@ codeunit 139185 "CRM Synch. Notifications"
           Currency, CRMTransactioncurrency);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
         // [GIVEN] CRM Integration record for Currency "A" marked as failed
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Currency.RecordId, CRMTransactioncurrency.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
@@ -259,8 +259,8 @@ codeunit 139185 "CRM Synch. Notifications"
           Currency[1], CRMTransactioncurrency[1]);
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency[2], CRMTransactioncurrency[2]);
-        Currency[1].FindFirst;
-        Currency[2].FindLast;
+        Currency[1].FindFirst();
+        Currency[2].FindLast();
 
         // [GIVEN] Open Currency Card for "A"
         CurrencyCardPage.Trap;
@@ -268,10 +268,10 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] Synch. Job Error for "A" and "B" contains the messages: "ErrA", "ErrB"
         // [GIVEN] CRM Integration record for Currency "A" and "B" marked as failed
-        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Currency[1].RecordId, CRMTransactioncurrency[1].RecordId, ExpectedErrorMsg[1], CurrentDateTime, false);
-        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Currency[2].RecordId, CRMTransactioncurrency[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
@@ -309,11 +309,11 @@ codeunit 139185 "CRM Synch. Notifications"
           Currency, CRMTransactioncurrency);
 
         // [GIVEN] 2 Synch Jobs for "CURRENCY" mapping and 1 for "CUSTOMER" mapping
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::Currency, Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::Currency, Msg[2]);
         CRMIntegrationRecord.FindByRecordID(Currency.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
@@ -353,7 +353,7 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
         // [GIVEN] CRM Integration record for Customer "A" marked as failed
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
           CRMAccount.AccountId, CRMAccount.RecordId, Customer.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
@@ -396,10 +396,10 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] Synch. Job Error for "A" and "B" contains the messages: "ErrA", "ErrB"
         // [GIVEN] CRM Integration record for Customers "A" and "B" marked as failed
-        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Customer[1].RecordId, CRMAccount[1].RecordId, ExpectedErrorMsg[1], CurrentDateTime, false);
-        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Customer[2].RecordId, CRMAccount[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
@@ -435,7 +435,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] Customer "A" coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Customer.RecordId, CRMAccount.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
         // [GIVEN] CRM Integration record for Customer "A" does not exist
@@ -495,11 +495,11 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
         // [GIVEN] 2 related Synch Jobs for "CUSTOMER" mapping and 1 not related
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, Msg[2]);
         // [GIVEN] Existing jobs are not related to "A"
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
@@ -544,7 +544,7 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] 3 Synch Jobs for "CUSTOMER" mapping not related to Customer "A", 1 job for "CONTACT"
         for i := 1 to 3 do
-            Msg[i] := LibraryUtility.GenerateGUID;
+            Msg[i] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, Msg[1]);
         LibraryCRMIntegration.MockSyncJob(DATABASE::Contact, '');
         Sleep(5);
@@ -596,11 +596,11 @@ codeunit 139185 "CRM Synch. Notifications"
           CustomerPriceGroup, CRMPricelevel);
 
         // [GIVEN] 2 Synch Jobs for "CUSTPRCGRP-PRICE" mapping and 1 for "CUSTOMER" mapping
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::"Customer Price Group", Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::"Customer Price Group", Msg[2]);
         CRMIntegrationRecord.FindByRecordID(CustomerPriceGroup.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
@@ -641,7 +641,7 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
         // [GIVEN] CRM Integration record for Item "A" marked as failed
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Item.RecordId, CRMProduct.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
@@ -688,10 +688,10 @@ codeunit 139185 "CRM Synch. Notifications"
         PAGE.Run(PAGE::"Item Card", Item[1]);
         // [GIVEN] Synch. Job Error for "A" and "B" contains the message: "ErrA", "ErrB"
         // [GIVEN] CRM Integration record for Items "A" and "B" marked as failed
-        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Item[1].RecordId, CRMProduct[1].RecordId, ExpectedErrorMsg[1], CurrentDateTime, false);
-        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Item[2].RecordId, CRMProduct[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
@@ -793,11 +793,11 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
 
         // [GIVEN] 2 Synch Jobs for "ITEM-PRODUCT" mapping and 1 for "CUSTOMER" mapping
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::Item, Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::Item, Msg[2]);
         CRMIntegrationRecord.FindByRecordID(Item.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
@@ -837,7 +837,7 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
         // [GIVEN] CRM Integration record for Resource "A" marked as failed
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Resource.RecordId, CRMProduct.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
@@ -887,10 +887,10 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] Synch. Job Error for "A" and "B" contains the message: "ErrA", "ErrB"
         // [GIVEN] CRM Integration record for Resources "A" and "B" marked as failed
-        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Resource[1].RecordId, CRMProduct[1].RecordId, ExpectedErrorMsg[1], CurrentDateTime, false);
-        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           Resource[2].RecordId, CRMProduct[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
@@ -927,11 +927,11 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
 
         // [GIVEN] 2 Synch Jobs for "RESOURCE-PRODUCT" mapping and 1 for "CUSTOMER" mapping
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::Resource, Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::Resource, Msg[2]);
         CRMIntegrationRecord.FindByRecordID(Resource.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
@@ -971,7 +971,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader, CRMInvoice);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
         // [GIVEN] CRM Integration record for Invoice "A" marked as failed
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           SalesInvoiceHeader.RecordId, CRMInvoice.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
@@ -1019,10 +1019,10 @@ codeunit 139185 "CRM Synch. Notifications"
         PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader[1]);
         // [GIVEN] Synch. Job Error for "A" and "B" contains the message: "ErrA", "ErrB".
         // [GIVEN] CRM Integration record for Invoices "A" and "B" marked as failed
-        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           SalesInvoiceHeader[1].RecordId, CRMInvoice[1].RecordId, ExpectedErrorMsg[1], CurrentDateTime, false);
-        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
           SalesInvoiceHeader[2].RecordId, CRMInvoice[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
@@ -1060,11 +1060,11 @@ codeunit 139185 "CRM Synch. Notifications"
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader, CRMInvoice);
 
         // [GIVEN] 2 Synch Jobs for "POSTEDSALESINV-INV" mapping and 1 for "CUSTOMER" mapping
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::"Sales Invoice Header", Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::"Sales Invoice Header", Msg[2]);
         CRMIntegrationRecord.FindByRecordID(SalesInvoiceHeader.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
@@ -1104,7 +1104,7 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
         // [GIVEN] CRM Integration record for Salesperson "A" marked as failed
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
           CRMSystemuser.SystemUserId, CRMSystemuser.RecordId, SalespersonPurchaser.RecordId,
           ExpectedErrorMsg, CurrentDateTime, false);
@@ -1152,11 +1152,11 @@ codeunit 139185 "CRM Synch. Notifications"
         PAGE.Run(PAGE::"Salesperson/Purchaser Card", SalespersonPurchaser[1]);
         // [GIVEN] Synch. Job Error for "A" and "B" contains the message: "ErrA", "ErrB"
         // [GIVEN] CRM Integration record for Salesperson "A" and "B" marked as failed
-        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[1] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
           CRMSystemuser[1].SystemUserId, CRMSystemuser[1].RecordId,
           SalespersonPurchaser[1].RecordId, ExpectedErrorMsg[1], CurrentDateTime, false);
-        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg[2] := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
           CRMSystemuser[2].SystemUserId, CRMSystemuser[2].RecordId,
           SalespersonPurchaser[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
@@ -1194,11 +1194,11 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
 
         // [GIVEN] 2 Synch Jobs for "SALESPEOPLE" mapping and 1 for "CUSTOMER" mapping
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::"Salesperson/Purchaser", Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::"Salesperson/Purchaser", Msg[2]);
         CRMIntegrationRecord.FindByRecordID(SalespersonPurchaser.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
@@ -1240,11 +1240,11 @@ codeunit 139185 "CRM Synch. Notifications"
           UnitOfMeasure, CRMUom, CRMUomschedule);
 
         // [GIVEN] 2 Synch Jobs for "UNIT OF MEASURE" mapping and 1 for "CUSTOMER" mapping
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::"Unit of Measure", Msg[1]);
         JobID[2] := LibraryCRMIntegration.MockSyncJob(DATABASE::Customer, '');
         Sleep(5); // delay to split jobs by time
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         JobID[3] := LibraryCRMIntegration.MockSyncJob(DATABASE::"Unit of Measure", Msg[2]);
         CRMIntegrationRecord.FindByRecordID(UnitOfMeasure.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
@@ -1277,11 +1277,12 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [UT]
         TestInit;
+        ClearCustomerContactBusRel();
         // [GIVEN] Customer is coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Sync job, where "Direction" is 'FromIntegrationTable'
         // [GIVEN] CRM Integration record for Customer "A" marked as failed with error 'Err'
-        ExpectedMessage := LibraryUtility.GenerateGUID;
+        ExpectedMessage := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
           CRMAccount.AccountId, CRMAccount.RecordId, Customer.RecordId, ExpectedMessage, CurrentDateTime, false);
 
@@ -1305,6 +1306,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [UT]
         // [SCENARIO] Failure notification is not shown for bidirectional table if the last job is successful
         TestInit;
+        ClearCustomerContactBusRel();
         // [GIVEN] Customer is coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Successful Sync job, where "Direction" is 'ToIntegrationTable'
@@ -1339,12 +1341,13 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [UT]
         // [SCENARIO] Failure notification is shown for bidirectional table if the last job is failed
         TestInit;
+        ClearCustomerContactBusRel();
         // [GIVEN] Customer is coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Successful Sync job, where "Direction" is 'ToIntegrationTable'
         LibraryCRMIntegration.MockSuccessSynchToCRMIntegrationRecord(Customer.RecordId, '');
         // [GIVEN] Failed Sync job, where "Direction" is 'FromIntegrationTable'
-        ErrorMsg := LibraryUtility.GenerateGUID;
+        ErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
           CRMAccount.AccountId, CRMAccount.RecordId, Customer.RecordId, ErrorMsg, CurrentDateTime, false);
         // [GIVEN] "Last Synch. Modified On" is later than "Last Synch. CRM Modified On"
@@ -1380,7 +1383,7 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] Item Description modified to 'D'
         Sleep(200);
-        Item.Description := LibraryUtility.GenerateGUID;
+        Item.Description := LibraryUtility.GenerateGUID();
         Item.Modify();
 
         BindSubscription(CRMSynchNotifications); // to throw an error OnBeforeModify CRM Product
@@ -1419,7 +1422,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyLastSynchDataIsBlank(Item.RecordId);
 
         // [GIVEN] CRM Product Name modified to 'D'
-        CRMProduct.Name := LibraryUtility.GenerateGUID;
+        CRMProduct.Name := LibraryUtility.GenerateGUID();
         CRMProduct.ModifiedOn := CurrentDateTime + 1000;
         CRMProduct.Modify();
 
@@ -1456,7 +1459,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyLastSynchDataIsBlank(Item.RecordId);
 
         // [GIVEN] Item Description modified to 'D'
-        Item.Description := LibraryUtility.GenerateGUID;
+        Item.Description := LibraryUtility.GenerateGUID();
         Sleep(200);
         Item.Modify();
 
@@ -1489,7 +1492,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyLastSynchDataIsBlank(Item.RecordId);
 
         // [GIVEN] CRM Product Name modified to 'D'
-        CRMProduct.Name := LibraryUtility.GenerateGUID;
+        CRMProduct.Name := LibraryUtility.GenerateGUID();
         CRMProduct.ModifiedOn := CurrentDateTime + 1000;
         CRMProduct.Modify();
 
@@ -1521,11 +1524,11 @@ codeunit 139185 "CRM Synch. Notifications"
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
 
         // [GIVEN] CRM Product Name modified to 'D2'
-        CRMProduct.Name := LibraryUtility.GenerateGUID;
+        CRMProduct.Name := LibraryUtility.GenerateGUID();
         CRMProduct.ModifiedOn := CurrentDateTime + 1000;
         CRMProduct.Modify();
         // [GIVEN] Item Description modified to 'D1'
-        Item.Description := LibraryUtility.GenerateGUID;
+        Item.Description := LibraryUtility.GenerateGUID();
         Sleep(1000);
         Item.Modify();
 
@@ -1555,7 +1558,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
 
         // [GIVEN] CRM Product Name modified to 'D2'
-        CRMProduct.Name := LibraryUtility.GenerateGUID;
+        CRMProduct.Name := LibraryUtility.GenerateGUID();
         CRMProduct.ModifiedOn := CurrentDateTime + 3000;
         CRMProduct.Modify();
 
@@ -1584,7 +1587,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
 
         // [GIVEN] Item Description modified to 'D1'
-        Item.Description := LibraryUtility.GenerateGUID;
+        Item.Description := LibraryUtility.GenerateGUID();
         Sleep(200);
         Item.Modify();
 
@@ -1616,7 +1619,7 @@ codeunit 139185 "CRM Synch. Notifications"
         SalesInvoiceLine.Insert();
         SourceRecordRef.GetTable(SalesInvoiceLine);
         IntegrationTableMapping.SetRange("Table ID", SourceRecordRef.Number);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
 
         LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, SourceRecordRef.Number, SourceRecordRef.RecordId);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SourceRecordRef.RecordId, CreateGuid);
@@ -1648,14 +1651,14 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] Currency 'X' could not be synched to CRMTransactioncurrency
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         // [GIVEN] Synch Job Error, where Message = 'Err1', Destination RecordID is set
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         IntegrationSynchJob.Get(
           LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
             Currency.RecordId, CRMTransactioncurrency.RecordId, Msg[1], CurrentDateTime, false));
         IntegrationSynchJob.GetErrorForRecordID(Currency.RecordId, IntegrationSynchJobErrors);
         Assert.AreEqual(Msg[1], IntegrationSynchJobErrors.Message, '#1');
         // [GIVEN] Synch Job Error, where Message = 'Err2', Destination RecordID is not set
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         IntegrationSynchJob.Get(
           LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
             Currency.RecordId, DummyEmptyRecID, Msg[2], CurrentDateTime, false));
@@ -1680,7 +1683,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] Currency 'X' coupled to CRMTransactioncurrency
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         // [GIVEN] Synch Job Error, where Message = 'Err1', Destination RecordID is set
-        Msg[1] := LibraryUtility.GenerateGUID;
+        Msg[1] := LibraryUtility.GenerateGUID();
         IntegrationSynchJob.Get(
           LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
             CRMTransactioncurrency.TransactionCurrencyId, CRMTransactioncurrency.RecordId,
@@ -1688,7 +1691,7 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationSynchJob.GetErrorForRecordID(CRMTransactioncurrency.RecordId, IntegrationSynchJobErrors);
         Assert.AreEqual(Msg[1], IntegrationSynchJobErrors.Message, '#1');
         // [GIVEN] Synch Job Error, where Message = 'Err2', Destination RecordID is not set
-        Msg[2] := LibraryUtility.GenerateGUID;
+        Msg[2] := LibraryUtility.GenerateGUID();
         IntegrationSynchJob.Get(
           LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
             CRMTransactioncurrency.TransactionCurrencyId, CRMTransactioncurrency.RecordId,
@@ -1704,8 +1707,8 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
     begin
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Enable CRM Integration with Integration Table Mappings
         LibraryCRMIntegration.ResetEnvironment;
@@ -1729,7 +1732,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
         SalesInvoiceHeader.Init();
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Insert(true);
 
         CRMInvoice.Init();
@@ -1813,7 +1816,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         with IntegrationSynchJob do begin
             SetCurrentKey("Start Date/Time", ID);
-            FindLast;
+            FindLast();
             TestField(Failed, 0);
             TestField(Modified, 0);
             TestField(Unchanged, 1);
@@ -1889,6 +1892,14 @@ codeunit 139185 "CRM Synch. Notifications"
             TestField("Last Synch. CRM Job ID", '{00000000-0000-0000-0000-000000000000}');
             TestField("Last Synch. CRM Result", 0);
         end;
+    end;
+
+    local procedure ClearCustomerContactBusRel()
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.DeleteAll();
     end;
 
     [SendNotificationHandler]

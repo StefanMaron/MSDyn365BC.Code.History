@@ -470,7 +470,7 @@ report 11566 "SR G/L Acc Sheet Posting Info"
         begin
             GenJourTemplate.SetRange(Type, GenJourTemplate.Type::General);
             GenJourTemplate.SetRange(Recurring, false);
-            if GenJourTemplate.FindFirst then;
+            if GenJourTemplate.FindFirst() then;
             GlJourName.FilterGroup(2);
             GlJourName.SetRange("Journal Template Name", GenJourTemplate.Name);
             GlJourName.FilterGroup(0);
@@ -551,7 +551,7 @@ report 11566 "SR G/L Acc Sheet Posting Info"
     begin
         if FcyAmt <> 0 then begin
             CurrExchRate.SetRange("Currency Code", Curr);
-            if CurrExchRate.FindLast then
+            if CurrExchRate.FindLast() then
                 exit(Round(LcyAmt * CurrExchRate."Exchange Rate Amount" / FcyAmt, 0.001))
         end;
         exit(0);
@@ -579,7 +579,7 @@ report 11566 "SR G/L Acc Sheet Posting Info"
         ProvEntryExist := false;
         GenJourLine2.SetRange("Account No.", "G/L Account"."No.");
         GenJourLine2.SetRange("Account Type", "G/L Account"."Account Type");
-        if GenJourLine2.FindFirst then
+        if GenJourLine2.FindFirst() then
             ProvEntryExist := true;
         GenJourLine2.SetRange("Account No.");
         GenJourLine2.SetRange("Account Type");
@@ -588,7 +588,7 @@ report 11566 "SR G/L Acc Sheet Posting Info"
 
         GenJourLine2.SetRange("Bal. Account No.", "G/L Account"."No.");
         GenJourLine2.SetRange("Bal. Account Type", "G/L Account"."Account Type");
-        if GenJourLine2.FindFirst then
+        if GenJourLine2.FindFirst() then
             ProvEntryExist := true;
 
         GenJourLine2.SetRange("Bal. Account No.");

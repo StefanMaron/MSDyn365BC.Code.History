@@ -35,7 +35,7 @@ table 99000752 "Shop Calendar Working Days"
                     ShopCalendar.SetRange("Shop Calendar Code", "Shop Calendar Code");
                     ShopCalendar.SetRange(Day, Day);
                     ShopCalendar.SetRange("Starting Time", "Starting Time", 235959T);
-                    if ShopCalendar.FindFirst then
+                    if ShopCalendar.FindFirst() then
                         "Ending Time" := ShopCalendar."Starting Time"
                     else
                         "Ending Time" := 235959T;
@@ -107,7 +107,7 @@ table 99000752 "Shop Calendar Working Days"
         TempShopCalendar.SetRange("Starting Time", 0T, "Ending Time" - 1);
         TempShopCalendar.SetRange("Ending Time", "Starting Time" + 1, 235959T);
 
-        if TempShopCalendar.FindFirst then begin
+        if TempShopCalendar.FindFirst() then begin
             if (TempShopCalendar."Starting Time" = "Starting Time") and
                (TempShopCalendar."Ending Time" = "Ending Time") and
                (TempShopCalendar."Work Shift Code" = "Work Shift Code")

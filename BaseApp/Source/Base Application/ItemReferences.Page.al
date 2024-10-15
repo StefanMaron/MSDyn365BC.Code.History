@@ -1,4 +1,4 @@
-page 5736 "Item References"
+﻿page 5736 "Item References"
 {
     Caption = 'Item References';
     DataCaptionFields = "Reference Type No.";

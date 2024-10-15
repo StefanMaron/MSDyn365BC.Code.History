@@ -22,7 +22,7 @@ codeunit 144024 "Vendor Payment Order"
     var
         VendorName: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         VendorName := CreateVendorWithVendorBankAccCreateVendorPayments;
@@ -46,7 +46,7 @@ codeunit 144024 "Vendor Payment Order"
     var
         VendorName: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         VendorName := CreateVendorWithVendorBankAccCreateVendorPayments;
@@ -71,7 +71,7 @@ codeunit 144024 "Vendor Payment Order"
     var
         VendorName: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         VendorName := CreateVendorWithVendorBankAccCreateVendorPayments;
@@ -96,7 +96,7 @@ codeunit 144024 "Vendor Payment Order"
         VendorBankAccount: Record "Vendor Bank Account";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithVendorBankAcc(VendorBankAccount, '', '', '');
@@ -110,7 +110,7 @@ codeunit 144024 "Vendor Payment Order"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure VerifyNumberOfRowsAndVendor(VendorName: Text[100])
@@ -151,10 +151,10 @@ codeunit 144024 "Vendor Payment Order"
         SuggestVendorPayments.UseRequestPage(false);
         Vendor.SetRange("No.", VendorBankAcc."Vendor No.");
         SuggestVendorPayments.SetTableView(Vendor);
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
 
         Vendor.SetRange("No.", VendorBankAcc."Vendor No.");
-        Vendor.FindFirst;
+        Vendor.FindFirst();
         VendorName := Vendor.Name;
     end;
 
@@ -184,7 +184,7 @@ codeunit 144024 "Vendor Payment Order"
         Vendor.SetFilter("Balance Due (LCY)", '>%1', 0);
         Vendor.SetFilter("Balance (LCY)", '>%1', 0);
         Vendor.SetRange("Currency Code", '');
-        Vendor.FindFirst;
+        Vendor.FindFirst();
         exit(Vendor."No.");
     end;
 
@@ -203,9 +203,9 @@ codeunit 144024 "Vendor Payment Order"
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
     end;
 
     [RequestPageHandler]

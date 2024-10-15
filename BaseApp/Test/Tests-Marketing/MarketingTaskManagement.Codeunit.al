@@ -53,7 +53,7 @@ codeunit 136203 "Marketing Task Management"
         // Test error occurs on Creating Task for Team with Salespeople without E-mail address.
 
         // 1. Setup: Create Team, Salespeople and attach Salespeople to Team.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateTeam(Team);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         LibraryMarketing.CreateTeamSalesperson(TeamSalesperson, Team.Code, SalespersonPurchaser.Code);
@@ -93,7 +93,7 @@ codeunit 136203 "Marketing Task Management"
 
         // 2. Exercise: Create Task for Team and attach Contact to Created Task.
         TempTask.CreateTaskFromTask(Task);
-        Contact.FindFirst;
+        Contact.FindFirst();
         UpdateTask(Task, Team.Code, Contact."No.");
 
         // 3. Verify: Verify Task attach on Team, Contact and Salespeople.
@@ -125,7 +125,7 @@ codeunit 136203 "Marketing Task Management"
         InitializeGlobalVariable;
         TeamCode := Team.Code;
         TempTask.CreateTaskFromTask(Task);
-        Contact.FindFirst;
+        Contact.FindFirst();
         UpdateTask(Task, Team.Code, Contact."No.");
 
         // 2. Exercise: Canceled the Created Task and run Delete Tasks Batch Report.
@@ -134,7 +134,7 @@ codeunit 136203 "Marketing Task Management"
         Task.SetRange("No.", Task."No.");
         DeleteTasks.SetTableView(Task);
         DeleteTasks.UseRequestPage(false);
-        DeleteTasks.Run;
+        DeleteTasks.Run();
 
         // 3. Verify: Verify Task deleted attach on Team, Contact and Salespeople.
         Task.Reset();
@@ -186,7 +186,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask: Record "To-do" temporary;
     begin
         // 1. Setup: Create Salesperson, Segment Header and Segment Line for Contact.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
         SegmentHeader.Validate("Salesperson Code", SalespersonPurchaser.Code);
@@ -344,12 +344,12 @@ codeunit 136203 "Marketing Task Management"
         // 3. Verify: Verify Task for Segment, Contact and Salespeople.
         Task.SetRange("Segment No.", SegmentHeader."No.");
         Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
-        Task.FindFirst;
+        Task.FindFirst();
 
         Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.SetRange("Segment No.", SegmentHeader."No.");
-        Task.FindFirst;
+        Task.FindFirst();
 
         VerifyTaskForSegment(SegmentHeader."No.");
     end;
@@ -363,7 +363,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 214904] Field length TeamSalesperson."Team Name" = Team.Name
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           Team, Team.FieldNo(Name),
@@ -401,7 +401,7 @@ codeunit 136203 "Marketing Task Management"
 
         // 2. Exercise: Select Contact with type Company and assign Activity to Contact.
         Contact.SetRange(Type, Contact.Type::Company);
-        Contact.FindFirst;
+        Contact.FindFirst();
         ContactNo := Contact."No.";
         TempTask.AssignActivityFromTask(Task);
 
@@ -457,7 +457,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask: Record "To-do" temporary;
     begin
         // 1. Setup: Create Salesperson with E-mail.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
@@ -472,7 +472,7 @@ codeunit 136203 "Marketing Task Management"
 
         // 3. Verify: Verify Task for Salesperson.
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Recurring, true);
         Task.TestField(Description, SalespersonPurchaser.Code);
         Task.TestField(Type, Type);
@@ -491,7 +491,7 @@ codeunit 136203 "Marketing Task Management"
         // Test Task for Salespeople after closed Recurring Task for Salespeople.
 
         // 1. Setup: Create Salesperson with E-mail Id.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
@@ -503,13 +503,13 @@ codeunit 136203 "Marketing Task Management"
         TempTask.CreateTaskFromTask(Task);
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate(Closed, true);
         Task.Modify(true);
 
         // 3. Verify: Verify Task Closed and New Recurring Task created for Salesperson.
         FindClosedTask(Task, SalespersonPurchaser.Code, true);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Status, Task.Status::Completed);
 
         FindClosedTask(Task, SalespersonPurchaser.Code, false);
@@ -530,7 +530,7 @@ codeunit 136203 "Marketing Task Management"
         // Test Task for Salespeople after canceled Recurring Task for Salespeople.
 
         // 1. Setup: Create Salesperson with E-mail Id.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
@@ -542,17 +542,17 @@ codeunit 136203 "Marketing Task Management"
         TempTask.CreateTaskFromTask(Task);
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate(Canceled, true);
         Task.Modify(true);
 
         // 3. Verify: Verify Task Canceled and New Recurring Task created for Salesperson.
         FindCanceledTask(Task, SalespersonPurchaser.Code, true);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Status, Task.Status::Completed);
 
         FindCanceledTask(Task, SalespersonPurchaser.Code, false);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Recurring, true);
         Task.TestField(Description, SalespersonPurchaser.Code);
     end;
@@ -570,7 +570,7 @@ codeunit 136203 "Marketing Task Management"
         // Test Task for Salespeople after closed Task for Salespeople.
 
         // 1. Setup: Create Salesperson with E-mail Id.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
@@ -582,14 +582,14 @@ codeunit 136203 "Marketing Task Management"
         TempTask.CreateTaskFromTask(Task);
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate(Recurring, false);
         Task.Validate(Closed, true);
         Task.Modify(true);
 
         // 3. Verify: Verify Task Closed and No New Task created for Salesperson.
         FindClosedTask(Task, SalespersonPurchaser.Code, true);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Status, Task.Status::Completed);
 
         FindClosedTask(Task, SalespersonPurchaser.Code, false);
@@ -609,7 +609,7 @@ codeunit 136203 "Marketing Task Management"
         // Test Task for Salespeople after canceled Task for Salespeople.
 
         // 1. Setup: Create Salesperson with E-mail Id.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
@@ -621,14 +621,14 @@ codeunit 136203 "Marketing Task Management"
         TempTask.CreateTaskFromTask(Task);
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate(Recurring, false);
         Task.Validate(Canceled, true);
         Task.Modify(true);
 
         // 3. Verify: Verify Task Canceled and No New Task created for Salesperson.
         FindCanceledTask(Task, SalespersonPurchaser.Code, true);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Status, Task.Status::Completed);
 
         FindCanceledTask(Task, SalespersonPurchaser.Code, false);
@@ -681,7 +681,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask: Record "To-do" temporary;
     begin
         // 1. Setup: Create Salesperson with E-mail Id.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
@@ -694,7 +694,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask.CreateTaskFromTask(Task);
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate(Recurring, true);
         Evaluate(Task."Recurring Date Interval", DateFormula2);
         Task.Validate("Calc. Due Date From", Task."Calc. Due Date From"::"Closing Date");
@@ -703,7 +703,7 @@ codeunit 136203 "Marketing Task Management"
         // 3. Verify: Verify Task for Salesperson.
         Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Recurring, true);
         Task.TestField(Description, SalespersonPurchaser.Code);
         Task.TestField(Type, Type);
@@ -771,7 +771,7 @@ codeunit 136203 "Marketing Task Management"
 
         Task.SetRange("Team Code", Team.Code);
         Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.SetRunFromForm;
         Task.Validate("Salesperson Code", SalespersonPurchaser.Code);
         Task.Modify(true);
@@ -779,7 +779,7 @@ codeunit 136203 "Marketing Task Management"
         // 3. Verify: Verify Task attach on Salesperson and Task for Team Deleted.
         Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
 
         Task.Reset();
         Task.SetRange("Team Code", Team.Code);
@@ -864,7 +864,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [Task]
         // [SCENARIO 207176] SalesPerson Code is filled when user runs Make Phone Call from Task Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
         CreateSalespersonWithEmail(SalespersonPurchaser);
@@ -894,7 +894,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [Task]
         // [SCENARIO 207176] SalesPerson Code is filled when user runs Make Phone Call from Task List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
         CreateSalespersonWithEmail(SalespersonPurchaser);
@@ -924,7 +924,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [Task]
         // [SCENARIO 207176] SalesPerson Code is filled when user completes Task of Phone Call type and agrees to create Interaction
-        Initialize;
+        Initialize();
 
         // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
         CreateSalespersonWithEmail(SalespersonPurchaser);
@@ -952,7 +952,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 228568] Lenght of "To-do"."Team Name" shoud be equal to lenght of "Team"."Name"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(ToDo, ToDo.FieldNo("Team Name"), Team, Team.FieldNo(Name));
     end;
@@ -967,7 +967,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 284068] Contact Name and Contact Company Name values are visible on Task Card, when Task.Type = Meeting
-        Initialize;
+        Initialize();
 
         // [GIVEN] A contact
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1003,7 +1003,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [Interaction]
         // [SCENARIO 284727] Interaction Log Entry can be created after changing Task Status to 'Complete'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Task with Type 'Meeting'
         LibraryMarketing.CreateCompanyContactTask(Task, Task.Type::Meeting.AsInteger());
@@ -1029,7 +1029,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [Salesperson] [UT]
         // [SCENARIO 323540] Salesperson/Purchaser cannot be deleted if it has open tasks.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Salesperson and Task assigned to them
         CreateSalespersonWithTask(SalespersonPurchaser, Task);
@@ -1053,7 +1053,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [Salesperson] [UT]
         // [SCENARIO 323540] Salesperson/Purchaser is deleted if it has closed tasks.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Salesperson and Task assigned to them, then close it
         CreateSalespersonWithTask(SalespersonPurchaser, Task);
@@ -1108,7 +1108,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [Salesperson] [UT]
         // [SCENARIO 338127] Salesperson/Purchaser cannot be deleted if it has open opportunity.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Salesperson "S" and Opportunity assigned to it
         CreateSalespersonWithOpportunity(SalespersonPurchaser, Opportunity);
@@ -1130,7 +1130,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // [FEATURE] [Salesperson] [UT]
         // [SCENARIO 338127] Salesperson/Purchaser is deleted if it hasn't open opportunity.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Salesperson and Opportunity assigned to it, then close it
         CreateSalespersonWithOpportunity(SalespersonPurchaser, Opportunity);
@@ -1209,7 +1209,7 @@ codeunit 136203 "Marketing Task Management"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -1246,7 +1246,7 @@ codeunit 136203 "Marketing Task Management"
         Task: Record "To-do";
     begin
         Task.SetRange("Salesperson Code", CompletedBy);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate("Completed By", CompletedBy);
         Task.Validate(Closed, true);
         Task.Modify(true);
@@ -1260,7 +1260,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask: Record "To-do" temporary;
     begin
         // 1. Setup: Create Salesperson with E-Mail address and Team.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         LibraryMarketing.CreateTeam(Team);
 
@@ -1274,7 +1274,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask.CreateTaskFromTask(Task);
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.SetRunFromForm;
         Task.Validate("Team Code", Team.Code);
         Task.Modify(true);
@@ -1282,12 +1282,12 @@ codeunit 136203 "Marketing Task Management"
         // 3. Verify: Verify Task attach on Team and Task for Salesperson Deleted.
         Task.Reset();
         Task.SetRange("Team Code", Team.Code);
-        Task.FindFirst;
+        Task.FindFirst();
 
         Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         if Type = Task.Type::Meeting then begin
-            Task.FindFirst;
+            Task.FindFirst();
             Task.TestField("Team Code", Team.Code);
         end else
             Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
@@ -1398,7 +1398,7 @@ codeunit 136203 "Marketing Task Management"
     var
         TeamSalesperson: Record "Team Salesperson";
     begin
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateTeam(Team);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
@@ -1431,7 +1431,7 @@ codeunit 136203 "Marketing Task Management"
     local procedure UpdateTask(var Task: Record "To-do"; TeamCode: Code[10]; ContactNo: Code[20])
     begin
         Task.SetRange("Team Code", TeamCode);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate("Contact No.", ContactNo);
         Task.Modify(true);
     end;
@@ -1448,7 +1448,7 @@ codeunit 136203 "Marketing Task Management"
             Task.SetRange("System To-do Type", Task."System To-do Type"::"Contact Attendee");
             Task.SetRange("Activity Code", ActivityCode);
             Task.SetRange(Type, ActivityStep.Type);
-            Task.FindFirst;
+            Task.FindFirst();
             Task.TestField(Priority, ActivityStep.Priority);
             Task.TestField("Team Code", TeamCode);
             Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
@@ -1466,7 +1466,7 @@ codeunit 136203 "Marketing Task Management"
             Task.SetRange("Salesperson Code", SalespersonCode);
             Task.SetRange("Activity Code", ActivityCode);
             Task.SetRange(Type, ActivityStep.Type);
-            Task.FindFirst;
+            Task.FindFirst();
             Task.TestField(Priority, ActivityStep.Priority);
             Task.TestField("Team Code", TeamCode);
             Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
@@ -1484,7 +1484,7 @@ codeunit 136203 "Marketing Task Management"
             Task.SetRange("Team Code", TeamCode);
             Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
             Task.SetRange(Type, ActivityStep.Type);
-            Task.FindFirst;
+            Task.FindFirst();
             Task.TestField(Priority, ActivityStep.Priority);
             Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
         until ActivityStep.Next = 0;
@@ -1495,7 +1495,7 @@ codeunit 136203 "Marketing Task Management"
         Task: Record "To-do";
     begin
         Task.SetRange("Team Code", TeamCode);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Type, Task.Type::" ");
         Task.TestField(Description, TeamCode);
     end;
@@ -1506,7 +1506,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         Task.SetRange("Contact No.", ContactNo);
         Task.SetRange("Team Code", TeamCode);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField(Type, Task.Type::" ");
         Task.TestField(Description, TeamCode);
     end;
@@ -1516,7 +1516,7 @@ codeunit 136203 "Marketing Task Management"
         Task: Record "To-do";
     begin
         Task.SetRange("Salesperson Code", SalespersonCode);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField("Team Code", TeamCode);
         Task.TestField(Type, Task.Type::" ");
         Task.TestField(Description, TeamCode);
@@ -1532,7 +1532,7 @@ codeunit 136203 "Marketing Task Management"
         repeat
             Task.SetRange("Contact No.", SegmentLine."Contact No.");
             Task.SetRange("Segment No.", SegmentLine."Segment No.");
-            Task.FindFirst;
+            Task.FindFirst();
             Task.TestField("Contact Company No.", SegmentLine."Contact Company No.");
             Task.TestField(Date, SegmentLine.Date);
         until SegmentLine.Next = 0;

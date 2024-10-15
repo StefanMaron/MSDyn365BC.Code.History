@@ -108,14 +108,14 @@ codeunit 11503 CHMgt
         if not _EsrBank.Get(ReqESRBankCode) then
             if _PaymentMethodCode <> '' then begin
                 _EsrBank.SetRange("ESR Payment Method Code", _PaymentMethodCode);
-                if not _EsrBank.FindFirst then;
+                if not _EsrBank.FindFirst() then;
             end;
 
 
         if _EsrBank."Bank Code" = '' then begin
             _EsrBank.Reset();
             _EsrBank.SetRange("ESR Main Bank", true);
-            if not _EsrBank.FindFirst then
+            if not _EsrBank.FindFirst() then
                 Error(Text000);  // ESR Bank not found
         end;
 

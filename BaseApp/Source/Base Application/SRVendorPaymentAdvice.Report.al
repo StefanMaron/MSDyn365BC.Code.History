@@ -212,7 +212,7 @@ report 11561 "SR Vendor Payment Advice"
                     trigger OnPreDataItem()
                     begin
                         TempVendLedgEntry.Reset();
-                        if not TempVendLedgEntry.FindSet then
+                        if not TempVendLedgEntry.FindSet() then
                             CurrReport.Break();
                     end;
                 }
@@ -259,7 +259,7 @@ report 11561 "SR Vendor Payment Advice"
                     trigger OnPreDataItem()
                     begin
                         TempRelatedVendLedgEntry.Reset();
-                        if not TempRelatedVendLedgEntry.FindSet then
+                        if not TempRelatedVendLedgEntry.FindSet() then
                             CurrReport.Break();
                     end;
                 }
@@ -435,7 +435,7 @@ report 11561 "SR Vendor Payment Advice"
 
             if (RespPerson = '') and (UserId <> '') then begin
                 User.SetRange("User Name", UserId);
-                if User.FindFirst then
+                if User.FindFirst() then
                     RespPerson := User."Full Name";
             end;
         end;
@@ -550,7 +550,7 @@ report 11561 "SR Vendor Payment Advice"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgEntry.SetRange("Closed by Entry No.", EntryNo);
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 VendLedgEntryBuffer := VendLedgEntry;
                 if VendLedgEntryBuffer.Insert() then;

@@ -36,7 +36,7 @@ report 6036 "Create Contract Service Orders"
                     ServHeader.SetRange("Contract No.", "Contract No.");
                     ServHeader.SetRange(Status, ServHeader.Status::Pending);
 
-                    ServOrderExist := ServHeader.FindFirst;
+                    ServOrderExist := ServHeader.FindFirst();
                     if ServOrderExist then begin
                         ServItemLine.SetCurrentKey("Document Type", "Document No.", "Service Item No.");
                         ServItemLine.SetRange("Document Type", ServHeader."Document Type");
@@ -45,7 +45,7 @@ report 6036 "Create Contract Service Orders"
                         ServItemLine.SetRange("Contract Line No.", "Line No.");
                         OnBeforeFindServiceItemLineOnServiceContractLineAfterGetRecord(
                           ServItemLine, ServHeader, "Service Contract Header", "Service Contract Line");
-                        if ServItemLine.FindFirst then
+                        if ServItemLine.FindFirst() then
                             CurrReport.Skip();
                     end;
                     CreateOrAddToServOrder;
@@ -86,7 +86,7 @@ report 6036 "Create Contract Service Orders"
                     Clear(ContrServOrdersTest);
                     ContrServOrdersTest.InitVariables(StartDate, EndDate);
                     ContrServOrdersTest.SetTableView("Service Contract Header");
-                    ContrServOrdersTest.RunModal;
+                    ContrServOrdersTest.RunModal();
                     CurrReport.Break();
                 end;
             end;
@@ -196,7 +196,7 @@ report 6036 "Create Contract Service Orders"
         ServHeader.SetRange(Status, ServHeader.Status::Pending);
         ServHeader.SetFilter("Order Date", '>=%1', "Service Contract Line"."Next Planned Service Date");
         OnBeforeFindServiceHeader(ServHeader, "Service Contract Header", "Service Contract Line");
-        if not ServHeader.FindFirst then begin
+        if not ServHeader.FindFirst() then begin
             CreateServiceHeader(ServHeader, "Service Contract Header");
             ServOrderCreated := ServOrderCreated + 1;
         end;
@@ -205,7 +205,7 @@ report 6036 "Create Contract Service Orders"
         ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", ServHeader."Document Type");
         ServItemLine.SetRange("Document No.", ServHeader."No.");
-        if ServItemLine.FindLast then
+        if ServItemLine.FindLast() then
             NextLineNo := ServItemLine."Line No."
         else
             NextLineNo := 0;
@@ -217,7 +217,7 @@ report 6036 "Create Contract Service Orders"
         ServItemLine.SetRange("Contract No.", "Service Contract Line"."Contract No.");
         ServItemLine.SetRange("Contract Line No.", "Service Contract Line"."Line No.");
         OnBeforeFindServiceItemLineOnCreateServiceHeader(ServItemLine, ServHeader, "Service Contract Header", "Service Contract Line");
-        if not ServItemLine.FindFirst then
+        if not ServItemLine.FindFirst() then
             CreateServiceItemLine(ServHeader, "Service Contract Line", NextLineNo);
     end;
 

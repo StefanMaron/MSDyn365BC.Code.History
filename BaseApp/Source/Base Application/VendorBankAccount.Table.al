@@ -415,11 +415,11 @@ table 288 "Vendor Bank Account"
 
         if ("Clearing No." <> '') and ("Payment Form" = "Payment Form"::"Bank Payment Domestic") then
             exit("Clearing No.");
-	    
-        OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
 
-        if Handled then exit(ResultBankAccountNo);
-
+	    OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
+	
+	    if Handled then exit(ResultBankAccountNo);
+	
         if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));
 

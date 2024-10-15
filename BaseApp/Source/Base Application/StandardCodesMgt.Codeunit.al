@@ -6,6 +6,7 @@ codeunit 170 "Standard Codes Mgt."
     end;
 
     var
+        SkipRecurringLines: Boolean;
         GetRecurringLinesTxt: Label 'Get Recurring Lines.';
         GetSalesRecurringLinesQst: Label 'Recurring sales lines exist for customer %1. Do you want to insert them on this document?', Comment = '%1 - customer number';
         GetPurchRecurringLinesQst: Label 'Recurring purchase lines exist for vendor %1. Do you want to insert them on this document?', Comment = '%1 - vendor number';
@@ -58,15 +59,22 @@ codeunit 170 "Standard Codes Mgt."
         exit(StandardCustomerSalesCode.FindFirst());
     end;
 
+    procedure SetSkipRecurringLines(SkipRecurringLinesNew: Boolean)
+    begin
+        SkipRecurringLines := SkipRecurringLinesNew;
+    end;
+
     procedure CanCreatePurchRecurringLines(var PurchHeader: Record "Purchase Header") Result: Boolean
     var
-        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCanCreatePurchRecurringLines(PurchHeader, Result, IsHandled);
         if IsHandled then
             exit(Result);
+
+        if SkipRecurringLines then
+            exit(false);
 
         if PurchHeader.IsTemporary then
             exit(false);
@@ -90,6 +98,9 @@ codeunit 170 "Standard Codes Mgt."
 
     local procedure CanCreateSalesRecurringLines(SalesHeader: Record "Sales Header"): Boolean;
     begin
+        if SkipRecurringLines then
+            exit(false);
+
         if SalesHeader.IsTemporary then
             exit(false);
 
@@ -117,7 +128,7 @@ codeunit 170 "Standard Codes Mgt."
         OnBeforeGetSalesRecurringLines(SalesHeader);
 
         StandardCustomerSalesCode.SetFilterByAutomaticAndAlwaysAskCodes(SalesHeader);
-        StandardCustomerSalesCode.FindFirst;
+        StandardCustomerSalesCode.FindFirst();
         if (StandardCustomerSalesCode.Count = 1) and
            StandardCustomerSalesCode.IsInsertRecurringLinesOnDocumentAutomatic(SalesHeader)
         then
@@ -133,7 +144,7 @@ codeunit 170 "Standard Codes Mgt."
         OnBeforeGetPurchRecurringLines(PurchHeader);
 
         StandardVendorPurchaseCode.SetFilterByAutomaticAndAlwaysAskCodes(PurchHeader);
-        StandardVendorPurchaseCode.FindFirst;
+        StandardVendorPurchaseCode.FindFirst();
         if (StandardVendorPurchaseCode.Count = 1) and
            StandardVendorPurchaseCode.IsInsertRecurringLinesOnDocumentAutomatic(PurchHeader)
         then

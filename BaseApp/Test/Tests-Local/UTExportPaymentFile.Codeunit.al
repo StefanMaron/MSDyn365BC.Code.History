@@ -26,7 +26,7 @@ codeunit 144068 "UT - Export Payment File"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT - Export Payment File");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -41,7 +41,7 @@ codeunit 144068 "UT - Export Payment File"
         GenJournalLine: Record "Gen. Journal Line";
         PaymentJournal: TestPage "Payment Journal";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupPaymentJournal(GenJournalLine);
@@ -61,7 +61,7 @@ codeunit 144068 "UT - Export Payment File"
         GenJournalLine: Record "Gen. Journal Line";
         PaymentJournal: TestPage "Payment Journal";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupPaymentJournal(GenJournalLine);
@@ -98,9 +98,9 @@ codeunit 144068 "UT - Export Payment File"
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
         GenJournalTemplate.SetRange("Page ID", PAGE::"Payment Journal");
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
-        if not GenJournalBatch.FindFirst then
+        if not GenJournalBatch.FindFirst() then
             LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 

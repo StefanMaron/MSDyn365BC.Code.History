@@ -50,7 +50,7 @@ codeunit 144005 "VAT Statement"
         // [SCENARIO] Verify Cipher Amount in Swiss VAT Statement Report.
 
         // [GIVEN] Create VAT Posting Setup, General Posting Setup, G/L Account, create and Post Purchase and Sales Invoices, create two VAT Statement Lines.
-        Initialize;
+        Initialize();
         VATStatementTemplateName := PrepareDataForSwissVATStatement(PostedPurchaseInvoiceNo, PostedSalesInvoiceNo);
 
         // [GIVEN] Prepare data for running the report
@@ -90,7 +90,7 @@ codeunit 144005 "VAT Statement"
         // [SCENARIO] Verify report content in the Swiss VAT Statement Report.
 
         // [GIVEN] Create VAT Posting Group, General Posting Group, G/L Account, create and Post Purchase and Sales Invoices, create VAT Statement Lines.
-        Initialize;
+        Initialize();
         VATStatementTemplateName := PrepareDataForSwissVATStatement(PostedPurchaseInvoiceNo, PostedSalesInvoiceNo);
 
         // [GIVEN] Create VAT Settlement
@@ -105,9 +105,9 @@ codeunit 144005 "VAT Statement"
 
         VATEntry.SetRange("Posting Date", WorkDate);
         VATEntry.SetRange("Document No.", SettlementDocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         GLRegister.SetRange("From VAT Entry No.", VATEntry."Entry No.");
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
 
         // [GIVEN] Prepare data for running the report
         SetReportVATRates(NormalRate, ReducedRate, NormalRateOld, ReducedRateOld);
@@ -136,7 +136,7 @@ codeunit 144005 "VAT Statement"
     begin
         // [SCENARIO] Verify that the dates and register number filters are mutually exclusive on the report request page.
         // Setup: Create VAT Posting Group, General Posting Group, G/L Account, create and Post Purchase and Sales Invoices, create VAT Statement Lines.
-        Initialize;
+        Initialize();
         PrepareDataForSwissVATStatement(PostedPurchaseInvoiceNo, PostedSalesInvoiceNo);
         Commit();
 
@@ -162,7 +162,7 @@ codeunit 144005 "VAT Statement"
         ReducedRateOld: Integer;
     begin
         // [SCENARIO 235785] Should be no blank fields in VAT Cipher Setup when run Swiss VAT Statement report
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Cipher Setup where "Total Revenue" is blank
         VATCipherSetup.Get();
@@ -195,13 +195,13 @@ codeunit 144005 "VAT Statement"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 235785] User is able to add VAT Cipher Setup Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open VAT Cipher Codes for new record
-        NewCode := LibraryUtility.GenerateGUID;
+        NewCode := LibraryUtility.GenerateGUID();
         NewDescription :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(VATCipherCode.Description)), 1, MaxStrLen(VATCipherCode.Description));
-        VATCipherCodes.OpenNew;
+        VATCipherCodes.OpenNew();
 
         // [WHEN] Enter "123" to Code, "Description 456" as Description
         VATCipherCodes.Code.SetValue(NewCode);
@@ -221,7 +221,7 @@ codeunit 144005 "VAT Statement"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 235785] All fields in VAT Cipher Setup are editable
-        Initialize;
+        Initialize();
 
         VATCipherSetup.OpenEdit;
         Assert.IsTrue(VATCipherSetup."Total Revenue".Editable, '');
@@ -264,7 +264,7 @@ codeunit 144005 "VAT Statement"
         // [SCENARIO 271803] EndDateOfOldRates is updated on request page of Swiss VAT Statement report
         // [SCENARIO 271803] as last date of previous year for reported period
         // [SCENARIO 271803] and last date of current year when user validates EndDateOfOldRates
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDate(10));
         Commit();
@@ -274,15 +274,15 @@ codeunit 144005 "VAT Statement"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"VAT Statement");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"VAT Statement");
 
         IsInitialized := true;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibrarySetupStorage.Save(DATABASE::"VAT Cipher Setup");
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"VAT Statement");
@@ -403,7 +403,7 @@ codeunit 144005 "VAT Statement"
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure PrepareDataForSwissVATStatement(var PostedPurchaseInvoiceNo: Code[20]; var PostedSalesInvoiceNo: Code[20]): Code[10]
@@ -533,9 +533,9 @@ codeunit 144005 "VAT Statement"
         DatesShouldbeBlankBool: Boolean;
         Date: Text;
     begin
-        SourceCodeSetup.FindFirst;
+        SourceCodeSetup.FindFirst();
         GLRegister.SetFilter("Source Code", SourceCodeSetup."VAT Settlement");
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
 
         LibraryVariableStorage.Dequeue(DatesShouldbeBlank);
         DatesShouldbeBlankBool := DatesShouldbeBlank;

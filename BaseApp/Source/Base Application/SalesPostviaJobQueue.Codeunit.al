@@ -103,7 +103,7 @@ codeunit 88 "Sales Post via Job Queue"
             "Object Type to Run" := "Object Type to Run"::Codeunit;
             "Object ID to Run" := CODEUNIT::"Sales Post via Job Queue";
             "Record ID to Process" := SalesHeader.RecordId;
-            FillJobEntryFromSalesSetup(JobQueueEntry, SalesHeader."Print Posted Documents");
+            FillJobEntryFromSalesSetup(JobQueueEntry);
             FillJobEntrySalesDescription(JobQueueEntry, SalesHeader);
             "User Session ID" := SessionId;
             OnEnqueueJobEntryOnBeforeEnqueue(SalesHeader, JobQueueEntry);
@@ -112,7 +112,7 @@ codeunit 88 "Sales Post via Job Queue"
         end;
     end;
 
-    local procedure FillJobEntryFromSalesSetup(var JobQueueEntry: Record "Job Queue Entry"; PostAndPrint: Boolean)
+    local procedure FillJobEntryFromSalesSetup(var JobQueueEntry: Record "Job Queue Entry")
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin

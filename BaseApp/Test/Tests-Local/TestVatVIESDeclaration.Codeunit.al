@@ -43,7 +43,7 @@ codeunit 142078 "Test Vat VIES Declaration"
         Amount: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         VATEntry.DeleteAll(true);
         DocumentNo := CreateAndPostSalesInvoice(Customer);
 
@@ -57,7 +57,7 @@ codeunit 142078 "Test Vat VIES Declaration"
 
         // Verify
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATRegistrationNo := VATEntry."VAT Registration No.";
 
         Clear(VATEntry);
@@ -87,7 +87,7 @@ codeunit 142078 "Test Vat VIES Declaration"
         ExportedFileName: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         VATEntry.DeleteAll(true);
         DocumentNo := CreateAndPostSalesInvoice(Customer);
 
@@ -101,7 +101,7 @@ codeunit 142078 "Test Vat VIES Declaration"
 
         // Verify
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         LibraryXPathXMLReader.Initialize(ExportedFileName, '');
 
@@ -151,7 +151,7 @@ codeunit 142078 "Test Vat VIES Declaration"
         Commit();
 
         VATVIESDeclarationXML.SetFileName(XMLFileName);
-        VATVIESDeclarationXML.Run;
+        VATVIESDeclarationXML.Run();
     end;
 
     [RequestPageHandler]
@@ -199,7 +199,7 @@ codeunit 142078 "Test Vat VIES Declaration"
             Clear(Customer);
             Customer.SetRange("Country/Region Code", CountryRegion.Code);
             if not Customer.IsEmpty() then begin
-                Customer.FindFirst;
+                Customer.FindFirst();
                 exit;
             end
         until CountryRegion.Next <> 0;

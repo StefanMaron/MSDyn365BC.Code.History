@@ -29,7 +29,7 @@ codeunit 142082 "ERM Excel Reports DACH"
     begin
         // [FEATURE] [Reminder]
         // [SCENARIO 364318] All the lines of Reminder's beginning and Ending text should be printed in "Reminder - Test" Report
-        Initialize;
+        Initialize();
         // [GIVEN] Reminder with 2 lines of beginning and 2 lines of ending texts
         CreateReminderHeader(ReminderHeader);
 
@@ -38,13 +38,13 @@ codeunit 142082 "ERM Excel Reports DACH"
           ReminderHeader."Reminder Terms Code",
           ReminderHeader."Reminder Level",
           ReminderTextBeginning[1].Position::Beginning,
-          LibraryUtility.GenerateGUID);
+          LibraryUtility.GenerateGUID());
         LibraryERM.CreateReminderText(
           ReminderTextBeginning[2],
           ReminderHeader."Reminder Terms Code",
           ReminderHeader."Reminder Level",
           ReminderTextBeginning[2].Position::Beginning,
-          LibraryUtility.GenerateGUID);
+          LibraryUtility.GenerateGUID());
 
         LibraryERM.CreateReminderLine(ReminderLine, ReminderHeader."No.", ReminderLine.Type::"G/L Account");
 
@@ -53,18 +53,18 @@ codeunit 142082 "ERM Excel Reports DACH"
           ReminderHeader."Reminder Terms Code",
           ReminderHeader."Reminder Level",
           ReminderTextEnding[1].Position::Ending,
-          LibraryUtility.GenerateGUID);
+          LibraryUtility.GenerateGUID());
         LibraryERM.CreateReminderText(
           ReminderTextEnding[2],
           ReminderHeader."Reminder Terms Code",
           ReminderHeader."Reminder Level",
           ReminderTextEnding[2].Position::Ending,
-          LibraryUtility.GenerateGUID);
+          LibraryUtility.GenerateGUID());
 
         ReminderHeader.InsertLines;
 
         // [WHEN] Printing "Reminder - Test" Report
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
         ReminderTestReport.SetTableView(ReminderLine);
         ReminderTestReport.SaveAsExcel(LibraryReportValidation.GetFileName);
@@ -94,7 +94,7 @@ codeunit 142082 "ERM Excel Reports DACH"
 
         CustomerPostingGroup.Code :=
           LibraryUtility.GenerateRandomCode(CustomerPostingGroup.FieldNo(Code), DATABASE::"Customer Posting Group");
-        CustomerPostingGroup."Receivables Account" := LibraryERM.CreateGLAccountNo;
+        CustomerPostingGroup."Receivables Account" := LibraryERM.CreateGLAccountNo();
         CustomerPostingGroup.Insert(true);
 
         ReminderHeader."Customer Posting Group" := CustomerPostingGroup.Code;

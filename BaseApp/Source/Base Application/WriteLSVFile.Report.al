@@ -32,7 +32,7 @@ report 3010834 "Write LSV File"
                 if Count > 1 then
                     Error(Text000);
 
-                FindFirst;
+                FindFirst();
             end;
         }
     }
@@ -156,7 +156,7 @@ report 3010834 "Write LSV File"
         CustLedgEntry.SetCurrentKey("LSV No.");
         CustLedgEntry.SetRange("LSV No.", LsvJour."No.");
 
-        if CustLedgEntry.FindSet then
+        if CustLedgEntry.FindSet() then
             repeat
                 // Prepare amount and message
                 CustLedgEntry.CalcFields("Remaining Amount");
@@ -201,14 +201,7 @@ report 3010834 "Write LSV File"
         end else
             FileCurrency := _LsvJour."Currency Code";
 
-#if not CLEAN17
-        if FileMgt.IsLocalFileSystemAccessible then
-            FileMgt.DownloadToFile(ServerTempFilename, LsvSetup."LSV File Folder" + LsvSetup."LSV Filename")
-        else
-            FileMgt.DownloadHandler(ServerTempFilename, '', '', '', LsvSetup."LSV Filename");
-#else
         FileMgt.DownloadHandler(ServerTempFilename, '', '', '', LsvSetup."LSV Filename");
-#endif
 
         Message(Text042, NoOfLines, NoOfRecs, TotalAmt, FileCurrency);
     end;
@@ -255,7 +248,7 @@ report 3010834 "Write LSV File"
             CustomerBankAccount.SetRange(Code, LsvSetup."LSV Customer Bank Code");
 
         // Deb bank not found
-        if not CustomerBankAccount.FindFirst then
+        if not CustomerBankAccount.FindFirst() then
             Error(Text015, CustLedgEntry."Customer No.", LsvSetup."LSV Customer Bank Code");
 
         CustomerBankAccount.TestField("Bank Branch No.");

@@ -284,7 +284,7 @@ codeunit 142034 "UT COD DELIVREM"
         // Verify: Verify New line created in Delivery Reminder with Description.
         DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
         DeliveryReminderLine.SetRange("Attached to Line No.", DeliveryReminderLine."Line No.");
-        DeliveryReminderLine.FindFirst;
+        DeliveryReminderLine.FindFirst();
         DeliveryReminderLine.TestField(Description, ExtendedTextLine.Text);
     end;
 
@@ -501,7 +501,7 @@ codeunit 142034 "UT COD DELIVREM"
     var
         DeliveryReminderLedgerEntry: Record "Delivery Reminder Ledger Entry";
     begin
-        if DeliveryReminderLedgerEntry.FindLast then
+        if DeliveryReminderLedgerEntry.FindLast() then
             exit(DeliveryReminderLedgerEntry."Entry No." + 1);
         exit(1);
     end;

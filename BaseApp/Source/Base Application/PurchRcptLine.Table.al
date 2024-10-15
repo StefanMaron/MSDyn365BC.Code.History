@@ -520,7 +520,7 @@ table 121 "Purch. Rcpt. Line"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -533,7 +533,7 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -547,7 +547,7 @@ table 121 "Purch. Rcpt. Line"
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -559,7 +559,7 @@ table 121 "Purch. Rcpt. Line"
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -679,9 +679,9 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
             Editable = false;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Replaced with field 8512 due to wrong field length';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(8512; "Over-Receipt Code 2"; Code[20])
         {
@@ -1006,13 +1006,13 @@ table 121 "Purch. Rcpt. Line"
 
         FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
         ItemLedgEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ItemLedgEntry.FindSet then begin
+        if ItemLedgEntry.FindSet() then begin
             ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
             ValueEntry.SetFilter("Invoiced Quantity", '<>0');
             repeat
                 ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-                if ValueEntry.FindSet then
+                if ValueEntry.FindSet() then
                     repeat
                         if ValueEntry."Document Type" = ValueEntry."Document Type"::"Purchase Invoice" then
                             if PurchInvLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
@@ -1039,7 +1039,7 @@ table 121 "Purch. Rcpt. Line"
 
         RevUnitCostLCY := 0;
         FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 RemainingQty := RemainingQty + ItemLedgEntry."Remaining Quantity";
                 if ExactCostReverse then begin
@@ -1216,7 +1216,6 @@ table 121 "Purch. Rcpt. Line"
     local procedure TransferOverReceiptCode(var PurchLine: Record "Purchase Line")
     begin
         "Over-Receipt Code 2" := PurchLine."Over-Receipt Code";
-        ClearPurchaseLineOverReceiptCode(PurchLine);
     end;
 
     local procedure UpdateDocumentId()
@@ -1252,12 +1251,6 @@ table 121 "Purch. Rcpt. Line"
     procedure UpdateReferencedIds()
     begin
         UpdateDocumentId();
-    end;
-
-    [Obsolete('Required to avoid overflow error on transferfields, will be removed together with the "Over-Receipt Code" field.', '17.0')]
-    local procedure ClearPurchaseLineOverReceiptCode(var PurchLine: Record "Purchase Line")
-    begin
-        PurchLine."Over-Receipt Code" := '';
     end;
 
     [IntegrationEvent(false, false)]

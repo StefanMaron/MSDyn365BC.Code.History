@@ -34,7 +34,7 @@ codeunit 144010 "Import Post Codes"
         NewCounty: Text;
     begin
         // [SCENARIO 208075] Report "Import Post Codes" have to create post code from .csv file
-        Initialize;
+        Initialize();
 
         // [GIVEN] .csv file with post code "PC"
         CreatePostCodeFile(NewPostCode, NewCity, NewCounty, TempFileName);
@@ -44,7 +44,7 @@ codeunit 144010 "Import Post Codes"
 
         // [WHEN] Run "Import post codes"
         ImportPostCodes.InitializeRequest(TempFileName);
-        ImportPostCodes.RunModal;
+        ImportPostCodes.RunModal();
 
         // [THEN] Post Code "PC" has been imported
         VerifyPostCode(NewPostCode, NewCity, NewCounty);
@@ -63,7 +63,7 @@ codeunit 144010 "Import Post Codes"
         NewCounty: Text;
         NumericPostCodesCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         NumericPostCodesCount := GetNumericPostCodesCount;
@@ -74,7 +74,7 @@ codeunit 144010 "Import Post Codes"
 
         // Exercise.
         ImportPostCodes.InitializeRequest(TempFileName);
-        asserterror ImportPostCodes.RunModal;
+        asserterror ImportPostCodes.RunModal();
 
         // Verify.
         Assert.AreEqual(NumericPostCodesCount, GetNumericPostCodesCount, 'Number of numeric codes should be the same.');

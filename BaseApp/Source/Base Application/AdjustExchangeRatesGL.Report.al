@@ -220,7 +220,7 @@ report 3010536 "Adjust Exchange Rates G/L"
             GenJourBatch.Name := '';
             GenJourTemplate.SetRange(Type, GenJourTemplate.Type::General);
             GenJourTemplate.SetRange(Recurring, false);
-            GenJourTemplate.FindFirst;
+            GenJourTemplate.FindFirst();
         end;
     }
 
@@ -242,11 +242,11 @@ report 3010536 "Adjust Exchange Rates G/L"
             if GenJourBatch.Name = '' then
                 Error(Text001);
 
-            GenJourTemplate.FindFirst;
+            GenJourTemplate.FindFirst();
             GlLine.SetRange("Journal Template Name", GenJourTemplate.Name);
             GlLine.SetRange("Journal Batch Name", GenJourBatch.Name);
             GlLine.SetFilter("Account No.", '<>%1', '');
-            if GlLine.FindFirst then
+            if GlLine.FindFirst() then
                 Error(Text002, GenJourBatch.Name);
             GlLine.SetRange("Account No.");
             GlLine.DeleteAll();

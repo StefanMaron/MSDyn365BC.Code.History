@@ -1124,7 +1124,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [THEN] The file has been imported and a line has been created
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
     end;
 
     [Test]
@@ -1154,7 +1154,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [THEN] The file has been imported and a line has been created
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
     end;
 
     [Test]
@@ -1184,7 +1184,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [THEN] The file has been imported and a line has been created
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
     end;
 
     [Test]
@@ -1208,7 +1208,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "Additional Transaction Info" = "xxxxxxxxx103001x", where "x" is an alphanumeric symbol (0-9,a-z,A-Z).
@@ -1251,7 +1251,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "Additional Transaction Info" = "xxxxxxxxx103001x", where "x" is an alphanumeric symbol (0-9,a-z,A-Z).
@@ -1294,7 +1294,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] Posted sales invoice with "Document No." = "103001"
         LibrarySales.CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "Additional Transaction Info" = "xxxxxxxxx103001x", where "x" is an alphanumeric symbol (0-9,a-z,A-Z).
@@ -1381,7 +1381,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] Posted Sales Invoice with "Document No." = "D1", Amount = "A1" for Customer with Name = "CN1".
         CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with Amount = "A1", "Transaction Text" = "CN1". "ESR Reference No." contains "D1" and alphabetic characters.
@@ -1721,7 +1721,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] Posted Sales Invoice with "Document No." = "D1", Amount = "A1" for Customer with Name = "CN1".
         CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with Amount = "A1", "Transaction Text" = "CN1", "Additional Transaction Info" = "D1". "ESR Reference No." is in ESR format and does not contain "D1".
@@ -1855,7 +1855,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         DataExchLineDef.SetFilter(Namespace, GetNamespace05304);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         exit(DataExchLineDef."Data Exch. Def Code");
     end;
 
@@ -1864,7 +1864,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         DataExchLineDef.SetFilter(Namespace, GetNamespace054);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         exit(DataExchLineDef."Data Exch. Def Code");
     end;
 
@@ -1958,7 +1958,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         with DataExchColumnDef do begin
             SetRange("Data Exch. Def Code", GetCAMT054DataExch);
             SetRange(Name, 'Ntfctn/Ntry/Amt[@Ccy]');
-            FindFirst;
+            FindFirst();
             exit("Column No.");
         end;
     end;
@@ -1970,7 +1970,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         with DataExchColumnDef do begin
             SetRange("Data Exch. Def Code", GetCAMT054DataExch);
             SetRange(Name, 'Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref');
-            FindFirst;
+            FindFirst();
             exit("Column No.");
         end;
     end;
@@ -2444,7 +2444,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Last Statement No."), DATABASE::"Bank Account"));
         BankAccount."Bank Statement Import Format" := BankExportImportSetup.Code;
         BankAccount.IBAN := GetIBANTxt;
-        BankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        BankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         BankAccount.Modify(true);
     end;
 
@@ -2572,7 +2572,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
         MatchBankPayments.SetApplyEntries(ApplyEntries);
         MatchBankPayments.Run(BankAccReconciliationLine);
 
@@ -2603,7 +2603,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         Assert.RecordCount(GenJournalLine, GenJnlLineCount);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         DataExchField.SetRange("Data Exch. No.", GenJournalLine."Data Exch. Entry No.");
         Assert.RecordCount(DataExchField, DataExchFieldCount);
     end;
@@ -2656,7 +2656,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         with DataExchField do begin
             SetRange("Column No.", GetCAMT054DataExchPmtCurrencyColumnNo);
             Assert.RecordCount(DataExchField, 1);
-            FindFirst;
+            FindFirst();
             TestField(Value, ExpetedValue);
         end;
     end;
@@ -2665,7 +2665,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         with DataExchField do begin
             SetRange("Column No.", GetCAMT054DataExchInvRefColumnNo);
-            FindFirst;
+            FindFirst();
             TestField(Value, ExpetedValue);
         end;
     end;
@@ -2673,7 +2673,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     local procedure VerifyImportCAMT054_PmtCount(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; ExpectedCount: Integer)
     begin
         Assert.RecordCount(BankAccReconciliationLine, ExpectedCount);
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
     end;
 
     local procedure VerifyImportCAMT054_OnePayment(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Currency: Text; Amount: Decimal; InvDbtrName: Text; InvRefTxt: Text)

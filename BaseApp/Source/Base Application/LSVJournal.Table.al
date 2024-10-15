@@ -27,7 +27,7 @@ table 3010832 "LSV Journal"
                     LSVJournalLine.Reset();
                     LSVJournalLine.SetRange("LSV Journal No.", "No.");
                     LSVJournalLine.SetRange("LSV Status", LSVJournalLine."LSV Status"::Open);
-                    if LSVJournalLine.FindFirst then
+                    if LSVJournalLine.FindFirst() then
                         "LSV Status" := "LSV Status"::"File Created"
                     else
                         "LSV Status" := "LSV Status"::Finished;
@@ -129,14 +129,14 @@ table 3010832 "LSV Journal"
 
     trigger OnInsert()
     begin
-        if LsvJournal2.FindLast then
+        if LsvJournal2.FindLast() then
             "No." := LsvJournal2."No." + 1
         else
             "No." := 1;
 
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetCurrentKey("LSV No.");
-        if CustLedgerEntry.FindLast then begin
+        if CustLedgerEntry.FindLast() then begin
             if CustLedgerEntry."LSV No." > "No." then
                 "No." := CustLedgerEntry."LSV No." + 1
         end;

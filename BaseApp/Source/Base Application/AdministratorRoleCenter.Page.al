@@ -1,4 +1,4 @@
-page 9018 "Administrator Role Center"
+﻿page 9018 "Administrator Role Center"
 {
     Caption = 'IT Manager';
     PageType = RoleCenter;
@@ -601,13 +601,27 @@ page 9018 "Administrator Role Center"
                     RunObject = Page "Online Map Setup";
                     ToolTip = 'Configure an online map service to show addresses on a map.';
                 }
+#if not CLEAN20
                 action("SMTP Mai&l Setup")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'SMTP Mai&l Setup';
                     Image = MailSetup;
-                    RunObject = Codeunit "Open Mail Setup Page";
+                    RunObject = Page "Email Account Wizard";
                     ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
+                    ObsoleteReason = 'Action is replaced with "Email Account Setup".';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
+                }
+#endif
+                action("Email Account Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Account Setup';
+                    Image = MailSetup;
+                    RunObject = Page "Email Accounts";
+                    ToolTip = 'Set up email accounts used in the product.';
                 }
                 action("Profile Quest&ionnaire Setup")
                 {
@@ -919,6 +933,20 @@ page 9018 "Administrator Role Center"
                                   WHERE("Analysis Area" = CONST(Purchase));
                     ToolTip = 'Define the layout of your views to analyze the dynamics of your purchase volumes.';
                 }
+            }
+            separator(History)
+            {
+                Caption = 'History';
+                IsHeader = true;
+            }
+            action("Navi&gate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                RunObject = Page Navigate;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }
     }

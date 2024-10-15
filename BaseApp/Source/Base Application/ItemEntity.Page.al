@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN20
 page 5470 "Item Entity"
 {
     Caption = 'items', Locked = true;
@@ -256,7 +256,6 @@ page 5470 "Item Entity"
                     Caption = 'LastModifiedDateTime', Locked = true;
                     Editable = false;
                 }
-#if not CLEAN18                
                 part(picture; "Picture Entity")
                 {
                     ApplicationArea = All;
@@ -273,7 +272,6 @@ page 5470 "Item Entity"
                     EntitySetName = 'defaultDimensions';
                     SubPageLink = ParentId = FIELD(SystemId);
                 }
-#endif                
             }
         }
     }

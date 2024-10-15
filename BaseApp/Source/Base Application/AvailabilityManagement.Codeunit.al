@@ -138,12 +138,12 @@ codeunit 99000889 AvailabilityManagement
             AvailabilityDate := WorkDate;
 
         OrderPromisingLine."Unavailability Date" :=
-          AvailToPromise.AdjustedEndingDate(
+          AvailToPromise.GetPeriodEndingDate(
             CalcDate(CompanyInfo."Check-Avail. Period Calc.", AvailabilityDate), CompanyInfo."Check-Avail. Time Bucket");
 
         AvailToPromise.SetPromisingReqShipDate(OrderPromisingLine);
         exit(
-          AvailToPromise.QtyAvailabletoPromise(
+          AvailToPromise.CalcQtyAvailabletoPromise(
             Item, GrossRequirement, ScheduledReceipt, AvailabilityDate,
             CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc."));
     end;
@@ -175,7 +175,7 @@ codeunit 99000889 AvailabilityManagement
                                 SalesLine.CalcFields("Reserved Quantity");
                                 OldCTPQty := QtyReservedTotal - SalesLine."Reserved Quantity";
                                 FeasibleDate :=
-                                  CapableToPromise.CalcCapableToPromise(
+                                  CapableToPromise.CalcCapableToPromiseDate(
                                     "Item No.", "Variant Code", "Location Code",
                                     "Original Shipment Date",
                                     "Unavailable Quantity" + OldCTPQty, "Unit of Measure Code",
@@ -198,7 +198,7 @@ codeunit 99000889 AvailabilityManagement
                                 ServLine.CalcFields("Reserved Quantity");
                                 OldCTPQty := QtyReservedTotal - ServLine."Reserved Quantity";
                                 FeasibleDate :=
-                                  CapableToPromise.CalcCapableToPromise(
+                                  CapableToPromise.CalcCapableToPromiseDate(
                                     "Item No.", "Variant Code", "Location Code",
                                     "Original Shipment Date",
                                     "Unavailable Quantity" + OldCTPQty, "Unit of Measure Code",
@@ -224,7 +224,7 @@ codeunit 99000889 AvailabilityManagement
                                 JobPlanningLine.CalcFields("Reserved Quantity");
                                 OldCTPQty := QtyReservedTotal - JobPlanningLine."Reserved Quantity";
                                 FeasibleDate :=
-                                  CapableToPromise.CalcCapableToPromise(
+                                  CapableToPromise.CalcCapableToPromiseDate(
                                     "Item No.", "Variant Code", "Location Code",
                                     "Original Shipment Date",
                                     "Unavailable Quantity" + OldCTPQty, "Unit of Measure Code",
@@ -293,7 +293,7 @@ codeunit 99000889 AvailabilityManagement
                                     FeasibleDateFound := true;
                                 end;
                         if not FeasibleDateFound then
-                            FeasibleDate := AvailToPromise.EarliestAvailabilityDate(
+                            FeasibleDate := AvailToPromise.CalcEarliestAvailabilityDate(
                                 Item, Quantity, NeededDate, Quantity, "Original Shipment Date", AvailQty,
                                 CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
 
@@ -338,7 +338,7 @@ codeunit 99000889 AvailabilityManagement
                         JobPlanningLine.SetRange(Status, "Source Subtype");
                         JobPlanningLine.SetRange("Job No.", "Source ID");
                         JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
-                        if JobPlanningLine.FindFirst then
+                        if JobPlanningLine.FindFirst() then
                             exit(JobPlanningLine."Requested Delivery Date");
                     end;
             end;
@@ -411,7 +411,7 @@ codeunit 99000889 AvailabilityManagement
                     JobPlanningLine.SetRange(Status, OrderPromisingLine2."Source Subtype");
                     JobPlanningLine.SetRange("Job No.", OrderPromisingLine2."Source ID");
                     JobPlanningLine.SetRange("Job Contract Entry No.", OrderPromisingLine2."Source Line No.");
-                    JobPlanningLine.FindFirst;
+                    JobPlanningLine.FindFirst();
                     if OrderPromisingLine2."Earliest Shipment Date" <> 0D then
                         JobPlanningLine.Validate("Planning Date", OrderPromisingLine2."Earliest Shipment Date");
 
@@ -480,7 +480,7 @@ codeunit 99000889 AvailabilityManagement
                     JobPlanningLine2.SetRange(Status, OrderPromisingLine."Source Subtype");
                     JobPlanningLine2.SetRange("Job No.", OrderPromisingLine."Source ID");
                     JobPlanningLine2.SetRange("Job Contract Entry No.", OrderPromisingLine."Source Line No.");
-                    JobPlanningLine2.FindFirst;
+                    JobPlanningLine2.FindFirst();
 
                     JobPlanningLine2.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
                     NeededQty := JobPlanningLine2."Remaining Qty." - JobPlanningLine2."Reserved Quantity";
@@ -495,7 +495,7 @@ codeunit 99000889 AvailabilityManagement
         ReqLine.SetRange("Order Promising Line ID", OrderPromisingLine."Source Line No.");
         ReqLine.SetRange(Type, ReqLine.Type::Item);
         ReqLine.SetRange("No.", OrderPromisingLine."Item No.");
-        if ReqLine.FindFirst then begin
+        if ReqLine.FindFirst() then begin
             if ReqLine."Quantity (Base)" > NeededQtyBase then begin
                 ReservQty := NeededQty;
                 ReservQtyBase := NeededQtyBase

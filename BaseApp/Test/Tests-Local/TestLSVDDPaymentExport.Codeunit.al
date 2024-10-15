@@ -49,7 +49,7 @@ codeunit 144040 "Test LSV DD Payment Export"
     var
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LSVSetup.Init();
@@ -73,7 +73,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         Path: Text[250];
         CustomerID: Text[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         Path := CreateGuid;
@@ -120,7 +120,7 @@ codeunit 144040 "Test LSV DD Payment Export"
     var
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LSVSetup.Init();
@@ -138,7 +138,7 @@ codeunit 144040 "Test LSV DD Payment Export"
     var
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LSVSetup.Init();
@@ -159,7 +159,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJnl: Record "LSV Journal";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -184,7 +184,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlLine: Record "LSV Journal Line";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -214,7 +214,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlLine: Record "LSV Journal Line";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Currency.Init();
@@ -248,7 +248,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlLine: Record "LSV Journal Line";
         Path: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -279,7 +279,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJnlLine: Record "LSV Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -307,7 +307,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -316,7 +316,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
 
         CustomerBankAccount.SetRange("Customer No.", Customer."No.");
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
         CustomerBankAccount.Validate(IBAN, '');
         CustomerBankAccount.Modify(true);
 
@@ -340,7 +340,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlLine: Record "LSV Journal Line";
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -349,7 +349,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
 
         CustomerBankAccount.SetRange("Customer No.", Customer."No.");
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
         CustomerBankAccount.Validate(IBAN, '');
         CustomerBankAccount.Validate("Bank Account No.",
           LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Bank Account No."), DATABASE::"Customer Bank Account"));
@@ -376,7 +376,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -405,7 +405,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -433,7 +433,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlLine: Record "LSV Journal Line";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -467,7 +467,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJnlLine: Record "LSV Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -492,7 +492,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl: Record "LSV Journal";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -518,7 +518,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJnlLine: Record "LSV Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -546,7 +546,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJnlLine: Record "LSV Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -583,7 +583,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
         CollectionAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -594,7 +594,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("No.", '<>%1', '');
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Line Amount", LibraryRandom.RandDec(SalesLine."Line Amount", 2));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -619,7 +619,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         CollectionAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -644,7 +644,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         CollectionAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -669,7 +669,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlLine: Record "LSV Journal Line";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -698,7 +698,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl: Record "LSV Journal";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -726,7 +726,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl: Record "LSV Journal";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -753,7 +753,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl: Record "LSV Journal";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -761,7 +761,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         SuggestLSVJournalLines(LSVJnl);
         CollectLSVJournalLinesFromLSVJournalList(LSVJnl);
         CustomerBankAccount.SetRange("Customer No.", Customer."No.");
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
         CustomerBankAccount.Validate("Giro Account No.", '');
         CustomerBankAccount.Modify(true);
 
@@ -786,7 +786,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         FileMgt: Codeunit "File Management";
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -807,9 +807,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         VerifyLSVJnl(LSVJnl."LSV Status"::"File Created",
           FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
         FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
-#if not CLEAN17
-        FileName := FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
-#endif
         VerifyDDRecord(LSVJnl, LSVSetup, 1, LSVJnl."Amount Plus", Customer."No.", LibraryTextFileValidation.ReadLine(FileName, 2));
         VerifyDDTotalRecord(LSVJnl, 1, LibraryTextFileValidation.ReadLine(FileName, 3));
     end;
@@ -823,7 +820,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl: Record "LSV Journal";
         LSVSetup: Record "LSV Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -851,7 +848,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetupPage: TestPage "LSV Setup";
         Path: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -862,9 +859,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetupPage."&Write DebiDirect Testfile".Invoke;
 
         // Verify.
-#if not CLEAN17
-        asserterror FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
-#endif
         Path := LSVSetup."LSV File Folder" + LSVSetup."LSV Filename";
         Assert.ExpectedError(StrSubstNo(FileNotExistErr, Path));
     end;
@@ -879,7 +873,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJournalList: TestPage "LSV Journal List";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -907,7 +901,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJournalList: TestPage "LSV Journal List";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -931,7 +925,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         Customer: Record Customer;
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -958,7 +952,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         // [SCENARIO] Run "LSV Collection Authorization" report
 
         // [GIVEN] LSV Setup where "LSV Customer ID" = "Customer 1" and "LSV Currency Code" = "CC 1"
-        Initialize;
+        Initialize();
 
         CreateLSVSetupAndCustomer(LSVSetup, Customer);
         LibraryVariableStorage.Enqueue(LSVSetup."Bank Code");
@@ -985,7 +979,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         // [SCENARIO] Export "LSV Collection Authorization" report as Excel
 
         // [GIVEN] LSV Setup where "LSV Customer ID" = "Customer 1" and "LSV Currency Code" = "CC 1"
-        Initialize;
+        Initialize();
 
         CreateLSVSetupAndCustomer(LSVSetup, Customer);
         LibraryVariableStorage.Enqueue(LSVSetup."Bank Code");
@@ -1010,7 +1004,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJournalList: TestPage "LSV Journal List";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -1037,7 +1031,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJournalList: TestPage "LSV Journal List";
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -1066,7 +1060,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
         LSVJournalList: TestPage "LSV Journal List";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
@@ -1096,7 +1090,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup: Record "LSV Setup";
     begin
         // [SCENARIO 212494] LSV File should be created and Customer Ledger Entry updated when Payment Discount is updated on LSV Journal Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Remaining Amount = 100 and "Remaining Pmt. Disc. Possible" = 10.
         // [GIVEN] LSV Journal line is suggested with Collection Amount = 90, Remaining Amount = 100, Payment Discount = 10.
@@ -1122,7 +1116,7 @@ codeunit 144040 "Test LSV DD Payment Export"
           LSVJnl."LSV Status"::"File Created",
           FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
         // [THEN] Customer Ledger Entry has "Remaining Pmt. Disc. Possible" = 0
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Remaining Pmt. Disc. Possible", 0);
         // [THEN] Collection Amount = 100 is exported
         FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
@@ -1131,8 +1125,8 @@ codeunit 144040 "Test LSV DD Payment Export"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
 
         if IsInitialized then
@@ -1182,9 +1176,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         CreateLSVSalesDoc(SalesHeader, Customer."No.", SalesHeader."Document Type"::Invoice);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-#if not CLEAN17
-        FileMgt.DeleteClientFile(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
-#endif
     end;
 
     local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Option)
@@ -1372,7 +1363,7 @@ codeunit 144040 "Test LSV DD Payment Export"
             LSVJnlLine.SetRange("Pmt. Discount", CustLedgEntry."Remaining Pmt. Disc. Possible");
             LSVJnlLine.SetRange("Direct Debit Mandate ID", CustLedgEntry."Direct Debit Mandate ID");
             Assert.AreEqual(1, LSVJnlLine.Count, 'Unexpected LSV journal lines.');
-            LSVJnlLine.FindFirst;
+            LSVJnlLine.FindFirst();
             LSVJnlLine.TestField("LSV Status", LSVJnlLine."LSV Status"::Open);
         until CustLedgEntry.Next = 0;
     end;
@@ -1413,17 +1404,12 @@ codeunit 144040 "Test LSV DD Payment Export"
         FileMgt: Codeunit "File Management";
         Line: Text;
     begin
-#if not CLEAN17
-        Line :=
-          LibraryTextFileValidation.ReadLine(
-            FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename"), 1);
-#endif
         CheckColumnValue('8750', Line, 1, 4);
         CheckColumnValue(Test, Line, 5, 1);
         CheckColumnValue(Format(LSVJnl."Credit Date", 8, '<year4><month,2><day,2>'), Line, 6, 8);
 
         CustomerBankAccount.SetRange("Customer No.", LSVJnlLine."Customer No.");
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
 
         CheckColumnValue(CustomerBankAccount."Bank Branch No.", Line, 14, 5);
         CheckColumnValue(Format(Today, 8, '<year4><month,2><day,2>'), Line, 19, 8);
@@ -1450,9 +1436,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         FileName: Text;
         LineNo: Integer;
     begin
-#if not CLEAN17
-        FileName := FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
-#endif
         LineNo := 2;
         repeat
             Line := LibraryTextFileValidation.ReadLine(FileName, LineNo);
@@ -1477,7 +1460,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         CheckColumnValue(Format(100 * LSVJnlLineAmount, 0, '<Integer,13><Filler Character,0>'), Line, 54, 13);
 
         CustomerBankAccount.SetRange("Customer No.", LSVJnlLineCustomerNo);
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
         CheckColumnValue(DelChr(CustomerBankAccount."Giro Account No.", '=', '-'), Line, 73, 9);
     end;
 
@@ -1535,7 +1518,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         CustomerBankAccount.SetRange("Customer No.", CustomerNo);
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Code_CustBankAcct', CustomerBankAccount.Code);

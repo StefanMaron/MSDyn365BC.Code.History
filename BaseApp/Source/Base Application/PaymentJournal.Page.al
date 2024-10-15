@@ -730,7 +730,7 @@ page 256 "Payment Journal"
                     begin
                         Clear(DtaSuggestVendPmt);
                         DtaSuggestVendPmt.DefineJournalName(Rec);
-                        DtaSuggestVendPmt.RunModal;
+                        DtaSuggestVendPmt.RunModal();
                     end;
                 }
                 action("Print Payment Journal")
@@ -760,7 +760,7 @@ page 256 "Payment Journal"
                     begin
                         Clear(VendPmtAdvice);
                         VendPmtAdvice.DefineJourBatch(Rec);
-                        VendPmtAdvice.RunModal;
+                        VendPmtAdvice.RunModal();
                     end;
                 }
                 action("Show &Open Invoices")
@@ -995,7 +995,7 @@ page 256 "Payment Journal"
                     begin
                         Clear(SuggestVendorPayments);
                         SuggestVendorPayments.SetGenJnlLine(Rec);
-                        SuggestVendorPayments.RunModal;
+                        SuggestVendorPayments.RunModal();
                     end;
                 }
                 action(SuggestEmployeePayments)
@@ -1015,7 +1015,7 @@ page 256 "Payment Journal"
                     begin
                         Clear(SuggestEmployeePayments);
                         SuggestEmployeePayments.SetGenJnlLine(Rec);
-                        SuggestEmployeePayments.RunModal;
+                        SuggestEmployeePayments.RunModal();
                     end;
                 }
                 action(PreviewCheck)
@@ -1076,7 +1076,7 @@ page 256 "Payment Journal"
 
                             Window.Open(GeneratingPaymentsMsg);
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.ExportPaymentFile;
                             Window.Close;
                         end;
@@ -1095,7 +1095,7 @@ page 256 "Payment Journal"
                         trigger OnAction()
                         begin
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.VoidPaymentFile;
                         end;
                     }
@@ -1113,7 +1113,7 @@ page 256 "Payment Journal"
                         trigger OnAction()
                         begin
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.TransmitPaymentFile;
                         end;
                     }
@@ -1182,6 +1182,25 @@ page 256 "Payment Journal"
                     PromotedCategory = Category4;
                     RunObject = Page "Credit Transfer Registers";
                     ToolTip = 'View or edit the payment files that have been exported in connection with credit transfers.';
+                }
+                action(NetCustomerVendorBalances)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Net Customer/Vendor Balances';
+                    Image = Balance;
+                    ToolTip = 'Create journal lines to consolidate customer and vendor balances as of a specified date. This is relevant when you do business with a company that is both a customer and a vendor. Depending on which is larger, the balance will be netted for either the payable or receivable amount.';
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+
+                    trigger OnAction()
+                    var
+                        NetCustomerVendorBalances: Report "Net Customer/Vendor Balances";
+                    begin
+                        NetCustomerVendorBalances.SetGenJnlLine(Rec);
+                        NetCustomerVendorBalances.RunModal();
+                    end;
                 }
             }
             action(Approvals)
@@ -1332,7 +1351,7 @@ page 256 "Payment Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action(PreCheck)
@@ -1538,7 +1557,7 @@ page 256 "Payment Journal"
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter);
-                        FlowTemplateSelector.Run;
+                        FlowTemplateSelector.Run();
                     end;
                 }
                 action(SeeFlows)
@@ -1818,6 +1837,7 @@ page 256 "Payment Journal"
         DocPrint: Codeunit "Document-Print";
         CheckManagement: Codeunit CheckManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         DtaMgt: Codeunit DtaMgt;
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
@@ -1911,8 +1931,8 @@ page 256 "Payment Journal"
     local procedure EnableApplyEntriesAction()
     begin
         ApplyEntriesActionEnabled :=
-          ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) or
-          ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]);
+          ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee]) or
+          ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::Employee]);
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -1956,7 +1976,7 @@ page 256 "Payment Journal"
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);

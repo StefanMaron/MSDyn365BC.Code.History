@@ -35,7 +35,9 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "Gen. Journal Template" = RI,
                   tabledata "General Ledger Setup" = r,
                   tabledata "General Posting Setup" = r,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Notification Entry" = Rimd,
                   tabledata "Restricted Record" = Rimd,
                   tabledata "Reversal Entry" = RIMD,

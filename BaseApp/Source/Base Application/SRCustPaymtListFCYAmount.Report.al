@@ -267,7 +267,7 @@ report 11569 "SR Cust. Paymt List FCY Amount"
         if (_FcyAmt <> 0) and (_FcyAmt <> _LcyAmt) then begin
             CurrExchRate.SetRange("Currency Code", "Cust. Ledger Entry"."Currency Code");
             CurrExchRate.SetFilter("Starting Date", '<=%1', "Cust. Ledger Entry"."Posting Date");
-            if CurrExchRate.FindLast then;
+            if CurrExchRate.FindLast() then;
             _ExRate := Round(_LcyAmt * CurrExchRate."Exchange Rate Amount" / _FcyAmt, 0.001);
         end else
             _ExRate := 0;

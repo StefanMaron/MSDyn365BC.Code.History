@@ -1,4 +1,4 @@
-﻿codeunit 1240 "Read Data Exch. from File"
+codeunit 1240 "Read Data Exch. from File"
 {
     TableNo = "Data Exch.";
 
@@ -21,7 +21,7 @@
         DataExchMapping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchMapping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
         DataExchMapping.SetRange("Table ID", DATABASE::"Bank Acc. Reconciliation Line");
-        if DataExchMapping.FindFirst then
+        if DataExchMapping.FindFirst() then
             if DataExchMapping."Mapping Codeunit" = CODEUNIT::"SEPA CAMT 054 Bank Rec. Lines" then
                 XMLSplitPaymentPerInvoices(TempBlob);
 

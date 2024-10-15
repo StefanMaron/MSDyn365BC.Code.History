@@ -197,7 +197,7 @@ codeunit 11110 "Update VAT-AT"
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
             SetRange("VAT %");
-            if FindSet then begin
+            if FindSet() then begin
                 InsertData('', '', 3, 0, 0, '', false, false);
                 InsertData('', 'Lieferungen in die EU', 3, 0, 0, '', false, false);
                 repeat
@@ -336,7 +336,7 @@ codeunit 11110 "Update VAT-AT"
             SetRange("VAT Calculation Type", VATCalculationType);
             SetRange("VAT %", VATPercentage);
             SetFilter("VAT Prod. Posting Group", GetFilterString(IsAgriculture, AgricultureVATProdPostingGroups));
-            if FindSet then
+            if FindSet() then
                 repeat
                     InsertData(
                       RowNoPrefix + Format(VATPercentage),

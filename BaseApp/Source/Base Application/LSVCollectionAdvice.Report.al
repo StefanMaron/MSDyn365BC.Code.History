@@ -259,7 +259,7 @@ report 3010838 "LSV Collection Advice"
 
             if (ResponsiblePerson = '') and (UserId <> '') then begin
                 User.SetRange("User Name", UserId);
-                if User.FindFirst then
+                if User.FindFirst() then
                     ResponsiblePerson := User."Full Name";
             end;
         end;

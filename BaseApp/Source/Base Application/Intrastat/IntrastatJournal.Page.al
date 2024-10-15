@@ -329,7 +329,7 @@
                 trigger OnAction()
                 begin
                     GetItemEntries.SetIntrastatJnlLine(Rec);
-                    GetItemEntries.RunModal;
+                    GetItemEntries.RunModal();
                     Clear(GetItemEntries);
                 end;
             }

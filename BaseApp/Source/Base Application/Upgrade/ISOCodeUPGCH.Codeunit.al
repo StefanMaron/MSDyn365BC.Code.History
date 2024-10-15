@@ -27,7 +27,7 @@ codeunit 104151 "ISO Code UPG.CH"
 
         WITH Currency DO BEGIN
             SETFILTER("ISO Currency Code", '<>%1', '');
-            IF FINDSET THEN
+            IF FindSet() then
                 REPEAT
                     "ISO Code" := "ISO Currency Code";
                     MODIFY;

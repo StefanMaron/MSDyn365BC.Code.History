@@ -78,7 +78,7 @@ codeunit 134275 "Currency UT"
     begin
         // [FEATURE] [ISO Code] [UI]
         // [SCENARIO] "ISO Code" and "ISO Numeric Code" are editable on the Currencies page
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Country 'A', where "ISO Code" is 'YYY', "ISO Numeric Code" is '001'
         Currency.Init();
         Currency.Code := 'A';
@@ -111,7 +111,7 @@ codeunit 134275 "Currency UT"
     begin
         // [FEATURE] [ISO Code] [UI]
         // [SCENARIO] "ISO Code" and "ISO Numeric Code" are editable on the Currency Card page
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Country 'B', where "ISO Code" is 'YYY', "ISO Numeric Code" is '001'
         Currency.Init();
         Currency.Code := 'B';
@@ -142,7 +142,7 @@ codeunit 134275 "Currency UT"
         Currency: Record Currency;
     begin
         // [SCENARIO] Insert Currency with blank Code
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Create Currency with blank Code
         Currency.Init();

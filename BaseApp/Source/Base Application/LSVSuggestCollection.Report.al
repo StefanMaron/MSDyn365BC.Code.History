@@ -40,7 +40,7 @@ report 3010831 "LSV Suggest Collection"
                     CrMemoCustEntry.SetRange("Customer No.", "No.");
                     CrMemoCustEntry.SetRange(Open, true);
                     CrMemoCustEntry.SetRange(Positive, false);
-                    if CrMemoCustEntry.FindFirst then begin
+                    if CrMemoCustEntry.FindFirst() then begin
                         NoOfCustWithCreditMemo := NoOfCustWithCreditMemo + 1;
                         CustCreditMemoTxt := CopyStr(CustCreditMemoTxt + Customer."No." + ', ', 1, 250);
                     end;
@@ -219,7 +219,7 @@ report 3010831 "LSV Suggest Collection"
                 LSVJourLineCheck.SetCurrentKey("Applies-to Doc. No.");
                 LSVJourLineCheck.SetRange("Applies-to Doc. No.", ActCustLedgEntry."Document No.");
                 LSVJourLineCheck.SetRange("LSV Status", "LSV Status"::Open, "LSV Status"::"Transferred to Pmt. Journal");
-                if LSVJourLineCheck.FindFirst then
+                if LSVJourLineCheck.FindFirst() then
                     exit;
 
                 Init;

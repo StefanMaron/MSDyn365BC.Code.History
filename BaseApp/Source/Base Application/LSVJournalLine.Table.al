@@ -86,7 +86,7 @@ table 3010834 "LSV Journal Line"
 
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                if not CustLedgEntry.FindFirst then
+                if not CustLedgEntry.FindFirst() then
                     Error(Text000);
 
                 "Cust. Ledg. Entry No." := CustLedgEntry."Entry No.";
@@ -248,7 +248,7 @@ table 3010834 "LSV Journal Line"
         UpdateCustLedgEntry("Cust. Ledg. Entry No.", "LSV Journal No.", 1);
 
         LSVJournalLine2.SetRange("LSV Journal No.", "LSV Journal No.");
-        if LSVJournalLine2.FindLast then
+        if LSVJournalLine2.FindLast() then
             "Line No." := LSVJournalLine2."Line No." + 1
         else
             "Line No." := 1;

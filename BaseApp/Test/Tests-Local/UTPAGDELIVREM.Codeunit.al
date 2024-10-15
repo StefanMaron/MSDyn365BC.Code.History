@@ -218,7 +218,7 @@ codeunit 142041 "UT PAG DELIVREM"
         // Verify: Verify Text of Extended Text Line is updated as Description of Delivery Reminder Line.
         DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
         DeliveryReminderLine.SetRange("Attached to Line No.", DeliveryReminderLine."Line No.");
-        DeliveryReminderLine.FindFirst;
+        DeliveryReminderLine.FindFirst();
         DeliveryReminderLine.TestField(Description, ExtendedTextLine.Text);
     end;
 
@@ -258,7 +258,7 @@ codeunit 142041 "UT PAG DELIVREM"
         // [FEATURE] [UI]
         // [SCENARIO 284485] Page 5005275 "Issued Delivery Reminders List" has a valid Print Action
         // [GIVEN] Page "Issued Delivery Reminders List" open
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         IssuedDeliveryRemindersList.OpenView;
         // [WHEN] Invoke Print Action
         // [THEN] Report "Issued Delivery Reminder" is called
@@ -319,7 +319,7 @@ codeunit 142041 "UT PAG DELIVREM"
 
     local procedure CreateIssuedDelivReminderHeaderWithPostingDate(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header")
     begin
-        IssuedDelivReminderHeader."No." := LibraryUtility.GenerateGUID;
+        IssuedDelivReminderHeader."No." := LibraryUtility.GenerateGUID();
         IssuedDelivReminderHeader."Posting Date" := LibraryRandom.RandDate(100);
         IssuedDelivReminderHeader.Insert();
     end;
@@ -335,7 +335,7 @@ codeunit 142041 "UT PAG DELIVREM"
     var
         DeliveryReminderLedgerEntry: Record "Delivery Reminder Ledger Entry";
     begin
-        if DeliveryReminderLedgerEntry.FindLast then
+        if DeliveryReminderLedgerEntry.FindLast() then
             exit(DeliveryReminderLedgerEntry."Entry No." + 1);
         exit(1);
     end;

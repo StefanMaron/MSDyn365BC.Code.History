@@ -126,7 +126,7 @@ codeunit 26100 "Update VAT-CH"
             InsertVatStatLine(Text007, '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
 
             SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Revenue of Non-Tax. Services", VATCipherSetup.Miscellaneous);
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if "Sales VAT Stat. Cipher" <> VATCipherSetup."Reduction in Payments" then begin
                         InsertVatStatLine(
@@ -138,7 +138,7 @@ codeunit 26100 "Update VAT-CH"
             end;
 
             SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Reduction in Payments");
-            if FindFirst then begin
+            if FindFirst() then begin
                 repeat
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, false, false,
@@ -148,7 +148,7 @@ codeunit 26100 "Update VAT-CH"
             end;
 
             SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Tax Normal Rate Serv. Before", VATCipherSetup."Tax Hotel Rate Serv. After");
-            if FindFirst then begin
+            if FindFirst() then begin
                 repeat
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, true, false,
@@ -158,7 +158,7 @@ codeunit 26100 "Update VAT-CH"
             end;
 
             SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Acquisition Tax Before", VATCipherSetup."Acquisition Tax After");
-            if FindFirst then begin
+            if FindFirst() then begin
                 repeat
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, false, false,
@@ -199,7 +199,7 @@ codeunit 26100 "Update VAT-CH"
               VATCipherSetup.Miscellaneous);
 
             SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Deduction of Tax-Exempt", VATCipherSetup.Miscellaneous);
-            if FindFirst then begin
+            if FindFirst() then begin
                 InsertVatStatLine(Text023, 'Z220|Z221|Z225|Z230|Z235|Z280', 'Z289', true, false, true,
                   "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", VATCipherSetup."Total Deductions");
                 if RowTotValue <> '' then
@@ -268,7 +268,7 @@ codeunit 26100 "Update VAT-CH"
             CreatePurchStatLine(
               VATCipherSetup."Input Tax Cutbacks", Text041, false, true, Text040, false, false, VATCipherSetup."Input Tax Cutbacks");
             SetRange("Purch. VAT Stat. Cipher", VATCipherSetup."Input Tax on Material and Serv", VATCipherSetup."Input Tax Cutbacks");
-            if FindFirst then
+            if FindFirst() then
                 InsertVatStatLine(Text042, 'Z400|Z405|Z410|Z415|Z420', 'Z479', true, false, false,
                   "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", VATCipherSetup."Total Input Tax");
         end;
@@ -279,7 +279,7 @@ codeunit 26100 "Update VAT-CH"
         VATPostingSetup.Reset();
         with VATPostingSetup do begin
             SetFilter("Sales VAT Stat. Cipher", '%1|%2', VATCipherSetup."Cash Flow Taxes", VATCipherSetup."Cash Flow Compensations");
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
             InsertVatStatLine('', '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
             InsertVatStatLine(Text043, '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
@@ -329,7 +329,7 @@ codeunit 26100 "Update VAT-CH"
     begin
         with VATPostingSetup do begin
             SetRange("Sales VAT Stat. Cipher", FromCipher);
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if CheckCondition then begin
                         if VATCalcType <> VATCalcType::"Reverse Charge VAT" then
@@ -355,7 +355,7 @@ codeunit 26100 "Update VAT-CH"
     begin
         with VATPostingSetup do begin
             SetRange("Purch. VAT Stat. Cipher", FromCipher);
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     InsertVatStatLine(
                       Format(LinTxtConst + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '',

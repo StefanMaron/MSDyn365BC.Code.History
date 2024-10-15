@@ -41,7 +41,6 @@ codeunit 5813 "Undo Purchase Receipt Line"
         Text003: Label 'Checking lines...';
         NextLineNo: Integer;
         Text004: Label 'This receipt has already been invoiced. Undo Receipt can be applied only to posted, but not invoiced receipts.';
-        Text005: Label 'Undo Receipt can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         AllLinesCorrectedErr: Label 'All lines have been already corrected.';
         AlreadyReversedErr: Label 'This receipt has already been reversed.';
 
@@ -351,7 +350,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         if IsHandled then
             exit;
 
-        if TempApplyToEntryList.FindSet then
+        if TempApplyToEntryList.FindSet() then
             repeat
                 UndoPostingMgt.ReapplyJobConsumption(TempApplyToEntryList."Entry No.");
             until TempApplyToEntryList.Next() = 0;

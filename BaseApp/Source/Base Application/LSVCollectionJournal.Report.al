@@ -136,7 +136,7 @@ report 3010832 "LSV Collection Journal"
                     CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     CustLedgEntry.SetRange("Customer No.", "Customer No.");
 
-                    if not CustLedgEntry.FindFirst then
+                    if not CustLedgEntry.FindFirst() then
                         xTxt := Text001;
                     if not CustLedgEntry.Open then
                         xTxt := Text002;
@@ -153,7 +153,7 @@ report 3010832 "LSV Collection Journal"
                 CrMemoCustEntry.SetRange("Customer No.", "Customer No.");
                 CrMemoCustEntry.SetRange(Open, true);
                 CrMemoCustEntry.SetRange(Positive, false);
-                if CrMemoCustEntry.FindFirst then
+                if CrMemoCustEntry.FindFirst() then
                     xTxt := Text005;
 
                 // Cust. Bank
@@ -162,7 +162,7 @@ report 3010832 "LSV Collection Journal"
                 if DebBank.Count > 1 then
                     DebBank.SetRange(Code, LsvSetup."LSV Customer Bank Code");
 
-                if not DebBank.FindFirst then
+                if not DebBank.FindFirst() then
                     xTxt := Text006;
 
                 if LsvSetup."DebitDirect Customerno." = '' then begin

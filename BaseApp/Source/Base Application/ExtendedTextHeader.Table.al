@@ -251,7 +251,7 @@ table 279 "Extended Text Header"
         ExtTextHeader.SetRange("No.", "No.");
         ExtTextHeader.SetRange("Language Code", "Language Code");
 
-        if ExtTextHeader.FindLast then
+        if ExtTextHeader.FindLast() then
             "Text No." := ExtTextHeader."Text No." + 1
         else
             "Text No." := 1;

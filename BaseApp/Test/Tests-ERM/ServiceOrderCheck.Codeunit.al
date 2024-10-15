@@ -43,7 +43,7 @@ codeunit 136114 "Service Order Check"
         // Check Order Creation.
 
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Item, Service Order with Header and Service Item Line.
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
@@ -65,7 +65,7 @@ codeunit 136114 "Service Order Check"
         // Check All fault code exist on Service Item Line after adding Service Line.
 
         // 1. Setup: Create Service Item, Service Order with Header and Service Item Line. Modify Service Item with Different Fault Code.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         ModifyServiceItemLine(ServiceItemLine);
 
@@ -94,7 +94,7 @@ codeunit 136114 "Service Order Check"
         // Save Service Item Worksheet Report with Fault Code in XLSX> and XML Format and check data exist in Saved files.
 
         // 1. Setup: Create Service Item, Service Order with Header and Service Item Line. Modify Service Item with Different Fault Code.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         ModifyServiceItemLine(ServiceItemLine);
 
@@ -128,7 +128,7 @@ codeunit 136114 "Service Order Check"
 
         // 1. Setup: Create Service Item, Service Order with Header and three Service Item Line. Modify each Service Item Line with
         // Loaner No.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceItemAndItemLine(ServiceItem, ServiceItemLine, ServiceHeader);
         CreateServiceItemAndItemLine(ServiceItem, ServiceItemLine, ServiceHeader);
@@ -165,7 +165,7 @@ codeunit 136114 "Service Order Check"
         // Loaner No. should be blank after receiving loaner in Service Item Line.
 
         // 1. Setup: Create Service Item, Service Order with Header and Three Service Item Line. Modify Service Item Line with Loaner No.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -197,7 +197,7 @@ codeunit 136114 "Service Order Check"
 
         // 1. Setup: Create Service Item, Service Order with Header and Service Item Line. Modify Service Item Line with Loaner No. and
         // create Service Line with Type Resource.
-        Initialize;
+        Initialize();
         LibraryService.CreateLoaner(Loaner);
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         ServiceItemLine.Validate("Loaner No.", Loaner."No.");
@@ -224,7 +224,7 @@ codeunit 136114 "Service Order Check"
         // Service Order must not exist after ship and Invoice.
 
         // 1. Setup: Create Service Item, Service Order with Header and Service Item Line, Service Line with Type Resource.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceLineWithResource(ServiceHeader, ServiceItem."No.");
 
@@ -258,7 +258,7 @@ codeunit 136114 "Service Order Check"
         // TC01120: Check Service Ledger entry and Warranty Ledger Entry for Posted Shipment.
 
         // 1. Setup: Create Service Item, Service Order with Header and Service Item Line, Service Line with Type Item.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
 
@@ -299,7 +299,7 @@ codeunit 136114 "Service Order Check"
         // Posting Service Order as Ship and Invoice.
 
         // 1. Setup: Create Service Item, Service Order with Header, Service Item Line, Service Line with Type Resource and Update Partial Qty. to Ship on Service Line.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceLineWithResource(ServiceHeader, ServiceItem."No.");
         UpdatePartialQtyToShip(ServiceHeader);
@@ -334,7 +334,7 @@ codeunit 136114 "Service Order Check"
         // Check that on Selection of Item Shipment Line with Type Resource on Posted Service Invoice application generates an error.
 
         // 1. Setup: Create Service Item, Service Order with Header, Service Item Line, Service Line with Type Resource.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceLineWithResource(ServiceHeader, ServiceItem."No.");
 
@@ -359,7 +359,7 @@ codeunit 136114 "Service Order Check"
         // Test that Warranty Ledger Entry is correctly created on Posting of Service Order with Ship and Invoice Option.
 
         // 1. Setup: Create Service Item, Service Order - Service Header, Service Item Line and Service Line with Type Item.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
 
@@ -387,7 +387,7 @@ codeunit 136114 "Service Order Check"
         // Test the Get Shipment Functionality on Service Invoice.
 
         // 1. Setup: Create Service Order. Create Service Line with Item.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
 
@@ -426,7 +426,7 @@ codeunit 136114 "Service Order Check"
         // Test that Service Order Line Discount and Invoice Discounts are correctlty transfered to invoice on Posting of Service Order.
 
         // 1. Setup: Create Customer, Define Line Discount and Invoice Discount.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         CreateCustomerLineDiscount(Item, Customer."No.");
@@ -505,7 +505,7 @@ codeunit 136114 "Service Order Check"
         CustomerNo: Code[20];
     begin
         // 1. Setup: Create and Post Service Order with Service Line of Type Item, Resoure, Cost and G/L Account.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithLines(ServiceHeader);
         UpdateFullQtyToInvoice(ServiceHeader, Type);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -539,7 +539,7 @@ codeunit 136114 "Service Order Check"
         // Check Extended Text on Service Invoice Line after posting Service Order with Extended Text on Service Line.
 
         // 1. Setup: Create Item, Extended Text for Item, Create Service Order and Insert Extended Text on Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Description := CreateExtendedTextForItem(Item."No.");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
@@ -567,7 +567,7 @@ codeunit 136114 "Service Order Check"
         // Check that Posting Date updates correctly on Service Line after updating it on Service Order.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
@@ -593,7 +593,7 @@ codeunit 136114 "Service Order Check"
         // Check that correct Posting Date is updated on Service Invoice Lines and on Service Shipment Lines after posting Service Order with updated Posting Date.
 
         // 1. Setup: Create Service Order with multiple Service Lines using Random.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         for Counter := 1 to 1 + LibraryRandom.RandInt(5) do
@@ -621,7 +621,7 @@ codeunit 136114 "Service Order Check"
         // Check that Service Order still exist after Posting Service Line for first Service Item Line.
 
         // 1. Setup: Create Service Order with Two Service Item Lines and One Service Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
@@ -650,7 +650,7 @@ codeunit 136114 "Service Order Check"
         // Check that text line on posted Service Documents exists after posting Service Order if it contains Type=Item and No=blank with some value on Description field.
 
         // 1. Setup: Create Service Order with 2 Service Lines, one contains Some Item and other is having Blank Item No. with Description.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -684,14 +684,14 @@ codeunit 136114 "Service Order Check"
     begin
         // [FEATURE] [Invoice Discount] [Service Charge]
         // [SCENARIO 216154] Service Order's service charge is not changed after running Calculate Invoice Discount twice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup "Calc. Inv. Discount" = FALSE
         LibrarySales.SetCalcInvDiscount(false);
         // [GIVEN] Customer with Invoice Discount setup:
         // [GIVEN] Line1: Minimum Amount = 0, Discount % = 10, Service Charge = 25
         // [GIVEN] Line1: Minimum Amount = 100, Discount % = 20, Service Charge = 50
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateCustomerInvoiceDiscount(CustInvoiceDisc[1], CustomerNo, 0, LibraryRandom.RandDecInRange(1000, 2000, 2));
         CreateCustomerInvoiceDiscount(
           CustInvoiceDisc[2], CustomerNo, LibraryRandom.RandDecInRange(1000, 2000, 2), LibraryRandom.RandDecInRange(1000, 2000, 2));
@@ -741,7 +741,7 @@ codeunit 136114 "Service Order Check"
     begin
         // [FEATURE] [Invoice Discount] [Service Charge]
         // [SCENARIO] Invoice Discount after running Calculate Invoice Discount twice before Posting Service Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup "Calc. Inv. Discount" = FALSE
         LibrarySales.SetCalcInvDiscount(false);
@@ -780,12 +780,12 @@ codeunit 136114 "Service Order Check"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 216154] Service Order's invoice discount is calculated after running Calculate Invoice Discount
         // [SCENARIO 216154] in case of Service Charge = 0, "Service Item No." = ""
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup "Calc. Inv. Discount" = FALSE
         LibrarySales.SetCalcInvDiscount(false);
         // [GIVEN] Customer with Invoice Discount setup: Minimum Amount = 0, Discount % = 10, Service Charge = 0
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateCustomerInvoiceDiscount(CustInvoiceDisc, CustomerNo, 0, 0);
 
         // [GIVEN] Service Order with Item Service Line having "Service Item No." = "", "Item No." = "X"
@@ -890,7 +890,7 @@ codeunit 136114 "Service Order Check"
         Counter: Integer;
     begin
         // Setup: Create Service Header with Signed Contract Service Item No. and Sort Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithServiceItemLine(ServiceHeader, ServiceItemLine,
           CreateAndSignServiceContract(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract),
           ServiceContractHeader."Customer No.");
@@ -991,7 +991,7 @@ codeunit 136114 "Service Order Check"
         Counter: Integer;
     begin
         // Setup: Create Service Header with Signed Contract Service Item No. and Sort Service Item Lines.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithServiceItemLine(ServiceHeader, ServiceItemLine,
           CreateAndSignServiceContract(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract),
           ServiceContractHeader."Customer No.");
@@ -1093,7 +1093,7 @@ codeunit 136114 "Service Order Check"
         Counter: Integer;
     begin
         // Setup: Create Service Header with Signed Contract Service Item No. and Sort Service Lines.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithServiceItemLine(ServiceHeader, ServiceItemLine,
           CreateAndSignServiceContract(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract),
           ServiceContractHeader."Customer No.");
@@ -1194,7 +1194,7 @@ codeunit 136114 "Service Order Check"
         Counter: Integer;
     begin
         // Setup: Create Service Header with Signed Contract Service Item No. and Sort Service Lines.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithServiceItemLine(ServiceHeader, ServiceItemLine,
           CreateAndSignServiceContract(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract),
           ServiceContractHeader."Customer No.");
@@ -1223,7 +1223,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Setup: Create Customer and Item. Create Service Order and update the Posting Date of Service Line.
         // Posting Date should be different from Service Order Header Posting Date.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         ServiceItemNo := CreateServiceDocument(ServiceHeader, Customer."No.", Item."No.");
@@ -1251,7 +1251,7 @@ codeunit 136114 "Service Order Check"
     begin
         // [FEATURE] [Invoice Rounding] [Invoice Discount] [Service Charge]
         // [SCENARIO 262418] You can post a service order when both "Calc. Inv. Discount" and "Inv. Rounding Precision" settings are enabled. The posting results in two additional lines in the invoice - for a service charge and a rounding precision amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Calc. Inv. Discount" and "Invoice Rounding" in Sales & Receivables Setup.
         LibrarySales.SetInvoiceRounding(true);
@@ -1287,7 +1287,7 @@ codeunit 136114 "Service Order Check"
     begin
         // [FEATURE] [Line Discount]
         // [SCENARIO] "Line Discount Amount" is updated on "Qty. to Invoice" validation on Service Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order "SEO01"
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
@@ -1373,20 +1373,20 @@ codeunit 136114 "Service Order Check"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Order Check");
         Clear(LibraryService);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Check");
 
         // Setup demonstration data
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
-        LibraryERMCountryData.CreateVATData;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInServiceCosts;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryService.SetupServiceMgtNoSeries();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1446,7 +1446,7 @@ codeunit 136114 "Service Order Check"
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Customer);
         DefaultDimension.SetRange("No.", Customer."No.");
-        if DefaultDimension.FindFirst then
+        if DefaultDimension.FindFirst() then
             exit;
 
         LibraryDimension.FindDimension(Dimension);
@@ -1526,7 +1526,7 @@ codeunit 136114 "Service Order Check"
         ResourceNo: Code[20];
     begin
         // Create 2 to 10 Service Lines with Type Resource - Boundary 2 is important.
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ResourceNo := LibraryResource.CreateResourceNo();
         for Counter := 2 to 2 + LibraryRandom.RandInt(8) do begin
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
             ServiceLine.Validate("Service Item No.", ServiceItemNo);
@@ -1621,7 +1621,7 @@ codeunit 136114 "Service Order Check"
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure CreateItem(): Code[20]
@@ -1635,7 +1635,7 @@ codeunit 136114 "Service Order Check"
     local procedure FindServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; OrderNo: Code[20])
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure FindServiceInvoiceLine(var ServiceInvoiceLine: Record "Service Invoice Line"; OrderNo: Code[20])
@@ -1651,7 +1651,7 @@ codeunit 136114 "Service Order Check"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
     end;
 
@@ -1668,7 +1668,7 @@ codeunit 136114 "Service Order Check"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetRange(Type, Type::"G/L Account");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1833,7 +1833,7 @@ codeunit 136114 "Service Order Check"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
     end;
 
@@ -1845,7 +1845,7 @@ codeunit 136114 "Service Order Check"
         FindServiceInvoiceHeader(ServiceInvoiceHeader, OrderNo);
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::" ");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.TestField(Description, Description);
     end;
 
@@ -1877,7 +1877,7 @@ codeunit 136114 "Service Order Check"
     begin
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Item);
-        TempServiceLine.FindFirst;
+        TempServiceLine.FindFirst();
         Amount := Round(TempServiceLine."Line Amount" * CustInvoiceDisc."Discount %" / 100);
         GeneralPostingSetup.Get(TempServiceLine."Gen. Bus. Posting Group", TempServiceLine."Gen. Prod. Posting Group");
         FindServiceInvoiceHeader(ServiceInvoiceHeader, TempServiceLine."Document No.");
@@ -1909,7 +1909,7 @@ codeunit 136114 "Service Order Check"
         ResLedgerEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
         repeat
             ResLedgerEntry.SetRange("Order Line No.", ServiceInvoiceLine."Line No.");
-            ResLedgerEntry.FindFirst;
+            ResLedgerEntry.FindFirst();
             ResLedgerEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
             ResLedgerEntry.TestField("Order Type", ResLedgerEntry."Order Type"::Service);
             ResLedgerEntry.TestField("Order No.", ServiceInvoiceHeader."Order No.");
@@ -1924,7 +1924,7 @@ codeunit 136114 "Service Order Check"
         // Verify Service Item Log entry that occurred due to a certain action.
         ServiceItemLog.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceItemLog.SetRange("Service Item No.", ServiceItemLine."Service Item No.");
-        ServiceItemLog.FindFirst;
+        ServiceItemLog.FindFirst();
     end;
 
     local procedure VerifyLoanerNoServiceItemLine(var TempServiceItemLine: Record "Service Item Line" temporary)
@@ -1973,7 +1973,7 @@ codeunit 136114 "Service Order Check"
         ServiceLine.SetRange("Document No.", DocumentNo);
         repeat
             ServiceLine.SetRange("Shipment Line No.", ServiceLine2."Line No.");
-            ServiceLine.FindFirst;
+            ServiceLine.FindFirst();
             ServiceLine.TestField(Type, ServiceLine2.Type);
             ServiceLine.TestField("No.", ServiceLine2."No.");
             ServiceLine.TestField(Quantity, ServiceLine2."Qty. to Invoice");
@@ -2063,7 +2063,7 @@ codeunit 136114 "Service Order Check"
         // Verify Service Document Log entry for Event No. that corresponds to the event that occurred due to a certain action.
         ServiceDocumentLog.SetRange("Document Type", DocumentType);
         ServiceDocumentLog.SetRange("Document No.", DocumentNo);
-        ServiceDocumentLog.FindLast;
+        ServiceDocumentLog.FindLast();
         ServiceDocumentLog.TestField("Event No.", EventNo);
     end;
 
@@ -2075,7 +2075,7 @@ codeunit 136114 "Service Order Check"
     begin
         FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceOrderNo);
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
 
         PostedServiceInvoice.OpenEdit;
         PostedServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceHeader."No.");
@@ -2097,12 +2097,12 @@ codeunit 136114 "Service Order Check"
     begin
         // Get Dimension Set ID on Service Header.
         ServiceHeader.SetRange("No.", DocumentNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
         OrderDimSetID := ServiceHeader."Dimension Set ID";
 
         // Get Dimension Set ID on Service Shipment Header.
         ServiceShipmentHeader.SetRange("Order No.", DocumentNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ShipmentDimSetID := ServiceShipmentHeader."Dimension Set ID";
 
         Assert.AreEqual(OrderDimSetID, ShipmentDimSetID, StrSubstNo(DocumentDimError, ServiceShipmentHeader."No.", ServiceHeader."No."));
@@ -2138,7 +2138,7 @@ codeunit 136114 "Service Order Check"
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Customer No.", ServiceHeader."Customer No.");
         ServiceLine.SetRange("No.", ItemNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField(Quantity, Quantity);
     end;
 
@@ -2149,7 +2149,7 @@ codeunit 136114 "Service Order Check"
         with ValueEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Document Type", "Document Type"::"Service Invoice");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(PostingDate, "Posting Date", PostingDateErr);
         end;
     end;
@@ -2196,7 +2196,7 @@ codeunit 136114 "Service Order Check"
         ServiceGetShipment.SetServiceHeader(ServiceHeader);
 
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceGetShipment.CreateInvLines(ServiceShipmentLine);
     end;
 

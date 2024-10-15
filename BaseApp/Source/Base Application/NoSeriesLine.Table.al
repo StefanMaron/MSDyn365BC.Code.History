@@ -205,8 +205,11 @@ table 309 "No. Series Line"
     begin
         if ModifySeries then
             NewNo := NumberSequence.Next("Sequence Name")
-        else
-            NewNo := NumberSequence.Current("Sequence Name") + "Increment-by No."; // Peek
+        else begin
+            NewNo := NumberSequence.Current("Sequence Name");
+            if NewNo > "Starting Sequence No." then
+                NewNo += "Increment-by No.";
+        end;
     end;
 
     local procedure UpdateStartingSequenceNo()
@@ -243,7 +246,7 @@ table 309 "No. Series Line"
             NumberSequence.Delete("Sequence Name");
     end;
 
-    local procedure ExtractNoFromCode(NumberCode: Code[20]): BigInteger
+    procedure ExtractNoFromCode(NumberCode: Code[20]): BigInteger
     var
         i: Integer;
         j: Integer;
@@ -272,7 +275,7 @@ table 309 "No. Series Line"
         exit(Number);
     end;
 
-    local procedure GetFormattedNo(Number: BigInteger): Code[20]
+    procedure GetFormattedNo(Number: BigInteger): Code[20]
     var
         NumberCode: Code[20];
         i: Integer;

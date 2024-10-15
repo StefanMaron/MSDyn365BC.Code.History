@@ -28,18 +28,21 @@ report 98 "Date Compress General Ledger"
                         SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
                         SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
 
-                        if RetainNo(FieldNo("Document Type")) then
+                        if DateComprRetainFields."Retain Document Type" then
                             SetRange("Document Type", "Document Type");
-                        if RetainNo(FieldNo("Document No.")) then
+                        if DateComprRetainFields."Retain Document No." then
                             SetRange("Document No.", "Document No.");
-                        if RetainNo(FieldNo("Job No.")) then
+                        if DateComprRetainFields."Retain Job No." then
                             SetRange("Job No.", "Job No.");
-                        if RetainNo(FieldNo("Business Unit Code")) then
+                        if DateComprRetainFields."Retain Business Unit Code" then
                             SetRange("Business Unit Code", "Business Unit Code");
-                        if RetainNo(FieldNo("Global Dimension 1 Code")) then
+                        if DateComprRetainFields."Retain Global Dimension 1" then
                             SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                        if RetainNo(FieldNo("Global Dimension 2 Code")) then
+                        if DateComprRetainFields."Retain Global Dimension 2" then
                             SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
+                        if DateComprRetainFields."Retain Journal Template Name" then
+                            SetRange("Journal Templ. Name", "Journal Templ. Name");
+
                         if Amount <> 0 then begin
                             if Amount > 0 then
                                 SetFilter(Amount, '>0')
@@ -88,7 +91,7 @@ report 98 "Date Compress General Ledger"
                 if DateComprReg."No. Records Deleted" > NoOfDeleted then
                     InsertRegisters(GLReg, DateComprReg);
 
-                if AnalysisView.FindFirst then
+                if AnalysisView.FindFirst() then
                     AnalysisView.UpdateLastEntryNo;
 
                 if UseDataArchive then
@@ -102,7 +105,7 @@ report 98 "Date Compress General Ledger"
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
-                if AnalysisView.FindFirst then begin
+                if AnalysisView.FindFirst() then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Compress General Ledger", false);
                     if not SkipAnalysisViewUpdateCheck then
                         AnalysisView.CheckViewsAreUpdated;
@@ -122,10 +125,10 @@ report 98 "Date Compress General Ledger"
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress General Ledger", '', TempSelectedDim);
                 GLSetup.Get();
-                Retain[5] :=
+                DateComprRetainFields."Retain Global Dimension 1" :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress General Ledger", '', GLSetup."Global Dimension 1 Code");
-                Retain[6] :=
+                DateComprRetainFields."Retain Global Dimension 2" :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress General Ledger", '', GLSetup."Global Dimension 2 Code");
 
@@ -193,29 +196,35 @@ report 98 "Date Compress General Ledger"
                     group("Retain Field Contents")
                     {
                         Caption = 'Retain Field Contents';
-                        field("Retain[1]"; Retain[1])
+                        field("Retain[1]"; DateComprRetainFields."Retain Document Type")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Document Type';
                             ToolTip = 'Specifies the type of document that is processed by the report or batch job.';
                         }
-                        field("Retain[2]"; Retain[2])
+                        field("Retain[2]"; DateComprRetainFields."Retain Document No.")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that is processed by the report or batch job.';
                         }
-                        field("Retain[3]"; Retain[3])
+                        field("Retain[3]"; DateComprRetainFields."Retain Job No.")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Job No.';
                             ToolTip = 'Specifies the job number.';
                         }
-                        field("Retain[4]"; Retain[4])
+                        field("Retain[4]"; DateComprRetainFields."Retain Business Unit Code")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Business Unit Code';
                             ToolTip = 'Specifies the code for the business unit, in a company group structure.';
+                        }
+                        field("Retain[7]"; DateComprRetainFields."Retain Journal Template Name")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Journal Template Name';
+                            ToolTip = 'Specifies the name of the journal template that is used for the posting.';
                         }
                     }
                     field(RetainDimText; RetainDimText)
@@ -233,7 +242,7 @@ report 98 "Date Compress General Ledger"
                     group("Retain Totals")
                     {
                         Caption = 'Retain Totals';
-                        field("Retain[7]"; Retain[7])
+                        field("Retain[8]"; DateComprRetainFields."Retain Totals")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Quantity';
@@ -268,7 +277,7 @@ report 98 "Date Compress General Ledger"
 
         trigger OnOpenPage()
         begin
-            InitializeParameter;
+            InitializeParameter();
         end;
 
         trigger OnInit()
@@ -315,22 +324,17 @@ report 98 "Date Compress General Ledger"
         SelectedDim: Record "Selected Dimension";
         TempSelectedDim: Record "Selected Dimension" temporary;
         DimSelectionBuf: Record "Dimension Selection Buffer";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         AnalysisView: Record "Analysis View";
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
         DataArchive: Codeunit "Data Archive";
         Window: Dialog;
-        NoOfFields: Integer;
-        NoOfFieldsContents: Integer;
-        Retain: array[10] of Boolean;
-        FieldNumber: array[10] of Integer;
-        FieldNameArray: array[10] of Text[100];
         LastEntryNo: Integer;
         NextTransactionNo: Integer;
         NoOfDeleted: Integer;
         GLRegExists: Boolean;
-        i: Integer;
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
@@ -351,23 +355,41 @@ report 98 "Date Compress General Ledger"
         DateComprReg.InitRegister(
           DATABASE::"G/L Entry", DateComprReg.GetLastEntryNo() + 1, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date",
           EntrdDateComprReg."Period Length", '', GLReg."No.", SourceCodeSetup."Compress G/L");
-        for i := 1 to NoOfFieldsContents do
-            if Retain[i] then
-                DateComprReg."Retain Field Contents" :=
-                  CopyStr(
-                    DateComprReg."Retain Field Contents" + ',' + FieldNameArray[i], 1,
-                    MaxStrLen(DateComprReg."Retain Field Contents"));
+
+        if DateComprRetainFields."Retain Document Type" then
+            AddFieldContent(NewGLEntry.FieldName("Document Type"));
+        if DateComprRetainFields."Retain Document No." then
+            AddFieldContent(NewGLEntry.FieldName("Document No."));
+        if DateComprRetainFields."Retain Job No." then
+            AddFieldContent(NewGLEntry.FieldName("Job No."));
+        if DateComprRetainFields."Retain Business Unit Code" then
+            AddFieldContent(NewGLEntry.FieldName("Business Unit Code"));
+        if DateComprRetainFields."Retain Global Dimension 1" then
+            AddFieldContent(NewGLEntry.FieldName("Global Dimension 1 Code"));
+        if DateComprRetainFields."Retain Global Dimension 2" then
+            AddFieldContent(NewGLEntry.FieldName("Global Dimension 2 Code"));
+        if DateComprRetainFields."Retain Journal Template Name" then
+            AddFieldContent(NewGLEntry.FieldName("Journal Templ. Name"));
+
         DateComprReg."Retain Field Contents" := CopyStr(DateComprReg."Retain Field Contents", 2);
-        for i := NoOfFieldsContents + 1 to NoOfFields do
-            if Retain[i] then
-                DateComprReg."Retain Totals" :=
-                  CopyStr(
-                    DateComprReg."Retain Totals" + ',' + FieldNameArray[i], 1,
-                    MaxStrLen(DateComprReg."Retain Totals"));
+
+        if DateComprRetainFields."Retain Quantity" then
+            DateComprReg."Retain Totals" :=
+              CopyStr(
+                DateComprReg."Retain Totals" + ',' + NewGLEntry.FieldName(Quantity), 1,
+                MaxStrLen(DateComprReg."Retain Totals"));
+
         DateComprReg."Retain Totals" := CopyStr(DateComprReg."Retain Totals", 2);
 
         GLRegExists := false;
         NoOfDeleted := 0;
+    end;
+
+    local procedure AddFieldContent(FieldName: Text)
+    begin
+        DateComprReg."Retain Field Contents" :=
+            CopyStr(
+                DateComprReg."Retain Field Contents" + ',' + FieldName, 1, MaxStrLen(DateComprReg."Retain Field Contents"));
     end;
 
     local procedure InsertRegisters(var GLReg: Record "G/L Register"; var DateComprReg: Record "Date Compr. Register")
@@ -395,27 +417,8 @@ report 98 "Date Compress General Ledger"
         if LastEntryNo <> FoundLastEntryNo then begin
             LastEntryNo := FoundLastEntryNo;
             NextTransactionNo := LastTransactionNo + 1;
-            InitRegisters;
+            InitRegisters();
         end;
-    end;
-
-    local procedure InsertField(Number: Integer; Name: Text[100])
-    begin
-        NoOfFields := NoOfFields + 1;
-        FieldNumber[NoOfFields] := Number;
-        FieldNameArray[NoOfFields] := Name;
-    end;
-
-    local procedure RetainNo(Number: Integer): Boolean
-    begin
-        exit(Retain[Index(Number)]);
-    end;
-
-    local procedure Index(Number: Integer): Integer
-    begin
-        for i := 1 to NoOfFields do
-            if Number = FieldNumber[i] then
-                exit(i);
     end;
 
     local procedure SummarizeEntry(var NewGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry")
@@ -436,7 +439,7 @@ report 98 "Date Compress General Ledger"
               NewGLEntry."Add.-Currency Debit Amount" + "Add.-Currency Debit Amount";
             NewGLEntry."Add.-Currency Credit Amount" :=
               NewGLEntry."Add.-Currency Credit Amount" + "Add.-Currency Credit Amount";
-            if RetainNo(FieldNo(Quantity)) then
+            if DateComprRetainFields."Retain Quantity" then
                 NewGLEntry.Quantity := NewGLEntry.Quantity + Quantity;
             OnSummarizeEntryOnBeforeGLEntryDelete(NewGLEntry, GLEntry);
             Delete;
@@ -445,7 +448,7 @@ report 98 "Date Compress General Ledger"
             GLItemLedgRelation.DeleteAll();
 
             GLEntryVatEntrylink.SetRange("G/L Entry No.", "Entry No.");
-            if GLEntryVatEntrylink.FindSet then
+            if GLEntryVatEntrylink.FindSet() then
                 repeat
                     GLEntryVatEntrylink2 := GLEntryVatEntrylink;
                     GLEntryVatEntrylink2.Delete();
@@ -505,18 +508,20 @@ report 98 "Date Compress General Ledger"
             NewGLEntry."User ID" := UserId;
             NewGLEntry."Transaction No." := NextTransactionNo;
 
-            if RetainNo(FieldNo("Document Type")) then
+            if DateComprRetainFields."Retain Document Type" then
                 NewGLEntry."Document Type" := "Document Type";
-            if RetainNo(FieldNo("Document No.")) then
+            if DateComprRetainFields."Retain Document No." then
                 NewGLEntry."Document No." := "Document No.";
-            if RetainNo(FieldNo("Job No.")) then
+            if DateComprRetainFields."Retain Job No." then
                 NewGLEntry."Job No." := "Job No.";
-            if RetainNo(FieldNo("Business Unit Code")) then
+            if DateComprRetainFields."Retain Business Unit Code" then
                 NewGLEntry."Business Unit Code" := "Business Unit Code";
-            if RetainNo(FieldNo("Global Dimension 1 Code")) then
+            if DateComprRetainFields."Retain Global Dimension 1" then
                 NewGLEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if RetainNo(FieldNo("Global Dimension 2 Code")) then
+            if DateComprRetainFields."Retain Global Dimension 2" then
                 NewGLEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
+            if DateComprRetainFields."Retain Journal Template Name" then
+                NewGLEntry."Journal Templ. Name" := "Journal Templ. Name";
 
             Window.Update(1, NewGLEntry."G/L Account No.");
             Window.Update(2, NewGLEntry."Posting Date");
@@ -546,40 +551,47 @@ report 98 "Date Compress General Ledger"
         if EntrdGLEntry.Description = '' then
             EntrdGLEntry.Description := Text009;
 
-        with "G/L Entry" do begin
-            InsertField(FieldNo("Document Type"), FieldCaption("Document Type"));
-            InsertField(FieldNo("Document No."), FieldCaption("Document No."));
-            InsertField(FieldNo("Job No."), FieldCaption("Job No."));
-            InsertField(FieldNo("Business Unit Code"), FieldCaption("Business Unit Code"));
-            InsertField(FieldNo("Global Dimension 1 Code"), FieldCaption("Global Dimension 1 Code"));
-            InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
-            NoOfFieldsContents := NoOfFields;
-            InsertField(FieldNo(Quantity), FieldCaption(Quantity));
-        end;
-
         DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         UseDataArchive := DataArchiveProviderExists;
 
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress General Ledger", '');
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest with parameter DateComprRetainFields', '20.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentType: Boolean; RetainDocumentNo: Boolean; RetainJobNo: Boolean; RetainBuisnessUnitCode: Boolean; RetainQuantity: Boolean; RetainDimensionText: Text[250])
     begin
         InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentType, RetainDocumentNo, RetainJobNo, RetainBuisnessUnitCode, RetainQuantity, RetainDimensionText, true)
     end;
+#endif
 
+#if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest with parameter DateComprRetainFields', '20.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentType: Boolean; RetainDocumentNo: Boolean; RetainJobNo: Boolean; RetainBuisnessUnitCode: Boolean; RetainQuantity: Boolean; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
     begin
-        InitializeParameter;
+        InitializeParameter();
         EntrdDateComprReg."Starting Date" := StartingDate;
         EntrdDateComprReg."Ending Date" := EndingDate;
         EntrdDateComprReg."Period Length" := PeriodLength;
         EntrdGLEntry.Description := Description;
-        Retain[1] := RetainDocumentType;
-        Retain[2] := RetainDocumentNo;
-        Retain[3] := RetainJobNo;
-        Retain[4] := RetainBuisnessUnitCode;
-        Retain[7] := RetainQuantity;
+        DateComprRetainFields."Retain Document Type" := RetainDocumentType;
+        DateComprRetainFields."Retain Document No." := RetainDocumentNo;
+        DateComprRetainFields."Retain Job No." := RetainJobNo;
+        DateComprRetainFields."Retain Business Unit Code" := RetainBuisnessUnitCode;
+        DateComprRetainFields."Retain Quantity" := RetainQuantity;
+        RetainDimText := RetainDimensionText;
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
+    end;
+#endif
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; NewDateComprRetainFields: Record "Date Compr. Retain Fields"; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
+    begin
+        InitializeParameter();
+        EntrdDateComprReg."Starting Date" := StartingDate;
+        EntrdDateComprReg."Ending Date" := EndingDate;
+        EntrdDateComprReg."Period Length" := PeriodLength;
+        EntrdGLEntry.Description := Description;
+        DateComprRetainFields := NewDateComprRetainFields;
         RetainDimText := RetainDimensionText;
         UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
@@ -599,11 +611,12 @@ report 98 "Date Compress General Ledger"
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        TelemetryDimensions.Add('RetainDocumentType', Format(Retain[1], 0, 9));
-        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[2], 0, 9));
-        TelemetryDimensions.Add('RetainJobNo', Format(Retain[3], 0, 9));
-        TelemetryDimensions.Add('RetainBusinessUnitCode', Format(Retain[4], 0, 9));
-        TelemetryDimensions.Add('RetainQuantity', Format(Retain[7], 0, 9));
+        TelemetryDimensions.Add('RetainDocumentType', Format(DateComprRetainFields."Retain Document Type", 0, 9));
+        TelemetryDimensions.Add('RetainDocumentNo', Format(DateComprRetainFields."Retain Document No.", 0, 9));
+        TelemetryDimensions.Add('RetainJobNo', Format(DateComprRetainFields."Retain Job No.", 0, 9));
+        TelemetryDimensions.Add('RetainBusinessUnitCode', Format(DateComprRetainFields."Retain Business Unit Code", 0, 9));
+        TelemetryDimensions.Add('RetainQuantity', Format(DateComprRetainFields."Retain Quantity", 0, 9));
+        TelemetryDimensions.Add('RetainJnlTemplate', Format(DateComprRetainFields."Retain Journal Template Name", 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
         TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 

@@ -9,9 +9,6 @@ codeunit 3010531 EsrMgt
     var
         Text008: Label 'Do you want to import the ESR file?';
         Text011: Label 'Import cancelled.';
-#if not CLEAN17
-        Text014: Label 'Backup copy of ESR file could not be written. Please check ESR setup.';
-#endif
         Text015: Label 'Journal "%1" contains entries. Please process these first.';
         Text017: Label 'Import ESR file\No. of payments   #1############\Total amount     #2############';
         Text020: Label 'ESR payment, inv ';
@@ -59,9 +56,7 @@ codeunit 3010531 EsrMgt
         TotalRecord: Boolean;
         Text041: Label 'The ESR Account No. %1 defined in the ESR Setup table cannot be detected at the expected position in the file. %2 is not able to determine the ESR record length.', Comment = '%2 - product name';
         Text042: Label 'More than one open invoice were found for the Reference No. %1.';
-#if CLEAN17
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
-#endif
 
     [Scope('OnPrem')]
     procedure CheckSetup(ActESRSetup: Record "ESR Setup")
@@ -98,12 +93,12 @@ codeunit 3010531 EsrMgt
         GenJournalLine.SetRange("Journal Template Name", ActGenJnlLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", ActGenJnlLine."Journal Batch Name");
         GenJournalLine.SetFilter("Account No.", '<>%1', '');
-        if GenJournalLine.FindFirst then
+        if GenJournalLine.FindFirst() then
             Error(Text015, GenJournalLine."Journal Batch Name");
 
         // One or multiple ESR banks
         if ESRSetup.Count = 1 then begin
-            ESRSetup.FindFirst;
+            ESRSetup.FindFirst();
             if not Confirm(Text008, false) then
                 exit;
         end else
@@ -124,11 +119,7 @@ codeunit 3010531 EsrMgt
         NextDocNo := NoSeriesMgt.GetNextNo(GlBatchName."No. Series", PostDate, false);
 
         CRLFTerminated := false;
-#if not CLEAN17
-        TempFileName := CopyStr(FileMgt.UploadFileToServer(ESRSetup."ESR Filename"), 1, 1024);
-#else
         TempFileName := Copystr(FileMgt.UploadFile(ChooseFileTitleMsg, ''), 1, 1024);
-#endif
         f.Open(TempFileName);
         f.Seek(98);
         while (f.Pos < 202) and (f.Read(CR) <> 0) and (not CRLFTerminated) do
@@ -194,7 +185,7 @@ codeunit 3010531 EsrMgt
                 CustLedgerEntry.SetCurrentKey("Document No.");
                 CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
                 CustLedgerEntry.SetRange("Document No.", InInvoiceNo);
-                if CustLedgerEntry.FindFirst then begin
+                if CustLedgerEntry.FindFirst() then begin
                     GenJournalLine.Validate("Account No.", CustLedgerEntry."Customer No.");
                     if GenJournalLine."Currency Code" <> CustLedgerEntry."Currency Code" then
                         GenJournalLine.Validate("Currency Code", CustLedgerEntry."Currency Code");
@@ -252,7 +243,7 @@ codeunit 3010531 EsrMgt
         GenJournalLine.SetRange("Journal Template Name", ActGenJnlLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", ActGenJnlLine."Journal Batch Name");
         GenJournalLine.SetRange("Source Code", 'ESR');
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 GenJournalLine.Validate(Amount, GenJournalLine.Amount);
                 GenJournalLine.Modify();
@@ -498,7 +489,7 @@ codeunit 3010531 EsrMgt
         CustLedgEntry.SetRange(Open, true);
         while TmpInvNo[1] = '0' do begin
             CustLedgEntry.SetRange("Document No.", TmpInvNo);
-            if CustLedgEntry.FindFirst then begin
+            if CustLedgEntry.FindFirst() then begin
                 InvCount := InvCount + 1;
                 if InvCount > 1 then
                     Error(Text042, ReferenceNo);
@@ -514,30 +505,17 @@ codeunit 3010531 EsrMgt
             CustLedgEntry2.SetRange("Document Type", CustLedgEntry2."Document Type"::Invoice);
             CustLedgEntry2.SetRange(Open, true);
             CustLedgEntry2.SetRange("Document No.", TmpInvNo);
-            if CustLedgEntry2.FindFirst then
+            if CustLedgEntry2.FindFirst() then
                 Error(Text042, ReferenceNo);
         end;
     end;
 
     local procedure SaveSourceFile()
-#if not CLEAN17
-    var
-        BackupFilename: Code[130];
-#endif
     begin
         if ESRSetup."Backup Copy" then begin
             ESRSetup.LockTable();
             ESRSetup."Last Backup No." := IncStr(ESRSetup."Last Backup No.");
             ESRSetup.Modify();
-#if not CLEAN17
-            BackupFilename := ESRSetup."Backup Folder" + 'ESR' + ESRSetup."Last Backup No." + '.BAK';
-            if FileMgt.ClientFileExists(ESRSetup."ESR Filename") and (not FileMgt.ClientFileExists(BackupFilename)) then begin
-                FileMgt.CopyClientFile(ESRSetup."ESR Filename", BackupFilename, true);
-                if not FileMgt.ClientFileExists(BackupFilename) then
-                    Message(Text014);
-            end else
-                Message(Text014);
-#endif
         end;
     end;
 }

@@ -37,7 +37,7 @@ codeunit 1220 "SEPA CT-Export File"
               'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03',
               'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd');
 
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         UseCommonDialog := not ExportToServerFile;
         OnBeforeBLOBExport(TempBlob, CreditTransferRegister, UseCommonDialog, FileCreated, IsHandled);
         if not IsHandled then

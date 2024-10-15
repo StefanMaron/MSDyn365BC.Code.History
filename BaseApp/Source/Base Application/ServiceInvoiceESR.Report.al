@@ -70,10 +70,10 @@ report 3010534 "Service - Invoice ESR"
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(ServiceInvHdrBilltoCustNo; "Service Invoice Header"."Bill-to Customer No.")
@@ -180,7 +180,7 @@ report 3010534 "Service - Invoice ESR"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -370,7 +370,7 @@ report 3010534 "Service - Invoice ESR"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindFirst then
+                                    if not DimSetEntry2.FindFirst() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -694,6 +694,9 @@ report 3010534 "Service - Invoice ESR"
                 FormatAddressFields("Service Invoice Header");
                 FormatDocumentFields("Service Invoice Header");
 
+                if not CompanyBankAccount.Get("Service Invoice Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
             end;
@@ -779,6 +782,7 @@ report 3010534 "Service - Invoice ESR"
         GLSetup: Record "General Ledger Setup";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";

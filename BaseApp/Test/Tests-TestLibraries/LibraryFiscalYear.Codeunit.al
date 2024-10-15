@@ -41,7 +41,7 @@ codeunit 131302 "Library - Fiscal Year"
         // Find a Date to create a new Fiscal Year if no Fiscal Year exists in Demo Data.
         Date.SetRange("Period Type", Date."Period Type"::Year);
         Date.SetRange("Period No.", Date2DMY(WorkDate, 3));
-        Date.FindFirst;
+        Date.FindFirst();
 
         // Create a new Fiscal Year With Number of Periods = 12, Period Length = 1M.
         Clear(CreateFiscalYear);
@@ -49,7 +49,7 @@ codeunit 131302 "Library - Fiscal Year"
         CreateFiscalYear.InitializeRequest(12, PeriodLength, Date."Period Start");
         CreateFiscalYear.UseRequestPage(false);
         CreateFiscalYear.HideConfirmationDialog(true);
-        CreateFiscalYear.Run;
+        CreateFiscalYear.Run();
     end;
 
     procedure CheckPostingDate(PostingDate: Date)
@@ -57,7 +57,7 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod: Record "Accounting Period";
     begin
         // Check if Posting Date is outside the Accounting Period then Create New Fiscal Year and close it.
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         if PostingDate > AccountingPeriod."Starting Date" then begin
             CreateFiscalYear;
             CloseFiscalYear;
@@ -69,7 +69,7 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.SetRange(Closed, Closed);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         exit(AccountingPeriod."Starting Date");
     end;
 
@@ -78,7 +78,7 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.SetRange(Closed, Closed);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         exit(AccountingPeriod."Starting Date");
     end;
 
@@ -92,7 +92,7 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         exit(AccountingPeriod."Starting Date");
     end;
 

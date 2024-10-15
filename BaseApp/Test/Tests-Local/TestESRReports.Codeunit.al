@@ -108,7 +108,7 @@ codeunit 144353 "Test ESR Reports"
         // Test that value of Amount in Service Invoice matches the value of Line Amount in corresponding Service Line.
 
         // 1. Setup: Create and Post Service Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostServiceInvoice(ServiceInvoiceHeader);
 
         // 2. Exercise: Generate the Service Invoice report.
@@ -127,7 +127,7 @@ codeunit 144353 "Test ESR Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('No_ServiceInvHdr', ServiceInvoiceHeader."No.");
 
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         LibraryReportDataset.AssertElementWithValueExists('No_ServiceInvLine', ServiceInvoiceLine."No.");
         LibraryReportDataset.AssertElementWithValueExists('UnitPrice_ServiceInvLine', ServiceInvoiceLine."Unit Price");
         LibraryReportDataset.AssertElementWithValueExists('Qty_ServiceInvLine', ServiceInvoiceLine.Quantity);
@@ -142,7 +142,7 @@ codeunit 144353 "Test ESR Reports"
         // Test that value of Amount in Sales Invoice matches the value of Line Amount in corresponding Sales Line.
 
         // 1. Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
 
         LibraryVariableStorage.Enqueue(LogInteraction); // Log Interaction
@@ -162,7 +162,7 @@ codeunit 144353 "Test ESR Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Head', SalesInvoiceHeader."No.");
 
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Line', SalesInvoiceLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('UnitPrice_Line', SalesInvoiceLine."Unit Price");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_Line', SalesInvoiceLine.Quantity);
@@ -175,7 +175,7 @@ codeunit 144353 "Test ESR Reports"
         ExpectedNumberOfRows: Integer;
     begin
         // 1. Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
 
         // 2. Exercise: Generate the ESR Coupon report
@@ -194,7 +194,7 @@ codeunit 144353 "Test ESR Reports"
 
         ESRSetup.Reset();
         ESRSetup.SetRange("ESR Main Bank", true);
-        ESRSetup.FindFirst;
+        ESRSetup.FindFirst();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('EsrSetupESRMemberName1', ESRSetup."ESR Member Name 1");
         LibraryReportDataset.AssertCurrentRowValueEquals('EsrSetupESRMemberName2', ESRSetup."ESR Member Name 2");
@@ -208,7 +208,7 @@ codeunit 144353 "Test ESR Reports"
         ExpectedNumberOfRows: Integer;
     begin
         // 1. Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostServiceInvoice(ServiceInvoiceHeader);
 
         // 2. Exercise: Generate the ESR Coupon report
@@ -227,7 +227,7 @@ codeunit 144353 "Test ESR Reports"
 
         ESRSetup.Reset();
         ESRSetup.SetRange("ESR Main Bank", true);
-        ESRSetup.FindFirst;
+        ESRSetup.FindFirst();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('EsrSetupESRMemberName1', ESRSetup."ESR Member Name 1");
         LibraryReportDataset.AssertCurrentRowValueEquals('EsrSetupESRMemberName2', ESRSetup."ESR Member Name 2");
@@ -246,20 +246,20 @@ codeunit 144353 "Test ESR Reports"
         // [FEATURE] [Service] [VAT %]
         // [SCENARIO 235524] On posting a Service Order field 11500 - VAT % in TAB 254 VAT Entries contains VAT % of corresponding VAT Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with 1 line with 25% VAT
         // [WHEN] Post Service Order
         CreateAndPostServiceInvoice(ServiceInvoiceHeader);
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         VATPostingSetup.Get(ServiceInvoiceHeader."VAT Bus. Posting Group", ServiceInvoiceLine."VAT Prod. Posting Group");
         VATPostingSetup.TestField("VAT %");
 
         // [THEN] Created VAT Entry has "VAT %" = 25
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreEqual(VATPostingSetup."VAT %", VATEntry."VAT %", 'Wrong VAT % in VAT Entry.');
     end;
 
@@ -276,7 +276,7 @@ codeunit 144353 "Test ESR Reports"
         // [FEATURE] [Service] [Currency Factor]
         // [SCENARIO 235524] On posting a Service Order, field "Currency Factor" in TAB 254 VAT Entries contains "Currency Factor" of Service Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with 5.5 "Currency Factor"
         // [WHEN] Post Service Order
@@ -288,7 +288,7 @@ codeunit 144353 "Test ESR Reports"
         // [THEN] Created VAT Entry has "Currency Factor" = 5.5
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Currency Code", Currency.Code);
         VATEntry.TestField("Currency Factor", ServiceHeader."Currency Factor");
     end;
@@ -304,7 +304,7 @@ codeunit 144353 "Test ESR Reports"
         // [FEATURE] [Service] [Currency Factor]
         // [SCENARIO 235524] On posting a Service Order, field "Currency Factor" in TAB 254 VAT Entries contains 1 if Service Invoice has blank "Currency Code"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with blank "Currency Code"
         // [WHEN] Post Service Order
@@ -313,7 +313,7 @@ codeunit 144353 "Test ESR Reports"
         // [THEN] Created VAT Entry has "Currency Factor" = 1
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Currency Code", ServiceHeader."Currency Code");
         VATEntry.TestField("Currency Factor", 1);
     end;
@@ -326,8 +326,8 @@ codeunit 144353 "Test ESR Reports"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         // [SCENARIO 337173] Run report "Service - Invoice ESR" with saving results to Excel file.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Posted Service Invoice.
         CreateAndPostServiceInvoice(ServiceInvoiceHeader);
@@ -357,13 +357,13 @@ codeunit 144353 "Test ESR Reports"
         ServiceMgtSetup.Get();
         NoSeriesLine.SetRange("Series Code", ServiceMgtSetup."Posted Service Invoice Nos.");
         NoSeriesLine.SetRange(Open, true);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         NoSeriesLine."Starting No." := '0000000';
         NoSeriesLine.Modify(true);
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -386,7 +386,7 @@ codeunit 144353 "Test ESR Reports"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.Validate("Order No.", SalesHeader."No.");
         SalesInvoiceHeader.Modify(true);
         Commit();
@@ -419,7 +419,7 @@ codeunit 144353 "Test ESR Reports"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.Validate("Order No.", ServiceHeader."No.");
         ServiceInvoiceHeader.Modify(true);
         Commit();

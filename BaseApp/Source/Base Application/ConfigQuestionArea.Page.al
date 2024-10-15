@@ -89,7 +89,7 @@ page 8611 "Config. Question Area"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(ConfigQuestionArea);
-                        if ConfigQuestionArea.FindSet then begin
+                        if ConfigQuestionArea.FindSet() then begin
                             repeat
                                 QuestionnaireMgt.UpdateQuestions(ConfigQuestionArea);
                             until ConfigQuestionArea.Next() = 0;
@@ -110,7 +110,7 @@ page 8611 "Config. Question Area"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(ConfigQuestionArea);
-                        if ConfigQuestionArea.FindSet then begin
+                        if ConfigQuestionArea.FindSet() then begin
                             repeat
                                 QuestionnaireMgt.ApplyAnswer(ConfigQuestionArea);
                             until ConfigQuestionArea.Next() = 0;

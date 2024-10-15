@@ -60,7 +60,7 @@ table 1208 "Direct Debit Collection Entry"
 
                     "Transfer Date" := CustLedgerEntry."Due Date";
                     "Currency Code" := CustLedgerEntry."Currency Code";
-                    "Transfer Amount" := CustLedgerEntry."Remaining Amount" - GetAmountInActiveCollections;
+                    "Transfer Amount" := CustLedgerEntry."Remaining Amount" - GetAmountInActiveCollections();
                     Validate("Mandate ID", CustLedgerEntry."Direct Debit Mandate ID");
                     OnValidateAppliesToEntryNoOnAfterTransferCustLedgerEntryFields(Rec, xRec, CustLedgerEntry);
 
@@ -98,7 +98,7 @@ table 1208 "Direct Debit Collection Entry"
                 TestField("Applies-to Entry No.");
                 CustLedgEntry.Get("Applies-to Entry No.");
                 CustLedgEntry.CalcFields("Remaining Amount");
-                if "Transfer Amount" > CustLedgEntry."Remaining Amount" - GetAmountInActiveCollections then
+                if "Transfer Amount" > CustLedgEntry."Remaining Amount" - GetAmountInActiveCollections() then
                     Error(LargerThanRemainingErr, CustLedgEntry."Remaining Amount", CustLedgEntry."Currency Code");
             end;
         }
@@ -255,7 +255,7 @@ table 1208 "Direct Debit Collection Entry"
         if "Entry No." = 0 then begin
             DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", "Direct Debit Collection No.");
             LockTable();
-            if DirectDebitCollectionEntry.FindLast then;
+            if DirectDebitCollectionEntry.FindLast() then;
             "Entry No." := DirectDebitCollectionEntry."Entry No." + 1;
         end;
     end;
@@ -280,7 +280,7 @@ table 1208 "Direct Debit Collection Entry"
         "Direct Debit Collection No." := DirectDebitCollectionNo;
         SetRange("Direct Debit Collection No.", DirectDebitCollectionNo);
         LockTable();
-        if FindLast then;
+        if FindLast() then;
         "Entry No." += 1;
         Init;
         Validate("Customer No.", CustLedgerEntry."Customer No.");
@@ -380,7 +380,7 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine."Line No." := "Entry No.";
     end;
 
-    local procedure GetAmountInActiveCollections(): Decimal
+    procedure GetAmountInActiveCollections(): Decimal
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
         AmountAlreadyInCollection: Decimal;
@@ -390,7 +390,7 @@ table 1208 "Direct Debit Collection Entry"
 
         DirectDebitCollectionEntry.SetRange("Applies-to Entry No.", "Applies-to Entry No.");
         DirectDebitCollectionEntry.SetFilter(Status, '%1|%2', Status::New, Status::"File Created");
-        if DirectDebitCollectionEntry.FindSet then
+        if DirectDebitCollectionEntry.FindSet() then
             repeat
                 if (DirectDebitCollectionEntry."Direct Debit Collection No." <> "Direct Debit Collection No.") or
                    (DirectDebitCollectionEntry."Entry No." <> "Entry No.")

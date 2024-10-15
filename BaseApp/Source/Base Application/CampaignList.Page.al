@@ -142,7 +142,7 @@ page 5087 "Campaign List"
                         begin
                             CurrPage.SetSelectionFilter(Campaign);
                             DefaultDimMultiple.SetMultiRecord(Campaign, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -180,7 +180,7 @@ page 5087 "Campaign List"
                     RunPageView = SORTING("Campaign No.");
                     ToolTip = 'View sales opportunities handled by salespeople.';
                 }
-#if not CLEAN17
+#if not CLEAN19
                 action("Sales &Prices")
                 {
                     ApplicationArea = RelationshipMgmt;

@@ -62,7 +62,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetSalesQuoteAutoRecalc(false);
@@ -85,7 +85,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesHeader: Record "Sales Header";
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesOrderWithSpecialLines(SalesHeader, SalesHeader."Document Type"::Quote);
@@ -107,7 +107,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesHeader: Record "Sales Header";
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesOrderWithSpecialLines(SalesHeader, SalesHeader."Document Type"::Order);
@@ -128,7 +128,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetSalesQuoteAutoRecalc(false);
@@ -151,7 +151,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesHeader: Record "Sales Header";
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesOrderWithSpecialLines(SalesHeader, SalesHeader."Document Type"::Order);
@@ -176,7 +176,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         InvoiceVATAmt: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesOrderWithTotals(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -189,7 +189,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         // Verify. Posted document.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"End-Total");
-        if SalesInvoiceLine.FindFirst then
+        if SalesInvoiceLine.FindFirst() then
             SalesInvoiceLine.TestField("Subtotal gross", InvoiceVATAmt);
     end;
 
@@ -203,7 +203,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         InvoiceVATAmt: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesOrderWithTotals(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -216,7 +216,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         // Verify. Posted document.
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::"End-Total");
-        if SalesCrMemoLine.FindFirst then
+        if SalesCrMemoLine.FindFirst() then
             SalesCrMemoLine.TestField("Subtotal gross", InvoiceVATAmt);
     end;
 
@@ -233,7 +233,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         CombineShipments: Report "Combine Shipments";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -256,13 +256,13 @@ codeunit 144057 "Test CH Sales Quote Reports"
         CombineShipments.InitializeRequest(WorkDate, WorkDate, false, false, false, false);
         CombineShipments.UseRequestPage(false);
         CombineShipments.SetTableView(SalesHeader);
-        CombineShipments.Run;
+        CombineShipments.Run();
 
         // Verify.
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("Bill-to Customer No.", Customer."No.");
         Assert.AreEqual(1, SalesHeader.Count, 'There should be 1 combined invoice per customer.');
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -284,7 +284,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesHeader: Record "Sales Header";
         SalesQuoteToOrder: Codeunit "Sales-Quote to Order";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesOrderWithTotals(SalesHeader, SalesHeader."Document Type"::Quote);
@@ -308,7 +308,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         // Verify "Completely Shipped" in Sales Header is correct after post shipment for Sales Order with Special Lines
 
         // Setup: Create a Sales Order with Specila Lines - New Page, Begin-Total, Title, Item, End-Total...
-        Initialize;
+        Initialize();
         SetupSalesOrderWithSpecialLines(SalesHeader, SalesHeader."Document Type"::Order);
 
         // Exercise: Post Shipment only.
@@ -329,7 +329,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     begin
         // [FEATURE] [Report] [Automatic Recalculate Quotes]
         // [SCENARIO 382458] Printing of sales quote causes "End-Total" line recalculation when "Automatic Recalculate Quotes" is set in "Sales & Receivables Setup"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales & Receivables Setup"."Automatic Recalculate Quotes" = TRUE
         SetSalesQuoteAutoRecalc(true);
@@ -352,14 +352,14 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test CH Sales Quote Reports");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test CH Sales Quote Reports");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Invoice Rounding", false);
         SalesReceivablesSetup.Modify();
@@ -460,7 +460,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");

@@ -27,7 +27,7 @@ report 3010839 "LSV Write DebitDirect File"
                 "LSV Journal".SetRange("No.", "No.");
                 LastLsvJour.Reset();
                 LastLsvJour.SetRange("Credit Date", "LSV Journal"."Credit Date");
-                if LastLsvJour.FindFirst then begin
+                if LastLsvJour.FindFirst() then begin
                     if LastLsvJour."DebitDirect Orderno." in ['', '99'] then
                         LastOrderNo := '00'
                     else
@@ -193,7 +193,7 @@ report 3010839 "LSV Write DebitDirect File"
                     LSVJournalLine.SetCurrentKey("LSV Journal No.", "Cust. Ledg. Entry No.");
                     LSVJournalLine.SetRange("LSV Journal No.", _LsvJour."No.");
                     LSVJournalLine.SetRange("Cust. Ledg. Entry No.", CustLedgEntry."Entry No.");
-                    LSVJournalLine.FindFirst;
+                    LSVJournalLine.FindFirst();
                     Evaluate(LSVJournalLine."Transaction No.", TaLineno);
                     LSVJournalLine.Modify();
                     WriteCollectionRecord(CustLedgEntry."Customer No.", CustLedgEntry."Currency Code", CollectionAmt);
@@ -225,14 +225,7 @@ report 3010839 "LSV Write DebitDirect File"
         end else
             FileCurrency := _LsvJour."Currency Code";
 
-#if not CLEAN17
-        if FileMgt.IsLocalFileSystemAccessible then
-            FileMgt.DownloadToFile(ServerTempFilename, LsvSetup."LSV File Folder" + LsvSetup."LSV Filename")
-        else
-            FileMgt.DownloadHandler(ServerTempFilename, '', '', '', LsvSetup."LSV Filename");
-#else
-            FileMgt.DownloadHandler(ServerTempFilename, '', '', '', LsvSetup."LSV Filename");
-#endif
+        FileMgt.DownloadHandler(ServerTempFilename, '', '', '', LsvSetup."LSV Filename");
 
         Message(Text014, NoOfLines, NoOfRecs, TotalAmt, FileCurrency);
     end;
@@ -298,7 +291,7 @@ report 3010839 "LSV Write DebitDirect File"
         if DebBank.Count > 1 then
             DebBank.SetRange(Code, LsvSetup."LSV Customer Bank Code");
 
-        if not DebBank.FindFirst then
+        if not DebBank.FindFirst() then
             Error(Text016, CustLedgEntry."Customer No.", LsvSetup."LSV Customer Bank Code");
 
         // CHeck post account
@@ -411,7 +404,7 @@ report 3010839 "LSV Write DebitDirect File"
 
         Customer.Reset();
         Customer.SetRange("Payment Method Code", LsvSetup."LSV Payment Method Code");
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 WriteCollectionRecord(Customer."No.", LsvSetup."LSV Currency Code", 1.0);
             until Customer.Next() = 0;

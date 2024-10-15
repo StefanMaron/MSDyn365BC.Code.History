@@ -109,14 +109,14 @@ table 11003 "Data Export Record Definition"
         DataExportRecordSource.SetRange("Data Export Code", "Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
         UpdateRecordSources(DataExportRecordSource);
-        if DataExportRecordSource.FindSet then
+        if DataExportRecordSource.FindSet() then
             repeat
                 Count1 := 0;
                 i := 1;
                 NoOfComma := 0;
                 PrimaryKeyText := '';
                 FillKeyBuffer(DataExportRecordSource."Table No.", KeyBuffer);
-                if KeyBuffer.FindFirst then begin
+                if KeyBuffer.FindFirst() then begin
                     PrimaryKeyText := KeyBuffer.Key;
                     repeat
                         KeyArray[i] := SelectStr(1, PrimaryKeyText);
@@ -137,14 +137,14 @@ table 11003 "Data Export Record Definition"
                 DataExportRecordField.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
                 DataExportRecordField.SetRange("Table No.", DataExportRecordSource."Table No.");
                 DataExportRecordField.SetRange("Source Line No.", DataExportRecordSource."Line No.");
-                if DataExportRecordField.FindSet then
+                if DataExportRecordField.FindSet() then
                     repeat
                         repeat
                             DataExportRecordField.CalcFields("Table Name", "Field Name");
                             Field.Reset();
                             Field.SetRange(TableNo, DataExportRecordField."Table No.");
                             Field.SetRange("No.", DataExportRecordField."Field No.");
-                            Field.FindFirst;
+                            Field.FindFirst();
                             if KeyArray[i] = Field.FieldName then begin
                                 if IsPrimary and not IsKey and ShowMessage then begin
                                     ErrorsFound := true;
@@ -186,7 +186,7 @@ table 11003 "Data Export Record Definition"
         KeyBuffer.DeleteAll();
         Key.Reset();
         Key.SetRange(TableNo, TableNo);
-        if Key.FindSet then
+        if Key.FindSet() then
             repeat
                 KeyBuffer.Init();
                 KeyBuffer."Table No" := Key.TableNo;
@@ -243,7 +243,7 @@ table 11003 "Data Export Record Definition"
     var
         ParentLineNo: array[100] of Integer;
     begin
-        if DataExportRecordSource.FindSet then
+        if DataExportRecordSource.FindSet() then
             repeat
                 if DataExportRecordSource.Indentation > 0 then
                     DataExportRecordSource."Relation To Line No." := ParentLineNo[DataExportRecordSource.Indentation];
@@ -268,14 +268,14 @@ table 11003 "Data Export Record Definition"
             if TableFilterText <> '' then begin
                 TableFilterPage.SetSourceTable(TableFilterText, "Table No.", "Table Name");
                 TableFilterPage.GetFilterFieldsList(TempTableFilter);
-                if TempTableFilter.FindSet then
+                if TempTableFilter.FindSet() then
                     repeat
                         DataExportRecordField.SetRange("Data Export Code", "Data Export Code");
                         DataExportRecordField.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
                         DataExportRecordField.SetRange("Table No.", "Table No.");
                         DataExportRecordField.SetRange("Field No.", TempTableFilter."Field Number");
                         DataExportRecordField.SetRange("Field Class", DataExportRecordField."Field Class"::FlowField);
-                        if DataExportRecordField.FindFirst then
+                        if DataExportRecordField.FindFirst() then
                             exit(DataExportRecordField."Date Filter Handling");
                     until TempTableFilter.Next() = 0;
             end;
@@ -292,7 +292,7 @@ table 11003 "Data Export Record Definition"
             SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
             SetRange("Table No.", DataExportRecordSource."Table No.");
             SetRange("Source Line No.", 0);
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     NewDataExportRecordField := DataExportRecordField;
                     NewDataExportRecordField."Source Line No." := DataExportRecordSource."Line No.";

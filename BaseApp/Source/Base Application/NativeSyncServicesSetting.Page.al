@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2843 "Native - Sync Services Setting"
 {
     Caption = 'nativeSyncServicesSettings', Locked = true;
@@ -137,4 +138,4 @@ page 2843 "Native - Sync Services Setting"
         QBDSyncProxy.GetQBDSyncSettings(QBDSyncTitle, QBDSyncDescription, QBDSyncEnabled, QBDSyncSendToEmail);
     end;
 }
-
+#endif

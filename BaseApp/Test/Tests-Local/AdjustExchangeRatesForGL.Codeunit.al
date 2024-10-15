@@ -32,7 +32,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         GenJournalLine.DeleteAll();
 
         if isInitialised then
@@ -51,7 +51,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountWithCurrency(GLAccount);
@@ -77,7 +77,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountWithCurrency(GLAccount);
@@ -104,7 +104,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountWithCurrency(GLAccount);
@@ -117,7 +117,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         VerifyCorrectionlLinesData(GLAccount, GenJournalBatch, CurrencyExchangeRate);
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise.
@@ -137,7 +137,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         GLAccount: Record "G/L Account";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountWithCurrency(GLAccount);
@@ -164,7 +164,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountWithCurrency(GLAccount);
@@ -192,7 +192,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // [SCENARIO 379258] Manual input of Gen. Journal Batch in "Adjust Exchange Rate" report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch named "B"
         GetCorrectionBatch(GenJournalBatch);
@@ -217,7 +217,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         GLAccount: Record "G/L Account";
         Currency: Record Currency;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGLAccount(GLAccount);
@@ -240,7 +240,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         GLAccount: Record "G/L Account";
         Currency: Record Currency;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGLAccount(GLAccount);
@@ -265,7 +265,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         Currency: Record Currency;
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.FindDirectPostingGLAccount(BalGLAccount);
@@ -291,7 +291,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountWithCurrency(GLAccount);
@@ -318,7 +318,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         GenJournalLine: Record "Gen. Journal Line";
         RecGLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAccountWithCurrency(GLAccount);
@@ -340,7 +340,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
     local procedure AddDifferentExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; GLAccount: Record "G/L Account"; GainsLossesFactor: Integer)
     begin
         CurrencyExchangeRate.SetRange("Currency Code", GLAccount."Currency Code");
-        CurrencyExchangeRate.FindLast;
+        CurrencyExchangeRate.FindLast();
 
         LibraryERM.CreateExchangeRate(GLAccount."Currency Code", WorkDate + LibraryRandom.RandInt(10),
           CurrencyExchangeRate."Exchange Rate Amount" + GainsLossesFactor * LibraryRandom.RandDec(10, 2),
@@ -353,7 +353,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
         GenJournalBatch.DeleteAll();
@@ -474,7 +474,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         SourceCodeSetup.Get();
 
         VerifyCorrectionLineCount(GenJournalLine, GenJournalBatch, GLAccount, 1);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Posting Date", CurrencyExchangeRate."Starting Date");
         GenJournalLine.TestField("Source Code", SourceCodeSetup."Exchange Rate Adjmt.");
         GenJournalLine.TestField("Currency Code", '');

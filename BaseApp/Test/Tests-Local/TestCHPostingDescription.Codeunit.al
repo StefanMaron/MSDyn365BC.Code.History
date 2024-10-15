@@ -28,7 +28,7 @@ codeunit 144055 "Test CH Posting Description"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test CH Posting Description");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test CH Posting Description");
     end;
@@ -45,7 +45,7 @@ codeunit 144055 "Test CH Posting Description"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -65,7 +65,7 @@ codeunit 144055 "Test CH Posting Description"
           'Wrong description:' + SalesInvoiceHeader."Posting Description");
 
         SalesShipmentHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        SalesShipmentHeader.FindLast;
+        SalesShipmentHeader.FindLast();
         Assert.IsTrue(StrPos(SalesShipmentHeader."Posting Description", SalesHeader."No." + '/' + Customer.Name) > 0,
           'Wrong description:' + SalesShipmentHeader."Posting Description");
     end;
@@ -82,7 +82,7 @@ codeunit 144055 "Test CH Posting Description"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -102,7 +102,7 @@ codeunit 144055 "Test CH Posting Description"
           'Wrong description:' + SalesCrMemoHeader."Posting Description");
 
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        ReturnReceiptHeader.FindLast;
+        ReturnReceiptHeader.FindLast();
         Assert.IsTrue(StrPos(ReturnReceiptHeader."Posting Description", SalesHeader."No." + '/' + Customer.Name) > 0,
           'Wrong description:' + ReturnReceiptHeader."Posting Description");
     end;
@@ -119,7 +119,7 @@ codeunit 144055 "Test CH Posting Description"
         PurchInvHeader: Record "Purch. Inv. Header";
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -144,7 +144,7 @@ codeunit 144055 "Test CH Posting Description"
           'Wrong description:' + PurchInvHeader."Posting Description");
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
-        PurchRcptHeader.FindLast;
+        PurchRcptHeader.FindLast();
         Assert.IsTrue(StrPos(PurchRcptHeader."Posting Description", PurchaseHeader."Vendor Invoice No." + '/' + Vendor.Name) > 0,
           'Wrong description:' + PurchRcptHeader."Posting Description");
     end;
@@ -161,7 +161,7 @@ codeunit 144055 "Test CH Posting Description"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -189,7 +189,7 @@ codeunit 144055 "Test CH Posting Description"
           'Wrong description:' + PurchCrMemoHdr."Posting Description");
 
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
-        ReturnShipmentHeader.FindLast;
+        ReturnShipmentHeader.FindLast();
         Assert.IsTrue(StrPos(ReturnShipmentHeader."Posting Description", PurchaseHeader."Vendor Cr. Memo No." + '/' + Vendor.Name) > 0,
           'Wrong description:' + ReturnShipmentHeader."Posting Description");
     end;
@@ -204,7 +204,7 @@ codeunit 144055 "Test CH Posting Description"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -219,7 +219,7 @@ codeunit 144055 "Test CH Posting Description"
 
         // Verify.
         ServiceInvoiceHeader.SetRange("Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         Assert.IsTrue(StrPos(ServiceInvoiceHeader."Posting Description", ServiceInvoiceHeader."No." + '/' + Customer.Name) > 0,
           'Wrong description:' + ServiceInvoiceHeader."Posting Description");
     end;
@@ -235,7 +235,7 @@ codeunit 144055 "Test CH Posting Description"
         PurchaseLine: Record "Purchase Line";
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         UpdatePurchPayablesSetup;
@@ -252,7 +252,7 @@ codeunit 144055 "Test CH Posting Description"
         // Verify.
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", DocNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.IsTrue(StrPos(VendorLedgerEntry.Description, PurchaseHeader."Vendor Invoice No." + '/' + Vendor.Name) > 0,
           'Wrong description:' + VendorLedgerEntry.Description);
     end;

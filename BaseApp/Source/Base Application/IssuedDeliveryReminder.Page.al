@@ -167,7 +167,7 @@ page 5005273 "Issued Delivery Reminder"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

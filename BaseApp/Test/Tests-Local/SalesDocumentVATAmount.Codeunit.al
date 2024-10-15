@@ -30,7 +30,7 @@ codeunit 144048 "Sales Document VAT Amount"
         CustomerNo: Code[20];
     begin
         // SETUP
-        Initialize;
+        Initialize();
 
         // Create Foreign Customer
         CustomerNo := CreateCustomer1;
@@ -56,7 +56,7 @@ codeunit 144048 "Sales Document VAT Amount"
         CustomerNo: Code[20];
     begin
         // SETUP
-        Initialize;
+        Initialize();
 
         // Create Foreign Customer
         CustomerNo := CreateCustomer2;
@@ -82,7 +82,7 @@ codeunit 144048 "Sales Document VAT Amount"
         CustomerNo: Code[20];
     begin
         // SETUP
-        Initialize;
+        Initialize();
 
         // Create Foreign Customer
         CustomerNo := CreateCustomer1;
@@ -108,7 +108,7 @@ codeunit 144048 "Sales Document VAT Amount"
         CustomerNo: Code[20];
     begin
         // SETUP
-        Initialize;
+        Initialize();
 
         // Create Foreign Customer
         CustomerNo := CreateCustomer2;
@@ -135,7 +135,7 @@ codeunit 144048 "Sales Document VAT Amount"
         ExpectedAmountInclVAT: Decimal;
     begin
         // [SCENARIO 225589] Validate "VAT Prod Posting Group" when update "Shipment Date" in Sales Header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with the following values in Sales Line
         // [GIVEN] "VAT %" = 10
@@ -200,7 +200,7 @@ codeunit 144048 "Sales Document VAT Amount"
         if IsInitialized = true then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         // General initialization
         IsInitialized := true;
@@ -361,7 +361,7 @@ codeunit 144048 "Sales Document VAT Amount"
 
             TotalAllAmountExclVAT := 0;
             TotalVATAmount := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     LibraryReportDataset.GetNextRow;
                     if Type <> Type::"New Page" then begin
@@ -414,7 +414,7 @@ codeunit 144048 "Sales Document VAT Amount"
 
             TotalAllAmountExclVAT := 0;
             TotalVATAmount := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Type <> Type::"New Page" then begin
                         LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::UnitPrice), Format("Unit Price", 0, '<Integer Thousand><Decimals,3>'));
@@ -514,7 +514,7 @@ codeunit 144048 "Sales Document VAT Amount"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindZeroVATBusPosingGroup(): Code[10]

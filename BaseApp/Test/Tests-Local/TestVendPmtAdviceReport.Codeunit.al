@@ -39,7 +39,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         Responsible: Text;
         Advice: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -80,7 +80,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         Responsible: Text;
         Advice: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -117,7 +117,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         Responsible: Text;
         Advice: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -148,7 +148,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -180,7 +180,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         // [FEATURE] [Application]
         // [SCENARIO 375785] Credit Memo applied to Invoice indirectly in chain with multiple entries should be printed in Vendor Payment Advice Report
 
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Invoice "A1" with amount = 100
         InvAmount := LibraryRandom.RandDec(1000, 2);
@@ -237,7 +237,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure PostPurchaseDocument(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; Vendor: Record Vendor; Amount: Decimal): Code[20]
@@ -316,7 +316,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         SRVendorPaymentAdvice.DefineJourBatch(GenJournalLine);
         Vendor.SetRange("No.", GenJournalLine."Account No.");
         SRVendorPaymentAdvice.SetTableView(Vendor);
-        SRVendorPaymentAdvice.RunModal;
+        SRVendorPaymentAdvice.RunModal();
     end;
 
     local procedure VerifyReportData(GenJournalLine: Record "Gen. Journal Line"; AppliedAmount: Decimal; Responsible: Text; Advice: Text; ExpCount: Integer)

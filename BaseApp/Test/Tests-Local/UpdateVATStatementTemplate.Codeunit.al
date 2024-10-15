@@ -143,7 +143,7 @@ codeunit 144011 "Update VAT Statement Template"
     begin
         VATCipherSetup.Get();
         VATStatementName.SetRange("Statement Template Name", VATStatementTemplate.Name);
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
 
         TempVATPostingSetup.FindSet();
         repeat
@@ -152,7 +152,7 @@ codeunit 144011 "Update VAT Statement Template"
             VATStatementLine.SetRange("VAT Prod. Posting Group", TempVATPostingSetup."VAT Prod. Posting Group");
             VATStatementLine.SetRange("Row No.", Format(TempVATPostingSetup."Sales VAT Stat. Cipher"));
             Assert.AreEqual(1, VATStatementLine.Count, 'Wrong number of vat statement lines:' + VATStatementLine.GetFilters);
-            VATStatementLine.FindFirst;
+            VATStatementLine.FindFirst();
             case TempVATPostingSetup."Sales VAT Stat. Cipher" of
                 VATCipherSetup."Acquisition Tax Before", VATCipherSetup."Acquisition Tax After":
                     VATStatementLine.TestField("Gen. Posting Type", VATStatementLine."Gen. Posting Type"::Purchase);

@@ -82,7 +82,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 244862] It should be possible to change the Expected Delivery date on Purchase order after updating reservation on sales order
 
         // [GIVEN] Create Purchase Order. Create Sales Order and Reserve Quantity.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, '', Item."No.", LibraryRandom.RandDec(10, 2), '', false);
@@ -108,7 +108,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Special Order]
         // [SCENARIO 360247.1] Ship-to error on multi line purchase order (special order) that is linked to multiple special orders with different "Ship-to Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer and Ship to Address. Create Sales Order with Special Order. Create Purchase Header with Sell to Customer No. and different Ship-to Code
         CreateSpecialSaleOrderAndPurchaseOrderWithDifferentShipToCode(PurchaseHeader, SalesShipToCode, PurchaseShipToCode);
@@ -130,7 +130,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Special Order]
         // [SCENARIO 360247.2] Ship-to error on multi line purchase order (special order) that is linked to multiple special orders with blank "Ship-to Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer and Ship to Address. Create Sales Order with Special Order. Create Purchase Header with Sell to Customer No. and empty Ship-to Code
         CreateSpecialSaleOrderAndPurchaseOrder(PurchaseHeader, SalesHeaderNo);
@@ -154,7 +154,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 135586] Test the Lead Time Calculation and Planned Receipt Date on Purchase Line after Updating Lead Time Calculation on Purchase Header.
 
         // [GIVEN] Create Purchase Header with Lead Time Calculation.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseHeaderWithLeadTimeCalculation(PurchaseHeader);
 
@@ -184,7 +184,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 135535] Test the Receipt Line and Item Ledger Entry after Post Purchase Order as Receive with multiple Lines with Lot Item Tracking on Single Line and Undo Purchase Receipt.
 
         // [GIVEN] Create Item with Lot Item Tracking Code. Create and Post Purchase Order with multiple Items and assign Tracking on Single Item.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         CreateItemWithItemTrackingCode(Item2, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // True for Lot.
@@ -209,7 +209,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Requisition Worksheet] [Currency]
         // [SCENARIO 263291] Test to verify Currency Factor on Requisition Worksheet after Calculate Plan with Sales Order.
 
-        Initialize;
+        Initialize();
         CalculatePlanAndCarryOutActionMessageOnRequisitionWorkSheetWithCurrency(false);  // CarryOutActionMessage as FALSE.
     end;
 
@@ -220,7 +220,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Requisition Worksheet] [Currency]
         // [SCENARIO 263291] Test to post Purchase Order created after Calculate Plan and Carry out Action Message on Requisition Worksheet after creating Sales Order with Currency.
 
-        Initialize;
+        Initialize();
         CalculatePlanAndCarryOutActionMessageOnRequisitionWorkSheetWithCurrency(true);  // CarryOutActionMessage as TRUE.
     end;
 
@@ -280,7 +280,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 229614] Test the Purchase Invoice Line after Purchase Order Created from Blanket Order with Partial Quantity. And Purchase Invoice created from Get Receipt Line.
 
         // [GIVEN] Create Purchase Order with Partial Quantity from Blanket Purchase Order. Post Purchase Order. Get Receipt Line on Purchase Invoice. Create Purchase Order with Remaining Quantity from Blanket Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         CreatePurchaseOrderFromBlanketPurchaseOrderWithPartialQuantity(PurchaseHeader, Item."No.", Quantity);
@@ -302,7 +302,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales] [Applies-from Entry]
         // [SCENARIO 298819] Test the Item Ledger Entry after Post Sales Order with Negative Line and Update Apply From Item Entry on Sales Line.
 
-        Initialize;
+        Initialize();
         PostSalesOrderWithNegativeLineAndGetPostedDocumentLinesOnSalesReturnOrder(false);  // Post Sales Return Order as FALSE.
     end;
 
@@ -314,7 +314,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales Return] [Get Posted Document Lines To Reverse]
         // [SCENARIO 298819] Test the Item Ledger Entry after Post Sales Return Order with Get Posted Document Lines To reverse on Sales Return Order.
 
-        Initialize;
+        Initialize();
         PostSalesOrderWithNegativeLineAndGetPostedDocumentLinesOnSalesReturnOrder(true);  // Post Sales Return Order as TRUE.
     end;
 
@@ -376,7 +376,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase Return] [Applies-to Entry]
         // [SCENARIO 298819] Test the Item Ledger Entry after Post Purchase Order with Negative Line and Update Apply to Item Entry on Purchase Line.
 
-        Initialize;
+        Initialize();
         PostPurchaseOrderWithNegativeLineAndGetPostedDocumentLinesOnPurchaseReturnOrder(false);  // Post Purchase Return Order as FALSE.
     end;
 
@@ -388,7 +388,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase Return] [Get Posted Document Lines To Reverse]
         // [SCENARIO 298819] Test the Item Ledger Entry after Post Purchase Return Order with Get Posted Document Lines To reverse on Purchase Return Order.
 
-        Initialize;
+        Initialize();
         PostPurchaseOrderWithNegativeLineAndGetPostedDocumentLinesOnPurchaseReturnOrder(true);  // Post Purchase Return Order as TRUE.
     end;
 
@@ -451,7 +451,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Location] [Transit Location] [Transfer Order]
         // [SCENARIO 264085] Test and verify Use as in-Transit is Un-editable after create and release Transfer Order.
 
-        Initialize;
+        Initialize();
         CreateAndPostTransferOrderAfterPostPurchaseOrderWithLocationInTransit(false);  // PostTransferOrder as FALSE.
     end;
 
@@ -462,7 +462,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Location] [Transit Location] [Transfer Order]
         // [SCENARIO 264085] Test and verify Use as in-Transit is Editable after post Transfer Order as Receive.
 
-        Initialize;
+        Initialize();
         CreateAndPostTransferOrderAfterPostPurchaseOrderWithLocationInTransit(true);  // PostTransferOrder as TRUE.
     end;
 
@@ -509,7 +509,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Create Purchase Order with Get Drop Shipment from Sales Order with Serial Item Tracking.
         // [GIVEN] Both sales and purchase order have "Quantity" = 2 and two serial numbers assigned: "SN1" and "SN2"
-        Initialize;
+        Initialize();
         CreateSalesOrderWithDropShipmentAndSerialItemTracking(SalesHeader, SalesLine);
         LibraryVariableStorage.Dequeue(SerialNo);
         CreatePurchaseOrderWithGetDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
@@ -535,7 +535,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales] [Bill-to Customer]
         // [SCENARIO 237016] Test and verify posting of Sales Order as Invoice with different Bill-to Customer.
 
-        Initialize;
+        Initialize();
         PostSalesCreditMemoAgainstSalesReturnOrderWithDifferentBillToCustomer(false, false);  // SalesReturnOrder and SalesCreditMemo as FALSE.
     end;
 
@@ -547,7 +547,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales Return] [Bill-to Customer] [Get Posted Document lines to Reverse]
         // [SCENARIO 237016] Test and verify posting of Sales Return Order with Get Posted Document lines to reverse with different Bill-to Customer.
 
-        Initialize;
+        Initialize();
         PostSalesCreditMemoAgainstSalesReturnOrderWithDifferentBillToCustomer(true, false);  // SalesReturnOrder as TRUE and SalesCreditMemo as FALSE.
     end;
 
@@ -559,7 +559,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales] [Credit Memo] [Get Posted Document lines to Reverse] [Bill-to Customer]
         // [SCENARIO 237016] Test and verify posting of Sales Credit Memo with Get Posted Document lines to reverse with different Bill-to Customer.
 
-        Initialize;
+        Initialize();
         PostSalesCreditMemoAgainstSalesReturnOrderWithDifferentBillToCustomer(true, true);  // SalesReturnOrder and SalesCreditMemo as TRUE.
     end;
 
@@ -619,9 +619,9 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 268715] Test and verify Description gets updated on all Tasks of same Organizer Task of Contact by updating one Task card by page.
 
         // Setup: Create Contact. Create two Task for the Contact.
-        Initialize;
+        Initialize();
         CreateContactWithTasks(Contact);
-        Description := LibraryUtility.GenerateGUID;
+        Description := LibraryUtility.GenerateGUID();
 
         // Exercise: Update Description on Task Card opened from Task list page.
         OpenTaskListPageFromContactCard(Contact."No.", Description);
@@ -640,14 +640,14 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Task] [UI]
         // [SCENARIO 363277] Open comments from the Task Card page the link is set to the organizer Task.
-        Initialize;
+        Initialize();
         // [GIVEN] Contact and Task for the Contact.
         LibraryMarketing.CreateCompanyContact(Contact);
         CreateAndUpdateTask(Task, Contact);
 
         // [GIVEN] Comment "X" for Task.
         LibraryMarketing.CreateRlshpMgtCommentLine(RlshpMgtCommentLine, RlshpMgtCommentLine."Table Name"::"To-do", Task."No.", 0);
-        RlshpMgtCommentLine.Validate(Comment, LibraryUtility.GenerateGUID);
+        RlshpMgtCommentLine.Validate(Comment, LibraryUtility.GenerateGUID());
         RlshpMgtCommentLine.Modify(true);
 
         // [WHEN] Open page Comment from Task Page.
@@ -666,7 +666,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 255695] Test and verify Error on updating Quantity to Assemble on Assembly Order.
 
         // Setup: Create Item. Create Assembly Header.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', LibraryRandom.RandDec(10, 2), '');
 
@@ -685,7 +685,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales] [Purchase] [Special Order]
         // [SCENARIO 255986] Test and verify Shipment Method on Purchase Order by Special Sales Order.
 
-        Initialize;
+        Initialize();
         PostPurchaseOrderWithShptMethodBySpecialSalesOrder(false);  // Use False for Posted Purchase Invoice.
     end;
 
@@ -697,7 +697,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales] [Purchase] [Special Order]
         // [SCENARIO 255986] Test and verify Shipment Method on Posted Purchase Invoice by Special Sales Order.
 
-        Initialize;
+        Initialize();
         PostPurchaseOrderWithShptMethodBySpecialSalesOrder(true);  // Use True for Posted Purchase Invoice.
     end;
 
@@ -741,7 +741,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales]
         // [SCENARIO 252383] Test and verify Error on Posting Sales Order without External Document.
 
-        Initialize;
+        Initialize();
         PostSalesOrderWithMultipleSeriesLine(false);  // Use False for without External Document.
     end;
 
@@ -753,7 +753,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales]
         // [SCENARIO 252383] Test and verify Post Sales Order with Multiple Series Line and External Document.
 
-        Initialize;
+        Initialize();
         PostSalesOrderWithMultipleSeriesLine(true);  // Use True for with External Document.
     end;
 
@@ -811,7 +811,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase] [Item Tracking]
         // [SCENARIO 267967] Test and verify Post Purchase Order with Standard Cost Item using Lot.
 
-        Initialize;
+        Initialize();
         PostInvtCostAfterPostingPurchaseReturnOrderWithLot(false, false, false, false);
     end;
 
@@ -823,7 +823,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase Return] [Applies-to Entry]
         // [SCENARIO 267967] Test and verify Apply to Entry on Purchase Return Order with Reverse Document.
 
-        Initialize;
+        Initialize();
         PostInvtCostAfterPostingPurchaseReturnOrderWithLot(true, false, false, false);  // Use True for GetPostedDocumentLines.
     end;
 
@@ -835,7 +835,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase Return] [Item Tracking]
         // [SCENARIO 267967] Test and verify Lot on Purchase Return Order with Reverse Document.
 
-        Initialize;
+        Initialize();
         PostInvtCostAfterPostingPurchaseReturnOrderWithLot(true, true, false, false);  // Use True for GetPostedDocumentLines and LotAfterGetPostedDocumentLines.
     end;
 
@@ -847,7 +847,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase Return] [Item Tracking]
         // [SCENARIO 267967] Test and verify Post Purchase Return Order with Reverse Document.
 
-        Initialize;
+        Initialize();
         PostInvtCostAfterPostingPurchaseReturnOrderWithLot(true, true, true, false);  // Use True for GetPostedDocumentLines, LotAfterGetPostedDocumentLines and PostPurchaseReturnOrder.
     end;
 
@@ -859,7 +859,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase Return] [Item Tracking]
         // [SCENARIO 267967] Test and verify Post Inventory Cost after Posting Purchase Return Order.
 
-        Initialize;
+        Initialize();
         PostInvtCostAfterPostingPurchaseReturnOrderWithLot(true, true, true, true);  // Use True for GetPostedDocumentLines, LotAfterGetPostedDocumentLines, PostPurchaseReturnOrder and PostCostToGL.
     end;
 
@@ -967,7 +967,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 48248] Error should be thrown when adding Job No. in Purchase Order whith Drop Shipment purchasing code.
 
         // Setup: Create Purchase Order with Get Drop Shipment from Sales Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         CreateSalesOrderWithDropShipment(SalesHeader, Customer."No.", Item."No.");
@@ -999,7 +999,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 48248] Error should be thrown when adding Job No. in Purchase Order with Special Order purchasing code.
 
         // Setup: Create Purchase Order with Get Special Order from Sales Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         CreateSalesOrderWithSpecialOrder(SalesHeader, Customer."No.", '', Item."No.");
@@ -1033,7 +1033,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 48494] Quantity on sales line should be recalculated after chainging unit of measure
 
         // Setup: Create Item with Order Reorder Policy and Multiple UOM.
-        Initialize;
+        Initialize();
         CreateItemWithMultipleUOM(Item, ItemUnitOfMeasure, ItemUnitOfMeasure1);
 
         // Exercise: Create Sales Order.
@@ -1051,7 +1051,7 @@ codeunit 137158 "SCM Orders V"
         // Verify: Verify the Quantity(calculated by ItemUnitOfMeasure1) on Item Ledger Entry.
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Sale, Item."No.", -Quantity * ItemUnitOfMeasure1."Qty. per Unit of Measure", '', '', '');
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1064,7 +1064,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales] [Reservation]
         // [SCENARIO 68631] Confirmation should be requested when posting Sales Order when all stock reserved for another Sales Order.
 
-        Initialize;
+        Initialize();
         PostOutboundWhenReservationEntryExistsForSalesOrder(Outbound::SalesOrder);
     end;
 
@@ -1078,7 +1078,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales] [Reservation]
         // [SCENARIO 68631] Confirmation should be requested when posting Sales Invoice when all stock reserved for another Sales Order.
 
-        Initialize;
+        Initialize();
         PostOutboundWhenReservationEntryExistsForSalesOrder(Outbound::SalesInvoice);
     end;
 
@@ -1092,7 +1092,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase Return] [Reservation]
         // [SCENARIO 68631] Confirmation should be requested when posting Purchase Return Order when all stock is reserved for Sales Order.
 
-        Initialize;
+        Initialize();
         PostOutboundWhenReservationEntryExistsForSalesOrder(Outbound::PurchaseReturnOrder);
     end;
 
@@ -1106,7 +1106,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 68631] Confirmation should be requested when posting Purchase Credit Memo when all stock is reserved for Sales Order.
 
-        Initialize;
+        Initialize();
         PostOutboundWhenReservationEntryExistsForSalesOrder(Outbound::PurchaseCreditMemo);
     end;
 
@@ -1125,7 +1125,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 72977] Assembly BOM can be exploded on the Sales line and the Extended Text to be automatic inserted accordingly when the Assembly contains an Item with an associated Extended Text and Automatic Ext. Texts=Yes.
 
         // [GIVEN] Create two component items, one with Extended Text. Create assembly item with the two BOM Components.
-        Initialize;
+        Initialize();
         UpdateStockoutWarningOnSalesReceivableSetup(false);
         AssemblyItemNo := CreateAssemblyItemWithMultipleBOMComponents(CompItem, CompItem2);
 
@@ -1157,7 +1157,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 72977] Assembly BOM can be exploded on the Purchase line and the Extended Text to be automatic inserted accordingly when the Assembly contains an Item with an associated Extended Text and Automatic Ext. Texts=Yes.
 
         // [GIVEN] Create two components item, one with Extended Text. Create assembly item with the two BOM Components.
-        Initialize;
+        Initialize();
         AssemblyItemNo := CreateAssemblyItemWithMultipleBOMComponents(CompItem, CompItem2);
 
         // [GIVEN] Create a Purchases Order.
@@ -1189,7 +1189,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 359952] Test the Receipt Line and Item Ledger Entry after Undo Purchase Receipt with Job No. and Dimension set as Code mandatory
 
         // [GIVEN] Create 2 Items with Dimension set as Code mandatory and Lot Tracking.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         for i := 1 to ArrayLen(Item) do begin
             CreateItemWithItemTrackingCode(Item[i], true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // True for Lot.
@@ -1223,7 +1223,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 359952] Test the Return Shipment Line and Item Ledger Entry after Undo Purchase Return Shipment with Job No. and Dimension set as Code mandatory
 
         // [GIVEN] Create 2 Items with Dimension set as Code mandatory.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         for i := 1 to ArrayLen(Item) do begin
             LibraryInventory.CreateItem(Item[i]);
@@ -1255,7 +1255,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 361885] "Qty. to Ship" shoud be set to zero for non-Item Sales Line when Quantity is modified.
 
         // [GIVEN] Set "Default Quantity to Ship" to "Blank" in Sales & Receivable Setup, create SalesLine with Resource of Quantity X.
-        Initialize;
+        Initialize();
         PrevDefQtyToShip := UpdateDefQtyToShipOnSalesReceivableSetup(1); // Blank
         LibraryResource.FindResource(Resource);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
@@ -1352,7 +1352,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Default Item Quantity] [UT]
         // [SCENARIO 161629] Quantity is set to "0" after filling in "Item No." in sales line if "Default Item Quantity" is not set in Sales & Receivable Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup with "Default Item Quantity" = FALSE
         // [GIVEN] Item "I"
@@ -1377,7 +1377,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Default Item Quantity] [UT]
         // [SCENARIO 161629] Quantity is set to "1" after filling in "Item No." in sales line if "Default Item Quantity" is set in Sales & Receivable Setup
-        Initialize;
+        Initialize();
         UpdateStockoutWarningOnSalesReceivableSetup(false);
 
         // [GIVEN] Sales & Receivables Setup with "Default Item Quantity" = TRUE
@@ -1406,7 +1406,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Default Item Quantity] [UT]
         // [SCENARIO 161629] Quantity is set to "0" after deleting "Item No." in sales line if "Default Item Quantity" is set in Sales & Receivable Setup
-        Initialize;
+        Initialize();
         UpdateStockoutWarningOnSalesReceivableSetup(false);
 
         // [GIVEN] Sales & Receivables Setup with "Default Item Quantity" = TRUE
@@ -1437,7 +1437,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Default Item Quantity] [Stockout Warning]
         // [SCENARIO] Availability warning is raised when default quantity is set in sales line and item is not in stock
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable stockout warning and default item quantity in Sales & Receivables Setup
         UpdateStockoutWarningOnSalesReceivableSetup(true);
@@ -1456,7 +1456,7 @@ codeunit 137158 "SCM Orders V"
         // Verified in CheckAvailabilityHandler
         // [THEN] After accepting the warning quantity is set to "1" in sales line
         SalesLine.TestField(Quantity, 1);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1468,7 +1468,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Default Item Quantity] [Stockout Warning]
         // [SCENARIO] Availability warning is not raised when default quantity is set in sales line and item is in stock
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable stockout warning and default item quantity in Sales & Receivables Setup
         UpdateStockoutWarningOnSalesReceivableSetup(true);
@@ -1499,7 +1499,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Default Item Quantity] [Item Availability]
         // [SCENARIO] "Sales Line Details" factbox should be updated when sales line is created with default quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable default item quantity in Sales & Receivables Setup
         UpdateStockoutWarningOnSalesReceivableSetup(false);
@@ -1534,14 +1534,14 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Sales Line Factbox] [UI]
         // [SCENARIO 226030] "Item Availability" value in Sales Line Details Factbox is rounded to 0.00001.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with 1.555555 pcs (6 digits) in inventory.
         LibraryInventory.CreateItem(Item);
         MockItemInventory(Item."No.", 1.555555);
 
         // [GIVEN] Sales Order Line with "I".
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(LibrarySales.CreateCustomerNo);
         SalesOrder.SalesLines.New;
         SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
@@ -1569,14 +1569,14 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Purchase Line Factbox] [UI]
         // [SCENARIO 305591] "Item Availability" value in Purchase Line Details Factbox is rounded to 0.00001.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with 1.555555 pcs (6 digits) in inventory.
         LibraryInventory.CreateItem(Item);
         MockItemInventory(Item."No.", 1.555555);
 
         // [GIVEN] Purchase Order Line with "I".
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor No.".SETVALUE(LibraryPurchase.CreateVendorNo);
         PurchaseOrder.PurchLines.New;
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
@@ -1605,10 +1605,10 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Shipment] [Get Shipment Lines] [Special Order]
         // [SCENARIO 381247] Stan can delete fully shipped Sales Order tied with Purchase "Special Order" when it is fully Invoiced by another document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "SO" marked as "Special Order" and linked to purchase order "PO"
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateSalesOrderWithSpecialOrder(SalesHeaderOrder, LibrarySales.CreateCustomerNo, '', ItemNo);
 
         // [GIVEN] "PO" with line "PL" received and not invoiced
@@ -1646,10 +1646,10 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Shipment] [Get Shipment Lines] [Special Order]
         // [SCENARIO 381247] Stan can delete fully shipped Sales Order tied with Purchase "Special Order" when it is fully Invoiced by another document and special order fully receipt and invoiced
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "SO" marked as "Special Order" and linked to purchase order "PO"
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateSalesOrderWithSpecialOrder(SalesHeaderOrder, LibrarySales.CreateCustomerNo, '', ItemNo);
 
         // [GIVEN] "PO" with line "PL" received and not invoiced
@@ -1685,7 +1685,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales Invoice] [Get Shipment Line] [Item Unit of Measure]
         // [SCENARIO 381806] When the proportion between "Quantity (Base)" and Quantity in sales shipment is not equal to "Qty. per Unit of Measure", that changed proportion should be also applied to sales invoice created from that shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with alternate sales unit of measure "BOX". Qty. in base UOM for "BOX" = 6.
         // [GIVEN] Item "I" is in stock in Location set up for required shipment.
@@ -1727,9 +1727,9 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 382083] The Assembly BOM is exploded on the Sales Line after attached extended texts
 
         // [GIVEN] Assembly BOM with extended text
-        Initialize;
+        Initialize();
         UpdateStockoutWarningOnSalesReceivableSetup(false);
-        CompItemNo := LibraryInventory.CreateItemNo;
+        CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
         ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
 
@@ -1759,9 +1759,9 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 382083] The Assembly BOM is exploded on the Sales Line after attached extended texts but before next line
 
         // [GIVEN] Assembly BOM with extended text
-        Initialize;
+        Initialize();
         UpdateStockoutWarningOnSalesReceivableSetup(false);
-        CompItemNo := LibraryInventory.CreateItemNo;
+        CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
         ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
 
@@ -1793,8 +1793,8 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 382083] The Assembly BOM is exploded on the Purchase Line after attached extended texts
 
         // [GIVEN] Assembly BOM with extended text
-        Initialize;
-        CompItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
         ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
 
@@ -1824,8 +1824,8 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 382083] The Assembly BOM is exploded on the Purchase Line after attached extended texts but before next line
 
         // [GIVEN] Assembly BOM with extended text
-        Initialize;
-        CompItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        CompItemNo := LibraryInventory.CreateItemNo();
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItemNo, LibraryRandom.RandInt(10));
         ExtendedText := LibraryService.CreateExtendedTextForItem(AssemblyItem."No.");
 
@@ -1855,7 +1855,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Order] [Item Tracking]
         // [SCENARIO 217787] Sales order for a lot-tracked item can be simultaneously shipped and invoiced, if "Qty. to Invoice" < "Quantity Shipped" for a current iteration of posting.
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -1893,7 +1893,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Order] [Item Tracking]
         // [SCENARIO 217787] Sales order for a lot-tracked item can be simultaneously shipped and invoiced if "Qty. to Invoice" = "Quantity Shipped" for a current iteration of posting.
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -1931,7 +1931,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Order] [Item Tracking]
         // [SCENARIO 217787] Sales order for a lot-tracked item can be posted if "Qty. to Invoice" > "Quantity Shipped" for a current iteration of posting, yet overall shipped quantity will be little greater than overall invoiced quantity after the posting
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -1969,7 +1969,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Order] [Item Tracking]
         // [SCENARIO 217787] Sales order for a lot-tracked item can be posted if "Qty. to Invoice" > "Quantity Shipped" for a current iteration of posting, yet overall shipped quantity will be much greater than overall invoiced quantity after the posting.
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -2007,7 +2007,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Order] [Item Tracking]
         // [SCENARIO 217787] Sales order for a lot-tracked item can be posted if "Qty. to Invoice" > "Quantity Shipped" for a current iteration of posting, yet overall shipped quantity will be equal to overall invoiced quantity after the posting.
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -2045,7 +2045,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Order] [Item Tracking]
         // [SCENARIO 217787] "Quantity Handled" and "Quantity Invoiced" in item tracking lines should be equal to actually shipped and invoiced quantity in lot-tracked sales order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         // [GIVEN] Two lots are in the inventory. Purchased quantity of each lot = 5 pcs.
@@ -2079,7 +2079,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Order] [Item Tracking]
         // [SCENARIO 217787] Purchase order for a lot-tracked item can be simultaneously received and invoiced, if "Qty. to Invoice" < "Quantity Received" for a current iteration of posting.
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -2118,7 +2118,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Order] [Item Tracking]
         // [SCENARIO 217787] Purchase order for a lot-tracked item can be simultaneously received and invoiced if "Qty. to Invoice" = "Quantity Received" for a current iteration of posting.
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -2157,7 +2157,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Order] [Item Tracking]
         // [SCENARIO 217787] Purchase order for a lot-tracked item can be posted if "Qty. to Invoice" > "Quantity Received" for a current iteration of posting, yet overall received quantity will be little greater than overall invoiced quantity after postin
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -2196,7 +2196,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Order] [Item Tracking]
         // [SCENARIO 217787] Purchase order for a lot-tracked item can be posted if "Qty. to Invoice" > "Quantity Received" for a current iteration of posting, yet overall received quantity will be much greater than overall invoiced quantity after posting.
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -2235,7 +2235,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Order] [Item Tracking]
         // [SCENARIO 217787] Purchase order for a lot-tracked item can be posted if "Qty. to Invoice" > "Quantity Shipped" for a current iteration of posting, yet overall received quantity will be equal to overall invoiced quantity after posting.
-        Initialize;
+        Initialize();
         Qty := 10;
 
         // [GIVEN] Lot-tracked item.
@@ -2274,7 +2274,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Order] [Item Tracking]
         // [SCENARIO 217787] "Quantity Handled" and "Quantity Invoiced" in item tracking lines should be equal to actually received and invoiced quantity in lot-tracked purchase order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -2310,7 +2310,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 230306] When a sales order associated with a purchase order via drop shipment, is invoiced by another document, purchase order reference should not be removed
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "SO" with a "Drop Shipment" purchasing code
         // [GIVEN] Create a purchase order and get drop shipment lines into it
@@ -2347,7 +2347,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 230306] Sales order associated with a purchase via drop shipment, can be deleted after it is invoiced by a separate Invoice document
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "SO" with a "Drop Shipment" purchasing code
         // [GIVEN] Create a purchase order and get drop shipment lines into it
@@ -2379,7 +2379,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 230306] Sales order associated with a purchase via drop shipment, cannot be deleted while it is not invoiced
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "SO" with a "Drop Shipment" purchasing code
         CreateSalesOrderWithDropShipment(SalesHeader, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
@@ -2407,7 +2407,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Drop Shipment] [Sales] [Order] [Blanket Order]
         // [SCENARIO 253613] You can set a link to blanket order line on sales line for drop shipment with the same location, variant and unit of measure code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket sales order with customer "C", item "I" and unit price "X".
         LibrarySales.CreateSalesDocumentWithItem(
@@ -2444,7 +2444,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Drop Shipment] [Purchase] [Order] [Blanket Order]
         // [SCENARIO 253613] You can set a link to blanket order line on purchase line for drop shipment with the same location, variant and unit of measure code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with item "I" is set up for drop shipment.
         // [GIVEN] Create purchase order for vendor "V" by getting the sales order line.
@@ -2481,7 +2481,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Return Order] [Item Tracking] [UI]
         // [SCENARIO 256931] When you delete a sales document with a tracked line, the confirmation message for deletion should include the caption of document type ("Quote", "Order", "Invoice", etc.) you intend to delete.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
@@ -2491,7 +2491,7 @@ codeunit 137158 "SCM Orders V"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo,
           Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -2521,7 +2521,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Order] [Item Tracking] [UI]
         // [SCENARIO 256931] When you delete a purchase document with a tracked line, the confirmation message for deletion should include the caption of document type ("Quote", "Order", "Invoice", etc.) you intend to delete.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
@@ -2531,7 +2531,7 @@ codeunit 137158 "SCM Orders V"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
           Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -2561,7 +2561,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Production Order] [Item Tracking] [UI]
         // [SCENARIO 256931] When you delete a production order with a tracked line, the confirmation message for deletion should include the caption of prod. order status ("Simulated", "Planned", "Released", etc.) you intend to delete.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
@@ -2571,7 +2571,7 @@ codeunit 137158 "SCM Orders V"
         LibraryManufacturing.CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -2601,7 +2601,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Transfer] [Item Tracking] [UI]
         // [SCENARIO 256931] When you delete a transfer order with a tracked line, the confirmation message for deletion should begin as follows: "Transfer Order ... has item reservation."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
@@ -2610,7 +2610,7 @@ codeunit 137158 "SCM Orders V"
         // [GIVEN] Transfer order "TO" with a lot-tracked line.
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationBlue.Code, LocationRed.Code, LocationInTransit.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandInt(10));
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -2643,7 +2643,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Undo] [Receipt] [Job]
         // [SCENARIO 258978] Undo purchase receipt with job and task is posting with prevent negative inventory in inventory setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Prevent Negative Inventory" in "Inventory Setup" is on
         LibraryInventory.SetPreventNegativeInventory(true);
@@ -2682,7 +2682,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Purchase] [Undo] [Return Shipment] [Job]
         // [SCENARIO 258978] Undo purchase return shipment with job and task is posting with prevent negative inventory in inventory setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Prevent Negative Inventory" in "Inventory Setup" is on
         LibraryInventory.SetPreventNegativeInventory(true);
@@ -2723,7 +2723,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Lead Time] [Purchase]
         // [SCENARIO 266514] If lead time is empty in Item Vendor it must be taken from Item Card
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -2763,7 +2763,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Lead Time] [Purchase]
         // [SCENARIO 266514] If lead time is NOT empty in Item Vendor it must be prioritized over lead time from Item Card
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -2803,7 +2803,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Item Tracking] [Purchase] [Receipt] [Invoice]
         // [SCENARIO 272485] When "Qty. to Invoice" in purchase line is less than "Qty. to Invoice" in item tracking lines, the posting fails.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order for a lot tracked item, Quantity = 30 pcs
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -2837,7 +2837,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Item Tracking] [Purchase] [Receipt] [Invoice]
         // [SCENARIO 272485] When "Qty. to Invoice" in purchase line is equal to "Qty. to Invoice" in item tracking lines, the invoice is successfully posted.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order for a lot tracked item, Quantity = 30 pcs
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -2858,7 +2858,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] Invoice is successfully posted.
         PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
         PurchInvLine.SetRange("No.", Item."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField(Quantity, 20);
 
         LibraryVariableStorage.AssertEmpty;
@@ -2878,7 +2878,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Item Tracking] [Sales] [Shipment] [Invoice]
         // [SCENARIO 272485] When "Qty. to Invoice" in sales line is less than "Qty. to Invoice" in item tracking lines, the posting fails.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot tracked item with inventory stock of 30 pcs. Item purchased in 3 lots, 10 pcs in each lot.
         LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
@@ -2922,7 +2922,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Item Tracking] [Sales] [Shipment] [Invoice]
         // [SCENARIO 272485] When "Qty. to Invoice" in sales line is equal to "Qty. to Invoice" in item tracking lines, the invoice is successfully posted.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot tracked item with inventory stock of 30 pcs. Item purchased in 3 lots, 10 pcs in each lot.
         LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
@@ -2951,7 +2951,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] Invoice is successfully posted
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
         SalesInvoiceLine.SetRange("No.", Item."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField(Quantity, 20);
 
         LibraryVariableStorage.AssertEmpty;
@@ -2977,7 +2977,7 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Sales] [Explode BOM] [Resource Unit of Measure]
         // [SCENARIO 288842] Function "Explode BOM" uses Resource's additional "Unit of Measure" as chosen in BOM Component
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Customer
         LibrarySales.CreateCustomer(Customer);
@@ -3040,7 +3040,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Order]
         // [SCENARIO 287310] "Qty. to Invoice" in item tracking can be greater than "Qty. to Invoice" on purchase line if the item tracking contains a single lot.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -3078,7 +3078,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Order]
         // [SCENARIO 287310] "Qty. to Invoice" in item tracking can be greater than "Qty. to Invoice" on purchase line if there are several lots in the item tracking, but only one lot remains to be invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -3129,7 +3129,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Order]
         // [SCENARIO 287310] Partially invoicing partially received purchase order with "Qty. to Invoice" on the item tracking greater than "Qty. to Invoice" on the purchase line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -3169,7 +3169,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Order]
         // [SCENARIO 287310] Simultaneously receiving and invoicing partially received purchase order with "Qty. to Invoice" on the item tracking greater than "Qty. to Invoice" on the purchase line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -3210,7 +3210,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Order]
         // [SCENARIO 287310] A user cannot invoice a purchase order if "Qty. to Handle" in item tracking does not match "Qty. to Invoice" on the purchase line and there is an uncertainty which lot to invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -3246,7 +3246,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Order]
         // [SCENARIO 287310] Simultaneously receiving and invoicing new purchase order with "Qty. to Invoice" on the item tracking greater than "Qty. to Invoice" on the purchase line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -3282,7 +3282,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Item Tracking] [Sales] [Order]
         // [SCENARIO 287310] Simultaneously shipping and invoicing partially shipped sales order with "Qty. to Invoice" on the item tracking greater than "Qty. to Invoice" on the sales line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
@@ -3334,10 +3334,10 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Purchase] [Drop Shipment] [Check] [Dimensions]
         // [SCENARIO 294326] Drop Shipments Purchase Order posting fails on incorrect Dimensions of the associated Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CU1", where dimension value 'Department','ADM' is default with "Code Mandatory"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
@@ -3382,10 +3382,10 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Sales] [Purchase] [Drop Shipment] [Check] [Dimensions]
         // [SCENARIO 294326] Drop Shipments Purchase Order posting fails on incorrect Dimensions of the associated Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "VE01", where dimension value 'Department','ADM' is default with "Code Mandatory"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension, VendorNo, DimensionValue."Dimension Code", DimensionValue.Code);
@@ -3464,7 +3464,7 @@ codeunit 137158 "SCM Orders V"
     begin
         // [FEATURE] [Transfer Order] [Receipt]
         // [SCENARIO 366904] Changing Receipt Date on a Transfer Line changes Receipt Dates on derived transfer lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] 100 PCS of Item on Location "BLUE" on 01-01-2022
         LibraryInventory.CreateItem(Item);
@@ -3488,7 +3488,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] Derived Transfer Line has "Receipt Date" = 09-01-2022
         TransferLine.SetRange("Document No.", TransferHeader."No.");
         TransferLine.SetFilter("Derived From Line No.", '<>%1', 0);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField("Receipt Date", NewDate);
     end;
 
@@ -3501,7 +3501,7 @@ codeunit 137158 "SCM Orders V"
         ShipToAddress: Record "Ship-to Address";
     begin
         // [SCENARIO 378102] When Customer has alternative shipping address, Tax Liable is taken from the shipping address to Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with alternative ship-to code and "Tax Liable" = False
         CreateCustomerWithAlternateShippingAddress(Customer, ShipToAddress);
@@ -3525,7 +3525,7 @@ codeunit 137158 "SCM Orders V"
         ShipToAddress: Record "Ship-to Address";
     begin
         // [SCENARIO 378102] When Customer has alternative shipping address and Bill-to Customer No., Tax Liable is taken from the Bill-to Customer to Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with alternative ship-to code and "Tax Liable" = False
         CreateCustomerWithAlternateShippingAddress(Customer[1], ShipToAddress);
@@ -3641,8 +3641,8 @@ codeunit 137158 "SCM Orders V"
         SalesHeader: Record "Sales Header";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders V");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -3650,17 +3650,19 @@ codeunit 137158 "SCM Orders V"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Orders V");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        LocationSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LocationSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();
@@ -3919,7 +3921,7 @@ codeunit 137158 "SCM Orders V"
     var
         ShipmentMethod: Record "Shipment Method";
     begin
-        ShipmentMethod.FindFirst;
+        ShipmentMethod.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Shipment Method Code", ShipmentMethod.Code);
         Customer.Modify(true);
@@ -4087,7 +4089,7 @@ codeunit 137158 "SCM Orders V"
 
     local procedure CreateNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20]; StartingDate: Date)
     begin
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeriesCode, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeriesCode, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         NoSeriesLine.Validate("Starting Date", StartingDate);
         NoSeriesLine.Modify(true);
     end;
@@ -4141,7 +4143,7 @@ codeunit 137158 "SCM Orders V"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
         LibraryVariableStorage.Enqueue(ArrayLen(AssignedLotNos));
         for i := 1 to ArrayLen(AssignedLotNos) do begin
-            AssignedLotNos[i] := LibraryUtility.GenerateGUID;
+            AssignedLotNos[i] := LibraryUtility.GenerateGUID();
             LibraryVariableStorage.Enqueue(AssignedLotNos[i]);
             LibraryVariableStorage.Enqueue(Qty / ArrayLen(AssignedLotNos));
         end;
@@ -4265,7 +4267,7 @@ codeunit 137158 "SCM Orders V"
         with SalesHeader do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("No.", SalesHeaderNo);
-            FindFirst;
+            FindFirst();
             SalesShipToCode := "Ship-to Code";
             LibrarySales.CreateShipToAddress(ShipToAddress, "Sell-to Customer No.");
         end;
@@ -4405,7 +4407,7 @@ codeunit 137158 "SCM Orders V"
         ShipmentMethod: Record "Shipment Method";
     begin
         ShipmentMethod.SetFilter(Code, '<>%1', ShipmentMethodCode);
-        ShipmentMethod.FindFirst;
+        ShipmentMethod.FindFirst();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Shipment Method Code", ShipmentMethod.Code);
         Vendor.Modify(true);
@@ -4449,7 +4451,7 @@ codeunit 137158 "SCM Orders V"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
         LibraryVariableStorage.Enqueue(NoOfLots);
         for I := 1 to NoOfLots do begin
-            LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+            LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
             LibraryVariableStorage.Enqueue(QtyPerLot);
         end;
     end;
@@ -4496,7 +4498,7 @@ codeunit 137158 "SCM Orders V"
     begin
         ReturnShipmentLine.SetRange("Return Order No.", OrderNo);
         ReturnShipmentLine.SetRange("No.", ItemNo);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
@@ -4515,7 +4517,7 @@ codeunit 137158 "SCM Orders V"
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
     begin
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchaseLineByHeader(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
@@ -4535,21 +4537,21 @@ codeunit 137158 "SCM Orders V"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure GetLotNoFromItemTrackingPageHandler(var LotNo: Code[50])
@@ -4641,7 +4643,7 @@ codeunit 137158 "SCM Orders V"
 
     local procedure PostPartialPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; QtyToInvoice: Decimal)
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         UpdateQuantityToInvoiceOnPurchaseLine(PurchaseLine, QtyToInvoice);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -4659,7 +4661,7 @@ codeunit 137158 "SCM Orders V"
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyfromVendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive as TRUE.
     end;
 
@@ -4679,10 +4681,10 @@ codeunit 137158 "SCM Orders V"
             PurchaseLine.Validate("Qty. to Invoice", QtyToInvoice);
             PurchaseLine.Modify(true);
 
-            ValueEntry.FindLast;
+            ValueEntry.FindLast();
             LastValueEntryNo := ValueEntry."Entry No.";
 
-            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
             PurchaseHeader.Modify(true);
             LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -4724,7 +4726,7 @@ codeunit 137158 "SCM Orders V"
             SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
             SalesLine.Modify(true);
 
-            ValueEntry.FindLast;
+            ValueEntry.FindLast();
             LastValueEntryNo := ValueEntry."Entry No.";
 
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -4907,7 +4909,7 @@ codeunit 137158 "SCM Orders V"
         QtyToInvoice := 0;
         for i := 1 to ArrayLen(LotNos) do begin
             TempTrackingSpec.SetRange("Lot No.", LotNos[i]);
-            TempTrackingSpec.FindFirst;
+            TempTrackingSpec.FindFirst();
             LibraryVariableStorage.Enqueue(ItemTrackingMode::UpdateLotQty);
             LibraryVariableStorage.Enqueue(LotNos[i]);
             LibraryVariableStorage.Enqueue(TempTrackingSpec."Qty. to Handle");
@@ -4927,7 +4929,7 @@ codeunit 137158 "SCM Orders V"
         QtyToInvoice := 0;
         for i := 1 to ArrayLen(LotNos) do begin
             TempTrackingSpec.SetRange("Lot No.", LotNos[i]);
-            TempTrackingSpec.FindFirst;
+            TempTrackingSpec.FindFirst();
             LibraryVariableStorage.Enqueue(ItemTrackingMode::UpdateLotQty);
             LibraryVariableStorage.Enqueue(LotNos[i]);
             LibraryVariableStorage.Enqueue(TempTrackingSpec."Qty. to Handle");
@@ -5033,7 +5035,7 @@ codeunit 137158 "SCM Orders V"
 
     local procedure UpdateVendorInvoiceNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -5071,7 +5073,7 @@ codeunit 137158 "SCM Orders V"
             GLEntry.SetFilter(Amount, '<0');
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualErr);
     end;
 
@@ -5127,7 +5129,7 @@ codeunit 137158 "SCM Orders V"
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange("No.", ItemNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField(Quantity, Quantity);
     end;
 
@@ -5174,7 +5176,7 @@ codeunit 137158 "SCM Orders V"
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange("Entry Type", EntryType);
         ValueEntry.SetRange(Adjustment, Adjustment);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Actual)", CostAmountActual);
         ValueEntry.TestField("Cost per Unit", CostPerUnit);
     end;
@@ -5263,7 +5265,7 @@ codeunit 137158 "SCM Orders V"
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             TestField("Quantity (Base)", QtyBase);
             TestField("Outstanding Qty. (Base)", QtyBase);
             TestField("Qty. to Invoice (Base)", QtyBase);
@@ -5279,7 +5281,7 @@ codeunit 137158 "SCM Orders V"
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Resource);
             SetRange("No.", ResourceNo);
-            FindFirst;
+            FindFirst();
             TestField("Unit of Measure Code", UnitOfMeasureCode);
             TestField("Quantity (Base)", Round(ExpectedQtyBase, 0.00001));
             TestField(Quantity, Round(ExpectedQuantity, 0.00001));
@@ -5319,7 +5321,7 @@ codeunit 137158 "SCM Orders V"
         with PurchLine do begin
             SetRange("Document No.", PurchHeaderNo);
             SetRange("Document Type", "Document Type"::Order);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(SalesHeaderNo, "Special Order Sales No.", SpecialOrderSalesNoErr);
         end;
     end;
@@ -5402,7 +5404,7 @@ codeunit 137158 "SCM Orders V"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemRegister.SetFilter("From Entry No.", '>0');
-        ItemRegister.FindLast;
+        ItemRegister.FindLast();
         ItemLedgerEntry.SetRange("Entry No.", ItemRegister."From Entry No.", ItemRegister."To Entry No.");
         Assert.RecordCount(ItemLedgerEntry, 2);
         VerifyItemApplicationEntry(ItemRegister."From Entry No.", ItemRegister."From Entry No.", 0, Quantity);
@@ -5438,7 +5440,7 @@ codeunit 137158 "SCM Orders V"
         ItemApplicationEntry: Record "Item Application Entry";
     begin
         ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        ItemApplicationEntry.FindFirst;
+        ItemApplicationEntry.FindFirst();
         ItemApplicationEntry.TestField("Inbound Item Entry No.", InboundItemEntryNo);
         ItemApplicationEntry.TestField("Outbound Item Entry No.", OutboundItemEntryNo);
         ItemApplicationEntry.TestField(Quantity, Quantity);

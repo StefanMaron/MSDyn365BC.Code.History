@@ -36,7 +36,7 @@ codeunit 144058 "Test CH Small Features"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Shipment on Ship and Invoice", ShipmentOnShipAndInvoice);
@@ -66,7 +66,7 @@ codeunit 144058 "Test CH Small Features"
         GLAccount: Record "G/L Account";
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -100,7 +100,7 @@ codeunit 144058 "Test CH Small Features"
 
         // Verify.
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         FALedgerEntry.TestField("VAT Amount", 0);
         FALedgerEntry.TestField("VAT Bus. Posting Group", '');
         FALedgerEntry.TestField("VAT Prod. Posting Group", '');
@@ -115,7 +115,7 @@ codeunit 144058 "Test CH Small Features"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         PurchasesPayablesSetup.Get();
@@ -149,7 +149,7 @@ codeunit 144058 "Test CH Small Features"
         SalesOrder: TestPage "Sales Order";
         AmtInclVAT: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := LibraryRandom.RandDecInRange(0, 1, 2);
@@ -194,7 +194,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Sales Return Order]
         // [SCENARIO 283760] Report 6631 "Return Order Confirmation" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -231,7 +231,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Sales Shipment]
         // [SCENARIO 283760] Report 208 "Sales - Shipment" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -274,7 +274,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Sales Blanket Order]
         // [SCENARIO 283760] Report 210 "Blanket Sales Order" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -311,7 +311,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Sales Invoice]
         // [SCENARIO 283760] Report 3010532 "Sales Invoice ESR" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -348,7 +348,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Sales Order]
         // [SCENARIO 283760] Report 11512 "Sales Picking List" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -384,7 +384,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Purchase Quote]
         // [SCENARIO 283760] Report 404 "Purchase - Quote" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -420,7 +420,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Purchase Order]
         // [SCENARIO 283760] Report 405 "Order" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -453,7 +453,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Purchase Invoice]
         // [SCENARIO 283760] Report 406 "Purchase - Invoice" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -486,7 +486,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Purchase Credit Memo]
         // [SCENARIO 283760] Report 407 "Purchase - Credit Memo" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -524,7 +524,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Purchase Credit Memo]
         // [SCENARIO 283760] Report 408 "Purchase - Receipt" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -562,7 +562,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Purchase Quote]
         // [SCENARIO 283760] Report 410 "Blanket Purchase Order" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -598,7 +598,7 @@ codeunit 144058 "Test CH Small Features"
     begin
         // [FEATURE] [UT] [Purchase Return Order]
         // [SCENARIO 283760] Report 6641 "Return Order" prints CH header and footer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
         BindSubscription(TestCHSmallFeatures);
@@ -623,12 +623,12 @@ codeunit 144058 "Test CH Small Features"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test CH Small Features");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test CH Small Features");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -685,13 +685,13 @@ codeunit 144058 "Test CH Small Features"
     local procedure FindSalesShipment(var SalesShipmentHeader: Record "Sales Shipment Header"; OrderNo: Code[20])
     begin
         SalesShipmentHeader.SetRange("Order No.", OrderNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
     end;
 
     local procedure FindPurchReceipt(var PurchRcptHeader: Record "Purch. Rcpt. Header"; OrderNo: Code[20])
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
     end;
 
     local procedure UpdateSalesHeaderYourReferenceAndSalespersoneName(var SalesHeader: Record "Sales Header")
