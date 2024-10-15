@@ -1718,6 +1718,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127732] Entering a Sales Invoice with Fixed Asset does not allow editing of the deferral code or accessing schedule
+        Initialize();
+
         // [GIVEN] User has created a Sales Document
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
 
@@ -1824,6 +1826,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127732] Entering a Sales Order with Fixed Asset does not allow editing of the deferral code or accessing schedule
+        Initialize();
+
         // [GIVEN] User has created a Sales Document
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
 
@@ -1884,6 +1888,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127732] Entering a Sales Credit Memo with Fixed Asset does not allow editing of the deferral code or accessing schedule
+        Initialize();
+
         // [GIVEN] User has created a Sales Document
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer);
 
@@ -1944,6 +1950,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127732] Entering a Sales Return Order with Fixed Asset does not allow editing of the deferral code or accessing schedule
+        Initialize();
+
         // [GIVEN] User has created a Sales Document
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer);
 

@@ -1581,6 +1581,7 @@
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
             begin
+                Cont.FilterGroup(2);
                 if "Customer No." <> '' then
                     if Cont.Get("Contact No.") then
                         Cont.SetRange("Company No.", Cont."Company No.")
@@ -1596,6 +1597,7 @@
                     xRec := Rec;
                     Validate("Contact No.", Cont."No.");
                 end;
+                Cont.FilterGroup(0);
             end;
 
             trigger OnValidate()
@@ -1650,6 +1652,7 @@
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
             begin
+                Cont.FilterGroup(2);
                 if "Bill-to Customer No." <> '' then
                     if Cont.Get("Bill-to Contact No.") then
                         Cont.SetRange("Company No.", Cont."Company No.")
@@ -1665,6 +1668,7 @@
                     xRec := Rec;
                     Validate("Bill-to Contact No.", Cont."No.");
                 end;
+                Cont.FilterGroup(0);
             end;
 
             trigger OnValidate()
@@ -3740,7 +3744,13 @@
         ContBusinessRelation: Record "Contact Business Relation";
         Cust: Record Customer;
         Cont: Record Contact;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateBillToCust(Rec, ContactNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if Cont.Get(ContactNo) then begin
             "Bill-to Contact No." := Cont."No.";
             if Cont.Type = Cont.Type::Person then
@@ -5253,6 +5263,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoSeriesManual(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateBillToCust(var ServiceHeader: Record "Service Header"; ContactNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

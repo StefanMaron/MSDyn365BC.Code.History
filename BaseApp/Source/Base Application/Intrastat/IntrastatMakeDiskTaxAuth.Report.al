@@ -65,11 +65,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
                             end;
                             if "Supplementary Units" then
                                 TestField(Quantity);
-                            Sales := "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales;
-                            if Sales then
-                                CountryOriginCode := ''
-                            else
-                                CountryOriginCode := IntrastatJnlLine."Country/Region of Origin Code";
                             if not "Supplementary Units" then
                                 SupplUnits := 0
                             else
@@ -80,7 +75,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                             if "Intra - form Buffer".Get("Partner VAT ID",
                                  IntrastatJnlLine."Transaction Type", IntrastatJnlLine."Tariff No.",
                                  IntrastatJnlLine."Group Code", IntrastatJnlLine."Transport Method",
-                                 IntrastatJnlLine."Transaction Specification", CountryOriginCode,
+                                 IntrastatJnlLine."Transaction Specification", "Country/Region of Origin Code",
                                  IntrastatJnlLine.Area, IntrastatJnlLine."Corrective entry", EU3PartyTrade)
                             then begin
                                 TotalAmount -= Round("Intra - form Buffer".Amount, 1);
@@ -94,7 +89,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                                 TotalAmount += Round("Intra - form Buffer".Amount, 1);
                             end else begin
                                 "Intra - form Buffer".TransferFields(IntrastatJnlLine);
-                                "Intra - form Buffer"."Country/Region of Origin Code" := CountryOriginCode;
+                                "Intra - form Buffer"."Country/Region of Origin Code" := "Country/Region of Origin Code";
                                 "Intra - form Buffer".Quantity := SupplUnits;
                                 "Intra - form Buffer"."User ID" := UserId;
                                 "Intra - form Buffer"."No." := 0;
@@ -265,7 +260,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         Text1130002: Label '%1 must be 4 characters, for example, 9410 for October, 1994.';
         Text1130003: Label 'Please check the month number in field %1';
         Text1130004: Label 'Reference Period must be previous later %1';
-        Sales: Boolean;
         SupplUnits: Decimal;
         RoundCurrAmount: Text[30];
         RoundTotalWeight: Text[30];
@@ -273,7 +267,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         RoundStatValue: Text[30];
         RoundAmount: Text[30];
         OldReferencePeriod: Code[10];
-        CountryOriginCode: Code[10];
         MonthRP: Integer;
         NoOfRecords: Integer;
         TotalAmount: Decimal;
@@ -433,7 +426,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 OutText += FormatAlphaNum("Intra - form Buffer".Area, 2);
                 OutText += FormatAlphaNum(CopyStr("Intra - form Buffer"."Transaction Type", 2, 1), 1);
                 if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales then
-                    OutText += FormatAlphaNum('', 2);
+                    OutText += FormatAlphaNum("Intra - form Buffer"."Country/Region of Origin Code", 2);
             end else begin
                 OutText += FormatNum('', 10);
                 OutText += FormatNum('', 10);

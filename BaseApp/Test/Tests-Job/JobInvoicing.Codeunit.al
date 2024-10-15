@@ -2716,6 +2716,77 @@ codeunit 136306 "Job Invoicing"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,ConfirmHandlerVerifyQuestion,MessageHandler')]
+    procedure JobToSalesInvPriceInclVATDiff()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        DimensionValue: Array[2] of Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        JobTaskDimension: Record "Job Task Dimension";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        DimValueCode: Code[20];
+        DimensionSetID: Integer;
+    begin
+        // [SCENARIO 424833] Dimension of Sales Line created from Job Task should not depend on Customer "Prices Including VAT" value
+        Initialize();
+
+        // [GIVEN] Customer "C" with Default Dimension Value = "DDV1" and Prices Including VAT = false
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Prices Including VAT", false);
+        Customer.Modify();
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionCustomer(
+            DefaultDimension, Customer."No.", DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
+        DimValueCode := DimensionValue[1].Code;
+
+        // [GIVEN] Job with Job Task and Job Planning Line and Default Dimension Value = "DDV2"
+        CreateJobWithJobTask(JobTask);
+        Job.Get(JobTask."Job No.");
+        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Modify();
+        CreateJobTaskGlobalDim(JobTaskDimension, JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        Commit();
+
+        // [WHEN] Create Sales Invoice from Job Planning Line
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [THEN] Sales Line of created Invoice has Dimension Value = "DDV2"
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        DimensionSetID := SalesLine."Dimension Set ID";
+        FindDimensionSetEntryByCode(DimensionSetEntry, DimensionSetID, JobTaskDimension."Dimension Code");
+        DimensionSetEntry.TestField("Dimension Value Code", JobTaskDimension."Dimension Value Code");
+
+        SalesHeader.Delete(True); // Delete created Sales Invoice
+
+        // [GIVEN] Customer "C" with Prices Including VAT = true
+        Customer.Find();
+        Customer.Validate("Prices Including VAT", true);
+        Customer.Modify();
+        Commit();
+
+        // [WHEN] Create Sales Invoice from Job Planning Line
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [THEN] Sales Line of created Invoice has Dimension Value = "DDV2"
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        DimensionSetID := SalesLine."Dimension Set ID";
+        FindDimensionSetEntryByCode(DimensionSetEntry, DimensionSetID, JobTaskDimension."Dimension Code");
+        DimensionSetEntry.TestField("Dimension Value Code", JobTaskDimension."Dimension Value Code");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

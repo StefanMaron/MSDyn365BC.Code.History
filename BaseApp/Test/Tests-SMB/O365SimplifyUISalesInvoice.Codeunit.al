@@ -4129,6 +4129,40 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeSalesOrderSellToNameDisableSearchByName()
+    var
+        SalesHeader: Record "Sales Header";
+        NewName: Text[100];
+        SalesOrder: TestPage "Sales Order";
+        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+    begin
+        // [SCENARIO 424124] Bill-to Name should be editable when Sales Order created for Customer with Disable Search By Name = true
+        Initialize();
+
+        // [GIVEN] Create Sales Order
+        LibrarySales.CreateSalesOrder(SalesHeader);
+
+        // [GIVEN] Customer has "Disable Search by Name" = TRUE
+        SetCustomerDisableSearchByName(SalesHeader."Sell-to Customer No.");
+
+        // [GIVEN] "Sell-to Customer Name" is being changed to 'Test'
+        NewName := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("Sell-to Customer Name"), DATABASE::"Sales Header");
+
+        SalesOrder.OpenEdit;
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder."Sell-to Customer Name".SetValue(NewName);
+        
+        // [WHEN] Bill-to = "Custom Address"
+        SalesOrder.BillToOptions.SetValue(BillToOptions::"Custom Address");
+
+        // [THEN] "Bill-to Name" field is editable and the value can be changed
+        Assert.IsTrue(SalesOrder."Bill-to Name".Editable(), 'Bill-to Name is not editable');
+        SalesOrder."Bill-to Name".SetValue(NewName);
+        SalesOrder."Bill-to Name".AssertEquals(NewName);
+    end;
+
     local procedure Initialize()
     var
         CustomerTempl: Record "Customer Templ.";

@@ -152,6 +152,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
                 PurchaseLine.Validate("No.", SalesLine."No.");
                 PurchaseLine.Description := SalesLine.Description;
+                OnCopySalesLinesToPurchaseLinesOnAfterAssignDescription(PurchaseLine, SalesLine);
 
                 if PurchaseLine."No." <> '' then begin
                     PurchaseLine.Validate("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -236,6 +237,11 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitRecord(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySalesLinesToPurchaseLinesOnAfterAssignDescription(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
     begin
     end;
 

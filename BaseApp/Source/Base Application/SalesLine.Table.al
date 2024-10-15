@@ -7301,7 +7301,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitType(Rec, xRec, IsHandled);
+        OnBeforeInitType(Rec, xRec, IsHandled, SalesHeader);
         if IsHandled then
             exit;
 
@@ -8590,7 +8590,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeInitType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 

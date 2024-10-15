@@ -474,6 +474,8 @@ codeunit 5812 "Calculate Standard Cost"
         RUCapOvhd: Decimal;
         RUMfgOvhd: Decimal;
     begin
+        OnBeforeCalcMfgItem(Item, LogErrors, StdCostWkshName);
+
         if Level > MaxLevel then
             Error(Text000, MaxLevel);
 
@@ -1024,6 +1026,11 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcItem(var Item: Record Item; UseAssemblyList: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcMfgItem(var Item: Record Item; var LogErrors: Boolean; StdCostWkshName: Text[50])
     begin
     end;
 

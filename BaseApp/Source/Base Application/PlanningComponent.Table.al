@@ -1039,6 +1039,8 @@ table 99000829 "Planning Component"
             SetFilter("Net Quantity (Base)", '<0')
         else
             SetFilter("Net Quantity (Base)", '>0');
+
+        OnAfterFindLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
     end;
 
     procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
@@ -1154,6 +1156,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var PlanningComponent: Record "Planning Component"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindLinesForReservation(var PlanningComponent: Record "Planning Component"; ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
     end;
 

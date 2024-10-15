@@ -42,7 +42,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127770] Annie can apply a deferral template to a Purchse Order
         // [GIVEN] User has assigned a default deferral code to an Item
-        Initialize;
+        Initialize();
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
         // [WHEN] Creating Purchase Line for Item should default deferral code
@@ -70,6 +70,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127770] Annie can apply a deferral template to a Purchase Invoice
+        Initialize();
         // [GIVEN] User has created a deferral template
         DeferralTemplateCode := CreateDeferralCode(CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
 
@@ -103,6 +104,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127773] Annie can apply a deferral template to a Purchase Credit Memo
+        Initialize();
         // [GIVEN] User has created a deferral template
         DeferralTemplateCode := CreateDeferralCode(CalcMethod::"Equal per Period", StartDate::"Posting Date", 3);
 
@@ -138,6 +140,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Deferral Code] [Returns Deferral Start Date]
         // [SCENARIO 127773] Annie can apply a deferral template to a Purchase Return
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Days per Period", StartDate::"Beginning of Period", 4);
 
@@ -178,6 +181,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Deferral Code] [Returns Deferral Start Date]
         // [SCENARIO 127773] Annie can apply a deferral template and update the Purchase Line to use a separate deferral start date
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Days per Period", StartDate::"End of Period", 4);
 
@@ -272,6 +276,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Deferral Code]
         // [SCENARIO 379200] Amount in Deferral Schedule should match days in period when Calc. Method "Days per Period" is used
+        Initialize();
         // [GIVEN] Deferral Template with Calc. Method "Days per Period"
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Days per Period", StartDate::"Posting Date", 4);
 
@@ -427,7 +432,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [SCENARIO 127770] Annie can copy a document and the deferrals are copied
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creating Purchase Line for Item should default deferral code - then modify the amounts
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -468,7 +473,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [SCENARIO 127770] Annie can copy a posted document and the deferrals are copied
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the purchase invoice with the default deferral
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -513,7 +518,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo,
           CalcMethod::"Straight-Line", StartDate::"Beginning of Next Period", 2);
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the purchase invoice with the default deferral
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -559,7 +564,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [SCENARIO 127770] Copy an order with deferrals to a quote does not default the deferrals on a quote
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creating Purchase Line for Item should default deferral code
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -596,7 +601,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [SCENARIO 127770] Annie can copy a Quote to a different type and the deferrals are defaulted from the item
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creating Purchase Line for Item on Quote does not default the deferral
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -635,7 +640,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // defaults the Returns Deferral Start Date from the Return Order
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"End of Period", 3);
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creating Purchase Line for Item should default deferral code - order uses day = 1
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -673,7 +678,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo,
           CalcMethod::"Straight-Line", StartDate::"Beginning of Next Period", 3);
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creating Purchase Line for Item should default deferral code - order uses day = 1
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -712,6 +717,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Archive Document]
         // [SCENARIO 127770] When a purchase Order is archived, the deferrals are archived along with it
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -794,6 +800,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Orders]
         // [SCENARIO 159878] When a Order is Received & Invoiced, G/L entries post to deferral account
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -828,6 +835,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Partial Invoice]
         // [SCENARIO 159878] When partial Order is Received-Invoiced, G/L entries post to deferral account for partial amts only
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
@@ -864,6 +872,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Partial Invoice]
         // [SCENARIO 159878] When partial order with currency posts, G/L entries post to deferral account
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -901,6 +910,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Partial Orders]
         // [SCENARIO 159878] When partial PO is posted with multiple lines same type, G/L entries deferral account are combined
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to two differnt Items
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         CreateItemWithUnitPrice(Item);
@@ -947,6 +957,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Partial Orders]
         // [SCENARIO 159878] When an Order is posted with a partial deferral, the purchase accounts is reduced by the deferral and balance posted to first period
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -987,6 +998,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Partial Invoice]
         // [SCENARIO 159878] When partial Order is Received-Invoiced multiple times, G/L entries post to deferral account
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -1031,6 +1043,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         AmtToDefer: Decimal;
     begin
         // [FEATURE] [Post Document]
+        Initialize();
         // [SCENARIO 127772] When a Purchase Invoice is posted, the general ledger accounts for the deferrals are created
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
@@ -1073,7 +1086,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Invoices with updated Posting Date should update deferral schedule with Confirm Yes
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(false);
 
         // [GIVEN] Two Purchase Invoices with Posting Date = 01.10.16 and deferral code
@@ -1119,7 +1132,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting (background) of Deferral Purchase Invoices with updated Posting Date should update deferral schedule with Confirm Yes
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -1169,7 +1182,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Orders with updated Posting Date should update deferral schedule with Confirm Yes
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -1219,7 +1232,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Credit Memos with updated Posting Date should update deferral schedule with Confirm Yes
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -1269,7 +1282,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Invoices with updated Posting Date should update deferral schedule with Confirm No
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -1319,7 +1332,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Orders with updated Posting Date should update deferral schedule with Confirm No
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -1369,7 +1382,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Credit Memos with updated Posting Date should update deferral schedule with Confirm No
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -1417,6 +1430,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 159878] When a Purchase Invoice is posted, the Deferral Header and Line Records are deleted
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -1457,6 +1471,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Purchase Invoice with Currency is posted, the deferrals are created
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
@@ -1499,6 +1514,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Purchase Invoice is posted with multiple lines of the same type,
         // the general ledger accounts for the deferrals are combined when they are created
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to two differnt Items
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         CreateItemWithUnitPrice(Item);
@@ -1551,6 +1567,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Purchase Invoice is posted with a partial deferral, the Purchase accounts is reduced by the deferral and balance posted to first period
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
@@ -1595,6 +1612,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Purchase Invoice will not post if the deferral header record is not created
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -1624,6 +1642,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Purchase Invoice will not post if the deferral header Amount To Defer is Zero
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -1655,6 +1674,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Purchase Invoice will not post if the deferral schedule does not have any lines
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -1686,6 +1706,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Purchase Invoice will not post if one of the deferral schedule lines has a zero amount
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -1723,6 +1744,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Credit Memo is posted, the general ledger accounts for the deferrals are created
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
@@ -1768,6 +1790,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Credit Memo is posted with a partial deferral,
         // the correct Purchase Credit Memo Account is posted to with correct amounts
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
@@ -1820,6 +1843,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Post Document]
         // [SCENARIO 127772] When a Return Order is posted, the general ledger accounts for the deferrals are created
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
@@ -1857,7 +1881,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Entering a Purchase Invoice with GL Account allows editing of the deferral code and accessing schedule
-        Initialize;
+        Initialize();
         // [GIVEN] User has created a Purchase Document with one line item for GL Account
         CreatePurchDocAndDeferralTemplateCode(PurchaseHeader, PurchaseLine, DeferralTemplateCode, PurchaseHeader."Document Type"::Invoice);
 
@@ -1887,6 +1911,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Entering a Purchase Invoice with Fixed Asset does not allow editing of the deferral code or accessing schedule
+        Initialize();
         // [GIVEN] User has created a Purchase Document
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
 
@@ -1916,6 +1941,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Updating Deferral Schedule period updates the deferral lines
+        Initialize();
         // [GIVEN] User has created a Purchase Document with one line item for Item that has a default deferral code
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
@@ -1955,6 +1981,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Entering a Purchase Order with GL Account allows editing of the deferral code and accessing schedule
+        Initialize();
         // [GIVEN] User has created a Purchase Document with one line item for GL Account
         CreatePurchDocAndDeferralTemplateCode(PurchaseHeader, PurchaseLine, DeferralTemplateCode, PurchaseHeader."Document Type"::Order);
 
@@ -1984,6 +2011,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Entering a Purchase Order with Fixed Asset does not allow editing of the deferral code or accessing schedule
+        Initialize();
         // [GIVEN] User has created a Purchase Document
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
 
@@ -2011,6 +2039,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Entering a Purchase Credit Memo with GL Account allows editing of the deferral code and accessing schedule
+        Initialize();
         // [GIVEN] User has created a Purchase Document with one line item for GL Account
         CreatePurchDocAndDeferralTemplateCode(PurchaseHeader, PurchaseLine, DeferralTemplateCode,
           PurchaseHeader."Document Type"::"Credit Memo");
@@ -2041,6 +2070,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Entering a Purchase Credit Memo with Fixed Asset does not allow editing of the deferral code or accessing schedule
+        Initialize();
         // [GIVEN] User has created a Purchase Document
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor);
 
@@ -2068,6 +2098,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Entering a Purchase Return Order with GL Account allows editing of the deferral code and accessing schedule
+        Initialize();
         // [GIVEN] User has created a Purchase Document with one line item for GL Account
         CreatePurchDocAndDeferralTemplateCode(PurchaseHeader, PurchaseLine, DeferralTemplateCode,
           PurchaseHeader."Document Type"::"Return Order");
@@ -2098,6 +2129,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] Entering a Purchase Return Order with Fixed Asset does not allow editing of the deferral code or accessing schedule
+        Initialize();
         // [GIVEN] User has created a Purchase Document
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateVendor);
 
@@ -2163,6 +2195,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] View deferrals for posted Credit Memo
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -2199,6 +2232,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] View deferrals for Archived Purchase Order
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -2238,6 +2272,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127771] View archive deferrals for return order
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -2271,7 +2306,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Resources]
         // [SCENARIO 289386] Deferral template code filled in the purchase order line when select resource with default deferral template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Resource with default deferral code
         CreateResourceWithDefaultDeferralCode(Resource);
@@ -2429,6 +2464,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         ItemNo: Code[20];
     begin
         // [SCENARIO 422767] Stan can't post Purchase document with Deferral setup when Deferral Account has enabled "Omit Default Descr. in Jnl." and blank Description Deferral Template
+        Initialize();
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
         UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, '', true);
@@ -2454,6 +2490,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         ItemNo: Code[20];
     begin
         // [SCENARIO 422767] Stan can post Purchase document with Deferral setup when Deferral Account has disabled "Omit Default Descr. in Jnl." and blank Description Deferral Template
+        Initialize();
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
         UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, '', false);
@@ -2479,6 +2516,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         ItemNo: Code[20];
     begin
         // [SCENARIO 422767] Stan can post Sales document with Deferral setup when Deferral Account has enabled "Omit Default Descr. in Jnl." and specified Description Deferral Template
+        Initialize();
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
         UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, LibraryUtility.GenerateGUID(), true);

@@ -254,10 +254,74 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VerifyRemittanceAdviceJournalRemainingAndPaidAmounts(InvoiceAmount[2], PaidAmount[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('RemittanceAdviceEntriesNoParamsRequestPageHandler')]
+    procedure AppliedAmountOnRemittanceAdviceEntriesReportWhenApplyUapplyApply()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        VendorNo: Code[20];
+        XmlParameters: Text;
+        InvoiceAmount: Decimal;
+        AmountToApply: array[2] of Decimal;
+    begin
+        // [SCENARIO 423527] Applied Amount in report "Remittance Advice - Entries" results when Payment Vendor Ledger Entry is applied, then unapplied, then applied again.
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice and posted Payment. Both have Vendor "V" and Amount 1000.
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CreateGenJournalBatchWithTemplate(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::Invoice,
+            "Gen. Journal Account Type"::Vendor, VendorNo, -InvoiceAmount);
+        InvoiceNo := GenJournalLine."Document No.";
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Account Type"::Vendor, VendorNo, InvoiceAmount);
+        PaymentNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Invoice fully applied to Payment. Then Invoice and Payment are unapplied.
+        LibraryERM.ApplyVendorLedgerEntries("Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice, PaymentNo, InvoiceNo);
+        UnapplyVendLedgerEntry("Gen. Journal Document Type"::Payment, PaymentNo);
+
+        // [GIVEN] Invoice is partially applied to Payment twice. Amount to Apply is 100 and 200.
+        AmountToApply[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        AmountToApply[2] := LibraryRandom.RandDecInRange(100, 200, 2);
+        ApplyVendorLedgerEntryWithAmount("Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice, PaymentNo, InvoiceNo, AmountToApply[1]);
+        ApplyVendorLedgerEntryWithAmount("Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice, PaymentNo, InvoiceNo, AmountToApply[2]);
+
+        // [WHEN] Run report "Remittance Advice - Entries" for Payment.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Payment, PaymentNo);
+        XmlParameters := Report.RunRequestPage(Report::"Remittance Advice - Entries");
+        LibraryReportDataset.RunReportAndLoad(Report::"Remittance Advice - Entries", VendorLedgerEntry, XmlParameters);
+
+        // [THEN] Last column "Amount" (which shows applied amount) for line with Invoice has value -(100 + 200) = -300.
+        LibraryReportDataset.AssertElementWithValueExists('LAmountWDiscCur', -(AmountToApply[1] + AmountToApply[2]));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
         DeleteObjectOptionsIfNeeded;
+    end;
+
+    local procedure ApplyVendorLedgerEntryWithAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntry2: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, AmountToApply);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, DocumentType2, DocumentNo2);
+        VendorLedgerEntry2.Validate("Amount to Apply", -AmountToApply);
+        VendorLedgerEntry2.Modify(true);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -305,6 +369,17 @@ codeunit 133772 "Remittance Purch & Sales UT"
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
         GenJournalBatch.Insert();
+    end;
+
+    local procedure CreateGenJournalBatchWithTemplate(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("Bal. Account Type", "Gen. Journal Account Type"::"G/L Account");
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalBatch.Modify(true);
     end;
 
     local procedure CreateGLEntry(var GLEntry: Record "G/L Entry")
@@ -416,6 +491,14 @@ codeunit 133772 "Remittance Purch & Sales UT"
         exit(GLEntry."Transaction No." + 1);
     end;
 
+    local procedure UnapplyVendLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
+    var
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.UnapplyVendorLedgerEntry(VendLedgerEntry);
+    end;
+
     local procedure VerifyRemittanceAdviceJournalValues(DocumentNo: Code[35]; OriginalAmount: Decimal; PaidAmount: Decimal; CurrencyCode: Code[10])
     begin
         LibraryReportDataset.SetRange('AppliedVendLedgEntryTempExternalDocNo', DocumentNo);
@@ -459,6 +542,11 @@ codeunit 133772 "Remittance Purch & Sales UT"
         LibraryVariableStorage.Dequeue(VendorNo);
         RemittanceAdviceEntries."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
         RemittanceAdviceEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    procedure RemittanceAdviceEntriesNoParamsRequestPageHandler(var RemittanceAdviceEntries: TestRequestPage "Remittance Advice - Entries")
+    begin
     end;
 
     local procedure DeleteObjectOptionsIfNeeded()

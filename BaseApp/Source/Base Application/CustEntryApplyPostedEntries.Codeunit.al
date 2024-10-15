@@ -1,4 +1,4 @@
-codeunit 226 "CustEntry-Apply Posted Entries"
+﻿codeunit 226 "CustEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd;
@@ -267,7 +267,6 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DateComprReg: Record "Date Compr. Register";
         TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         Window: Dialog;
@@ -334,7 +333,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             OnBeforePostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine);
             CollectAffectedLedgerEntries(TempCustLedgerEntry, DtldCustLedgEntry2);
             GenJnlPostLine.UnapplyCustLedgEntry(GenJnlLine, DtldCustLedgEntry2);
-            AdjustExchangeRates.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
+            RunCustExchRateAdjustment(GenJnlLine, TempCustLedgerEntry);
             OnAfterPostUnapplyCustLedgEntry(
                 GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine, CommitChanges, TempCustLedgerEntry);
 
@@ -346,6 +345,19 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             if not HideProgressWindow then
                 Window.Close;
         end;
+    end;
+
+    local procedure RunCustExchRateAdjustment(var GenJnlLine: Record "Gen. Journal Line"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
+    var
+        AdjustExchangeRates: Report "Adjust Exchange Rates";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunCustExchRateAdjustment(GenJnlLine, TempCustLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        AdjustExchangeRates.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
     end;
 
     local procedure CheckPostingDate(PostingDate: Date; var MaxPostingDate: Date)
@@ -687,6 +699,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCustExchRateAdjustment(var GenJnlLine: Record "Gen. Journal Line"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 
