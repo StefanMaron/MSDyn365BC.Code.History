@@ -38,7 +38,7 @@ codeunit 1269 "Export Mapping"
             Error(MappingNotFoundErr, DataExchDefCode, DataExchLineDefCode);
     end;
 
-    local procedure GetSourceRecRefBuffer(var RecRef: RecordRef; var DataExchFlowFieldGrBuff: Record "Data Exch. FlowField Gr. Buff."; DataExchMapping: Record "Data Exch. Mapping"; Filters: Text)
+    procedure GetSourceRecRefBuffer(var RecRef: RecordRef; var DataExchFlowFieldGrBuff: Record "Data Exch. FlowField Gr. Buff."; DataExchMapping: Record "Data Exch. Mapping"; Filters: Text)
     var
         DataExchFieldGrouping: Record "Data Exch. Field Grouping";
         TempField, TempField2 : Record "Field" temporary;

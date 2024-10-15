@@ -2,7 +2,9 @@
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "G/L Register" = rimd,
+#if not CLEAN20
                   TableData "Invoice Post. Buffer" = imd,
+#endif
                   TableData "Vendor Posting Group" = imd,
                   TableData "Inventory Posting Group" = imd,
                   TableData "Purch. Inv. Header" = imd,
@@ -259,6 +261,8 @@
             Modify();
         end;
 
+        OnCodeOnAfterUpdateHeaderAndLines(PurchHeader, PurchInvHeader, PurchCrMemoHeader, GenJnlPostLine, PreviewMode);
+
         PurchHeader2 := PurchHeader;
 
         if PreviewMode then begin
@@ -414,7 +418,7 @@
                     end;
             end;
 
-        if PreviewMode and GLSetup."Journal Templ. Name Mandatory" then
+        if GLSetup."Journal Templ. Name Mandatory" then
             GenJournalTemplate.Get(PurchHeader."Journal Templ. Name");
     end;
 
@@ -1946,6 +1950,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFillInvLineBufferOnAfterInit(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterUpdateHeaderAndLines(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean)
     begin
     end;
 }

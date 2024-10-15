@@ -316,7 +316,13 @@ report 780 "Certificate of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
         ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSource(CertificateOfSupply, IsHandled);
+        if IsHandled then
+            exit;
+
         case CertificateOfSupply."Document Type" of
             CertificateOfSupply."Document Type"::"Sales Shipment":
                 begin
@@ -399,7 +405,13 @@ report 780 "Certificate of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
         ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLines(CertificateOfSupply, IsHandled);
+        if IsHandled then
+            exit;
+
         case CertificateOfSupply."Document Type" of
             CertificateOfSupply."Document Type"::"Sales Shipment":
                 begin
@@ -466,12 +478,18 @@ report 780 "Certificate of Supply"
             until ReturnShipmentLine.Next() = 0;
     end;
 
-    local procedure GetLanguageCode(CertificateOfSupply: Record "Certificate of Supply"): Code[10]
+    local procedure GetLanguageCode(CertificateOfSupply: Record "Certificate of Supply") Result: Code[10]
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLanguageCode(CertificateOfSupply, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         case CertificateOfSupply."Document Type" of
             CertificateOfSupply."Document Type"::"Sales Shipment":
                 begin
@@ -489,6 +507,21 @@ report 780 "Certificate of Supply"
                     exit(ReturnShipmentHeader."Language Code");
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLanguageCode(CertificateOfSupply: Record "Certificate of Supply"; var Result: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetLines(CertificateOfSupply: Record "Certificate of Supply"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetSource(CertificateOfSupply: Record "Certificate of Supply"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

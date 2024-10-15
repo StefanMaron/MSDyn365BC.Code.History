@@ -152,7 +152,6 @@ report 501 "Intrastat - Form"
                     else begin
                         TestField("Tariff No.");
                         TestField("Country/Region Code");
-                        TestField("Transaction Type");
                         TestField("Total Weight");
                         if "Supplementary Units" then
                             TestField(Quantity);

@@ -480,7 +480,7 @@ table 11000002 "Payment History Line"
     procedure WillBeSent()
     begin
         if Status = Status::New then begin
-            Status := Status::Transmitted;
+            Validate(Status, Status::Transmitted);
             Modify();
         end;
     end;

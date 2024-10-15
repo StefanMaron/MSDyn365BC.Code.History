@@ -360,6 +360,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
         DetailedVendorLedgEntry.FindFirst();
         DetailedVendorLedgEntry.TestField("Ledger Entry Amount", true);
+        DetailedVendorledgEntry.TestField("Exch. Rate Adjmt. Reg. No.");
         DetailedVendorLedgEntry.CalcSums("Amount (LCY)");
         Assert.AreNearlyEqual(
           Amount, DetailedVendorLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision", StrSubstNo(AmountErrorMessage,

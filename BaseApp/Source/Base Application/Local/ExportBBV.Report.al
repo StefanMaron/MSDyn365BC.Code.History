@@ -170,7 +170,7 @@ report 11000008 "Export BBV"
 
                 Export := false;
                 if Status = Status::New then
-                    Status := Status::Transmitted;
+                    Validate(Status, Status::Transmitted);
                 Modify();
             end;
 

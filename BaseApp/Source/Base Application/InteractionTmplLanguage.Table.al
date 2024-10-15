@@ -121,6 +121,8 @@ table 5103 "Interaction Tmpl. Language"
     var
         Attachment: Record Attachment;
     begin
+        OnBeforeCreateHTMLCustomLayoutAttachment();
+
         Attachment.Init();
         Attachment."Storage Type" := Attachment."Storage Type"::Embedded;
         Attachment."File Extension" := 'HTML';
@@ -181,6 +183,7 @@ table 5103 "Interaction Tmpl. Language"
 
         if Attachment.ImportAttachmentFromClientFile('', false, false) then begin
             "Attachment No." := Attachment."No.";
+            OnImportAttachmentOnBeforeModify(Attachment);
             Modify();
         end else
             Error(Text002);
@@ -234,6 +237,16 @@ table 5103 "Interaction Tmpl. Language"
                 "Attachment No." := 0;
                 Modify();
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportAttachmentOnBeforeModify(var Attachment: Record Attachment)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateHTMLCustomLayoutAttachment()
+    begin
     end;
 }
 

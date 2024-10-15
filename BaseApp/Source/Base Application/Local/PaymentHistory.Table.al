@@ -239,7 +239,7 @@ table 11000001 "Payment History"
                         Get("Our Bank", "Run No.");
                         Export := false;
                         if Status = Status::New then
-                            Status := Status::Transmitted;
+                            Validate(Status, Status::Transmitted);
                         Modify();
                     end;
                 end;

@@ -18,7 +18,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
 
                 Export := false;
                 if Status = Status::New then
-                    Status := Status::Transmitted;
+                    Validate(Status, Status::Transmitted);
                 Modify();
             end;
 

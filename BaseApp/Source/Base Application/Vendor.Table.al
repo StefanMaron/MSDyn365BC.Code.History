@@ -80,6 +80,8 @@
                 OnBeforeLookupCity(Rec, PostCode);
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+
+                OnAfterLookupCity(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -700,6 +702,8 @@
                 OnBeforeLookupPostCode(Rec, PostCode);
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+
+                OnAfterLookupPostCode(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -2525,6 +2529,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var Vendor: Record Vendor; xVendor: Record Vendor; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupCity(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupPostCode(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
     begin
     end;
 

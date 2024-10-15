@@ -992,6 +992,90 @@ codeunit 144018 "ERM MISC"
           FileTempBlob, PadStr('', 17, ' '), '  ', '+');
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatFormRPH')]
+    procedure IntrastatFormForTransactionTypeForShipments()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Form] [Shipments]
+        // [SCENARIO 444687] Report 501 "Intrastat - Form" does not check "Transaction Type" for shipments.
+        Initialize();
+
+        // [GIVEN] Shipment intrastat journal line with blank "Transaction Type".
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+        IntrastatJnlLine."Transaction Type" := '';
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Run "Intrastat - Form" report.
+        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Shipment));
+
+        // [THEN] No errors are thrown.
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatFormRPH')]
+    procedure IntrastatFormForTransactionTypeForReceipts()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Form] [Receipt]
+        // [SCENARIO 451331] Report 501 "Intrastat - Form" does not check "Transaction Type" for receipts.
+        Initialize();
+
+        // [GIVEN] Receipt intrastat journal line with blank "Transaction Type".
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+        IntrastatJnlLine."Transaction Type" := '';
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Run "Intrastat - Form" report
+        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
+
+        // [THEN] No errors are thrown.
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatChecklistRPH')]
+    procedure IntrastatChecklistReportForTransactionTypeForShipments()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Shipments]
+        // [SCENARIO 451331] Report 502 "Intrastat - Checklist" does not check "Transaction Type" for shipments.
+        Initialize();
+
+        // [GIVEN] Shipment intrastat journal line with blank "Transaction Type".
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+        IntrastatJnlLine."Transaction Type" := '';
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Run "Intrastat - Checklist" report.
+        RunIntrastatChecklistReport(IntrastatJnlLine);
+
+        // [THEN] No errors are thrown.
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatChecklistRPH')]
+    procedure IntrastatChecklistReportForTransactionTypeForReceipts()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Receipt]
+        // [SCENARIO 451331] Report 502 "Intrastat - Checklist" does not check "Transaction Type" for receipts.
+        Initialize();
+
+        // [GIVEN] Receipt intrastat journal line with blank "Transaction Type".
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+        IntrastatJnlLine."Transaction Type" := '';
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Run "Intrastat - Checklist" report.
+        RunIntrastatChecklistReport(IntrastatJnlLine);
+
+        // [THEN] No errors are thrown.
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";

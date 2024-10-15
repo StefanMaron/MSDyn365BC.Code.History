@@ -96,7 +96,7 @@
     begin
         Initialize();
 
-        // Setup
+        // [GIVEN] Intrastat Journal Line with blank Transaction Type.
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -104,15 +104,10 @@
           FindOrCreateIntrastatTransportMethod, '', FindOrCreateIntrastatEntryExitPoint);
         Commit();
 
-        // Exercise
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob);
+        // [WHEN] Run Intrastat Make Disk Tax Auth report.
+        RunIntrastatMakeDiskTaxAuth(FileTempBlob);
 
-        // Verify
-#if CLEAN19
-        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
-#else
-        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
-#endif
+        // [THEN] No error is thrown.
     end;
 
     [Test]
@@ -527,22 +522,6 @@
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;
-    end;
-
-    local procedure VerifyTestfieldChecklistError(FieldName: Text)
-    begin
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(FieldName);
-    end;
-
-    local procedure VerifyAdvanvedChecklistError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        ErrorMessage: Record "Error Message";
-    begin
-        Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(AdvChecklistErr);
-        VerifyBatchError(IntrastatJnlLine, FieldName);
     end;
 
     local procedure VerifyBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)

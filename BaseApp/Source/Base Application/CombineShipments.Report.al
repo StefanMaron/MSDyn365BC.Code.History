@@ -56,7 +56,7 @@ report 295 "Combine Shipments"
                                 end;
                                 SalesShptLine := "Sales Shipment Line";
                                 HasAmount := HasAmount or ("Qty. Shipped Not Invoiced" <> 0);
-                                OnSalesShipmentLineOnAfterGetRecordOnBeforeInsertInvLineFromShptLine(SalesLine);
+                                OnSalesShipmentLineOnAfterGetRecordOnBeforeInsertInvLineFromShptLine(SalesLine, SalesShptLine);
                                 SalesShptLine.InsertInvLineFromShptLine(SalesLine);
                             end else
                                 NoOfSalesInvErrors := NoOfSalesInvErrors + 1;
@@ -469,7 +469,7 @@ report 295 "Combine Shipments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateCustomerNo(ToSalesHeader: Record "Sales Header"; var FromSalesOrderHeader: Record "Sales Header"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateCustomerNo(var ToSalesHeader: Record "Sales Header"; var FromSalesOrderHeader: Record "Sales Header"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -504,7 +504,7 @@ report 295 "Combine Shipments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesShipmentLineOnAfterGetRecordOnBeforeInsertInvLineFromShptLine(var SalesLine: Record "Sales Line")
+    local procedure OnSalesShipmentLineOnAfterGetRecordOnBeforeInsertInvLineFromShptLine(var SalesLine: Record "Sales Line"; var SalesShipmentLine: Record "Sales Shipment Line")
     begin
     end;
 

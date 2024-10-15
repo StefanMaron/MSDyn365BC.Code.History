@@ -337,6 +337,7 @@ codeunit 99000772 "Prod. Order Route Management"
         CalcScrapQty: Decimal;
         ScrapFactorThis: Decimal;
         ScrapQtyThis: Decimal;
+        IsHandled: Boolean;
     begin
         if ProdOrderLine."Routing Type" = ProdOrderLine."Routing Type"::Serial then
             SetNextOperations(ProdOrderLine);
@@ -387,9 +388,13 @@ codeunit 99000772 "Prod. Order Route Management"
 
         if ProdOrderRtngLine.FindSet(true) then
             repeat
-                ProdOrderRtngLine.Recalculate := false;
-                ProdOrderRtngLine.UpdateComponentsBin(1); // modify option
-                ProdOrderRtngLine.Modify(false);
+                IsHandled := false;
+                OnCalculateOnBeforeProdOrderRtngLineLoopIteration(ProdOrderRtngLine, ProdOrderLine, IsHandled);
+                if not IsHandled then begin
+                    ProdOrderRtngLine.Recalculate := false;
+                    ProdOrderRtngLine.UpdateComponentsBin(1); // modify option
+                    ProdOrderRtngLine.Modify(false);
+                end;
             until ProdOrderRtngLine.Next() = 0;
         Check(ProdOrderLine);
     end;
@@ -570,6 +575,11 @@ codeunit 99000772 "Prod. Order Route Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateOnAfterCalcScrapQtyAndFactor(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ScrapQty: Decimal; var ScrapFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnBeforeProdOrderRtngLineLoopIteration(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }

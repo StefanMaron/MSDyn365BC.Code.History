@@ -1,4 +1,4 @@
-﻿page 232 "Apply Customer Entries"
+page 232 "Apply Customer Entries"
 {
     Caption = 'Apply Customer Entries';
     DataCaptionFields = "Customer No.";
@@ -658,30 +658,6 @@
         exit(false);
     end;
 
-    trigger OnFindRecord(Which: Text) Found: Boolean
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOnFindRecord(Rec, Which, Found, IsHandled);
-        if IsHandled then
-            exit(Found);
-
-        exit(Rec.Find(Which));
-    end;
-
-    trigger OnNextRecord(Steps: Integer) ActualSteps: Integer
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOnNextRecord(Rec, Steps, ActualSteps, IsHandled);
-        if IsHandled then
-            exit(ActualSteps);
-
-        exit(Rec.Next(Steps));
-    end;
-
     trigger OnOpenPage()
     begin
         if CalcType = CalcType::Direct then begin
@@ -892,99 +868,115 @@
     end;
 
     procedure SetApplyingCustLedgEntry()
-    var
-        Customer: Record Customer;
     begin
         OnBeforeSetApplyingCustLedgEntry(TempApplyingCustLedgEntry, GenJnlLine, SalesHeader, CalcType, ServHeader);
 
         case CalcType of
             CalcType::"Sales Header":
-                begin
-                    TempApplyingCustLedgEntry."Entry No." := 1;
-                    TempApplyingCustLedgEntry."Posting Date" := SalesHeader."Posting Date";
-                    if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then
-                        TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::"Credit Memo"
-                    else
-                        TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::Invoice;
-                    TempApplyingCustLedgEntry."Document No." := SalesHeader."No.";
-                    TempApplyingCustLedgEntry."Customer No." := SalesHeader."Bill-to Customer No.";
-                    TempApplyingCustLedgEntry.Description := SalesHeader."Posting Description";
-                    TempApplyingCustLedgEntry."Currency Code" := SalesHeader."Currency Code";
-                    if TempApplyingCustLedgEntry."Document Type" = TempApplyingCustLedgEntry."Document Type"::"Credit Memo" then begin
-                        TempApplyingCustLedgEntry.Amount := -TotalSalesLine."Amount Including VAT";
-                        TempApplyingCustLedgEntry."Remaining Amount" := -TotalSalesLine."Amount Including VAT";
-                    end else begin
-                        TempApplyingCustLedgEntry.Amount := TotalSalesLine."Amount Including VAT";
-                        TempApplyingCustLedgEntry."Remaining Amount" := TotalSalesLine."Amount Including VAT";
-                    end;
-                    CalcApplnAmount();
-                end;
+                SetApplyingCustledgEntrySalesHeader();
             CalcType::"Service Header":
-                begin
-                    TempApplyingCustLedgEntry."Entry No." := 1;
-                    TempApplyingCustLedgEntry."Posting Date" := ServHeader."Posting Date";
-                    if ServHeader."Document Type" = ServHeader."Document Type"::"Credit Memo" then
-                        TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::"Credit Memo"
-                    else
-                        TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::Invoice;
-                    TempApplyingCustLedgEntry."Document No." := ServHeader."No.";
-                    TempApplyingCustLedgEntry."Customer No." := ServHeader."Bill-to Customer No.";
-                    TempApplyingCustLedgEntry.Description := ServHeader."Posting Description";
-                    TempApplyingCustLedgEntry."Currency Code" := ServHeader."Currency Code";
-                    if TempApplyingCustLedgEntry."Document Type" = TempApplyingCustLedgEntry."Document Type"::"Credit Memo" then begin
-                        TempApplyingCustLedgEntry.Amount := -TotalServLine."Amount Including VAT";
-                        TempApplyingCustLedgEntry."Remaining Amount" := -TotalServLine."Amount Including VAT";
-                    end else begin
-                        TempApplyingCustLedgEntry.Amount := TotalServLine."Amount Including VAT";
-                        TempApplyingCustLedgEntry."Remaining Amount" := TotalServLine."Amount Including VAT";
-                    end;
-                    CalcApplnAmount();
-                end;
-            CalcType::Direct:
-                begin
-                    if Rec."Applying Entry" then begin
-                        if TempApplyingCustLedgEntry."Entry No." <> 0 then
-                            CustLedgEntry := TempApplyingCustLedgEntry;
-                        CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", Rec);
-                        if Rec."Applies-to ID" = '' then
-                            SetCustApplId(false);
-                        Rec.CalcFields(Amount);
-                        TempApplyingCustLedgEntry := Rec;
-                        if CustLedgEntry."Entry No." <> 0 then begin
-                            Rec := CustLedgEntry;
-                            Rec."Applying Entry" := false;
-                            SetCustApplId(false);
-                        end;
-                        Rec.SetFilter("Entry No.", '<> %1', TempApplyingCustLedgEntry."Entry No.");
-                        ApplyingAmount := TempApplyingCustLedgEntry."Remaining Amount";
-                        ApplnDate := TempApplyingCustLedgEntry."Posting Date";
-                        ApplnCurrencyCode := TempApplyingCustLedgEntry."Currency Code";
-                    end;
-                    OnSetApplyingCustLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(Rec, ApplyingAmount, TempApplyingCustLedgEntry);
-                    CalcApplnAmount();
-                end;
+                SetApplyingCustledgEntryServiceHeader();
             CalcType::"Gen. Jnl. Line":
-                begin
-                    TempApplyingCustLedgEntry."Entry No." := 1;
-                    TempApplyingCustLedgEntry."Posting Date" := GenJnlLine."Posting Date";
-                    TempApplyingCustLedgEntry."Document Type" := GenJnlLine."Document Type";
-                    TempApplyingCustLedgEntry."Document No." := GenJnlLine."Document No.";
-                    if GenJnlLine."Bal. Account Type" = GenJnlLine."Account Type"::Customer then begin
-                        TempApplyingCustLedgEntry."Customer No." := GenJnlLine."Bal. Account No.";
-                        Customer.Get(TempApplyingCustLedgEntry."Customer No.");
-                        TempApplyingCustLedgEntry.Description := Customer.Name;
-                    end else begin
-                        TempApplyingCustLedgEntry."Customer No." := GenJnlLine."Account No.";
-                        TempApplyingCustLedgEntry.Description := GenJnlLine.Description;
-                    end;
-                    TempApplyingCustLedgEntry."Currency Code" := GenJnlLine."Currency Code";
-                    TempApplyingCustLedgEntry.Amount := GenJnlLine.Amount;
-                    TempApplyingCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
-                    CalcApplnAmount();
-                end;
+                SetApplyingCustLedgEntryGenJnlLine();
+            CalcType::Direct:
+                SetApplyingCustLedgEntryDirect();
         end;
 
+        CalcApplnAmount();
+
         OnAfterSetApplyingCustLedgEntry(TempApplyingCustLedgEntry, GenJnlLine, SalesHeader);
+    end;
+
+    local procedure SetApplyingCustledgEntrySalesHeader()
+    begin
+        TempApplyingCustLedgEntry."Entry No." := 1;
+        TempApplyingCustLedgEntry."Posting Date" := SalesHeader."Posting Date";
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then
+            TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::"Credit Memo"
+        else
+            TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::Invoice;
+        TempApplyingCustLedgEntry."Document No." := SalesHeader."No.";
+        TempApplyingCustLedgEntry."Customer No." := SalesHeader."Bill-to Customer No.";
+        TempApplyingCustLedgEntry.Description := SalesHeader."Posting Description";
+        TempApplyingCustLedgEntry."Currency Code" := SalesHeader."Currency Code";
+        if TempApplyingCustLedgEntry."Document Type" = TempApplyingCustLedgEntry."Document Type"::"Credit Memo" then begin
+            TempApplyingCustLedgEntry.Amount := -TotalSalesLine."Amount Including VAT";
+            TempApplyingCustLedgEntry."Remaining Amount" := -TotalSalesLine."Amount Including VAT";
+        end else begin
+            TempApplyingCustLedgEntry.Amount := TotalSalesLine."Amount Including VAT";
+            TempApplyingCustLedgEntry."Remaining Amount" := TotalSalesLine."Amount Including VAT";
+        end;
+
+        OnAfterSetApplyingCustLedgEntrySalesHeader(TempApplyingCustLedgEntry, SalesHeader);
+    end;
+
+    local procedure SetApplyingCustledgEntryServiceHeader()
+    begin
+        TempApplyingCustLedgEntry."Entry No." := 1;
+        TempApplyingCustLedgEntry."Posting Date" := ServHeader."Posting Date";
+        if ServHeader."Document Type" = ServHeader."Document Type"::"Credit Memo" then
+            TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::"Credit Memo"
+        else
+            TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::Invoice;
+        TempApplyingCustLedgEntry."Document No." := ServHeader."No.";
+        TempApplyingCustLedgEntry."Customer No." := ServHeader."Bill-to Customer No.";
+        TempApplyingCustLedgEntry.Description := ServHeader."Posting Description";
+        TempApplyingCustLedgEntry."Currency Code" := ServHeader."Currency Code";
+        if TempApplyingCustLedgEntry."Document Type" = TempApplyingCustLedgEntry."Document Type"::"Credit Memo" then begin
+            TempApplyingCustLedgEntry.Amount := -TotalServLine."Amount Including VAT";
+            TempApplyingCustLedgEntry."Remaining Amount" := -TotalServLine."Amount Including VAT";
+        end else begin
+            TempApplyingCustLedgEntry.Amount := TotalServLine."Amount Including VAT";
+            TempApplyingCustLedgEntry."Remaining Amount" := TotalServLine."Amount Including VAT";
+        end;
+
+        OnAfterSetApplyingCustLedgEntryServiceHeader(TempApplyingCustLedgEntry, ServHeader);
+    end;
+
+    local procedure SetApplyingCustLedgEntryGenJnlLine()
+    var
+        Customer: Record Customer;
+    begin
+        TempApplyingCustLedgEntry."Entry No." := 1;
+        TempApplyingCustLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+        TempApplyingCustLedgEntry."Document Type" := GenJnlLine."Document Type";
+        TempApplyingCustLedgEntry."Document No." := GenJnlLine."Document No.";
+        if GenJnlLine."Bal. Account Type" = GenJnlLine."Account Type"::Customer then begin
+            TempApplyingCustLedgEntry."Customer No." := GenJnlLine."Bal. Account No.";
+            Customer.Get(TempApplyingCustLedgEntry."Customer No.");
+            TempApplyingCustLedgEntry.Description := Customer.Name;
+        end else begin
+            TempApplyingCustLedgEntry."Customer No." := GenJnlLine."Account No.";
+            TempApplyingCustLedgEntry.Description := GenJnlLine.Description;
+        end;
+        TempApplyingCustLedgEntry."Currency Code" := GenJnlLine."Currency Code";
+        TempApplyingCustLedgEntry.Amount := GenJnlLine.Amount;
+        TempApplyingCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
+
+        OnAfterSetApplyingCustLedgEntryGenJnlLine(TempApplyingCustLedgEntry, GenJnlLine);
+    end;
+
+    local procedure SetApplyingCustledgEntryDirect()
+    begin
+        if Rec."Applying Entry" then begin
+            if TempApplyingCustLedgEntry."Entry No." <> 0 then
+                CustLedgEntry := TempApplyingCustLedgEntry;
+            CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", Rec);
+            if Rec."Applies-to ID" = '' then
+                SetCustApplId(false);
+            Rec.CalcFields(Amount);
+            TempApplyingCustLedgEntry := Rec;
+            if CustLedgEntry."Entry No." <> 0 then begin
+                Rec := CustLedgEntry;
+                Rec."Applying Entry" := false;
+                SetCustApplId(false);
+            end;
+            Rec.SetFilter("Entry No.", '<> %1', TempApplyingCustLedgEntry."Entry No.");
+            ApplyingAmount := TempApplyingCustLedgEntry."Remaining Amount";
+            ApplnDate := TempApplyingCustLedgEntry."Posting Date";
+            ApplnCurrencyCode := TempApplyingCustLedgEntry."Currency Code";
+        end;
+        OnSetApplyingCustLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(Rec, ApplyingAmount, TempApplyingCustLedgEntry);
     end;
 
     procedure SetCustApplId(CurrentRec: Boolean)
@@ -1621,16 +1613,6 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnFindRecord(var CustLedgerEntry: Record "Cust. Ledger Entry"; Which: Text; var Found: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnNextRecord(var CustLedgerEntry: Record "Cust. Ledger Entry"; Steps: Integer; var ActualSteps: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
     local procedure OnBeforePostDirectApplication(var CustLedgerEntry: Record "Cust. Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary)
     begin
     end;
@@ -1709,5 +1691,19 @@
     local procedure OnPostDirectApplicationBeforeApply(GLSetup: Record "General Ledger Setup"; var NewApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetApplyingCustLedgEntrySalesHeader(var TempApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetApplyingCustLedgEntryServiceHeader(var TempApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary; var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetApplyingCustLedgEntryGenJnlLine(var TempApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+}

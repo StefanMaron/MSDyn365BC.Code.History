@@ -2233,12 +2233,12 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure VATDateReturnsCorrectBasedOnGLSetup()
     var
         GLSetup: Record "General Ledger Setup";
-        PostingDate, DocumentDate, VATDate: Date;
+        PostingDate, DocumentDate, VATDate : Date;
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 431931] GL Setup returns correct date based on GL Setup setting
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2256,12 +2256,12 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure VATDateReturnsCorrectBasedOnGLSetup2()
     var
         GLSetup: Record "General Ledger Setup";
-        PostingDate, DocumentDate, VATDate: Date;
+        PostingDate, DocumentDate, VATDate : Date;
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 431931] GL Setup returns correct date based on GL Setup setting
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2286,11 +2286,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         SalesInvoice: TestPage "Sales Invoice";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2301,7 +2301,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesInvoice."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesInvoice."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         SalesInvoice."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, SalesInvoice."VAT Reporting Date".Value);
@@ -2310,7 +2310,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         SalesInvoice."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         SalesInvoice."Posting Date".SetValue(WorkDate());
@@ -2319,7 +2319,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, SalesInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         SalesInvoice.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2331,7 +2331,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesInvoice."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesInvoice."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         SalesInvoice."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, SalesInvoice."VAT Reporting Date".Value);
@@ -2340,7 +2340,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         SalesInvoice."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         SalesInvoice."Posting Date".SetValue(WorkDate());
@@ -2349,7 +2349,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, SalesInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         SalesInvoice.Close();
     end;
 
@@ -2360,11 +2360,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         PurchaseInvoice: TestPage "Purchase Invoice";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2375,7 +2375,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseInvoice."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseInvoice."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         PurchaseInvoice."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, PurchaseInvoice."VAT Reporting Date".Value);
@@ -2384,7 +2384,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         PurchaseInvoice."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         PurchaseInvoice."Posting Date".SetValue(WorkDate());
@@ -2393,7 +2393,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, PurchaseInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         PurchaseInvoice.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2405,7 +2405,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseInvoice."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseInvoice."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         PurchaseInvoice."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, PurchaseInvoice."VAT Reporting Date".Value);
@@ -2414,7 +2414,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         PurchaseInvoice."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         PurchaseInvoice."Posting Date".SetValue(WorkDate());
@@ -2423,7 +2423,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, PurchaseInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         PurchaseInvoice.Close();
     end;
 
@@ -2433,11 +2433,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         ServiceInvoice: TestPage "Service Invoice";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2448,7 +2448,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         ServiceInvoice."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceInvoice."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         ServiceInvoice."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, ServiceInvoice."VAT Reporting Date".Value);
@@ -2457,7 +2457,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         ServiceInvoice."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         ServiceInvoice."Posting Date".SetValue(WorkDate());
@@ -2466,7 +2466,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, ServiceInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         ServiceInvoice.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2478,7 +2478,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         ServiceInvoice."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceInvoice."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         ServiceInvoice."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, ServiceInvoice."VAT Reporting Date".Value);
@@ -2487,7 +2487,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         ServiceInvoice."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         ServiceInvoice."Posting Date".SetValue(WorkDate());
@@ -2496,7 +2496,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, ServiceInvoice."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         ServiceInvoice.Close();
     end;
 
@@ -2506,11 +2506,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         FinanceChargeMemo: TestPage "Finance Charge Memo";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2521,7 +2521,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         FinanceChargeMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, FinanceChargeMemo."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         FinanceChargeMemo."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, FinanceChargeMemo."VAT Reporting Date".Value);
@@ -2530,7 +2530,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         FinanceChargeMemo."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, FinanceChargeMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         FinanceChargeMemo."Posting Date".SetValue(WorkDate());
@@ -2539,7 +2539,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, FinanceChargeMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         FinanceChargeMemo.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2551,7 +2551,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         FinanceChargeMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, FinanceChargeMemo."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, but VAT Date is not
         FinanceChargeMemo."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, FinanceChargeMemo."VAT Reporting Date".Value);
@@ -2560,7 +2560,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         FinanceChargeMemo."Document Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, FinanceChargeMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         FinanceChargeMemo."Posting Date".SetValue(WorkDate());
@@ -2569,7 +2569,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, FinanceChargeMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         FinanceChargeMemo.Close();
     end;
 
@@ -2579,11 +2579,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2594,7 +2594,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseCreditMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         PurchaseCreditMemo."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
@@ -2603,7 +2603,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         PurchaseCreditMemo."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         PurchaseCreditMemo."Posting Date".SetValue(WorkDate());
@@ -2612,7 +2612,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         PurchaseCreditMemo.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2624,7 +2624,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseCreditMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, then VAT date is also, due to Posting Date -> Document Date -> VAT date
         PurchaseCreditMemo."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
@@ -2633,7 +2633,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         PurchaseCreditMemo."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         PurchaseCreditMemo."Posting Date".SetValue(WorkDate());
@@ -2642,7 +2642,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         PurchaseCreditMemo.Close();
     end;
 
@@ -2652,11 +2652,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         PurchaseOrder: TestPage "Purchase Order";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2667,7 +2667,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         PurchaseOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, PurchaseOrder."VAT Reporting Date".Value);
@@ -2676,7 +2676,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         PurchaseOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         PurchaseOrder."Posting Date".SetValue(WorkDate());
@@ -2685,7 +2685,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, PurchaseOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         PurchaseOrder.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2697,7 +2697,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, then VAT date is also, due to Posting Date -> Document Date -> VAT date
         PurchaseOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, PurchaseOrder."VAT Reporting Date".Value);
@@ -2706,7 +2706,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         PurchaseOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         PurchaseOrder."Posting Date".SetValue(WorkDate());
@@ -2715,7 +2715,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, PurchaseOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         PurchaseOrder.Close();
     end;
 
@@ -2725,11 +2725,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         PurchaseReturnOrder: TestPage "Purchase Return Order";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2740,7 +2740,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseReturnOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseReturnOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         PurchaseReturnOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, PurchaseReturnOrder."VAT Reporting Date".Value);
@@ -2749,7 +2749,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         PurchaseReturnOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseReturnOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         PurchaseReturnOrder."Posting Date".SetValue(WorkDate());
@@ -2758,7 +2758,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, PurchaseReturnOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         PurchaseReturnOrder.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2770,7 +2770,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseReturnOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseReturnOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         PurchaseReturnOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, PurchaseReturnOrder."VAT Reporting Date".Value);
@@ -2779,7 +2779,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         PurchaseReturnOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseReturnOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         PurchaseReturnOrder."Posting Date".SetValue(WorkDate());
@@ -2788,7 +2788,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, PurchaseReturnOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         PurchaseReturnOrder.Close();
     end;
 
@@ -2798,11 +2798,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         RecurringGeneralJournal: TestPage "Recurring General Journal";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2813,7 +2813,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         RecurringGeneralJournal."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, RecurringGeneralJournal."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         RecurringGeneralJournal."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, RecurringGeneralJournal."VAT Reporting Date".Value);
@@ -2825,7 +2825,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is set to posting date
         Evaluate(FieldDate, RecurringGeneralJournal."VAT Reporting Date".Value);
-        Assert.AreEqual(WorkDate(), FieldDate, VatDateComparisonErr); 
+        Assert.AreEqual(WorkDate(), FieldDate, VatDateComparisonErr);
         RecurringGeneralJournal.Close();
     end;
 
@@ -2835,11 +2835,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         Reminder: TestPage "Reminder";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2850,7 +2850,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Reminder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, Reminder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         Reminder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, Reminder."VAT Reporting Date".Value);
@@ -2859,7 +2859,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         Reminder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, Reminder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         Reminder."Posting Date".SetValue(WorkDate());
@@ -2868,7 +2868,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, Reminder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         Reminder.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2880,7 +2880,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Reminder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, Reminder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, VAT Date is not
         Reminder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, Reminder."VAT Reporting Date".Value);
@@ -2889,7 +2889,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         Reminder."Document Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, Reminder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         Reminder."Posting Date".SetValue(WorkDate());
@@ -2898,7 +2898,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, Reminder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         Reminder.Close();
     end;
 
@@ -2909,11 +2909,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         SalesCreditMemo: TestPage "Sales Credit Memo";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2924,7 +2924,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesCreditMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesCreditMemo."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         SalesCreditMemo."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, SalesCreditMemo."VAT Reporting Date".Value);
@@ -2933,7 +2933,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         SalesCreditMemo."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         SalesCreditMemo."Posting Date".SetValue(WorkDate());
@@ -2942,7 +2942,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, SalesCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         SalesCreditMemo.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -2954,7 +2954,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesCreditMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesCreditMemo."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         SalesCreditMemo."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, SalesCreditMemo."VAT Reporting Date".Value);
@@ -2963,7 +2963,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         SalesCreditMemo."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         SalesCreditMemo."Posting Date".SetValue(WorkDate());
@@ -2972,7 +2972,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, SalesCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         SalesCreditMemo.Close();
     end;
 
@@ -2982,11 +2982,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         SalesOrder: TestPage "Sales Order";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -2997,7 +2997,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         SalesOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, SalesOrder."VAT Reporting Date".Value);
@@ -3006,7 +3006,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         SalesOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         SalesOrder."Posting Date".SetValue(WorkDate());
@@ -3015,7 +3015,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, SalesOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         SalesOrder.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -3027,7 +3027,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         SalesOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, SalesOrder."VAT Reporting Date".Value);
@@ -3036,7 +3036,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         SalesOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         SalesOrder."Posting Date".SetValue(WorkDate());
@@ -3045,7 +3045,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, SalesOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         SalesOrder.Close();
     end;
 
@@ -3055,11 +3055,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         SalesReturnOrder: TestPage "Sales Return Order";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -3070,7 +3070,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesReturnOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesReturnOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         SalesReturnOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, SalesReturnOrder."VAT Reporting Date".Value);
@@ -3079,7 +3079,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         SalesReturnOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesReturnOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         SalesReturnOrder."Posting Date".SetValue(WorkDate());
@@ -3088,7 +3088,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, SalesReturnOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         SalesReturnOrder.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -3100,7 +3100,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesReturnOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesReturnOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         SalesReturnOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, SalesReturnOrder."VAT Reporting Date".Value);
@@ -3109,7 +3109,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         SalesReturnOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, SalesReturnOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         SalesReturnOrder."Posting Date".SetValue(WorkDate());
@@ -3118,7 +3118,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, SalesReturnOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         SalesReturnOrder.Close();
     end;
 
@@ -3128,11 +3128,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         ServiceCreditMemo: TestPage "Service Credit Memo";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -3143,7 +3143,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         ServiceCreditMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceCreditMemo."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         ServiceCreditMemo."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, ServiceCreditMemo."VAT Reporting Date".Value);
@@ -3152,7 +3152,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         ServiceCreditMemo."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         ServiceCreditMemo."Posting Date".SetValue(WorkDate());
@@ -3161,7 +3161,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, ServiceCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         ServiceCreditMemo.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -3173,7 +3173,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         ServiceCreditMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceCreditMemo."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         ServiceCreditMemo."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, ServiceCreditMemo."VAT Reporting Date".Value);
@@ -3182,7 +3182,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         ServiceCreditMemo."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         ServiceCreditMemo."Posting Date".SetValue(WorkDate());
@@ -3191,7 +3191,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, ServiceCreditMemo."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         ServiceCreditMemo.Close();
     end;
 
@@ -3201,11 +3201,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup: Record "General Ledger Setup";
         ServiceOrder: TestPage "Service Order";
         FieldDate: Date;
-    begin   
+    begin
         // [FEATURE] [Sales]
         // [SCENARIO 445587] VAT Date should reflect Document date or Posting Date
         Initialize();
-        
+
         // [When] Setting GL Setup to use posting date
         GLSetup.Get();
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
@@ -3216,7 +3216,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         ServiceOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date
         ServiceOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, ServiceOrder."VAT Reporting Date".Value);
@@ -3225,7 +3225,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is not
         ServiceOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         ServiceOrder."Posting Date".SetValue(WorkDate());
@@ -3234,7 +3234,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to posting date
         Evaluate(FieldDate, ServiceOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
         ServiceOrder.Close();
 
         // [When] Setting GL Setup to use posting date
@@ -3246,7 +3246,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         ServiceOrder."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceOrder."VAT Reporting Date".Value);
         Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
-        
+
         // [Then] Posting Date is changed, so should VAT Date, due to Posting Date -> Document Date -> VAT date
         ServiceOrder."Posting Date".SetValue(WorkDate() + 1);
         Evaluate(FieldDate, ServiceOrder."VAT Reporting Date".Value);
@@ -3255,7 +3255,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [Then] Document Date is changed, VAT Date is changed
         ServiceOrder."Document Date".SetValue(WorkDate());
         Evaluate(FieldDate, ServiceOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate(), VatDateComparisonErr);
 
         // [When] VAT date value is cleared in UI
         ServiceOrder."Posting Date".SetValue(WorkDate());
@@ -3264,7 +3264,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // [Then] VAT Date is to document date
         Evaluate(FieldDate, ServiceOrder."VAT Reporting Date".Value);
-        Assert.AreEqual(FieldDate, WorkDate() +  1, VatDateComparisonErr); 
+        Assert.AreEqual(FieldDate, WorkDate() + 1, VatDateComparisonErr);
         ServiceOrder.Close();
     end;
 
@@ -3273,7 +3273,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         SalesInvHeader: Record "Sales Invoice Header";
         DocNr: Code[20];
-        VATDate, NewVATDate: Date;
+        VATDate, NewVATDate : Date;
         VATEntryNr: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
@@ -3298,7 +3298,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CorrectVATDateAndVerifyChange(VATEntryNr, NewVATDate);
 
         // [THEN] Verify Update on related docs
-        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate); 
+        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate);
         VerifyGLEntry(DocNr, DocType, PostType, NewVATDate);
         SalesInvHeader.Get(DocNr);
         Assert.AreEqual(NewVATDate, SalesInvHeader."VAT Reporting Date", VATDateOnRecordErr);
@@ -3309,7 +3309,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         DocNr: Code[20];
-        VATDate, NewVATDate: Date;
+        VATDate, NewVATDate : Date;
         VATEntryNr: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
@@ -3334,7 +3334,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CorrectVATDateAndVerifyChange(VATEntryNr, NewVATDate);
 
         // [THEN] Verify Update on related docs
-        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate); 
+        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate);
         VerifyGLEntry(DocNr, DocType, PostType, NewVATDate);
         PurchInvHeader.Get(DocNr);
         Assert.AreEqual(NewVATDate, PurchInvHeader."VAT Reporting Date", VATDateOnRecordErr);
@@ -3345,7 +3345,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         DocHeader: Record "Sales Cr.Memo Header";
         DocNr: Code[20];
-        VATDate, NewVATDate: Date;
+        VATDate, NewVATDate : Date;
         VATEntryNr: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
@@ -3370,7 +3370,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CorrectVATDateAndVerifyChange(VATEntryNr, NewVATDate);
 
         // [THEN] Verify Update on related docs
-        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate); 
+        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate);
         VerifyGLEntry(DocNr, DocType, PostType, NewVATDate);
         DocHeader.Get(DocNr);
         Assert.AreEqual(NewVATDate, DocHeader."VAT Reporting Date", VATDateOnRecordErr);
@@ -3381,7 +3381,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         DocHeader: Record "Purch. Cr. Memo Hdr.";
         DocNr: Code[20];
-        VATDate, NewVATDate: Date;
+        VATDate, NewVATDate : Date;
         VATEntryNr: Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
@@ -3406,7 +3406,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CorrectVATDateAndVerifyChange(VATEntryNr, NewVATDate);
 
         // [THEN] Verify Update on related docs
-        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate); 
+        VerifyVATEntry(DocNr, DocType, PostType, NewVATDate);
         VerifyGLEntry(DocNr, DocType, PostType, NewVATDate);
         DocHeader.Get(DocNr);
         Assert.AreEqual(NewVATDate, DocHeader."VAT Reporting Date", VATDateOnRecordErr);
@@ -3453,6 +3453,74 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.AreEqual(SalesHeaderArchive."VAT Reporting Date", SalesHeader."VAT Reporting Date", VATDateErr);
     end;
 
+    [Test]
+    procedure TestVATEntryAdjustDateWithEmptyDocType()
+    var
+        DocHeader: Record "Sales Invoice Header";
+        VATEntry: Record "VAT Entry";
+        DocNr: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNr: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448377] Adjusting VAT Date with no doc type 
+        Initialize();
+
+        // [WHEN] Posting with Sales Invoice to generate VAT entry
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNr := CreateAndPostSalesDoc(0D, DocType);
+        DocHeader.Get(DocNr);
+
+        // [THEN] Get VAT entry and change VAT doc type
+        VATEntry.Reset();
+        VATEntry.SetRange("Document No.", DocNr);
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetRange(Type, PostType);
+        VATEntry.FindFirst();
+        VATEntry.Validate("Document Type", Enum::"Gen. Journal Document Type"::" ");
+        VATEntry.Modify();
+
+        // [THEN] No errors happen when adjusting dates
+        CorrectVATDateAndVerifyChange(VATEntry."Entry No.", VATEntry."VAT Reporting Date" + 1);
+    end;
+
+    [Test]
+    procedure TestVATEntryAdjustDateWithEmptyPostType()
+    var
+        DocHeader: Record "Sales Invoice Header";
+        VATEntry: Record "VAT Entry";
+        DocNr: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNr: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448377] Adjusting VAT Date with no post type 
+        Initialize();
+
+        // [WHEN] Posting with Sales Invoice to generate VAT entry
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNr := CreateAndPostSalesDoc(0D, DocType);
+        DocHeader.Get(DocNr);
+
+        // [THEN] Get VAT entry and change VAT posting type
+        VATEntry.Reset();
+        VATEntry.SetRange("Document No.", DocNr);
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetRange(Type, PostType);
+        VATEntry.FindFirst();
+        VATEntry.Validate("Type", Enum::"General Posting Type"::" ");
+        VATEntry.Modify();
+
+        // [THEN] No errors happen when adjusting dates
+        CorrectVATDateAndVerifyChange(VATEntry."Entry No.", VATEntry."VAT Reporting Date" + 1);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3493,7 +3561,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.AreEqual(VATDate, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);
     end;
 
-    local procedure VerifyVATEntry(DocNr: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date) : Integer
+    local procedure VerifyVATEntry(DocNr: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date): Integer
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -3515,7 +3583,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLEntry.SetRange("Document Type", DocType);
         GLEntry.SetRange("Gen. Posting Type", Type);
         GLEntry.FindSet();
-        repeat 
+        repeat
             Assert.AreEqual(VATDate, GLEntry."VAT Reporting Date", VATDateOnRecordErr);
         until GLEntry.Next() = 0;
     end;
@@ -3791,7 +3859,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
             Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
             if VATDate <> 0D then
                 Validate("VAT Reporting Date", VATDate)
-            else 
+            else
                 Validate("VAT Reporting Date");
             Modify(true);
             CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
@@ -3813,7 +3881,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
             Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
             if VATDate <> 0D then
                 Validate("VAT Reporting Date", VATDate)
-            else 
+            else
                 Validate("VAT Reporting Date");
             Modify(true);
             CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);

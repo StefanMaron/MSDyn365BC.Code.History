@@ -53,17 +53,6 @@ page 9015 "Job Project Manager RC"
                 Enabled = false;
                 Visible = false;
             }
-#if not CLEAN21
-            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI User Configuration" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 AccessByPermission = TableData "Power BI User Configuration" = I;
@@ -79,6 +68,17 @@ page 9015 "Job Project Manager RC"
                 ApplicationArea = Jobs;
                 Visible = false;
             }
+#if not CLEAN21
+            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
+                Visible = false;
+                ObsoleteTag = '21.0';
+            }
+#endif
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Jobs;

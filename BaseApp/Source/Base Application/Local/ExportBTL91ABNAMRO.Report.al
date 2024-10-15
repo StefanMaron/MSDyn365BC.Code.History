@@ -159,7 +159,7 @@ report 11000007 "Export BTL91-ABN AMRO"
 
                 Export := false;
                 if Status = Status::New then
-                    Status := Status::Transmitted;
+                    Validate(Status, Status::Transmitted);
                 Modify();
             end;
 

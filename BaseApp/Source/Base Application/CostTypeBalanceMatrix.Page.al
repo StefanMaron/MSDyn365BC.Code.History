@@ -347,8 +347,10 @@ page 1130 "Cost Type Balance Matrix"
     local procedure MATRIX_OnAfterGetRecord(ColumnID: Integer)
     begin
         SetFilters(ColumnID);
-        CalcFields("Net Change");
+        Rec.CalcFields("Net Change");
         MATRIX_CellData[ColumnID] := MatrixMgt.RoundAmount("Net Change", RoundingFactor);
+
+        OnAfterMATRIX_OnAfterGetRecord(Rec, MATRIX_CellData, ColumnID, RoundingFactor);
     end;
 
     local procedure SetFilters(ColumnID: Integer)
@@ -371,6 +373,11 @@ page 1130 "Cost Type Balance Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnMATRIX_OnDrillDownOnBeforePageRun(var CostEntry: Record "Cost Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var CostType: Record "Cost Type"; var MATRIX_CellData: array[12] of Decimal; ColumnID: Integer; RoundingFactor: Enum "Analysis Rounding Factor")
     begin
     end;
 }

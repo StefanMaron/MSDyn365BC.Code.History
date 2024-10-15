@@ -1,4 +1,4 @@
-table 11401 "CBG Statement Line"
+﻿table 11401 "CBG Statement Line"
 {
     Caption = 'CBG Statement Line';
     Permissions = TableData "Cust. Ledger Entry" = rm,
@@ -491,11 +491,17 @@ table 11401 "CBG Statement Line"
             var
                 PaymentHistLine: Record "Payment History Line";
                 CBGStatementLine: Record "CBG Statement Line";
+                IsHandled: Boolean;
             begin
                 if not (("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee]) or ("Account No." = '')) then begin
                     Identification := '';
                     Message(Text1000002);
                 end;
+
+                IsHandled := false;
+                OnValidateIdentificationOnBeforeCheck(Rec, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if Identification <> '' then begin
                     TestField("Statement Type", "Statement Type"::"Bank Account");
@@ -1398,14 +1404,17 @@ table 11401 "CBG Statement Line"
 #endif
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
     begin
 #if not CLEAN20
         RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
 #endif
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
+        GenJournalTemplate.Get("Journal Template Name");
         "Dimension Set ID" := DimManagement.GetDefaultDimID(
-            DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            DefaultDimSource, GenJournalTemplate."Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     [Scope('OnPrem')]
@@ -1766,6 +1775,11 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAccountNoOnValidate(var CBGStatementLine: Record "CBG Statement Line"; var xCBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateIdentificationOnBeforeCheck(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
     begin
     end;
 }

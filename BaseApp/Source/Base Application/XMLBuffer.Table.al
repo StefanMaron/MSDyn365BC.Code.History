@@ -190,7 +190,13 @@ table 1235 "XML Buffer"
     var
         FileManagement: Codeunit "File Management";
         ServerTempFileName: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDownload(Rec, Success, IsHandled);
+        if IsHandled then
+            exit;
+
         ServerTempFileName := FileManagement.ServerTempFileName('xml');
         Save(ServerTempFileName);
         Success := FileManagement.DownloadHandler(ServerTempFileName, '', '', '', 'temp.xml');
@@ -465,6 +471,11 @@ table 1235 "XML Buffer"
             exit;
         "Value BLOB".CreateOutStream(OutStream, TEXTENCODING::Windows);
         OutStream.WriteText(NewValue);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownload(var XMLBuffer: Record "XML Buffer"; var Success: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
