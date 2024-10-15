@@ -74,6 +74,7 @@ table 1260 "Bank Data Conv. Service Setup"
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePassword(PasswordText: Text)
     begin
@@ -92,6 +93,7 @@ table 1260 "Bank Data Conv. Service Setup"
         exit("User Name");
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetPassword(): Text
     var

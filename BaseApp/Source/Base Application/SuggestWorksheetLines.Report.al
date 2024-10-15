@@ -1305,7 +1305,7 @@ report 840 "Suggest Worksheet Lines"
                       Job.Description,
                       Format("Job Planning Line"."Document Date")),
                     1, MaxStrLen(Description));
-                SetCashFlowDate(CFWorksheetLine2, "Job Planning Line"."Planning Date");
+                SetCashFlowDate(CFWorksheetLine2, "Job Planning Line"."Planning Due Date");
                 "Document No." := "Job Planning Line"."Document No.";
                 "Amount (LCY)" := GetJobPlanningAmountForCFLine("Job Planning Line");
 

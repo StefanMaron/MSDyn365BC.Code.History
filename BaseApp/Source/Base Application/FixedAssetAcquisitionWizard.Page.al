@@ -296,7 +296,8 @@ page 5551 "Fixed Asset Acquisition Wizard"
         if not Get then begin
             Init;
             "Journal Template Name" := FixedAssetAcquisitionWizard.SelectFATemplate;
-            "Journal Batch Name" := FixedAssetAcquisitionWizard.GetAutogenJournalBatch;
+            "Journal Batch Name" := FixedAssetAcquisitionWizard.GetGenJournalBatchName(
+                CopyStr(Rec.GetFilter("Account No."), 1, MaxStrLen("Account No.")));
             "Document Type" := "Document Type"::Invoice;
             "Account Type" := "Account Type"::"Fixed Asset";
             "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";

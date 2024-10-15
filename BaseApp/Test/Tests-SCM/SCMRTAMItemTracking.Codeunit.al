@@ -634,25 +634,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
     [Test]
     [HandlerFunctions('ItemTrackingSalesPageHandler,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler,ReservationPageHandler,NegativeAdjustmentConfirmHandler')]
-    [Scope('OnPrem')]
     procedure SalesOrderReservedForOutboundOrderError()
-    begin
-        // Setup.
-        Initialize;
-        SalesOrderReservedForOutboundOrder(true);  // Reserve -True.
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingSalesPageHandler,ConfirmHandler,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler,ReservationPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesOrderCancelReservationForOutboundOrder()
-    begin
-        // Setup.
-        Initialize;
-        SalesOrderReservedForOutboundOrder(false);  // Reserve -True.
-    end;
-
-    local procedure SalesOrderReservedForOutboundOrder(Reserve: Boolean)
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -662,23 +644,118 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemJournalLine: Record "Item Journal Line";
         Quantity: Decimal;
     begin
-        // Create Item, create and Post Item Journal, create Sales order with reserve and create another Sales order with tracking.
+        // [FEATURE] [Sales] [Reservation]
+        // [SCENARIO 405154] Cannot post sales order with item tracking when quantity is non-specifically reserved for another sales.
+        Initialize();
+        Quantity := 2 * LibraryRandom.RandInt(10);
+
+        // [GIVEN] Serial no.-tracked item.
         CreateItem(Item, ItemTrackingCodeSerialSpecific.Code, Item."Costing Method"::FIFO);
-        Quantity := 2 * LibraryRandom.RandInt(10);  // Value required for Test.
 
-        // Assign Global variable for Page Handler.
-        SetGlobalValue(Item."No.", true, false, false, AssignTracking::None, 0, true);  // Create New Lot No -True and Tracking Quantity not required.
+        SetGlobalValue(Item."No.", true, false, false, AssignTracking::None, 0, true);
 
+        // [GIVEN] Post 2 serial nos. to inventory.
         CreateAndPostItemJournalLine(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, Quantity, 0, false, AssignTracking::SerialNo);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity / 2);  // Partial Qty.
-        SalesLine.ShowReservation;  // Reserve on Page Handler ReservationPageHandler.
 
+        // [GIVEN] Create sales order "SO1" for 2 pcs, open item tracking lines and select 2 serial nos.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create sales order "SO2" for 1 pc, reserve 1 pc from the inventory, do not specify serial no.
+        CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, Item."No.", LocationBlue.Code, Quantity / 2);
+        SalesLine2.ShowReservation();
+
+        // [WHEN] Post the sales order "SO1".
+        asserterror PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, false);
+
+        // [THEN] "Item tracking cannot be fully applied..." error message is thrown.
+        Assert.ExpectedError(ItemTrackingSerialNumberErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingSalesPageHandler,ConfirmHandler,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler,ReservationPageHandler')]
+    procedure SalesOrderCancelReservationForOutboundOrder()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeader2: Record "Sales Header";
+        SalesLine2: Record "Sales Line";
+        ItemJournalLine: Record "Item Journal Line";
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Sales] [Reservation]
+        // [SCENARIO 405154] Posting sales order with item tracking when quantity is reserved for another sales and the reservation is then canceled.
+        Initialize();
+        Quantity := 2 * LibraryRandom.RandInt(10);
+
+        // [GIVEN] Serial no.-tracked item.
+        CreateItem(Item, ItemTrackingCodeSerialSpecific.Code, Item."Costing Method"::FIFO);
+
+        SetGlobalValue(Item."No.", true, false, false, AssignTracking::None, 0, true);
+
+        // [GIVEN] Post 2 serial nos. to inventory.
+        CreateAndPostItemJournalLine(
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, Quantity, 0, false, AssignTracking::SerialNo);
+
+        // [GIVEN] Create sales order "SO1" for 2 pcs, open item tracking lines and select 2 serial nos.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create sales order "SO2" for 1 pc, reserve 1 pc from the inventory, do not specify serial no.
+        CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, Item."No.", LocationBlue.Code, Quantity / 2);
+        SalesLine2.ShowReservation();
+
+        // [WHEN] Cancel the reservation for "SO2" and post "SO1".
+        CancelReservationCurrentLine := true;
+        SalesLine2.Find();
+        SalesLine2.ShowReservation();
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
+
+        // [THEN] The sales order "SO1" is posted.
+        VerifyPostedSalesInvoiceLine(SalesHeader."No.", Item."No.", Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingSalesPageHandler,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler,ReservationPageHandler,NegativeAdjustmentConfirmHandler')]
+    procedure SelectEntriesWithConsiderationOfNonSpecificReservation()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeader2: Record "Sales Header";
+        SalesLine2: Record "Sales Line";
+        ItemJournalLine: Record "Item Journal Line";
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Sales] [Reservation]
+        // [SCENARIO 405154] Select entries in item tracking does not suggest full quantity when part of inventory is non-specifically reserved for another sales order.
+        Initialize();
+        Quantity := 2 * LibraryRandom.RandInt(10);
+
+        // [GIVEN] Serial no.-tracked item.
+        CreateItem(Item, ItemTrackingCodeSerialSpecific.Code, Item."Costing Method"::FIFO);
+
+        SetGlobalValue(Item."No.", true, false, false, AssignTracking::None, 0, true);
+
+        // [GIVEN] Post 2 serial nos. to inventory.
+        CreateAndPostItemJournalLine(
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, Quantity, 0, false, AssignTracking::SerialNo);
+
+        // [GIVEN] Create sales order "SO1" for 1 pc, reserve 1 pc from the inventory, do not specify serial no.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity / 2);
+        SalesLine.ShowReservation();
+
+        // [GIVEN] Create sales order "SO2" for 2 pcs, open item tracking lines and run "Select entries".
         CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, Item."No.", LocationBlue.Code, Quantity);
-        SalesLine2.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
+        SalesLine2.OpenItemTrackingLines();
 
-        // Exercise: Post Sales Order/Cancel reservation and post Sales Order. Verify Error message/Quantity on Posted Sales Invoice Line.
-        PostSalesOrderAndVerifyLine(SalesHeader2, SalesHeader, Item."No.", Quantity, Reserve);
+        // [WHEN] Post the sales order "SO2".
+        asserterror PostSalesDocument(SalesHeader2."Document Type", SalesHeader2."No.", true, false);
+
+        // [THEN] Only 1 pc is automatically tracked, so the "SO2" cannot be posted.
+        Assert.ExpectedError(StrSubstNo(QtyToHandleErr, ''));
     end;
 
     [Test]
