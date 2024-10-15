@@ -311,6 +311,8 @@ page 5471 "Customer Entity"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        DimensionsTemplate: Record "Dimensions Template";
         Customer: Record Customer;
         RecRef: RecordRef;
     begin
@@ -326,10 +328,13 @@ page 5471 "Customer Entity"
         ProcessPostalAddress;
 
         RecRef.GetTable(Rec);
-        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, CurrentDateTime);
+        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, CurrentDateTime, ConfigTemplateHeader);
         RecRef.SetTable(Rec);
 
         Modify(true);
+
+        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Rec."No.", DATABASE::Customer);
+
         SetCalculatedFields;
         exit(false);
     end;
