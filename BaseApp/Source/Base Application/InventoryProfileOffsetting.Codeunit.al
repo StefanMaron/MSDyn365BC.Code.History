@@ -2710,15 +2710,25 @@
                 AdjustTransferDates(ReqLine);
                 if ReqLine."Action Message" = ReqLine."Action Message"::New then begin
                     CurrentSupplyInvtProfile.Copy(SupplyInvtProfile);
-                    SupplyInvtProfile.Init();
-                    SupplyInvtProfile."Line No." := NextLineNo();
-                    SupplyInvtProfile."Item No." := ReqLine."No.";
-                    SupplyInvtProfile.TransferFromOutboundTransfPlan(ReqLine, TempItemTrkgEntry);
-                    SupplyInvtProfile.CopyTrackingFromInvtProfile(CurrentSupplyInvtProfile);
-                    if SupplyInvtProfile.IsSupply then
-                        SupplyInvtProfile.ChangeSign();
-                    OnMaintainPlanningLineOnBeforeSupplyInvtProfileInsert(SupplyInvtProfile, CurrentSupplyInvtProfile);
-                    SupplyInvtProfile.Insert();
+
+                    SupplyInvtProfile.Reset();
+                    SupplyInvtProfile.SetSourceFilter(
+                      DATABASE::"Requisition Line", 1, ReqLine."Worksheet Template Name", ReqLine."Line No.", ReqLine."Journal Batch Name", 0);
+                    SupplyInvtProfile.SetTrackingFilter(CurrentSupplyInvtProfile);
+                    if not SupplyInvtProfile.FindFirst() then begin
+                        SupplyInvtProfile.Init();
+                        SupplyInvtProfile."Line No." := NextLineNo();
+                        SupplyInvtProfile."Item No." := ReqLine."No.";
+                        SupplyInvtProfile.TransferFromOutboundTransfPlan(ReqLine, TempItemTrkgEntry);
+                        SupplyInvtProfile.CopyTrackingFromInvtProfile(CurrentSupplyInvtProfile);
+                        if SupplyInvtProfile.IsSupply then
+                            SupplyInvtProfile.ChangeSign();
+                        OnMaintainPlanningLineOnBeforeSupplyInvtProfileInsert(SupplyInvtProfile, CurrentSupplyInvtProfile);
+                        SupplyInvtProfile.Insert();
+                    end else begin
+                        SupplyInvtProfile.TransferFromOutboundTransfPlan(ReqLine, TempItemTrkgEntry);
+                        SupplyInvtProfile.Modify();
+                    end;
 
                     SupplyInvtProfile.Copy(CurrentSupplyInvtProfile);
                 end else
