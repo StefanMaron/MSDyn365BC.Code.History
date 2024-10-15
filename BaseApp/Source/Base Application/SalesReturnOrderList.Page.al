@@ -259,12 +259,12 @@ page 9304 "Sales Return Order List"
                 field(Amount; Amount)
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the sum of amounts in the Line Amount field on the document lines.';
+                    ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the total of the amounts, including VAT, on all the lines in the document.';
+                    ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -663,8 +663,7 @@ page 9304 "Sales Return Order List"
                     begin
                         CurrPage.SetSelectionFilter(SalesHeader);
                         if SalesHeader.Count > 1 then begin
-                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Invoice, true);
-                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Receive, true);
+                            BatchProcessingMgt.SetParametersForPageID(Page::"Sales Return Order List");
 
                             SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
                             SalesBatchPostMgt.RunWithUI(SalesHeader, Count, ReadyToPostQst);

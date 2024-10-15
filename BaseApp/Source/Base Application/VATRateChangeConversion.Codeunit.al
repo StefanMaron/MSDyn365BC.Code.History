@@ -378,7 +378,13 @@ codeunit 550 "VAT Rate Change Conversion"
         FieldRef: FieldRef;
         GenProdPostingGroupConverted: Boolean;
         VATProdPostingGroupConverted: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateRec(RecRef, ConvertVATProdPostingGroup, ConvertGenProdPostingGroup, IsHandled);
+        if IsHandled then
+            exit;
+
         VATRateChangeLogEntry.Init();
         VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
         VATRateChangeLogEntry."Table ID" := RecRef.Number;
@@ -858,7 +864,7 @@ codeunit 550 "VAT Rate Change Conversion"
         PurchaseHeader.SetFilter(
           "Document Type", '%1..%2|%3', PurchaseHeader."Document Type"::Quote, PurchaseHeader."Document Type"::Invoice,
           PurchaseHeader."Document Type"::"Blanket Order");
-
+        OnUpdatePurchaseOnAfterPurchaseHeaderSetFilters(PurchaseHeader);
         if PurchaseHeader.Find('-') then
             repeat
                 StatusChanged := false;
@@ -1851,6 +1857,11 @@ codeunit 550 "VAT Rate Change Conversion"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRec(var RecRef: RecordRef; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnConvertOnBeforeStartConvert(var VATRateChangeSetup: Record "VAT Rate Change Setup")
     begin
     end;
@@ -1862,6 +1873,11 @@ codeunit 550 "VAT Rate Change Conversion"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddNewPurchaseLine(var OldPurchaseLine: Record "Purchase Line"; var NewPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchaseOnAfterPurchaseHeaderSetFilters(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

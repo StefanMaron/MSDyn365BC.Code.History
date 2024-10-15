@@ -1,6 +1,6 @@
 enum 5527 "Planning Create Transfer Order"
 {
-    Extensible = false;
+    Extensible = true;
     AssignmentCompatibility = true;
 
     value(0; " ") { Caption = ' '; }

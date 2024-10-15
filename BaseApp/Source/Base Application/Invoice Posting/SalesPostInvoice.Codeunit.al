@@ -219,14 +219,19 @@
     end;
 
     local procedure GetSalesAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup") SalesAccountNo: Code[20]
+    var
+        IsHandled: Boolean;
     begin
-        if (SalesLine.Type = SalesLine.Type::"G/L Account") or (SalesLine.Type = SalesLine.Type::"Fixed Asset") then
-            SalesAccountNo := SalesLine."No."
-        else
-            if SalesLine.IsCreditDocType() then
-                SalesAccountNo := GenPostingSetup.GetSalesCrMemoAccount()
+        IsHandled := false;
+        SalesPostInvoiceEvents.RunOnBeforeGetSalesAccount(SalesLine, GenPostingSetup, SalesAccountNo, IsHandled);
+        if not IsHandled then
+            if (SalesLine.Type = SalesLine.Type::"G/L Account") or (SalesLine.Type = SalesLine.Type::"Fixed Asset") then
+                SalesAccountNo := SalesLine."No."
             else
-                SalesAccountNo := GenPostingSetup.GetSalesAccount();
+                if SalesLine.IsCreditDocType() then
+                    SalesAccountNo := GenPostingSetup.GetSalesCrMemoAccount()
+                else
+                    SalesAccountNo := GenPostingSetup.GetSalesAccount();
 
         SalesPostInvoiceEvents.RunOnAfterGetSalesAccount(SalesLine, GenPostingSetup, SalesAccountNo);
     end;
@@ -339,6 +344,8 @@
         TempInvoicePostingBuffer.CalcSums(Amount);
         TotalAmount := -TempInvoicePostingBuffer.Amount;
 
+        SalesPostInvoiceEvents.RunOnPostLinesOnBeforeTempInvoicePostingBufferDeleteAll(
+            SalesHeader, GenJnlPostLine, TotalSalesLine, TotalSalesLineLCY, InvoicePostingParameters);
         TempInvoicePostingBuffer.DeleteAll();
     end;
 
@@ -590,7 +597,13 @@
     local procedure GetAmountsForDeferral(SalesLine: Record "Sales Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20])
     var
         DeferralTemplate: Record "Deferral Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        SalesPostInvoiceEvents.RunOnBeforeGetAmountsForDeferral(SalesLine, AmtToDefer, AmtToDeferACY, DeferralAccount, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralTemplate.Get(SalesLine."Deferral Code");
         DeferralTemplate.TestField("Deferral Account");
         DeferralAccount := DeferralTemplate."Deferral Account";

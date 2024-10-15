@@ -192,6 +192,9 @@ report 502 "Intrastat - Checklist"
                     IntrastatJnlLineTemp.DeleteAll();
                     NoOfRecordsRTC := 0;
 
+                    if GetFilter(Type) <> '' then
+                        exit;
+
                     if not IntrastatSetup.Get then
                         exit;
 

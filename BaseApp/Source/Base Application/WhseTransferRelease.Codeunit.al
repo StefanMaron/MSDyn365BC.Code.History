@@ -93,6 +93,7 @@ codeunit 5773 "Whse.-Transfer Release"
             "Completely Handled" := TransferHeader."Completely Received";
             "Shipment Method Code" := TransferHeader."Shipment Method Code";
             "Shipping Agent Code" := TransferHeader."Shipping Agent Code";
+            "Shipping Agent Service Code" := TransferHeader."Shipping Agent Service Code";
             "Destination No." := TransferHeader."Transfer-to Code";
             OnBeforeCreateWhseRequest(WarehouseRequest, TransferHeader);
             if CalledFromTransferOrder then begin
@@ -119,6 +120,7 @@ codeunit 5773 "Whse.-Transfer Release"
             "Completely Handled" := TransferHeader."Completely Shipped";
             "Shipment Method Code" := TransferHeader."Shipment Method Code";
             "Shipping Agent Code" := TransferHeader."Shipping Agent Code";
+            "Shipping Agent Service Code" := TransferHeader."Shipping Agent Service Code";
             "Shipping Advice" := TransferHeader."Shipping Advice";
             "Shipment Date" := TransferHeader."Shipment Date";
             "Destination No." := TransferHeader."Transfer-from Code";

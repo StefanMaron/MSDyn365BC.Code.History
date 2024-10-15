@@ -1,6 +1,6 @@
 enum 5525 "Planning Create Purchase Order"
 {
-    Extensible = false;
+    Extensible = true;
     AssignmentCompatibility = true;
 
     value(0; " ") { Caption = ' '; }

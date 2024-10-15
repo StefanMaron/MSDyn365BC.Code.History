@@ -699,7 +699,7 @@ table 6651 "Return Shipment Line"
 
             if not ExtTextLine then begin
                 IsHandled := false;
-                OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(Rec, PurchLine, IsHandled);
+                OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(Rec, PurchLine, IsHandled, PurchHeader);
                 if not IsHandled then
                     PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
 
@@ -879,7 +879,7 @@ table 6651 "Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var PurchHeader: Record "Purchase Header")
     begin
     end;
 

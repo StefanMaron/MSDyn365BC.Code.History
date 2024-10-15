@@ -170,10 +170,10 @@ report 117 Reminder
                 column(PostingDateCaption; PostingDateCaptionLbl)
                 {
                 }
-                column(ReminderHeaderNoCaption; ReminderHeaderNoCaptionLbl)
+                column(ReminderHeaderNoCaption; ReminderNoCaptionLbl)
                 {
                 }
-                column(BankAccountNoCaption; BankAccountNoCaptionLbl)
+                column(BankAccountNoCaption; BankAccNoCaptionLbl)
                 {
                 }
                 column(BankNameCaption; BankNameCaptionLbl)
@@ -875,8 +875,8 @@ report 117 Reminder
         ShowNotDueAmounts: Boolean;
         TextPageLbl: Label 'Page';
         PostingDateCaptionLbl: Label 'Posting Date';
-        ReminderHeaderNoCaptionLbl: Label 'Reminder No.';
-        BankAccountNoCaptionLbl: Label 'Account No.';
+        ReminderNoCaptionLbl: Label 'Reminder No.';
+        BankAccNoCaptionLbl: Label 'Account No.';
         BankNameCaptionLbl: Label 'Bank';
         GiroNoCaptionLbl: Label 'Giro No.';
         PhoneNoCaptionLbl: Label 'Phone No.';

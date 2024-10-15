@@ -371,6 +371,47 @@ codeunit 134370 "ERM No. Series Tests"
         Customer.Find(); // refresh in case there is any onclosepage logic
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TheLastNoUsedCanBeUpdatedWhenAllowGapsInNosYes()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesLines: TestPage "No. Series Lines";
+        LastNoUsed: Code[20];
+        NewLastNoUsed: Code[20];
+    begin
+        // [SCENARIO 428940] The "Last No. Used" can be updated when "Allow Gaps in Nos." = Yes
+        Initialize();
+
+        // [GIVEN] Created No Series with "Allow Gaps in Nos." = true and "Last No. Used" = '1000023'
+        CreateNewNumberSeries('TEST', 10, FALSE, NoSeriesLine);
+        NoSeriesLine."Starting No." := '1000001';
+        LastNoUsed := '1000023';
+        NoSeriesLine."Last No. Used" := LastNoUsed;
+        NoSeriesLine.Validate("Allow Gaps in Nos.", true);
+
+        // [GIVEN] Open page 457 "No. Series Lines"
+        NoSeriesLines.OpenEdit();
+        NoSeriesLines.Filter.SetFilter("Series Code", NoSeriesLine."Series Code");
+        NoSeriesLines.Filter.SetFilter("Line No.", Format(NoSeriesLine."Line No."));
+        NoSeriesLines.First();
+
+        // [GIVEN] "Last No. Used" is changed to '1000025'
+        NewLastNoUsed := '1000025';
+        NoSeriesLines."Last No. Used".SetValue(NewLastNoUsed);
+        // [WHEN] Move focus to new line and return it back
+        NoSeriesLines.New();
+        NoSeriesLines.First();
+        // [THEN] "Last No. Used" = '1000025' in the page
+        NoSeriesLines."Last No. Used".AssertEquals(NewLastNoUsed);
+        NoSeriesLines.OK().Invoke();
+
+        // [THEN] "Last No. Used" is empty in the table
+        NoSeriesLine.Find();
+        NoSeriesLine.TestField("Last No. Used", '');
+    end;
+
     local procedure CreateNewNumberSeries(NewName: Code[20]; IncrementBy: Integer; AllowGaps: Boolean; var NoSeriesLine: Record "No. Series Line")
     var
         NoSeries: Record "No. Series";

@@ -11,7 +11,14 @@ codeunit 5057 "VendCont-Update"
         VendContactUpdateTelemetryMsg: Label 'Contact does not exist. The contact business relation which points to it has been deleted', Locked = true;
 
     procedure OnInsert(var Vend: Record Vendor)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Vend, IsHandled);
+        if IsHandled then
+            exit;
+
         RMSetup.Get();
         if RMSetup."Bus. Rel. Code for Vendors" = '' then
             exit;
@@ -133,6 +140,7 @@ codeunit 5057 "VendCont-Update"
             "Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
             "Link to Table" := "Link to Table"::Vendor;
             "No." := Vend."No.";
+            OnInsertNewContactOnBeforeContBusRelInsert(ContBusRel, Cont, Vend);
             Insert(true);
         end;
     end;
@@ -217,6 +225,11 @@ codeunit 5057 "VendCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertNewContactPersonOnBeforeContactInsert(var Contact: Record Contact; Vendor: Record Vendor)
     begin
     end;
@@ -228,6 +241,11 @@ codeunit 5057 "VendCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean; Vendor: Record Vendor; MarketingSetup: Record "Marketing Setup"; LocalCall: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewContactOnBeforeContBusRelInsert(var ContactBusinessRelation: Record "Contact Business Relation"; Contact: Record Contact; Vendor: Record Vendor)
     begin
     end;
 

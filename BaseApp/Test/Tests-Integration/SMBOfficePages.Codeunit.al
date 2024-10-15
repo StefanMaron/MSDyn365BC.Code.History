@@ -1909,6 +1909,7 @@ codeunit 139048 "SMB Office Pages"
     [Scope('OnPrem')]
     procedure ContactDetailsDlgHandler(var OfficeContactDetailsDlg: TestPage "Office Contact Details Dlg")
     begin
+        OfficeContactDetailsDlg."Associate to Company".SetValue(false);
         OfficeContactDetailsDlg.OK.Invoke;
     end;
 

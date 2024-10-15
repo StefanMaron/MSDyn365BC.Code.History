@@ -1,4 +1,4 @@
-table 1001 "Job Task"
+﻿table 1001 "Job Task"
 {
     Caption = 'Job Task';
     DrillDownPageID = "Job Task Lines";
@@ -546,7 +546,7 @@ table 1001 "Job Task"
     var
         JobTask2: Record "Job Task";
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, JobTask2);
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if JobTask2.Get("Job No.", "Job Task No.") then begin
@@ -595,7 +595,7 @@ table 1001 "Job Task"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; JobTask2: Record "Job Task")
     begin
     end;
 

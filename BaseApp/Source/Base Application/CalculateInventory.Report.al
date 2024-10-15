@@ -1,4 +1,4 @@
-report 790 "Calculate Inventory"
+﻿report 790 "Calculate Inventory"
 {
     Caption = 'Calculate Inventory';
     ProcessingOnly = true;
@@ -284,6 +284,8 @@ report 790 "Calculate Inventory"
 
     trigger OnPreReport()
     begin
+        OnBeforeOnPreReport(ItemJnlLine, PostingDate);
+
         if SkipDim then
             ColumnDim := ''
         else
@@ -340,7 +342,9 @@ report 790 "Calculate Inventory"
 
     local procedure ValidatePostingDate()
     begin
-        ItemJnlBatch.Get(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+        if not ItemJnlBatch.Get(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name") then
+            exit;
+
         if ItemJnlBatch."No. Series" = '' then
             NextDocNo := ''
         else begin
@@ -394,6 +398,7 @@ report 790 "Calculate Inventory"
                     Validate("Item No.", ItemNo);
                     Validate("Variant Code", VariantCode2);
                     Validate("Location Code", Location.Code);
+                    OnInsertItemJnlLineOnAfterValidateLocationCode(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ItemJnlLine);
                     if not NoBinExist then
                         Validate("Bin Code", BinCode2)
                     else
@@ -445,6 +450,7 @@ report 790 "Calculate Inventory"
                                 "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
                                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID",
                                   "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+                                OnInsertItemJnlLineOnAfterUpdateDimensionSetID(ItemJnlLine);
                                 Modify;
                             until TempDimBufOut.Next() = 0;
                             TempDimBufOut.DeleteAll();
@@ -584,6 +590,7 @@ report 790 "Calculate Inventory"
             WhseEntry.SetRange("Item No.", "Item No.");
             WhseEntry.SetRange("Location Code", "Location Code");
             WhseEntry.SetRange("Variant Code", "Variant Code");
+            OnCalcWhseQtyOnAfterWhseEntrySetFilters(WhseEntry);
             WhseEntry.CalcSums("Qty. (Base)");
             WhseQuantity := WhseEntry."Qty. (Base)";
             WhseEntry.SetRange("Bin Code", AdjmtBin);
@@ -819,6 +826,7 @@ report 790 "Calculate Inventory"
 
         with QuantityOnHandBuffer do begin
             Reset;
+            OnCalcPhysInvQtyAndInsertItemJnlLineOnBeforeFindset(QuantityOnHandBuffer);
             if FindSet() then begin
                 repeat
                     PosQty := 0;
@@ -936,6 +944,11 @@ report 790 "Calculate Inventory"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJnlLineOnAfterValidateLocationCode(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeItemOnAfterGetRecord(var Item: Record Item)
     begin
@@ -972,12 +985,27 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcPhysInvQtyAndInsertItemJnlLineOnBeforeFindset(var InventoryBuffer: Record "Inventory Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcWhseQtyOnAfterLotRequiredWhseEntryClearFilters(var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcWhseQtyOnAfterLotRequiredWhseEntrySetFilters(var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcWhseQtyOnAfterWhseEntrySetFilters(var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJnlLineOnAfterUpdateDimensionSetID(var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
@@ -1003,6 +1031,11 @@ report 790 "Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateBufferOnBeforeModify(var InventoryBuffer: Record "Inventory Buffer"; CalledFromItemLedgerEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var ItemJournalLine: Record "Item Journal Line"; var PostingDate: Date)
     begin
     end;
 }
