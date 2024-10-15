@@ -17,6 +17,8 @@ permissionset 30100 "Shpfy - Read"
         tabledata "Shpfy Customer Address" = R,
         tabledata "Shpfy Customer Template" = R,
         tabledata "Shpfy Data Capture" = R,
+        tabledata "Shpfy FulFillment Order Header" = R,
+        tabledata "Shpfy FulFillment Order Line" = R,
         tabledata "Shpfy Gift Card" = R,
         tabledata "Shpfy Initial Import Line" = r,
         tabledata "Shpfy Inventory Item" = R,
