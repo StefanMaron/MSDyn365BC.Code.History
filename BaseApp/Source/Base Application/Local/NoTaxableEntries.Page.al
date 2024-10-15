@@ -92,6 +92,11 @@ page 10740 "No Taxable Entries"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                field(Closed; Closed)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the No Taxable entry has been closed by the Calc. and Post VAT Settlement batch job.';
+                }
                 field(Reversed; Reversed)
                 {
                     ApplicationArea = Basic, Suite;

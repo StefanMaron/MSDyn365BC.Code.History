@@ -2432,7 +2432,7 @@
                     TestField("Posting No. Series");
                 end;
                 if ("No. Series" <> "Posting No. Series") or
-                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order", "Document Type"::"Credit Memo"])
+                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
                 then begin
                     if not PreviewMode then begin
                         "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
@@ -2853,8 +2853,8 @@
                         TempSalesLine.SetFilter("Prepayment %", '<>0');
                         if TempSalesLine.FindSet() then
                             repeat
-                                    DecrementPrepmtAmtInvLCY(
-                                      TempSalesLine, TempSalesLine."Prepmt. Amount Inv. (LCY)", TempSalesLine."Prepmt. VAT Amount Inv. (LCY)");
+                                DecrementPrepmtAmtInvLCY(
+                                  TempSalesLine, TempSalesLine."Prepmt. Amount Inv. (LCY)", TempSalesLine."Prepmt. VAT Amount Inv. (LCY)");
                                 TempSalesLine.Modify();
                             until TempSalesLine.Next() = 0;
                         if ("Document Type" = "Document Type"::Order) and SalesSetup."Archive Orders" then begin
@@ -6554,10 +6554,18 @@
         end;
 
         if SalesHeader.IsCreditDocType() then begin
-            if (SalesHeader."Ship-to Country/Region Code" <> '') then
-                exit(SalesHeader."Ship-to Country/Region Code")
-            else
-                exit(SalesHeader."Sell-to Country/Region Code");
+            if not SalesHeader.Receive then begin
+                if (SalesHeader."Ship-to Country/Region Code" <> '') then
+                    exit(SalesHeader."Ship-to Country/Region Code")
+                else
+                    exit(SalesHeader."Sell-to Country/Region Code");
+            end else begin
+                if (SalesHeader."Ship-to Country/Region Code" = '') and (SalesHeader."Rcvd-from Country/Region Code" = '') then
+                    exit(SalesHeader."Sell-to Country/Region Code");
+                if SalesHeader."Rcvd-from Country/Region Code" <> '' then
+                    exit(SalesHeader."Rcvd-from Country/Region Code");
+                exit(SalesHeader."Ship-to Country/Region Code");
+            end;
         end else begin
             CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
 
@@ -8738,6 +8746,10 @@
             SalesHeader."VAT Reporting Date" := GLSetup.GetVATDate(SalesHeader."Posting Date", SalesHeader."Document Date");
             SalesHeader.Modify();
         end;
+
+        // VAT only checked on Invoice
+        if SalesHeader.Receive or SalesHeader.Ship then
+            exit;
 
         // check whether VAT Date is within allowed VAT Periods
         GenJnlCheckLine.CheckVATDateAllowed(SalesHeader."VAT Reporting Date");

@@ -1012,16 +1012,19 @@ codeunit 10740 "No Taxable Mgt."
     end;
 
 #if not CLEAN23
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     local procedure GetNormalNoTaxableVATPostingSetupNotificationId(): Guid
     begin
         exit('eac17a6e-1739-4ea1-b4a9-4a1c5e034f63');
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     local procedure GetNormalNoTaxableVATPostingSetupRoleCenterNotificationId(): Guid
     begin
         exit('8882cee6-57a5-4cf9-8282-d20137feddf3');
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     procedure OpenVATPostingSetupPage(Notification: Notification)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1033,6 +1036,7 @@ codeunit 10740 "No Taxable Mgt."
         VATPostingSetupPage.RunModal();
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     procedure CheckVATPostingSetupOnPage()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1054,6 +1058,7 @@ codeunit 10740 "No Taxable Mgt."
         end;
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Role Center Notification Mgt.", 'OnIsRunningPreview', '', false, false)]
     local procedure CheckVATPostingSetupOnRoleCenter()
     var
@@ -1077,6 +1082,7 @@ codeunit 10740 "No Taxable Mgt."
         end;
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     procedure DisableNotificationPage(Notification: Notification)
     var
         MyNotifications: Record "My Notifications";
@@ -1086,6 +1092,7 @@ codeunit 10740 "No Taxable Mgt."
                 MyNotifications.InsertDefault(Notification.Id, VATSetupPageNotificationTxt, VATSetupPageNotificationTxt, false);
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     procedure DisableNotificationRoleCenter(Notification: Notification)
     var
         MyNotifications: Record "My Notifications";
@@ -1095,6 +1102,7 @@ codeunit 10740 "No Taxable Mgt."
                 MyNotifications.InsertDefault(Notification.Id, VATSetupRoleCenterNotificationTxt, VATSetupRoleCenterNotificationTxt, false);
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterTestPurchLine', '', false, false)]
     local procedure TestPurchLineOnPurchPost(PurchLine: Record "Purchase Line")
     var
@@ -1105,6 +1113,7 @@ codeunit 10740 "No Taxable Mgt."
             VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterTestSalesLine', '', false, false)]
     local procedure TestSalesLineOnSalesPost(SalesLine: Record "Sales Line")
     var
@@ -1115,6 +1124,7 @@ codeunit 10740 "No Taxable Mgt."
             VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
     end;
 
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnTestMandatoryFieldsOnBeforePassedServLineFind', '', false, false)]
     local procedure TestServiceLineOnServicePost(var ServiceLine: Record "Service Line")
     var
@@ -1128,7 +1138,7 @@ codeunit 10740 "No Taxable Mgt."
             until ServiceLine.Next() = 0;
     end;
 
-
+    [Obsolete('To be removed after VAT Posting Setup is corrected.', '23.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
     local procedure TestGenJnlLineOnGenJnlPost(var GenJournalLine: Record "Gen. Journal Line")
     var

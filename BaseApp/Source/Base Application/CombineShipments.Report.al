@@ -43,7 +43,12 @@
                             if ("Bill-to Customer No." <> Cust."No.") and
                                ("Sell-to Customer No." <> '')
                             then
-                                Cust.Get("Bill-to Customer No.");
+                                if "Bill-to Customer No." <> '' then
+                                    Cust.Get("Bill-to Customer No.")
+                                else
+                                    if "Sell-to Customer No." <> '' then
+                                        Cust.Get("Sell-to Customer No.");
+
                             if not (Cust.Blocked in [Cust.Blocked::All, Cust.Blocked::Invoice]) then begin
                                 if ShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, "Sales Shipment Line") then begin
                                     if SalesHeader."No." <> '' then

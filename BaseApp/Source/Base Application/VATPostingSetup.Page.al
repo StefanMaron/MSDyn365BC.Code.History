@@ -227,8 +227,9 @@ page 472 "VAT Posting Setup"
         SetAccountsVisibility(UnrealizedVATVisible, AdjustForPmtDiscVisible);
 #if not CLEAN23
         NoTaxableMgt.CheckVATPostingSetupOnPage();
+#endif        
     end;
-#endif
+
 
     var
         CopyVATPostingSetup: Report "Copy - VAT Posting Setup";
