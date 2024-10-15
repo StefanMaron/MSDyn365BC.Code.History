@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using System.Reflection;
+
 table 8451 "Intrastat Checklist Setup"
 {
     Caption = 'Intrastat Checklist Setup';
@@ -5,7 +13,7 @@ table 8451 "Intrastat Checklist Setup"
     ObsoleteTag = '22.0';
     ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
     ReplicateData = false;
-    
+
     fields
     {
         field(1; "Field No."; Integer)

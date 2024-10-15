@@ -1,7 +1,25 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.CashFlow.Account;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Text;
+using System.Utilities;
+
 report 27 "Dimensions - Total"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FinancialMgt/Dimensions/DimensionsTotal.rdlc';
+    AllowScheduling = false;
     ApplicationArea = Dimensions;
     Caption = 'Dimensions - Total';
     UsageCategory = ReportsAndAnalysis;
@@ -10,7 +28,7 @@ report 27 "Dimensions - Total"
     {
         dataitem("Analysis View"; "Analysis View")
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             column(ViewLastUpdatedText; ViewLastUpdatedText)
             {
             }
@@ -111,7 +129,7 @@ report 27 "Dimensions - Total"
             }
             dataitem(Level1; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 column(ColumnValuesAsText_5_1_; ColumnValuesAsText[5, 1])
                 {
                     AutoCalcField = false;
@@ -184,7 +202,7 @@ report 27 "Dimensions - Total"
                 }
                 dataitem(Level2; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     column(ColumnValuesAsText_5_2_; ColumnValuesAsText[5, 2])
                     {
                         AutoCalcField = false;
@@ -257,7 +275,7 @@ report 27 "Dimensions - Total"
                     }
                     dataitem(Level3; "Integer")
                     {
-                        DataItemTableView = SORTING(Number);
+                        DataItemTableView = sorting(Number);
                         column(ColumnValuesAsText_5_3_; ColumnValuesAsText[5, 3])
                         {
                             AutoCalcField = false;
@@ -330,7 +348,7 @@ report 27 "Dimensions - Total"
                         }
                         dataitem(Level4; "Integer")
                         {
-                            DataItemTableView = SORTING(Number);
+                            DataItemTableView = sorting(Number);
                             column(DimCode_4_; DimCode[4])
                             {
                             }
@@ -408,7 +426,7 @@ report 27 "Dimensions - Total"
                         }
                         dataitem(Level3e; "Integer")
                         {
-                            DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                            DataItemTableView = sorting(Number) where(Number = const(1));
                             column(PADSTR____DimValNameIndent_3____2____DimValName_3__Control78; PadStr('', DimValNameIndent[3] * 2) + DimValName[3])
                             {
                             }
@@ -458,7 +476,7 @@ report 27 "Dimensions - Total"
                     }
                     dataitem(Level2e; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                        DataItemTableView = sorting(Number) where(Number = const(1));
                         column(PADSTR____DimValNameIndent_2____2____DimValName_2__Control80; PadStr('', DimValNameIndent[2] * 2) + DimValName[2])
                         {
                         }
@@ -508,7 +526,7 @@ report 27 "Dimensions - Total"
                 }
                 dataitem(Level1e; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     column(PADSTR____DimValNameIndent_1____2____DimValName_1__Control81; PadStr('', DimValNameIndent[1] * 2) + DimValName[1])
                     {
                     }
@@ -892,7 +910,6 @@ report 27 "Dimensions - Total"
         AccountSource: Option "G/L Account","Cash Flow Account";
         CalledGetAccountSource: Boolean;
         CashFlowForecastNo: Code[10];
-        [InDataSet]
         CashFlowEditable: Boolean;
 
         Text000: Label 'Enter an analysis view code.';

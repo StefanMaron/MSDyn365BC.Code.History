@@ -1,3 +1,7 @@
+namespace System.Test.Tooling;
+
+using Microsoft.Finance.GeneralLedger.Account;
+
 codeunit 149109 "BCPT Open Chart of Accounts"
 {
     // Test codeunits can only run in foreground (UI)

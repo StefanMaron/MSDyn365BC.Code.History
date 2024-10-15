@@ -1,4 +1,4 @@
-codeunit 139155 "PEPPOL Management Tests"
+﻿codeunit 139155 "PEPPOL Management Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -193,6 +193,7 @@ codeunit 139155 "PEPPOL Management Tests"
     [Scope('OnPrem')]
     procedure GetAdditionalDocRefInfo()
     var
+        SalesHeader: Record "Sales Header";
         PEPPOLMgt: Codeunit "PEPPOL Management";
         AdditionalDocumentReferenceID: Text;
         AdditionalDocRefDocumentType: Text;
@@ -205,7 +206,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
         // Exercise
         PEPPOLMgt.GetAdditionalDocRefInfo(
-          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject);
+          SalesHeader, AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, 0);
 
         // Verify
         Assert.AreEqual('', AdditionalDocumentReferenceID, '');

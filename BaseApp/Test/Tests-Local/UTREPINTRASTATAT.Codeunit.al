@@ -1,7 +1,13 @@
+#if not CLEAN22
 codeunit 142037 "UT REP INTRASTAT AT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     trigger OnRun()
     begin
@@ -71,59 +77,6 @@ codeunit 142037 "UT REP INTRASTAT AT"
 
         // Verify : Verify LCY Code of General Ledger Setup is updated on Intrastat Checklist AT report.
         VerifyIntrastatChecklistATReport(StrSubstNo(HeaderText, GeneralLedgerSetup."LCY Code"));
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatFormATRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatFormATOnAfterGetRecordSupplementaryUnitsError()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Item: Record Item;
-    begin
-        // Purpose of the test is to validate function - OnAfterGetRecord of Report - Intrastat - Form AT.
-
-        // Setup: Create Item with Tariff Number.
-        CreateItemWithTariffNumber(Item);
-
-        // Create Intrastat Journal Line with Transaction specification and Supplementary Units - TRUE.
-        CreateIntrastatJournalLine(IntrastatJnlLine, Item, LibraryUTUtility.GetNewCode10, IntrastatJnlLine.Type::Receipt);
-        UpdateIntrastatJnlLineTransactionSpecification(IntrastatJnlLine, '10000');  // Transaction specification should be of 5 digits.
-        IntrastatJnlLine."Supplementary Units" := true;
-        IntrastatJnlLine."Total Weight" := 10;
-        IntrastatJnlLine.Modify();
-
-        // Exercise: Run Report Intrastat - Checklist AT.
-        asserterror REPORT.Run(REPORT::"Intrastat - Form AT");
-
-        // Verify: Verify Error, Intrastat Journal Line must have Quantity, when Supplementory Units is True on it.
-        Assert.ExpectedError('Quantity must have a value in Intrastat Jnl. Line');
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatChecklistATShipmentRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatChecklistATWithShipmentFilter()
-    var
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // Purpose of the test is to verify report Intrastat - Checklist AT with Shipment filter.
-
-        // Setup.
-        CreateItemWithTariffNumber(Item);
-
-        // Create Intrastat Journal Line with Transaction specification and Transport Method.
-        CreateIntrastatJournalLine(IntrastatJnlLine, Item, LibraryUTUtility.GetNewCode10, IntrastatJnlLine.Type::Shipment);
-        UpdateIntrastatJnlLineTransactionSpecification(IntrastatJnlLine, '10000');  // Transaction specification should be of 5 digits.
-
-        // Exercise: Run Report Intrastat - Form AT.
-        REPORT.Run(REPORT::"Intrastat - Checklist AT");
-
-        // Verify: Verify Intrastat Checklist AT report is running successfully with Shipment Type.
-        VerifyIntrastatChecklistATReportForShipment('Intrastat_Jnl__Line_Type', Format(IntrastatJnlLine.Type::Shipment));
     end;
 
     local procedure CreateItemWithTariffNumber(var Item: Record Item)
@@ -231,4 +184,4 @@ codeunit 142037 "UT REP INTRASTAT AT"
         IntrastatChecklistAT.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

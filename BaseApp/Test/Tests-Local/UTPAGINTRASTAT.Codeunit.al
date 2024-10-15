@@ -1,7 +1,13 @@
+#if not CLEAN22
 codeunit 142035 "UT PAG INTRASTAT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     trigger OnRun()
     begin
@@ -358,4 +364,4 @@ codeunit 142035 "UT PAG INTRASTAT"
         IntrastatDiskTaxAuthDE.Cancel.Invoke;
     end;
 }
-
+#endif

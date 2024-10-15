@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 enum 5970 "Service Contract Change Type"
 {
     Extensible = true;

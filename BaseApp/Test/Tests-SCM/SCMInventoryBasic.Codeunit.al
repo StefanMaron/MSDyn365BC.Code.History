@@ -21,7 +21,6 @@ codeunit 137280 "SCM Inventory Basic"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -57,6 +56,7 @@ codeunit 137280 "SCM Inventory Basic"
         ControlVisibilityErr: Label 'Control visibility should be %1';
         UnspecifiedLocationTxt: Label 'UNSPECIFIED';
         IsNotFoundOnThePageTxt: Label 'is not found on the page';
+        UnexpectedValueErr: Label 'Unexpected value of field %1 in table %2', Comment = '%1: Field name, %2: Table name';
 
     [Test]
     [HandlerFunctions('ItemCreationMessageHandler')]
@@ -73,7 +73,7 @@ codeunit 137280 "SCM Inventory Basic"
         CreateNonStockItem(NonstockItem);
         GlobalItemNo := NonstockItem."Vendor Item No."; // Assign to global variable.
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, PurchaseLine.Type::Item, NonstockItem."Vendor Item No.",
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor(), PurchaseLine.Type::Item, NonstockItem."Vendor Item No.",
           LibraryRandom.RandInt(100)); // Take Random Quantity
 
         // Exercise.
@@ -97,7 +97,9 @@ codeunit 137280 "SCM Inventory Basic"
         // Setup. Create Item and Purchase Order.
         Initialize();
         LibraryInventory.CreateItem(Item);
+#pragma warning disable AA0139 // Length of the text returned by GenerateRandomText is limited by the argument value
         Item."Vendor Item No." := LibraryUtility.GenerateRandomText(MaxStrLen(Item."Vendor Item No."));
+#pragma warning restore
         Item.Modify();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -108,7 +110,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Receipt is succesfully posted
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        Assert.IsTrue(PurchRcptHeader.FindFirst, 'Receipt not found');
+        Assert.IsTrue(PurchRcptHeader.FindFirst(), 'Receipt not found');
     end;
 
     [Test]
@@ -125,7 +127,9 @@ codeunit 137280 "SCM Inventory Basic"
         // Setup. Create Item and Purchase Order.
         Initialize();
         LibraryInventory.CreateItem(Item);
+#pragma warning disable AA0139 // Length of the text returned by GenerateRandomText is limited by the argument value
         Item."Vendor Item No." := LibraryUtility.GenerateRandomText(MaxStrLen(Item."Vendor Item No."));
+#pragma warning restore
         Item.Modify();
 
         LibrarySales.CreateSalesDocumentWithItem(
@@ -136,7 +140,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Receipt is succesfully posted
         SalesShptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        Assert.IsTrue(SalesShptHeader.FindFirst, 'Shipment not found');
+        Assert.IsTrue(SalesShptHeader.FindFirst(), 'Shipment not found');
     end;
 
     [Test]
@@ -174,7 +178,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Creation of Item Template with Item category code & Indirect cost% value in the record.
-        ItemTemplate.SetRange(Code, SelectItemTemplateCode);
+        ItemTemplate.SetRange(Code, SelectItemTemplateCode());
         ItemTemplate.FindFirst();
         ItemTemplate.Validate("Item Category Code", '');
         ItemTemplate.Validate("Indirect Cost %", 0);
@@ -200,12 +204,12 @@ codeunit 137280 "SCM Inventory Basic"
         // Setup: Create Item with Item Tracking Code, Create a Purchase Order, Sales Order, Purchase Credit Memo.
         Initialize();
         LibraryInventory.CreateTrackedItem(
-          Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode,
+          Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(),
           CreateItemTrackingCode(LotSpecific, SerialSpecific));
 
         // Post Purchase Order as Receive.
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, PurchaseLine.Type::Item, Item."No.", Quantity);
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor(), PurchaseLine.Type::Item, Item."No.", Quantity);
         GlobalPurchasedQuantity := PurchaseLine.Quantity; // Assign global variable.
         GlobalItemTracking := TrackingOption;
         PurchaseLine.OpenItemTrackingLines();
@@ -213,14 +217,14 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Post Sales Order.
         CreateSalesDocument(
-          SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::Item, Item."No.", GlobalPurchasedQuantity);
+          SalesLine, SalesLine."Document Type"::Order, CreateCustomer(), SalesLine.Type::Item, Item."No.", GlobalPurchasedQuantity);
         GlobalItemTracking := GlobalItemTracking::SelectEntries;
         SalesLine.OpenItemTrackingLines();
         PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
 
         // Post Sales Credit Memo.
         CreateSalesDocument(
-          SalesLine2, SalesLine2."Document Type"::"Credit Memo", CreateCustomer, SalesLine2.Type::Item, Item."No.", GlobalPurchasedQuantity);
+          SalesLine2, SalesLine2."Document Type"::"Credit Memo", CreateCustomer(), SalesLine2.Type::Item, Item."No.", GlobalPurchasedQuantity);
         GlobalItemTracking := GlobalItemTracking::SetValue;
         SalesLine2.OpenItemTrackingLines();
         PostSalesOrder(SalesLine2."Document Type", SalesLine2."Document No.", true);
@@ -230,7 +234,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Create Purchase Credit Memo and apply to the initial Purchase Item Ledger Entry.
         CreatePurchaseDocument(
-          PurchaseLine2, PurchaseLine2."Document Type"::"Credit Memo", CreateVendor, PurchaseLine2.Type::Item, Item."No.",
+          PurchaseLine2, PurchaseLine2."Document Type"::"Credit Memo", CreateVendor(), PurchaseLine2.Type::Item, Item."No.",
           PurchaseLine.Quantity);
         GlobalApplToItemEntry := FindItemLedgerEntry(DocumentNo); // Assign to global variable.
         GlobalItemTracking := GlobalItemTracking::SelectEntries;
@@ -241,7 +245,7 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Test]
-    [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,PurchReceiptLinePageHandler,ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandler')]
+    [HandlerFunctions('ItemChargeAssignmentPurchGetRcptPageHandler,PurchReceiptLinePageHandler,ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure ItemStatisticsMatrixForPurchaseEntry()
     var
@@ -255,13 +259,13 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Setup.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         GlobalAmount := LibraryRandom.RandDec(1000, 1);  // Using Random value in global variable to verify Total Amount in ItemStatisticsMatrix Page.
         ItemCharge.FindFirst();
 
         // Create 1st Purchase Order for Item and Post as Receive.
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, VendorNo, PurchaseLine.Type::Item, CreateItem,
+          PurchaseLine, PurchaseLine."Document Type"::Order, VendorNo, PurchaseLine.Type::Item, CreateItem(),
           LibraryRandom.RandDec(100, 1));  // Using Random value for Quantity.
         GlobalDocumentNo := PostPurchaseOrder(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", false);
 
@@ -295,13 +299,13 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Setup.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         GlobalAmount := LibraryRandom.RandDec(1000, 1);  // Using Ranom value in global variable to verify Total Amount in ItemStatisticsMatrix Page.
         ItemCharge.FindFirst();
 
         // Create 1st Sales Order for Item and Post as Ship.
         CreateSalesDocument(
-          SalesLine, SalesLine."Document Type"::Order, CustomerNo, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(100, 1));  // Using Random value for Quantity.
+          SalesLine, SalesLine."Document Type"::Order, CustomerNo, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(100, 1));  // Using Random value for Quantity.
         GlobalDocumentNo := PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", false);
 
         // Create 2nd Sales Order for Charge Item, Assign Item Charge.
@@ -407,7 +411,7 @@ codeunit 137280 "SCM Inventory Basic"
         end;
 
         // Exercise: Open Items by Location page to open the Matrix.
-        ItemsByLocation.OpenView;
+        ItemsByLocation.OpenView();
         ItemsByLocation.ShowInTransit.SetValue(InTransit);
         ItemsByLocation.MatrixForm.FILTER.SetFilter("No.", GlobalItemNo);
 
@@ -443,7 +447,7 @@ codeunit 137280 "SCM Inventory Basic"
             until Location.Next() = 0;
 
         // Exercise: Open Items by Location page to open the Matrix and filter to the newly created item.
-        ItemsByLocation.OpenView;
+        ItemsByLocation.OpenView();
         ItemsByLocation.ShowInTransit.SetValue(false);
         ItemsByLocation.MatrixForm.FILTER.SetFilter("No.", ItemNo);
 
@@ -734,9 +738,9 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryWarehouse.PostTransferOrder(TransferHeader, Ship, Receive);
 
         // Exercise: Open Availability by Period Page from Item Card.
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.FILTER.SetFilter("No.", ItemJournalLine."Item No.");
-        ItemCard.Period.Invoke;
+        ItemCard.Period.Invoke();
 
         // Verify: Verify Projected Available Balance on Item Availability by Period window using ItemAvailabilityByPeriodsPageHandler.
     end;
@@ -753,8 +757,8 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Setup: Create Item Journal Line with Item Tracking Code, Create and post a Sales Order.
         Initialize();
-        ItemNo := CreateAndPostItemJnlLineWithtemTracking;
-        CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", CreateCustomer, SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
+        ItemNo := CreateAndPostItemJnlLineWithtemTracking();
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", CreateCustomer(), SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
         UpdateSalesLineUnitPrice(SalesLine, LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
         SalesLine.OpenItemTrackingLines();
         PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
@@ -777,7 +781,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Setup: Create and post Item Journal Line with Item Tracking.
         Initialize();
-        ItemNo := CreateAndPostItemJnlLineWithtemTracking;
+        ItemNo := CreateAndPostItemJnlLineWithtemTracking();
 
         // Exercise: Run Adjust Cost Item Entries.
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
@@ -798,8 +802,8 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Setup: Create and post Item Journal Line and Sales Order with Item Tracking.
         Initialize();
-        ItemNo := CreateAndPostItemJnlLineWithtemTracking;
-        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
+        ItemNo := CreateAndPostItemJnlLineWithtemTracking();
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomer(), SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
         SalesLine.OpenItemTrackingLines();
 
         // Exercise.
@@ -824,7 +828,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Setup: Create Item, setup create Item Journal Line and run Adjustment.
         Initialize();
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         Quantity := LibraryRandom.RandInt(100);  // Taking Random value for Quantity.
         SelectAndClearItemJournalBatch(ItemJournalBatch);
         CreateAndModifyItemJournalLine(
@@ -895,7 +899,7 @@ codeunit 137280 "SCM Inventory Basic"
         Item.Init();
         Item.Insert(true);
 
-        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
+        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode();
         UnitOfMeasure.Init();
         UnitOfMeasure.Code := NewUnitOfMeasureCode;
         UnitOfMeasure.Insert();
@@ -1083,7 +1087,7 @@ codeunit 137280 "SCM Inventory Basic"
         Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
         Item.Modify();
 
-        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
+        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode();
         Commit();
 
         // Exercise: rename unit of measure assigned to Item (and Item Unit of Measure)
@@ -1102,7 +1106,7 @@ codeunit 137280 "SCM Inventory Basic"
         FirstUnitOfMeasure: Record "Unit of Measure";
         SecondUnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
-        QtyRoudingPercisionErr: Label 'Qty. Rounding Precision for Base Unit of Measure %1 should be %2. Current: ';
+        QtyRoudingPercisionErr: Label 'Qty. Rounding Precision for Base Unit of Measure is incorrect';
     begin
         //Change Base UoM should reset Qty. Rounding Percion
         Initialize();
@@ -1129,7 +1133,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         //Old Base UoM should have the default Qty. Rounding Percision
         ItemUnitOfMeasure.Get(Item."No.", FirstUnitOfMeasure.Code);
-        Assert.AreEqual(ItemUnitOfMeasure."Qty. Rounding Precision", 0, StrSubstNo(QtyRoudingPercisionErr, FirstUnitOfMeasure.Code, 0, ItemUnitOfMeasure."Qty. Rounding Precision"));
+        Assert.AreEqual(0, ItemUnitOfMeasure."Qty. Rounding Precision", QtyRoudingPercisionErr);
     end;
 
     [Test]
@@ -1148,7 +1152,7 @@ codeunit 137280 "SCM Inventory Basic"
         Item.Init();
         Item.Insert(true);
 
-        ItemTemplate.SetRange(Code, SelectItemTemplateCode);
+        ItemTemplate.SetRange(Code, SelectItemTemplateCode());
         ItemTemplate.FindFirst();
 
         LibraryVariableStorage.Enqueue(ItemTemplate.Code);
@@ -1200,7 +1204,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Act: Apply templates only to items 1 and 3.
         Item.SetFilter("No.", '1|3');
 
-        ItemTemplate.SetRange(Code, SelectItemTemplateCode);
+        ItemTemplate.SetRange(Code, SelectItemTemplateCode());
         ItemTemplate.FindFirst();
 
         LibraryVariableStorage.Enqueue(ItemTemplate.Code);
@@ -1322,7 +1326,7 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Test]
-    [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,PurchReceiptLinePageHandler,ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandlerForSpecificLine')]
+    [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandlerForSpecificLine')]
     [Scope('OnPrem')]
     procedure ItemStatisticsMatrixForItemChargePostedAsPurchaseCreditMemo()
     var
@@ -1340,8 +1344,8 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Verify: Verify Non-Invtbl. Costs and Profit Amount on Item Statistics Matrix Page Handler.
         VerifyNonInvtblCostsAndProfitOnItemStatistics(
-          PurchaseLine."No.", PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost",
-          PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost");
+            PurchaseLine."No.", PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost",
+            PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost");
     end;
 
     [Test]
@@ -1578,9 +1582,9 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [WHEN] Open Production BOM page from Item Card
         LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard."Production BOM".Invoke;
+        ItemCard."Production BOM".Invoke();
 
         // [THEN] Production BOM page opens with "No." = "B"
         // Verify Production BOM through "ProductionBOMPageHandler"
@@ -1591,8 +1595,8 @@ codeunit 137280 "SCM Inventory Basic"
     procedure VerifyVariantMandatoryDefaultCaption()
     var
         Item: Record Item;
-        ItemCard: TestPage "Item Card";
         InventorySetup: Record "Inventory Setup";
+        ItemCard: TestPage "Item Card";
     begin
         // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
         // [Deliveriable] Inga can make variants mandatory for items globally or on certain items
@@ -1743,9 +1747,9 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [WHEN] Open Production BOM page from Item List
         LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
-        ItemList."Production BOM".Invoke;
+        ItemList."Production BOM".Invoke();
 
         // [THEN] Production BOM page opens with "No." = "B"
         // Verify Production BOM through "ProductionBOMPageHandler"
@@ -1764,8 +1768,8 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Sales Order for Charge (Item) With "Qty. to Invoice" = 0
         CreateSalesDocument(
-          SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesLine."Document Type"::Order, CreateCustomer(), SalesLine.Type::"Charge (Item)",
+          LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Qty. to Invoice", 0);
         SalesLine.Modify();
 
@@ -1794,9 +1798,9 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryVariableStorage.Enqueue(NonstockItem."Entry No.");
 
         // [WHEN] User opens Item Substitution Entry for nonstock item and add new
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard."Substituti&ons".Invoke;
+        ItemCard."Substituti&ons".Invoke();
         ItemCard.Close();
 
         // [THEN] Item Substitution record is created
@@ -1824,9 +1828,9 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryVariableStorage.Enqueue(Item."No.");
 
         // [WHEN] User opens Item Substitution Entry for item and add new
-        NonstockItemCard.OpenEdit;
+        NonstockItemCard.OpenEdit();
         NonstockItemCard.GotoRecord(NonstockItem);
-        NonstockItemCard."Substituti&ons".Invoke;
+        NonstockItemCard."Substituti&ons".Invoke();
         NonstockItemCard.Close();
 
         // [THEN] Item Substitution record is created
@@ -1849,23 +1853,23 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Windows Client is used
         // [WHEN] Page Item List is opened
-        ItemList.OpenView;
-        ItemList."Sales Price Worksheet".Invoke;
+        ItemList.OpenView();
+        ItemList."Sales Price Worksheet".Invoke();
 
         // [THEN] Button to view Sales Price Worksheet page is visible
         Assert.IsTrue(
-          ItemList."Sales Price Worksheet".Visible, StrSubstNo(ControlVisibilityErr, true));
+          ItemList."Sales Price Worksheet".Visible(), StrSubstNo(ControlVisibilityErr, true));
         ItemList.Close();
 
         // [WHEN] Page Item List is opened from Phone
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
-        ItemList.OpenView;
-        ItemList."Sales Price Worksheet".Invoke;
+        ItemList.OpenView();
+        ItemList."Sales Price Worksheet".Invoke();
 
         // [THEN] Button to view Sales Price Worksheet page is not visible
         Assert.IsFalse(
-          ItemList."Sales Price Worksheet".Visible, StrSubstNo(ControlVisibilityErr, false));
+          ItemList."Sales Price Worksheet".Visible(), StrSubstNo(ControlVisibilityErr, false));
     end;
 #endif
 
@@ -1886,11 +1890,11 @@ codeunit 137280 "SCM Inventory Basic"
         // [WHEN] Open Item Turnover Page from Item Card of PL."No.", show postings today, and Drill Down Purchases (Qty.)
         InvokeItemTurnoverFromItemCard(ItemTurnover, PurchaseLine."No.");
         ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        ItemLedgerEntries.Trap;
-        ItemTurnover.ItemTurnoverLines.PurchasesQty.DrillDown;
+        ItemLedgerEntries.Trap();
+        ItemTurnover.ItemTurnoverLines.PurchasesQty.DrillDown();
 
         // [THEN] Item Ledger Entries Page is open and field Quantity on this Page is equal to PL.Quantity
-        PurchaseLine.TestField(Quantity, ItemLedgerEntries.Quantity.AsDEcimal);
+        PurchaseLine.TestField(Quantity, ItemLedgerEntries.Quantity.AsDecimal());
     end;
 
     [Test]
@@ -1910,11 +1914,11 @@ codeunit 137280 "SCM Inventory Basic"
         // [WHEN] Open Item Turnover Page from Item Card of SL."No.", show postings today, and Drill Down Sales (Qty.)
         InvokeItemTurnoverFromItemCard(ItemTurnover, SalesLine."No.");
         ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        ItemLedgerEntries.Trap;
-        ItemTurnover.ItemTurnoverLines.SalesQty.DrillDown;
+        ItemLedgerEntries.Trap();
+        ItemTurnover.ItemTurnoverLines.SalesQty.DrillDown();
 
         // [THEN] Item Ledger Entries Page is open and the value of the field Quantity is -SL.Quantity
-        SalesLine.TestField(Quantity, -ItemLedgerEntries.Quantity.AsDEcimal);
+        SalesLine.TestField(Quantity, -ItemLedgerEntries.Quantity.AsDecimal());
     end;
 
     [Test]
@@ -1934,11 +1938,11 @@ codeunit 137280 "SCM Inventory Basic"
         // [WHEN] Open Item Turnover Page from Item Card of PL."No.", show postings today, and Drill Down Purchases (LCY)
         InvokeItemTurnoverFromItemCard(ItemTurnover, PurchaseLine."No.");
         ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        ValueEntries.Trap;
-        ItemTurnover.ItemTurnoverLines.PurchasesLCY.DrillDown;
+        ValueEntries.Trap();
+        ItemTurnover.ItemTurnoverLines.PurchasesLCY.DrillDown();
 
         // [THEN] Value Entries Page is open and field Purchases (LCY) on this Page is equal to PL.Amount
-        PurchaseLine.TestField(Amount, ValueEntries."Cost Amount (Actual)".AsDEcimal);
+        PurchaseLine.TestField(Amount, ValueEntries."Cost Amount (Actual)".AsDecimal());
     end;
 
     [Test]
@@ -1958,11 +1962,11 @@ codeunit 137280 "SCM Inventory Basic"
         // [WHEN] Open Item Turnover Page from Item Card of SL."No.", show postings today, and Drill Down Sales (LCY)
         InvokeItemTurnoverFromItemCard(ItemTurnover, SalesLine."No.");
         ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        ValueEntries.Trap;
-        ItemTurnover.ItemTurnoverLines.SalesLCY.DrillDown;
+        ValueEntries.Trap();
+        ItemTurnover.ItemTurnoverLines.SalesLCY.DrillDown();
 
         // [THEN] Value Entries Page is open and field Sales (LCY) on this Page is equal to SL.Amount
-        SalesLine.TestField(Amount, ValueEntries."Sales Amount (Actual)".AsDEcimal);
+        SalesLine.TestField(Amount, ValueEntries."Sales Amount (Actual)".AsDecimal());
     end;
 
     [Test]
@@ -2072,12 +2076,12 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryInventory.CreateItem(Item);
 
         // [WHEN] Item Card is opened for Item
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] "VAT Bus. Posting Gr. (Price)" is available on Item Card
-        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled, '"VAT Bus. Posting Gr. (Price)" is not enabled.');
-        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Visible, '"VAT Bus. Posting Gr. (Price)" is not visible.');
+        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled(), '"VAT Bus. Posting Gr. (Price)" is not enabled.');
+        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Visible(), '"VAT Bus. Posting Gr. (Price)" is not visible.');
     end;
 
     [Test]
@@ -2092,18 +2096,18 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize();
 
         // [GIVEN] Advanced Application Area
-        LibraryApplicationArea.EnablAdvancedSetupForCurrentCompany;
+        LibraryApplicationArea.EnablAdvancedSetupForCurrentCompany();
 
         // [GIVEN] Item
         LibraryInventory.CreateItem(Item);
 
         // [WHEN] Item Card is opened for Item
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] "VAT Bus. Posting Gr. (Price)" is available on Item Card
-        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled, '"VAT Bus. Posting Gr. (Price)" is not enabled.');
-        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Visible, '"VAT Bus. Posting Gr. (Price)" is not visible.');
+        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled(), '"VAT Bus. Posting Gr. (Price)" is not enabled.');
+        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Visible(), '"VAT Bus. Posting Gr. (Price)" is not visible.');
     end;
 
     [Test]
@@ -2118,19 +2122,19 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize();
 
         // [GIVEN] Basic Application Area
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN] Item
         LibraryInventory.CreateItem(Item);
 
         // [WHEN] Item Card is opened for Item
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] "VAT Bus. Posting Gr. (Price)" is available on Item Card
-        asserterror Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled, '"VAT Bus. Posting Gr. (Price)" is not enabled.');
+        asserterror Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled(), '"VAT Bus. Posting Gr. (Price)" is not enabled.');
         Assert.ExpectedError(IsNotFoundOnThePageTxt);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2167,13 +2171,18 @@ codeunit 137280 "SCM Inventory Basic"
         CatalogItemManagement: Codeunit "Catalog Item Management";
     begin
         // [FEATURE] [Nonstock Item] [Item Template] [Item]
-        // [SCENARIO 312851] Item Disc. Group is copied from Template to Item, when Item is created from Nonstock Item which has that Template specified
+        // [SCENARIO 312851] "Item Disc. Group", "Include Inventory", and "Critical" fields are copied from Template to Item, when Item is created from Nonstock Item which has that Template specified
         Initialize();
 
         // [GIVEN] Item Template with Item Disc. Group "A"
         LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
         LibraryTemplates.CreateItemTemplateWithData(ItemTemplate);
         ItemTemplate.Validate("Item Disc. Group", ItemDiscountGroup.Code);
+
+        // [GIVEN] Set the reordering policy in the template and enable "Include Inventory" and "Critical"
+        ItemTemplate.Validate("Include Inventory", true);
+        ItemTemplate.Validate(Critical, true);
+        ItemTemplate.Validate("Indirect Cost %", LibraryRandom.RandIntInRange(10, 20));
         ItemTemplate.Modify(true);
 
         // [GIVEN] Nonstock Item with Item Template and Vendor Item No. 2100
@@ -2188,7 +2197,10 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [THEN] Item with No 2100 and Item Disc. Group "A" is created
         Item.Get(NonstockItem."Vendor Item No.");
-        Item.TestField("Item Disc. Group", ItemTemplate."Item Disc. Group");
+        Assert.AreEqual(ItemTemplate."Item Disc. Group", Item."Item Disc. Group", StrSubstNo(UnexpectedValueErr, Item.FieldName("Item Disc. Group"), Item.TableName));
+        Assert.AreEqual(ItemTemplate."Include Inventory", Item."Include Inventory", StrSubstNo(UnexpectedValueErr, Item.FieldName("Include Inventory"), Item.TableName));
+        Assert.AreEqual(ItemTemplate.Critical, Item.Critical, StrSubstNo(UnexpectedValueErr, Item.FieldName(Critical), Item.TableName));
+        Assert.AreEqual(ItemTemplate."Indirect Cost %", Item."Indirect Cost %", StrSubstNo(UnexpectedValueErr, Item.FieldName("Indirect Cost %"), Item.TableName));
     end;
 
     [Test]
@@ -2262,17 +2274,17 @@ codeunit 137280 "SCM Inventory Basic"
         // [GIVEN] Add a line to the sales quote, select nonstock item "NI1".
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         LibraryVariableStorage.Enqueue(NonstockItem[1]."Vendor Item No.");
-        SalesLine.ShowNonstock;
+        SalesLine.ShowNonstock();
 
         // [WHEN] Add another line to the sales quote, select nonstock item "NI2".
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         LibraryVariableStorage.Enqueue(NonstockItem[2]."Vendor Item No.");
-        SalesLine.ShowNonstock;
+        SalesLine.ShowNonstock();
 
         // [THEN] "NI2" is selected on the sales line.
         SalesLine.TestField("No.", NonstockItem[2]."Vendor Item No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2350,7 +2362,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Sales Order created with Sales Line for Item No. 2100
         CreateSalesDocument(
-          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesLine, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
 
         // [GIVEN] The catalog item deleted
@@ -2490,7 +2502,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Basic");
-        ClearGlobals;
+        ClearGlobals();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 
@@ -2572,7 +2584,7 @@ codeunit 137280 "SCM Inventory Basic"
         Item: Record Item;
     begin
         LibraryInventory.CreateTrackedItem(
-          Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, false));
+          Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, false));
         Item.Validate("Costing Method", Item."Costing Method"::Average);
         Item.Modify(true);
         exit(Item."No.");
@@ -2614,7 +2626,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         SelectAndClearItemJournalBatch(ItemJournalBatch);
         CreateItemJnlLineWithTrackedItem(
-          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, CreateAndModifyTrackedItem);
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, CreateAndModifyTrackedItem());
         CreateItemJnlLineWithTrackedItem(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Item No.");
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -2660,7 +2672,7 @@ codeunit 137280 "SCM Inventory Basic"
         NonstockItem.Validate("Vendor No.", Vendor."No.");
         NonstockItem.Validate(
           "Vendor Item No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Vendor Item No."), DATABASE::"Nonstock Item"));
-        NonstockItem.Validate("Item Templ. Code", SelectItemTemplateCode);
+        NonstockItem.Validate("Item Templ. Code", SelectItemTemplateCode());
         NonstockItem.Validate("Unit of Measure", UnitOfMeasure.Code);
         NonstockItem.Modify(true);
         UpdateItemTemplate(NonstockItem."Item Templ. Code");
@@ -2719,16 +2731,16 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize();
 
         // Create Sales Order for Charge Item Line.
-        ItemChargeNo := LibraryInventory.CreateItemChargeNo;
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo();
         CreateSalesDocument(
-          SalesLine2, SalesLine2."Document Type"::Order, CreateCustomer, SalesLine.Type::"Charge (Item)",
+          SalesLine2, SalesLine2."Document Type"::Order, CreateCustomer(), SalesLine.Type::"Charge (Item)",
           ItemChargeNo, 1);
         UpdateSalesLineUnitPrice(SalesLine2, LibraryRandom.RandDec(100, 1));  // Using Random value for Unit Price.
 
         // Create Sales Lines for Item.
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine2."Document No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
 
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
         GlobalQtyToAssign := 0.5;  // Taken Qty. to Assign as 0.5 to assign equal value on both Item Lines.
@@ -2744,15 +2756,15 @@ codeunit 137280 "SCM Inventory Basic"
         SalesLine: Record "Sales Line";
         ItemChargeNo: Code[20];
     begin
-        ItemChargeNo := LibraryInventory.CreateItemChargeNo;
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo();
         CreateSalesDocument(
-          SalesLine2, SalesLine2."Document Type"::Order, CreateCustomer, SalesLine.Type::"Charge (Item)",
+          SalesLine2, SalesLine2."Document Type"::Order, CreateCustomer(), SalesLine.Type::"Charge (Item)",
           ItemChargeNo, -1);
         UpdateSalesLineUnitPrice(SalesLine2, LibraryRandom.RandDec(100, 1));
 
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine2."Document No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
 
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
         SalesLine2.ShowItemChargeAssgnt();
@@ -2769,15 +2781,16 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryInventory.CreateItemCharge(ItemCharge);
 
         // Create Purchase Order for Item.
-        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor, PurchaseLine.Type::Item, CreateItem,
-          LibraryRandom.RandDec(100, 2)); // Using Random value for Quantity.
+        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor(), PurchaseLine.Type::Item, CreateItem(),
+            LibraryRandom.RandDec(100, 2)); // Using Random value for Quantity.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // Create 2nd Purchase Line for Charge Item, assign Item Charge.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+            PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
         PurchaseLine2.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
         PurchaseLine2.Modify(true);
+        LibraryVariableStorage.Enqueue(PurchaseLine2.Quantity);
         PurchaseLine2.ShowItemChargeAssgnt();
     end;
 
@@ -2787,15 +2800,15 @@ codeunit 137280 "SCM Inventory Basic"
         PurchaseLine: Record "Purchase Line";
         ItemChargeNo: Code[20];
     begin
-        ItemChargeNo := LibraryInventory.CreateItemChargeNo;
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo();
         CreatePurchaseDocumentWithAmount(
-          PurchaseLine2, PurchaseLine2."Document Type"::Order, LibraryPurchase.CreateVendorNo, PurchaseLine.Type::"Charge (Item)",
+          PurchaseLine2, PurchaseLine2."Document Type"::Order, LibraryPurchase.CreateVendorNo(), PurchaseLine.Type::"Charge (Item)",
           ItemChargeNo, -1);
         UpdatePurchaseLineUnitPrice(PurchaseLine2, LibraryRandom.RandDec(100, 1));  // Using Random value for Unit Price.
 
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine2."Document No.");
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
 
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
         PurchaseLine2.ShowItemChargeAssgnt();
@@ -2931,16 +2944,16 @@ codeunit 137280 "SCM Inventory Basic"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.FILTER.SetFilter("No.", No);
-        ItemCard.Statistics.Invoke;
+        ItemCard.Statistics.Invoke();
     end;
 
     local procedure VerifyTransferRoutesMatrixCellValue(Show: Option; LocationCode: Code[10]; MatrixCellValue: Code[10])
     var
         TransferRoutes: TestPage "Transfer Routes";
     begin
-        TransferRoutes.OpenView;
+        TransferRoutes.OpenView();
         TransferRoutes.Show.SetValue(Show);
         TransferRoutes.MatrixForm.FILTER.SetFilter(Code, LocationCode);
         TransferRoutes.MatrixForm.Field1.AssertEquals(MatrixCellValue);
@@ -2967,8 +2980,8 @@ codeunit 137280 "SCM Inventory Basic"
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate());
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2981,7 +2994,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         CreateAndPostPurchOrderLine(PurchaseLine);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           PurchaseLine."No.", LibraryRandom.RandInt(PurchaseLine.Quantity), '', WorkDate());
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(20, 40, 2));
         SalesLine.Modify(true);
@@ -2992,10 +3005,10 @@ codeunit 137280 "SCM Inventory Basic"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemTurnover.Trap;
-        ItemCard.OpenView;
+        ItemTurnover.Trap();
+        ItemCard.OpenView();
         ItemCard.FILTER.SetFilter("No.", ItemNo);
-        ItemCard."T&urnover".Invoke;
+        ItemCard."T&urnover".Invoke();
         Assert.AreEqual('Day', ItemTurnover.PeriodType.Value, 'View by Day');
     end;
 
@@ -3073,7 +3086,7 @@ codeunit 137280 "SCM Inventory Basic"
         until ItemLedgerEntry.Next() = 0;
 
         Item.Get(ItemNo);
-        Assert.AreNearlyEqual(TotalCost / TotalQuantity, Item."Unit Cost", LibraryERM.GetAmountRoundingPrecision, UnitCostErr);
+        Assert.AreNearlyEqual(TotalCost / TotalQuantity, Item."Unit Cost", LibraryERM.GetAmountRoundingPrecision(), UnitCostErr);
     end;
 
     local procedure VerifyAdjustmentCostAmount(ValueEntry: Record "Value Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; Adjustment: Boolean; CostAmountActual: Decimal)
@@ -3117,7 +3130,7 @@ codeunit 137280 "SCM Inventory Basic"
         Assert.AreEqual(ExpectedUnitsOfMeasureCount, ItemUnitOfMeasure.Count, 'Wrong number of Units of measure was found on the item');
         ItemUnitOfMeasure.SetFilter(Code, ExpectedBaseUnitOfMeasure.Code);
 
-        Assert.IsTrue(ItemUnitOfMeasure.FindFirst, 'Cannot get Item unit of measure for specified code');
+        Assert.IsTrue(ItemUnitOfMeasure.FindFirst(), 'Cannot get Item unit of measure for specified code');
         Assert.AreEqual(1, ItemUnitOfMeasure."Qty. per Unit of Measure", 'Qty. per Unit of Measure should be set to 1');
         Assert.AreEqual(Item."Base Unit of Measure", ItemUnitOfMeasure.Code, 'Base unit of measure was not set by validate');
     end;
@@ -3126,7 +3139,7 @@ codeunit 137280 "SCM Inventory Basic"
     [Scope('OnPrem')]
     procedure EnterQuantitytoCreatePageHandler(var EnterQuantitytoCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantitytoCreate.OK.Invoke;
+        EnterQuantitytoCreate.OK().Invoke();
     end;
 
     local procedure InventoryPostingSetupExists(LocationCode: Code[10]; InvPostingGroupCode: Code[20]): Boolean
@@ -3149,7 +3162,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         ItemAvailabilityByPeriods.ItemAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ItemAvailabilityByPeriods.ItemAvailLines.ProjAvailableBalance.AssertEquals(GlobalQuantity);
-        ItemAvailabilityByPeriods.OK.Invoke;
+        ItemAvailabilityByPeriods.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -3167,12 +3180,20 @@ codeunit 137280 "SCM Inventory Basic"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    procedure ItemChargeAssignmentPurchGetRcptPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.GetReceiptLines.Invoke;
+        ItemChargeAssignmentPurch.GetReceiptLines.Invoke();
         ItemChargeAssignmentPurch."Qty. to Assign".SetValue(1);  // Added Qty. to Assign as 1 for Item Charge.
         ItemChargeAssignmentPurch.RemAmountToAssign.SetValue(0);
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3182,19 +3203,19 @@ codeunit 137280 "SCM Inventory Basic"
         case GlobalItemChargeAssignment of
             GlobalItemChargeAssignment::AssignmentOnly:
                 begin
-                    ItemChargeAssignmentSales.First;
+                    ItemChargeAssignmentSales.First();
                     repeat
                         ItemChargeAssignmentSales."Qty. to Assign".SetValue(GlobalQtyToAssign);
                     until not ItemChargeAssignmentSales.Next();
                 end;
             GlobalItemChargeAssignment::GetShipmentLine:
                 begin
-                    ItemChargeAssignmentSales.GetShipmentLines.Invoke;
+                    ItemChargeAssignmentSales.GetShipmentLines.Invoke();
                     ItemChargeAssignmentSales."Qty. to Assign".SetValue(1);  // Added Qty. to Assign as 1 for Item Charge.
                     ItemChargeAssignmentSales.RemAmountToAssign.SetValue(0);
                 end;
         end;
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3202,29 +3223,29 @@ codeunit 137280 "SCM Inventory Basic"
     procedure ItemChargeAssignmentSalesOpenPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
         ItemChargeAssignmentSales."Qty. to Assign".AssertEquals(0);
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentNegQtySalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
-        ItemChargeAssignmentSales.First;
+        ItemChargeAssignmentSales.First();
         repeat
             ItemChargeAssignmentSales."Qty. to Assign".SetValue(-0.5);
         until not ItemChargeAssignmentSales.Next();
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentNegQtyPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.First;
+        ItemChargeAssignmentPurch.First();
         repeat
             ItemChargeAssignmentPurch."Qty. to Assign".SetValue(-0.5);
         until not ItemChargeAssignmentPurch.Next();
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3234,17 +3255,17 @@ codeunit 137280 "SCM Inventory Basic"
         case GlobalItemTracking of
             GlobalItemTracking::AssignLotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
+                    ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
                     GlobalLotNo := ItemTrackingLines."Lot No.".Value;
                 end;
             GlobalItemTracking::AssignSerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;  // Assign Serial No.
+                    ItemTrackingLines."Assign Serial No.".Invoke();  // Assign Serial No.
                     GlobalSerialNo := ItemTrackingLines."Serial No.".Value;
                 end;
             GlobalItemTracking::SelectEntries:
                 begin
-                    ItemTrackingLines."Select Entries".Invoke;  // Item Tracking Summary Page is handled in 'ItemTrackingSummaryPageHandler'.
+                    ItemTrackingLines."Select Entries".Invoke();  // Item Tracking Summary Page is handled in 'ItemTrackingSummaryPageHandler'.
                     ItemTrackingLines."Appl.-to Item Entry".SetValue(GlobalApplToItemEntry);
                 end;
             GlobalItemTracking::SetValue:
@@ -3255,14 +3276,14 @@ codeunit 137280 "SCM Inventory Basic"
                 end;
         end;
 
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3273,7 +3294,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         ItemStatistics.ShowAsLines.SetValue(GlobalLineOption);
         ItemStatistics.ViewBy.SetValue(PeriodType::Day);
-        ItemStatistics.ShowMatrix.Invoke;
+        ItemStatistics.ShowMatrix.Invoke();
     end;
 
     [ModalPageHandler]
@@ -3304,7 +3325,7 @@ codeunit 137280 "SCM Inventory Basic"
     procedure PurchReceiptLinePageHandler(var PurchReceiptLines: TestPage "Purch. Receipt Lines")
     begin
         PurchReceiptLines.FILTER.SetFilter("Document No.", GlobalDocumentNo);
-        PurchReceiptLines.OK.Invoke;
+        PurchReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3312,7 +3333,7 @@ codeunit 137280 "SCM Inventory Basic"
     procedure SalesShipmentLinePageHandler(var SalesShipmentLines: TestPage "Sales Shipment Lines")
     begin
         SalesShipmentLines.FILTER.SetFilter("Document No.", GlobalDocumentNo);
-        SalesShipmentLines.OK.Invoke;
+        SalesShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3339,14 +3360,14 @@ codeunit 137280 "SCM Inventory Basic"
     [Scope('OnPrem')]
     procedure ProductionBOMPageHandler(var ProductionBOM: TestPage "Production BOM")
     begin
-        ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectItemTemplateHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
-        SelectItemTemplList.GotoKey(LibraryVariableStorage.DequeueText);
+        SelectItemTemplList.GotoKey(LibraryVariableStorage.DequeueText());
         SelectItemTemplList.OK().Invoke();
     end;
 
@@ -3354,24 +3375,24 @@ codeunit 137280 "SCM Inventory Basic"
     [Scope('OnPrem')]
     procedure ItemSubstitutionPageHandler(var ItemSubstitutionEntry: TestPage "Item Substitution Entry")
     begin
-        ItemSubstitutionEntry."Substitute Type".SetValue(LibraryVariableStorage.DequeueInteger);
-        ItemSubstitutionEntry."Substitute No.".SetValue(LibraryVariableStorage.DequeueText);
-        ItemSubstitutionEntry.OK.Invoke;
+        ItemSubstitutionEntry."Substitute Type".SetValue(LibraryVariableStorage.DequeueInteger());
+        ItemSubstitutionEntry."Substitute No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemSubstitutionEntry.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemSubstitutionEntriesPageHandler(var ItemSubstitutionEntries: TestPage "Item Substitution Entries")
     begin
-        ItemSubstitutionEntries.OK.Invoke;
+        ItemSubstitutionEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CatalogItemListModalPageHandler(var CatalogItemList: TestPage "Catalog Item List")
     begin
-        CatalogItemList.FILTER.SetFilter("Vendor Item No.", LibraryVariableStorage.DequeueText);
-        CatalogItemList.OK.Invoke;
+        CatalogItemList.FILTER.SetFilter("Vendor Item No.", LibraryVariableStorage.DequeueText());
+        CatalogItemList.OK().Invoke();
     end;
 
     [Scope('OnPrem')]

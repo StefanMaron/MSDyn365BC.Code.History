@@ -1,3 +1,7 @@
+namespace System.Environment.Configuration;
+
+using Microsoft.Foundation.Company;
+
 codeunit 1819 "Advanced Settings Ext. Impl."
 {
     Access = Internal;

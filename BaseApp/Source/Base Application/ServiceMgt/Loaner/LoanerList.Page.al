@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Loaner;
+
+using Microsoft.Service.Comment;
+using Microsoft.Service.Document;
+
 page 5923 "Loaner List"
 {
     ApplicationArea = Service;
@@ -30,7 +35,7 @@ page 5923 "Loaner List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies an additional description of the loaner.';
                 }
-                field(Lent; Lent)
+                field(Lent; Rec.Lent)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the loaner has been lent to a customer.';
@@ -76,9 +81,9 @@ page 5923 "Loaner List"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST(Loaner),
-                                  "Table Subtype" = CONST("0"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const(Loaner),
+                                  "Table Subtype" = const("0"),
+                                  "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("Loaner E&ntries")
@@ -87,9 +92,9 @@ page 5923 "Loaner List"
                     Caption = 'Loaner E&ntries';
                     Image = Entries;
                     RunObject = Page "Loaner Entries";
-                    RunPageLink = "Loaner No." = FIELD("No.");
-                    RunPageView = SORTING("Loaner No.")
-                                  ORDER(Ascending);
+                    RunPageLink = "Loaner No." = field("No.");
+                    RunPageView = sorting("Loaner No.")
+                                  order(Ascending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of the loaner.';
                 }

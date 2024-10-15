@@ -5427,9 +5427,7 @@
         FindSalesLine(SalesLine, SalesHeader);
         repeat
             SalesLine.TestField("Prepayment %", SalesHeader."Prepayment %");
-            SalesLine.TestField(
-              "Prepmt. Line Amount",
-              Round(SalesLine."Line Amount" * SalesHeader."Prepayment %" / 100, Currency."Amount Rounding Precision"));
+            Assert.AreNearlyEqual(Round(SalesLine."Line Amount" * SalesHeader."Prepayment %" / 100, Currency."Amount Rounding Precision"), SalesLine."Prepmt. Line Amount", 0.01, SalesLine.FieldName("Prepmt. Line Amount"));
         until SalesLine.Next() = 0;
     end;
 

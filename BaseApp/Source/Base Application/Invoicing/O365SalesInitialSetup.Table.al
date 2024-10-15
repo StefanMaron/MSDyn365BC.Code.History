@@ -25,7 +25,7 @@ table 2110 "O365 Sales Initial Setup"
         field(3; "Payment Reg. Batch Name"; Code[10])
         {
             Caption = 'Payment Reg. Batch Name';
-            TableRelation = "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Payment Reg. Template Name"));
+            TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("Payment Reg. Template Name"));
         }
         field(4; "Is initialized"; Boolean)
         {
@@ -34,12 +34,12 @@ table 2110 "O365 Sales Initial Setup"
         field(5; "Default Customer Template"; Code[10])
         {
             Caption = 'Default Customer Template';
-            TableRelation = "Config. Template Header".Code WHERE("Table ID" = CONST(18));
+            TableRelation = "Config. Template Header".Code where("Table ID" = const(18));
         }
         field(6; "Default Item Template"; Code[10])
         {
             Caption = 'Default Item Template';
-            TableRelation = "Config. Template Header".Code WHERE("Table ID" = CONST(27));
+            TableRelation = "Config. Template Header".Code where("Table ID" = const(27));
         }
         field(7; "Default Payment Terms Code"; Code[10])
         {

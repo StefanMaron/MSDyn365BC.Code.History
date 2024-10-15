@@ -1,3 +1,5 @@
+namespace System.Email;
+
 tableextension 8900 "Email Address Lookup" extends "Email Address Lookup"
 {
     fields

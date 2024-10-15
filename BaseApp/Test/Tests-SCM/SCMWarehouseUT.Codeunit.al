@@ -1369,7 +1369,7 @@ codeunit 137831 "SCM - Warehouse UT"
             "Item No." := CreateItemWithSNWhseTracking;
             "Serial No." := LibraryUtility.GenerateGUID();
             "Variant Code" := LibraryUtility.GenerateGUID();
-            "Qty. (Base)" := LibraryRandom.RandInt(10);
+            "Qty. (Base)" := 1;
             Insert();
         end;
 

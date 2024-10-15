@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.HumanResources.Employee;
+
 page 979 "Time Sheet Setup Employees"
 {
     PageType = ListPart;
@@ -17,7 +25,7 @@ page 979 "Time Sheet Setup Employees"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies an identification number for the entry or record.';
                 }
-                field(FullName; FullName())
+                field(FullName; Rec.FullName())
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Full Name';

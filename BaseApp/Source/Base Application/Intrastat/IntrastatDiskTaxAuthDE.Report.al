@@ -1,13 +1,19 @@
-﻿report 11014 "Intrastat - Disk Tax Auth DE"
+﻿#if not CLEAN22
+report 11014 "Intrastat - Disk Tax Auth DE"
 {
     Caption = 'Intrastat - Disk Tax Auth DE';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     dataset
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
             dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
@@ -48,15 +54,9 @@
 
                 trigger OnPostDataItem()
                 begin
-#if not CLEAN20
-                    if (FormatType = FormatType::XML) and (ShipmentExists or ReceiptExists) then
-                        IntrastatExportMgtDACH.WriteXMLHeader(
-                          XMLDocument, RootXMLNode, TestSubmission, "Intrastat Jnl. Batch".GetStatisticsStartDate());
-#else
                     if ShipmentExists or ReceiptExists then
                         IntrastatExportMgtDACH.WriteXMLHeader(
                             XMLDocument, RootXMLNode, TestSubmission, "Intrastat Jnl. Batch".GetStatisticsStartDate());
-#endif
                 end;
             }
             dataitem(ReceiptIntrastatJnlLine; "Intrastat Jnl. Line")
@@ -88,16 +88,7 @@
                     if ItemIntrastatJnlLine."Internal Ref. No." <> '' then
                         WriteReceiptFile();
 
-#if not CLEAN20
-                    case FormatType of
-                        FormatType::ASCII:
-                            IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileReceipts, FormatType);
-                        FormatType::XML:
-                            IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
-                    end;
-#else
                     IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
-#endif
                 end;
 
                 trigger OnPreDataItem()
@@ -107,15 +98,8 @@
 
                     ItemIntrastatJnlLine.Init();
                     DeclarationIntrastatJnlLine.Init();
-#if not CLEAN20
-                    ASCIIFileBodyText := '';
-                    if FormatType = FormatType::XML then
-                        IntrastatExportMgtDACH.WriteXMLDeclaration(
-                          RootXMLNode, DeclarationXMLNode, Type::Receipt, "Intrastat Jnl. Batch"."Currency Identifier");
-#else
                     IntrastatExportMgtDACH.WriteXMLDeclaration(
                         RootXMLNode, DeclarationXMLNode, Type::Receipt, "Intrastat Jnl. Batch"."Currency Identifier");
-#endif
                 end;
             }
             dataitem(ShipmentIntrastatJnlLine; "Intrastat Jnl. Line")
@@ -147,16 +131,7 @@
                     if ItemIntrastatJnlLine."Internal Ref. No." <> '' then
                         WriteShipmentFile();
 
-#if not CLEAN20
-                    case FormatType of
-                        FormatType::ASCII:
-                            IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileShipments, FormatType);
-                        FormatType::XML:
-                            IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
-                    end;
-#else
                     IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
-#endif
                 end;
 
                 trigger OnPreDataItem()
@@ -166,15 +141,8 @@
 
                     ItemIntrastatJnlLine.Init();
                     DeclarationIntrastatJnlLine.Init();
-#if not CLEAN20
-                    ASCIIFileBodyText := '';
-                    if FormatType = FormatType::XML then
-                        IntrastatExportMgtDACH.WriteXMLDeclaration(
-                          RootXMLNode, DeclarationXMLNode, Type::Shipment, "Intrastat Jnl. Batch"."Currency Identifier");
-#else
                     IntrastatExportMgtDACH.WriteXMLDeclaration(
                         RootXMLNode, DeclarationXMLNode, Type::Shipment, "Intrastat Jnl. Batch"."Currency Identifier");
-#endif
                 end;
             }
 
@@ -205,19 +173,6 @@
                 group(Options)
                 {
                     Caption = 'Options';
-#if not CLEAN20
-                    field("Format Type"; FormatType)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Export Format Type';
-                        OptionCaption = 'ASCII,XML';
-                        ToolTip = 'Specifies the export file format type.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Remove legacy ASCII functionality';
-                        ObsoleteTag = '20.0';
-                    }
-#endif
                     field("Test Submission"; TestSubmission)
                     {
                         ApplicationArea = Basic, Suite;
@@ -245,10 +200,6 @@
     begin
         IntrastatFileWriter.Initialize(true, false, 0);
         IntrastatExportMgtDACH.Initialize(CurrentDateTime());
-
-#if not CLEAN20
-        FormatType := FormatType::XML;
-#endif
     end;
 
     trigger OnPostReport()
@@ -256,23 +207,10 @@
         if not ShipmentExists and not ReceiptExists then
             exit;
 
-#if not CLEAN20
-        if (ZipArchiveName <> '') then begin
-            IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileShipments, FormatType);
-            IntrastatExportMgtDACH.DownloadFile(
-                ZipArchiveName, ServerFileReceipts, ServerFileShipments, FormatType, "Intrastat Jnl. Batch"."Statistics Period");
-        end else begin
-            IntrastatFileWriter.InitializeNextFile(IntrastatExportMgtDACH.GetXMLFileName());
-            XMLDocument.Save(IntrastatFileWriter.GetCurrFileOutStream());
-            IntrastatFileWriter.AddCurrFileToResultFile();
-            IntrastatFileWriter.CloseAndDownloadResultFile();
-        end;
-#else
         IntrastatFileWriter.InitializeNextFile(IntrastatExportMgtDACH.GetXMLFileName());
         XMLDocument.Save(IntrastatFileWriter.GetCurrFileOutStream());
         IntrastatFileWriter.AddCurrFileToResultFile();
         IntrastatFileWriter.CloseAndDownloadResultFile();
-#endif
 
         if not TestSubmission then
             SetBatchIsExported("Intrastat Jnl. Batch");
@@ -293,13 +231,6 @@
         PrevType: Integer;
         ReceiptExists: Boolean;
         ShipmentExists: Boolean;
-#if not CLEAN20
-        FormatType: Option ASCII,XML;
-        ServerFileShipments: Text;
-        ZipArchiveName: Text;
-        ASCIIFileBodyText: Text;
-        ServerFileReceipts: Text;
-#endif
         TestSubmission: Boolean;
 
     local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -310,15 +241,7 @@
     [Scope('OnPrem')]
     procedure WriteReceiptFile()
     begin
-#if not CLEAN20
-        if FormatType = FormatType::ASCII then
-            IntrastatExportMgtDACH.WriteASCII(
-              ASCIIFileBodyText, ItemIntrastatJnlLine, "Intrastat Jnl. Batch"."Currency Identifier", '11', '', ' ', '  ', '')
-        else
-            IntrastatExportMgtDACH.WriteXMLItem(ItemIntrastatJnlLine, DeclarationXMLNode);
-#else
         IntrastatExportMgtDACH.WriteXMLItem(ItemIntrastatJnlLine, DeclarationXMLNode);
-#endif
     end;
 
     local procedure IsBlankedLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"): Boolean
@@ -352,15 +275,7 @@
     [Scope('OnPrem')]
     procedure WriteShipmentFile()
     begin
-#if not CLEAN20
-        if FormatType = FormatType::ASCII then
-            IntrastatExportMgtDACH.WriteASCII(
-              ASCIIFileBodyText, ItemIntrastatJnlLine, "Intrastat Jnl. Batch"."Currency Identifier", '22', ' ', '', '', '  ')
-        else
-            IntrastatExportMgtDACH.WriteXMLItem(ItemIntrastatJnlLine, DeclarationXMLNode);
-#else
         IntrastatExportMgtDACH.WriteXMLItem(ItemIntrastatJnlLine, DeclarationXMLNode);
-#endif
     end;
 
     local procedure AddIntrastatJnlLine(var TargetIntrastatJnlLine: Record "Intrastat Jnl. Line"; SourceIntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -388,18 +303,9 @@
         end;
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by new InitializeRequest(OutStream)', '20.0')]
-    [Scope('OnPrem')]
-    procedure InitializeRequest(NewZipArchiveName: Text)
-    begin
-        ZipArchiveName := NewZipArchiveName;
-    end;
-#endif
-
     procedure InitializeRequest(var newResultFileOutStream: OutStream)
     begin
         IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
     end;
 }
-
+#endif

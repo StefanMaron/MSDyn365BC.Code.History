@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using System.Security.AccessControl;
+using System.Security.Encryption;
+using System.Utilities;
+
 table 11014 Certificate
 {
     Caption = 'Certificate';
@@ -16,8 +26,6 @@ table 11014 Certificate
         {
             Caption = 'User ID';
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(2; "Certificate Type"; Option)
         {

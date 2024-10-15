@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using System.Environment.Configuration;
+using System.IO;
+
 permissionset 5972 "D365 RAPIDSTART"
 {
     Access = Public;

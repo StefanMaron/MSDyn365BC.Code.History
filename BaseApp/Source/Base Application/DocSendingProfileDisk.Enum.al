@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Reporting;
+
 enum 65 "Doc. Sending Profile Disk"
 {
     Extensible = true;

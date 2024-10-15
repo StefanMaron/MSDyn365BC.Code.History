@@ -9,7 +9,7 @@ page 2302 "BC O365 Estimate List"
     RefreshOnActivate = true;
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
-    SourceTableView = SORTING("Sell-to Customer Name");
+    SourceTableView = sorting("Sell-to Customer Name");
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -80,7 +80,7 @@ page 2302 "BC O365 Estimate List"
 
                 trigger OnAction()
                 begin
-                    OpenDocument();
+                    Rec.OpenDocument();
                 end;
             }
         }
@@ -108,23 +108,23 @@ page 2302 "BC O365 Estimate List"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(OnFind(Which));
+        exit(Rec.OnFind(Which));
     end;
 
     trigger OnInit()
     begin
-        SetSortByDocDate();
+        Rec.SetSortByDocDate();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(OnNext(Steps));
+        exit(Rec.OnNext(Steps));
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange("Document Type", "Document Type"::Quote);
-        IgnoreInvoices();
+        Rec.SetRange("Document Type", Rec."Document Type"::Quote);
+        Rec.IgnoreInvoices();
     end;
 
     var

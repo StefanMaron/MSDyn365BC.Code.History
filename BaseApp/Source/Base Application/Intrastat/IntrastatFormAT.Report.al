@@ -12,7 +12,7 @@ report 11104 "Intrastat - Form AT"
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
             column(Intrastat_Jnl__Batch_Journal_Template_Name; "Journal Template Name")
             {
@@ -22,8 +22,8 @@ report 11104 "Intrastat - Form AT"
             }
             dataitem(Init; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Transaction Specification", "Country/Region of Origin Code") WHERE("Tariff No." = FILTER(<> ''));
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Transaction Specification", "Country/Region of Origin Code") where("Tariff No." = filter(<> ''));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -51,8 +51,8 @@ report 11104 "Intrastat - Form AT"
             }
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Internal Ref. No.") WHERE("Tariff No." = FILTER(<> ''));
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting(Type, "Internal Ref. No.") where("Tariff No." = filter(<> ''));
                 RequestFilterFields = Type;
                 column(COPYSTR__Intrastat_Jnl__Batch___Statistics_Period__1_2_; CopyStr("Intrastat Jnl. Batch"."Statistics Period", 1, 2))
                 {

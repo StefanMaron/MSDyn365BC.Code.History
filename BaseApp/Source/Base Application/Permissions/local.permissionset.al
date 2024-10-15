@@ -1,3 +1,14 @@
+namespace System.Security.AccessControl;
+
+using Microsoft;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Finance.AuditFileExport;
+using Microsoft.Purchases.Document;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Inventory.Counting;
+using Microsoft.Finance.GeneralLedger.Reports;
+using Microsoft.Inventory.Intrastat;
+
 permissionset 1001 "LOCAL"
 {
     Access = Public;

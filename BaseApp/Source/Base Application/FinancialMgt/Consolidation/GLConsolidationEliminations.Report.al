@@ -1,3 +1,9 @@
+namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using System.Utilities;
+
 report 16 "G/L Consolidation Eliminations"
 {
     DefaultLayout = RDLC;
@@ -10,7 +16,7 @@ report 16 "G/L Consolidation Eliminations"
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
             column(PeriodTextCaption; StrSubstNo(Text003, PeriodText))
             {
@@ -78,7 +84,7 @@ report 16 "G/L Consolidation Eliminations"
             }
             dataitem(BlankLineCounter; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
 
                 trigger OnPreDataItem()
                 begin
@@ -87,8 +93,8 @@ report 16 "G/L Consolidation Eliminations"
             }
             dataitem("Gen. Journal Line"; "Gen. Journal Line")
             {
-                DataItemLink = "Account No." = FIELD("No.");
-                DataItemTableView = SORTING("Journal Template Name");
+                DataItemLink = "Account No." = field("No.");
+                DataItemTableView = sorting("Journal Template Name");
                 UseTemporary = true;
                 column(GLAcc2No; GLAcc2."No.")
                 {
@@ -186,7 +192,7 @@ report 16 "G/L Consolidation Eliminations"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(No2__GLAccount; "G/L Account"."No.")
                 {
                 }

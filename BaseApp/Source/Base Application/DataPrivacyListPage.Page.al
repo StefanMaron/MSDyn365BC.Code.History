@@ -1,3 +1,7 @@
+namespace System.Privacy;
+
+using System.IO;
+
 page 1181 "Data Privacy ListPage"
 {
     Caption = 'Data Privacy ListPage';
@@ -62,8 +66,8 @@ page 1181 "Data Privacy ListPage"
     begin
         Counter := 1;
         Clear(Rec);
-        Reset();
-        DeleteAll();
+        Rec.Reset();
+        Rec.DeleteAll();
         CurrPage.Update();
 
         if ConfigPackage.Get(PackageCode) then begin
@@ -82,17 +86,17 @@ page 1181 "Data Privacy ListPage"
                             if ConfigPackageField.FindSet() then
                                 repeat
                                     FieldRef := RecRef.Field(ConfigPackageField."Field ID");
-                                    Init();
-                                    ID := Counter;
-                                    "Table No." := ConfigPackageTable."Table ID";
-                                    "Field No." := ConfigPackageField."Field ID";
-                                    "Field Value" := Format(FieldRef.Value);
-                                    "Field DataType" := Format(FieldRef.Type);
-                                    if not Insert() then
+                                    Rec.Init();
+                                    Rec.ID := Counter;
+                                    Rec."Table No." := ConfigPackageTable."Table ID";
+                                    Rec."Field No." := ConfigPackageField."Field ID";
+                                    Rec."Field Value" := Format(FieldRef.Value);
+                                    Rec."Field DataType" := Format(FieldRef.Type);
+                                    if not Rec.Insert() then
                                         repeat
                                             Counter := Counter + 1;
-                                            ID := Counter;
-                                        until Insert();
+                                            Rec.ID := Counter;
+                                        until Rec.Insert();
                                 until ConfigPackageField.Next() = 0;
                         until RecRef.Next() = 0;
                     RecRef.Close();

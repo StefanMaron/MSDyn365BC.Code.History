@@ -1,3 +1,8 @@
+namespace Microsoft.EServices.EDocument;
+
+using Microsoft.Sales.History;
+using Microsoft.Service.History;
+
 codeunit 1411 "Doc. Exch. Links"
 {
     Permissions = TableData "Sales Invoice Header" = rm,

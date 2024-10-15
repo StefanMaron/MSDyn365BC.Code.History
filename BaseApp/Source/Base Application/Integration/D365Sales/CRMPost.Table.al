@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
 table 5344 "CRM Post"
 {
     // Dynamics CRM Version: 7.1.0.2040
@@ -20,7 +26,7 @@ table 5344 "CRM Post"
         }
         field(2; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -46,7 +52,7 @@ table 5344 "CRM Post"
         }
         field(5; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -64,7 +70,7 @@ table 5344 "CRM Post"
         }
         field(7; OrganizationIdName; Text[160])
         {
-            CalcFormula = Lookup ("CRM Organization".Name WHERE(OrganizationId = FIELD(OrganizationId)));
+            CalcFormula = Lookup("CRM Organization".Name where(OrganizationId = field(OrganizationId)));
             Caption = 'OrganizationIdName';
             ExternalAccess = Read;
             ExternalName = 'organizationidname';
@@ -86,57 +92,57 @@ table 5344 "CRM Post"
             ExternalAccess = Insert;
             ExternalName = 'regardingobjectid';
             ExternalType = 'Lookup';
-            TableRelation = IF (RegardingObjectTypeCode = CONST(systemuser)) "CRM Systemuser".SystemUserId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(account)) "CRM Account".AccountId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(contact)) "CRM Contact".ContactId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(opportunity)) "CRM Opportunity".OpportunityId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(post)) "CRM Post".PostId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(transactioncurrency)) "CRM Transactioncurrency".TransactionCurrencyId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(pricelevel)) "CRM Pricelevel".PriceLevelId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(productpricelevel)) "CRM Productpricelevel".ProductPriceLevelId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(product)) "CRM Product".ProductId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(incident)) "CRM Incident".IncidentId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(incidentresolution)) "CRM Incidentresolution".ActivityId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(quote)) "CRM Quote".QuoteId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(quotedetail)) "CRM Quotedetail".QuoteDetailId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(salesorder)) "CRM Salesorder".SalesOrderId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(salesorderdetail)) "CRM Salesorderdetail".SalesOrderDetailId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(invoice)) "CRM Invoice".InvoiceId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(invoicedetail)) "CRM Invoicedetail".InvoiceDetailId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(contract)) "CRM Contract".ContractId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(team)) "CRM Team".TeamId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(customeraddress)) "CRM Customeraddress".CustomerAddressId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(uom)) "CRM Uom".UoMId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(uomschedule)) "CRM Uomschedule".UoMScheduleId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(organization)) "CRM Organization".OrganizationId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(businessunit)) "CRM Businessunit".BusinessUnitId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(discount)) "CRM Discount".DiscountId
-            ELSE
-            IF (RegardingObjectTypeCode = CONST(discounttype)) "CRM Discounttype".DiscountTypeId;
+            TableRelation = if (RegardingObjectTypeCode = const(systemuser)) "CRM Systemuser".SystemUserId
+            else
+            if (RegardingObjectTypeCode = const(account)) "CRM Account".AccountId
+            else
+            if (RegardingObjectTypeCode = const(contact)) "CRM Contact".ContactId
+            else
+            if (RegardingObjectTypeCode = const(opportunity)) "CRM Opportunity".OpportunityId
+            else
+            if (RegardingObjectTypeCode = const(post)) "CRM Post".PostId
+            else
+            if (RegardingObjectTypeCode = const(transactioncurrency)) "CRM Transactioncurrency".TransactionCurrencyId
+            else
+            if (RegardingObjectTypeCode = const(pricelevel)) "CRM Pricelevel".PriceLevelId
+            else
+            if (RegardingObjectTypeCode = const(productpricelevel)) "CRM Productpricelevel".ProductPriceLevelId
+            else
+            if (RegardingObjectTypeCode = const(product)) "CRM Product".ProductId
+            else
+            if (RegardingObjectTypeCode = const(incident)) "CRM Incident".IncidentId
+            else
+            if (RegardingObjectTypeCode = const(incidentresolution)) "CRM Incidentresolution".ActivityId
+            else
+            if (RegardingObjectTypeCode = const(quote)) "CRM Quote".QuoteId
+            else
+            if (RegardingObjectTypeCode = const(quotedetail)) "CRM Quotedetail".QuoteDetailId
+            else
+            if (RegardingObjectTypeCode = const(salesorder)) "CRM Salesorder".SalesOrderId
+            else
+            if (RegardingObjectTypeCode = const(salesorderdetail)) "CRM Salesorderdetail".SalesOrderDetailId
+            else
+            if (RegardingObjectTypeCode = const(invoice)) "CRM Invoice".InvoiceId
+            else
+            if (RegardingObjectTypeCode = const(invoicedetail)) "CRM Invoicedetail".InvoiceDetailId
+            else
+            if (RegardingObjectTypeCode = const(contract)) "CRM Contract".ContractId
+            else
+            if (RegardingObjectTypeCode = const(team)) "CRM Team".TeamId
+            else
+            if (RegardingObjectTypeCode = const(customeraddress)) "CRM Customeraddress".CustomerAddressId
+            else
+            if (RegardingObjectTypeCode = const(uom)) "CRM Uom".UoMId
+            else
+            if (RegardingObjectTypeCode = const(uomschedule)) "CRM Uomschedule".UoMScheduleId
+            else
+            if (RegardingObjectTypeCode = const(organization)) "CRM Organization".OrganizationId
+            else
+            if (RegardingObjectTypeCode = const(businessunit)) "CRM Businessunit".BusinessUnitId
+            else
+            if (RegardingObjectTypeCode = const(discount)) "CRM Discount".DiscountId
+            else
+            if (RegardingObjectTypeCode = const(discounttype)) "CRM Discounttype".DiscountTypeId;
         }
         field(10; RegardingObjectTypeCode; Option)
         {
@@ -203,9 +209,9 @@ table 5344 "CRM Post"
             ExternalAccess = Read;
             ExternalName = 'regardingobjectownerid';
             ExternalType = 'Owner';
-            TableRelation = IF (RegardingObjectOwnerIdType = CONST(systemuser)) "CRM Systemuser".SystemUserId
-            ELSE
-            IF (RegardingObjectOwnerIdType = CONST(team)) "CRM Team".TeamId;
+            TableRelation = if (RegardingObjectOwnerIdType = const(systemuser)) "CRM Systemuser".SystemUserId
+            else
+            if (RegardingObjectOwnerIdType = const(team)) "CRM Team".TeamId;
         }
         field(17; RegardingObjectOwnerIdType; Option)
         {
@@ -237,7 +243,7 @@ table 5344 "CRM Post"
         }
         field(20; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -255,7 +261,7 @@ table 5344 "CRM Post"
         }
         field(22; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

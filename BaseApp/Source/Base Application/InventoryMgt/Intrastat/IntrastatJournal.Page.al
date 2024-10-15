@@ -1,4 +1,18 @@
 #if not CLEAN22
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using Microsoft.Foundation.Reporting;
+using Microsoft.Inventory.Item;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Telemetry;
+using System.Utilities;
+
 page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
@@ -26,7 +40,7 @@ page 311 "Intrastat Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    exit(IntraJnlManagement.LookupName(GetRangeMax("Journal Template Name"), CurrentJnlBatchName, Text));
+                    exit(IntraJnlManagement.LookupName(Rec.GetRangeMax("Journal Template Name"), CurrentJnlBatchName, Text));
                 end;
 
                 trigger OnValidate()
@@ -44,7 +58,7 @@ page 311 "Intrastat Journal"
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies whether the item was received or shipped by the company.';
                 }
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
@@ -96,7 +110,7 @@ page 311 "Intrastat Journal"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
                 }
-                field("Area"; Area)
+                field("Area"; Rec.Area)
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
@@ -193,7 +207,7 @@ page 311 "Intrastat Journal"
             group(Control40)
             {
                 ShowCaption = false;
-                field(StatisticalValue; StatisticalValue + "Statistical Value" - xRec."Statistical Value")
+                field(StatisticalValue; StatisticalValue + Rec."Statistical Value" - xRec."Statistical Value")
                 {
                     ApplicationArea = BasicEU;
                     AutoFormatType = 1;
@@ -202,7 +216,7 @@ page 311 "Intrastat Journal"
                     ToolTip = 'Specifies the statistical value that has accumulated in the Intrastat journal.';
                     Visible = StatisticalValueVisible;
                 }
-                field("TotalStatisticalValue + ""Statistical Value"" - xRec.""Statistical Value"""; TotalStatisticalValue + "Statistical Value" - xRec."Statistical Value")
+                field("TotalStatisticalValue + ""Statistical Value"" - xRec.""Statistical Value"""; TotalStatisticalValue + Rec."Statistical Value" - xRec."Statistical Value")
                 {
                     ApplicationArea = BasicEU;
                     AutoFormatType = 1;
@@ -245,7 +259,7 @@ page 311 "Intrastat Journal"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Item Card";
-                    RunPageLink = "No." = FIELD("Item No.");
+                    RunPageLink = "No." = field("Item No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View and edit detailed information for the item.';
                 }
@@ -346,7 +360,7 @@ page 311 "Intrastat Journal"
                     var
                         ODataUtility: Codeunit ODataUtility;
                     begin
-                        ODataUtility.EditJournalWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), "Journal Batch Name", "Journal Template Name");
+                        ODataUtility.EditJournalWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), Rec."Journal Batch Name", Rec."Journal Template Name");
                     end;
                 }
             }
@@ -428,8 +442,8 @@ page 311 "Intrastat Journal"
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        if IsOpenedFromBatch() then begin
-            CurrentJnlBatchName := "Journal Batch Name";
+        if Rec.IsOpenedFromBatch() then begin
+            CurrentJnlBatchName := Rec."Journal Batch Name";
             IntraJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
@@ -455,7 +469,6 @@ page 311 "Intrastat Journal"
         CurrentJnlBatchName: Code[10];
         ShowStatisticalValue: Boolean;
         ShowTotalStatisticalValue: Boolean;
-        [InDataSet]
         StatisticalValueVisible: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
 
@@ -480,7 +493,7 @@ page 311 "Intrastat Journal"
         ErrorMessage: Record "Error Message";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
-        IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        IntrastatJnlBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name");
         ErrorMessage.SetContext(IntrastatJnlBatch);
         exit(ErrorMessage.HasErrorMessagesRelatedTo(Rec));
     end;
@@ -503,6 +516,5 @@ page 311 "Intrastat Journal"
     local procedure OnBeforeUpdateErrors(var IsHandled: boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
-
 }
 #endif

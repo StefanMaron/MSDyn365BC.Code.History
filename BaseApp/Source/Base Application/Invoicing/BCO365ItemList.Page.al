@@ -3,12 +3,12 @@ page 2314 "BC O365 Item List"
 {
     Caption = 'Prices';
     CardPageID = "BC O365 Item Card";
-    DataCaptionExpression = Description;
+    DataCaptionExpression = Rec.Description;
     Editable = false;
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = Item;
-    SourceTableView = SORTING(Description);
+    SourceTableView = sorting(Description);
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -97,9 +97,9 @@ page 2314 "BC O365 Item List"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
+        if VATProductPostingGroup.Get(Rec."VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
-        if UnitOfMeasure.Get("Base Unit of Measure") then
+        if UnitOfMeasure.Get(Rec."Base Unit of Measure") then
             UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage();
     end;
 

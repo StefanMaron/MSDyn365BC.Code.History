@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Document;
+
 page 6036 "Service Lines Subform"
 {
     Caption = 'Lines';
@@ -51,7 +53,7 @@ page 6036 "Service Lines Subform"
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Nonstock; Nonstock)
+                field(Nonstock; Rec.Nonstock)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the item is a catalog item.';
@@ -229,9 +231,7 @@ page 6036 "Service Lines Subform"
 
     var
         TempServLine: Record "Service Line" temporary;
-        [InDataSet]
         StyleIsStrong: Boolean;
-        [InDataSet]
         DocumentNoHideValue: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
@@ -240,18 +240,18 @@ page 6036 "Service Lines Subform"
     begin
         TempServLine.Reset();
         TempServLine.CopyFilters(Rec);
-        TempServLine.SetRange("Document Type", "Document Type");
-        TempServLine.SetRange("Document No.", "Document No.");
+        TempServLine.SetRange("Document Type", Rec."Document Type");
+        TempServLine.SetRange("Document No.", Rec."Document No.");
         if not TempServLine.FindFirst() then begin
             ServLine.CopyFilters(Rec);
-            ServLine.SetRange("Document Type", "Document Type");
-            ServLine.SetRange("Document No.", "Document No.");
+            ServLine.SetRange("Document Type", Rec."Document Type");
+            ServLine.SetRange("Document No.", Rec."Document No.");
             if not ServLine.FindFirst() then
                 exit(false);
             TempServLine := ServLine;
             TempServLine.Insert();
         end;
-        if "Line No." = TempServLine."Line No." then
+        if Rec."Line No." = TempServLine."Line No." then
             exit(true);
     end;
 }

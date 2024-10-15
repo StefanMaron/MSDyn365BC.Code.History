@@ -9,7 +9,7 @@ page 2104 "O365 Sales Item List"
     PageType = ListPart;
     RefreshOnActivate = true;
     SourceTable = Item;
-    SourceTableView = SORTING(Description);
+    SourceTableView = sorting(Description);
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -56,7 +56,7 @@ page 2104 "O365 Sales Item List"
                 begin
                     if not Confirm(DeleteQst) then
                         exit;
-                    Delete(true);
+                    Rec.Delete(true);
                     CurrPage.Update();
                 end;
             }

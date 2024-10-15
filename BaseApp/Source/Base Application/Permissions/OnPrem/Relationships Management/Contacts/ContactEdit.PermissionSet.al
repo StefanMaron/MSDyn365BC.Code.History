@@ -1,10 +1,36 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.CRM.Task;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Profiling;
+using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Customer;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Setup;
+using Microsoft.CRM.Opportunity;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Archive;
+using Microsoft.Sales.History;
+using Microsoft.CRM.Comment;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Archive;
+using Microsoft.CRM.Segment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.CRM.Team;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Finance.VAT.Registration;
+
 permissionset 257 "Contact - Edit"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Edit contacts';
-
-    IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata Attendee = r,
                   tabledata "Business Relation" = R,

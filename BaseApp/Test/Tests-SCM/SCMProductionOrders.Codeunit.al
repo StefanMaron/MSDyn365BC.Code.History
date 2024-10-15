@@ -1282,42 +1282,8 @@ codeunit 137069 "SCM Production Orders"
     begin
         // Setup.
         Initialize();
-#if not CLEAN20
-        ProductionForecastWithPeriodType("Analysis Period Type"::"Accounting Period");
-#endif
         CheckPeriodSettingsInDemandForecastMatrix(PeriodTypeEnum::"Accounting Period");
     end;
-#if not CLEAN20
-    local procedure ProductionForecastWithPeriodType(PeriodType: Enum "Analysis Period Type")
-    var
-        ProductionForecastName: Record "Production Forecast Name";
-        MatrixRecords: array[32] of Record Date;
-        MatrixManagement: Codeunit "Matrix Management";
-        ProductionForecast: TestPage "Demand Forecast";
-        MatrixColumnCaptions: array[32] of Text[80];
-        ColumnSet: Text;
-        SetPosition: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
-        PrimaryKeyFirstRecordInCurrentSet: Text;
-        CurrentSetLength: Integer;
-    begin
-        // Create Production Forecast name. Using Matrix Management to Generate Period Matrix Data.
-        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        MatrixManagement.GeneratePeriodMatrixData(
-          SetPosition, ArrayLen(MatrixRecords), false, PeriodType, '', PrimaryKeyFirstRecordInCurrentSet, MatrixColumnCaptions, ColumnSet,
-          CurrentSetLength, MatrixRecords);
-
-        // Open Production Forecast Page.
-        ProductionForecast.OpenEdit;
-        ProductionForecast.ProductionForecastName.SetValue(ProductionForecastName.Name);
-
-        // Exercise: Set Period Type on Production Forecast Page. Using Page Testability for Matrix Page.
-        ProductionForecast.PeriodType.SetValue(PeriodType);
-
-        // Verify: Verify Column Captions on Production Forecast Matrix Page.
-        Assert.AreEqual(MatrixColumnCaptions[1], ProductionForecast.Matrix.Field1.Caption, CaptionErr);
-        Assert.AreEqual(MatrixColumnCaptions[2], ProductionForecast.Matrix.Field2.Caption, CaptionErr);
-    end;
-#endif
 
     local procedure CheckPeriodSettingsInDemandForecastMatrix(PeriodType: Enum "Analysis Period Type")
     var
@@ -4571,6 +4537,8 @@ codeunit 137069 "SCM Production Orders"
         LocationGreen.Validate("Require Pick", true);
         LocationGreen.Validate("Require Receive", true);
         LocationGreen.Validate("Require Shipment", true);
+        LocationGreen.Validate("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"Inventory Put-away");
+        LocationGreen.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         LocationGreen.Modify(true);
 
         // Create Silver Location.
@@ -4975,6 +4943,7 @@ codeunit 137069 "SCM Production Orders"
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Set Lot No.");  // Enqueue for Page Handler.
         LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue('One or more lines have tracking specified, but Quantity (Base) is zero. If you continue, data on these line will be lost.'); // Enque for Message Handler
         ProdOrderComponent.OpenItemTrackingLines();
     end;
 

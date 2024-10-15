@@ -1,3 +1,9 @@
+namespace Microsoft.Service.Resources;
+
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Analysis;
+using Microsoft.Service.Document;
+
 page 6005 "Resource Allocations"
 {
     Caption = 'Resource Allocations';
@@ -136,9 +142,9 @@ page 6005 "Resource Allocations"
                     begin
                         Clear(ResAvailability);
                         ResAvailability.SetData(
-                          "Document Type".AsInteger(), "Document No.", "Service Item Line No.", "Entry No.");
-                        if "Resource No." <> '' then begin
-                            Res.Get("Resource No.");
+                          Rec."Document Type".AsInteger(), Rec."Document No.", Rec."Service Item Line No.", Rec."Entry No.");
+                        if Rec."Resource No." <> '' then begin
+                            Res.Get(Rec."Resource No.");
                             ResAvailability.SetRecord(Res);
                         end;
                         ResAvailability.RunModal();
@@ -154,9 +160,9 @@ page 6005 "Resource Allocations"
                     trigger OnAction()
                     begin
                         Clear(ResGrAvailability);
-                        ResGrAvailability.SetData("Document Type".AsInteger(), "Document No.", "Entry No.");
-                        if "Resource Group No." <> '' then begin
-                            ResGr.Get("Resource Group No.");
+                        ResGrAvailability.SetData(Rec."Document Type".AsInteger(), Rec."Document No.", Rec."Entry No.");
+                        if Rec."Resource Group No." <> '' then begin
+                            ResGr.Get(Rec."Resource Group No.");
                             ResGrAvailability.SetRecord(ResGr);
                         end;
                         ResGrAvailability.RunModal();
@@ -174,8 +180,8 @@ page 6005 "Resource Allocations"
                         Clear(CanceledAllocEntries);
                         ServOrderAlloc.Reset();
                         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
-                        ServOrderAlloc.SetRange("Document Type", "Document Type");
-                        ServOrderAlloc.SetRange("Document No.", "Document No.");
+                        ServOrderAlloc.SetRange("Document Type", Rec."Document Type");
+                        ServOrderAlloc.SetRange("Document No.", Rec."Document No.");
                         ServOrderAlloc.SetFilter(Status, '%1', ServOrderAlloc.Status::Canceled);
                         CanceledAllocEntries.SetTableView(ServOrderAlloc);
                         CanceledAllocEntries.SetRecord(ServOrderAlloc);
@@ -224,13 +230,13 @@ page 6005 "Resource Allocations"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        if "Service Item Line No." = 0 then begin
+        if Rec."Service Item Line No." = 0 then begin
             ServItemLine.Reset();
-            ServItemLine.SetRange("Document Type", "Document Type");
-            ServItemLine.SetRange("Document No.", "Document No.");
+            ServItemLine.SetRange("Document Type", Rec."Document Type");
+            ServItemLine.SetRange("Document No.", Rec."Document No.");
             if ServItemLine.Count = 1 then begin
                 ServItemLine.FindFirst();
-                "Service Item Line No." := ServItemLine."Line No.";
+                Rec."Service Item Line No." := ServItemLine."Line No.";
             end;
         end;
     end;

@@ -58,7 +58,7 @@ page 2146 "O365 VAT Posting Setup List"
 
     trigger OnAfterGetRecord()
     begin
-        if Code = DefaultVATProductPostingGroupCode then
+        if Rec.Code = DefaultVATProductPostingGroupCode then
             StyleExpr := 'Strong'
         else
             StyleExpr := 'Standard';

@@ -1,4 +1,6 @@
-﻿enum 5956 "Resource Skill Type"
+﻿namespace Microsoft.Service.Resources;
+
+enum 5956 "Resource Skill Type"
 {
     Extensible = true;
     AssignmentCompatibility = true;

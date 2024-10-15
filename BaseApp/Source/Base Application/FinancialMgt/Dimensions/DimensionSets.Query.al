@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+
 query 257 "Dimension Sets"
 {
     Caption = 'Dimension Sets';

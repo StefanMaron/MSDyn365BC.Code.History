@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.GeneralLedger.Account;
+
 page 568 "Dimension Selection"
 {
     Caption = 'Dimension Selection';
@@ -14,7 +19,7 @@ page 568 "Dimension Selection"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -36,7 +41,7 @@ page 568 "Dimension Selection"
 
     procedure GetDimSelCode(): Text[30]
     begin
-        exit(Code);
+        exit(Rec.Code);
     end;
 
     procedure InsertDimSelBuf(NewSelected: Boolean; NewCode: Text[30]; NewDescription: Text[30])
@@ -49,18 +54,18 @@ page 568 "Dimension Selection"
             if Dim.Get(NewCode) then
                 NewDescription := Dim.GetMLName(GlobalLanguage);
 
-        Init();
-        Selected := NewSelected;
-        Code := NewCode;
-        Description := NewDescription;
-        case Code of
+        Rec.Init();
+        Rec.Selected := NewSelected;
+        Rec.Code := NewCode;
+        Rec.Description := NewDescription;
+        case Rec.Code of
             GLAcc.TableCaption:
-                "Filter Lookup Table No." := DATABASE::"G/L Account";
+                Rec."Filter Lookup Table No." := Database::"G/L Account";
             BusinessUnit.TableCaption:
-                "Filter Lookup Table No." := DATABASE::"Business Unit";
+                Rec."Filter Lookup Table No." := Database::"Business Unit";
         end;
         OnInsertDimSelBufOnBeforeInsert(Rec);
-        Insert();
+        Rec.Insert();
     end;
 
     [IntegrationEvent(false, false)]

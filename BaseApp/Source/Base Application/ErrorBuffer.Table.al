@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 table 5890 "Error Buffer"
 {
     Caption = 'Error Buffer';

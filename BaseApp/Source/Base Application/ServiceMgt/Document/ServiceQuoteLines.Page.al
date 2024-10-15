@@ -1,3 +1,12 @@
+﻿namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Location;
+using Microsoft.Service.Setup;
+
 page 5966 "Service Quote Lines"
 {
     AutoSplitKey = true;
@@ -82,7 +91,7 @@ page 5966 "Service Quote Lines"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of an item, resource, cost, or a standard text on the line.';
                 }
-                field(Nonstock; Nonstock)
+                field(Nonstock; Rec.Nonstock)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the item is a catalog item.';
@@ -214,7 +223,7 @@ page 5966 "Service Quote Lines"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the contract discount is excluded for the item, resource, or cost on this line.';
                 }
-                field(Warranty; Warranty)
+                field(Warranty; Rec.Warranty)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that a warranty discount is available on this line of type Item or Resource.';
@@ -305,84 +314,84 @@ page 5966 "Service Quote Lines"
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,3';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(3),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
                     end;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,4';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(4),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
                     end;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,5';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(5),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
                     end;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,6';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(6),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                     end;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,7';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(7),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
                     end;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,8';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(8),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
             }
@@ -392,9 +401,9 @@ page 5966 "Service Quote Lines"
             part(Control1904739907; "Service Line FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("Document No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("Document No."),
+                              "Line No." = field("Line No.");
                 Visible = false;
             }
             systempart(Control1900383207; Links)
@@ -429,7 +438,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -520,7 +529,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
                 action("Select Item &Substitution")
@@ -532,7 +541,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        ShowItemSub();
+                        Rec.ShowItemSub();
                         CurrPage.Update(true);
                     end;
                 }
@@ -565,7 +574,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        PickPrice();
+                        Rec.PickPrice();
                         CurrPage.Update();
                     end;
                 }
@@ -578,7 +587,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        PickDiscount();
+                        Rec.PickDiscount();
                         CurrPage.Update();
                     end;
                 }
@@ -628,7 +637,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        SplitResourceLine();
+                        Rec.SplitResourceLine();
                     end;
                 }
                 action("Ca&talog Items")
@@ -641,7 +650,7 @@ page 5966 "Service Quote Lines"
 
                     trigger OnAction()
                     begin
-                        ShowNonstock();
+                        Rec.ShowNonstock();
                         CurrPage.Update();
                     end;
                 }
@@ -682,14 +691,14 @@ page 5966 "Service Quote Lines"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnDeleteRecord(): Boolean
     var
         ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
-        if (Quantity <> 0) and ItemExists("No.") then begin
+        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
             Commit();
             if not ServiceLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
@@ -699,20 +708,20 @@ page 5966 "Service Quote Lines"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "Line No." := GetLineNo();
+        Rec."Line No." := Rec.GetLineNo();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Clear(ShortcutDimCode);
-        ServHeader.Get("Document Type", "Document No.");
+        ServHeader.Get(Rec."Document Type", Rec."Document No.");
         if ServHeader."Link Service to Service Item" then
             if SelectionFilter <> SelectionFilter::"Lines Not Item Related" then
-                Validate("Service Item Line No.", ServItemLineNo)
+                Rec.Validate("Service Item Line No.", ServItemLineNo)
             else
-                Validate("Service Item Line No.", 0)
+                Rec.Validate("Service Item Line No.", 0)
         else
-            Validate("Service Item Line No.", 0);
+            Rec.Validate("Service Item Line No.", 0);
     end;
 
     trigger OnOpenPage()
@@ -770,13 +779,9 @@ page 5966 "Service Quote Lines"
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
-        [InDataSet]
         FaultAreaCodeVisible: Boolean;
-        [InDataSet]
         SymptomCodeVisible: Boolean;
-        [InDataSet]
         FaultCodeVisible: Boolean;
-        [InDataSet]
         ResolutionCodeVisible: Boolean;
 
     procedure Initialize(ServItemLine: Integer)
@@ -789,11 +794,11 @@ page 5966 "Service Quote Lines"
     begin
         case SelectionFilter of
             SelectionFilter::"All Service Lines":
-                SetRange("Service Item Line No.");
+                Rec.SetRange("Service Item Line No.");
             SelectionFilter::"Lines per Selected Service Item":
-                SetRange("Service Item Line No.", ServItemLineNo);
+                Rec.SetRange("Service Item Line No.", ServItemLineNo);
             SelectionFilter::"Lines Not Item Related":
-                SetRange("Service Item Line No.", 0);
+                Rec.SetRange("Service Item Line No.", 0);
         end;
         CurrPage.Update(false);
     end;
@@ -836,9 +841,9 @@ page 5966 "Service Quote Lines"
 
     protected procedure QuantityOnAfterValidate()
     begin
-        if Reserve = Reserve::Always then begin
+        if Rec.Reserve = Rec.Reserve::Always then begin
             CurrPage.SaveRecord();
-            AutoReserve();
+            Rec.AutoReserve();
         end;
     end;
 

@@ -189,34 +189,6 @@ codeunit 144051 "ERM Reports DE"
     end;
 
     [Test]
-    [HandlerFunctions('IntrastatFormDERequestHandler')]
-    [Scope('OnPrem')]
-    procedure CheckIntrastatFormDEReportHeaderCaptions()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        DACHReportSelections: Record "DACH Report Selections";
-    begin
-        // Verify that Report Intrastat - Form DE print correct caption.
-
-        // Setup: Create DACH Report Selections and IntrastatJnl. Line
-        Initialize();
-        CreateDACHReportSelections(DACHReportSelections.Usage::"Intrastat Form", 11012);
-        CreateIntrastatJnlLine(IntrastatJnlLine);
-        FillFieldsMandatoryForReportIntrastatFormDE(IntrastatJnlLine);
-
-        // Exercise: Run Report Intrastat - Form DE.
-        Commit();
-        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
-        IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment);
-        REPORT.Run(REPORT::"Intrastat - Form DE", true, false, IntrastatJnlLine);
-        LibraryReportDataset.LoadDataSetFile;
-
-        // Verify: Verify Intrastat - Form DE   header captions.
-        VerifyIntrastatFormDEValues(IntrastatJnlLine);
-    end;
-
-    [Test]
     [HandlerFunctions('VATVIESDeclarationDiskRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VATVIESDeclarationDiskReportFailedWhenFileVersionNotDefined()
@@ -586,19 +558,6 @@ codeunit 144051 "ERM Reports DE"
         DACHReportSelections.Insert();
     end;
 
-    local procedure CreateIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
-    var
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-    begin
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.Validate(Type, IntrastatJnlLine.Type::Shipment);
-        IntrastatJnlLine.Validate("Country/Region Code", CreateCountryRegion);
-        IntrastatJnlLine.Modify(true);
-    end;
-
     local procedure CreateItemsWithCostingMethodAndInvtPostingGroup(var Item: Record Item; var Item2: Record Item)
     begin
         CreateItemWithCostingMethod(Item, Item."Costing Method"::LIFO);
@@ -642,15 +601,6 @@ codeunit 144051 "ERM Reports DE"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
-    end;
-
-    local procedure FillFieldsMandatoryForReportIntrastatFormDE(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
-    begin
-        IntrastatJnlLine."Tariff No." := LibraryUTUtility.GetNewCode10;
-        IntrastatJnlLine."Transaction Type" := LibraryUTUtility.GetNewCode10;
-        IntrastatJnlLine."Transport Method" := LibraryUTUtility.GetNewCode10;
-        IntrastatJnlLine.Area := LibraryUTUtility.GetNewCode10;
-        IntrastatJnlLine.Modify(true);
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
@@ -706,24 +656,6 @@ codeunit 144051 "ERM Reports DE"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifyIntrastatFormDEValues(IntrastatJnlLine: Record "Intrastat Jnl. Line")
-    begin
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Intrastat_Jnl__Line_Journal_Template_Name', IntrastatJnlLine."Journal Template Name");
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Intrastat_Jnl__Line__Tariff_No__Caption', IntrastatJnlLine.FieldCaption("Tariff No."));
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Intrastat_Jnl__Line__Transaction_Type_Caption', IntrastatJnlLine.FieldCaption("Transaction Type"));
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Intrastat_Jnl__Line__Transport_Method_Caption', IntrastatJnlLine.FieldCaption(IntrastatJnlLine."Transport Method"));
-        LibraryReportDataset.AssertElementWithValueExists(
-          'AreaCaption', IntrastatJnlLine.FieldCaption(IntrastatJnlLine.Area));
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Intrastat_Jnl__Line__Total_Weight_Caption', IntrastatJnlLine.FieldCaption(IntrastatJnlLine."Total Weight"));
-        LibraryReportDataset.AssertElementWithValueExists(
-          'Intrastat_Jnl__Line_QuantityCaption', IntrastatJnlLine.FieldCaption(IntrastatJnlLine.Quantity));
-    end;
-
     local procedure UpdateCountryAndVATRegNoOnVATEntry(var VATEntry: Record "VAT Entry")
     begin
         VATEntry.Validate("Country/Region Code", CreateEUCountryRegion);
@@ -762,7 +694,7 @@ codeunit 144051 "ERM Reports DE"
     begin
         LibraryReportDataset.SetRange('PostingGroupCode', Item."Inventory Posting Group");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'PostingGroupCode', Item."Inventory Posting Group"));
+            Error(RowNotFound, 'PostingGroupCode', Item."Inventory Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'PostingGroupInvValuationTotal', CalculateInventoryValuationTotal(Item."No."));
     end;
@@ -828,12 +760,17 @@ codeunit 144051 "ERM Reports DE"
         InventoryValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
+#if not CLEAN22
     [RequestPageHandler]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure IntrastatFormDERequestHandler(var IntrastatFormDE: TestRequestPage "Intrastat - Form DE")
     begin
         IntrastatFormDE.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

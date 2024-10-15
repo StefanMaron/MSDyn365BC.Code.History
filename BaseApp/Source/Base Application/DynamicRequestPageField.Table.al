@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Automation;
+
+using System.Reflection;
+
 table 1516 "Dynamic Request Page Field"
 {
     Caption = 'Dynamic Request Page Field';
@@ -20,7 +28,7 @@ table 1516 "Dynamic Request Page Field"
         {
             Caption = 'Field ID';
             NotBlank = true;
-            TableRelation = Field."No." WHERE(TableNo = FIELD("Table ID"));
+            TableRelation = Field."No." where(TableNo = field("Table ID"));
 
             trigger OnValidate()
             begin
@@ -29,27 +37,27 @@ table 1516 "Dynamic Request Page Field"
         }
         field(3; "Table Name"; Text[30])
         {
-            CalcFormula = Lookup ("Table Metadata".Name WHERE(ID = FIELD("Table ID")));
+            CalcFormula = Lookup("Table Metadata".Name where(ID = field("Table ID")));
             Caption = 'Table Name';
             FieldClass = FlowField;
         }
         field(4; "Table Caption"; Text[80])
         {
-            CalcFormula = Lookup ("Table Metadata".Caption WHERE(ID = FIELD("Table ID")));
+            CalcFormula = Lookup("Table Metadata".Caption where(ID = field("Table ID")));
             Caption = 'Table Caption';
             FieldClass = FlowField;
         }
         field(5; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup (Field.FieldName WHERE(TableNo = FIELD("Table ID"),
-                                                        "No." = FIELD("Field ID")));
+            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table ID"),
+                                                        "No." = field("Field ID")));
             Caption = 'Field Name';
             FieldClass = FlowField;
         }
         field(6; "Field Caption"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
-                                                              "No." = FIELD("Field ID")));
+            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table ID"),
+                                                              "No." = field("Field ID")));
             Caption = 'Field Caption';
             FieldClass = FlowField;
         }

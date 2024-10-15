@@ -1,4 +1,8 @@
 #if not CLEAN22
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.Integration.SyncEngine;
+
 page 5337 "CRM Coupled Fields"
 {
     Caption = 'Dynamics 365 Sales Coupled Fields';
@@ -22,7 +26,7 @@ page 5337 "CRM Coupled Fields"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the field''s name in Dynamics 365 Sales.';
                 }
-                field(Value; Value)
+                field(Value; Rec.Value)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the field''s name in Dynamics 365 Sales.';
@@ -32,7 +36,7 @@ page 5337 "CRM Coupled Fields"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the field''s value in Dynamics 365 Sales.';
                 }
-                field(Direction; Direction)
+                field(Direction; Rec.Direction)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the direction of data integration.';
@@ -68,34 +72,34 @@ page 5337 "CRM Coupled Fields"
             FindCRMRecRefByPK(CRMRecordRef, CouplingRecordBuffer."CRM ID");
         end;
 
-        DeleteAll();
+        Rec.DeleteAll();
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", CouplingRecordBuffer."CRM Table Name");
         IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
         if IntegrationFieldMapping.FindSet() then
             repeat
-                Init();
+                Rec.Init();
                 if CouplingRecordBuffer."Is Option" then
-                    "Field Name" := GetFieldCaption(CouplingRecordBuffer."NAV Table ID", IntegrationFieldMapping."Field No.")
+                    Rec."Field Name" := GetFieldCaption(CouplingRecordBuffer."NAV Table ID", IntegrationFieldMapping."Field No.")
                 else
                     case IntegrationFieldMapping.Direction of
                         IntegrationFieldMapping.Direction::Bidirectional,
                       IntegrationFieldMapping.Direction::ToIntegrationTable:
-                            "Field Name" :=
+                            Rec."Field Name" :=
                               GetFieldCaption(CouplingRecordBuffer."CRM Table ID", IntegrationFieldMapping."Integration Table Field No.");
                         IntegrationFieldMapping.Direction::FromIntegrationTable:
-                            "Field Name" :=
+                            Rec."Field Name" :=
                               GetFieldCaption(CouplingRecordBuffer."NAV Table ID", IntegrationFieldMapping."Field No.");
                     end;
                 if IntegrationFieldMapping."Field No." <> 0 then
-                    Value := GetFieldValue(NAVRecordRef, IntegrationFieldMapping."Field No.");
+                    Rec.Value := GetFieldValue(NAVRecordRef, IntegrationFieldMapping."Field No.");
                 if CRMRecordIsSet and (IntegrationFieldMapping."Integration Table Field No." <> 0) then
-                    "Integration Value" := GetFieldValue(CRMRecordRef, IntegrationFieldMapping."Integration Table Field No.");
+                    Rec."Integration Value" := GetFieldValue(CRMRecordRef, IntegrationFieldMapping."Integration Table Field No.");
                 if CouplingRecordBuffer."Is Option" then
-                    "Integration Value" := CouplingRecordBuffer."CRM Name";
-                Direction := IntegrationFieldMapping.Direction;
-                "Validate Field" := IntegrationFieldMapping."Validate Field";
-                Insert();
+                    Rec."Integration Value" := CouplingRecordBuffer."CRM Name";
+                Rec.Direction := IntegrationFieldMapping.Direction;
+                Rec."Validate Field" := IntegrationFieldMapping."Validate Field";
+                Rec.Insert();
             until IntegrationFieldMapping.Next() = 0;
     end;
 

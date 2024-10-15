@@ -644,15 +644,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType CostJournlLineError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2061240834 - NamedType 2373101634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1..%2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Field Value;%2 - Field Value]D;]A;(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType CostTypeFilterDefinition)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2061240834 - NamedType 3412342681" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dynamic cost allocation targets were found.]]></Val>
@@ -930,15 +921,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Pages - NamedType CostJournalAmountError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3184550183 - NamedType 2373101634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1..%2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Field Value;%2 - Field Value]D;]A;(LookupHint=Codeunit ERM Cost Accounting - Pages - NamedType CostTypeFilterDefinition)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3184550183 - NamedType 2603788544" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Item;
+
 table 5971 "Filed Contract Line"
 {
     Caption = 'Filed Contract Line';
@@ -52,7 +59,7 @@ table 5971 "Filed Contract Line"
         field(10; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
         }
         field(11; "Item No."; Code[20])
         {
@@ -62,8 +69,8 @@ table 5971 "Filed Contract Line"
         field(12; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = IF ("Item No." = FILTER(<> '')) "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."))
-            ELSE
+            TableRelation = if ("Item No." = filter(<> '')) "Item Unit of Measure".Code where("Item No." = field("Item No."))
+            else
             "Unit of Measure";
         }
         field(13; "Response Time (Hours)"; Decimal)
@@ -132,7 +139,7 @@ table 5971 "Filed Contract Line"
         field(28; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(29; "Starting Date"; Date)
         {

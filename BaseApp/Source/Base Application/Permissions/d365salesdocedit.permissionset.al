@@ -1,4 +1,66 @@
-﻿permissionset 9783 "D365 SALES DOC, EDIT"
+﻿namespace System.Security.AccessControl;
+
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.Task;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using System.Automation;
+using Microsoft.Assembly.Document;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Warehouse.Structure;
+using Microsoft.CRM.Opportunity;
+using Microsoft.Foundation.Company;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CostAccounting.Account;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Tracking;
+using System.Threading;
+using Microsoft.Foundation.NoSeries;
+using System.Environment.Configuration;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Inventory.Planning;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.Remittance;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Archive;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Setup;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Finance.SalesTax;
+using Microsoft.CRM.Task;
+using System.Security.User;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Utilities;
+using Microsoft.Inventory.Intrastat;
+using System.IO;
+
+permissionset 9783 "D365 SALES DOC, EDIT"
 {
     Access = Public;
     Assignable = true;

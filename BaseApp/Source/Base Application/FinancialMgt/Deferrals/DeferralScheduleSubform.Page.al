@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Deferral;
+
 page 1703 "Deferral Schedule Subform"
 {
     Caption = 'Deferral Schedule Detail';

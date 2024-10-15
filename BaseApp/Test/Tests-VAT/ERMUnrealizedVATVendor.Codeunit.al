@@ -786,7 +786,7 @@
         VerifyInvAndCrMemoVATEntries(InvoiceNo, CrMemoNo, 8, 1.44, 4.99, 0.9);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('MessageHandler,RunAdjustExchRateReqPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -1383,6 +1383,7 @@
         PurchaseHeader.Modify(true);
     end;
 
+#if not CLEAN23
     local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
     var
         Currency: Record Currency;
@@ -1395,6 +1396,7 @@
         Commit();
         AdjustExchangeRates.Run();
     end;
+#endif
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option)
     begin
@@ -1673,6 +1675,7 @@
         Reply := true;
     end;
 
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RunAdjustExchRateReqPageHandler(var AdjustExchangeRates: TestRequestPage "Adjust Exchange Rates")
@@ -1681,5 +1684,6 @@
         AdjustExchangeRates.Post.SetValue(true);
         AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+#endif
 }
 

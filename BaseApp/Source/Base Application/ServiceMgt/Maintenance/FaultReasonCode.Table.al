@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Maintenance;
+
 table 5917 "Fault Reason Code"
 {
     Caption = 'Fault Reason Code';

@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Create PO with N Lines - NamedType ParamValidationErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = a string]D;]A;(LookupHint=Codeunit BCPT Create PO with N Lines - NamedType ParamValidationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 473531688 - NamedType 2327185332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Create SO with N Lines - NamedType ParamValidationErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = a string]D;]A;(LookupHint=Codeunit BCPT Create SO with N Lines - NamedType ParamValidationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1120661814 - NamedType 2327185332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -56,7 +56,25 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Create SQ with N Lines - NamedType ParamValidationErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a string]D;]A;(LookupHint=Codeunit BCPT Create SQ with N Lines - NamedType ParamValidationErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 942691444 - NamedType 2327185332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Lines]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Post Purch. Inv. - NamedType NoOfLinesParamLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 942691444 - NamedType 1355010387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Parameter is not defined in the correct format. The expected format is "%1"]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Parameter name]D;]A;(LookupHint=Codeunit BCPT Post Purch. Inv. - NamedType ParamValidationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 321474336 - NamedType 2327185332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -74,7 +92,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Post Sales with N Lines - NamedType ParamValidationErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a string]D;]A;(LookupHint=Codeunit BCPT Post Sales with N Lines - NamedType ParamValidationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 822202090 - NamedType 2327185332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -92,7 +110,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Purch. Post with N Lines - NamedType ParamValidationErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = a string]D;]A;(LookupHint=Codeunit BCPT Purch. Post with N Lines - NamedType ParamValidationErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>
