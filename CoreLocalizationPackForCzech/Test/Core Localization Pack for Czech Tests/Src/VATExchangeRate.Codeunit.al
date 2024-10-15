@@ -338,10 +338,11 @@ codeunit 148066 "VAT Exchange Rate CZL"
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        VATEntry: Record "VAT Entry";
         GeneralPostingType: Enum "General Posting Type";
-        WrongVATCalculationTypeTxt: Label 'Relation Exch. Rate Amount for the Currency Code and for the VAT Currency Code must be the same if Normal VAT is used.';
+        PostedDocumentNo: Code[20];
     begin
-        // [SCENARIO] If Currency Factor and VAT Currency factor are different, VAT calculation must be Reverse Charge
+        // [SCENARIO] If Currency Factor and VAT Currency factor are different, VAT calculation can be Normal
         Initialize();
 
         // [GIVEN] New Customer has been created
@@ -362,9 +363,12 @@ codeunit 148066 "VAT Exchange Rate CZL"
 
         // [GIVEN] New Sales Invoice Line has been created
 #pragma warning disable AA0210
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 #pragma warning restore AA0210
         VATPostingSetup.FindLast();
+        VATPostingSetup."Sales VAT Curr. Exch. Acc CZL" := LibraryERM.CreateGLAccountNoWithDirectPosting();
+        VATPostingSetup.Modify();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
                                     LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GeneralPostingType::Sale), 1);
         SalesLine.Validate("Unit Price", 100);
@@ -380,10 +384,12 @@ codeunit 148066 "VAT Exchange Rate CZL"
 #endif
 
         // [WHEN] Post Sales Invoice
-        asserterror SalesPost.Run(SalesHeader);
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [THEN] Error on VAT Calculation Type will occurs
-        Assert.ExpectedError(WrongVATCalculationTypeTxt);
+        // [THEN] VAT Entry will be created
+        VATEntry.setrange("Document No.", PostedDocumentNo);
+        VATEntry.SetRange("Posting Date", SalesHeader."Posting Date");
+        Assert.RecordCount(VATEntry, 3);
     end;
 
     [Test]

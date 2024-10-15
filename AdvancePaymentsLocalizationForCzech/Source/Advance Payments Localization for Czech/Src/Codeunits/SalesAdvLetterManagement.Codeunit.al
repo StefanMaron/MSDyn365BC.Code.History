@@ -227,12 +227,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
     procedure LinkAdvancePayment(var CustLedgerEntry: Record "Cust. Ledger Entry")
     var
         TempAdvanceLetterLinkBufferCZZ: Record "Advance Letter Link Buffer CZZ" temporary;
-        TempSalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ" temporary;
-        SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ";
-        SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ";
-        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         AdvanceLetterLinkCZZ: Page "Advance Letter Link CZZ";
-        InsertedEntryNo: Integer;
         PostingDate: Date;
     begin
         AdvanceLetterLinkCZZ.SetCVEntry(CustLedgerEntry.RecordId);
@@ -240,25 +235,38 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         if AdvanceLetterLinkCZZ.RunModal() = Action::LookupOK then begin
             AdvanceLetterLinkCZZ.GetLetterLink(TempAdvanceLetterLinkBufferCZZ);
             TempAdvanceLetterLinkBufferCZZ.SetFilter(Amount, '>0');
-            if TempAdvanceLetterLinkBufferCZZ.FindSet() then begin
+            if not TempAdvanceLetterLinkBufferCZZ.IsEmpty() then begin
                 PostingDate := GetPostingDateUI(CustLedgerEntry."Posting Date");
                 if PostingDate = 0D then
                     Error(PostingDateEmptyErr);
-
-                repeat
-                    InsertedEntryNo := PostAdvancePayment(CustLedgerEntry, TempAdvanceLetterLinkBufferCZZ."Advance Letter No.", TempAdvanceLetterLinkBufferCZZ.Amount, GenJnlPostLine, PostingDate);
-                    SalesAdvLetterEntryCZZ.Get(InsertedEntryNo);
-                    TempSalesAdvLetterEntryCZZ := SalesAdvLetterEntryCZZ;
-                    TempSalesAdvLetterEntryCZZ.Insert();
-                until TempAdvanceLetterLinkBufferCZZ.Next() = 0;
-
-                if TempSalesAdvLetterEntryCZZ.FindSet() then
-                    repeat
-                        SalesAdvLetterHeaderCZZ.Get(TempSalesAdvLetterEntryCZZ."Sales Adv. Letter No.");
-                        if SalesAdvLetterHeaderCZZ."Automatic Post VAT Document" then
-                            PostAdvancePaymentVAT(TempSalesAdvLetterEntryCZZ, 0D);
-                    until TempSalesAdvLetterEntryCZZ.Next() = 0;
+                LinkAdvancePayment(CustLedgerEntry, TempAdvanceLetterLinkBufferCZZ, PostingDate);
             end;
+        end;
+    end;
+
+    procedure LinkAdvancePayment(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempAdvanceLetterLinkBufferCZZ: Record "Advance Letter Link Buffer CZZ" temporary; PostingDate: Date)
+    var
+        TempSalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ" temporary;
+        SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ";
+        SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        InsertedEntryNo: Integer;
+    begin
+        TempAdvanceLetterLinkBufferCZZ.SetFilter(Amount, '>0');
+        if TempAdvanceLetterLinkBufferCZZ.FindSet() then begin
+            repeat
+                InsertedEntryNo := PostAdvancePayment(CustLedgerEntry, TempAdvanceLetterLinkBufferCZZ."Advance Letter No.", TempAdvanceLetterLinkBufferCZZ.Amount, GenJnlPostLine, PostingDate);
+                SalesAdvLetterEntryCZZ.Get(InsertedEntryNo);
+                TempSalesAdvLetterEntryCZZ := SalesAdvLetterEntryCZZ;
+                TempSalesAdvLetterEntryCZZ.Insert();
+            until TempAdvanceLetterLinkBufferCZZ.Next() = 0;
+
+            if TempSalesAdvLetterEntryCZZ.FindSet() then
+                repeat
+                    SalesAdvLetterHeaderCZZ.Get(TempSalesAdvLetterEntryCZZ."Sales Adv. Letter No.");
+                    if SalesAdvLetterHeaderCZZ."Automatic Post VAT Document" then
+                        PostAdvancePaymentVAT(TempSalesAdvLetterEntryCZZ, 0D);
+                until TempSalesAdvLetterEntryCZZ.Next() = 0;
         end;
     end;
 
@@ -588,27 +596,10 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                         AdvancePostingBufferCZZ."VAT Amount" := 0;
                 end;
                 AdvancePostingBufferCZZ."VAT Base Amount" := AdvancePostingBufferCZZ.Amount - AdvancePostingBufferCZZ."VAT Amount";
-                CalculateAmountLCY(AdvancePostingBufferCZZ, SalesAdvLetterHeaderCZZ."Currency Code", CurrencyFactor);
+                AdvancePostingBufferCZZ.UpdateLCYAmounts(SalesAdvLetterHeaderCZZ."Currency Code", CurrencyFactor);
                 AdvancePostingBufferCZZ.Insert();
             until TempAdvancePostingBufferCZZ.Next() = 0;
     end;
-
-    local procedure CalculateAmountLCY(var AdvancePostingBufferCZZ: Record "Advance Posting Buffer CZZ"; CurrencyCode: Code[10]; CurrencyFactor: Decimal)
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-    begin
-        if (CurrencyCode = '') or (CurrencyFactor = 0) then begin
-            AdvancePostingBufferCZZ."Amount (ACY)" := AdvancePostingBufferCZZ.Amount;
-            AdvancePostingBufferCZZ."VAT Base Amount (ACY)" := AdvancePostingBufferCZZ."VAT Base Amount";
-            AdvancePostingBufferCZZ."VAT Amount (ACY)" := AdvancePostingBufferCZZ."VAT Amount";
-            exit;
-        end;
-
-        AdvancePostingBufferCZZ."Amount (ACY)" := Round(CurrencyExchangeRate.ExchangeAmtFCYToLCY(0D, CurrencyCode, AdvancePostingBufferCZZ.Amount, CurrencyFactor));
-        AdvancePostingBufferCZZ."VAT Base Amount (ACY)" := Round(CurrencyExchangeRate.ExchangeAmtFCYToLCY(0D, CurrencyCode, AdvancePostingBufferCZZ."VAT Base Amount", CurrencyFactor));
-        AdvancePostingBufferCZZ."VAT Amount (ACY)" := AdvancePostingBufferCZZ."Amount (ACY)" - AdvancePostingBufferCZZ."VAT Base Amount (ACY)";
-    end;
-
 
     procedure PostAndSendAdvancePaymentVAT(var SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ")
     var
@@ -1762,7 +1753,34 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
 
     procedure CloseAdvanceLetter(var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ")
     var
+        AdvPaymentCloseDialogCZZ: Page "Adv. Payment Close Dialog CZZ";
+        PostingDate: Date;
+        VATDate: Date;
+        CurrencyFactor: Decimal;
+    begin
+        if SalesAdvLetterHeaderCZZ.Status = SalesAdvLetterHeaderCZZ.Status::Closed then
+            exit;
+
+        if SalesAdvLetterHeaderCZZ.Status = SalesAdvLetterHeaderCZZ.Status::New then begin
+            UpdateStatus(SalesAdvLetterHeaderCZZ, SalesAdvLetterHeaderCZZ.Status::Closed);
+            exit;
+        end;
+
+        AdvPaymentCloseDialogCZZ.SetValues(WorkDate(), WorkDate(), SalesAdvLetterHeaderCZZ."Currency Code", 0, '', false);
+        if AdvPaymentCloseDialogCZZ.RunModal() <> Action::OK then
+            exit;
+
+        AdvPaymentCloseDialogCZZ.GetValues(PostingDate, VATDate, CurrencyFactor);
+        if (PostingDate = 0D) or (VATDate = 0D) then
+            Error(DateEmptyErr);
+
+        CloseAdvanceLetter(SalesAdvLetterHeaderCZZ, PostingDate, VATDate, CurrencyFactor);
+    end;
+
+    procedure CloseAdvanceLetter(var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; PostingDate: Date; VATDate: Date; CurrencyFactor: Decimal)
+    var
         AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
         SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ";
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry1: Record "Cust. Ledger Entry";
@@ -1772,12 +1790,8 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         AdvanceLetterTemplateCZZ: Record "Advance Letter Template CZZ";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
-        AdvPaymentCloseDialogCZZ: Page "Adv. Payment Close Dialog CZZ";
         ApplId: Code[50];
         VATDocumentNo: Code[20];
-        PostingDate: Date;
-        VATDate: Date;
-        CurrencyFactor: Decimal;
         RemAmount: Decimal;
         RemAmountLCY: Decimal;
     begin
@@ -1789,114 +1803,115 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
             exit;
         end;
 
-        AdvPaymentCloseDialogCZZ.SetValues(WorkDate(), WorkDate(), SalesAdvLetterHeaderCZZ."Currency Code", 0, '', false);
-        if AdvPaymentCloseDialogCZZ.RunModal() = Action::OK then begin
-            AdvPaymentCloseDialogCZZ.GetValues(PostingDate, VATDate, CurrencyFactor);
-            if (PostingDate = 0D) or (VATDate = 0D) then
-                Error(DateEmptyErr);
-            if SalesAdvLetterHeaderCZZ."Currency Code" = '' then
-                CurrencyFactor := 1;
-            VATDocumentNo := '';
+        if PostingDate = 0D then
+            PostingDate := WorkDate();
+        if VATDate = 0D then
+            VATDate := WorkDate();
+        if CurrencyFactor = 0 then
+            CurrencyFactor := CurrencyExchangeRate.ExchangeRate(PostingDate, SalesAdvLetterHeaderCZZ."Currency Code");
+        VATDocumentNo := '';
 
-            SalesAdvLetterEntryCZZ.SetRange("Sales Adv. Letter No.", SalesAdvLetterHeaderCZZ."No.");
-            SalesAdvLetterEntryCZZ.SetRange("Entry Type", SalesAdvLetterEntryCZZ."Entry Type"::Payment);
-            SalesAdvLetterEntryCZZ.SetRange(Cancelled, false);
-            if SalesAdvLetterEntryCZZ.FindSet() then
-                repeat
-                    RemAmount := GetRemAmtSalAdvPayment(SalesAdvLetterEntryCZZ, 0D);
-                    RemAmountLCY := GetRemAmtLCYSalAdvPayment(SalesAdvLetterEntryCZZ, 0D);
-                    if RemAmount <> 0 then begin
-                        if VATDocumentNo = '' then begin
-                            AdvanceLetterTemplateCZZ.Get(SalesAdvLetterHeaderCZZ."Advance Letter Code");
-                            AdvanceLetterTemplateCZZ.TestField("Advance Letter Cr. Memo Nos.");
-                            VATDocumentNo := NoSeriesManagement.GetNextNo(AdvanceLetterTemplateCZZ."Advance Letter Cr. Memo Nos.", PostingDate, true);
-                        end;
-
-                        SalesAdvLetterHeaderCZZ.Get(SalesAdvLetterEntryCZZ."Sales Adv. Letter No.");
-                        Customer.Get(SalesAdvLetterHeaderCZZ."Bill-to Customer No.");
-                        CustLedgerEntry1.Get(SalesAdvLetterEntryCZZ."Cust. Ledger Entry No.");
-
-                        InitGenJnlLineFromCustLedgEntry(CustLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::" ");
-                        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
-                        GenJournalLine.Correction := true;
-                        GenJournalLine."Document No." := VATDocumentNo;
-                        GenJournalLine."Posting Date" := PostingDate;
-                        GenJournalLine."Document Date" := PostingDate;
-#if not CLEAN22
-#pragma warning disable AL0432
-                        if not ReplaceVATDateMgtCZL.IsEnabled() then
-                            GenJournalLine.Validate("VAT Date CZL", VATDate)
-                        else
-#pragma warning restore AL0432
-#endif
-                        GenJournalLine.Validate("VAT Reporting Date", VATDate);
-                        GenJournalLine."Adv. Letter No. (Entry) CZZ" := SalesAdvLetterEntryCZZ."Sales Adv. Letter No.";
-                        GenJournalLine."Use Advance G/L Account CZZ" := true;
-                        GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", CurrencyFactor);
-                        GenJournalLine.Validate(Amount, RemAmount);
-
-                        ApplId := CopyStr(CustLedgerEntry1."Document No." + Format(CustLedgerEntry1."Entry No.", 0, '<Integer>'), 1, MaxStrLen(ApplId));
-                        CustLedgerEntry1.Prepayment := false;
-                        CustLedgerEntry1."Advance Letter No. CZZ" := SalesAdvLetterEntryCZZ."Sales Adv. Letter No.";
-                        CustLedgerEntry1.Modify();
-                        CustLedgerEntry1.CalcFields("Remaining Amount");
-                        CustLedgerEntry1."Amount to Apply" := CustLedgerEntry1."Remaining Amount";
-                        CustLedgerEntry1."Applies-to ID" := ApplId;
-                        Codeunit.Run(Codeunit::"Cust. Entry-Edit", CustLedgerEntry1);
-                        GenJournalLine."Applies-to ID" := ApplId;
-
-                        OnBeforePostClosePayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
-                        GenJnlPostLine.RunWithCheck(GenJournalLine);
-                        OnAfterPostClosePayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
-
-                        CustLedgerEntry2.FindLast();
-                        AdvEntryInit(false);
-                        AdvEntryInitCustLedgEntryNo(CustLedgerEntry2."Entry No.");
-                        AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ."Entry No.");
-                        AdvEntryInsert("Advance Letter Entry Type CZZ"::Close, GenJournalLine."Adv. Letter No. (Entry) CZZ", GenJournalLine."Posting Date",
-                            GenJournalLine.Amount, RemAmountLCY,
-                            GenJournalLine."Currency Code", GenJournalLine."Currency Factor", GenJournalLine."Document No.",
-                            GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", GenJournalLine."Dimension Set ID", false);
-
-                        ReverseAdvancePaymentVAT(SalesAdvLetterEntryCZZ, CustLedgerEntry1."Source Code", SalesAdvLetterHeaderCZZ."Posting Description", RemAmount, CurrencyFactor, VATDocumentNo, PostingDate, VATDate, SalesAdvLetterEntryCZZGlob."Entry No.", '', "Advance Letter Entry Type CZZ"::"VAT Close", GenJnlPostLine, false);
-
-                        InitGenJnlLineFromCustLedgEntry(CustLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::Payment);
-                        GenJournalLine.Correction := true;
-                        GenJournalLine."Document No." := VATDocumentNo;
-                        GenJournalLine."Posting Date" := PostingDate;
-                        GenJournalLine."Document Date" := PostingDate;
-#if not CLEAN22
-#pragma warning disable AL0432
-                        if not ReplaceVATDateMgtCZL.IsEnabled() then
-                            GenJournalLine.Validate("VAT Date CZL", VATDate)
-                        else
-#pragma warning restore AL0432
-#endif
-                        GenJournalLine.Validate("VAT Reporting Date", VATDate);
-                        GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", CurrencyFactor);
-                        GenJournalLine.Validate(Amount, -RemAmount);
-                        GenJournalLine."Variable Symbol CZL" := SalesAdvLetterHeaderCZZ."Variable Symbol";
-                        if CustomerBankAccount.Get(Customer."No.", Customer."Preferred Bank Account Code") then begin
-                            GenJournalLine."Bank Account Code CZL" := CustomerBankAccount.Code;
-                            GenJournalLine."Bank Account No. CZL" := CustomerBankAccount."Bank Account No.";
-                            GenJournalLine."Transit No. CZL" := CustomerBankAccount."Transit No.";
-                            GenJournalLine."IBAN CZL" := CustomerBankAccount.IBAN;
-                            GenJournalLine."SWIFT Code CZL" := CustomerBankAccount."SWIFT Code";
-                        end;
-                        OnBeforePostClosePaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ);
-                        GenJnlPostLine.RunWithCheck(GenJournalLine);
-                        OnAfterPostClosePaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ);
+        SalesAdvLetterEntryCZZ.SetRange("Sales Adv. Letter No.", SalesAdvLetterHeaderCZZ."No.");
+        SalesAdvLetterEntryCZZ.SetRange("Entry Type", SalesAdvLetterEntryCZZ."Entry Type"::Payment);
+        SalesAdvLetterEntryCZZ.SetRange(Cancelled, false);
+        if SalesAdvLetterEntryCZZ.FindSet() then
+            repeat
+                RemAmount := GetRemAmtSalAdvPayment(SalesAdvLetterEntryCZZ, 0D);
+                RemAmountLCY := GetRemAmtLCYSalAdvPayment(SalesAdvLetterEntryCZZ, 0D);
+                if RemAmount <> 0 then begin
+                    if VATDocumentNo = '' then begin
+                        AdvanceLetterTemplateCZZ.Get(SalesAdvLetterHeaderCZZ."Advance Letter Code");
+                        AdvanceLetterTemplateCZZ.TestField("Advance Letter Cr. Memo Nos.");
+                        VATDocumentNo := NoSeriesManagement.GetNextNo(AdvanceLetterTemplateCZZ."Advance Letter Cr. Memo Nos.", PostingDate, true);
                     end;
-                until SalesAdvLetterEntryCZZ.Next() = 0;
 
-            CancelInitEntry(SalesAdvLetterHeaderCZZ, PostingDate, false);
-            SalesAdvLetterHeaderCZZ.Find();
-            UpdateStatus(SalesAdvLetterHeaderCZZ, SalesAdvLetterHeaderCZZ.Status::Closed);
+                    SalesAdvLetterHeaderCZZ.Get(SalesAdvLetterEntryCZZ."Sales Adv. Letter No.");
+                    Customer.Get(SalesAdvLetterHeaderCZZ."Bill-to Customer No.");
+                    CustLedgerEntry1.Get(SalesAdvLetterEntryCZZ."Cust. Ledger Entry No.");
 
-            AdvanceLetterApplicationCZZ.SetRange("Advance Letter Type", AdvanceLetterApplicationCZZ."Advance Letter Type"::Sales);
-            AdvanceLetterApplicationCZZ.SetRange("Advance Letter No.", SalesAdvLetterHeaderCZZ."No.");
-            AdvanceLetterApplicationCZZ.DeleteAll(true);
-        end;
+                    InitGenJnlLineFromCustLedgEntry(CustLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::" ");
+                    GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
+                    GenJournalLine.Correction := true;
+                    GenJournalLine."Document No." := VATDocumentNo;
+                    GenJournalLine."Posting Date" := PostingDate;
+                    GenJournalLine."Document Date" := PostingDate;
+#if not CLEAN22
+#pragma warning disable AL0432
+                    if not ReplaceVATDateMgtCZL.IsEnabled() then
+                        GenJournalLine.Validate("VAT Date CZL", VATDate)
+                    else
+#pragma warning restore AL0432
+#endif
+                        GenJournalLine.Validate("VAT Reporting Date", VATDate);
+                    GenJournalLine."Adv. Letter No. (Entry) CZZ" := SalesAdvLetterEntryCZZ."Sales Adv. Letter No.";
+                    GenJournalLine."Use Advance G/L Account CZZ" := true;
+                    GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", CurrencyFactor);
+                    GenJournalLine.Validate(Amount, RemAmount);
+
+                    ApplId := CopyStr(CustLedgerEntry1."Document No." + Format(CustLedgerEntry1."Entry No.", 0, '<Integer>'), 1, MaxStrLen(ApplId));
+                    CustLedgerEntry1.Prepayment := false;
+                    CustLedgerEntry1."Advance Letter No. CZZ" := SalesAdvLetterEntryCZZ."Sales Adv. Letter No.";
+                    CustLedgerEntry1.Modify();
+                    CustLedgerEntry1.CalcFields("Remaining Amount");
+                    CustLedgerEntry1."Amount to Apply" := CustLedgerEntry1."Remaining Amount";
+                    CustLedgerEntry1."Applies-to ID" := ApplId;
+                    Codeunit.Run(Codeunit::"Cust. Entry-Edit", CustLedgerEntry1);
+                    GenJournalLine."Applies-to ID" := ApplId;
+
+                    OnBeforePostClosePayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
+                    GenJnlPostLine.RunWithCheck(GenJournalLine);
+                    OnAfterPostClosePayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
+
+                    CustLedgerEntry2.FindLast();
+                    AdvEntryInit(false);
+                    AdvEntryInitCustLedgEntryNo(CustLedgerEntry2."Entry No.");
+                    AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ."Entry No.");
+                    AdvEntryInsert("Advance Letter Entry Type CZZ"::Close, GenJournalLine."Adv. Letter No. (Entry) CZZ", GenJournalLine."Posting Date",
+                        GenJournalLine.Amount, RemAmountLCY,
+                        GenJournalLine."Currency Code", GenJournalLine."Currency Factor", GenJournalLine."Document No.",
+                        GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", GenJournalLine."Dimension Set ID", false);
+
+                    ReverseAdvancePaymentVAT(SalesAdvLetterEntryCZZ, CustLedgerEntry1."Source Code",
+                        SalesAdvLetterHeaderCZZ."Posting Description", RemAmount, CurrencyFactor,
+                        VATDocumentNo, PostingDate, VATDate, SalesAdvLetterEntryCZZGlob."Entry No.", '',
+                        "Advance Letter Entry Type CZZ"::"VAT Close", GenJnlPostLine, false);
+
+                    InitGenJnlLineFromCustLedgEntry(CustLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::Payment);
+                    GenJournalLine.Correction := true;
+                    GenJournalLine."Document No." := VATDocumentNo;
+                    GenJournalLine."Posting Date" := PostingDate;
+                    GenJournalLine."Document Date" := PostingDate;
+#if not CLEAN22
+#pragma warning disable AL0432
+                    if not ReplaceVATDateMgtCZL.IsEnabled() then
+                        GenJournalLine.Validate("VAT Date CZL", VATDate)
+                    else
+#pragma warning restore AL0432
+#endif
+                        GenJournalLine.Validate("VAT Reporting Date", VATDate);
+                    GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", CurrencyFactor);
+                    GenJournalLine.Validate(Amount, -RemAmount);
+                    GenJournalLine."Variable Symbol CZL" := SalesAdvLetterHeaderCZZ."Variable Symbol";
+                    if CustomerBankAccount.Get(Customer."No.", Customer."Preferred Bank Account Code") then begin
+                        GenJournalLine."Bank Account Code CZL" := CustomerBankAccount.Code;
+                        GenJournalLine."Bank Account No. CZL" := CustomerBankAccount."Bank Account No.";
+                        GenJournalLine."Transit No. CZL" := CustomerBankAccount."Transit No.";
+                        GenJournalLine."IBAN CZL" := CustomerBankAccount.IBAN;
+                        GenJournalLine."SWIFT Code CZL" := CustomerBankAccount."SWIFT Code";
+                    end;
+                    OnBeforePostClosePaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ);
+                    GenJnlPostLine.RunWithCheck(GenJournalLine);
+                    OnAfterPostClosePaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ);
+                end;
+            until SalesAdvLetterEntryCZZ.Next() = 0;
+
+        CancelInitEntry(SalesAdvLetterHeaderCZZ, PostingDate, false);
+        SalesAdvLetterHeaderCZZ.Find();
+        UpdateStatus(SalesAdvLetterHeaderCZZ, SalesAdvLetterHeaderCZZ.Status::Closed);
+
+        AdvanceLetterApplicationCZZ.SetRange("Advance Letter Type", AdvanceLetterApplicationCZZ."Advance Letter Type"::Sales);
+        AdvanceLetterApplicationCZZ.SetRange("Advance Letter No.", SalesAdvLetterHeaderCZZ."No.");
+        AdvanceLetterApplicationCZZ.DeleteAll(true);
     end;
 
     procedure PostAdvanceCreditMemoVAT(var SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ")
@@ -2376,10 +2391,11 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         ApplyAdvanceLetterQst: Label 'Apply Advance Letter?';
         CannotApplyErr: Label 'You cannot apply more than %1.', Comment = '%1 = Remaining amount to apply';
     begin
-        SalesAdvLetterManagement.LinkAdvanceLetter("Adv. Letter Usage Doc.Type CZZ"::"Posted Sales Invoice", SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."Posting Date", SalesInvoiceHeader."Currency Code");
-
         AdvanceLetterApplication.SetRange("Document Type", AdvanceLetterApplication."Document Type"::"Posted Sales Invoice");
         AdvanceLetterApplication.SetRange("Document No.", SalesInvoiceHeader."No.");
+        if AdvanceLetterApplication.IsEmpty() then
+            SalesAdvLetterManagement.LinkAdvanceLetter("Adv. Letter Usage Doc.Type CZZ"::"Posted Sales Invoice", SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."Posting Date", SalesInvoiceHeader."Currency Code");
+
         if AdvanceLetterApplication.IsEmpty() then
             exit;
 

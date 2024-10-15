@@ -173,7 +173,12 @@ page 1174 "Document Attachment Factbox"
     trigger OnAfterGetCurrRecord()
     var
         CurrentFilterGroup: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnAfterGetCurrRecord(Rec, NumberOfRecords, IsHandled);
+        if IsHandled then
+            exit;
         CurrentFilterGroup := Rec.FilterGroup;
         Rec.FilterGroup := 4;
 
@@ -187,5 +192,10 @@ page 1174 "Document Attachment Factbox"
 
     var
         NumberOfRecords: Integer;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetCurrRecord(var DocumentAttachment: Record "Document Attachment"; var AttachmentCount: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }
 

@@ -28,6 +28,14 @@ tableextension 11754 "Purchase Line CZL" extends "Purchase Line"
             AutoFormatType = 1;
             Caption = 'Ext. Amount';
             Editable = false;
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#endif
+            ObsoleteReason = 'The field is not used anymore.';
         }
         field(11774; "Ext. Amount Incl. VAT CZL"; Decimal)
         {
@@ -35,6 +43,14 @@ tableextension 11754 "Purchase Line CZL" extends "Purchase Line"
             AutoFormatType = 1;
             Caption = 'Ext. Amount Including VAT';
             Editable = false;
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#endif
+            ObsoleteReason = 'The field is not used anymore.';
         }
         field(31064; "Physical Transfer CZL"; Boolean)
         {

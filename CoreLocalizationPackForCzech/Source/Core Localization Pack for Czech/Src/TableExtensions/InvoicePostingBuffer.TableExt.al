@@ -13,12 +13,28 @@ tableextension 31050 "Invoice Posting Buffer CZL" extends "Invoice Posting Buffe
             AutoFormatType = 1;
             Caption = 'Ext. Amount';
             DataClassification = SystemMetadata;
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#endif
+            ObsoleteReason = 'The field is not used anymore.';
         }
         field(11774; "Ext. Amount Incl. VAT CZL"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Ext. Amount Including VAT';
             DataClassification = SystemMetadata;
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#endif
+            ObsoleteReason = 'The field is not used anymore.';
         }
         field(11780; "VAT Date CZL"; Date)
         {

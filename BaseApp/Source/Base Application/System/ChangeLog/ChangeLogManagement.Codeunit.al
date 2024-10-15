@@ -232,6 +232,7 @@ codeunit 423 "Change Log Management"
         if MonitorSensitiveFieldData.IsIgnoredMonitorField(RecRef, FldRef) then
             exit;
 
+        OnInsertLogEntryOnBeforeInitChangeLogEntry(ChangeLogEntry);
         ChangeLogEntry.Init();
         ChangeLogEntry."Date and Time" := CurrentDateTime;
         ChangeLogEntry.Time := DT2Time(ChangeLogEntry."Date and Time");
@@ -717,6 +718,11 @@ codeunit 423 "Change Log Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnLogModificationOnBeforeRecRefLoopStart(var RecRef: RecordRef; var xRecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLogEntryOnBeforeInitChangeLogEntry(var ChangeLogEntry: Record "Change Log Entry")
     begin
     end;
 }

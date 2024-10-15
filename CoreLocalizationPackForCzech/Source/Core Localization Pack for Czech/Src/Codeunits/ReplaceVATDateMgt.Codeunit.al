@@ -6,6 +6,7 @@
 namespace Microsoft.Finance.VAT.Calculation;
 
 using System.Environment.Configuration;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 codeunit 31463 "Replace VAT Date Mgt. CZL"
 {
@@ -43,6 +44,21 @@ codeunit 31463 "Replace VAT Date Mgt. CZL"
     procedure GetFeatureKey(): Text[50]
     begin
         exit(ReplaceVATDateFeatureIdTok);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', true, true)]
+    local procedure OnAfterFeatureEnableConfirmed(var FeatureKey: Record "Feature Key")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        if FeatureKey.ID = GetFeatureKey() then begin
+            GeneralLedgerSetup.Get();
+            if GeneralLedgerSetup."Use VAT Date CZL" then
+                GeneralLedgerSetup."VAT Reporting Date Usage" := GeneralLedgerSetup."VAT Reporting Date Usage"::"Enabled (Prevent modification)"
+            else
+                GeneralLedgerSetup."VAT Reporting Date Usage" := GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled;
+            GeneralLedgerSetup.Modify();
+        end;
     end;
 
     [Obsolete('The VAT Date CZL will be replaced by VAT Reporting Date by default.', '22.0')]

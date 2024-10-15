@@ -250,7 +250,13 @@ table 5404 "Item Unit of Measure"
         WhseEntry: Record "Warehouse Entry";
         Location: Record Location;
         Bin: Record Bin;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestNoWhseAdjmtEntriesExist(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseEntry.SetRange("Item No.", "Item No.");
         WhseEntry.SetRange("Unit of Measure Code", xRec.Code);
         if Location.FindSet() then
@@ -471,7 +477,14 @@ table 5404 "Item Unit of Measure"
     end;
 
     local procedure CheckQtyPerUoMPrecision(ItemUoM: Record "Item Unit of Measure"; BaseRoundingPrecision: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckQtyPerUoMPrecision(ItemUoM, BaseRoundingPrecision, IsHandled);
+        if IsHandled then
+            exit;
+
         if BaseRoundingPrecision <> 0 then
             if ItemUoM."Qty. per Unit of Measure" MOD BaseRoundingPrecision <> 0 then
                 Error(QtyPerUoMRoundPrecisionNotAlignedErr,
@@ -537,6 +550,16 @@ table 5404 "Item Unit of Measure"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckNoOutstandingQtyTransferLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyPerUoMPrecision(ItemUnitofMeasure: Record "Item Unit of Measure"; BaseRoundingPrecision: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoWhseAdjmtEntriesExist(ItemUnitOfMeasure: Record "Item Unit of Measure"; var IsHandled: Boolean)
     begin
     end;
 }

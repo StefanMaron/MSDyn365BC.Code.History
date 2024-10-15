@@ -101,6 +101,7 @@ page 9092 "Approval FactBox"
         if ApprovalEntry.FindFirst() then
             Rec.SetFilter("Approver ID", '<>%1', ApprovalEntry."Sender ID");
         Rec.FilterGroup(0);
+        OnUpdateApprovalEntriesFromSourceRecordOnAfterApprovalEntrySetFilter(ApprovalEntry);
         if Rec.FindLast() then;
         CurrPage.Update(false);
     end;
@@ -112,6 +113,11 @@ page 9092 "Approval FactBox"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateApprovalEntriesFromSourceRecord(var ApprovalEntry: Record "Approval Entry"; SourceRecordID: RecordID; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateApprovalEntriesFromSourceRecordOnAfterApprovalEntrySetFilter(var ApprovalEntry: Record "Approval Entry")
     begin
     end;
 }

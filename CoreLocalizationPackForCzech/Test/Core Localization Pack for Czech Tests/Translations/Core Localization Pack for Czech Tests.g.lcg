@@ -509,15 +509,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = Starting Date of VAT period]D;]A;(LookupHint=Codeunit VAT Date CZL - Method GenJnlLinePostWithVATToClosedVATPeriod - NamedType TestClosedFieldErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2878479753 - Method 1335524357 - NamedType 3915869411" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Relation Exch. Rate Amount for the Currency Code and for the VAT Currency Code must be the same if Normal VAT is used.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Exchange Rate CZL - Method VATCurrencyFactorInPostedSalesHeaderNormal - NamedType WrongVATCalculationTypeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4169948640 - Method 2590279828 - NamedType 750713676" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Released]]></Val>

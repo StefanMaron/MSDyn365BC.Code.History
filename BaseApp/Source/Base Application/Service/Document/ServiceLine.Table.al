@@ -5791,6 +5791,10 @@ table 5902 "Service Line"
 
         if ("Location Code" = '') or (Type <> Type::Item) then
             exit;
+
+        if Rec.IsNonInventoriableItem() then
+            exit;
+                
         Location.Get("Location Code");
         if not Location."Bin Mandatory" then
             exit;

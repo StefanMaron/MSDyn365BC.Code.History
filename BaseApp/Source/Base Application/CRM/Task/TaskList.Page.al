@@ -362,28 +362,29 @@ page 5096 "Task List"
     begin
         IsHandled := false;
         OnBeforeCaption(Rec, CaptionStr, IsHandled);
-        if IsHandled then
-            exit;
-
-        if Contact.Get(Rec.GetFilter("Contact Company No.")) then begin
-            Contact2.Get(Rec.GetFilter("Contact Company No."));
-            if Contact2."No." <> Contact."No." then
-                CaptionStr := CopyStr(Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
+        if not IsHandled then begin
+            if Contact.Get(Rec.GetFilter("Contact Company No.")) then begin
+                Contact2.Get(Rec.GetFilter("Contact Company No."));
+                if Contact2."No." <> Contact."No." then
+                    CaptionStr := CopyStr(Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
+            end;
+            if Contact.Get(Rec.GetFilter("Contact No.")) then
+                CaptionStr := CopyStr(CaptionStr + ' ' + Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
+            if SalespersonPurchaser.Get(Rec.GetFilter("Salesperson Code")) then
+                CaptionStr := CopyStr(CaptionStr + ' ' + SalespersonPurchaser.Code + ' ' + SalespersonPurchaser.Name, 1, MaxStrLen(CaptionStr));
+            if Team.Get(Rec.GetFilter("Team Code")) then
+                CaptionStr := CopyStr(CaptionStr + ' ' + Team.Code + ' ' + Team.Name, 1, MaxStrLen(CaptionStr));
+            if Campaign.Get(Rec.GetFilter("Campaign No.")) then
+                CaptionStr := CopyStr(CaptionStr + ' ' + Campaign."No." + ' ' + Campaign.Description, 1, MaxStrLen(CaptionStr));
+            if Opportunity.Get(Rec.GetFilter("Opportunity No.")) then
+                CaptionStr := CopyStr(CaptionStr + ' ' + Opportunity."No." + ' ' + Opportunity.Description, 1, MaxStrLen(CaptionStr));
+            if SegmentHeader.Get(Rec.GetFilter("Segment No.")) then
+                CaptionStr := CopyStr(CaptionStr + ' ' + SegmentHeader."No." + ' ' + SegmentHeader.Description, 1, MaxStrLen(CaptionStr));
+            if CaptionStr = '' then
+                CaptionStr := Text001;
         end;
-        if Contact.Get(Rec.GetFilter("Contact No.")) then
-            CaptionStr := CopyStr(CaptionStr + ' ' + Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
-        if SalespersonPurchaser.Get(Rec.GetFilter("Salesperson Code")) then
-            CaptionStr := CopyStr(CaptionStr + ' ' + SalespersonPurchaser.Code + ' ' + SalespersonPurchaser.Name, 1, MaxStrLen(CaptionStr));
-        if Team.Get(Rec.GetFilter("Team Code")) then
-            CaptionStr := CopyStr(CaptionStr + ' ' + Team.Code + ' ' + Team.Name, 1, MaxStrLen(CaptionStr));
-        if Campaign.Get(Rec.GetFilter("Campaign No.")) then
-            CaptionStr := CopyStr(CaptionStr + ' ' + Campaign."No." + ' ' + Campaign.Description, 1, MaxStrLen(CaptionStr));
-        if Opportunity.Get(Rec.GetFilter("Opportunity No.")) then
-            CaptionStr := CopyStr(CaptionStr + ' ' + Opportunity."No." + ' ' + Opportunity.Description, 1, MaxStrLen(CaptionStr));
-        if SegmentHeader.Get(Rec.GetFilter("Segment No.")) then
-            CaptionStr := CopyStr(CaptionStr + ' ' + SegmentHeader."No." + ' ' + SegmentHeader.Description, 1, MaxStrLen(CaptionStr));
-        if CaptionStr = '' then
-            CaptionStr := Text001;
+
+        OnAfterGetCaption(Rec, CaptionStr);
     end;
 
     local procedure ContactNoOnFormat(Text: Text[1024])
@@ -394,6 +395,11 @@ page 5096 "Task List"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCaption(var ToDo: Record "To-do"; var CaptionStr: Text; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCaption(var ToDo: Record "To-do"; var CaptionStr: Text)
     begin
     end;
 

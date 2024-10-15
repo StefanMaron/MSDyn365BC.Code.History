@@ -188,30 +188,7 @@ page 31186 "VAT Document Line CZZ"
 
         Rec."VAT Base Amount" := Rec.Amount - Rec."VAT Amount";
 
-        UpdateLCYAmounts();
-    end;
-
-    local procedure UpdateLCYAmounts()
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-    begin
-        if CurrencyCode = '' then begin
-            Rec."VAT Base Amount (ACY)" := Rec."VAT Base Amount";
-            Rec."VAT Amount (ACY)" := Rec."VAT Amount";
-            Rec."Amount (ACY)" := Rec.Amount;
-        end else begin
-            Rec."Amount (ACY)" :=
-              Round(
-                CurrencyExchangeRate.ExchangeAmtFCYToLCY(
-                  0D, CurrencyCode,
-                  Rec.Amount, CurrencyFactor));
-            Rec."VAT Amount (ACY)" :=
-              Round(
-                CurrencyExchangeRate.ExchangeAmtFCYToLCY(
-                  0D, CurrencyCode,
-                  Rec."VAT Amount", CurrencyFactor));
-            Rec."VAT Base Amount (ACY)" := Rec."Amount (ACY)" - Rec."VAT Amount (ACY)";
-        end;
+        Rec.UpdateLCYAmounts(CurrencyCode, CurrencyFactor);
     end;
 
     procedure InitDocumentLines(NewCurrencyCode: Code[10]; NewCurrencyFactor: Decimal; var AdvancePostingBufferCZZ: Record "Advance Posting Buffer CZZ")
@@ -254,11 +231,7 @@ page 31186 "VAT Document Line CZZ"
 
         if Rec.FindSet() then
             repeat
-                if CurrencyFactor <> 0 then
-                    Rec."Amount (ACY)" := Round(Rec.Amount / CurrencyFactor)
-                else
-                    Rec."Amount (ACY)" := Round(Rec.Amount);
-                UpdateLCYAmounts();
+                Rec.UpdateLCYAmounts(CurrencyCode, CurrencyFactor);
                 Rec.Modify();
             until Rec.Next() = 0;
     end;
@@ -285,18 +258,21 @@ page 31186 "VAT Document Line CZZ"
 
         Rec."VAT Base Amount" := Rec.Amount - Rec."VAT Amount";
 
-        UpdateLCYAmounts();
+        Rec.UpdateLCYAmounts(CurrencyCode, CurrencyFactor);
     end;
 
     local procedure ValidateVATAmountLCY()
     var
-        CalcVATAmount: Decimal;
+        CalcAdvancePostingBuffer: Record "Advance Posting Buffer CZZ";
     begin
         GetCurrency('');
 
-        Rec.TestField("Amount (ACY)");
+        Rec.TestField(Amount);
         Rec.TestField("VAT Calculation Type", Rec."VAT Calculation Type"::"Normal VAT");
         Rec."VAT Amount (ACY)" := Round(Rec."VAT Amount (ACY)", Currency."Amount Rounding Precision");
+
+        CalcAdvancePostingBuffer := Rec;
+        CalcAdvancePostingBuffer.UpdateLCYAmounts(CurrencyCode, CurrencyFactor);
 
         if Rec."VAT Amount (ACY)" * Rec."Amount (ACY)" < 0 then
             if Rec."VAT Amount (ACY)" > 0 then
@@ -304,8 +280,7 @@ page 31186 "VAT Document Line CZZ"
             else
                 Error(MustBePositiveErr, Rec.FieldCaption("VAT Amount (ACY)"));
 
-        CalcVATAmount := Round(Rec."Amount (ACY)" * Rec."VAT %" / (100 + Rec."VAT %"), Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-        if Abs(CalcVATAmount - Rec."VAT Amount (ACY)") > Currency."Max. VAT Difference Allowed" then
+        if Abs(CalcAdvancePostingBuffer."VAT Amount (ACY)" - Rec."VAT Amount (ACY)") > Currency."Max. VAT Difference Allowed" then
             Error(MustNotBeMoreErr, Currency."Max. VAT Difference Allowed");
 
         Rec."VAT Base Amount (ACY)" := Rec."Amount (ACY)" - Rec."VAT Amount (ACY)";

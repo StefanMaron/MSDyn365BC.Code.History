@@ -43,7 +43,9 @@ page 9631 "Page Inspection"
 
                     trigger OnDrillDown()
                     begin
-                        HyperLink(ExploreInVsCoderequestURL);
+                        if (not ExploreInVsCodeRequestURLIsUpdated) then
+                            SetOpenInVSCodeRequestURL();
+                        HyperLink(ExploreInVsCodeRequestURL);
                     end;
                 }
             }
@@ -280,7 +282,6 @@ page 9631 "Page Inspection"
     begin
         SetElementsVisibilities();
         UpdateVisiblePart();
-        SetOpenInVSCodeRequestURL();
     end;
 
     trigger OnOpenPage()
@@ -308,7 +309,8 @@ page 9631 "Page Inspection"
         InfoFormatSecondDetailOnlyLbl: Label '(%1)', Locked = true;
         ViewFullTableURL: Text;
         ViewTableLbl: Label 'View table';
-        ExploreInVsCoderequestURL: Text;
+        ExploreInVsCodeRequestURL: Text;
+        ExploreInVsCodeRequestURLIsUpdated: Boolean;
         ExploreInVsCodeTextLbl: Label 'Explore page in Visual Studio Code';
         ShowExploreInVSCodeLink: Boolean;
         ShowFields: Boolean;
@@ -345,7 +347,8 @@ page 9631 "Page Inspection"
         VSCodeRequestHelper: Codeunit "VS Code Request Helper";
     begin
         if ShowExploreInVSCodeLink then
-            ExploreInVsCoderequestURL := VSCodeRequestHelper.GetUrlToNavigatePageInVSCode(Rec);
+            ExploreInVsCodeRequestURL := VSCodeRequestHelper.GetUrlToNavigatePageInVSCode(Rec);
+        ExploreInVsCodeRequestURLIsUpdated := true;
     end;
 
     local procedure SetInitialVisibilities()
@@ -453,5 +456,7 @@ page 9631 "Page Inspection"
             CurrPage.Filters.PAGE.UpdatePage(Rec."Current Form ID", Rec."Current Form Bookmark");
             CurrPage.Filters.PAGE.SetFilterListVisibility(PageHasSourceTable);
         end;
+
+        ExploreInVsCodeRequestURLIsUpdated := false;
     end;
 }

@@ -1,6 +1,7 @@
 codeunit 148009 "Library - Sales Advances CZZ"
 {
     var
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
@@ -69,11 +70,11 @@ codeunit 148009 "Library - Sales Advances CZZ"
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader.Validate("Posting Date", WorkDate());
-        SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader.Validate("Prices Including VAT", true);
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandIntInRange(2, 10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Modify(true);
     end;
@@ -89,7 +90,6 @@ codeunit 148009 "Library - Sales Advances CZZ"
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Validate("Prepayment %", 100);
         SalesHeader.Validate("Prices Including VAT", PricesIncVAT);
         if CurrencyCode <> '' then
             SalesHeader.Validate("Currency Code", CurrencyCode);
@@ -127,7 +127,105 @@ codeunit 148009 "Library - Sales Advances CZZ"
         CustomerPostingGroup.Modify(true);
     end;
 
-    local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
+    procedure ReleaseSalesAdvLetter(var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ")
+    begin
+        Codeunit.Run(Codeunit::"Rel. Sales Adv.Letter Doc. CZZ", SalesAdvLetterHeaderCZZ);
+    end;
+
+    procedure GetPossibleSalesAdvance(AdvLetterUsageDocTypeCZZ: Enum "Adv. Letter Usage Doc.Type CZZ"; DocumentNo: Code[20]; BillToCustomerNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]; var TempAdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ" temporary)
+    begin
+        TempAdvanceLetterApplicationCZZ.GetPossibleSalesAdvance(AdvLetterUsageDocTypeCZZ, DocumentNo, BillToCustomerNo, PostingDate, CurrencyCode, TempAdvanceLetterApplicationCZZ);
+    end;
+
+    procedure LinkAdvanceLetterToDocument(AdvanceLetterTypeCZZ: Enum "Advance Letter Type CZZ"; AdvanceLetterNo: Code[20]; PostingDate: Date; AdvLetterUsageDocTypeCZZ: Enum "Adv. Letter Usage Doc.Type CZZ"; DocumentNo: Code[20]; Amount: Decimal; AmountLCY: Decimal)
+    var
+        AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ";
+    begin
+        AdvanceLetterApplicationCZZ.Init();
+        AdvanceLetterApplicationCZZ."Advance Letter Type" := AdvanceLetterTypeCZZ;
+        AdvanceLetterApplicationCZZ."Advance Letter No." := AdvanceLetterNo;
+        AdvanceLetterApplicationCZZ."Posting Date" := PostingDate;
+        AdvanceLetterApplicationCZZ."Document Type" := AdvLetterUsageDocTypeCZZ;
+        AdvanceLetterApplicationCZZ."Document No." := DocumentNo;
+        AdvanceLetterApplicationCZZ.Amount := Amount;
+        AdvanceLetterApplicationCZZ."Amount (LCY)" := AmountLCY;
+        AdvanceLetterApplicationCZZ.Insert();
+    end;
+
+    procedure LinkSalesAdvanceLetterToDocument(SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; AdvLetterUsageDocTypeCZZ: Enum "Adv. Letter Usage Doc.Type CZZ"; DocumentNo: Code[20]; Amount: Decimal; AmountLCY: Decimal)
+    begin
+        LinkAdvanceLetterToDocument(
+            Enum::"Advance Letter Type CZZ"::Sales, SalesAdvLetterHeaderCZZ."No.", SalesAdvLetterHeaderCZZ."Posting Date",
+            AdvLetterUsageDocTypeCZZ, DocumentNo, Amount, AmountLCY);
+    end;
+
+    procedure LinkSalesAdvancePayment(SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        TempAdvanceLetterLinkBufferCZZ: Record "Advance Letter Link Buffer CZZ" temporary;
+        SalesAdvLetterManagementCZZ: Codeunit "SalesAdvLetterManagement CZZ";
+    begin
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        TempAdvanceLetterLinkBufferCZZ.Init();
+        TempAdvanceLetterLinkBufferCZZ."Advance Letter Type" := Enum::"Advance Letter Type CZZ"::Sales;
+        TempAdvanceLetterLinkBufferCZZ."CV Ledger Entry No." := CustLedgerEntry."Entry No.";
+        TempAdvanceLetterLinkBufferCZZ."Advance Letter No." := SalesAdvLetterHeaderCZZ."No.";
+        TempAdvanceLetterLinkBufferCZZ.Amount := -CustLedgerEntry."Remaining Amount";
+        TempAdvanceLetterLinkBufferCZZ.Insert();
+        SalesAdvLetterManagementCZZ.LinkAdvancePayment(CustLedgerEntry, TempAdvanceLetterLinkBufferCZZ, CustLedgerEntry."Posting Date");
+    end;
+
+    procedure UnlinkSalesAdvancePayment(SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ")
+    var
+        SalesAdvLetterManagementCZZ: Codeunit "SalesAdvLetterManagement CZZ";
+    begin
+        SalesAdvLetterManagementCZZ.UnlinkAdvancePayment(SalesAdvLetterEntryCZZ, WorkDate());
+    end;
+
+    procedure ApplySalesAdvanceLetter(SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesAdvLetterManagementCZZ: Codeunit "SalesAdvLetterManagement CZZ";
+    begin
+        SalesAdvLetterHeaderCZZ.CalcFields("Amount Including VAT", "Amount Including VAT (LCY)");
+        LinkSalesAdvanceLetterToDocument(
+            SalesAdvLetterHeaderCZZ, Enum::"Adv. Letter Usage Doc.Type CZZ"::"Posted Sales Invoice", SalesInvoiceHeader."No.",
+            SalesAdvLetterHeaderCZZ."Amount Including VAT", SalesAdvLetterHeaderCZZ."Amount Including VAT (LCY)");
+        SalesAdvLetterManagementCZZ.ApplyAdvanceLetter(SalesInvoiceHeader);
+    end;
+
+    procedure UnapplyAdvanceLetter(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesAdvLetterManagementCZZ: Codeunit "SalesAdvLetterManagement CZZ";
+    begin
+        SalesAdvLetterManagementCZZ.UnapplyAdvanceLetter(SalesInvoiceHeader);
+    end;
+
+    procedure PostSalesAdvancePaymentVAT(SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ")
+    var
+        SalesAdvLetterManagementCZZ: Codeunit "SalesAdvLetterManagement CZZ";
+    begin
+        SalesAdvLetterManagementCZZ.PostAdvancePaymentVAT(SalesAdvLetterEntryCZZ, 0D, true);
+    end;
+
+    procedure PostSalesAdvancePaymentUsageVAT(var SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ")
+    var
+        SalesAdvLetterManagementCZZ: Codeunit "SalesAdvLetterManagement CZZ";
+    begin
+        SalesAdvLetterManagementCZZ.PostAdvancePaymentUsageVAT(SalesAdvLetterEntryCZZ);
+    end;
+
+    procedure CloseSalesAdvanceLetter(var SalesAdvLetterHeader: Record "Sales Adv. Letter Header CZZ")
+    begin
+        CloseSalesAdvanceLetter(SalesAdvLetterHeader, WorkDate(), WorkDate(), 0);
+    end;
+
+    procedure CloseSalesAdvanceLetter(var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; PostingDate: Date; VATDate: Date; CurrencyFactor: Decimal)
+    var
+        SalesAdvLetterManagementCZZ: Codeunit "SalesAdvLetterManagement CZZ";
+    begin
+        SalesAdvLetterManagementCZZ.CloseAdvanceLetter(SalesAdvLetterHeaderCZZ, PostingDate, VATDate, CurrencyFactor);
+    end;
+
+    procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     var
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -141,6 +239,13 @@ codeunit 148009 "Library - Sales Advances CZZ"
         GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Modify(true);
+    end;
+
+    procedure UnApplyCustLedgEntry(CustLedgEntryNo: Integer)
+    var
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+    begin
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgEntryNo);
     end;
 
     local procedure GetNewGLAccountNo(): Code[20]
@@ -163,29 +268,42 @@ codeunit 148009 "Library - Sales Advances CZZ"
         AddAdvLetterAccounsToVATPostingSetup(VATPostingSetup);
     end;
 
-    local procedure AddAdvLetterAccounsToVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    procedure AddAdvLetterAccounsToVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         VATPostingSetup.Validate("Sales Adv. Letter Account CZZ", GetNewGLAccountNo());
         VATPostingSetup.Validate("Sales Adv. Letter VAT Acc. CZZ", GetNewGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
-    procedure CreateSalesAdvancePayment(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; AdvanceLetterNo: Code[20]; ExchangeRate: Decimal)
+    procedure CreateSalesAdvanceLetterFromOrder(var SalesHeader: Record "Sales Header")
+    var
+        CreateSalesAdvLetterCZZ: Report "Create Sales Adv. Letter CZZ";
     begin
-        GenJournalLine.Init();
-        GenJournalLine.Validate("Posting Date", WorkDate());
-        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
-        GenJournalLine.Validate("Account No.", CustomerNo);
-        GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
-        GenJournalLine.Validate("Document No.", LibraryRandom.RandText(20));
-        GenJournalLine.Validate(Amount, Amount);
+        CreateSalesAdvLetterCZZ.SetSalesHeader(SalesHeader);
+        CreateSalesAdvLetterCZZ.Run();
+    end;
+
+    procedure CreateSalesAdvancePayment(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; AdvanceLetterNo: Code[20]; ExchangeRate: Decimal; PostingDate: Date)
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
         if CurrencyCode <> '' then
             GenJournalLine.Validate("Currency Code", CurrencyCode);
         if ExchangeRate <> 0 then
             GenJournalLine.Validate("Currency Factor", GenJournalLine."Currency Factor" * ExchangeRate);
-        GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"G/L Account";
-        GenJournalLine."Bal. Account No." := LibraryERM.CreateGLAccountNoWithDirectPosting();
+        if PostingDate <> 0D then
+            GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Advance Letter No. CZZ", AdvanceLetterNo);
+        GenJournalLine.Modify(true);
+    end;
+
+    procedure CreateSalesAdvancePayment(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; AdvanceLetterNo: Code[20]; ExchangeRate: Decimal)
+    begin
+        CreateSalesAdvancePayment(GenJournalLine, CustomerNo, Amount, CurrencyCode, AdvanceLetterNo, ExchangeRate, 0D);
+    end;
+
+    procedure PostSalesAdvancePayment(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 }

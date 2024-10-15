@@ -225,13 +225,17 @@ report 5855 "Implement Standard Cost Change"
     local procedure UpdateSKU(StdCostWksh: Record "Standard Cost Worksheet")
     var
         SKU: Record "Stockkeeping Unit";
+        IsHandled: Boolean;
     begin
         with SKU do begin
             SetRange("Item No.", StdCostWksh."No.");
             if Find('-') then begin
                 SKUCostsUpdated := true;
                 repeat
-                    Validate("Standard Cost", StdCostWksh."New Standard Cost");
+                    IsHandled := false;
+                    OnUpdateSKUOnBeforeValidateStandardCost(StdCostWksh, SKU, IsHandled);
+                    if not IsHandled then
+                        Validate("Standard Cost", StdCostWksh."New Standard Cost");
                     Modify(true);
                 until Next() = 0;
             end;
@@ -295,6 +299,7 @@ report 5855 "Implement Standard Cost Change"
     var
         GLSetup: Record "General Ledger Setup";
         ItemJnlLine2: Record "Item Journal Line";
+        IsHandled: Boolean;
     begin
         ItemJnlLine2.SetRange("Journal Template Name", RevalItemJnlTemplate.Name);
         ItemJnlLine2.SetRange("Journal Batch Name", RevalItemJnlBatch.Name);
@@ -304,13 +309,16 @@ report 5855 "Implement Standard Cost Change"
         HideDuplWarning := true;
 
         GLSetup.Get();
-        if ItemJnlLine2.Next() <> 0 then
-            repeat
-                ItemJnlLine2.Validate(
-                  "Unit Cost (Revalued)", Round("Standard Cost Worksheet"."New Standard Cost", GLSetup."Unit-Amount Rounding Precision"));
-                ItemJnlLine2.Modify(true);
-                RevalJnlCreated := true;
-            until ItemJnlLine2.Next() = 0;
+        IsHandled := false;
+        OnInsertRevalItemJnlLineOnBeforeItemJnlLineLoop(ItemJnlLine2, RevalJnlCreated, IsHandled);
+        if not IsHandled then
+            if ItemJnlLine2.Next() <> 0 then
+                repeat
+                    ItemJnlLine2.Validate(
+                      "Unit Cost (Revalued)", Round("Standard Cost Worksheet"."New Standard Cost", GLSetup."Unit-Amount Rounding Precision"));
+                    ItemJnlLine2.Modify(true);
+                    RevalJnlCreated := true;
+                until ItemJnlLine2.Next() = 0;
     end;
 
     procedure SetStdCostWksh(NewStdCostWkshName: Code[10])
@@ -408,6 +416,7 @@ report 5855 "Implement Standard Cost Change"
         CalcInvtValue.SetTableView(Item);
         CalcInvtValue.InitializeRequest(PostingDate, DocNo, HideDuplWarning, CalculatePer::Item, false, false, false, 0, false);
         CalcInvtValue.UseRequestPage(false);
+        OnCalculateInventoryValueOnBeforeCalcInvtValueRun(CalcInvtValue, PostingDate, DocNo, HideDuplWarning);
         CalcInvtValue.Run();
     end;
 
@@ -492,6 +501,21 @@ report 5855 "Implement Standard Cost Change"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemOnBeforeModify(StandardCostWorksheet: Record "Standard Cost Worksheet"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInventoryValueOnBeforeCalcInvtValueRun(var CalculateInventoryValue: Report "Calculate Inventory Value"; NewPostingDate: Date; NewDocNo: Code[20]; NewHideDuplWarning: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSKUOnBeforeValidateStandardCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertRevalItemJnlLineOnBeforeItemJnlLineLoop(var ItemJournalLine: Record "Item Journal Line"; var RevalJnlCreated: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

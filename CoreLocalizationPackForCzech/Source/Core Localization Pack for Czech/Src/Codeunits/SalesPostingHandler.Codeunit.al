@@ -36,77 +36,135 @@ using System.Utilities;
 codeunit 31038 "Sales Posting Handler CZL"
 {
     var
-        SourceCodeSetup: Record "Source Code Setup";
-        GLEntry: Record "G/L Entry";
         Currency: Record Currency;
+        GLEntry: Record "G/L Entry";
+        SourceCodeSetup: Record "Source Code Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
         BankOperationsFunctionsCZL: Codeunit "Bank Operations Functions CZL";
         ReverseChargeCheckCZL: Enum "Reverse Charge Check CZL";
-        VATCalcTypeErr: Label 'Relation Exch. Rate Amount for the Currency Code and for the VAT Currency Code must be the same if Normal VAT is used.';
+        GlobalAmountType: Option Base,VAT;
 
 #if not CLEAN23
 #pragma warning disable AL0432
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostInvPostBuffer', '', false, false)]
-    local procedure SalesPostVATCurrencyFactorOnAfterPostInvPostBuffer(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesHeader: Record "Sales Header"; GLEntryNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure SalesPostVATDelayOnAfterPostInvPostBuffer(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesHeader: Record "Sales Header"; GLEntryNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     var
-        VATPostingSetup: Record "VAT Posting Setup";
         VATCurrFactor: Decimal;
     begin
-        if SalesHeader."Currency Factor" <> SalesHeader."VAT Currency Factor CZL" then begin
+        if (SalesHeader."Currency Code" <> '') and (SalesHeader."Currency Factor" <> SalesHeader."VAT Currency Factor CZL") and
+           ((InvoicePostBuffer."VAT Calculation Type" = InvoicePostBuffer."VAT Calculation Type"::"Reverse Charge VAT") or
+            (InvoicePostBuffer."VAT Calculation Type" = InvoicePostBuffer."VAT Calculation Type"::"Normal VAT"))
+        then begin
             VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group");
-            if VATPostingSetup."VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" then
-                Error(VATCalcTypeErr);
             VATPostingSetup.TestField("Sales VAT Curr. Exch. Acc CZL");
             SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Sales VAT Delay CZL");
             GLEntry.Get(GLEntryNo);
-            PostSalesVATCurrencyFactor(SalesHeader, InvoicePostBuffer, false, 1, true, VATPostingSetup, GenJnlPostLine);
-            if SalesHeader."VAT Currency Factor CZL" = 0 then
-                VATCurrFactor := 1
-            else
-                VATCurrFactor := SalesHeader."Currency Factor" / SalesHeader."VAT Currency Factor CZL";
-            if VATCurrFactor = 0 then
-                VATCurrFactor := 1;
 
-            PostSalesVATCurrencyFactor(SalesHeader, InvoicePostBuffer, true, VATCurrFactor, false, VATPostingSetup, GenJnlPostLine);
+            VATCurrFactor := 1;
+            if SalesHeader."VAT Currency Factor CZL" <> 0 then
+                VATCurrFactor := SalesHeader."Currency Factor" / SalesHeader."VAT Currency Factor CZL";
+
+            PostVATDelay(SalesHeader, InvoicePostBuffer, -1, 1, true, GenJnlPostLine);
+            PostVATDelay(SalesHeader, InvoicePostBuffer, 1, VATCurrFactor, false, GenJnlPostLine);
+            if InvoicePostBuffer."VAT Calculation Type" = InvoicePostBuffer."VAT Calculation Type"::"Normal VAT" then begin
+                PostVATDelayDifference(SalesHeader, InvoicePostBuffer, GlobalAmountType::Base, VATCurrFactor, GenJnlPostLine);
+                PostVATDelayDifference(SalesHeader, InvoicePostBuffer, GlobalAmountType::VAT, VATCurrFactor, GenJnlPostLine);
+            end;
         end;
     end;
 
-    local procedure PostSalesVATCurrencyFactor(SalesHeader: Record "Sales Header"; InvoicePostBuffer: Record "Invoice Post. Buffer"; ToPost: Boolean; CurrFactor: Decimal; IsCorrection: Boolean; VATPostingSetup: Record "VAT Posting Setup"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure PostVATDelay(SalesHeader: Record "Sales Header"; InvoicePostBuffer: Record "Invoice Post. Buffer"; Sign: Integer; CurrFactor: Decimal; IsCorrection: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     var
         GenJournalLine: Record "Gen. Journal Line";
-        Sign: Integer;
     begin
-        if ToPost then
-            Sign := 1
-        else
-            Sign := -1;
+        GetCurrency(SalesHeader."Currency Code");
+        if CurrFactor = 0 then
+            CurrFactor := 1;
 
+        InitGenJournalLine(SalesHeader, InvoicePostBuffer, GenJournalLine);
+
+        GenJournalLine.Quantity := Sign * GenJournalLine.Quantity;
+        GenJournalLine.Amount :=
+            Sign * Round(InvoicePostBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."VAT Amount" :=
+            Sign * Round(InvoicePostBuffer."VAT Amount" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."VAT Base Amount" := GenJournalLine.Amount;
+        GenJournalLine."Source Currency Amount" :=
+            Sign * Round(InvoicePostBuffer."Amount (ACY)" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."Source Curr. VAT Amount" :=
+            Sign * Round(InvoicePostBuffer."VAT Amount (ACY)" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."Source Curr. VAT Base Amount" := GenJournalLine."Source Currency Amount";
+        GenJournalLine."VAT Difference" :=
+            Sign * Round(InvoicePostBuffer."VAT Difference" * CurrFactor, Currency."Amount Rounding Precision");
+
+        GenJournalLine.Correction := InvoicePostBuffer."Correction CZL" xor IsCorrection;
+        GenJournalLine."VAT Bus. Posting Group" := InvoicePostBuffer."VAT Bus. Posting Group";
+        GenJournalLine."VAT Prod. Posting Group" := InvoicePostBuffer."VAT Prod. Posting Group";
+        GenJournalLine."Gen. Bus. Posting Group" := InvoicePostBuffer."Gen. Bus. Posting Group";
+        GenJournalLine."Gen. Prod. Posting Group" := InvoicePostBuffer."Gen. Prod. Posting Group";
+
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
+    end;
+
+    local procedure PostVATDelayDifference(SalesHeader: Record "Sales Header"; InvoicePostBuffer: Record "Invoice Post. Buffer"; AmountType: Option Base,VAT; CurrFactor: Decimal; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Amount: Decimal;
+        AccountNo: Code[20];
+    begin
+        GetCurrency(SalesHeader."Currency Code");
+        if CurrFactor = 0 then
+            CurrFactor := 1;
+
+        case AmountType of
+            AmountType::Base:
+                Amount :=
+                    InvoicePostBuffer.Amount -
+                    Round(InvoicePostBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");
+            AmountType::VAT:
+                begin
+                    Amount :=
+                        InvoicePostBuffer."VAT Amount" -
+                        Round(InvoicePostBuffer."VAT Amount" * CurrFactor, Currency."Amount Rounding Precision");
+                    if Amount < 0 then
+                        AccountNo := Currency."Realized Gains Acc."
+                    else
+                        AccountNo := Currency."Realized Losses Acc.";
+                end;
+        end;
+
+        InitGenJournalLine(SalesHeader, InvoicePostBuffer, GenJournalLine);
+        GenJournalLine."Gen. Posting Type" := GenJournalLine."Gen. Posting Type"::" ";
+        if AccountNo <> '' then
+            GenJournalLine."Account No." := AccountNo;
+        GenJournalLine.Amount := Amount;
+
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
+    end;
+
+    local procedure InitGenJournalLine(SalesHeader: Record "Sales Header"; InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
         GenJournalLine.Init();
-        GenJournalLine."Posting Date" := SalesHeader."Posting Date";
-#if not CLEAN22
-        if not GenJournalLine.IsReplaceVATDateEnabled() then
-            GenJournalLine.Validate("VAT Date CZL", SalesHeader."VAT Date CZL")
-        else
-#endif
-        GenJournalLine.Validate("VAT Reporting Date", SalesHeader."VAT Reporting Date");
-        GenJournalLine.Validate("Original Doc. VAT Date CZL", SalesHeader."Original Doc. VAT Date CZL");
-        GenJournalLine."Document Date" := SalesHeader."Document Date";
-        GenJournalLine.Description := SalesHeader."Posting Description";
-        GenJournalLine."Reason Code" := SalesHeader."Reason Code";
         GenJournalLine."Document Type" := GLEntry."Document Type";
         GenJournalLine."Document No." := GLEntry."Document No.";
         GenJournalLine."External Document No." := GLEntry."External Document No.";
         GenJournalLine."Account No." := VATPostingSetup."Sales VAT Curr. Exch. Acc CZL";
+        if InvoicePostBuffer."VAT Calculation Type" = InvoicePostBuffer."VAT Calculation Type"::"Reverse Charge VAT" then
+            GenJournalLine."Bal. Account No." := VATPostingSetup."Sales VAT Curr. Exch. Acc CZL";
+        GenJournalLine."Posting Date" := SalesHeader."Posting Date";
+        GenJournalLine."Document Date" := SalesHeader."Document Date";
+#if not CLEAN22
+        GenJournalLine."VAT Date CZL" := SalesHeader."VAT Date CZL";
+#endif
+        GenJournalLine."VAT Reporting Date" := SalesHeader."VAT Reporting Date";
+        GenJournalLine."Original Doc. VAT Date CZL" := SalesHeader."Original Doc. VAT Date CZL";
+        GenJournalLine.Description := SalesHeader."Posting Description";
+        GenJournalLine."Reason Code" := SalesHeader."Reason Code";
         GenJournalLine."System-Created Entry" := InvoicePostBuffer."System-Created Entry";
         GenJournalLine."Source Currency Code" := SalesHeader."Currency Code";
-        GetCurrency(SalesHeader."Currency Code");
-        if IsCorrection then
-            GenJournalLine.Correction := not InvoicePostBuffer."Correction CZL"
-        else
-            GenJournalLine.Correction := InvoicePostBuffer."Correction CZL";
+        GenJournalLine.Correction := InvoicePostBuffer."Correction CZL";
         GenJournalLine."Gen. Posting Type" := GenJournalLine."Gen. Posting Type"::Sale;
-        GenJournalLine."VAT Bus. Posting Group" := InvoicePostBuffer."VAT Bus. Posting Group";
-        GenJournalLine."VAT Prod. Posting Group" := InvoicePostBuffer."VAT Prod. Posting Group";
         GenJournalLine."Tax Area Code" := InvoicePostBuffer."Tax Area Code";
         GenJournalLine."Tax Liable" := InvoicePostBuffer."Tax Liable";
         GenJournalLine."Tax Group Code" := InvoicePostBuffer."Tax Group Code";
@@ -123,126 +181,157 @@ codeunit 31038 "Sales Posting Handler CZL"
         GenJournalLine."Source Type" := GenJournalLine."Source Type"::Customer;
         GenJournalLine."Source No." := SalesHeader."Bill-to Customer No.";
         GenJournalLine."Posting No. Series" := SalesHeader."Posting No. Series";
-        GenJournalLine."Bal. Account No." := VATPostingSetup."Sales VAT Curr. Exch. Acc CZL";
-        GenJournalLine.Quantity := Sign * InvoicePostBuffer.Quantity;
-        GenJournalLine.Amount := Round(Sign * InvoicePostBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");
-        GenJournalLine."VAT Amount" := Round(Sign * InvoicePostBuffer."VAT Amount" *
-            CurrFactor, Currency."Amount Rounding Precision");
-        GenJournalLine."VAT Base Amount" := GenJournalLine.Amount;
-        GenJournalLine."Source Currency Amount" := Round(Sign * InvoicePostBuffer."Amount (ACY)" * CurrFactor,
-            Currency."Amount Rounding Precision");
-        GenJournalLine."Source Curr. VAT Amount" := Round(Sign * InvoicePostBuffer."VAT Amount (ACY)" * CurrFactor,
-            Currency."Amount Rounding Precision");
-        GenJournalLine."Source Curr. VAT Base Amount" := GenJournalLine."Source Currency Amount" - GenJournalLine."Source Curr. VAT Amount";
-        GenJournalLine."VAT Difference" := Round(Sign * InvoicePostBuffer."VAT Difference" * CurrFactor,
-            Currency."Amount Rounding Precision");
-        GenJournalLine."Gen. Bus. Posting Group" := InvoicePostBuffer."Gen. Bus. Posting Group";
-        GenJournalLine."Gen. Prod. Posting Group" := InvoicePostBuffer."Gen. Prod. Posting Group";
-        GenJournalLine.Validate("VAT Delay CZL", true);
-
-        GenJnlPostLine.RunWithCheck(GenJournalLine);
+        GenJournalLine."Country/Region Code" := SalesHeader."VAT Country/Region Code";
+        GenJournalLine."VAT Registration No." := SalesHeader."VAT Registration No.";
+        GenJournalLine."Registration No. CZL" := SalesHeader."Registration No. CZL";
+        GenJournalLine.Quantity := InvoicePostBuffer.Quantity;
+        GenJournalLine."VAT Delay CZL" := true;
     end;
 
 #pragma warning restore AL0432
 #endif
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnPostLinesOnAfterGenJnlLinePost', '', false, false)]
-    local procedure SalesPostVATCurrencyFactorOnPostLinesOnAfterGenJnlLinePost(var GenJnlLine: Record "Gen. Journal Line"; TempInvoicePostingBuffer: Record "Invoice Posting Buffer"; SalesHeader: Record "Sales Header"; GLEntryNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure SalesPostVATDelayOnPostLinesOnAfterGenJnlLinePost(var GenJnlLine: Record "Gen. Journal Line"; TempInvoicePostingBuffer: Record "Invoice Posting Buffer"; SalesHeader: Record "Sales Header"; GLEntryNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     var
-        VATPostingSetup: Record "VAT Posting Setup";
         VATCurrFactor: Decimal;
     begin
-        if SalesHeader."Currency Factor" <> SalesHeader."VAT Currency Factor CZL" then begin
+        if (SalesHeader."Currency Code" <> '') and (SalesHeader."Currency Factor" <> SalesHeader."VAT Currency Factor CZL") and
+           ((TempInvoicePostingBuffer."VAT Calculation Type" = TempInvoicePostingBuffer."VAT Calculation Type"::"Reverse Charge VAT") or
+            (TempInvoicePostingBuffer."VAT Calculation Type" = TempInvoicePostingBuffer."VAT Calculation Type"::"Normal VAT"))
+        then begin
             VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group");
-            if VATPostingSetup."VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" then
-                Error(VATCalcTypeErr);
             VATPostingSetup.TestField("Sales VAT Curr. Exch. Acc CZL");
             SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Sales VAT Delay CZL");
             GLEntry.Get(GLEntryNo);
-            PostSalesVATCurrencyFactor(SalesHeader, TempInvoicePostingBuffer, false, 1, true, VATPostingSetup, GenJnlPostLine);
-            if SalesHeader."VAT Currency Factor CZL" = 0 then
-                VATCurrFactor := 1
-            else
-                VATCurrFactor := SalesHeader."Currency Factor" / SalesHeader."VAT Currency Factor CZL";
-            if VATCurrFactor = 0 then
-                VATCurrFactor := 1;
 
-            PostSalesVATCurrencyFactor(SalesHeader, TempInvoicePostingBuffer, true, VATCurrFactor, false, VATPostingSetup, GenJnlPostLine);
+            VATCurrFactor := 1;
+            if SalesHeader."VAT Currency Factor CZL" <> 0 then
+                VATCurrFactor := SalesHeader."Currency Factor" / SalesHeader."VAT Currency Factor CZL";
+
+            PostVATDelay(SalesHeader, TempInvoicePostingBuffer, -1, 1, true, GenJnlPostLine);
+            PostVATDelay(SalesHeader, TempInvoicePostingBuffer, 1, VATCurrFactor, false, GenJnlPostLine);
+            if TempInvoicePostingBuffer."VAT Calculation Type" = TempInvoicePostingBuffer."VAT Calculation Type"::"Normal VAT" then begin
+                PostVATDelayDifference(SalesHeader, TempInvoicePostingBuffer, GlobalAmountType::Base, VATCurrFactor, GenJnlPostLine);
+                PostVATDelayDifference(SalesHeader, TempInvoicePostingBuffer, GlobalAmountType::VAT, VATCurrFactor, GenJnlPostLine);
+            end;
         end;
     end;
 
-    local procedure PostSalesVATCurrencyFactor(SalesHeader: Record "Sales Header"; InvoicePostingBuffer: Record "Invoice Posting Buffer"; ToPost: Boolean; CurrFactor: Decimal; IsCorrection: Boolean; VATPostingSetup: Record "VAT Posting Setup"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure PostVATDelay(SalesHeader: Record "Sales Header"; TempInvoicePostingBuffer: Record "Invoice Posting Buffer"; Sign: Integer; CurrFactor: Decimal; IsCorrection: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     var
         GenJournalLine: Record "Gen. Journal Line";
-        Sign: Integer;
     begin
-        if ToPost then
-            Sign := 1
-        else
-            Sign := -1;
+        GetCurrency(SalesHeader."Currency Code");
+        if CurrFactor = 0 then
+            CurrFactor := 1;
 
+        InitGenJournalLine(SalesHeader, TempInvoicePostingBuffer, GenJournalLine);
+
+        GenJournalLine.Quantity := Sign * GenJournalLine.Quantity;
+        GenJournalLine.Amount :=
+            Sign * Round(TempInvoicePostingBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."VAT Amount" :=
+            Sign * Round(TempInvoicePostingBuffer."VAT Amount" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."VAT Base Amount" := GenJournalLine.Amount;
+        GenJournalLine."Source Currency Amount" :=
+            Sign * Round(TempInvoicePostingBuffer."Amount (ACY)" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."Source Curr. VAT Amount" :=
+            Sign * Round(TempInvoicePostingBuffer."VAT Amount (ACY)" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."Source Curr. VAT Base Amount" := GenJournalLine."Source Currency Amount";
+        GenJournalLine."VAT Difference" :=
+            Sign * Round(TempInvoicePostingBuffer."VAT Difference" * CurrFactor, Currency."Amount Rounding Precision");
+
+        GenJournalLine.Correction := TempInvoicePostingBuffer."Correction CZL" xor IsCorrection;
+        GenJournalLine."VAT Bus. Posting Group" := TempInvoicePostingBuffer."VAT Bus. Posting Group";
+        GenJournalLine."VAT Prod. Posting Group" := TempInvoicePostingBuffer."VAT Prod. Posting Group";
+        GenJournalLine."Gen. Bus. Posting Group" := TempInvoicePostingBuffer."Gen. Bus. Posting Group";
+        GenJournalLine."Gen. Prod. Posting Group" := TempInvoicePostingBuffer."Gen. Prod. Posting Group";
+
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
+    end;
+
+    local procedure PostVATDelayDifference(SalesHeader: Record "Sales Header"; TempInvoicePostingBuffer: Record "Invoice Posting Buffer"; AmountType: Option Base,VAT; CurrFactor: Decimal; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Amount: Decimal;
+        AccountNo: Code[20];
+    begin
+        GetCurrency(SalesHeader."Currency Code");
+        if CurrFactor = 0 then
+            CurrFactor := 1;
+
+        case AmountType of
+            AmountType::Base:
+                Amount :=
+                    TempInvoicePostingBuffer.Amount -
+                    Round(TempInvoicePostingBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");
+            AmountType::VAT:
+                begin
+                    Amount :=
+                        TempInvoicePostingBuffer."VAT Amount" -
+                        Round(TempInvoicePostingBuffer."VAT Amount" * CurrFactor, Currency."Amount Rounding Precision");
+                    if Amount < 0 then
+                        AccountNo := Currency."Realized Gains Acc."
+                    else
+                        AccountNo := Currency."Realized Losses Acc.";
+                end;
+        end;
+
+        InitGenJournalLine(SalesHeader, TempInvoicePostingBuffer, GenJournalLine);
+        GenJournalLine."Gen. Posting Type" := GenJournalLine."Gen. Posting Type"::" ";
+        if AccountNo <> '' then
+            GenJournalLine."Account No." := AccountNo;
+        GenJournalLine.Amount := Amount;
+
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
+    end;
+
+    local procedure InitGenJournalLine(SalesHeader: Record "Sales Header"; TempInvoicePostingBuffer: Record "Invoice Posting Buffer"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
         GenJournalLine.Init();
-        GenJournalLine."Posting Date" := SalesHeader."Posting Date";
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not GenJournalLine.IsReplaceVATDateEnabled() then
-            GenJournalLine.Validate("VAT Date CZL", SalesHeader."VAT Date CZL")
-        else
-#pragma warning restore AL0432
-#endif
-        GenJournalLine.Validate("VAT Reporting Date", SalesHeader."VAT Reporting Date");
-        GenJournalLine.Validate("Original Doc. VAT Date CZL", SalesHeader."Original Doc. VAT Date CZL");
-        GenJournalLine."Document Date" := SalesHeader."Document Date";
-        GenJournalLine.Description := SalesHeader."Posting Description";
-        GenJournalLine."Reason Code" := SalesHeader."Reason Code";
         GenJournalLine."Document Type" := GLEntry."Document Type";
         GenJournalLine."Document No." := GLEntry."Document No.";
         GenJournalLine."External Document No." := GLEntry."External Document No.";
         GenJournalLine."Account No." := VATPostingSetup."Sales VAT Curr. Exch. Acc CZL";
-        GenJournalLine."System-Created Entry" := InvoicePostingBuffer."System-Created Entry";
+        if TempInvoicePostingBuffer."VAT Calculation Type" = TempInvoicePostingBuffer."VAT Calculation Type"::"Reverse Charge VAT" then
+            GenJournalLine."Bal. Account No." := VATPostingSetup."Sales VAT Curr. Exch. Acc CZL";
+        GenJournalLine."Posting Date" := SalesHeader."Posting Date";
+        GenJournalLine."Document Date" := SalesHeader."Document Date";
+#if not CLEAN22
+#pragma warning disable AL0432
+        GenJournalLine."VAT Date CZL" := SalesHeader."VAT Date CZL";
+#pragma warning restore AL0432
+#endif
+        GenJournalLine."VAT Reporting Date" := SalesHeader."VAT Reporting Date";
+        GenJournalLine."Original Doc. VAT Date CZL" := SalesHeader."Original Doc. VAT Date CZL";
+        GenJournalLine.Description := SalesHeader."Posting Description";
+        GenJournalLine."Reason Code" := SalesHeader."Reason Code";
+        GenJournalLine."System-Created Entry" := TempInvoicePostingBuffer."System-Created Entry";
         GenJournalLine."Source Currency Code" := SalesHeader."Currency Code";
-        GetCurrency(SalesHeader."Currency Code");
-        if IsCorrection then
-            GenJournalLine.Correction := not InvoicePostingBuffer."Correction CZL"
-        else
-            GenJournalLine.Correction := InvoicePostingBuffer."Correction CZL";
+        GenJournalLine.Correction := TempInvoicePostingBuffer."Correction CZL";
         GenJournalLine."Gen. Posting Type" := GenJournalLine."Gen. Posting Type"::Sale;
-        GenJournalLine."VAT Bus. Posting Group" := InvoicePostingBuffer."VAT Bus. Posting Group";
-        GenJournalLine."VAT Prod. Posting Group" := InvoicePostingBuffer."VAT Prod. Posting Group";
-        GenJournalLine."Tax Area Code" := InvoicePostingBuffer."Tax Area Code";
-        GenJournalLine."Tax Liable" := InvoicePostingBuffer."Tax Liable";
-        GenJournalLine."Tax Group Code" := InvoicePostingBuffer."Tax Group Code";
-        GenJournalLine."Use Tax" := InvoicePostingBuffer."Use Tax";
-        GenJournalLine."VAT Calculation Type" := InvoicePostingBuffer."VAT Calculation Type";
+        GenJournalLine."Tax Area Code" := TempInvoicePostingBuffer."Tax Area Code";
+        GenJournalLine."Tax Liable" := TempInvoicePostingBuffer."Tax Liable";
+        GenJournalLine."Tax Group Code" := TempInvoicePostingBuffer."Tax Group Code";
+        GenJournalLine."Use Tax" := TempInvoicePostingBuffer."Use Tax";
+        GenJournalLine."VAT Calculation Type" := TempInvoicePostingBuffer."VAT Calculation Type";
         GenJournalLine."VAT Base Discount %" := SalesHeader."VAT Base Discount %";
         GenJournalLine."VAT Posting" := GenJournalLine."VAT Posting"::"Manual VAT Entry";
-        GenJournalLine."Shortcut Dimension 1 Code" := InvoicePostingBuffer."Global Dimension 1 Code";
-        GenJournalLine."Shortcut Dimension 2 Code" := InvoicePostingBuffer."Global Dimension 2 Code";
-        GenJournalLine."Dimension Set ID" := InvoicePostingBuffer."Dimension Set ID";
-        GenJournalLine."Job No." := InvoicePostingBuffer."Job No.";
+        GenJournalLine."Shortcut Dimension 1 Code" := TempInvoicePostingBuffer."Global Dimension 1 Code";
+        GenJournalLine."Shortcut Dimension 2 Code" := TempInvoicePostingBuffer."Global Dimension 2 Code";
+        GenJournalLine."Dimension Set ID" := TempInvoicePostingBuffer."Dimension Set ID";
+        GenJournalLine."Job No." := TempInvoicePostingBuffer."Job No.";
         GenJournalLine."Source Code" := SourceCodeSetup."Sales VAT Delay CZL";
         GenJournalLine."Bill-to/Pay-to No." := SalesHeader."Bill-to Customer No.";
         GenJournalLine."Source Type" := GenJournalLine."Source Type"::Customer;
         GenJournalLine."Source No." := SalesHeader."Bill-to Customer No.";
         GenJournalLine."Posting No. Series" := SalesHeader."Posting No. Series";
-        GenJournalLine."Bal. Account No." := VATPostingSetup."Sales VAT Curr. Exch. Acc CZL";
-        GenJournalLine.Quantity := Sign * InvoicePostingBuffer.Quantity;
-        GenJournalLine.Amount := Round(Sign * InvoicePostingBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");
-        GenJournalLine."VAT Amount" := Round(Sign * InvoicePostingBuffer."VAT Amount" *
-            CurrFactor, Currency."Amount Rounding Precision");
-        GenJournalLine."VAT Base Amount" := GenJournalLine.Amount;
-        GenJournalLine."Source Currency Amount" := Round(Sign * InvoicePostingBuffer."Amount (ACY)" * CurrFactor,
-            Currency."Amount Rounding Precision");
-        GenJournalLine."Source Curr. VAT Amount" := Round(Sign * InvoicePostingBuffer."VAT Amount (ACY)" * CurrFactor,
-            Currency."Amount Rounding Precision");
-        GenJournalLine."Source Curr. VAT Base Amount" := GenJournalLine."Source Currency Amount" - GenJournalLine."Source Curr. VAT Amount";
-        GenJournalLine."VAT Difference" := Round(Sign * InvoicePostingBuffer."VAT Difference" * CurrFactor,
-            Currency."Amount Rounding Precision");
-        GenJournalLine."Gen. Bus. Posting Group" := InvoicePostingBuffer."Gen. Bus. Posting Group";
-        GenJournalLine."Gen. Prod. Posting Group" := InvoicePostingBuffer."Gen. Prod. Posting Group";
-        GenJournalLine.Validate("VAT Delay CZL", true);
-
-        GenJnlPostLine.RunWithCheck(GenJournalLine);
+        GenJournalLine."Country/Region Code" := SalesHeader."VAT Country/Region Code";
+        GenJournalLine."VAT Registration No." := SalesHeader."VAT Registration No.";
+        GenJournalLine."Registration No. CZL" := SalesHeader."Registration No. CZL";
+        GenJournalLine.Quantity := TempInvoicePostingBuffer.Quantity;
+        GenJournalLine."VAT Delay CZL" := true;
     end;
 
     local procedure GetCurrency(CurrencyCode: Code[10])
@@ -285,7 +374,6 @@ codeunit 31038 "Sales Posting Handler CZL"
         Temp1InventoryBuffer: Record "Inventory Buffer" temporary;
         Temp2InventoryBuffer: Record "Inventory Buffer" temporary;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
-        VATPostingSetup: Record "VAT Posting Setup";
         ConfirmManagement: Codeunit "Confirm Management";
         AmountToCheckLimit: Decimal;
         LineAmount: Decimal;
@@ -609,7 +697,7 @@ codeunit 31038 "Sales Posting Handler CZL"
             if StatutoryReportingSetupCZL."Shipment Method Mandatory" then
                 if SalesHeader."Shipment Method Code" = '' then
                     AddError(StrSubstNo(MustBeSpecifiedLbl, SalesHeader.FieldCaption("Shipment Method Code")), ErrorCounter, ErrorText);
-#pragma warning restore AL0432            
+#pragma warning restore AL0432
         end;
     end;
 

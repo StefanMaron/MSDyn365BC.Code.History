@@ -88,6 +88,7 @@
         UpdateLinesOrderDateAutomaticallyQst: Label 'You have changed the Order Date on the purchase order, which might affect the prices and discounts on the purchase order lines.\Do you want to update the order date for existing lines?';
         OrderDateErr: Label 'The purchase line order date is (%1), but it should be (%2).', Comment = '%1 - Actual Purchase Line Order Date; %2 - Expected Purchase Line Order Date';
         DescriptionErr: Label 'The purchase line description (%1) should be the same as the random generated description (%2).', Comment = '%1 - Purchase Line Description; %2 - Random Generated Description';
+        QtyReceivedBaseErr: Label 'Qty. Received (Base) is not as expected.';
 
     [Test]
     [Scope('OnPrem')]
@@ -7902,6 +7903,59 @@
         // [VERIFY] Verify: When set Buy-from Vendor Name directly not changed the Buy-from Vendor
         PurchaseOrder."Buy-from Vendor No.".AssertEquals(BuyFromVendor."No.");
         PurchaseOrder.Close();
+    end;
+
+    [Test]
+    procedure VerifyQtyReceivedBaseAfterCorrectOnPartialInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        PurchaseInvoceNo: Code[20];
+    begin
+        // [SCENARIO 494646] Verify Qty. Received (Base) on Purchase Line after Correct Posted Purchase Invoice on Partial Invoice
+        Initialize();
+
+        // [GIVEN] Create Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 100);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify();
+
+        // [GIVEN] Set "Qty. to Receive" on Purchase Line
+        PurchaseLine.Validate("Qty. to Receive", 80);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Receive & Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Set "Qty. to Receive" on Purchase Line
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Receive", 15);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Set Vendor Invoice No.
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Post Receive & Invoice
+        PurchaseInvoceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Correct Posted Purchase Invoice
+        PurchInvHeader.Get(PurchaseInvoceNo);
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        // [GIVEN] Reopen Purchase Order
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Update Quantity on Purchase Line
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate(Quantity, 95);
+
+        // [THEN] Verify Qty. Received (Base) on Purchase Line
+        Assert.AreEqual(PurchaseLine."Qty. Received (Base)", 80, QtyReceivedBaseErr);
     end;
 
     local procedure Initialize()

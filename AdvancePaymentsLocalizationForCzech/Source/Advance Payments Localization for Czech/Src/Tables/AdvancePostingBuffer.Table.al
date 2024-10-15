@@ -6,6 +6,7 @@ namespace Microsoft.Finance.AdvancePayments;
 
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Enums;
+using Microsoft.Finance.Currency;
 
 table 31013 "Advance Posting Buffer CZZ"
 {
@@ -68,4 +69,27 @@ table 31013 "Advance Posting Buffer CZZ"
             Clustered = true;
         }
     }
+
+    procedure UpdateLCYAmounts(CurrencyCode: Code[10]; CurrencyFactor: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        if (CurrencyCode = '') or (CurrencyFactor = 0) then begin
+            Rec."VAT Base Amount (ACY)" := Rec."VAT Base Amount";
+            Rec."VAT Amount (ACY)" := Rec."VAT Amount";
+            Rec."Amount (ACY)" := Rec.Amount;
+        end else begin
+            Rec."Amount (ACY)" :=
+              Round(
+                CurrencyExchangeRate.ExchangeAmtFCYToLCY(
+                  0D, CurrencyCode,
+                  Rec.Amount, CurrencyFactor));
+            Rec."VAT Amount (ACY)" :=
+              Round(
+                CurrencyExchangeRate.ExchangeAmtFCYToLCY(
+                  0D, CurrencyCode,
+                  Rec."VAT Amount", CurrencyFactor));
+            Rec."VAT Base Amount (ACY)" := Rec."Amount (ACY)" - Rec."VAT Amount (ACY)";
+        end;
+    end;
 }

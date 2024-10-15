@@ -458,7 +458,7 @@ codeunit 11748 "Install Application CZL"
         ResponsibilityCenterDataTransfer: DataTransfer;
     begin
         ResponsibilityCenterDataTransfer.SetTables(Database::"Responsibility Center", Database::"Responsibility Center");
-        ResponsibilityCenterDataTransfer.AddFieldValue(ResponsibilityCenter.FieldNo("Bank Account No."), ResponsibilityCenter.FieldNo("Default Bank Account Code CZL"));
+        ResponsibilityCenterDataTransfer.AddFieldValue(ResponsibilityCenter.FieldNo("Bank Account Code"), ResponsibilityCenter.FieldNo("Default Bank Account Code CZL"));
         ResponsibilityCenterDataTransfer.CopyFields();
     end;
 
@@ -2069,8 +2069,10 @@ codeunit 11748 "Install Application CZL"
     begin
         PurchaseLineDataTransfer.SetTables(Database::"Purchase Line", Database::"Purchase Line");
         PurchaseLineDataTransfer.AddFieldValue(PurchaseLine.FieldNo("Negative"), PurchaseLine.FieldNo("Negative CZL"));
+#if not CLEAN24
         PurchaseLineDataTransfer.AddFieldValue(PurchaseLine.FieldNo("Ext. Amount (LCY)"), PurchaseLine.FieldNo("Ext. Amount CZL"));
         PurchaseLineDataTransfer.AddFieldValue(PurchaseLine.FieldNo("Ext.Amount Including VAT (LCY)"), PurchaseLine.FieldNo("Ext. Amount Incl. VAT CZL"));
+#endif
         PurchaseLineDataTransfer.AddFieldValue(PurchaseLine.FieldNo("Physical Transfer"), PurchaseLine.FieldNo("Physical Transfer CZL"));
         PurchaseLineDataTransfer.AddFieldValue(PurchaseLine.FieldNo("Tariff No."), PurchaseLine.FieldNo("Tariff No. CZL"));
         PurchaseLineDataTransfer.AddFieldValue(PurchaseLine.FieldNo("Statistic Indication"), PurchaseLine.FieldNo("Statistic Indication CZL"));

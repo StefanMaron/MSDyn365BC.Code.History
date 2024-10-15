@@ -331,7 +331,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             trigger OnValidate()
             begin
                 if "EU 3-Party Intermed. Role CZL" then
-#if not CLEAN23
+#if not CLEAN24
 #pragma warning disable AL0432
                     if not IsEU3PartyTradeFeatureEnabled() then
                         "EU 3-Party Trade CZL" := true
@@ -353,7 +353,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             ObsoleteTag = '27.0';
 #endif
             ObsoleteReason = 'Replaced by "EU 3 Party Trade" field in "EU 3-Party Trade Purchase" app.';
-#if not CLEAN23
+#if not CLEAN24
 
             trigger OnValidate()
             begin
@@ -615,7 +615,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         exit(ReplaceVATDateMgtCZL.IsEnabled());
     end;
 #endif
-#if not CLEAN23
+#if not CLEAN24
 
     internal procedure IsEU3PartyTradeFeatureEnabled(): Boolean
     begin

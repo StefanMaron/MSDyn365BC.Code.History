@@ -146,7 +146,7 @@ codeunit 11746 "Gen. Journal Line Handler CZL"
         GenJournalLine."VAT Reporting Date" := PurchaseHeader."VAT Reporting Date";
         GenJournalLine."Registration No. CZL" := PurchaseHeader."Registration No. CZL";
         GenJournalLine."Tax Registration No. CZL" := PurchaseHeader."Tax Registration No. CZL";
-#if not CLEAN23
+#if not CLEAN24
 #pragma warning disable AL0432
         if not PurchaseHeader.IsEU3PartyTradeFeatureEnabled() then
             GenJournalLine."EU 3-Party Trade" := PurchaseHeader."EU 3-Party Trade CZL";

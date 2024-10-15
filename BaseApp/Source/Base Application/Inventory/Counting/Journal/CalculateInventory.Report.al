@@ -1,4 +1,4 @@
-﻿#if not CLEAN21
+#if not CLEAN21
 namespace Microsoft.Inventory.Counting.Journal;
 
 using Microsoft.Finance.Dimension;
