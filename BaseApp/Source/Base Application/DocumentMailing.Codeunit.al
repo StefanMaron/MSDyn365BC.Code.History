@@ -1,4 +1,4 @@
-codeunit 260 "Document-Mailing"
+﻿codeunit 260 "Document-Mailing"
 {
     TableNo = "Job Queue Entry";
 
@@ -106,8 +106,14 @@ codeunit 260 "Document-Mailing"
     procedure GetToAddressFromCustomer(BillToCustomerNo: Code[20]): Text[250]
     var
         Customer: Record Customer;
-        ToAddress: Text;
+        ToAddress: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetToAddressFromCustomer(BillToCustomerNo, ToAddress, IsHandled);
+        if IsHandled then
+            exit(ToAddress);
+
         if Customer.Get(BillToCustomerNo) then
             ToAddress := Customer."E-Mail";
 
@@ -117,8 +123,14 @@ codeunit 260 "Document-Mailing"
     procedure GetToAddressFromVendor(BuyFromVendorNo: Code[20]): Text[250]
     var
         Vendor: Record Vendor;
-        ToAddress: Text;
+        ToAddress: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetToAddressFromVendor(BuyFromVendorNo, ToAddress, IsHandled);
+        if IsHandled then
+            exit(ToAddress);
+
         if Vendor.Get(BuyFromVendorNo) then
             ToAddress := Vendor."E-Mail";
 
@@ -455,6 +467,16 @@ codeunit 260 "Document-Mailing"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetToAddressFromCustomer(BillToCustomerNo: Code[20]; var ToAddress: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetToAddressFromVendor(BuyFromVendorNo: Code[20]; var ToAddress: Text[250]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -19,6 +19,7 @@ codeunit 5923 "Service-Quote to Order"
         ServMgtSetup.Get();
 
         ServOrderHeader."Document Type" := "Document Type"::Order;
+        OnRunOnAfterGetServMgtSetup(ServOrderHeader, Rec);
         Customer.Get("Customer No.");
         Customer.CheckBlockedCustOnDocs(Customer, DocType::Quote, false, false);
         if "Customer No." <> "Bill-to Customer No." then begin
@@ -293,6 +294,11 @@ codeunit 5923 "Service-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var ServiceQuoteLine: Record "Service Line"; var ServiceQuoteHeader: Record "Service Header"; var ServiceOrderHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterGetServMgtSetup(var ServOrderHeader: Record "Service Header"; Rec: Record "Service Header")
     begin
     end;
 }

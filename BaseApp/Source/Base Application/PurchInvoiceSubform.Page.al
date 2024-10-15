@@ -1218,6 +1218,18 @@ page 55 "Purch. Invoice Subform"
             exit;
 
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
+        CheckSendLineInvoiceDiscountResetNotification();
+    end;
+
+    local procedure CheckSendLineInvoiceDiscountResetNotification()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSendLineInvoiceDiscountResetNotification(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
     end;
@@ -1282,6 +1294,11 @@ page 55 "Purch. Invoice Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSendLineInvoiceDiscountResetNotification(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

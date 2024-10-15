@@ -25,6 +25,8 @@ codeunit 5624 "Cancel FA Ledger Entries"
         GenJnlDocumentNo: Code[20];
 
     procedure TransferLine(var FALedgEntry: Record "FA Ledger Entry"; BalAccount: Boolean; NewPostingDate: Date)
+    var
+        IsHandled: Boolean;
     begin
         ClearAll;
         with FALedgEntry do begin
@@ -44,10 +46,13 @@ codeunit 5624 "Cancel FA Ledger Entries"
                         "Posting Date" := NewPostingDate;
                         DeprBook.TestField("Use Same FA+G/L Posting Dates", false);
                     end;
-                    if GLIntegration[ConvertPostingType + 1] and not FA."Budgeted Asset" then
-                        InsertGenJnlLine(FALedgEntry, BalAccount)
-                    else
-                        InsertFAJnlLine(FALedgEntry);
+                    IsHandled := false;
+                    OnTransferLineOnBeforeInsertJnlLine(FALedgEntry, BalAccount, FA."Budgeted Asset", IsHandled);
+                    if not IsHandled then
+                        if GLIntegration[ConvertPostingType + 1] and not FA."Budgeted Asset" then
+                            InsertGenJnlLine(FALedgEntry, BalAccount)
+                        else
+                            InsertFAJnlLine(FALedgEntry);
                 until Next(-1) = 0;
         end;
         Message(Text003);
@@ -164,6 +169,11 @@ codeunit 5624 "Cancel FA Ledger Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; FALedgerEntry: Record "FA Ledger Entry"; BalAccount: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferLineOnBeforeInsertJnlLine(FALedgerEntry: Record "FA Ledger Entry"; BalAccount: Boolean; BudgetedAsset: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

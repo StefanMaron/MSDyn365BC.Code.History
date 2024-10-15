@@ -104,8 +104,8 @@ report 11112 "Update VAT Statement Template"
 
     trigger OnInitReport()
     begin
-        TemplateName := 'UVA-2016';
-        TemplateDescription := 'Österreichische USt ab 2016';
+        TemplateName := 'UVA-2020';
+        TemplateDescription := 'Österreichische USt ab 2020';
     end;
 
     var
@@ -116,8 +116,8 @@ report 11112 "Update VAT Statement Template"
         Country: Option Switzerland,Austria;
         CHTemplateNameTxt: Label 'VAT-%1';
         CHTemplateDescrTxt: Label 'Swiss VAT Statement %1';
-        AUTemplateNameTxt: Label 'UVA-2016';
-        AUTemplateDescrTxt: Label 'Österreichische USt ab 2016';
+        AUTemplateNameTxt: Label 'UVA-2020', Comment = 'AT VAT Statement';
+        AUTemplateDescrTxt: Label 'Österreichische USt ab 2020';
 
     [Scope('OnPrem')]
     procedure UpdateTemplateDetails()

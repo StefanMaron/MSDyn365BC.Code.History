@@ -1,4 +1,4 @@
-table 296 "Reminder Line"
+﻿table 296 "Reminder Line"
 {
     Caption = 'Reminder Line';
 
@@ -324,7 +324,7 @@ table 296 "Reminder Line"
             begin
                 GetReminderHeader;
                 VATPostingSetup.Get(ReminderHeader."VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
+                OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup, Rec);
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
@@ -1000,7 +1000,7 @@ table 296 "Reminder Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup"; ReminderLine: Record "Reminder Line")
     begin
     end;
 }
