@@ -30,6 +30,7 @@ report 2000058 "Initialise CODA Stmt. Lines"
                                 CodBankStmtSrcLine2.SetRange("Statement No.", "Statement No.");
                                 TotRecords := CodBankStmtSrcLine2.Count();
                                 LineNo := 0;
+                                CodaTrans.UpdateBankStatement(CodBankStmtSrcLine, CodBankStmt);
                             end;
                         ID::"Old Balance", ID::"New Balance":
                             begin

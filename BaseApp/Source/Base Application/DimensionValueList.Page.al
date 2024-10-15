@@ -5,6 +5,7 @@ page 560 "Dimension Value List"
     Editable = false;
     PageType = List;
     SourceTable = "Dimension Value";
+    SourceTableView = where(Blocked = const(false));
 
     layout
     {

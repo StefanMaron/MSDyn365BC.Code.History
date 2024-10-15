@@ -41,8 +41,12 @@ table 8616 "Config. Package Field"
             Caption = 'Validate Field';
 
             trigger OnValidate()
+            var
+                ShouldRunCheck: Boolean;
             begin
-                if not Dimension then begin
+                ShouldRunCheck := not Dimension;
+                OnValidateFieldOnValidateOnAfterCalcShouldRunCheck(Rec, ShouldRunCheck);
+                if ShouldRunCheck then begin
                     if xRec."Validate Field" and not "Validate Field" and "Primary Key" then
                         Error(Text000, "Field Caption");
                     if "Validate Field" then
@@ -56,8 +60,12 @@ table 8616 "Config. Package Field"
             Caption = 'Include Field';
 
             trigger OnValidate()
+            var
+                ShouldRunCheck: Boolean;
             begin
-                if not Dimension then begin
+                ShouldRunCheck := not Dimension;
+                OnIncludeFieldOnValidateOnAfterCalcShouldRunCheck(Rec, ShouldRunCheck);
+                if ShouldRunCheck then begin
                     if xRec."Include Field" and not "Include Field" and "Primary Key" then
                         Error(Text000, "Field Caption");
                     if "Include Field" then
@@ -181,8 +189,11 @@ table 8616 "Config. Package Field"
         ConfigProgressBar: Codeunit "Config. Progress Bar";
         RecRef: RecordRef;
         FieldRef: FieldRef;
+        ShouldRunCheck: Boolean;
     begin
-        if not Dimension then begin
+        ShouldRunCheck := not Dimension;
+        OnUpdateFieldErrorsOnAfterCalcShouldRunCheck(Rec, ShouldRunCheck);
+        if ShouldRunCheck then begin
             if "Include Field" then begin
                 RecRef.Open("Table ID", true);
                 FieldRef := RecRef.Field("Field ID");
@@ -296,6 +307,21 @@ table 8616 "Config. Package Field"
         end;
 
         exit(ElementName);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIncludeFieldOnValidateOnAfterCalcShouldRunCheck(var ConfigPackageField: Record "Config. Package Field"; var ShouldRunCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateFieldOnValidateOnAfterCalcShouldRunCheck(var ConfigPackageField: Record "Config. Package Field"; var ShouldRunCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateFieldErrorsOnAfterCalcShouldRunCheck(var ConfigPackageField: Record "Config. Package Field"; var ShouldRunCheck: Boolean)
+    begin
     end;
 }
 

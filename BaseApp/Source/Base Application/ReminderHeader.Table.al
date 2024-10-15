@@ -70,6 +70,7 @@ table 295 "Reminder Header"
                 "Tax Liable" := Cust."Tax Liable";
                 "Reminder Terms Code" := Cust."Reminder Terms Code";
                 "Fin. Charge Terms Code" := Cust."Fin. Charge Terms Code";
+                OnValidateCustomerNoOnAfterAssignCustomerValues(Rec, Cust);
                 Validate("Reminder Terms Code");
 
                 CreateDim(DATABASE::Customer, "Customer No.");
@@ -177,7 +178,8 @@ table 295 "Reminder Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -188,7 +190,8 @@ table 295 "Reminder Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -728,6 +731,7 @@ table 295 "Reminder Header"
             ReminderText.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
             ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
             ReminderText.SetRange(Position, ReminderText.Position::Beginning);
+            OnInsertBeginTextsOnAfterReminderTextSetFilters(ReminderText, ReminderHeader);
 
             ReminderLine.Reset();
             ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
@@ -760,6 +764,8 @@ table 295 "Reminder Header"
               "Reminder Terms Code", ReminderHeader."Reminder Terms Code");
             ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
             ReminderText.SetRange(Position, ReminderText.Position::Ending);
+            OnInsertEndTextsOnAfterReminderTextSetFilters(ReminderText, ReminderHeader);
+
             ReminderLine.Reset();
             ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
             ReminderLine.SetFilter(
@@ -1184,6 +1190,21 @@ table 295 "Reminder Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintIssuedReminders(var Rec: Record "Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBeginTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertEndTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoOnAfterAssignCustomerValues(var ReminderHeader: Record "Reminder Header"; Customer: Record Customer)
     begin
     end;
 }

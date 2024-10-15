@@ -124,6 +124,7 @@ codeunit 2000040 "Coda Import Management"
             else
                 SWIFTCode := DelChr(CopyStr(Data, 61, 11));
             VId[2] := DelChr(CopyStr(Data, 72, 11), '>', ' ');
+            "Transaction Date" := DDMMYY2Date(CopyStr(Data, 6, 6), false);
         end;
     end;
 

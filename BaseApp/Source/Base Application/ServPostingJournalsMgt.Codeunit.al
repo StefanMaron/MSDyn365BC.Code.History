@@ -645,6 +645,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             if "Currency Code" = Job."Currency Code" then
                 JobJnlLine.Validate("Unit Price", "Unit Price");
             if "Currency Code" <> '' then begin
+                OnPostJobJnlLineOnBeforeCalcCurrencyFactor(ServLine, CurrExchRate);
                 CurrencyFactor := CurrExchRate.ExchangeRate("Posting Date", "Currency Code");
                 UnitPriceLCY :=
                   Round(CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", "Unit Price", CurrencyFactor),
@@ -728,6 +729,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResJnlPostLine(var ResJnlLine: Record "Res. Journal Line"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostJobJnlLineOnBeforeCalcCurrencyFactor(ServLine: Record "Service Line"; var CurrExchRate: Record "Currency Exchange Rate")
     begin
     end;
 

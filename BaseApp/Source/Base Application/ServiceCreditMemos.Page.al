@@ -1,4 +1,4 @@
-page 9320 "Service Credit Memos"
+﻿page 9320 "Service Credit Memos"
 {
     ApplicationArea = Service;
     Caption = 'Service Credit Memos';
@@ -154,9 +154,7 @@ page 9320 "Service Credit Memos"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Service Statistics", Rec);
+                        OpenStatistics();
                     end;
                 }
                 action("Co&mments")

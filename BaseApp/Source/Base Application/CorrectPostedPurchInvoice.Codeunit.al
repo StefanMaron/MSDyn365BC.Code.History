@@ -367,6 +367,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     local procedure TestIfAnyFreeNumberSeries(PurchInvHeader: Record "Purch. Inv. Header")
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
@@ -377,7 +378,8 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Credit Memo Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumCM, PurchInvHeader);
 
-        if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Posted Credit Memo Nos.", PostingDate) = '' then
+        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo");
+        if NoSeriesManagement.TryGetNextNo(GenJournalTemplate."Posting No. Series", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumPostCM, PurchInvHeader);
 
         if (not CancellingOnly) and (NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '') then
@@ -695,17 +697,17 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         UndoPostingManagement: Codeunit "Undo Posting Management";
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeaderNo);
-        if PurchInvLine.FindSet() then begin
-            FindItemLedgEntries(TempItemLedgerEntry, PurchInvHeaderNo);
+        if PurchInvLine.FindSet() then
             repeat
+                TempItemLedgerEntry.Reset();
+                TempItemLedgerEntry.DeleteAll();
+                PurchInvLine.GetItemLedgEntries(TempItemLedgerEntry, false);
                 if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then begin
                     UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchInvLine.Quantity, PurchInvLine."Quantity (Base)");
-                    TempItemLedgerEntry.SetRange("Document Line No.", PurchInvLine."Line No.");
                     TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
                     UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchaseLine."Expected Receipt Date", true);
                 end;
             until PurchInvLine.Next() = 0;
-        end;
     end;
 
     local procedure UpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)

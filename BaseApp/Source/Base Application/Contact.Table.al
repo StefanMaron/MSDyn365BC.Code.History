@@ -989,6 +989,7 @@
         TypeChange;
         SetLastDateTimeModified;
         SetSearchEmail();
+        OnAfterOnInsert(Rec, xRec);
     end;
 
     trigger OnModify()
@@ -1615,7 +1616,7 @@
 
         Clear(BankAcc);
         BankAcc.SetInsertFromContact(true);
-        OnBeforeBankAccountInsert(BankAcc);
+        OnBeforeBankAccountInsert(BankAcc, Rec);
         BankAcc.Insert(true);
         BankAccountNo := BankAcc."No.";
         BankAcc.SetInsertFromContact(false);
@@ -3441,6 +3442,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var Contact: Record Contact; xContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterOnModify(var Contact: Record Contact; xContact: Record Contact)
     begin
     end;
@@ -3501,7 +3507,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeBankAccountInsert(var BankAccount: Record "Bank Account");
+    local procedure OnBeforeBankAccountInsert(var BankAccount: Record "Bank Account"; var Contact: Record Contact);
     begin
     end;
 

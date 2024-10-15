@@ -16,9 +16,16 @@ codeunit 144024 "Test Financial Journals"
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        RandomNoGenerator: Codeunit "Library - Random";
+        LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         BankAccountNo: Code[20];
+        NoSeriesFullfilledSalesCrMemoErr: Label 'You cannot cancel this posted sales invoice because no unused posted credit memo numbers are available';
+        NoSeriesFullfilledPurchaseCrMemoErr: Label 'You cannot cancel this posted purchase invoice because no unused posted credit memo numbers are available';
+        NoSeriesFullfilledSalesInvoiceErr: Label 'You cannot cancel this posted sales credit memo because no unused posted invoice numbers are available';
+        NoSeriesFullfilledPurchaseInvoiceErr: Label 'You cannot cancel this posted purchase credit memo because no unused posted invoice numbers are available';
 
     [Test]
     [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,ApplyCustomerEntriesModalPageHandler,GeneralLedgerEntriesPageHandler,ConfirmHandler,MessageHandler')]
@@ -34,7 +41,7 @@ codeunit 144024 "Test Financial Journals"
     begin
         // FINJNL - Validate Customer Ledger Entries
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60224
-        Initialize;
+        Initialize();
 
         SetupFinancialJournalPage(
           FinancialJournalPage, BalanceLastStatement, DocumentType::Payment, 'T6001', AccountType::Customer, '10000', 0);
@@ -72,7 +79,7 @@ codeunit 144024 "Test Financial Journals"
     begin
         // FINJNL - Validate the Posting of Financial Journal Lines
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60218
-        Initialize;
+        Initialize();
 
         SetupFinancialJournalPage(
           FinancialJournalPage, BalanceLastStatement, DocumentType::" ", 'T7001', AccountType::"G/L Account", '57000', 100000);
@@ -102,7 +109,7 @@ codeunit 144024 "Test Financial Journals"
     begin
         // FINJNL - Validate the Bank Reconciliation form
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60226
-        Initialize;
+        Initialize();
 
         EndingBalance := 100000;
         SetupFinancialJournalPage(
@@ -136,7 +143,7 @@ codeunit 144024 "Test Financial Journals"
     begin
         // FINJNL - Verify Bal. Account Type in Financial Journal
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60219
-        Initialize;
+        Initialize();
 
         FinancialJournalPage.OpenEdit;
         FinancialJournalPage.StatementEndingBalance.SetValue(100000);
@@ -160,7 +167,7 @@ codeunit 144024 "Test Financial Journals"
         // FINJNL - Validate Posting of Invoice from Financial Journal, When "Document No."  Field is Empty
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60220
 
-        Initialize;
+        Initialize();
 
         FinancialJournalPage.OpenEdit;
         FinancialJournalPage.StatementEndingBalance.SetValue(100000);
@@ -190,7 +197,7 @@ codeunit 144024 "Test Financial Journals"
         // FINJNL - Validate Financial Journal, When "Total Balance" Field’s Value is not Equal to "Statement Ending Balance"
         // Field’s Value
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60217
-        Initialize;
+        Initialize();
 
         FinancialJournalPage.OpenEdit;
         FinancialJournalPage.StatementEndingBalance.SetValue(100000);
@@ -209,71 +216,238 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage.Close;
     end;
 
-    [ModalPageHandler]
+    [Test]
     [Scope('OnPrem')]
-    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateListPage: TestPage "General Journal Template List")
+    procedure CanCancelCorrectiveSalesCreditMemo()
     var
-        Variant: Variant;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
     begin
-        LibraryVariableStorage.Dequeue(Variant);
-        GeneralJournalTemplateListPage.FILTER.SetFilter(Name, Variant);
-        GeneralJournalTemplateListPage.OK.Invoke;
+        // [FEATURE] [Cancel] [Correct] [Invoice] [Credit Memo] [No. Series] [Gen. Journal Template] [Sales]
+        // [SCENARIO 398925] System checks "No. Series" in gen. journal template that is specified in sales setup when Stan corrects posted invoice or cancels posted credit memo.
+        Initialize();
+
+        UpdateNoSeriesInSalesSetup(
+          CreateNoSeriesCodeWithFullfilledNos(), CreateNoSeriesCodeWithFullfilledNos(),
+          CreateNoSeriesCode(), CreateNoSeriesCode());
+
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+        CorrectPostedSalesInvoice.Run(SalesInvoiceHeader);
+
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields(Cancelled);
+        SalesInvoiceHeader.TestField(Cancelled);
+
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesCrMemoHeader.FindFirst();
+
+        SalesCrMemoHeader.CalcFields(Cancelled, Corrective);
+        SalesCrMemoHeader.TestField(Cancelled, false);
+        SalesCrMemoHeader.TestField(Corrective);
+
+        CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
+        CancelPostedSalesCrMemo.Run(SalesCrMemoHeader);
+
+        SalesCrMemoHeader.Find();
+        SalesCrMemoHeader.CalcFields(Cancelled, Corrective);
+        SalesCrMemoHeader.TestField(Cancelled);
+        SalesCrMemoHeader.TestField(Corrective, false);
     end;
 
-    [ModalPageHandler]
+    [Test]
     [Scope('OnPrem')]
-    procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntriesPage: TestPage "Apply Customer Entries")
+    procedure CanCancelCorrectivePurchaseCreditMemo()
     var
-        Variant: Variant;
-        AppliesTo: Text;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        CancelPostedPurchCrMemo: Codeunit "Cancel Posted Purch. Cr. Memo";
     begin
-        ApplyCustomerEntriesPage.First;
-        if ApplyCustomerEntriesPage.AppliesToID.Value <> '' then
-            ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
-        ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
-        ApplyCustomerEntriesPage.Next;
-        if ApplyCustomerEntriesPage.AppliesToID.Value <> '' then
-            ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
-        ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
+        // [FEATURE] [Cancel] [Correct] [Invoice] [Credit Memo] [No. Series] [Gen. Journal Template] [Purchase]
+        // [SCENARIO 398925] System checks "No. Series" in gen. journal template that is specified in purchase setup when Stan corrects posted invoice or cancels posted credit memo.
+        Initialize();
 
-        ApplyCustomerEntriesPage.First;
-        LibraryVariableStorage.Dequeue(Variant);
-        AppliesTo := Variant;
-        Assert.AreEqual(AppliesTo, ApplyCustomerEntriesPage.AppliesToID.Value, 'Applies to ID does not match');
+        UpdateNoSeriesInPurchaseSetup(
+          CreateNoSeriesCodeWithFullfilledNos(), CreateNoSeriesCodeWithFullfilledNos(),
+          CreateNoSeriesCode(), CreateNoSeriesCode());
 
-        ApplyCustomerEntriesPage.OK.Invoke;
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+        CorrectPostedPurchInvoice.Run(PurchInvHeader);
+
+        PurchInvHeader.Find();
+        PurchInvHeader.CalcFields(Cancelled);
+        PurchInvHeader.TestField(Cancelled);
+
+        PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        PurchCrMemoHdr.FindFirst();
+
+        PurchCrMemoHdr.CalcFields(Cancelled, Corrective);
+        PurchCrMemoHdr.TestField(Cancelled, false);
+        PurchCrMemoHdr.TestField(Corrective);
+
+        CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
+        CancelPostedPurchCrMemo.Run(PurchCrMemoHdr);
+
+        PurchCrMemoHdr.Find();
+        PurchCrMemoHdr.CalcFields(Cancelled, Corrective);
+        PurchCrMemoHdr.TestField(Cancelled);
+        PurchCrMemoHdr.TestField(Corrective, false);
     end;
 
-    [PageHandler]
+    [Test]
     [Scope('OnPrem')]
-    procedure GeneralLedgerEntriesPageHandler(var GeneralLedgerEntries: TestPage "General Ledger Entries")
+    procedure CannotCorrectPostedSalesInvoice()
     var
-        Variant: Variant;
-        Amount: Decimal;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        LibraryVariableStorage.Dequeue(Variant);
-        GeneralLedgerEntries.FILTER.SetFilter("Document No.", Variant);
-        LibraryVariableStorage.Dequeue(Variant);
-        Amount := Variant;
-        GeneralLedgerEntries.First;
-        Assert.AreEqual(Format(550005), GeneralLedgerEntries."G/L Account No.".Value, 'GL Account No.');
-        Assert.AreEqual('Payment', GeneralLedgerEntries."Document Type".Value, 'Document Type');
-        Assert.AreEqual(-1 * Amount, GeneralLedgerEntries.Amount.AsDEcimal, 'Amount 1');
-        GeneralLedgerEntries.Next;
-        Assert.AreEqual(Amount, GeneralLedgerEntries.Amount.AsDEcimal, 'Amount 2');
+        // [FEATURE] [Cancel] [Correct] [Invoice] [Credit Memo] [No. Series] [Gen. Journal Template] [Sales]
+        // [SCENARIO 398925] System throws error on checking fullfilled "No. Series" in gen. journal template that is specified in sales setup when Stan corrects posted invoice1000
+        Initialize();
+
+        UpdateNoSeriesInSalesSetup(
+          CreateNoSeriesCode(), CreateNoSeriesCode(),
+          CreateNoSeriesCode(), CreateNoSeriesCodeWithFullfilledNos());
+
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+
+        Assert.ExpectedError(NoSeriesFullfilledSalesCrMemoErr);
     end;
 
-    [ConfirmHandler]
+    [Test]
     [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Confirm: Boolean)
+    procedure CannotCorrectPostedPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Confirm := true;
+        // [FEATURE] [Cancel] [Correct] [Invoice] [Credit Memo] [No. Series] [Gen. Journal Template] [Purchase]
+        // [SCENARIO 398925] System throws error on checking fullfilled "No. Series" in gen. journal template that is specified in sales setup when Stan corrects posted invoice
+        Initialize();
+
+        UpdateNoSeriesInPurchaseSetup(
+          CreateNoSeriesCode(), CreateNoSeriesCode(),
+          CreateNoSeriesCode(), CreateNoSeriesCodeWithFullfilledNos());
+
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        asserterror CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+
+        Assert.ExpectedError(NoSeriesFullfilledPurchaseCrMemoErr);
     end;
 
-    [MessageHandler]
+    [Test]
     [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text)
+    procedure CannotCancelCorrectiveSalesCreditMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
     begin
+        // [FEATURE] [Cancel] [Correct] [Invoice] [Credit Memo] [No. Series] [Gen. Journal Template] [Sales]
+        // [SCENARIO 398925] System checks "No. Series" in gen. journal template that is specified in sales setup when Stan cancels posted credit memo.
+        Initialize();
+
+        UpdateNoSeriesInSalesSetup(
+          CreateNoSeriesCode(), CreateNoSeriesCode(),
+          CreateNoSeriesCode(), CreateNoSeriesCode());
+
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+        CorrectPostedSalesInvoice.Run(SalesInvoiceHeader);
+
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields(Cancelled);
+        SalesInvoiceHeader.TestField(Cancelled);
+
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesCrMemoHeader.FindFirst();
+
+        SalesCrMemoHeader.CalcFields(Cancelled, Corrective);
+        SalesCrMemoHeader.TestField(Cancelled, false);
+        SalesCrMemoHeader.TestField(Corrective);
+
+        UpdateNoSeriesInSalesSetup(
+          CreateNoSeriesCode(), CreateNoSeriesCode(),
+          CreateNoSeriesCodeWithFullfilledNos(), CreateNoSeriesCode());
+
+        Commit();
+
+        asserterror CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
+
+        Assert.ExpectedError(NoSeriesFullfilledSalesInvoiceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotCancelCorrectivePurchaseCreditMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        CancelPostedPurchCrMemo: Codeunit "Cancel Posted Purch. Cr. Memo";
+    begin
+        // [FEATURE] [Cancel] [Correct] [Invoice] [Credit Memo] [No. Series] [Gen. Journal Template] [Purchase]
+        // [SCENARIO 398925] System checks "No. Series" in gen. journal template that is specified in purchase setup when Stan cancels posted credit memo.
+        Initialize();
+
+        UpdateNoSeriesInPurchaseSetup(
+          CreateNoSeriesCode(), CreateNoSeriesCode(),
+          CreateNoSeriesCode(), CreateNoSeriesCode());
+
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+        CorrectPostedPurchInvoice.Run(PurchInvHeader);
+
+        PurchInvHeader.Find();
+        PurchInvHeader.CalcFields(Cancelled);
+        PurchInvHeader.TestField(Cancelled);
+
+        PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        PurchCrMemoHdr.FindFirst();
+
+        PurchCrMemoHdr.CalcFields(Cancelled, Corrective);
+        PurchCrMemoHdr.TestField(Cancelled, false);
+        PurchCrMemoHdr.TestField(Corrective);
+
+        UpdateNoSeriesInPurchaseSetup(
+          CreateNoSeriesCode(), CreateNoSeriesCode(),
+          CreateNoSeriesCodeWithFullfilledNos(), CreateNoSeriesCode());
+
+        Commit();
+
+        asserterror CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
+
+        Assert.ExpectedError(NoSeriesFullfilledPurchaseInvoiceErr);
     end;
 
     [Normal]
@@ -284,13 +458,15 @@ codeunit 144024 "Test Financial Journals"
     begin
         // Generate random seed.
         BankAccount.SetFilter("Last Check No.", '<>%1', '');
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         GenJournalTemplate.SetRange("Bal. Account No.", BankAccount."No.");
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Financial);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         BankAccountNo := GenJournalTemplate."Bal. Account No.";
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(GenJournalTemplate.Name);
+
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -300,15 +476,97 @@ codeunit 144024 "Test Financial Journals"
         // Create new payment terms with random discount due date and discount percentage.
         // The due date must be after the discount due date.
         ReplacePaymentTerms(
-          PmtTerms, 'NEW', '<1M>', '<' + Format(RandomNoGenerator.RandInt(20)) + 'D>', RandomNoGenerator.RandInt(200) / 10);
+          PmtTerms, 'NEW', '<1M>', '<' + Format(LibraryRandom.RandInt(20)) + 'D>', LibraryRandom.RandInt(200) / 10);
         ModifyGenJnlBatchNoSeries;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
+
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
+
         isInitialized := true;
         Commit();
+    end;
+
+    local procedure CreateNoSeriesCode(): Code[20]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        Prefix: Code[10];
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+
+        Prefix := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(Prefix));
+
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, StrSubstNo('%1-0000', Prefix), StrSubstNo('%1-9999', Prefix));
+
+        exit(NoSeriesLine."Series Code");
+    end;
+
+    local procedure CreateNoSeriesCodeWithFullfilledNos(): Code[20]
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine.SetRange("Series Code", CreateNoSeriesCode());
+        NoSeriesLine.FindFirst();
+
+        NoSeriesLine.Validate("Last No. Used", NoSeriesLine."Ending No.");
+        NoSeriesLine.Modify(true);
+
+        exit(NoSeriesLine."Series Code");
+    end;
+
+    local procedure CreateGenJournalTemplateWithPostingSeriesNo(TemplateType: Option; PostingNoSeries: Code[20]): Code[10]
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, TemplateType);
+        GenJournalTemplate.Validate("Posting No. Series", PostingNoSeries);
+        GenJournalTemplate.Modify(true);
+
+        exit(GenJournalTemplate.Name);
+    end;
+
+    local procedure UpdateNoSeriesInSalesSetup(StdPostedInvoiceNoSeriesCode: Code[20]; StdPostedCrMemoNoSeriesCode: Code[20]; TemplatePostedInvoiceNoSeriesCode: Code[20]; TemplatePostedCrMemoNoSeriesCode: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        with SalesReceivablesSetup do begin
+            Get();
+            Validate("Posted Invoice Nos.", StdPostedInvoiceNoSeriesCode);
+            Validate("Posted Credit Memo Nos.", StdPostedCrMemoNoSeriesCode);
+            Validate(
+              "Journal Templ. Sales Invoice",
+              CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Sales, TemplatePostedInvoiceNoSeriesCode));
+            Validate(
+              "Journal Templ. Sales Cr. Memo",
+              CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Sales, TemplatePostedCrMemoNoSeriesCode));
+            Modify(true);
+        end;
+    end;
+
+    local procedure UpdateNoSeriesInPurchaseSetup(StdPostedInvoiceNoSeriesCode: Code[20]; StdPostedCrMemoNoSeriesCode: Code[20]; TemplatePostedInvoiceNoSeriesCode: Code[20]; TemplatePostedCrMemoNoSeriesCode: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        with PurchasesPayablesSetup do begin
+            Get();
+            Validate("Posted Invoice Nos.", StdPostedInvoiceNoSeriesCode);
+            Validate("Posted Credit Memo Nos.", StdPostedCrMemoNoSeriesCode);
+            Validate(
+              "Journal Templ. Purch. Invoice",
+              CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Purchases, TemplatePostedInvoiceNoSeriesCode));
+            Validate(
+              "Journal Templ. Purch. Cr. Memo",
+              CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Purchases, TemplatePostedCrMemoNoSeriesCode));
+            Modify(true);
+        end;
     end;
 
     local procedure ReplacePaymentTerms(var PmtTerms: Record "Payment Terms"; "Code": Code[10]; DueDateCalc: Text[30]; DiscountDateCalc: Text[30]; Discount: Decimal)
@@ -353,6 +611,73 @@ codeunit 144024 "Test Financial Journals"
 
         FinancialJournalPage.Next;
         FinancialJournalPage.Previous;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Confirm: Boolean)
+    begin
+        Confirm := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text)
+    begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateListPage: TestPage "General Journal Template List")
+    var
+        Variant: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Variant);
+        GeneralJournalTemplateListPage.FILTER.SetFilter(Name, Variant);
+        GeneralJournalTemplateListPage.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntriesPage: TestPage "Apply Customer Entries")
+    var
+        Variant: Variant;
+        AppliesTo: Text;
+    begin
+        ApplyCustomerEntriesPage.First();
+        if ApplyCustomerEntriesPage.AppliesToID.Value <> '' then
+            ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
+        ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
+        ApplyCustomerEntriesPage.Next();
+        if ApplyCustomerEntriesPage.AppliesToID.Value <> '' then
+            ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
+        ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
+
+        ApplyCustomerEntriesPage.First();
+        LibraryVariableStorage.Dequeue(Variant);
+        AppliesTo := Variant;
+        Assert.AreEqual(AppliesTo, ApplyCustomerEntriesPage.AppliesToID.Value, 'Applies to ID does not match');
+
+        ApplyCustomerEntriesPage.OK.Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralLedgerEntriesPageHandler(var GeneralLedgerEntries: TestPage "General Ledger Entries")
+    var
+        Variant: Variant;
+        Amount: Decimal;
+    begin
+        LibraryVariableStorage.Dequeue(Variant);
+        GeneralLedgerEntries.FILTER.SetFilter("Document No.", Variant);
+        LibraryVariableStorage.Dequeue(Variant);
+        Amount := Variant;
+        GeneralLedgerEntries.First();
+        Assert.AreEqual(Format(550005), GeneralLedgerEntries."G/L Account No.".Value, 'GL Account No.');
+        Assert.AreEqual('Payment', GeneralLedgerEntries."Document Type".Value, 'Document Type');
+        Assert.AreEqual(-1 * Amount, GeneralLedgerEntries.Amount.AsDEcimal, 'Amount 1');
+        GeneralLedgerEntries.Next();
+        Assert.AreEqual(Amount, GeneralLedgerEntries.Amount.AsDEcimal, 'Amount 2');
     end;
 }
 

@@ -2172,8 +2172,6 @@ page 21 "Customer Card"
                 Caption = 'Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
-                Promoted = true;
-                PromotedCategory = Category9;
 
                 trigger OnAction()
                 var
@@ -2188,10 +2186,8 @@ page 21 "Customer Card"
             action(Email)
             {
                 ApplicationArea = All;
-                Caption = 'Contact by Email';
+                Caption = 'Send Email';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category9;
                 ToolTip = 'Send an email to this customer.';
 
                 trigger OnAction()

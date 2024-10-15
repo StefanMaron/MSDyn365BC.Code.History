@@ -90,7 +90,7 @@ page 5757 "Transfer Receipt Statistics"
                 if TransRcptLine."Units per Parcel" > 0 then
                     TotalParcels += Round(TransRcptLine.Quantity / TransRcptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
-                    TransRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    TransRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec)
             until TransRcptLine.Next() = 0;
     end;
 
@@ -100,7 +100,7 @@ page 5757 "Transfer Receipt Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var TransferReceiptLine: Record "Transfer Receipt Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var TransferReceiptLine: Record "Transfer Receipt Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 }

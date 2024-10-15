@@ -64,8 +64,7 @@ page 51 "Purchase Invoice"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupBuyfromVendorName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupBuyFromVendorName(Text));
                     end;
                 }
                 field("Posting Description"; "Posting Description")
@@ -1662,6 +1661,7 @@ page 51 "Purchase Invoice"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
         CalcFields("Invoice Discount Amount");
     end;

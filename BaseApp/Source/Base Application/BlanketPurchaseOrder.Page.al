@@ -56,8 +56,7 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupBuyfromVendorName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupBuyFromVendorName(Text));
                     end;
                 }
                 group("Buy-from")
@@ -1037,6 +1036,7 @@ page 509 "Blanket Purchase Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
     end;
 

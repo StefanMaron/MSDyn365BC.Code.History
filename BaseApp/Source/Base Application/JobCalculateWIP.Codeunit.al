@@ -74,27 +74,7 @@ codeunit 1000 "Job Calculate WIP"
         Job.Modify();
 
         DeleteWIP(Job);
-
-        with JobTask do begin
-            SetRange("Job No.", Job."No.");
-            SetRange("WIP-Total", "WIP-Total"::Total);
-            if not FindFirst then begin
-                SetFilter("WIP-Total", '<> %1', "WIP-Total"::Excluded);
-                if FindLast then begin
-                    Validate("WIP-Total", "WIP-Total"::Total);
-                    Modify;
-                end;
-            end;
-
-            SetRange("WIP-Total", "WIP-Total"::Total);
-            SetRange("WIP Method", '');
-            if FindFirst then
-                ModifyAll("WIP Method", Job."WIP Method");
-
-            SetRange("WIP-Total");
-            SetRange("WIP Method");
-        end;
-
+        AssignWIPTotalAndMethodToJobTask(JobTask, Job);
         First := true;
         if JobTask.Find('-') then
             repeat
@@ -104,6 +84,7 @@ codeunit 1000 "Job Calculate WIP"
                 if JobTask."WIP-Total" = JobTask."WIP-Total"::Total then begin
                     JobTaskCalcWIP(Job, FromJobTask, JobTask."Job Task No.");
                     First := true;
+                    AssignWIPTotalAndMethodToRemainingJobTask(JobTask, Job);
                 end;
             until JobTask.Next() = 0;
         CreateWIPEntries(Job."No.");
@@ -1058,6 +1039,38 @@ codeunit 1000 "Job Calculate WIP"
                 exit(-JobTask."Recognized Sales Amount");
             BufferType::"Accrued Sales":
                 exit(GetAccruedSalesWIPEntryAmount(JobTask, JobWIPMethod));
+        end;
+    end;
+
+    local procedure AssignWIPTotalAndMethodToRemainingJobTask(var JobTask: Record "Job Task"; Job: Record Job)
+    var
+        RemainingJobTask: Record "Job Task";
+    begin
+        RemainingJobTask.Copy(JobTask);
+        RemainingJobTask.SetFilter("Job Task No.", '>%1', JobTask."Job Task No.");
+        AssignWIPTotalAndMethodToJobTask(RemainingJobTask, Job);
+    end;
+
+    local procedure AssignWIPTotalAndMethodToJobTask(var JobTask: Record "Job Task"; Job: Record Job)
+    begin
+        with JobTask do begin
+            SetRange("Job No.", Job."No.");
+            SetRange("WIP-Total", "WIP-Total"::Total);
+            if not FindFirst() then begin
+                SetFilter("WIP-Total", '<> %1', "WIP-Total"::Excluded);
+                if FindLast() then begin
+                    Validate("WIP-Total", "WIP-Total"::Total);
+                    Modify();
+                end;
+            end;
+
+            SetRange("WIP-Total", "WIP-Total"::Total);
+            SetRange("WIP Method", '');
+            if FindFirst() then
+                ModifyAll("WIP Method", Job."WIP Method");
+
+            SetRange("WIP-Total");
+            SetRange("WIP Method");
         end;
     end;
 

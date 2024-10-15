@@ -39,33 +39,42 @@ codeunit 2000041 "CODA Write Statements"
     begin
         CodBankStmtSrcLine := CodedBankStmtSrcLine;
         with CodBankStmtSrcLine do begin
-            if ID = ID::"Old Balance" then begin
-                CodedBankStnt."Bank Account No." := "Bank Account No.";
-                CodedBankStnt."Statement No." := "Statement No.";
-                CodedBankStnt."Statement Date" := "Transaction Date";
-                CodedBankStnt."Balance Last Statement" := Amount;
-                CodedBankStnt."CODA Statement No." := "CODA Statement No.";
-                if not CodedBankStnt.Insert(true) then
-                    if Confirm(
-                         StrSubstNo(Text000,
-                           CodedBankStnt.TableCaption, "Bank Account No.", "Statement No."))
-                    then begin
-                        CodBankStmtLine.Reset();
-                        CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
-                        CodBankStmtLine.SetRange("Statement No.", "Statement No.");
-                        CodBankStmtLine.DeleteAll(true);
+            case ID of
+                ID::"Old Balance":
+                    begin
+                        CodedBankStnt."Balance Last Statement" := Amount;
+                        CodedBankStnt."CODA Statement No." := "CODA Statement No.";
                         CodedBankStnt.Modify(true);
-                    end else
-                        exit(false);
-                Clear(LastCodBankStmtSrcLine);
-                Clear(LastCodBankStmtLine);
-            end else
-                if ID = ID::"New Balance" then begin
-                    RefLineNo := 0;
-                    CodedBankStnt."Statement Ending Balance" := Amount;
-                    CodedBankStnt.Modify(true);
-                end else
+                    end;
+                ID::"New Balance":
+                    begin
+                        RefLineNo := 0;
+                        CodedBankStnt."Statement Ending Balance" := Amount;
+                        CodedBankStnt.Modify(true);
+                    end;
+                ID::Header:
+                    begin
+                        CodedBankStnt."Bank Account No." := "Bank Account No.";
+                        CodedBankStnt."Statement No." := "Statement No.";
+                        CodedBankStnt."Statement Date" := "Transaction Date";
+                        if not CodedBankStnt.Insert(true) then
+                            if Confirm(
+                                StrSubstNo(Text000,
+                                CodedBankStnt.TableCaption, "Bank Account No.", "Statement No."))
+                            then begin
+                                CodBankStmtLine.Reset();
+                                CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
+                                CodBankStmtLine.SetRange("Statement No.", "Statement No.");
+                                CodBankStmtLine.DeleteAll(true);
+                                CodedBankStnt.Modify(true);
+                            end else
+                                exit(false);
+                        Clear(LastCodBankStmtSrcLine);
+                        Clear(LastCodBankStmtLine);
+                    end;
+                else
                     Error(Text001, FieldCaption(ID), ID);
+            end;
         end;
         CodBankStmtSrcLine.Transferred := true;
         CodedBankStmtSrcLine := CodBankStmtSrcLine;

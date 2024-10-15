@@ -241,6 +241,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     local procedure TestIfAnyFreeNumberSeries(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
     begin
@@ -250,7 +251,8 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumInv, SalesCrMemoHeader);
 
-        if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Posted Invoice Nos.", PostingDate) = '' then
+        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        if NoSeriesManagement.TryGetNextNo(GenJournalTemplate."Posting No. Series", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumPostInv, SalesCrMemoHeader);
     end;
 
