@@ -1169,6 +1169,10 @@
                         Error('')
             end;
         }
+        field(133; "Intrastat Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Intrastat Partner Type';
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
