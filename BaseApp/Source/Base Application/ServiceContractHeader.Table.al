@@ -1978,9 +1978,8 @@
     begin
         with ServContractHeader do begin
             ServContractHeader := Rec;
-            ServMgtSetup.Get();
-            ServMgtSetup.TestField("Service Contract Nos.");
-            if NoSeriesMgt.SelectSeries(ServMgtSetup."Service Contract Nos.", OldServContract."No. Series", "No. Series") then begin
+
+            if NoSeriesMgt.SelectSeries(GetServiceContractNos(), OldServContract."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("Contract No.");
                 Rec := ServContractHeader;
                 exit(true);
@@ -1988,6 +1987,20 @@
         end;
 
         OnAfterAssistEdit(OldServContract);
+    end;
+
+    local procedure GetServiceContractNos() NoSeriesCode: Code[20]
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetServiceContractNos(Rec, NoSeriesCode, IsHandled);
+        if IsHandled then
+            exit(NoSeriesCode);
+
+        ServMgtSetup.Get();
+        ServMgtSetup.TestField("Service Contract Nos.");
+        exit(ServMgtSetup."Service Contract Nos.");
     end;
 
     procedure ReturnNoOfPer(InvoicePeriod: Enum "Service Contract Header Invoice Period") RetPer: Integer
@@ -2579,6 +2592,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyServiceContractQuoteTemplate(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetServiceContractNos(ServiceContractHeader: Record "Service Contract Header"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

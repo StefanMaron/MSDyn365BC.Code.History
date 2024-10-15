@@ -4,6 +4,7 @@
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Assembly List";
     LookupPageID = "Assembly List";
+    Permissions = TableData "Assembly Line" = d;
 
     fields
     {
@@ -526,8 +527,8 @@
                 AsmHeader := Rec;
                 AssemblySetup.Get();
                 TestNoSeries;
-                if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
-                    Validate("Posting No. Series");
+                if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, AsmHeader."Posting No. Series") then
+                    AsmHeader.Validate("Posting No. Series");
                 Rec := AsmHeader;
             end;
 
@@ -691,14 +692,11 @@
         TestReservationDateConflict: Boolean;
         HideValidationDialog: Boolean;
 
-
-#pragma warning disable AS0022 // False positive due to a compiler bug fix
     [Scope('OnPrem')]
     procedure RefreshBOM()
     begin
         AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, 0, true, CurrFieldNo, 0);
     end;
-#pragma warning restore AS0022
 
     procedure InitRecord()
     var
@@ -829,7 +827,13 @@
     procedure ShowReservation()
     var
         Reservation: Page Reservation;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReservation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.");
         Clear(Reservation);
         Reservation.SetReservSource(Rec);
@@ -1767,7 +1771,7 @@
     local procedure OnValidateVariantCodeOnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAssemblyLinesAndVerifyReserveQuantity(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean)
     begin
@@ -1780,6 +1784,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcEndDateFromStartDate(var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReservation(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 }

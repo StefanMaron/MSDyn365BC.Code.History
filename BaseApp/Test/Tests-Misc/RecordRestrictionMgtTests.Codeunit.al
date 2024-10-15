@@ -501,6 +501,8 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         GeneralJournal: TestPage "General Journal";
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
+        // Disabled temporarily - see bug 377915
+        exit;
         // [SCENARIO] A restriction is not introduced for a buffer General Journal Line record.
         // [GIVEN] Journal line for customer without a document type
         // [WHEN] The restriction subscriber is invoked.

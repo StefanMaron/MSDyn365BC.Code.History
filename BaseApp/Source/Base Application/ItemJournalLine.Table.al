@@ -153,6 +153,7 @@
                         begin
                             ProdOrderComp.SetFilterByReleasedOrderNo("Order No.");
                             ProdOrderComp.SetRange("Item No.", "Item No.");
+                            OnValidateItemNoOnAfterProdOrderCompSetFilters(Rec, ProdOrderComp);
                             if ProdOrderComp.Count = 1 then begin
                                 ProdOrderComp.FindFirst;
                                 CopyFromProdOrderComp(ProdOrderComp);
@@ -1074,6 +1075,7 @@
                             if "Order Type" = "Order Type"::Production then begin
                                 ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
                                 ProdOrderLine.SetRange("Line No.", "Order Line No.");
+                                OnValidateOrderLineNoOnAfterProdOrderLineSetFilters(Rec, ProdOrderLine);
                                 if ProdOrderLine.FindFirst then begin
                                     "Source Type" := "Source Type"::Item;
                                     "Source No." := ProdOrderLine."Item No.";
@@ -1222,7 +1224,6 @@
 
             trigger OnValidate()
             var
-                ProdOrderComp: Record "Prod. Order Component";
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
                 if "Bin Code" <> xRec."Bin Code" then begin
@@ -1248,16 +1249,7 @@
                     then begin
                         TestField("Order Type", "Order Type"::Production);
                         TestField("Order No.");
-                        ProdOrderComp.Get(ProdOrderComp.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
-                        if (ProdOrderComp."Bin Code" <> '') and (ProdOrderComp."Bin Code" <> "Bin Code") then
-                            if not Confirm(
-                                 Text021,
-                                 false,
-                                 "Bin Code",
-                                 ProdOrderComp."Bin Code",
-                                 "Order No.")
-                            then
-                                Error(UpdateInterruptedErr);
+                        CheckProdOrderCompBinCode();
                     end;
                 end;
 
@@ -1319,6 +1311,7 @@
                 GetItem;
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
 
+                OnValidateUnitOfMeasureCodeOnBeforeWhseValidateSourceLine(Rec, xRec);
                 if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
@@ -2592,6 +2585,28 @@
         then
             if ItemCheckAvail.ItemJnlCheckLine(Rec) then
                 ItemCheckAvail.RaiseUpdateInterruptedError;
+    end;
+
+    local procedure CheckProdOrderCompBinCode()
+    var
+        ProdOrderComp: Record "Prod. Order Component";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdOrderCompBinCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderComp.Get(ProdOrderComp.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
+        if (ProdOrderComp."Bin Code" <> '') and (ProdOrderComp."Bin Code" <> "Bin Code") then
+            if not Confirm(
+                 Text021,
+                 false,
+                 "Bin Code",
+                 ProdOrderComp."Bin Code",
+                 "Order No.")
+            then
+                Error(UpdateInterruptedErr);
     end;
 
     local procedure GetItem()
@@ -4367,6 +4382,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdOrderCompBinCode(ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDisplayErrorIfItemIsBlocked(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -4486,6 +4506,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderLineNoOnAfterProdOrderLineSetFilters(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeGetUnitAmount(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CallingFieldNo: Integer)
     begin
     end;
@@ -4506,6 +4531,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeWhseValidateSourceLine(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateScrapCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -4517,6 +4547,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; CurrFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterProdOrderCompSetFilters(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 

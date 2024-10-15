@@ -16,21 +16,24 @@ report 11701 "Create Payment Recon. Journal"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Window.Update(1, "Line No.");
+                    if not HideMessages then
+                        Window.Update(1, "Line No.");
 
                     CreateBankAccReconLine("Issued Bank Statement Header", "Issued Bank Statement Line");
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    Window.Close;
+                    if not HideMessages then
+                        Window.Close;
 
                     MatchBankPmtApplication("Issued Bank Statement Header"."Bank Account No.", "Issued Bank Statement Header"."No.");
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    Window.Open(CreatingLinesMsg);
+                    if not HideMessages then
+                        Window.Open(CreatingLinesMsg);
                 end;
             }
 
@@ -44,7 +47,8 @@ report 11701 "Create Payment Recon. Journal"
 
             trigger OnPostDataItem()
             begin
-                Message(SuccessCreatedMsg);
+                if not HideMessages then
+                    Message(SuccessCreatedMsg);
             end;
         }
     }
@@ -116,6 +120,12 @@ report 11701 "Create Payment Recon. Journal"
         CreatingLinesMsg: Label 'Creating payment reconciliation journal lines...\\Line No. #1##########', Comment = 'Progress bar';
         SuccessCreatedMsg: Label 'Payment Reconciliation Journal Lines was successfully created.';
         RunApplAutomatically: Boolean;
+        HideMessages: Boolean;
+
+    procedure SetHideMessages(HideMessagesNew: Boolean)
+    begin
+        HideMessages := HideMessagesNew;
+    end;
 
     local procedure GetParameters()
     var
@@ -191,6 +201,7 @@ report 11701 "Create Payment Recon. Journal"
             if VariableToExtDocNo then
                 "External Document No." := IssuedBankStmtLn."Variable Symbol";
 
+            OnCreateBankAccReconLineOnBeforeInsertBankAccReconLn(IssuedBankStmtHdr, IssuedBankStmtLn, VariableToDescription, BankAccReconLn);
             Insert(true);
         end;
     end;
@@ -199,11 +210,16 @@ report 11701 "Create Payment Recon. Journal"
     var
         BankAccRecon: Record "Bank Acc. Reconciliation";
     begin
-        if not RunApplAutomatically then
+        if not RunApplAutomatically or HideMessages then
             exit;
 
         BankAccRecon.Get(BankAccRecon."Statement Type"::"Payment Application", BankAccNo, StatementNo);
         CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccRecon);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateBankAccReconLineOnBeforeInsertBankAccReconLn(IssuedBankStmtHdr: Record "Issued Bank Statement Header"; IssuedBankStmtLn: Record "Issued Bank Statement Line"; VariableToDescription: Boolean; var BankAccReconLn: Record "Bank Acc. Reconciliation Line")
+    begin
     end;
 }
 

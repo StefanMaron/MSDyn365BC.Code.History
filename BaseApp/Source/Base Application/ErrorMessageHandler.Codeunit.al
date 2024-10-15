@@ -240,5 +240,12 @@ codeunit 29 "Error Message Handler"
         TempErrorMessage.Context := true;
         TempErrorMessage.Modify();
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnLogLastError', '', false, false)]
+    local procedure OnLogLastErrorHandler()
+    begin
+        if Active then
+            TempErrorMessage.LogLastError();
+    end;
 }
 

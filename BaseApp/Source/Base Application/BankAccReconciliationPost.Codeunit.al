@@ -1,4 +1,4 @@
-codeunit 370 "Bank Acc. Reconciliation Post"
+﻿codeunit 370 "Bank Acc. Reconciliation Post"
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm,
@@ -87,6 +87,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         with BankAccRecon do begin
             // Run through lines
             BankAccReconLine.FilterBankRecLines(BankAccRecon);
+            OnPostAfterFilterBankAccRecLines(BankAccReconLine, BankAccRecon);
             TotalAmount := 0;
             TotalAppliedAmount := 0;
             TotalDiff := 0;
@@ -182,12 +183,24 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 "Statement Type"::"Payment Application":
                     begin
                         UpdateIssuedBankStatement(BankAccRecon); // NAVCZ
-                        TransferToPostPmtAppln(BankAccRecon);
-                        if not "Post Payments Only" then
-                            TransferToBankStmt(BankAccRecon);
+                        HandlePaymentApplicationTransfer(BankAccRecon);
                     end;
             end;
         end;
+    end;
+
+    local procedure HandlePaymentApplicationTransfer(BankAccRecon: Record "Bank Acc. Reconciliation")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeHandlePaymentApplicationTransfer(BankAccRecon, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransferToPostPmtAppln(BankAccRecon);
+        if not BankAccRecon."Post Payments Only" then
+            TransferToBankStmt(BankAccRecon);
     end;
 
     local procedure FinalizePost(BankAccRecon: Record "Bank Acc. Reconciliation")
@@ -332,10 +345,17 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         PaymentLineAmount: Decimal;
         RemainingAmount: Decimal;
         PaymentWithoutApplies: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostPaymentApplications(BankAccReconLine, AppliedAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         if BankAccReconLine.IsTransactionPostedAndReconciled then
             Error(TransactionAlreadyReconciledErr, BankAccReconLine."Transaction Date", BankAccReconLine."Transaction Text");
 
+        OnPostPaymentApplicationsOnAfterTransactionPostedAndReconciledCheck(BankAccReconLine, AppliedAmount, SourceCode);
         with GenJnlLine do begin
             if BankAccReconLine."Account No." = '' then
                 Error(LineNoTAppliedErr, BankAccReconLine."Transaction Date", BankAccReconLine."Transaction Text");
@@ -595,7 +615,13 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccStmtLine: Record "Bank Account Statement Line";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         BankAccStmtExists: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferToBankStmt(BankAccRecon, IsHandled);
+        if IsHandled then
+            exit;
+
         BankAccStmtExists := BankAccStmt.Get(BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         BankAccStmt.Init();
         BankAccStmt.TransferFields(BankAccRecon);
@@ -620,7 +646,13 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         TypeHelper: Codeunit "Type Helper";
         FieldLength: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferToPostPmtAppln(BankAccRecon, IsHandled);
+        if IsHandled then
+            exit;
+
         if BankAccReconLine.LinesExist(BankAccRecon) then
             repeat
                 PostedPmtReconLine.TransferFields(BankAccReconLine);
@@ -861,6 +893,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPaymentApplications(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFinalizePost(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
     begin
     end;
@@ -881,7 +918,22 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferToPostPmtAppln(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferToBankStmt(var BankAccRecon: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCloseBankAccLedgEntryOnBeforeBankAccLedgEntryModify(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandlePaymentApplicationTransfer(var BankAccRecon: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
     begin
     end;
 
@@ -896,7 +948,17 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostPaymentApplicationsOnAfterTransactionPostedAndReconciledCheck(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal; SourceCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostPaymentApplicationsOnBeforeValidateApplyRequirements(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var GenJournalLine: Record "Gen. Journal Line"; AppliedAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAfterFilterBankAccRecLines(var BankAccReconLines: Record "Bank Acc. Reconciliation Line"; BankAccRecon: Record "Bank Acc. Reconciliation")
     begin
     end;
 }

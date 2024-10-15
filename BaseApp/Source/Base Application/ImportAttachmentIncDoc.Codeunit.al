@@ -203,7 +203,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         exit(IncomingDocument.FindFirst);
     end;
 
-    local procedure CreateNewSalesPurchIncomingDoc(var IncomingDocumentAttachment: Record "Incoming Document Attachment"): Integer
+    local procedure CreateNewSalesPurchIncomingDoc(var IncomingDocumentAttachment: Record "Incoming Document Attachment") IncomingDocEntryNo: Integer
     var
         IncomingDocument: Record "Incoming Document";
         SalesHeader: Record "Sales Header";
@@ -214,7 +214,13 @@ codeunit 134 "Import Attachment - Inc. Doc."
         DocTableNo: Integer;
         DocType: Enum "Incoming Document Type";
         DocNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateNewSalesPurchIncomingDoc(IncomingDocumentAttachment, IncomingDocEntryNo, IsHandled);
+        if IsHandled then
+            exit(IncomingDocEntryNo);
+
         with IncomingDocumentAttachment do begin
             if GetFilter("Document Table No. Filter") <> '' then
                 DocTableNo := GetRangeMin("Document Table No. Filter");
@@ -467,6 +473,11 @@ codeunit 134 "Import Attachment - Inc. Doc."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterImportAttachment(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateNewSalesPurchIncomingDoc(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

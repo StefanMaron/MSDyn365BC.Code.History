@@ -58,6 +58,11 @@ codeunit 1521 "Workflow Response Handling"
         ApplyNewValuesTxt: Label 'Apply the new values.';
         DiscardNewValuesTxt: Label 'Discard the new values.';
 
+        // Telemetry strings
+        WorkflowResponseStartTelemetryTxt: Label 'Workflow response: Start Scope', Locked = true;
+        WorkflowResponseEndTelemetryTxt: Label 'Workflow response: End Scope', Locked = true;
+        WorkflowResponseNotFoundTelemetryTxt: Label 'Workflow response not found', Locked = true;
+
     procedure CreateResponsesLibrary()
     begin
         AddResponseToLibrary(DoNothingCode, 0, DoNothingTxt, 'GROUP 0');
@@ -249,84 +254,96 @@ codeunit 1521 "Workflow Response Handling"
     var
         WorkflowResponse: Record "Workflow Response";
         WorkflowChangeRecMgt: Codeunit "Workflow Change Rec Mgt.";
+        WorkflowManagement: Codeunit "Workflow Management";
         ResponseExecuted: Boolean;
+        TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        if WorkflowResponse.Get(ResponseWorkflowStepInstance."Function Name") then
-            case WorkflowResponse."Function Name" of
-                DoNothingCode:
-                    DoNothing;
-                CreateNotificationEntryCode:
-                    CreateNotificationEntry(ResponseWorkflowStepInstance, xVariant);
-                ReleaseDocumentCode:
-                    ReleaseDocument(Variant);
-                OpenDocumentCode:
-                    OpenDocument(Variant);
-                SetStatusToPendingApprovalCode:
-                    SetStatusToPendingApproval(Variant);
-                GetApprovalCommentCode:
-                    GetApprovalComment(Variant, ResponseWorkflowStepInstance.ID);
-                CreateApprovalRequestsCode:
-                    CreateApprovalRequests(Variant, ResponseWorkflowStepInstance);
-                SendApprovalRequestForApprovalCode:
-                    SendApprovalRequestForApproval(Variant, ResponseWorkflowStepInstance);
-                ApproveAllApprovalRequestsCode:
-                    ApproveAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
-                RejectAllApprovalRequestsCode:
-                    RejectAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
-                CancelAllApprovalRequestsCode:
-                    CancelAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
-                PostDocumentCode:
-                    PostDocument(Variant);
-                PostDocumentAsyncCode:
-                    PostDocumentAsync(Variant);
-                CreatePmtLineForPostedPurchaseDocAsyncCode:
-                    CreatePmtLineForPostedPurchaseDocAsync(ResponseWorkflowStepInstance);
-                CreatePmtLineForPostedPurchaseDocCode:
-                    CreatePmtLineForPostedPurchaseDoc(ResponseWorkflowStepInstance);
-                CreateOverdueNotificationCode:
-                    CreateOverdueNotifications(ResponseWorkflowStepInstance);
-                CheckCustomerCreditLimitCode:
-                    CheckCustomerCreditLimit(Variant);
-                CheckGeneralJournalBatchBalanceCode:
-                    CheckGeneralJournalBatchBalance(Variant);
-                CreateAndApproveApprovalRequestAutomaticallyCode:
-                    CreateAndApproveApprovalRequestAutomatically(Variant, ResponseWorkflowStepInstance);
-                ShowMessageCode:
-                    ShowMessage(ResponseWorkflowStepInstance);
-                RestrictRecordUsageCode:
-                    RestrictRecordUsage(Variant, ResponseWorkflowStepInstance);
-                AllowRecordUsageCode:
-                    AllowRecordUsage(Variant);
-                GetMarkReadyForOCRCode:
-                    MarkReadyForOCR(Variant);
-                GetSendToOCRCode:
-                    SendToOCR(Variant);
-                GetSendToOCRAsyncCode:
-                    SendToOCRAsync(Variant);
-                GetReceiveFromOCRCode:
-                    ReceiveFromOCR(Variant);
-                GetReceiveFromOCRAsyncCode:
-                    ReceiveFromOCRAsync(Variant);
-                GetCreateDocFromIncomingDocCode:
-                    CreateDocFromIncomingDoc(Variant);
-                GetCreateReleasedDocFromIncomingDocCode:
-                    CreateReleasedDocFromIncomingDoc(Variant);
-                GetCreateJournalFromIncomingDocCode:
-                    CreateJournalFromIncomingDoc(Variant);
-                RevertValueForFieldCode:
-                    WorkflowChangeRecMgt.RevertValueForField(Variant, xVariant, ResponseWorkflowStepInstance);
-                ApplyNewValuesCode:
-                    WorkflowChangeRecMgt.ApplyNewValues(Variant, ResponseWorkflowStepInstance);
-                DiscardNewValuesCode:
-                    WorkflowChangeRecMgt.DiscardNewValues(Variant, ResponseWorkflowStepInstance);
-                GetApproveOverReceiptCode:
-                    ApproveOverReceipt(Variant);
-                else begin
-                        OnExecuteWorkflowResponse(ResponseExecuted, Variant, xVariant, ResponseWorkflowStepInstance);
-                        if not ResponseExecuted then
-                            Error(NotSupportedResponseErr, WorkflowResponse."Function Name");
-                    end;
-            end;
+        WorkflowManagement.GetTelemetryDimensions(ResponseWorkflowStepInstance."Function Name", ResponseWorkflowStepInstance.ToString(), TelemetryDimensions);
+
+        if not WorkflowResponse.Get(ResponseWorkflowStepInstance."Function Name") then begin
+            Session.LogMessage('0000DYO', WorkflowResponseNotFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+            exit;
+        end;
+
+        Session.LogMessage('0000DYP', WorkflowResponseStartTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+
+        case WorkflowResponse."Function Name" of
+            DoNothingCode:
+                DoNothing;
+            CreateNotificationEntryCode:
+                CreateNotificationEntry(ResponseWorkflowStepInstance, xVariant);
+            ReleaseDocumentCode:
+                ReleaseDocument(Variant);
+            OpenDocumentCode:
+                OpenDocument(Variant);
+            SetStatusToPendingApprovalCode:
+                SetStatusToPendingApproval(Variant);
+            GetApprovalCommentCode:
+                GetApprovalComment(Variant, ResponseWorkflowStepInstance.ID);
+            CreateApprovalRequestsCode:
+                CreateApprovalRequests(Variant, ResponseWorkflowStepInstance);
+            SendApprovalRequestForApprovalCode:
+                SendApprovalRequestForApproval(Variant, ResponseWorkflowStepInstance);
+            ApproveAllApprovalRequestsCode:
+                ApproveAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
+            RejectAllApprovalRequestsCode:
+                RejectAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
+            CancelAllApprovalRequestsCode:
+                CancelAllApprovalRequests(Variant, ResponseWorkflowStepInstance);
+            PostDocumentCode:
+                PostDocument(Variant);
+            PostDocumentAsyncCode:
+                PostDocumentAsync(Variant);
+            CreatePmtLineForPostedPurchaseDocAsyncCode:
+                CreatePmtLineForPostedPurchaseDocAsync(ResponseWorkflowStepInstance);
+            CreatePmtLineForPostedPurchaseDocCode:
+                CreatePmtLineForPostedPurchaseDoc(ResponseWorkflowStepInstance);
+            CreateOverdueNotificationCode:
+                CreateOverdueNotifications(ResponseWorkflowStepInstance);
+            CheckCustomerCreditLimitCode:
+                CheckCustomerCreditLimit(Variant);
+            CheckGeneralJournalBatchBalanceCode:
+                CheckGeneralJournalBatchBalance(Variant);
+            CreateAndApproveApprovalRequestAutomaticallyCode:
+                CreateAndApproveApprovalRequestAutomatically(Variant, ResponseWorkflowStepInstance);
+            ShowMessageCode:
+                ShowMessage(ResponseWorkflowStepInstance);
+            RestrictRecordUsageCode:
+                RestrictRecordUsage(Variant, ResponseWorkflowStepInstance);
+            AllowRecordUsageCode:
+                AllowRecordUsage(Variant);
+            GetMarkReadyForOCRCode:
+                MarkReadyForOCR(Variant);
+            GetSendToOCRCode:
+                SendToOCR(Variant);
+            GetSendToOCRAsyncCode:
+                SendToOCRAsync(Variant);
+            GetReceiveFromOCRCode:
+                ReceiveFromOCR(Variant);
+            GetReceiveFromOCRAsyncCode:
+                ReceiveFromOCRAsync(Variant);
+            GetCreateDocFromIncomingDocCode:
+                CreateDocFromIncomingDoc(Variant);
+            GetCreateReleasedDocFromIncomingDocCode:
+                CreateReleasedDocFromIncomingDoc(Variant);
+            GetCreateJournalFromIncomingDocCode:
+                CreateJournalFromIncomingDoc(Variant);
+            RevertValueForFieldCode:
+                WorkflowChangeRecMgt.RevertValueForField(Variant, xVariant, ResponseWorkflowStepInstance);
+            ApplyNewValuesCode:
+                WorkflowChangeRecMgt.ApplyNewValues(Variant, ResponseWorkflowStepInstance);
+            DiscardNewValuesCode:
+                WorkflowChangeRecMgt.DiscardNewValues(Variant, ResponseWorkflowStepInstance);
+            GetApproveOverReceiptCode:
+                ApproveOverReceipt(Variant);
+            else begin
+                    OnExecuteWorkflowResponse(ResponseExecuted, Variant, xVariant, ResponseWorkflowStepInstance);
+                    if not ResponseExecuted then
+                        Error(NotSupportedResponseErr, WorkflowResponse."Function Name");
+                end;
+        end;
+
+        Session.LogMessage('0000DYQ', WorkflowResponseEndTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]

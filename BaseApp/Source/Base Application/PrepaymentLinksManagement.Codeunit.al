@@ -443,6 +443,7 @@ codeunit 31032 "Prepayment Links Management"
             SalesAdvanceLetterLine.SetRange("Bill-to Customer No.", AdvanceLinkBufDefEntry."CV No.");
             SalesAdvanceLetterLine.SetRange("Currency Code", AdvanceLinkBufDefEntry."Currency Code");
             SalesAdvanceLetterLine.SetFilter("Amount To Link", '>%1', 0);
+            OnCollectSalesLettersOnAfterSetSalesAdvanceLetterLineFilters(SalesAdvanceLetterLine);
             if SalesAdvanceLetterLine.FindSet then
                 repeat
                     Init;
@@ -504,6 +505,7 @@ codeunit 31032 "Prepayment Links Management"
             PurchAdvanceLetterLine.SetRange("Pay-to Vendor No.", AdvanceLinkBufDefEntry."CV No.");
             PurchAdvanceLetterLine.SetRange("Currency Code", AdvanceLinkBufDefEntry."Currency Code");
             PurchAdvanceLetterLine.SetFilter("Amount To Link", '>%1', 0);
+            OnCollectPurchLettersOnAfterSetPurchAdvanceLetterLineFilters(PurchAdvanceLetterLine);
             if PurchAdvanceLetterLine.FindSet then
                 repeat
                     Init;
@@ -678,6 +680,7 @@ codeunit 31032 "Prepayment Links Management"
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
     begin
+        OnBeforeSaveLinkIDToLetterLines(AdvanceLinkBuf);
         with AdvanceLinkBuf do begin
             Reset;
             SetCurrentKey("Links-To ID", "Linking Entry");
@@ -692,6 +695,7 @@ codeunit 31032 "Prepayment Links Management"
                                 SalesAdvanceLetterLine."Applies-to ID" := "Links-To ID";
                             SalesAdvanceLetterLine."Amount Linked To Journal Line" := "Amount To Link";
                             SalesAdvanceLetterLine.Modify();
+                            OnSaveLinkIDToLetterLinesOnAfterModifySalesAdvanceLetterLine(AdvanceLinkBuf, AdvanceLinkBufDefEntry);
                         end;
                     end else
                         if PurchAdvanceLetterLine.Get("Document No.", "Entry No.") then begin
@@ -701,6 +705,7 @@ codeunit 31032 "Prepayment Links Management"
                                 PurchAdvanceLetterLine."Applies-to ID" := "Links-To ID";
                             PurchAdvanceLetterLine."Amount Linked To Journal Line" := "Amount To Link";
                             PurchAdvanceLetterLine.Modify();
+                            OnSaveLinkIDToLetterLinesOnAfterModifyPurchAdvanceLetterLine(AdvanceLinkBuf, AdvanceLinkBufDefEntry);
                         end;
                 until Next = 0;
         end;
@@ -717,10 +722,12 @@ codeunit 31032 "Prepayment Links Management"
         SalesAdvanceLetterHeader.SetRange("Bill-to Customer No.", CustCode);
         SalesAdvanceLetterHeader.SetRange("Currency Code", CurrencyCode);
         SalesAdvanceLetterHeader.SetFilter("Amount To Link", '>0');
+        OnLinkWholeSalesLetterOnAfterSetSalesAdvanceLetterHeaderFilters(SalesAdvanceLetterHeader);
         if PAGE.RunModal(0, SalesAdvanceLetterHeader) = ACTION::LookupOK then begin
             CustPostingGroup := SalesAdvanceLetterHeader."Customer Posting Group";
             SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
             SalesAdvanceLetterLine.SetFilter("Amount To Link", '>0');
+            OnLinkWholeSalesLetterOnBeforeFindSalesAdvanceLetterLine(SalesAdvanceLetterLine);
             if SalesAdvanceLetterLine.FindSet(true, false) then
                 repeat
                     SalesAdvanceLetterLine.TestField("Link Code", '');
@@ -763,10 +770,12 @@ codeunit 31032 "Prepayment Links Management"
         PurchAdvanceLetterHeader.SetRange("Pay-to Vendor No.", VendCode);
         PurchAdvanceLetterHeader.SetRange("Currency Code", CurrencyCode);
         PurchAdvanceLetterHeader.SetFilter("Amount To Link", '>0');
+        OnLinkWholePurchLetterOnAfterSetPurchAdvanceLetterHeaderFilters(PurchAdvanceLetterHeader);
         if PAGE.RunModal(0, PurchAdvanceLetterHeader) = ACTION::LookupOK then begin
             VendPostingGroup := PurchAdvanceLetterHeader."Vendor Posting Group";
             PurchAdvanceLetterLine.SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             PurchAdvanceLetterLine.SetFilter("Amount To Link", '>0');
+            OnLinkWholePurchLetterOnAfterSetPurchAdvanceLetterLineFilters(PurchAdvanceLetterLine);
             if PurchAdvanceLetterLine.FindSet(true, false) then
                 repeat
                     PurchAdvanceLetterLine.TestField("Link Code", '');
@@ -832,6 +841,7 @@ codeunit 31032 "Prepayment Links Management"
             CashDocLine.Validate(Amount, AmountToLink);
             CashDocLine.Validate("Advance Letter Link Code", LinkCode);
             CashDocLine.Validate("Posting Group", PostingGroup);
+            OnLinkCashDocLineOnBeforeModifyCashDocLine(CashDocLine);
             CashDocLine.Modify();
         end;
     end;
@@ -894,6 +904,7 @@ codeunit 31032 "Prepayment Links Management"
                 GenJnlLine.Validate(Amount, AmountToLink);
             GenJnlLine.Validate("Advance Letter Link Code", LinkCode);
             GenJnlLine.Validate("Posting Group", PostingGroupCode);
+            OnLinkGenJnlLineOnBeforeModifyGenJnlLine(GenJnlLine);
             GenJnlLine.Modify();
         end;
     end;
@@ -907,6 +918,7 @@ codeunit 31032 "Prepayment Links Management"
         else
             UnLinkWholePurchLetter(GenJnlLine."Advance Letter Link Code");
         GenJnlLine.Validate("Advance Letter Link Code", '');
+        OnUnLinkGenJnlLineOnBeforeModifyGenJnlLine(GenJnlLine);
         GenJnlLine.Modify();
     end;
 
@@ -960,6 +972,66 @@ codeunit 31032 "Prepayment Links Management"
                                 exit('');
                 until PurchAdvanceLetterLine.Next = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectSalesLettersOnAfterSetSalesAdvanceLetterLineFilters(var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectPurchLettersOnAfterSetPurchAdvanceLetterLineFilters(var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkCashDocLineOnBeforeModifyCashDocLine(var CashDocLine: Record "Cash Document Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkWholePurchLetterOnAfterSetPurchAdvanceLetterHeaderFilters(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkWholePurchLetterOnAfterSetPurchAdvanceLetterLineFilters(var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkGenJnlLineOnBeforeModifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveLinkIDToLetterLines(AdvanceLinkBuffer: Record "Advance Link Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveLinkIDToLetterLinesOnAfterModifySalesAdvanceLetterLine(AdvanceLinkBuf: Record "Advance Link Buffer"; AdvanceLinkBufDefEntry: Record "Advance Link Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveLinkIDToLetterLinesOnAfterModifyPurchAdvanceLetterLine(AdvanceLinkBuf: Record "Advance Link Buffer"; AdvanceLinkBufDefEntry: Record "Advance Link Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkWholeSalesLetterOnAfterSetSalesAdvanceLetterHeaderFilters(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkWholeSalesLetterOnBeforeFindSalesAdvanceLetterLine(var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnLinkGenJnlLineOnBeforeModifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
     end;
 }
 

@@ -26,7 +26,7 @@ table 11706 "Issued Bank Statement Header"
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -52,21 +52,21 @@ table 11706 "Issued Bank Statement Header"
         }
         field(9; Amount; Decimal)
         {
-            CalcFormula = Sum ("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = Sum("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(10; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = Sum("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No.")));
             Caption = 'Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; Debit; Decimal)
         {
-            CalcFormula = - Sum ("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
+            CalcFormula = - Sum("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
                                                                           Positive = CONST(false)));
             Caption = 'Debit';
             Editable = false;
@@ -74,7 +74,7 @@ table 11706 "Issued Bank Statement Header"
         }
         field(12; "Debit (LCY)"; Decimal)
         {
-            CalcFormula = - Sum ("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
+            CalcFormula = - Sum("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
                                                                                   Positive = CONST(false)));
             Caption = 'Debit (LCY)';
             Editable = false;
@@ -82,7 +82,7 @@ table 11706 "Issued Bank Statement Header"
         }
         field(13; Credit; Decimal)
         {
-            CalcFormula = Sum ("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
+            CalcFormula = Sum("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
                                                                          Positive = CONST(true)));
             Caption = 'Credit';
             Editable = false;
@@ -90,7 +90,7 @@ table 11706 "Issued Bank Statement Header"
         }
         field(14; "Credit (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
+            CalcFormula = Sum("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
                                                                                  Positive = CONST(true)));
             Caption = 'Credit (LCY)';
             Editable = false;
@@ -98,7 +98,7 @@ table 11706 "Issued Bank Statement Header"
         }
         field(15; "No. of Lines"; Integer)
         {
-            CalcFormula = Count ("Issued Bank Statement Line" WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = Count("Issued Bank Statement Line" WHERE("Bank Statement No." = FIELD("No.")));
             Caption = 'No. of Lines';
             Editable = false;
             FieldClass = FlowField;
@@ -354,13 +354,15 @@ table 11706 "Issued Bank Statement Header"
 
     [Scope('OnPrem')]
     procedure CreatePmtReconJnl(ShowRequestForm: Boolean)
-    var
-        IssuedBankStmtHdr: Record "Issued Bank Statement Header";
+    begin
+        CreatePmtReconJnl(ShowRequestForm, false);
+    end;
+
+    procedure CreatePmtReconJnl(ShowRequestForm: Boolean; HideMessages: Boolean)
     begin
         OnBeforeCreatePmtReconJnl(Rec);
-        
-        IssuedBankStmtHdr.Copy(Rec);
-        REPORT.RunModal(REPORT::"Create Payment Recon. Journal", ShowRequestForm, false, IssuedBankStmtHdr);
+
+        RunPaymentReconJournalCreation(ShowRequestForm, HideMessages);
     end;
 
     [Scope('OnPrem')]
@@ -370,9 +372,33 @@ table 11706 "Issued Bank Statement Header"
         Modify;
     end;
 
+    local procedure RunPaymentReconJournalCreation(ShowRequestForm: Boolean; HideMessages: Boolean)
+    var
+        IssuedBankStatementHeader: Record "Issued Bank Statement Header";
+        CreatePaymentReconJournal: Report "Create Payment Recon. Journal";
+        IsHandled: Boolean;
+    begin
+        OnBeforeRunPaymentReconJournalCreation(Rec, ShowRequestForm, HideMessages, IsHandled);
+        if IsHandled then
+            exit;
+
+        IssuedBankStatementHeader.Copy(Rec);
+        CreatePaymentReconJournal.SetTableView(IssuedBankStatementHeader);
+        CreatePaymentReconJournal.UseRequestPage(ShowRequestForm);
+        CreatePaymentReconJournal.SetHideMessages(HideMessages);
+        CreatePaymentReconJournal.RunModal();
+    end;
+
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePmtReconJnl(var IssuedBankStatHeader: record "Issued Bank Statement Header")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPaymentReconJournalCreation(var IssuedBankStatementHeader: Record "Issued Bank Statement Header"; var ShowRequestForm: Boolean; var HideMessages: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

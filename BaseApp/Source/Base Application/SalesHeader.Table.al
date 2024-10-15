@@ -3252,6 +3252,7 @@
         PostSalesDelete: Codeunit "PostSales-Delete";
         ArchiveManagement: Codeunit ArchiveManagement;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
+        ShowPostedDocsToPrint: Boolean;
     begin
         if not UserSetupMgt.CheckRespCenter(0, "Responsibility Center") then
             Error(
@@ -3267,7 +3268,7 @@
         Validate("Applies-to ID", '');
         Validate("Incoming Document Entry No.", 0);
 
-        ApprovalsMgmt.OnDeleteRecordInApprovalRequest(RecordId);
+        DeleteRecordInApprovalRequest();
         SalesLine.Reset();
         SalesLine.LockTable();
 
@@ -3289,13 +3290,14 @@
         SalesCommentLine.SetRange("No.", "No.");
         SalesCommentLine.DeleteAll();
 
-        if (SalesShptHeader."No." <> '') or
+        ShowPostedDocsToPrint := (SalesShptHeader."No." <> '') or
            (SalesInvHeader."No." <> '') or
            (SalesCrMemoHeader."No." <> '') or
            (ReturnRcptHeader."No." <> '') or
            (SalesInvHeaderPrepmt."No." <> '') or
-           (SalesCrMemoHeaderPrepmt."No." <> '')
-        then
+           (SalesCrMemoHeaderPrepmt."No." <> '');
+        OnBeforeShowPostedDocsToPrintCreatedMsg(ShowPostedDocsToPrint);
+        if ShowPostedDocsToPrint then
             Message(PostedDocsToPrintCreatedMsg);
 
         if EnvInfoProxy.IsInvoicing and CustInvoiceDisc.Get(SalesHeader."Invoice Disc. Code") then
@@ -3649,7 +3651,7 @@
             // NAVCZ
         end;
 
-        "Posting Description" := Format("Document Type") + ' ' + "No.";
+        InitPostingDescription();
 
         UpdateOutboundWhseHandlingTime;
 
@@ -3697,6 +3699,18 @@
         end;
 
         OnAfterInitNoSeries(Rec, xRec);
+    end;
+
+    local procedure InitPostingDescription()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitPostingDescription(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Posting Description" := Format("Document Type") + ' ' + "No.";
     end;
 
     procedure AssistEdit(OldSalesHeader: Record "Sales Header") Result: Boolean
@@ -3913,7 +3927,6 @@
         SalesCommentLine: Record "Sales Comment Line";
         TempSalesCommentLine: Record "Sales Comment Line" temporary;
         ATOLink: Record "Assemble-to-Order Link";
-        TransferExtendedText: Codeunit "Transfer Extended Text";
         ExtendedTextAdded: Boolean;
         ConfirmText: Text;
         IsHandled: Boolean;
@@ -3967,28 +3980,7 @@
                 ExtendedTextAdded := false;
                 SalesLine.BlockDynamicTracking(true);
                 repeat
-                    if TempSalesLine."Attached to Line No." = 0 then begin
-                        CreateSalesLine(TempSalesLine);
-                        ExtendedTextAdded := false;
-                        OnAfterRecreateSalesLine(SalesLine, TempSalesLine);
-
-                        if SalesLine.Type = SalesLine.Type::Item then
-                            RecreateSalesLinesFillItemChargeAssignment(SalesLine, TempSalesLine, TempItemChargeAssgntSales);
-
-                        if SalesLine.Type = SalesLine.Type::"Charge (Item)" then begin
-                            TempInteger.Init();
-                            TempInteger.Number := SalesLine."Line No.";
-                            TempInteger.Insert();
-                        end;
-                    end else
-                        if not ExtendedTextAdded then begin
-                            TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, true);
-                            TransferExtendedText.InsertSalesExtText(SalesLine);
-                            OnAfterTransferExtendedTextForSalesLineRecreation(SalesLine, TempSalesLine);
-
-                            SalesLine.FindLast();
-                            ExtendedTextAdded := true;
-                        end;
+                    RecreateSalesLinesHandleSupplementTypes(TempSalesLine, ExtendedTextAdded, TempItemChargeAssgntSales, TempInteger);
                     SalesLineReserve.CopyReservEntryFromTemp(TempReservEntry, TempSalesLine, SalesLine."Line No.");
                     RecreateReqLine(TempSalesLine, SalesLine."Line No.", false);
                     SynchronizeForReservations(SalesLine, TempSalesLine);
@@ -4018,6 +4010,40 @@
         SalesLine.BlockDynamicTracking(false);
 
         OnAfterRecreateSalesLines(Rec, ChangedFieldName);
+    end;
+
+    local procedure RecreateSalesLinesHandleSupplementTypes(var TempSalesLine: Record "Sales Line" temporary; var ExtendedTextAdded: Boolean; var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary; var TempInteger: Record "Integer" temporary)
+    var
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRecreateSalesLinesHandleSupplementTypes(TempSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TempSalesLine."Attached to Line No." = 0 then begin
+            CreateSalesLine(TempSalesLine);
+            ExtendedTextAdded := false;
+            OnAfterRecreateSalesLine(SalesLine, TempSalesLine);
+
+            if SalesLine.Type = SalesLine.Type::Item then
+                RecreateSalesLinesFillItemChargeAssignment(SalesLine, TempSalesLine, TempItemChargeAssgntSales);
+
+            if SalesLine.Type = SalesLine.Type::"Charge (Item)" then begin
+                TempInteger.Init();
+                TempInteger.Number := SalesLine."Line No.";
+                TempInteger.Insert();
+            end;
+        end else
+            if not ExtendedTextAdded then begin
+                TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, true);
+                TransferExtendedText.InsertSalesExtText(SalesLine);
+                OnAfterTransferExtendedTextForSalesLineRecreation(SalesLine, TempSalesLine);
+
+                SalesLine.FindLast();
+                ExtendedTextAdded := true;
+            end;
     end;
 
     local procedure StoreSalesCommentLineToTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
@@ -4176,6 +4202,8 @@
     var
         "Field": Record "Field";
     begin
+        OnBeforeUpdateSalesLines(Rec, ChangedFieldName, AskQuestion);
+
         Field.SetRange(TableNo, DATABASE::"Sales Header");
         Field.SetRange("Field Caption", ChangedFieldName);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
@@ -4434,6 +4462,18 @@
         end;
     end;
 
+    local procedure DeleteRecordInApprovalRequest()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteRecordInApprovalRequest(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ApprovalsMgmt.OnDeleteRecordInApprovalRequest(RecordId);
+    end;
+
     local procedure ClearItemAssgntSalesFilter(var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary)
     begin
         TempItemChargeAssgntSales.SetRange("Document Line No.");
@@ -4638,7 +4678,7 @@
             if OfficeContact.Get("Sell-to Contact No.") then
                 OfficeContact.CheckIfPrivacyBlockedGeneric;
 
-        OnAfterUpdateSellToCont(Rec, Cust, OfficeContact);
+        OnAfterUpdateSellToCont(Rec, Cust, OfficeContact, HideValidationDialog);
     end;
 
     procedure UpdateBillToCont(CustomerNo: Code[20])
@@ -4974,6 +5014,8 @@
     var
         WhseRequest: Record "Warehouse Request";
     begin
+        OnBeforeCreateInvtPutAwayPick(Rec);
+
         if "Document Type" = "Document Type"::Order then
             if not IsApprovedForPosting then
                 exit;
@@ -7906,7 +7948,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateInvtPutAwayPick(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeDeleteSalesLines(var SalesLine: Record "Sales Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeleteRecordInApprovalRequest(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
     begin
     end;
 
@@ -7942,6 +7994,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitInsert(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitPostingDescription(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8056,6 +8113,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecreateSalesLinesHandleSupplementTypes(var TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineByChangedFieldNo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ChangedFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -8082,6 +8144,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeShowPostedDocsToPrintCreatedMsg(var ShowPostedDocsToPrint: Boolean)
     begin
     end;
 
@@ -8122,6 +8189,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesLinesByFieldNo(var SalesHeader: Record "Sales Header"; ChangedFieldNo: Integer; var AskQuestion: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesLines(var SalesHeader: Record "Sales Header"; ChangedFieldName: Text[100]; var AskQuestion: Boolean)
     begin
     end;
 
@@ -8241,7 +8313,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateSellToCont(var SalesHeader: Record "Sales Header"; Customer: Record Customer; Contact: Record Contact)
+    local procedure OnAfterUpdateSellToCont(var SalesHeader: Record "Sales Header"; Customer: Record Customer; Contact: Record Contact; HideValidationDialog: Boolean)
     begin
     end;
 

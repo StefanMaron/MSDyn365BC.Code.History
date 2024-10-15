@@ -70,7 +70,7 @@ codeunit 5330 "CRM Integration Management"
         DoYouWantEnableWebServiceQst: Label 'Do you want to enable the Item Availability web service?';
         DoYouWantDisableWebServiceQst: Label 'Do you want to disable the Item Availability web service?';
         CRMConnectionSetupTxt: Label 'Set up %1 connection', Comment = '%1 = CRM product name';
-        VideoUrlSetupCRMConnectionTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843244', Locked = true;
+        VideoUrlSetupCRMConnectionTxt: Label '', Locked = true;
         ConnectionDisabledReasonTxt: Label 'The connection to %1 was disabled because integration user %2 has insufficient privileges to run the synchronization.', Comment = '%1 = a URL, %2 - an email address';
         CannotAssignRoleToTeamErr: Label 'Cannot assign role %3 to team %1 for business unit %2.', Comment = '%1 = team name, %2 = business unit name, %3 = security role name';
         CannotAssignRoleToTeamTxt: Label 'Cannot assign role to team.', Locked = true;

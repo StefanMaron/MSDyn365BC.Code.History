@@ -1,4 +1,4 @@
-codeunit 1002 "Job Create-Invoice"
+﻿codeunit 1002 "Job Create-Invoice"
 {
 
     trigger OnRun()
@@ -40,7 +40,7 @@ codeunit 1002 "Job Create-Invoice"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnCreateSalesInvoiceOnBeforeRunReport(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
+        OnCreateSalesInvoiceOnBeforeRunReport(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled, CrMemo);
         if not IsHandled then
             if not CrMemo then begin
                 GetSalesInvoiceNo.SetCustomer(JobPlanningLine."Job No.");
@@ -71,11 +71,23 @@ codeunit 1002 "Job Create-Invoice"
 
             Commit();
 
-            if CrMemo then
-                Message(Text008)
-            else
-                Message(Text000);
+            ShowMessageLinesTransferred(JobPlanningLine, CrMemo);
         end;
+    end;
+
+    local procedure ShowMessageLinesTransferred(JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowMessageLinesTransferred(JobPlanningLine, CrMemo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CrMemo then
+            Message(Text008)
+        else
+            Message(Text000);
     end;
 
     procedure CreateSalesInvoiceLines(JobNo: Code[20]; var JobPlanningLineSource: Record "Job Planning Line"; InvoiceNo: Code[20]; NewInvoice: Boolean; PostingDate: Date; CreditMemo: Boolean)
@@ -136,9 +148,9 @@ codeunit 1002 "Job Create-Invoice"
               JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
 
         if NewInvoice then
-            CreateSalesHeader(Job, PostingDate)
+            CreateSalesHeader(Job, PostingDate, JobPlanningLine)
         else
-            TestSalesHeader(SalesHeader, Job);
+            TestSalesHeader(SalesHeader, Job, JobPlanningLine);
         if JobPlanningLine.Find('-') then
             repeat
                 if TransferLine(JobPlanningLine) then begin
@@ -226,7 +238,7 @@ codeunit 1002 "Job Create-Invoice"
             Cust.Get(Job."Bill-to Customer No.");
             NoOfInvoices := NoOfInvoices + 1;
             SalesHeader2."Document Type" := SalesHeader2."Document Type"::Invoice;
-            CreateSalesHeader(Job, PostingDate);
+            CreateSalesHeader(Job, PostingDate, JobPlanningLine);
             if TempJobPlanningLine.Find('-') then
                 repeat
                     Job.Get(TempJobPlanningLine."Job No.");
@@ -313,13 +325,13 @@ codeunit 1002 "Job Create-Invoice"
         exit(NewInvoice);
     end;
 
-    local procedure CreateSalesHeader(Job: Record Job; PostingDate: Date)
+    local procedure CreateSalesHeader(Job: Record Job; PostingDate: Date; JobPlanningLine: Record "Job Planning Line")
     var
         SalesSetup: Record "Sales & Receivables Setup";
         Cust: Record Customer;
         IsHandled: Boolean;
     begin
-        OnBeforeCreateSalesHeader(Job, PostingDate, SalesHeader2);
+        OnBeforeCreateSalesHeader(Job, PostingDate, SalesHeader2, JobPlanningLine);
 
         SalesSetup.Get();
         SalesHeader.Init();
@@ -329,7 +341,7 @@ codeunit 1002 "Job Create-Invoice"
         if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
             SalesSetup.TestField("Credit Memo Nos.");
         SalesHeader."Posting Date" := PostingDate;
-        OnBeforeInsertSalesHeader(SalesHeader, Job);
+        OnBeforeInsertSalesHeader(SalesHeader, Job, JobPlanningLine);
         SalesHeader.Insert(true);
         Cust.Get(Job."Bill-to Customer No.");
         Cust.TestField("Bill-to Customer No.", '');
@@ -342,10 +354,10 @@ codeunit 1002 "Job Create-Invoice"
             SalesHeader.Validate("Posting Date", PostingDate);
 
         IsHandled := false;
-        OnCreateSalesHeaderOnBeforeUpdateSalesHeader(SalesHeader, Job, IsHandled);
+        OnCreateSalesHeaderOnBeforeUpdateSalesHeader(SalesHeader, Job, IsHandled, JobPlanningLine);
         if not IsHandled then
             UpdateSalesHeader(SalesHeader, Job);
-        OnBeforeModifySalesHeader(SalesHeader, Job);
+        OnBeforeModifySalesHeader(SalesHeader, Job, JobPlanningLine);
         SalesHeader.Modify(true);
     end;
 
@@ -663,6 +675,7 @@ codeunit 1002 "Job Create-Invoice"
                     TempJobPlanningLineInvoice."Invoiced Cost Amount (LCY)" := JobPlanningLineInvoice."Invoiced Cost Amount (LCY)";
                     TempJobPlanningLineInvoice."Invoiced Date" := JobPlanningLineInvoice."Invoiced Date";
                     TempJobPlanningLineInvoice."Transferred Date" := JobPlanningLineInvoice."Transferred Date";
+                    OnFindInvoicesOnBeforeTempJobPlanningLineInvoiceInsert(TempJobPlanningLineInvoice, JobPlanningLineInvoice);
                     TempJobPlanningLineInvoice.Insert();
                 end;
             until JobPlanningLineInvoice.Next = 0;
@@ -768,12 +781,12 @@ codeunit 1002 "Job Create-Invoice"
 
     end;
 
-    local procedure TestSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job)
+    local procedure TestSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job; JobPlanningLine: Record "Job Planning Line")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTestSalesHeader(SalesHeader, Job, IsHandled);
+        OnBeforeTestSalesHeader(SalesHeader, Job, IsHandled, JobPlanningLine);
         if IsHandled then
             exit;
 
@@ -784,7 +797,7 @@ codeunit 1002 "Job Create-Invoice"
             SalesHeader.TestField("Currency Code", Job."Currency Code")
         else
             SalesHeader.TestField("Currency Code", Job."Invoice Currency Code");
-        OnAfterTestSalesHeader(SalesHeader, Job);
+        OnAfterTestSalesHeader(SalesHeader, Job, JobPlanningLine);
     end;
 
     local procedure TestExchangeRate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date)
@@ -860,7 +873,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesHeader(Job: Record Job; PostingDate: Date; var SalesHeader2: Record "Sales Header")
+    local procedure OnBeforeCreateSalesHeader(Job: Record Job; PostingDate: Date; var SalesHeader2: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
@@ -905,12 +918,12 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job)
+    local procedure OnBeforeInsertSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeModifySalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job)
+    local procedure OnBeforeModifySalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
@@ -930,7 +943,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job; var IsHandled: Boolean)
+    local procedure OnBeforeTestSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job; var IsHandled: Boolean; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
@@ -950,12 +963,17 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTestSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job)
+    local procedure OnAfterTestSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindInvoices(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice" temporary; JobNo: Code[20]; JobTaskNo: Code[20]; JobPlanningLineNo: Integer; DetailLevel: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowMessageLinesTransferred(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -970,7 +988,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesHeaderOnBeforeUpdateSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job; var IsHandled: Boolean)
+    local procedure OnCreateSalesHeaderOnBeforeUpdateSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job; var IsHandled: Boolean; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
@@ -1015,7 +1033,12 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesInvoiceOnBeforeRunReport(var JobPlanningLine: Record "Job Planning Line"; var Done: Boolean; var NewInvoice: Boolean; var PostingDate: Date; var InvoiceNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnCreateSalesInvoiceOnBeforeRunReport(var JobPlanningLine: Record "Job Planning Line"; var Done: Boolean; var NewInvoice: Boolean; var PostingDate: Date; var InvoiceNo: Code[20]; var IsHandled: Boolean; CrMemo: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindInvoicesOnBeforeTempJobPlanningLineInvoiceInsert(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice"; JobPlanningLineInvoice: Record "Job Planning Line Invoice")
     begin
     end;
 }

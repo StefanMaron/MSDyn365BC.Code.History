@@ -387,13 +387,13 @@ table 1304 "Sales Price and Line Disc Buff"
         "Loaded Disc. Group" := Item."Item Disc. Group";
 
         SetFiltersOnSalesPrice(SalesPrice);
-        LoadSalesPrice(SalesPrice);
+        LoadSalesPrice(SalesPrice, 0);
 
         SetFiltersOnSalesLineDiscountItem(SalesLineDiscountItem);
-        LoadSalesLineDiscount(SalesLineDiscountItem);
+        LoadSalesLineDiscount(SalesLineDiscountItem, 0);
 
         SetFiltersOnSalesLineDiscountItemGroup(SalesLineDiscountItemGroup);
-        LoadSalesLineDiscount(SalesLineDiscountItemGroup);
+        LoadSalesLineDiscount(SalesLineDiscountItemGroup, 0);
 
         if FindFirst then;
 
@@ -402,72 +402,104 @@ table 1304 "Sales Price and Line Disc Buff"
 
     procedure LoadDataForCustomer(Customer: Record Customer)
     begin
+        LoadDataForCustomer(Customer, 0);
+    end;
+
+    procedure LoadDataForCustomer(var Customer: Record Customer; MaxNoOfLines: Integer): Integer
+    var
+        LoadedLines: Integer;
+        RemainingLinesToLoad: Integer;
+    begin
         Reset;
         DeleteAll();
+        LoadedLines := 0;
+        if MaxNoOfLines > 0 then
+            RemainingLinesToLoad := MaxNoOfLines - LoadedLines;
+        if EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad) then
+            exit(LoadedLines);
 
         "Loaded Customer No." := Customer."No.";
         "Loaded Disc. Group" := Customer."Customer Disc. Group";
         "Loaded Price Group" := Customer."Customer Price Group";
 
-        LoadSalesPriceForCustomer;
-        LoadSalesPriceForAllCustomers;
-        LoadSalesPriceForCustPriceGr;
+        LoadedLines += LoadSalesPriceForCustomer(RemainingLinesToLoad);
 
-        LoadSalesLineDiscForCustomer;
-        LoadSalesLineDiscForAllCustomers;
-        LoadSalesLineDiscForCustDiscGr;
-
-        GetCustomerCampaignSalesPrice;
+        LoadedLines += LoadSalesPriceForAllCustomers(RemainingLinesToLoad);
+        if EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad) then
+            exit(LoadedLines);
+        LoadedLines += LoadSalesPriceForCustPriceGr(RemainingLinesToLoad);
+        if EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad) then
+            exit(LoadedLines);
+        LoadedLines += LoadSalesLineDiscForCustomer(RemainingLinesToLoad);
+        if EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad) then
+            exit(LoadedLines);
+        LoadedLines += LoadSalesLineDiscForAllCustomers(RemainingLinesToLoad);
+        if EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad) then
+            exit(LoadedLines);
+        LoadedLines += LoadSalesLineDiscForCustDiscGr(RemainingLinesToLoad);
+        if EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad) then
+            exit(LoadedLines);
+        LoadedLines += GetCustomerCampaignSalesPrice(RemainingLinesToLoad);
 
         Session.LogMessage('0000AI3', StrSubstNo(PricesAndDiscountsCountMsg, Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PricesAndDiscountsCountLbl);
+        exit(LoadedLines);
     end;
 
-    local procedure LoadSalesLineDiscForCustomer()
+    Local procedure EnoughLoaded(LoadedLines: Integer; MaxNoOfLines: Integer; var RemainingLinesToLoad: Integer): Boolean
+    begin
+        if MaxNoOfLines > 0 then begin
+            RemainingLinesToLoad := MaxNoOfLines - LoadedLines;
+            exit(RemainingLinesToLoad <= 0);
+        end;
+        exit(false);
+    end;
+
+    local procedure LoadSalesLineDiscForCustomer(MaxNoOfLines: Integer): Integer
     var
         SalesLineDiscount: Record "Sales Line Discount";
     begin
         SetFiltersForSalesLineDiscForCustomer(SalesLineDiscount);
-        LoadSalesLineDiscount(SalesLineDiscount);
+        exit(LoadSalesLineDiscount(SalesLineDiscount, MaxNoOfLines));
     end;
 
-    local procedure LoadSalesLineDiscForAllCustomers()
+    local procedure LoadSalesLineDiscForAllCustomers(MaxNoOfLines: Integer): Integer
     var
         SalesLineDiscount: Record "Sales Line Discount";
     begin
         SetFiltersForSalesLineDiscForAllCustomers(SalesLineDiscount);
-        LoadSalesLineDiscount(SalesLineDiscount);
+        exit(LoadSalesLineDiscount(SalesLineDiscount, MaxNoOfLines));
     end;
 
-    local procedure LoadSalesLineDiscForCustDiscGr()
+    local procedure LoadSalesLineDiscForCustDiscGr(MaxNoOfLines: Integer): Integer
     var
         SalesLineDiscount: Record "Sales Line Discount";
     begin
         SetFiltersForSalesLineDiscForCustDiscGr(SalesLineDiscount);
-        LoadSalesLineDiscount(SalesLineDiscount);
+        exit(LoadSalesLineDiscount(SalesLineDiscount, MaxNoOfLines));
     end;
 
-    local procedure LoadSalesPriceForCustomer()
+    local procedure LoadSalesPriceForCustomer(MaxNoOfLines: Integer): Integer
     var
         SalesPrice: Record "Sales Price";
     begin
         SetFiltersForSalesPriceForCustomer(SalesPrice);
-        LoadSalesPrice(SalesPrice);
+        exit(LoadSalesPrice(SalesPrice, MaxNoOfLines));
     end;
 
-    local procedure LoadSalesPriceForAllCustomers()
+    local procedure LoadSalesPriceForAllCustomers(MaxNoOfLines: Integer): Integer
     var
         SalesPrice: Record "Sales Price";
     begin
         SetFiltersForSalesPriceForAllCustomers(SalesPrice);
-        LoadSalesPrice(SalesPrice);
+        exit(LoadSalesPrice(SalesPrice, MaxNoOfLines));
     end;
 
-    local procedure LoadSalesPriceForCustPriceGr()
+    local procedure LoadSalesPriceForCustPriceGr(MaxNoOfLines: Integer): Integer
     var
         SalesPrice: Record "Sales Price";
     begin
         SetFiltersForSalesPriceForCustPriceGr(SalesPrice);
-        LoadSalesPrice(SalesPrice);
+        exit(LoadSalesPrice(SalesPrice, MaxNoOfLines));
     end;
 
     local procedure SetFiltersForSalesLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount")
@@ -504,7 +536,9 @@ table 1304 "Sales Price and Line Disc Buff"
         SalesPrice.SetRange("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
     end;
 
-    local procedure LoadSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
+    local procedure LoadSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; MaxNoOfLines: Integer): Integer
+    var
+        NoOfRows: Integer;
     begin
         if SalesLineDiscount.FindSet then
             repeat
@@ -526,10 +560,14 @@ table 1304 "Sales Price and Line Disc Buff"
                 "Variant Code" := SalesLineDiscount."Variant Code";
                 OnLoadSalesLineDiscountOnBeforeInsert(Rec, SalesLineDiscount);
                 Insert;
-            until SalesLineDiscount.Next = 0;
+                NoOfRows += 1;
+            until (SalesLineDiscount.Next = 0) or (MaxNoOfLines > 0) and (NoOfRows >= MaxNoOfLines);
+        exit(NoOfRows);
     end;
 
-    local procedure LoadSalesPrice(var SalesPrice: Record "Sales Price")
+    local procedure LoadSalesPrice(var SalesPrice: Record "Sales Price"; MaxNoOfLines: Integer): Integer
+    var
+        NoOfRows: Integer;
     begin
         if SalesPrice.FindSet then
             repeat
@@ -556,7 +594,9 @@ table 1304 "Sales Price and Line Disc Buff"
                 "Allow Line Disc." := SalesPrice."Allow Line Disc.";
                 OnLoadSalesPriceOnBeforeInsert(Rec, SalesPrice);
                 Insert;
-            until SalesPrice.Next = 0;
+                NoOfRows += 1;
+            until (SalesPrice.Next = 0) or (MaxNoOfLines > 0) and (NoOfRows >= MaxNoOfLines);
+        exit(NoOfRows);
     end;
 
     local procedure InsertNewPriceLine()
@@ -809,24 +849,31 @@ table 1304 "Sales Price and Line Disc Buff"
         until Next = 0;
     end;
 
-    local procedure GetCustomerCampaignSalesPrice()
+    local procedure GetCustomerCampaignSalesPrice(MaxNoOfLines: Integer): Integer
     var
         ContactBusinessRelation: Record "Contact Business Relation";
         SalesPrice: Record "Sales Price";
         TempCampaign: Record Campaign temporary;
+        RemainingLinesToLoad: Integer;
+        LoadedLines: Integer;
     begin
-        ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "Loaded Customer No.");
+        if not ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "Loaded Customer No.") then
+            exit(0);
+        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
+        if SalesPrice.IsEmpty() then
+            exit;
+
         GetContactCampaigns(TempCampaign, ContactBusinessRelation."Contact No.");
 
+        RemainingLinesToLoad := MaxNoOfLines;
         TempCampaign.SetAutoCalcFields(Activated);
+        TempCampaign.SetRange(Activated, true);
         if TempCampaign.FindSet then
             repeat
-                if TempCampaign.Activated then begin
-                    SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
-                    SalesPrice.SetRange("Sales Code", TempCampaign."No.");
-                    LoadSalesPrice(SalesPrice);
-                end;
-            until TempCampaign.Next = 0;
+                SalesPrice.SetRange("Sales Code", TempCampaign."No.");
+                LoadedLines += LoadSalesPrice(SalesPrice, RemainingLinesToLoad);
+            until (TempCampaign.Next = 0) or EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad);
+        exit(LoadedLines);
     end;
 
     local procedure GetContactCampaigns(var TempCampaign: Record Campaign temporary; CompanyContactNo: Code[20])
@@ -834,6 +881,7 @@ table 1304 "Sales Price and Line Disc Buff"
         Contact: Record Contact;
         SegmentLine: Record "Segment Line";
     begin
+        Contact.SetLoadFields("No.", "Company No.");
         Contact.SetRange("Company No.", CompanyContactNo);
         if Contact.FindSet then begin
             SegmentLine.SetFilter("Campaign No.", '<>%1', '');
@@ -845,8 +893,9 @@ table 1304 "Sales Price and Line Disc Buff"
         end;
     end;
 
-    local procedure InsertTempCampaignFromSegmentLines(var TempCampaign: Record Campaign temporary; SegmentLine: Record "Segment Line")
+    local procedure InsertTempCampaignFromSegmentLines(var TempCampaign: Record Campaign temporary; var SegmentLine: Record "Segment Line")
     begin
+        SegmentLine.SetLoadFields("Segment No.", "Line No.", "Campaign No.", "Campaign Target");
         if SegmentLine.FindSet then
             repeat
                 TempCampaign.Init();

@@ -1,4 +1,4 @@
-codeunit 1535 "Approvals Mgmt."
+﻿codeunit 1535 "Approvals Mgmt."
 {
     Permissions = TableData "Approval Entry" = imd,
                   TableData "Approval Comment Line" = imd,
@@ -1740,6 +1740,7 @@ codeunit 1535 "Approvals Mgmt."
                 PostedApprovalCommentLine."Table ID" := PostedRecordID.TableNo;
                 PostedApprovalCommentLine."Document No." := PostedDocNo;
                 PostedApprovalCommentLine."Posted Record ID" := PostedRecordID;
+                OnPostApprovalCommentLinesOnBeforePostedApprovalCommentLineInsert(PostedApprovalCommentLine, ApprovalCommentLine);
                 PostedApprovalCommentLine.Insert(true);
             until ApprovalCommentLine.Next = 0;
     end;
@@ -2004,7 +2005,13 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        exit(FindOpenApprovalEntryForCurrUser(ApprovalEntry, RecordID));
+        ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
+        ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry.SetRange("Approver ID", UserId);
+        ApprovalEntry.SetRange("Related to Change", false);
+
+        exit(not ApprovalEntry.IsEmpty());
     end;
 
     procedure HasOpenApprovalEntries(RecordID: RecordID): Boolean
@@ -2480,6 +2487,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnPostApprovalEntriesOnBeforePostedApprovalEntryInsert(var PostedApprovalEntry: Record "Posted Approval Entry"; ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostApprovalCommentLinesOnBeforePostedApprovalCommentLineInsert(var PostedApprovalCommentLine: Record "Posted Approval Comment Line"; ApprovalCommentLine: Record "Approval Comment Line")
     begin
     end;
 

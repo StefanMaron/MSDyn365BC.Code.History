@@ -144,12 +144,13 @@ codeunit 11782 "Tariff No. Handler CZL"
 
                 if AmountToCheckLimit < CommoditySetupCZL."Commodity Limit Amount LCY" then begin
                     // Normal
-                    if TempInventoryBuffer1.Get(TempInventoryBuffer."Item No.", Format(SalesLine."VAT Calculation Type"::"Reverse Charge VAT", 0, '<Number>')) then
-                        if not ConfirmManagement.GetResponseOrDefault(StrSubStno(VATPostingSetupPostMismashQst,
-                             CommoditySetupCZL."Commodity Code", CommoditySetupCZL."Commodity Limit Amount LCY",
-                             SalesLine."VAT Calculation Type"::"Reverse Charge VAT", ItemNoText, AmountToCheckLimit), false)
-                        then
-                            Error('');
+                    if not CheckTariffNoByBaseApp(CommoditySetupCZL) then // check done by Base Application
+                        if TempInventoryBuffer1.Get(TempInventoryBuffer."Item No.", Format(SalesLine."VAT Calculation Type"::"Reverse Charge VAT", 0, '<Number>')) then
+                            if not ConfirmManagement.GetResponseOrDefault(StrSubStno(VATPostingSetupPostMismashQst,
+                                CommoditySetupCZL."Commodity Code", CommoditySetupCZL."Commodity Limit Amount LCY",
+                                SalesLine."VAT Calculation Type"::"Reverse Charge VAT", ItemNoText, AmountToCheckLimit), false)
+                            then
+                                Error('');
                 end else
                     // Reverse
                     if TempInventoryBuffer1.Get(TempInventoryBuffer."Item No.", Format(SalesLine."VAT Calculation Type"::"Normal VAT", 0, '<Number>')) then
@@ -157,6 +158,17 @@ codeunit 11782 "Tariff No. Handler CZL"
                           SalesLine."VAT Calculation Type"::"Normal VAT", ItemNoText);
 
             until TempInventoryBuffer.Next() = 0;
+    end;
+
+    [Obsolete('Will be removed together with Commodity Setup remove from Base App.', '17.2')]
+    local procedure CheckTariffNoByBaseApp(var CommoditySetupCZL: Record "Commodity Setup CZL"): Boolean
+    var
+        CommoditySetup: Record "Commodity Setup";
+    begin
+        CommoditySetupCZL.CopyFilter("Commodity Code", CommoditySetup."Commodity Code");
+        CommoditySetupCZL.CopyFilter("Valid From", CommoditySetup."Valid From");
+        CommoditySetupCZL.CopyFilter("Valid To", CommoditySetup."Valid To");
+        exit(not CommoditySetupCZL.IsEmpty());
     end;
 
     procedure CheckTariffNo(PurchHeader: Record "Purchase Header")

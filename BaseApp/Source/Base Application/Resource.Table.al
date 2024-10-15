@@ -1,4 +1,4 @@
-table 156 Resource
+﻿table 156 Resource
 {
     Caption = 'Resource';
     DataCaptionFields = "No.", Name;
@@ -12,7 +12,14 @@ table 156 Resource
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "No." <> xRec."No." then begin
                     ResSetup.Get();
                     NoSeriesMgt.TestManual(ResSetup."Resource Nos.");
@@ -686,7 +693,14 @@ table 156 Resource
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "No." = '' then begin
             ResSetup.Get();
             ResSetup.TestField("Resource Nos.");
@@ -748,7 +762,14 @@ table 156 Resource
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
 
     procedure AssistEdit(OldRes: Record Resource): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, OldRes, IsHandled);
+        if IsHandled then
+            exit;
+
         with Res do begin
             Res := Rec;
             ResSetup.Get();
@@ -890,12 +911,27 @@ table 156 Resource
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var Resource: Record Resource; xOldRes: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var Resource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var Resource: Record Resource; var xResource: Record Resource; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateTimeSheetApproverUserID(var Resource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNo(var Resource: Record Resource; xResource: Record Resource; var IsHandled: Boolean)
     begin
     end;
 }

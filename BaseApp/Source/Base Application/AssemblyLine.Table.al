@@ -799,7 +799,13 @@
     procedure ShowReservation()
     var
         Reservation: Page Reservation;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReservation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Item then begin
             TestField("No.");
             TestField(Reserve);
@@ -1857,6 +1863,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromResource(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReservation(var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
     begin
     end;
 

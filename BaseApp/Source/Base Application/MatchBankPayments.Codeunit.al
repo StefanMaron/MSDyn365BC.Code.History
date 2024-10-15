@@ -13,6 +13,8 @@
         Code(BankAccReconciliationLine);
 
         Rec := BankAccReconciliationLine;
+
+        OnAfterCode(BankAccReconciliationLine);
     end;
 
     var
@@ -939,6 +941,7 @@
             CustLedgerEntry.SetRange("Currency Code", BankAccReconciliationLine."Currency Code"); // NAVCZ
         end;
 
+        OnInitCustomerLedgerEntriesMatchingBufferOnBeforeCustLedgerEntryFindSet(CustLedgerEntry);
         if CustLedgerEntry.FindSet then
             repeat
                 TempLedgerEntryMatchingBuffer.InsertFromCustomerLedgerEntry(
@@ -990,6 +993,7 @@
             VendorLedgerEntry.SetRange("Currency Code", BankAccReconciliationLine."Currency Code"); // NAVCZ
         end;
 
+        OnInitVendorLedgerEntriesMatchingBufferOnAfterVendorLedgerEntryFindSet(VendorLedgerEntry);
         if VendorLedgerEntry.FindSet then
             repeat
                 TempLedgerEntryMatchingBuffer.InsertFromVendorLedgerEntry(
@@ -2768,6 +2772,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDocumentMatchingForBankLedgerEntryOnBeforeMatch(SearchText: Text; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var BankPmtApplRule: Record "Bank Pmt. Appl. Rule")
     begin
     end;
@@ -2793,7 +2802,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitCustomerLedgerEntriesMatchingBufferOnBeforeCustLedgerEntryFindSet(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitVendorLedgerEntriesMatchingBufferSetFilter(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitVendorLedgerEntriesMatchingBufferOnAfterVendorLedgerEntryFindSet(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

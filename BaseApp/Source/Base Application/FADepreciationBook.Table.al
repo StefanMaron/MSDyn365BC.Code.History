@@ -854,7 +854,14 @@ table 5612 "FA Depreciation Book"
     }
 
     trigger OnDelete()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         FAMoveEntries.MoveFAEntries(Rec);
     end;
 
@@ -1040,7 +1047,10 @@ table 5612 "FA Depreciation Book"
 
     local procedure CheckApplyDeprBookDefaults()
     begin
-        if (DeprBook."Default Ending Book Value" <> 0) and ("Ending Book Value" = 0) then
+        if not "Ignore Def. Ending Book Value" and
+           (DeprBook."Default Ending Book Value" <> 0) and
+           ("Ending Book Value" = 0)
+        then
             "Ending Book Value" := DeprBook."Default Ending Book Value";
         if (DeprBook."Default Final Rounding Amount" <> 0) and ("Final Rounding Amount" = 0) then
             "Final Rounding Amount" := DeprBook."Default Final Rounding Amount"
@@ -1171,5 +1181,9 @@ table 5612 "FA Depreciation Book"
             FALedgEntry.SetFilter("FA Posting Date", GetFilter("FA Posting Date Filter"));
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var FADeprecBook: Record "FA Depreciation Book"; xFADeprecBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

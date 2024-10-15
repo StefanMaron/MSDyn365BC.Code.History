@@ -87,6 +87,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
 
             SalesPostAdvances.SetSalesInvHeaderBuf(SalesInvHeader);
             SalesPostAdvances.SetPreviewMode(PreviewMode);
+            OnSalesPostAdvCrMemoOnBeforePostLetter();
             SalesPostAdvances.PostLetter(SalesAdvanceLetterHeader, 1);
 
             if PreviewMode then
@@ -163,6 +164,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
 
             PurchPostAdvances.SetPurchInvHeaderBuf(PurchInvHeader);
             PurchPostAdvances.SetPreviewMode(PreviewMode);
+            OnPurchPostAdvCrMemoOnBeforePostLetter();
             PurchPostAdvances.PostLetter(PurchAdvanceLetterHeader, 1);
 
             if PreviewMode then
@@ -302,6 +304,16 @@ codeunit 31010 "Adv.Letter-Post+Print"
         AdvLetterPostPrint := Subscriber;
         PreviewMode := true;
         Result := AdvLetterPostPrint.Run;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesPostAdvCrMemoOnBeforePostLetter()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchPostAdvCrMemoOnBeforePostLetter()
+    begin
     end;
 }
 
