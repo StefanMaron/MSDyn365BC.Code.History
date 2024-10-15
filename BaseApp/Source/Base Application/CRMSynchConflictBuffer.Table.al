@@ -313,11 +313,14 @@ table 5374 "CRM Synch. Conflict Buffer"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         cnt: Integer;
+        TableIdFilter: Text;
     begin
         DeleteAll();
         CRMIntegrationManagement.RepairBrokenCouplings(true);
         CRMIntegrationRecord.SetCurrentKey(Skipped, "Table ID");
-        CRMIntegrationRecord.SetFilter("Table ID", '<>0');
+        TableIdFilter := CRMIntegrationRecord.GetFilter("Table ID");
+        if TableIdFilter = '' then
+            CRMIntegrationRecord.SetFilter("Table ID", '<>0');
         if CRMIntegrationRecord.FindSet then
             repeat
                 cnt += 1;

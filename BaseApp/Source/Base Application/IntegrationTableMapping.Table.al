@@ -211,6 +211,10 @@ table 5335 "Integration Table Mapping"
 
     var
         JobLogEntryNo: Integer;
+        ConfirmIncludeEntitiesWithNoCompanyQst: Label 'Do you want the Integration Table Filter to include %1 entities with no value in %2 attribute?', Comment = '%1 - Dataverse service name; %2 - attribute name of a Dataverse entity';
+        UserChoseNotToIncludeEntitiesWithEmptyCompanyNameTxt: Label 'User chose not to include %1 entities with empty company id in the Integration Table Filter of the %2 mapping.', Locked = true;
+        TelemetryCategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        CompanyIdFieldNameTxt: Label 'CompanyId', Locked = true;
 
     procedure FindFilteredRec(RecordRef: RecordRef; var OutOfMapFilter: Boolean) Found: Boolean
     var
@@ -228,6 +232,17 @@ table 5335 "Integration Table Mapping"
         TempRecRef.Close;
     end;
 
+    [Scope('Cloud')]
+    procedure FindMapping(TableNo: Integer; IntegrationTableNo: Integer): Boolean
+    begin
+        SetRange("Table ID", TableNo);
+        SetRange("Integration Table ID", IntegrationTableNo);
+        SetRange("Delete After Synchronization", false);
+        exit(FindFirst());
+    end;
+
+#if not CLEAN18
+    [Obsolete('Use another implementation of FindMapping', '18.0')]
     procedure FindMapping(TableNo: Integer; PrimaryKey: Variant): Boolean
     begin
         if PrimaryKey.IsRecordId then
@@ -236,16 +251,20 @@ table 5335 "Integration Table Mapping"
             exit(FindMappingForIntegrationTable(TableNo));
     end;
 
+    [Obsolete('Use FindMapping', '18.0')]
     local procedure FindMappingForIntegrationTable(TableId: Integer): Boolean
     begin
         SetRange("Integration Table ID", TableId);
-        exit(FindFirst);
+        SetRange("Delete After Synchronization", false);
+        exit(FindFirst());
     end;
+#endif
 
     procedure FindMappingForTable(TableId: Integer): Boolean
     begin
         SetRange("Table ID", TableId);
-        exit(FindFirst);
+        SetRange("Delete After Synchronization", false);
+        exit(FindFirst());
     end;
 
     procedure IsFullSynch(): Boolean
@@ -337,12 +356,50 @@ table 5335 "Integration Table Mapping"
         InStream.Read(Value);
     end;
 
-    procedure SetIntegrationTableFilter("Filter": Text)
+    procedure SetIntegrationTableFilter(IntTableFilter: Text)
     var
         OutStream: OutStream;
     begin
         "Integration Table Filter".CreateOutStream(OutStream);
-        OutStream.Write(Filter);
+        OutStream.Write(IntTableFilter);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SuggestToIncludeEntitiesWithNullCompany(var IntTableFilter: Text);
+    var
+        Field: Record "Field";
+        CRMProductName: Codeunit "CRM Product Name";
+        CompanyIdFieldNo: Integer;
+        CompanyIdFilterStartPos: Integer;
+        CompanyIdFilter: Text;
+        ModifiedCompanyIdFilter: Text;
+        OrNullGuid: Text;
+    begin
+        OrNullGuid := '|{00000000-0000-0000-0000-000000000000}';
+        Field.SetRange(TableNo, "Integration Table ID");
+        Field.SetRange(Type, Field.Type::GUID);
+        Field.SetRange(FieldName, CompanyIdFieldNameTxt);
+        if not Field.FindFirst() then
+            exit;
+        CompanyIdFieldNo := Field."No.";
+
+        CompanyIdFilterStartPos := IntTableFilter.IndexOf('Field' + Format(CompanyIdFieldNo) + '=1');
+        if CompanyIdFilterStartPos <= 0 then
+            exit;
+
+        CompanyIdFilter := CopyStr(IntTableFilter, CompanyIdFilterStartPos);
+        CompanyIdFilter := CopyStr(CompanyIdFilter, 1, CompanyIdFilter.IndexOf(')'));
+
+        if (CompanyIdFilter = '') or (CompanyIdFilter.IndexOf(OrNullGuid) > 0) then
+            exit;
+
+        if not Confirm(StrSubstNo(ConfirmIncludeEntitiesWithNoCompanyQst, CRMProductName.CDSServiceName(), Field."Field Caption")) then begin
+            Session.LogMessage('0000EG4', StrSubstNo(UserChoseNotToIncludeEntitiesWithEmptyCompanyNameTxt, CRMProductName.CDSServiceName(), Name), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit;
+        end;
+
+        ModifiedCompanyIdFilter := CompanyIdFilter.Replace(')', OrNullGuid + ')');
+        IntTableFilter := IntTableFilter.Replace(CompanyIdFilter, ModifiedCompanyIdFilter);
     end;
 
     procedure GetIntegrationTableFilter() Value: Text

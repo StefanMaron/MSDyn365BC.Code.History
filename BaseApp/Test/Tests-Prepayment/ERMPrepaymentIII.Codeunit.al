@@ -33,6 +33,7 @@ codeunit 134102 "ERM Prepayment III"
         PrepaymentTotalAmount: Decimal;
         NoAmtFoundToBePostedErr: Label 'No amount found to be posted.';
         CheckPrepaymentErr: Label 'You cannot correct or cancel a posted sales prepayment invoice.\\Open the related sales order and choose the Post Prepayment Credit Memo.';
+        PrepaymentAmountHigherThanTheOrderErr: Label 'The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1329,6 +1330,242 @@ codeunit 134102 "ERM Prepayment III"
         UpdateSalesPrepmtAccount(OldSalesPrepaymentsAccount, SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
     end;
 
+    [Test]
+    procedure PurchasePrepmtVATMoreThanDocVAT_TotalEquals_OneLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LineGLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 382286] Post prepayment invoice with prepayment VAT% more than document VAT%, but equal total amounts
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [GIVEN] Purchase order with one line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88% (prepayment VAT % = 25)
+        // [GIVEN] Document total = 1000 + 100 = 1100, prepayment total = 1000 * 88% * 125% = 1100
+        CreatePurchasePrepmtSetup(LineGLAccount, 10);
+        CreatePurchaseHeader(PurchaseHeader, LineGLAccount);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, LineGLAccount."No.", 1, 1000, 88);
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", DuplicateVATSetup(LineGLAccount, 25));
+
+        // [WHEN] Post prepayment invoice
+        DocumentNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Prepayment has been posted
+        VerifyPurchasePostedInvoiceAmounts(DocumentNo, 880, 1100);
+    end;
+
+    [Test]
+    procedure PurchasePrepmtVATMoreThanDocVAT_TotalEquals_TwoLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LineGLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 382286] Post prepayment invoice with prepayment VAT% more than document VAT%, but equal total amounts (two lines)
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [GIVEN] Purchase order with first line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88% (prepayment VAT % = 25)
+        // [GIVEN] And second line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 0%
+        // [GIVEN] Document total = 2000 + 200 = 2200 (first line 1100), prepayment total = 1000 * 88% * 125% = 1100
+        CreatePurchasePrepmtSetup(LineGLAccount, 10);
+        CreatePurchaseHeader(PurchaseHeader, LineGLAccount);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, LineGLAccount."No.", 1, 1000, 88);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, LineGLAccount."No.", 1, 1000, 0);
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", DuplicateVATSetup(LineGLAccount, 25));
+
+        // [WHEN] Post prepayment invoice
+        DocumentNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Prepayment has been posted
+        VerifyPurchasePostedInvoiceAmounts(DocumentNo, 880, 1100);
+    end;
+
+    [Test]
+    procedure PurchasePrepmtVATMoreThanDocVAT_Error_OneLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LineGLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 382286] Try post prepayment invoice with prepayment VAT% more than document VAT%,
+        // [SCENARIO 382286] in case of total prepayment more than total document amount by one cent
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [GIVEN] Purchase order with one line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88.0004% (prepayment VAT % = 25)
+        // [GIVEN] Document total = 1000 + 100 = 1100, prepayment total = 1000 * 88.0005% * 125% = 1100.01
+        CreatePurchasePrepmtSetup(LineGLAccount, 10);
+        CreatePurchaseHeader(PurchaseHeader, LineGLAccount);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, LineGLAccount."No.", 1, 1000, 88.0005);
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", DuplicateVATSetup(LineGLAccount, 25));
+
+        // [WHEN] Post prepayment invoice
+        asserterror LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Prepayment has been posted
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(PrepaymentAmountHigherThanTheOrderErr);
+    end;
+
+    [Test]
+    procedure PurchasePrepmtVATMoreThanDocVAT_Error_TwoLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LineGLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 382286] Try post prepayment invoice with prepayment VAT% more than document VAT%,
+        // [SCENARIO 382286] in case of total prepayment more than total document amount by one cent (two lines)
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [GIVEN] Purchase order with first line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88.0004% (prepayment VAT % = 25)
+        // [GIVEN] And second line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 0%
+        // [GIVEN] Document total = 2000 + 200 = 2200 (first line 1100), prepayment total = 1000 * 88.0005% * 125% = 1100.01
+        CreatePurchasePrepmtSetup(LineGLAccount, 10);
+        CreatePurchaseHeader(PurchaseHeader, LineGLAccount);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, LineGLAccount."No.", 1, 1000, 88.0005);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, LineGLAccount."No.", 1, 1000, 0);
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", DuplicateVATSetup(LineGLAccount, 25));
+
+        // [WHEN] Post prepayment invoice
+        asserterror LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Prepayment has been posted
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(PrepaymentAmountHigherThanTheOrderErr);
+    end;
+
+    [Test]
+    procedure SalesPrepmtVATMoreThanDocVAT_TotalEquals_OneLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LineGLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 382286] Post sales prepayment invoice with prepayment VAT% more than document VAT%, but equal total amounts
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [GIVEN] Sales order with one line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88% (prepayment VAT % = 25)
+        // [GIVEN] Document total = 1000 + 100 = 1100, prepayment total = 1000 * 88% * 125% = 1100
+        CreateSalesPrepmtSetup(LineGLAccount, 10);
+        CreateSalesHeader(SalesHeader, LineGLAccount);
+        CreateSalesLine(SalesHeader, SalesLine, LineGLAccount."No.", 1, 1000, 88);
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", DuplicateVATSetup(LineGLAccount, 25));
+
+        // [WHEN] Post prepayment invoice
+        DocumentNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Prepayment has been posted
+        VerifySalesPostedInvoiceAmounts(DocumentNo, 880, 1100);
+    end;
+
+    [Test]
+    procedure SalesPrepmtVATMoreThanDocVAT_TotalEquals_TwoLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LineGLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 382286] Post sales prepayment invoice with prepayment VAT% more than document VAT%, but equal total amounts (two lines)
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [GIVEN] Sales order with first line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88% (prepayment VAT % = 25)
+        // [GIVEN] And second line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 0%
+        // [GIVEN] Document total = 2000 + 200 = 2200 (first line 1100), prepayment total = 1000 * 88% * 125% = 1100
+        CreateSalesPrepmtSetup(LineGLAccount, 10);
+        CreateSalesHeader(SalesHeader, LineGLAccount);
+        CreateSalesLine(SalesHeader, SalesLine, LineGLAccount."No.", 1, 1000, 88);
+        CreateSalesLine(SalesHeader, SalesLine, LineGLAccount."No.", 1, 1000, 0);
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", DuplicateVATSetup(LineGLAccount, 25));
+
+        // [WHEN] Post prepayment invoice
+        DocumentNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Prepayment has been posted
+        VerifySalesPostedInvoiceAmounts(DocumentNo, 880, 1100);
+    end;
+
+    [Test]
+    procedure SalesPrepmtVATMoreThanDocVAT_Error_OneLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LineGLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 382286] Try post sales prepayment invoice with prepayment VAT% more than document VAT%,
+        // [SCENARIO 382286] in case of total prepayment more than total document amount by one cent
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [GIVEN] Sales order with one line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88.0005% (prepayment VAT % = 25)
+        // [GIVEN] Document total = 1000 + 100 = 1100, prepayment total = 1000 * 88.0005% * 125% = 1100.01
+        CreateSalesPrepmtSetup(LineGLAccount, 10);
+        CreateSalesHeader(SalesHeader, LineGLAccount);
+        CreateSalesLine(SalesHeader, SalesLine, LineGLAccount."No.", 1, 1000, 88.0005);
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", DuplicateVATSetup(LineGLAccount, 25));
+
+        // [WHEN] Post prepayment invoice
+        asserterror LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Prepayment has been posted
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(PrepaymentAmountHigherThanTheOrderErr);
+    end;
+
+    [Test]
+    procedure SalesPrepmtVATMoreThanDocVAT_Error_TwoLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LineGLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 382286] Try post sales prepayment invoice with prepayment VAT% more than document VAT%,
+        // [SCENARIO 382286] in case of total prepayment more than total document amount by one cent (two lines)
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+
+        // [GIVEN] Sales order with first line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 88.0005% (prepayment VAT % = 25)
+        // [GIVEN] And second line having Qty = 1, Unit Price = 1000, VAT setup = "X" (10 %), prepayment 0%
+        // [GIVEN] Document total = 2000 + 200 = 2200 (first line 1100), prepayment total = 1000 * 88.0005% * 125% = 1100.01
+        CreateSalesPrepmtSetup(LineGLAccount, 10);
+        CreateSalesHeader(SalesHeader, LineGLAccount);
+        CreateSalesLine(SalesHeader, SalesLine, LineGLAccount."No.", 1, 1000, 88.0005);
+        CreateSalesLine(SalesHeader, SalesLine, LineGLAccount."No.", 1, 1000, 0);
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", DuplicateVATSetup(LineGLAccount, 25));
+
+        // [WHEN] Post prepayment invoice
+        asserterror LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Prepayment has been posted
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(PrepaymentAmountHigherThanTheOrderErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1509,6 +1746,25 @@ codeunit 134102 "ERM Prepayment III"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; LineGLAccount: Record "G/L Account")
+    var
+        VendorNo: Code[20];
+    begin
+        VendorNo :=
+            LibraryPurchase.CreateVendorWithBusPostingGroups(
+                LineGLAccount."Gen. Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+    end;
+
+    local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LineGLAccountNo: Code[20]; Qty: Decimal; UnitCost: Decimal; PrepmtPct: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LineGLAccountNo, Qty);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Validate("Prepayment %", PrepmtPct);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; CurrencyCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
@@ -1559,6 +1815,25 @@ codeunit 134102 "ERM Prepayment III"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; LineGLAccount: Record "G/L Account")
+    var
+        CustomerNo: Code[20];
+    begin
+        CustomerNo :=
+            LibrarySales.CreateCustomerWithBusPostingGroups(
+                LineGLAccount."Gen. Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+    end;
+
+    local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineGLAccountNo: Code[20]; Qty: Decimal; UnitPrice: Decimal; PrepmtPct: Decimal)
+    begin
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LineGLAccountNo, Qty);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("Prepayment %", PrepmtPct);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesLineWithPrepmtAmts(var SalesHeader: Record "Sales Header"; PrepmtLineAmount: Decimal; PrepmtAmtInv: Decimal)
@@ -1618,6 +1893,40 @@ codeunit 134102 "ERM Prepayment III"
         Vendor.Validate("Currency Code", CurrencyCode);
         Vendor.Modify(true);
         exit(Vendor."No.");
+    end;
+
+    local procedure CreatePurchasePrepmtSetup(var LineGLAccount: Record "G/L Account"; VATPct: Decimal)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("VAT %", VATPct);
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateSalesPrepmtSetup(var LineGLAccount: Record "G/L Account"; VATPct: Decimal)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("VAT %", VATPct);
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure DuplicateVATSetup(LineGLAccount: Record "G/L Account"; VATPct: Decimal): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        VATPostingSetup.Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
+        VATPostingSetup.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT %", VATPct);
+        VATPostingSetup.Insert();
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -1885,6 +2194,26 @@ codeunit 134102 "ERM Prepayment III"
     begin
         GLEntryVATEntryLink.SetRange("VAT Entry No.", VATEntryNo);
         Assert.RecordIsNotEmpty(GLEntryVATEntryLink);
+    end;
+
+    local procedure VerifyPurchasePostedInvoiceAmounts(DocumentNo: Code[20]; Amount: Decimal; AmountInclVAT: Decimal)
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvHeader.CalcFields(Amount, "Amount Including VAT");
+        PurchInvHeader.TestField(Amount, Amount);
+        PurchInvHeader.TestField("Amount Including VAT", AmountInclVAT);
+    end;
+
+    local procedure VerifySalesPostedInvoiceAmounts(DocumentNo: Code[20]; Amount: Decimal; AmountInclVAT: Decimal)
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+        SalesInvoiceHeader.TestField(Amount, Amount);
+        SalesInvoiceHeader.TestField("Amount Including VAT", AmountInclVAT);
     end;
 
     [ModalPageHandler]

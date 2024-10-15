@@ -317,10 +317,12 @@ codeunit 134610 "Test User Group Permissions"
         TestCleanup;
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('ImportedMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure TestUserGroupExportImport()
     var
         PermissionSet1: Record "Permission Set";
@@ -367,6 +369,7 @@ codeunit 134610 "Test User Group Permissions"
 
         TestCleanup;
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]

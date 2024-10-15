@@ -3316,10 +3316,11 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineCharge, PurchaseHeader, PurchaseLineCharge.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
         PurchaseLineCharge.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
-        PurchaseLineCharge.Validate("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         PurchaseLineCharge.Validate("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        PurchaseLineCharge.Validate("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         PurchaseLineCharge.Modify(true);
-        UpdatePurchPrepmtAccount(PurchaseLine);
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         LocationCode := ModifyWarehouseLocation(true);
 
         // [GIVEN] Prepayment is posted for Purchase Order
@@ -5207,7 +5208,7 @@ codeunit 134327 "ERM Purchase Order"
         VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
     end;
 
- [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure CheckNotHandlerCreationPurchaseOrderForFixedAssets()
     var
@@ -7777,17 +7778,6 @@ codeunit 134327 "ERM Purchase Order"
             Validate("Default Qty. to Receive", NewDefaultQtyToReceive);
             Modify(true);
         end;
-    end;
-
-    local procedure UpdatePurchPrepmtAccount(PurchaseLine: Record "Purchase Line")
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        GLAccount: Record "G/L Account";
-    begin
-        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
-        GLAccount.Validate("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
-        GLAccount.Modify(true);
     end;
 
     local procedure AssignQtyToOneLine(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line"; QtyToAssign: Decimal)
