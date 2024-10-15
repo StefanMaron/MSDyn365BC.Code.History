@@ -1,4 +1,4 @@
-table 5050 Contact
+﻿table 5050 Contact
 {
     Caption = 'Contact';
     DataCaptionFields = "No.", Name;
@@ -72,11 +72,15 @@ table 5050 Contact
 
             trigger OnLookup()
             begin
+                OnBeforeLookupCity(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidateCity(Rec, PostCode);
+
                 PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidateCity(Rec, xRec);
@@ -181,11 +185,15 @@ table 5050 Contact
 
             trigger OnLookup()
             begin
+                OnBeforeLookupPostCode(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidatePostCode(Rec, PostCode);
+
                 PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidatePostCode(Rec, xRec);
@@ -1043,6 +1051,7 @@ table 5050 Contact
         ProfileForMinorErr: Label 'You cannot use profiles for contacts marked as Minor.';
         MultipleCustomerTemplatesConfirmQst: Label 'Quotes with customer templates different from %1 were assigned to customer %2. Do you want to review the quotes now?', Comment = '%1=Customer Template Code,%2=Customer No.';
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
+        NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
 
     procedure DoModify(xRec: Record Contact)
     var
@@ -1377,6 +1386,8 @@ table 5050 Contact
         else
             if not HideValidationDialog then
                 Message(RelatedRecordIsCreatedMsg, Cust.TableCaption);
+
+        OnAfterCreateCustomer(Rec, Cust);
     end;
 
     procedure CreateVendor() VendorNo: Code[20]
@@ -1394,7 +1405,7 @@ table 5050 Contact
 
         Clear(Vend);
         Vend.SetInsertFromContact(true);
-        OnBeforeVendorInsert(Vend);
+        OnBeforeVendorInsert(Vend, Rec);
         Vend.Insert(true);
         Vend.SetInsertFromContact(false);
         VendorNo := Vend."No.";
@@ -1419,6 +1430,8 @@ table 5050 Contact
         else
             if not HideValidationDialog then
                 Message(RelatedRecordIsCreatedMsg, Vend.TableCaption);
+
+        OnAfterCreateVendor(Rec, Vend);
     end;
 
     procedure CreateBankAccount()
@@ -1433,6 +1446,7 @@ table 5050 Contact
 
         Clear(BankAcc);
         BankAcc.SetInsertFromContact(true);
+        OnBeforeBankAccountInsert(BankAcc);
         BankAcc.Insert(true);
         BankAcc.SetInsertFromContact(false);
 
@@ -1585,6 +1599,8 @@ table 5050 Contact
                         PAGE.Run(PAGE::"Bank Account Card", BankAcc);
                     end;
             end;
+
+        OnAfterShowCustVendBank(Rec, ContBusRel, FormSelected);
     end;
 
     local procedure NameBreakdown()
@@ -1594,7 +1610,13 @@ table 5050 Contact
         FirstName250: Text[250];
         i: Integer;
         NoOfParts: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNameBreakdown(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Company then
             exit;
 
@@ -1658,7 +1680,13 @@ table 5050 Contact
     local procedure CalculatedName() NewName: Text[100]
     var
         NewName92: Text[92];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculatedName(Rec, NewName, IsHandled);
+        if IsHandled then
+            exit(NewName);
+
         if "First Name" <> '' then
             NewName92 := "First Name";
         if "Middle Name" <> '' then
@@ -1824,19 +1852,30 @@ table 5050 Contact
     end;
 
     local procedure CheckCustomerTemplate(SalesHeader: Record "Sales Header"; var TempErrorMessage: Record "Error Message" temporary; CustomerTemplateCode: Code[10])
+    var
+        WarningMessage: Text;
     begin
-        if (CustomerTemplateCode = '') or (SalesHeader."Sell-to Customer Template Code" = '') then
+        if CustomerTemplateCode = '' then
             exit;
-        if SalesHeader."Sell-to Customer Template Code" <> CustomerTemplateCode then
+        if SalesHeader."Sell-to Customer Template Code" <> CustomerTemplateCode then begin
+            if SalesHeader."Sell-to Customer Template Code" <> '' then
+                WarningMessage := StrSubstNo(
+                    DifferentCustomerTemplateMsg,
+                    SalesHeader."No.",
+                    SalesHeader."Sell-to Customer Template Code",
+                    CustomerTemplateCode)
+            else
+                WarningMessage := StrSubstNo(
+                    NoOriginalCustomerTemplateMsg,
+                    SalesHeader."No.",
+                    CustomerTemplateCode);
+
             TempErrorMessage.LogMessage(
               SalesHeader,
               SalesHeader.FieldNo("Sell-to Customer Template Code"),
               TempErrorMessage."Message Type"::Warning,
-              StrSubstNo(
-                DifferentCustomerTemplateMsg,
-                SalesHeader."No.",
-                SalesHeader."Sell-to Customer Template Code",
-                CustomerTemplateCode));
+              WarningMessage);
+        end;
     end;
 
     procedure GetSalutation(SalutationType: Option Formal,Informal; LanguageCode: Code[10]): Text[260]
@@ -2180,7 +2219,13 @@ table 5050 Contact
     var
         Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckForExistingRelationships(Rec, LinkToTable, IsHandled);
+        if IsHandled then
+            exit;
+
         Contact := Rec;
         ContBusRel."Link to Table" := LinkToTable;
 
@@ -2200,6 +2245,8 @@ table 5050 Contact
         UtcNow := DotNet_DateTimeOffset.ConvertToUtcDateTime(CurrentDateTime);
         "Last Date Modified" := DT2Date(UtcNow);
         "Last Time Modified" := DT2Time(UtcNow);
+
+        OnAfterSetLastDateTimeModified(Rec);
     end;
 
     procedure GetLastDateTimeModified(): DateTime
@@ -2264,6 +2311,8 @@ table 5050 Contact
     var
         SalesHeader: Record "Sales Header";
     begin
+        OnBeforeCreateSalesQuoteFromContact(Rec, SalesHeader);
+
         CheckIfPrivacyBlockedGeneric;
         SalesHeader.Init;
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
@@ -2329,12 +2378,12 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterVendorInsert(var Vendor: Record Vendor; Contact: Record Contact)
+    local procedure OnAfterVendorInsert(var Vendor: Record Vendor; var Contact: Record Contact)
     begin
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeVendorInsert(var Vend: Record Vendor)
+    local procedure OnBeforeVendorInsert(var Vend: Record Vendor; var Contact: Record Contact)
     begin
     end;
 
@@ -2526,6 +2575,16 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCustomer(var Contact: Record Contact; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateVendor(var Contact: Record Contact; var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIdenticalAddress(Contact: Record Contact; RecContact: Record Contact; var IsIdentical: Boolean)
     begin
     end;
@@ -2551,7 +2610,17 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLastDateTimeModified(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTypeForContact(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowCustVendBank(var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; FormSelected: Boolean)
     begin
     end;
 
@@ -2576,7 +2645,22 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeBankAccountInsert(var BankAccount: Record "Bank Account");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDuplicateCheck(Contact: Record Contact; xContact: Record Contact; var IsDuplicateCheckNeeded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatedName(var Contact: Record Contact; var NewName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckForExistingRelationships(var Contact: Record Contact; LinkToTable: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2586,7 +2670,37 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSalesQuoteFromContact(var Contact: Record Contact; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupCity(var Contact: Record Contact; var PostCode: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostCode(var Contact: Record Contact; var PostCode: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNameBreakdown(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVATRegistrationValidation(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Contact: Record Contact; var PostCode: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Contact: Record Contact; var PostCode: Record "Post Code");
     begin
     end;
 

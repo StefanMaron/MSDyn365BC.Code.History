@@ -103,7 +103,7 @@ table 904 "Assemble-to-Order Link"
                 DeleteAsmFromSalesLine(NewSalesLine);
                 InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
                 InvtAdjmtEntryOrder.SetRange("Order No.", "Assembly Document No.");
-                if ("Assembly Document Type" <> "Assembly Document Type"::Order) or not InvtAdjmtEntryOrder.IsEmpty then
+                if ("Assembly Document Type" = "Assembly Document Type"::Order) and not InvtAdjmtEntryOrder.IsEmpty then
                     Insert;
                 exit;
             end;
@@ -284,7 +284,7 @@ table 904 "Assemble-to-Order Link"
 
         AsmHeader.Init;
         AsmHeader.Validate("Document Type", NewDocType);
-        AsmHeader.Validate("No.", NewDocNo);
+        AsmHeader."No." := NewDocNo;
         OnBeforeAsmHeaderInsert(AsmHeader);
         AsmHeader.Insert(true);
     end;

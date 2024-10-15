@@ -2061,6 +2061,234 @@ codeunit 137405 "SCM Item Tracking"
         asserterror Assert.IsTrue(ItemTrackingCodeCard."SN Warehouse Tracking".Visible, '');
         Assert.ExpectedError(FieldNotFoundErr);
         Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SettingNewExpirationDateOnItemTrackingLineUpdatesWholeLot()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        SerialNos: array[2] of Code[20];
+        LotNos: array[2] of Code[20];
+        NewDate: Date;
+    begin
+        // [FEATURE] [Lot] [Expiration Date] [UT]
+        // [SCENARIO 330377] When a user first sets expiration date on an item tracking line, this sets the same date on other tracking lines with the same lot.
+        Initialize;
+        MockItemTracking(SerialNos, LotNos);
+        NewDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Both serial no. and lot-tracked item.
+        CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
+
+        // [GIVEN] Item journal line.
+        // [GIVEN] Open item tracking and set up two lines. Line 1: serial no. = "S1", lot no. = "L1"; Line 2: serial no. = "S2", lot no. = "L1".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 1);
+
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 0, SerialNos[1], LotNos[1], 0D);
+
+        // [WHEN] Set Expiration Date = "EXP-1" on Line 2.
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 1, SerialNos[2], LotNos[1], NewDate);
+
+        // [THEN] Expiration Date on Line 1 is set to "EXP-1".
+        TempTrackingSpecification.SetRange("Serial No.", SerialNos[1]);
+        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.TestField("Expiration Date", NewDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdatingExpirationDateOnItemTrackingLineUpdatesWholeLot()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        SerialNos: array[2] of Code[20];
+        LotNos: array[2] of Code[20];
+        NewDate: Date;
+    begin
+        // [FEATURE] [Lot] [Expiration Date] [UT]
+        // [SCENARIO 330377] When a user updates expiration date on an item tracking line, this updates the date on other tracking lines with the same lot.
+        Initialize;
+        MockItemTracking(SerialNos, LotNos);
+        NewDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Both serial no. and lot-tracked item.
+        CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
+
+        // [GIVEN] Item journal line.
+        // [GIVEN] Open item tracking and set up two lines. Line 1: serial no. = "S1", lot no. = "L1"; Line 2: serial no. = "S2", lot no. = "L1".
+        // [GIVEN] Expiration date on Line 1 = "EXP-1".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 1);
+
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 0, SerialNos[1], LotNos[1], WorkDate);
+
+        // [WHEN] Update Expiration Date = "EXP-2" on Line 2.
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 1, SerialNos[2], LotNos[1], NewDate);
+
+        // [THEN] Expiration Date on Line 1 is updated to "EXP-2".
+        TempTrackingSpecification.SetRange("Serial No.", SerialNos[1]);
+        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.TestField("Expiration Date", NewDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdatingExpirationDateOnItemTrackingLineDoesNotUpdateAnotherLot()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        SerialNos: array[2] of Code[20];
+        LotNos: array[2] of Code[20];
+        NewDate: Date;
+    begin
+        // [FEATURE] [Lot] [Expiration Date] [UT]
+        // [SCENARIO 330377] When a user updates expiration date on an item tracking line, this does not update the date on other tracking lines with different lot.
+        Initialize;
+        MockItemTracking(SerialNos, LotNos);
+        NewDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Both serial no. and lot-tracked item.
+        CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
+
+        // [GIVEN] Item journal line.
+        // [GIVEN] Open item tracking and set up two lines. Line 1: serial no. = "S1", lot no. = "L1"; Line 2: serial no. = "S2", lot no. = "L2".
+        // [GIVEN] Expiration date on Line 1 = "EXP-1".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 1);
+
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 0, SerialNos[1], LotNos[1], WorkDate);
+
+        // [WHEN] Update Expiration Date = "EXP-2" on Line 2.
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 1, SerialNos[2], LotNos[2], NewDate);
+
+        // [THEN] Expiration Date on Line 1 remains "EXP-1".
+        TempTrackingSpecification.SetRange("Serial No.", SerialNos[1]);
+        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.TestField("Expiration Date", WorkDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ResettingExpirationDateOnItemTrackingLineResetsWholeLot()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        SerialNos: array[2] of Code[20];
+        LotNos: array[2] of Code[20];
+        NewDate: Date;
+    begin
+        // [FEATURE] [Lot] [Expiration Date] [UT]
+        // [SCENARIO 330377] When a user clears expiration date on an item tracking line, this clears out the date on other tracking lines with the same lot.
+        Initialize;
+        MockItemTracking(SerialNos, LotNos);
+        NewDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Both serial no. and lot-tracked item.
+        CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
+
+        // [GIVEN] Item journal line.
+        // [GIVEN] Open item tracking and set up two lines. Line 1: serial no. = "S1", lot no. = "L1"; Line 2: serial no. = "S2", lot no. = "L1".
+        // [GIVEN] Expiration date on Line 1 = "EXP-1".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 1);
+
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 0, SerialNos[1], LotNos[1], NewDate);
+
+        // [WHEN] Clear Expiration Date on Line 2.
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 1, SerialNos[2], LotNos[1], 0D);
+
+        // [THEN] Expiration Date on Line 1 is cleared out.
+        TempTrackingSpecification.SetRange("Serial No.", SerialNos[1]);
+        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.TestField("Expiration Date", 0D);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FillingInLotNoOnItemTrackingLinePullsExpirDateFromAnotherLine()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        SerialNos: array[2] of Code[20];
+        LotNos: array[2] of Code[20];
+        NewDate: Date;
+    begin
+        // [FEATURE] [Lot] [Expiration Date] [UT]
+        // [SCENARIO 330377] When a user validates lot no. on an item tracking line, the program pulls expiration date from other tracking lines with the same lot.
+        Initialize;
+        MockItemTracking(SerialNos, LotNos);
+        NewDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Both serial no. and lot-tracked item.
+        CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
+
+        // [GIVEN] Item journal line.
+        // [GIVEN] Open item tracking and set a line with serial no. = "S1", lot no. = "L1".
+        // [GIVEN] Expiration date = "EXP-1".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 1);
+
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 0, SerialNos[1], LotNos[1], NewDate);
+
+        // [WHEN] Create a second line in item tracking: serial no. = "S2", lot no. = "L1".
+        with TempTrackingSpecification do begin
+            InitFromItemJnlLine(ItemJournalLine);
+            "Entry No." := 1;
+            Validate("Serial No.", SerialNos[2]);
+            Validate("Lot No.", LotNos[1]);
+        end;
+
+        // [THEN] Expiration Date on the new line is copied from the first line and is now "EXP-1".
+        TempTrackingSpecification.TestField("Expiration Date", NewDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CannotUpdateExpirDateOnItemTrackingLineIfLotAlreadyPosted()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        SerialNos: array[2] of Code[20];
+        LotNos: array[2] of Code[20];
+        NewDate: Date;
+    begin
+        // [FEATURE] [Lot] [Expiration Date] [UT]
+        // [SCENARIO 330377] A user cannot change expiration date on an item tracking line, if the lot has been posted with another expiration date.
+        Initialize;
+        MockItemTracking(SerialNos, LotNos);
+        NewDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Both serial no. and lot-tracked item.
+        CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
+
+        // [GIVEN] Post inventory with serial no. = "S1", lot no. = "L1", expiration date = "EXP-1".
+        MockItemEntryWithSerialAndLot(Item."No.", SerialNos[1], LotNos[1]);
+
+        // [GIVEN] Item journal line.
+        // [GIVEN] Open item tracking and set a line with serial no. = "S1", lot no. = "L1".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 1);
+
+        // [WHEN] Update expiration date on item tracking line to "EXP-2".
+        MockTrackingSpecificationForItemJnlLine(
+          TempTrackingSpecification, ItemJournalLine, 0, SerialNos[1], LotNos[1], NewDate);
+
+        // [THEN] Expiration date is reset back to "EXP-1" because the lot no. has been already in use.
+        TempTrackingSpecification.TestField("Expiration Date", WorkDate);
     end;
 
     local procedure Initialize()
@@ -2410,6 +2638,7 @@ codeunit 137405 "SCM Item Tracking"
         ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
         ItemTrackingCode.Validate("SN Specific Tracking", true);
         ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
         ItemTrackingCode.Modify(true);
 
         exit(ItemTrackingCode.Code);
@@ -2889,6 +3118,36 @@ codeunit 137405 "SCM Item Tracking"
         TransferLine.OpenItemTrackingLines(0);
     end;
 
+    local procedure MockItemEntryWithSerialAndLot(ItemNo: Code[20]; SerialNo: Code[20]; LotNo: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        with ItemLedgerEntry do begin
+            Init;
+            "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
+            "Item No." := ItemNo;
+            "Serial No." := SerialNo;
+            "Lot No." := LotNo;
+            Quantity := LibraryRandom.RandInt(10);
+            "Remaining Quantity" := Quantity;
+            Open := true;
+            Positive := true;
+            "Expiration Date" := WorkDate;
+            Insert;
+        end;
+    end;
+
+    local procedure MockItemTracking(var SerialNos: array[2] of Code[20]; var LotNos: array[2] of Code[20])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(SerialNos) do
+            SerialNos[i] := LibraryUtility.GenerateGUID;
+
+        for i := 1 to ArrayLen(LotNos) do
+            LotNos[i] := LibraryUtility.GenerateGUID;
+    end;
+
     local procedure MockTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; EntryNo: Integer; LotNo: Code[20]; SerialNo: Code[20]; ExpirationDate: Date)
     begin
         TrackingSpecification."Entry No." := EntryNo;
@@ -2913,6 +3172,18 @@ codeunit 137405 "SCM Item Tracking"
             SetSourceFromSalesLine(SalesLine);
             Correction := IsCorrection;
             Insert;
+        end;
+    end;
+
+    local procedure MockTrackingSpecificationForItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJnlLine: Record "Item Journal Line"; EntryNo: Integer; SerialNo: Code[20]; LotNo: Code[20]; ExpirationDate: Date)
+    begin
+        with TrackingSpecification do begin
+            InitFromItemJnlLine(ItemJnlLine);
+            "Entry No." := EntryNo;
+            Validate("Serial No.", SerialNo);
+            Validate("Lot No.", LotNo);
+            Validate("Expiration Date", ExpirationDate);
+            Insert(true);
         end;
     end;
 

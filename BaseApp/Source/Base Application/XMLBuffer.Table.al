@@ -358,6 +358,18 @@ table 1235 "XML Buffer"
             exit(TempXMLBuffer.Value);
     end;
 
+    procedure GetNamespaceUriByPrefix(NamespacePrefix: Text): Text[250]
+    var
+        TempResultXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempResultXMLBuffer.CopyImportFrom(Rec);
+
+        TempResultXMLBuffer.SetRange(Type, TempResultXMLBuffer.Type::Attribute);
+        TempResultXMLBuffer.SetRange(Name, 'xmlns:' + NamespacePrefix);
+        if TempResultXMLBuffer.FindFirst then
+            exit(TempResultXMLBuffer.Value);
+    end;
+
     procedure GetElementName(): Text
     begin
         if Namespace = '' then

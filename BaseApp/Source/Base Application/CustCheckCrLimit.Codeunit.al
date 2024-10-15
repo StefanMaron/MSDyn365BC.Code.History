@@ -36,7 +36,13 @@ codeunit 312 "Cust-Check Cr. Limit"
     procedure SalesHeaderCheck(var SalesHeader: Record "Sales Header") CreditLimitExceeded: Boolean
     var
         AdditionalContextId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderCheck(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if GuiAllowed then
             OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, true);
 
@@ -230,6 +236,11 @@ codeunit 312 "Cust-Check Cr. Limit"
     procedure GetOverdueBalanceNotificationMsg(): Text
     begin
         exit(OverdueBalanceNotificationMsg);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderCheck(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
     end;
 }
 

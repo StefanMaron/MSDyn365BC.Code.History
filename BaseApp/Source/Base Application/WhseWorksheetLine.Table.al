@@ -617,10 +617,13 @@ table 7326 "Whse. Worksheet Line"
                 repeat
                     if "Qty. to Handle" <> "Qty. Outstanding" then begin
                         Validate("Qty. to Handle", "Qty. Outstanding");
-                        Modify;
-                        if not NotEnough then
-                            if "Qty. to Handle" < "Qty. Outstanding" then
-                                NotEnough := true;
+                        if "Qty. to Handle" <> xRec."Qty. to Handle" then begin
+                            OnAutofillQtyToHandleOnbeforeModift(WhseWkshLine);
+                            Modify;
+                            if not NotEnough then
+                                if "Qty. to Handle" < "Qty. Outstanding" then
+                                    NotEnough := true;
+                        end;
                     end;
                 until Next = 0;
             SetHideValidationDialog(false);
@@ -1465,6 +1468,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutofillQtyToHandleOnbeforeModift(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 

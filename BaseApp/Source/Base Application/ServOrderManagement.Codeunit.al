@@ -38,7 +38,13 @@ codeunit 5900 ServOrderManagement
         ServHeader: Record "Service Header";
         NewResponseDate: Date;
         NewResponseTime: Time;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateResponseDateTime(ServItemLine, Deleting, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ServHeader.Get(ServItemLine."Document Type", ServItemLine."Document No.") then
             exit;
 
@@ -543,10 +549,10 @@ codeunit 5900 ServOrderManagement
         exit(ServInvLine."Contract No." <> '');
     end;
 
-    local procedure GetStartingTime(StartingTime: Time;StartingServiceTime: Time): Time
+    local procedure GetStartingTime(StartingTime: Time; StartingServiceTime: Time): Time
     begin
         if StartingTime < StartingServiceTime then
-          exit(StartingServiceTime);
+            exit(StartingServiceTime);
         exit(StartingTime);
     end;
 
@@ -648,6 +654,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeToCustInvDiscInsert(var ToCustInvoiceDisc: Record "Cust. Invoice Disc."; FromCustInvoiceDisc: Record "Cust. Invoice Disc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateResponseDateTime(var ServItemLine: Record "Service Item Line"; var Deleting: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

@@ -1189,6 +1189,31 @@ codeunit 137112 "SCM Certificate Of Supply"
         Assert.ExpectedError(CertificateDoesNotExistErr);
     end;
 
+    [Test]
+    [HandlerFunctions('CertofSupplySaveAsPDFRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintCertificateOfSupply()
+    var
+        CertificateOfSupply: Record "Certificate of Supply";
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        // [SCENARIO 333888] Report "Certificate of Supply" can be printed without errors
+        Initialize;
+
+        // [GIVEN] Prepare Certificate of Supply
+        PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
+
+        // [WHEN] Report Certificate of Supply is being printed to PDF
+        CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
+        LibraryVariableStorage.Enqueue(CertificateOfSupply."Document Type");
+        LibraryVariableStorage.Enqueue(CertificateOfSupply."Document No.");
+        LibraryVariableStorage.Enqueue(false);
+        report.Run(Report::"Certificate of Supply");
+
+        // [THEN] No RDLC error
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Certificate Of Supply");
@@ -1696,6 +1721,24 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertOfSupply.CertificateOfSupply.SetFilter("Document No.", DocumentNo);
         CertOfSupply.PrintLineDetails.SetValue(PrintLineDetails);
         CertOfSupply.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CertofSupplySaveAsPDFRequestPageHandler(var CertOfSupply: TestRequestPage "Certificate of Supply")
+    var
+        FileManagement: Codeunit "File Management";
+        DocumentType: Variant;
+        DocumentNo: Variant;
+        PrintLineDetails: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentType);
+        LibraryVariableStorage.Dequeue(DocumentNo);
+        LibraryVariableStorage.Dequeue(PrintLineDetails);
+        CertOfSupply.CertificateOfSupply.SetFilter("Document Type", Format(DocumentType));
+        CertOfSupply.CertificateOfSupply.SetFilter("Document No.", DocumentNo);
+        CertOfSupply.PrintLineDetails.SetValue(PrintLineDetails);
+        CertOfSupply.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
 

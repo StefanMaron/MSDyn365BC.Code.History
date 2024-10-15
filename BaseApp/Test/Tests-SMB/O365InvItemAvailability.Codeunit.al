@@ -20,27 +20,6 @@ codeunit 138048 "O365 Inv. Item Availability"
         IsInitialized: Boolean;
         ItemNotFoundErr: Label 'Item not found.';
 
-    [Normal]
-    local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Inv. Item Availability");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
-
-        // Lazy Setup.
-        if IsInitialized then
-            exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Inv. Item Availability");
-
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        IsInitialized := true;
-        Commit;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Inv. Item Availability");
-    end;
-
     [Test]
     [Scope('OnPrem')]
     procedure AvailabilityByPeriod()
@@ -263,6 +242,242 @@ codeunit 138048 "O365 Inv. Item Availability"
         PurchaseOrder.PurchLines."No.".AssertEquals(Item."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByUoM_GrossRequirement()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemAvailabilityByUOM: TestPage "Item Availability by UOM";
+        Quantity: array[2] of Decimal;
+    begin
+        // [FEATURE] [Gross Requirement] [UI]
+        // [SCENARIO 292299] Page Item Availability by UoM shows "Gross Requirement" per Unit of Measure
+        Initialize;
+
+        // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
+        CreateItemWithUoMs(Item, ItemUnitOfMeasure);
+
+        // [GIVEN] Create sales order line with "UOM1" and Quantity = "Q1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        Quantity[1] := CreateSalesLineWithUoM(SalesHeader, Item."No.", Item."Base Unit of Measure");
+        // [GIVEN] Create sales order line with "UOM2" and Quantity = "Q2"
+        Quantity[2] := CreateSalesLineWithUoM(SalesHeader, Item."No.", ItemUnitOfMeasure.Code);
+
+        // [WHEN] Open Item Availability Check page for item "ITEM"
+        OpenItemAvailabilityByUOMPage(ItemAvailabilityByUOM, Item."No.");
+
+        // [THEN] "Item Availability by UOM" page has line "UOM1" with "Gross Requirement" = "Q1"
+        ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, Item."Base Unit of Measure");
+        ItemAvailabilityByUOM.ItemAvailUOMLines.GrossRequirement.AssertEquals(Quantity[1]);
+
+        // [THEN] "Item Availability by UOM" page has line "UOM2" with "Gross Requirement" = "Q2"
+        ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, ItemUnitOfMeasure.Code);
+        ItemAvailabilityByUOM.ItemAvailUOMLines.GrossRequirement.AssertEquals(Quantity[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemAvailabilityLineListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByUoM_GrossRequirementDrillDown()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemAvailabilityByUOM: TestPage "Item Availability by UOM";
+        Quantity: array[2] of Decimal;
+    begin
+        // [FEATURE] [Gross Requirement] [UI]
+        // [SCENARIO 292299] Drilldown "Gross Requirement" on page Item Availability by UoM shows quantity per Unit of Measure
+        Initialize;
+
+        // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
+        CreateItemWithUoMs(Item, ItemUnitOfMeasure);
+
+        // [GIVEN] Create sales order line with "UOM1" and Quantity = "Q1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        Quantity[1] := CreateSalesLineWithUoM(SalesHeader, Item."No.", Item."Base Unit of Measure");
+        // [GIVEN] Create sales order line with "UOM2" and Quantity = "Q2"
+        Quantity[2] := CreateSalesLineWithUoM(SalesHeader, Item."No.", ItemUnitOfMeasure.Code);
+
+        // [GIVEN] Open Item Availability Check page for item "ITEM"
+        OpenItemAvailabilityByUOMPage(ItemAvailabilityByUOM, Item."No.");
+
+        // [WHEN] Drilldown "Gross Requirement" on line "UOM2"
+        ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, ItemUnitOfMeasure.Code);
+        ItemAvailabilityByUOM.ItemAvailUOMLines.GrossRequirement.Drilldown();
+
+        // [THEN] Opened "Item Availability Line List" page shows Quantity = "Q2"
+        Assert.AreEqual(Quantity[2], LibraryVariableStorage.DequeueDecimal(), 'Wrong Quantity');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByUoM_Inventory()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemAvailabilityByUOM: TestPage "Item Availability by UOM";
+        Quantity: array[2] of Decimal;
+    begin
+        // [FEATURE] [Inventory] [UI]
+        // [SCENARIO 292299] Page Item Availability by UoM shows "Inventory" per Unit of Measure
+        Initialize;
+
+        // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
+        CreateItemWithUoMs(Item, ItemUnitOfMeasure);
+
+        // [GIVEN] Create Purchase order line with "UOM1" and Quantity = "Q1"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        Quantity[1] := CreatePurchaseLineWithUoM(PurchaseHeader, Item."No.", Item."Base Unit of Measure");
+        // [GIVEN] Create Purchase order line with "UOM2" and Quantity = "Q2"
+        Quantity[2] := CreatePurchaseLineWithUoM(PurchaseHeader, Item."No.", ItemUnitOfMeasure.Code);
+        // [GIVEN] Post purchase order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Open Item Availability Check page for item "ITEM"
+        OpenItemAvailabilityByUOMPage(ItemAvailabilityByUOM, Item."No.");
+
+        // [THEN] "Item Availability by UOM" page has line "UOM1" with "Item.Inventory" = "Q1"
+        ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, Item."Base Unit of Measure");
+        ItemAvailabilityByUOM.ItemAvailUOMLines."Item.Inventory".AssertEquals(Quantity[1]);
+
+        // [THEN] "Item Availability by UOM" page has line "UOM2" with "Item.Inventory" = "Q2"
+        ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, ItemUnitOfMeasure.Code);
+        ItemAvailabilityByUOM.ItemAvailUOMLines."Item.Inventory".AssertEquals(Quantity[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemAvailabilityLineListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByUoM_ProjectedAvailableBalanceDrillDown()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemAvailabilityByUOM: TestPage "Item Availability by UOM";
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Projected Available Balance] [UI]
+        // [SCENARIO 292299] Drilldown from "Projected Available Balance" on page Item Availability by UoM shows quantity per Unit of Measure
+        Initialize;
+
+        // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
+        CreateItemWithUoMs(Item, ItemUnitOfMeasure);
+
+        // [GIVEN] Create Post Purchase order line with "UOM1" and Quantity = "Q2"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        Quantity := CreatePurchaseLineWithUoM(PurchaseHeader, Item."No.", ItemUnitOfMeasure.Code);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Open Item Availability Check page for item "ITEM"
+        OpenItemAvailabilityByUOMPage(ItemAvailabilityByUOM, Item."No.");
+
+        // [WHEN] Drilldown "Gross Requirement" on line "UOM2"
+        ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, ItemUnitOfMeasure.Code);
+        ItemAvailabilityByUOM.ItemAvailUOMLines.ProjAvailableBalance.Drilldown();
+
+        // [THEN] Opened "Item Availability Line List" page shows Quantity = "Q2"
+        Assert.AreEqual(Quantity, LibraryVariableStorage.DequeueDecimal(), 'Wrong Quantity');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemLedgerEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByUoM_InventoryDrillDown()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemAvailabilityByUOM: TestPage "Item Availability by UOM";
+        Quantity: array[2] of Decimal;
+    begin
+        // [FEATURE] [Inventory] [UI]
+        // [SCENARIO 292299] Drilldown from "Inventory" on page Item Availability by UoM shows item ledger entries filtered by Unit of Measure
+        Initialize;
+
+        // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
+        CreateItemWithUoMs(Item, ItemUnitOfMeasure);
+
+        // [GIVEN] Create Post Purchase order line with "UOM1" and Quantity = "Q2"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        Quantity[1] := CreatePurchaseLineWithUoM(PurchaseHeader, Item."No.", Item."Base Unit of Measure");
+        // [GIVEN] Create Purchase order line with "UOM2" and Quantity = "Q2"
+        Quantity[2] := CreatePurchaseLineWithUoM(PurchaseHeader, Item."No.", ItemUnitOfMeasure.Code);
+        // [GIVEN] Post purchase order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Open Item Availability Check page for item "ITEM"
+        OpenItemAvailabilityByUOMPage(ItemAvailabilityByUOM, Item."No.");
+
+        // [WHEN] Drilldown "Inventory" on line "UOM2"
+        ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, ItemUnitOfMeasure.Code);
+        ItemAvailabilityByUOM.ItemAvailUOMLines."Item.Inventory".Drilldown();
+
+        // [THEN] Opened "Item Ledger Entries" page shows only record with "UOM2" and Quantity = "Q2" 
+        Assert.AreEqual(ItemUnitOfMeasure.Code, LibraryVariableStorage.DequeueText(), 'Wrong Unit of Measure filter');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemAvailabilityByUOMModalPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PickUnitOfMeasureCodeFromSalesOrderSubform()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesOrder: TestPage "Sales Order";
+        ItemAvailabilityByUOM: TestPage "Item Availability by UOM";
+        Quantity: array[2] of Decimal;
+    begin
+        // [FEATURE] [Sales Order] [UI]
+        // [SCENARIO 292299] Sales order subform allows user to select unit of measure code with action Line - Item Availability by - Unit of Measure
+        Initialize;
+
+        // [GIVEN] Item "ITEM" with base unit of measure "UOM1" and additional one "UOM2"
+        CreateItemWithUoMs(Item, ItemUnitOfMeasure);
+
+        // [GIVEN] Create sales order and line with Item "ITEM", unit of measure "UOM1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLineWithUoM(SalesHeader, Item."No.", Item."Base Unit of Measure");
+
+        // [GIVEN] Open Sales order card
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] Action Line - Item Availability by - Unit of Measure is being hit and "UOM2" selected
+        LibraryVariableStorage.Enqueue(ItemUnitOfMeasure.Code);
+        SalesOrder.SalesLines.ItemAvailabilityByUnitOfMeasure.Invoke();
+
+        // [THEN] Sales line has Unit of Measure Code = "UOM2"
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
+    end;
+
+    [Normal]
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Inv. Item Availability");
+        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // Lazy Setup.
+        if IsInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Inv. Item Availability");
+
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData;
+        IsInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Inv. Item Availability");
+    end;
+
     [Normal]
     local procedure CreateItem(var Item: Record Item; Quantity: Integer)
     var
@@ -271,6 +486,15 @@ codeunit 138048 "O365 Inv. Item Availability"
         // Creates a new item. Wrapper for the library method.
         LibraryInventory.CreateItem(Item);
         AdjustItemInventory.PostAdjustmentToItemLedger(Item, Quantity);
+    end;
+
+    local procedure CreateItemWithUoMs(var Item: Record Item; var ItemUnitOfMeasure: Record "Item Unit of Measure")
+    var
+        UnitOfMeasure: Record "Unit Of Measure";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, item."No.", UnitOfMeasure.Code, LibraryRandom.RandInt(100));
     end;
 
     local procedure CreateSalesDemandBasis(ItemNo: Code[20]; ItemQty: Integer; NeededBy: Date): Code[20]
@@ -289,6 +513,38 @@ codeunit 138048 "O365 Inv. Item Availability"
     local procedure CreateSalesDemand(ItemNo: Code[20]; Quantity: Integer): Code[20]
     begin
         exit(CreateSalesDemandBasis(ItemNo, Quantity, WorkDate));
+    end;
+
+    local procedure CreateSalesLineWithUoM(SalesHeader: record "Sales Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[20]): Decimal
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        SalesLine.Modify(true);
+
+        exit(SalesLine.Quantity);
+    end;
+
+    local procedure CreatePurchaseLineWithUoM(PurchaseHeader: record "Purchase Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[20]): Decimal
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        PurchaseLine.Modify(true);
+
+        exit(PurchaseLine.Quantity);
+    end;
+
+    local procedure OpenItemAvailabilityByUOMPage(var ItemAvailabilityByUOM: TestPage "Item Availability by UOM"; ItemNo: code[20])
+    var
+        ItemCard: TestPage "Item Card";
+    begin
+        ItemCard.OpenEdit;
+        ItemCard.Filter.SetFilter("No.", ItemNo);
+        ItemAvailabilityByUOM.Trap;
+        ItemCard."Unit of Measure".Invoke;
     end;
 
     [Normal]
@@ -343,6 +599,37 @@ codeunit 138048 "O365 Inv. Item Availability"
     procedure VendorListCancelModalPageHandler(var VendorList: TestPage "Vendor List")
     begin
         VendorList.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityLineListModalPageHandler(var ItemAvailabilityLineList: TestPage "Item Availability Line List")
+    begin
+        LibraryVariableStorage.Enqueue(ItemAvailabilityLineList.Quantity.Value);
+        ItemAvailabilityLineList.Ok.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByUOMModalPageHandler(var ItemAvailabilityByUOM: TestPage "Item Availability by UOM")
+    begin
+        ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        ItemAvailabilityByUOM.Ok.Invoke;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ItemLedgerEntriesModalPageHandler(var ItemLedgerEntries: TestPage "Item Ledger Entries")
+    begin
+        LibraryVariableStorage.Enqueue(ItemLedgerEntries.Filter.GetFilter("Unit of Measure Code"));
+        ItemLedgerEntries.Ok.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

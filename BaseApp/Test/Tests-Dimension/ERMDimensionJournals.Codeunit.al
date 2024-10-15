@@ -1053,7 +1053,6 @@ codeunit 134382 "ERM Dimension Journals"
     end;
 
     [Test]
-    [HandlerFunctions('DocumentNoIsBlankMessageHandler')]
     [Scope('OnPrem')]
     procedure GenJournalFactBoxDimensionsNewLine()
     var
@@ -1130,6 +1129,8 @@ codeunit 134382 "ERM Dimension Journals"
 
         // [WHEN] New line in the general journal is being created
         PrepareGeneralJournal(GenJournalBatch);
+        GenJournalBatch."No. Series" := '';
+        GenJournalBatch.Modify();
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",

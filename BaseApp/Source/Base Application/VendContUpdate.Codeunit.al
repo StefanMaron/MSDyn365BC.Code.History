@@ -25,6 +25,7 @@ codeunit 5057 "VendCont-Update"
         ContNo: Code[20];
         NoSeries: Code[20];
         SalespersonCode: Code[20];
+        IsHandled: Boolean;
     begin
         with ContBusRel do begin
             SetCurrentKey("Link to Table", "No.");
@@ -42,8 +43,13 @@ codeunit 5057 "VendCont-Update"
         Cont.Validate("E-Mail", Vend."E-Mail");
         Cont.TransferFields(Vend);
         OnAfterTransferFieldsFromVendToCont(Cont, Vend);
-        Cont."No." := ContNo;
-        Cont."No. Series" := NoSeries;
+
+        IsHandled := false;
+        OnModifyOnBeforeAssignNo(Cont, IsHandled);
+        if not IsHandled then begin
+            Cont."No." := ContNo;
+            Cont."No. Series" := NoSeries;
+        end;
         Cont."Salesperson Code" := SalespersonCode;
         Cont.Validate(Name);
         Cont.DoModify(OldCont);
@@ -90,10 +96,14 @@ codeunit 5057 "VendCont-Update"
             OnAfterTransferFieldsFromVendToCont(Cont, Vend);
             Validate(Name);
             Validate("E-Mail");
-            "No." := '';
-            "No. Series" := '';
-            RMSetup.TestField("Contact Nos.");
-            NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+            IsHandled := false;
+            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled);
+            if not IsHandled then begin
+                "No." := '';
+                "No. Series" := '';
+                RMSetup.TestField("Contact Nos.");
+                NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+            end;
             Type := Type::Company;
             TypeChange;
             SetSkipDefault;
@@ -174,6 +184,16 @@ codeunit 5057 "VendCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertNewContactPersonOnBeforeContactModify(var Contact: Record Contact; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean);
     begin
     end;
 }

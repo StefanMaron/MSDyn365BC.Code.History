@@ -234,7 +234,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
             CODEUNIT.Run(CODEUNIT::"Set Up Curr Exch Rate Service");
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetWebServiceURL(var ServiceURL: Text)
     begin
     end;

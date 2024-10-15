@@ -274,7 +274,8 @@ codeunit 392 "Reminder-Make"
                             CustLedgEntry.Mark(true);
                             ReminderLevel.Mark(true);
                             if (ReminderLevel."No." > MaxReminderLevel) and
-                               (CustLedgEntry."Document Type" <> CustLedgEntry."Document Type"::"Credit Memo")
+                               (CustLedgEntry."Document Type" <> CustLedgEntry."Document Type"::"Credit Memo") and
+                               (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) < ReminderHeaderReq."Document Date")
                             then
                                 MaxReminderLevel := ReminderLevel."No.";
                             if MaxLineLevel < LineLevel then
