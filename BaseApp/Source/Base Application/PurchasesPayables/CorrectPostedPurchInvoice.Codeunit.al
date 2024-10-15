@@ -131,7 +131,7 @@
 
         case DocumentType of
             PurchaseHeader."Document Type"::"Credit Memo":
-                CopyDocMgt.SetPropertiesForCreditMemoCorrection();
+                CopyDocMgt.SetPropertiesForCorrectiveCreditMemo(true);
             PurchaseHeader."Document Type"::Invoice:
                 CopyDocMgt.SetPropertiesForInvoiceCorrection(SkipCopyFromDescription);
             else

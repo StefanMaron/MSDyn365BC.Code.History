@@ -963,9 +963,8 @@
         IsHandled := false;
 #if not CLEAN23        
         OnBeforeInsertVATForGLEntry(GenJnlLine, VATPostingSetup, VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", VATPostingParameters."Unrealized VAT", IsHandled, VATEntry, TaxJurisdiction, VATPostingParameters."Source Currency Code", AddCurrencyCode);
-#else
-        OnBeforeInsertVATForGLEntryFromBuffer(GenJnlLine, VATPostingSetup, VATPostingParameters, IsHandled, VATEntry, TaxJurisdiction, AddCurrencyCode);
 #endif
+        OnBeforeInsertVATForGLEntryFromBuffer(GenJnlLine, VATPostingSetup, VATPostingParameters, IsHandled, VATEntry, TaxJurisdiction, AddCurrencyCode);
         if IsHandled then
             exit;
 
@@ -3454,7 +3453,7 @@
         PmtTolAmtToBeApplied: Decimal;
         AllApplied: Boolean;
         IsAmountToApplyCheckHandled: Boolean;
-	PaymentTerms: Record "Payment Terms";
+        PaymentTerms: Record "Payment Terms";
         ShouldUpdateCalcInterest: Boolean;
         IsHandled: Boolean;
     begin
@@ -3758,7 +3757,7 @@
 
                 if OldCustLedgEntry."Posting Date" > ApplyingDate then
                     ApplyingDate := OldCustLedgEntry."Posting Date";
-		        OnPrepareTempCustLedgEntryOnBeforeCheckAgainstApplnCurrencyWithAppliesToDocNo(GenJnlLine, NewCVLedgEntryBuf, OldCustLedgEntry);
+                OnPrepareTempCustLedgEntryOnBeforeCheckAgainstApplnCurrencyWithAppliesToDocNo(GenJnlLine, NewCVLedgEntryBuf, OldCustLedgEntry);
                 GenJnlApply.CheckAgainstApplnCurrency(
                   NewCVLedgEntryBuf."Currency Code", OldCustLedgEntry."Currency Code", GenJnlLine."Account Type"::Customer, true);
                 TempOldCustLedgEntry := OldCustLedgEntry;
@@ -4031,6 +4030,9 @@
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", CustLedgEntry2."Transaction No.");
+
+        OnCustUnrealizedVATOnAfterSetFilterForVATEntry2(VATEntry2);
+
         if VATEntry2.FindSet() then
             repeat
                 VATPostingSetup.Get(VATEntry2."VAT Bus. Posting Group", VATEntry2."VAT Prod. Posting Group");
@@ -4546,7 +4548,7 @@
                 OldVendLedgEntry.TestField(Positive, not NewCVLedgEntryBuf.Positive);
                 if OldVendLedgEntry."Posting Date" > ApplyingDate then
                     ApplyingDate := OldVendLedgEntry."Posting Date";
-		        OnPrepareTempVendLedgEntryOnBeforeCheckAgainstApplnCurrencyWithAppliesToDocNo(GenJnlLine, NewCVLedgEntryBuf, OldVendLedgEntry);
+                OnPrepareTempVendLedgEntryOnBeforeCheckAgainstApplnCurrencyWithAppliesToDocNo(GenJnlLine, NewCVLedgEntryBuf, OldVendLedgEntry);
                 GenJnlApply.CheckAgainstApplnCurrency(
                   NewCVLedgEntryBuf."Currency Code", OldVendLedgEntry."Currency Code", GenJnlLine."Account Type"::Vendor, true);
                 TempOldVendLedgEntry := OldVendLedgEntry;
@@ -4582,7 +4584,7 @@
                     CheckWithholdTax(OldVendLedgEntry."Document Type".AsInteger(), OldVendLedgEntry."Document No.", GenJnlLine, true);
                     CheckWithholdTax(OldVendLedgEntry."Document Type".AsInteger(), OldVendLedgEntry."Document No.", GenJnlLine, false);
                     UpdateWithholdTaxExtDocNo(OldVendLedgEntry, GenJnlLine);
-		            OnPrepareTempVendLedgEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, NewCVLedgEntryBuf, OldVendLedgEntry);
+                    OnPrepareTempVendLedgEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, NewCVLedgEntryBuf, OldVendLedgEntry);
                     if GenJnlApply.CheckAgainstApplnCurrency(
                          NewCVLedgEntryBuf."Currency Code", OldVendLedgEntry."Currency Code", GenJnlLine."Account Type"::Vendor, false)
                     then begin
@@ -5054,8 +5056,11 @@
                     begin
                         VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                         VATPostingSetup.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
-                        CreateGLEntry(
-                          GenJnlLine, VATPostingSetup.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
+                        IsHandled := false;
+                        OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntryForNormalOrFullVAT(DtldCVLedgEntryBuf, VATEntry, GenJnlLine, IsHandled);
+                        if not IsHandled then
+                            CreateGLEntry(
+                              GenJnlLine, VATPostingSetup.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
                     end;
                 VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
                     begin
@@ -5121,6 +5126,9 @@
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", VendLedgEntry2."Transaction No.");
+
+        OnVendUnrealizedVATOnAfterSetFilterForVATEntry2(VATEntry2);
+
         if VATEntry2.FindSet() then
             repeat
                 VATPostingSetup.Get(VATEntry2."VAT Bus. Posting Group", VATEntry2."VAT Prod. Posting Group");
@@ -5207,7 +5215,7 @@
                             GenJnlLine, PurchReverseUnrealAccount, PurchReverseAccount, VATAmount, VATAmountAddCurr, false);
                             GLEntryNo :=
                             InitGLEntryVATCopy(GenJnlLine, PurchReverseAccount, PurchReverseUnrealAccount, -VATAmount, -VATAmountAddCurr, VATEntry2);
-                        end;                    
+                        end;
 
                     OnVendUnrealizedVATOnBeforePostUnrealVATEntry(GenJnlLine, VATEntry2, VATAmount, VATBase, VATAmountAddCurr, VATBaseAddCurr, GLEntryNo, VATPart);
                     PostUnrealVATEntry(GenJnlLine, VATEntry2, VATAmount, VATBase, VATAmountAddCurr, VATBaseAddCurr, GLEntryNo);
@@ -6914,14 +6922,16 @@
     [Scope('OnPrem')]
     procedure InsertVATBookEntry(NewVATEntry: Record "VAT Entry")
     var
-        IsHandled: Boolean;
+        IsHandled, SkipCheckIfVATPeriodClosed : Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertVATBookEntry(NewVATEntry, IsHandled);
+        OnBeforeInsertVATBookEntry(NewVATEntry, IsHandled, SkipCheckIfVATPeriodClosed);
         if IsHandled then
             exit;
 
-        CheckIfVATPeriodClosed(NewVATEntry."Posting Date");
+        if not SkipCheckIfVATPeriodClosed then
+            CheckIfVATPeriodClosed(NewVATEntry."Posting Date");
+
         VATBookEntry.Reset();
         VATBookEntry.SetCurrentKey(
           "Document No.", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
@@ -6935,6 +6945,7 @@
         VATBookEntry.SetRange("VAT Identifier", NewVATEntry."VAT Identifier");
         VATBookEntry.SetRange("Transaction No.", NewVATEntry."Transaction No.");
         VATBookEntry.SetRange("Unrealized VAT Entry No.", NewVATEntry."Unrealized VAT Entry No.");
+        OnInsertVATBookEntryOnAfterSetFilters(VATBookEntry);
         if not VATBookEntry.FindFirst() then begin
             VATBookEntry.Init();
             VATBookEntry."Entry No." := NewVATEntry."Entry No.";
@@ -6964,6 +6975,7 @@
                 VATBookEntry."Unrealized VAT Entry No." := NewVATEntry."Unrealized VAT Entry No.";
             end;
             VATBookEntry.Insert();
+            OnAfterInsertVATBookEntry(VATBookEntry);
         end;
     end;
 
@@ -8516,12 +8528,13 @@
     local procedure OnBeforeInsertVATForGLEntry(var GenJnlLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; GLEntryVATAmount: Decimal; SrcCurrGLEntryVATAmt: Decimal; UnrealizedVAT: Boolean; var IsHandled: Boolean; var VATEntry: Record "VAT Entry"; TaxJurisdiction: Record "Tax Jurisdiction"; SrcCurrCode: Code[10]; AddCurrencyCode: Code[10])
     begin
     end;
-#else
+#endif
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertVATForGLEntryFromBuffer(var GenJnlLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; VATPostingParameters: Record "VAT Posting Parameters"; var IsHandled: Boolean; var VATEntry: Record "VAT Entry"; TaxJurisdiction: Record "Tax Jurisdiction"; AddCurrencyCode: Code[10])
     begin
     end;
-#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertVATEntry(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line"; var NextVATEntryNo: Integer; var TempGLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link" temporary; var TempGLEntryBuf: Record "G/L Entry" temporary; GLRegister: Record "G/L Register")
     begin
@@ -10098,7 +10111,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertVATBookEntry(var NewVATEntry: record "VAT Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertVATBookEntry(var NewVATEntry: record "VAT Entry"; var IsHandled: Boolean; var SkipCheckIfVATPeriodClosed: Boolean)
     begin
     end;
 
@@ -10184,6 +10197,32 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitGLEntryVATOnVendUnrealizedVATForRevChargeVAT(var VATEntry: Record "VAT Entry"; var GenJournalLine: Record "Gen. Journal Line"; var NextEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertVATBookEntryOnAfterSetFilters(var VATBookEntry: Record "VAT Book Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertVATBookEntry(var VATBookEntry: Record "VAT Book Entry")
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnVendUnrealizedVATOnAfterSetFilterForVATEntry2(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustUnrealizedVATOnAfterSetFilterForVATEntry2(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntryForNormalOrFullVAT(DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

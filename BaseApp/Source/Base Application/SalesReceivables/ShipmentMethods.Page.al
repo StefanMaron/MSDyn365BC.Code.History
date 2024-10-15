@@ -51,6 +51,7 @@ page 11 "Shipment Methods"
                     Caption = 'Coupled to Dataverse';
                     ToolTip = 'Specifies that the shipment method is coupled to a freight term in Dataverse.';
                     Visible = CDSIntegrationEnabled;
+                    Editable = false;
                 }
             }
         }
@@ -227,7 +228,7 @@ page 11 "Shipment Methods"
         }
     }
 
-    trigger OnAfterGetCurrRecord()
+    trigger OnAfterGetRecord()
     var
         CRMOptionMapping: Record "CRM Option Mapping";
     begin

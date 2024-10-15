@@ -1380,7 +1380,14 @@
     end;
 
     procedure CheckBeforeTransferPost()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBeforeTransferPost(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Transfer-from Code");
         TestField("Transfer-to Code");
         TestField("Direct Transfer");
@@ -1843,6 +1850,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var TransferHeader: Record "Transfer Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBeforeTransferPost(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

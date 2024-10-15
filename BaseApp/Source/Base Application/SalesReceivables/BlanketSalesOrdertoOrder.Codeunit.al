@@ -37,6 +37,8 @@ codeunit 87 "Blanket Sales Order to Order"
 
         CheckAvailability(Rec);
 
+        OnRunOnAfterCheckAvailability(SalesLine, BlanketOrderSalesLine);
+
         CreditLimitExceeded := CreateSalesHeader(Rec, Cust."Prepayment %");
 
         BlanketOrderSalesLine.Reset();
@@ -538,6 +540,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesHeaderOnAfterSalesOrderHeaderInsert(SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCheckAvailability(var SalesLine: Record "Sales Line"; var BlanketOrderSalesLine: Record "Sales Line")
     begin
     end;
 }

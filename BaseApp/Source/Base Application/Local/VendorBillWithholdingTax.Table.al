@@ -356,7 +356,6 @@ table 12185 "Vendor Bill Withholding Tax"
             Currency.Get(CurrencyCode);
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateWithhSocSec()
     begin
         CalculateWithholdingTax();

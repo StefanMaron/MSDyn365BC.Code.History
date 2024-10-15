@@ -261,7 +261,6 @@ codeunit 12173 "Vendor Bill List - Post"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure PostTax(VendorBillHeader: Record "Vendor Bill Header"; VendorBillLine: Record "Vendor Bill Line"; VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax"; VendLedgEntry: Record "Vendor Ledger Entry"; Bill: Record Bill; Tax: Option " ",Withhold,"Free Lance",Company)
     var
         GenJnlLine: Record "Gen. Journal Line";

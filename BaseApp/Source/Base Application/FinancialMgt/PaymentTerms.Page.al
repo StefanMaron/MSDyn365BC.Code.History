@@ -51,6 +51,7 @@ page 4 "Payment Terms"
                     Caption = 'Coupled to Dataverse';
                     ToolTip = 'Specifies that the payment term is coupled to a payment term in Dataverse.';
                     Visible = CDSIntegrationEnabled;
+                    Editable = false;
                 }
             }
         }
@@ -240,7 +241,7 @@ page 4 "Payment Terms"
         }
     }
 
-    trigger OnAfterGetCurrRecord()
+    trigger OnAfterGetRecord()
     var
         CRMOptionMapping: Record "CRM Option Mapping";
     begin

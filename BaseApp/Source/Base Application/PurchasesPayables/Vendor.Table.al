@@ -2353,7 +2353,6 @@
           "Amt. Rcd. Not Invoiced (LCY)" + "Outstanding Invoices (LCY)" - GetInvoicedPrepmtAmountLCY());
     end;
 
-    [Scope('OnPrem')]
     procedure GetTaxCode(): Code[20]
     begin
         if "Fiscal Code" <> '' then

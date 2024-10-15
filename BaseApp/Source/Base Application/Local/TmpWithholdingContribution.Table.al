@@ -409,7 +409,6 @@ table 12113 "Tmp Withholding Contribution"
         // INAIL END
     end;
 
-    [Scope('OnPrem')]
     procedure CalculateWithholdingTax()
     begin
         WithholdCode.Get("Withholding Tax Code");

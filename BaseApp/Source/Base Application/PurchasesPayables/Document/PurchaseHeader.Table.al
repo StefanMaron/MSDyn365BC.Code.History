@@ -5062,7 +5062,6 @@
         "VAT Registration No." := GetVATRegistrationNo(VendorNo);
     end;
 
-    [Scope('OnPrem')]
     procedure GetVATRegistrationNo(VendorNo: Code[20]): Text[20]
     var
         Vendor: Record Vendor;

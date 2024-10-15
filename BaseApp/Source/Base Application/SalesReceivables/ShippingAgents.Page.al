@@ -63,6 +63,7 @@ page 428 "Shipping Agents"
                     Caption = 'Coupled to Dataverse';
                     ToolTip = 'Specifies that the shipping agent is coupled to a shipping method in Dataverse.';
                     Visible = CDSIntegrationEnabled;
+                    Editable = false;
                 }
             }
         }
@@ -239,7 +240,7 @@ page 428 "Shipping Agents"
         }
     }
 
-    trigger OnAfterGetCurrRecord()
+    trigger OnAfterGetRecord()
     var
         CRMOptionMapping: Record "CRM Option Mapping";
     begin

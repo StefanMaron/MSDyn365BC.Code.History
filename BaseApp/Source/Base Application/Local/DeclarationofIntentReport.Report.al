@@ -113,7 +113,7 @@ report 12194 "Declaration of Intent Report"
             column(VendorFirstName; VendorFirstName)
             {
             }
-            column(VendoRVATRegNo_Value; Vendor."VAT Registration No.")
+            column(VendoRVATRegNo_Value; VendorVATRegNo)
             {
             }
             column(VendorTaxRepresentativeVATRegNo_Value; VendorTaxRepresentativeVATRegNo)
@@ -329,16 +329,19 @@ report 12194 "Declaration of Intent Report"
             column(DealerSignature_Caption; DealerSignatureLbl)
             {
             }
+            column(CustomAuthorityFlagValue; CustomAuthorityFlag)
+            {
+            }
 
             trigger OnAfterGetRecord()
             begin
                 Vendor.Get("No.");
 
                 FiscalCode := CompanyInformation.GetTaxCode();
-                VendorFiscalCode := Vendor.GetTaxCode();
                 VendorTaxRepresentativeVATRegNo := GetVendorTaxRepresentativeNo(CompanyInformation."Tax Representative No.");
                 SigningCompanyOfficials.Get(SigningCompanyOfficialNo);
                 GetVendorName();
+                GetRecipientData();
                 AnnualVATDeclSubmitted := ExportFlags[1];
             end;
         }
@@ -383,7 +386,9 @@ report 12194 "Declaration of Intent Report"
         VendorGender: Code[1];
         VendorFirstName: Text;
         VendorName: Text;
+        VendorVATRegNo: Text[20];
         AnnualVATDeclSubmitted: Boolean;
+        CustomAuthorityFlag: Text[10];
         DeclarationOfIntent1Lbl: Label 'DECLARATION OF INTENT';
         DeclarationOfIntent2Lbl: Label 'PURCHASE OR IMPORT OF GOODS AND SERVICES WITHOUT  VALUE ADDED TAX';
         DeclarantNumberLbl: Label 'Number';
@@ -481,6 +486,19 @@ report 12194 "Declaration of Intent Report"
             VendorName := Vendor.Name;
             VendorFirstName := '';
             VendorGender := '';
+        end;
+    end;
+
+    local procedure GetRecipientData()
+    begin
+        if Vendor.IsCustomAuthorityVendor() then begin
+            VendorFiscalCode := '';
+            VendorVATRegNo := '';
+            CustomAuthorityFlag := 'X';
+        end else begin
+            VendorFiscalCode := Vendor.GetTaxCode();
+            VendorVATRegNo := Vendor."VAT Registration No.";
+            CustomAuthorityFlag := '';
         end;
     end;
 

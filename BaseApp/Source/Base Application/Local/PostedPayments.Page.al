@@ -93,7 +93,6 @@ page 12172 "Posted Payments"
         LastRec: Boolean;
         ResidualTotal: Decimal;
 
-    [Scope('OnPrem')]
     procedure UpdateAmount()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";

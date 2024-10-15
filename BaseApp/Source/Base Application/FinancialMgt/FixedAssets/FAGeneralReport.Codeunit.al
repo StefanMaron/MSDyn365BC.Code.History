@@ -196,6 +196,9 @@ codeunit 5626 "FA General Report"
             end;
             OnCalcGLPostedAmountOnBeforeCalcAmount(FALedgEntry, PostingType);
             CalcSums(Amount);
+
+            OnCalcGLPostedAmountOnAfterCalcAmount(FALedgEntry, PostingType, Amount);
+
             exit(Amount);
         end;
     end;
@@ -253,7 +256,13 @@ codeunit 5626 "FA General Report"
         FA: Record "Fixed Asset";
         FADeprBook: Record "FA Depreciation Book";
         Window: Dialog;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetFAPostingGroup(FA2, DeprBookCode, IsHandled);
+        if IsHandled then
+            exit;
+
         Window.Open(Text006);
         FA.LockTable();
         FA.Copy(FA2);
@@ -351,6 +360,16 @@ codeunit 5626 "FA General Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetLastDateOnAfterFALedgEntrySetFilters(var FALedgerEntry: Record "FA Ledger Entry"; var FADeprBook: Record "FA Depreciation Book"; PostingType: Integer; FirstLast: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFAPostingGroup(var FixedAsset: Record "Fixed Asset"; DeprBookCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGLPostedAmountOnAfterCalcAmount(var FALedgerEntry: Record "FA Ledger Entry"; PostingType: Integer; var Amount: Decimal)
     begin
     end;
 }

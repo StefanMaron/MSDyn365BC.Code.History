@@ -3396,6 +3396,54 @@
         // [THEN] ItemListModalPageHandler is called & checks within ItemListModalPageHandler are run
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesModalPageHandlerGeneric,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransShptLineWhenLocationMandatory()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        ItemJournalLine: Record "Item Journal Line";
+        Item: Record Item;
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SCENARIO 473641] Posted Transfer Shipment and using Line > Undo Shipment generates an error and does not process the Undo correctly - 
+        // "New Location Code must have a value..."
+        Initialize();
+
+        // [GIVEN] Set Location Mandatory on Inventory Setup
+        InventorySetup.Get();
+        InventorySetup.Validate("Location Mandatory", true);
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Transfer Order
+        CreateTransferOrderHeader(TransferHeader);
+
+        // [GIVEN] Create Item with Serial No. Tracking
+        LibraryItemTracking.CreateSerialItem(Item);
+
+        // [GIVEN] Create Inventory of Item x.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", TransferHeader."Transfer-from Code", '', 3);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Transfer Order Line with Item Quantity 1
+        CreateTransferOrderLineAndAssignTracking(TransferHeader, TransferLine, Item."No.", 1, 0);
+
+        // [GIVEN] Create Transfer Shipment
+        ShipSingleTransferLine(TransferLine, 1);
+
+        // [WHEN] Undo Transfer Shipment
+        TransferShipmentLine.SetFilter("Transfer Order No.", TransferHeader."No.");
+        TransferShipmentLine.FindFirst();
+        LibraryInventory.UndoTransferShipmentLinesInFilter(TransferShipmentLine);
+
+        // [VERIFY] Verify Transfer Line has been updated correctly to the state it was in before posting
+        VerifyTransLineUnshipped(TransferLine, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

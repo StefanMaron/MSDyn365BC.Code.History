@@ -1177,6 +1177,8 @@
     var
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
+        OnBeforeOnDeleteRecord(Rec);
+
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
             if not PurchLineReserve.DeleteLineConfirm(Rec) then
@@ -1221,7 +1223,7 @@
     begin
         AttachingLinesEnabled :=
             PurchasesPayablesSetup."Auto Post Non-Invt. via Whse." = PurchasesPayablesSetup."Auto Post Non-Invt. via Whse."::"Attached/Assigned";
- 
+
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
 
@@ -1543,6 +1545,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDeleteRecord(PurchaseLine: Record "Purchase Line")
     begin
     end;
 }
