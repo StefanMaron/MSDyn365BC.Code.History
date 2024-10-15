@@ -556,7 +556,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [SCENARIO] Customer Bank Account information should be transferred by PaymentExportData.SetCustomerAsRecipient
         Customer.Init();
         Customer.Name := LibraryUtility.GenerateGUID;
-        Customer.Address := LibraryUtility.GenerateGUID;
+        Customer.Address := COPYSTR(LibraryRandom.RandText(100), 1, 100);
         Customer.City := LibraryUtility.GenerateGUID;
         Customer.County := LibraryUtility.GenerateGUID;
         Customer."Post Code" := LibraryUtility.GenerateGUID;
@@ -577,7 +577,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData.SetCustomerAsRecipient(Customer, CustomerBankAccount);
 
         PaymentExportData.TestField("Recipient Name", Customer.Name);
-        PaymentExportData.TestField("Recipient Address", Customer.Address);
+        PaymentExportData.TestField("Recipient Address", CopyStr(Customer.Address, 1, 70));
         PaymentExportData.TestField("Recipient City", Customer.City);
         PaymentExportData.TestField("Recipient County", Customer.County);
         PaymentExportData.TestField("Recipient Post Code", Customer."Post Code");
@@ -606,7 +606,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [SCENARIO] Vendor Bank Account information should be transferred by PaymentExportData.SetVendorAsRecipient
         Vendor.Init();
         Vendor.Name := LibraryUtility.GenerateGUID;
-        Vendor.Address := LibraryUtility.GenerateGUID;
+        Vendor.Address := COPYSTR(LibraryRandom.RandText(100), 1, 100);
         Vendor.City := LibraryUtility.GenerateGUID;
         Vendor.County := LibraryUtility.GenerateGUID;
         Vendor."Post Code" := LibraryUtility.GenerateGUID;
@@ -627,7 +627,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData.SetVendorAsRecipient(Vendor, VendorBankAccount, SEPAFormat::pain);
 
         PaymentExportData.TestField("Recipient Name", Vendor.Name);
-        PaymentExportData.TestField("Recipient Address", Vendor.Address);
+        PaymentExportData.TestField("Recipient Address", CopyStr(Vendor.Address, 1, 70));
         PaymentExportData.TestField("Recipient City", Vendor.City);
         PaymentExportData.TestField("Recipient County", Vendor.County);
         PaymentExportData.TestField("Recipient Post Code", Vendor."Post Code");
@@ -656,7 +656,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [SCENARIO 274759] Employee bank account information should be transferred by PaymentExportData.SetEmployeeAsRecipient
         Employee.Init();
         Employee."First Name" := LibraryUtility.GenerateGUID;
-        Employee.Address := LibraryUtility.GenerateGUID;
+        Employee.Address := COPYSTR(LibraryRandom.RandText(100), 1, 100);
         Employee.City := LibraryUtility.GenerateGUID;
         Employee.County := LibraryUtility.GenerateGUID;
         Employee."Post Code" := LibraryUtility.GenerateGUID;
@@ -668,7 +668,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData.SetEmployeeAsRecipient(Employee);
 
         PaymentExportData.TestField("Recipient Name", Employee.FullName);
-        PaymentExportData.TestField("Recipient Address", Employee.Address);
+        PaymentExportData.TestField("Recipient Address", CopyStr(Employee.Address, 1, 70));
         PaymentExportData.TestField("Recipient City", Employee.City);
         PaymentExportData.TestField("Recipient County", Employee.County);
         PaymentExportData.TestField("Recipient Post Code", Employee."Post Code");
