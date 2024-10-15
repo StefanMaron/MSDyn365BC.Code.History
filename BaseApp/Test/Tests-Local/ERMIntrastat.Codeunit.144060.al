@@ -1061,20 +1061,25 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         FileName: Text;
     begin
-        // Verify exported Document No. and Document Date values in case of EU Servie = TRUE, Corrective = FALSE
-        Initialize;
+        // [FEATURE] [Export] [EU Service]
+        // [SCENARIO 412962] Intrastat journal line export in case of EU Service
+        Initialize();
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
 
+        // [GIVEN] Intrastat journal line (batch "EU Service" = true) with "Partner VAT ID" = "X"
         CreateIntrastatJournalBatchWithCorrective(
-          IntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, true, false, IntrastatJnlBatchType::Purchase);
+           IntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, true, false, IntrastatJnlBatchType::Purchase);
         MockIntrastatJnlLineAndPrepare(IntrastatJnlLine, IntrastatJnlBatch, '', '');
 
+        // [WHEN] Export Intrastat journal to file
         FileName := FileManagement.ServerTempFileName('txt');
         Commit();
         EnqueFilterIntrastatMakeDiskTaxAuth(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunIntrastatMakeDiskTaxAuth(FileName);
 
-        VerifyDocNoDocDate(FileName, IntrastatJnlLine."Document No.", IntrastatJnlLine.Date, false);
+        // [THEN] Partner VAT ID is exported with "X" value
+        VerifyDocNoDocDate(
+            FileName, IntrastatJnlLine."Document No.", IntrastatJnlLine.Date, false, IntrastatJnlLine."Partner VAT ID");
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1210,13 +1215,14 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         FileName: Text;
     begin
-        // Verify exported Document No. and Document Date values in case of EU Service = TRUE, Corrective = TRUE
-        Initialize;
+        // [FEATURE] [Export] [EU Service] [Corrective]
+        // [SCENARIO 412962] Intrastat journal line export in case of EU Service and Corrective
+        Initialize();
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
 
-        // Create firstly Corrective Batch, then Initial Batch. The order is important here
+        // [GIVEN] Intrastat journal line (batch "EU Service" = true, "Corrective Entry" = true) with "Partner VAT ID" = "X"
         CreateIntrastatJournalBatchWithCorrective(
-          CorrIntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, true, true, IntrastatJnlBatchType::Purchase);
+            CorrIntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, true, true, IntrastatJnlBatchType::Purchase);
         CreateIntrastatJournalBatchWithCorrective(
           IntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, true, false, IntrastatJnlBatchType::Purchase);
 
@@ -1224,12 +1230,15 @@ codeunit 144060 "ERM Intrastat"
         MockIntrastatJnlLineAndPrepare(IntrastatJnlLine, IntrastatJnlBatch, '', '');
         MockIntrastatJnlLineAndPrepare(IntrastatJnlLine, CorrIntrastatJnlBatch, IntrastatJnlLine."Document No.", IntrastatJnlBatch.Name);
 
+        // [WHEN] Export Intrastat journal to file
         FileName := FileManagement.ServerTempFileName('txt');
         Commit();
         EnqueFilterIntrastatMakeDiskTaxAuth(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunIntrastatMakeDiskTaxAuth(FileName);
 
-        VerifyDocNoDocDate(FileName, IntrastatJnlLine."Corrected Document No.", IntrastatJnlLine.Date, true);
+        // [THEN] Partner VAT ID is exported with "X" value
+        VerifyDocNoDocDate(
+            FileName, IntrastatJnlLine."Corrected Document No.", IntrastatJnlLine.Date, true, IntrastatJnlLine."Partner VAT ID");
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -3439,7 +3448,7 @@ codeunit 144060 "ERM Intrastat"
         end;
     end;
 
-    local procedure VerifyDocNoDocDate(FileName: Text; ExpDocNo: Code[20]; ExpDocDate: Date; Corrective: Boolean)
+    local procedure VerifyDocNoDocDate(FileName: Text; ExpDocNo: Code[20]; ExpDocDate: Date; Corrective: Boolean; ExpectedPartnerVATID: Text)
     var
         TextLine: Text[1024];
         DocumentNo: Code[20];
@@ -3458,6 +3467,7 @@ codeunit 144060 "ERM Intrastat"
 
         Assert.AreEqual(ExpDocNo, DocumentNo, DocumentNoErr);
         Assert.AreEqual(Format(ExpDocDate, 0, '<Day,2><Month,2><Year,2>'), DocumentDate, DocumentDateErr);
+        Assert.AreEqual(PadStr(ExpectedPartnerVATID, 12, ' '), CopyStr(TextLine, StartPos - 38, 12), 'Partner VAT ID');
     end;
 
     local procedure VerifyProgressiveNo(FileName: Text; ExpProgrNo: Code[5])

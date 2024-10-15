@@ -1759,6 +1759,47 @@
         VerifyDatiOrdineAcquistoFatturaDataFromMultipleServiceOrders(ServerFileName, ServiceHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoDatiDDTForSalesInvoiceWithGLAccount()
+    var
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CustomerNo: Code[20];
+        GLAccNo: Code[20];
+        ServerFileName: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 412558] DatiDDT xml node does not exist in the exported XML file for sales invoice with G/L account
+
+        Initialize();
+        CustomerNo := LibraryITLocalization.CreateCustomer();
+
+        // [GIVEN] Sales invoice with G/L account
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Modify(true);
+        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] The document is exported to FatturaPA.
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] DatiDDT xml node does not exist in the exported file
+        VerifyDatiDDTCount(ServerFileName);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -3020,6 +3061,15 @@
             TempXMLBuffer.FindFirst;
         end;
         DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure VerifyDatiDDTCount(ServerFileName: Text[250])
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
+        Assert.RecordCount(TempXMLBuffer, 0);
     end;
 
     local procedure UpdatePurchasesPayablesSetupVATExemptionNos(VATExemptionNos: Code[20])

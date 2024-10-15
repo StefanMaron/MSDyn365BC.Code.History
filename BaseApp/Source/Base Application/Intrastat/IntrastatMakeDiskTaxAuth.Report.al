@@ -48,6 +48,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         "Intra - form Buffer"."User ID" := UserId;
                         "Intra - form Buffer"."No." := "Intra - form Buffer"."No." + TotalLines;
                         "Intra - form Buffer"."Progressive No." := "Progressive No.";
+                        "Intra - form Buffer"."VAT Registration No." :=
+                            CopyStr("Partner VAT ID", 1, MaxStrLen("Intra - form Buffer"."VAT Registration No."));
                         "Intra - form Buffer".Insert();
                         TotalAmount += Round(Amount, 1);
                         TotalRecords += 1;
