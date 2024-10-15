@@ -820,8 +820,14 @@ page 6550 "Whse. Item Tracking Lines"
     procedure InsertItemTrackingLine(WhseWrkshLine: Record "Whse. Worksheet Line"; WhseEntry: Record 7312; QtyToEmpty: Decimal)
     var
         WhseItemTrackingLine2: Record "Whse. Item Tracking Line";
+        IsHandled: Boolean;
     begin
-        UpdateUndefinedQty;
+        IsHandled := false;
+        OnBeforeInsertItemTrackingLine(Rec, WhseWrkshLine, WhseEntry, QtyToEmpty, IsHandled);
+        if IsHandled then
+            exit;
+
+        UpdateUndefinedQty();
         SaveItemTrkgLine(TempInitialTrkgLine);
         "Lot No." := WhseEntry."Lot No.";
         "Serial No." := WhseEntry."Serial No.";
@@ -836,40 +842,40 @@ page 6550 "Whse. Item Tracking Lines"
         "Item No." := WhseWorksheetLine."Item No.";
         "Variant Code" := WhseWrkshLine."Variant Code";
         if ("Expiration Date" <> 0D) and (FormSourceType = DATABASE::"Internal Movement Line") then
-            InitExpirationDate;
+            InitExpirationDate();
         if WhseItemTrackingLine2.FindLast then;
         "Entry No." := WhseItemTrackingLine2."Entry No." + 1;
         OnBeforeItemTrackingLineInsert(Rec, WhseWrkshLine);
-        Insert;
+        Insert();
     end;
 
     local procedure SerialNoOnAfterValidate()
     begin
-        UpdateExpDateEditable;
-        CurrPage.Update;
+        UpdateExpDateEditable();
+        CurrPage.Update();
     end;
 
     local procedure LotNoOnAfterValidate()
     begin
-        UpdateExpDateEditable;
-        CurrPage.Update;
+        UpdateExpDateEditable();
+        CurrPage.Update();
     end;
 
     local procedure QuantityBaseOnAfterValidate()
     begin
-        CurrPage.Update;
-        CalculateSums;
+        CurrPage.Update();
+        CalculateSums();
     end;
 
     local procedure QtytoHandleBaseOnAfterValidate()
     begin
-        CurrPage.Update;
-        CalculateSums;
+        CurrPage.Update();
+        CalculateSums();
     end;
 
     local procedure ExpirationDateOnFormat()
     begin
-        UpdateExpDateColor;
+        UpdateExpDateColor();
     end;
 
     [IntegrationEvent(false, false)]
@@ -879,6 +885,11 @@ page 6550 "Whse. Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemTrackingLineInsert(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertItemTrackingLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseWorksheetLine: Record "Whse. Worksheet Line"; WarehouseEntry: Record "Warehouse Entry"; QtyToEmpty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

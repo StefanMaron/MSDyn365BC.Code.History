@@ -301,7 +301,7 @@ report 5912 "Service - Credit Memo"
                             AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATExemptionVATExemptNo; VATExemption."VAT Exempt. No.")
+                        column(VATExemptionVATExemptNo; VATExemption.GetVATExemptNo())
                         {
                         }
                         column(VATExemptionVATExemptDate; Format(VATExemption."VAT Exempt. Date"))

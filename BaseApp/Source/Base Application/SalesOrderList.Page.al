@@ -947,7 +947,7 @@
             FilterGroup(0);
         end;
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate());
 
         JobQueueActive := SalesSetup.JobQueueActive;
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;

@@ -41,6 +41,7 @@ table 1512 "Notification Setup"
             Caption = 'Display Target';
             OptionCaption = 'Web,Windows';
             OptionMembers = Web,Windows;
+            ObsoleteTag = '15.0';
         }
     }
 

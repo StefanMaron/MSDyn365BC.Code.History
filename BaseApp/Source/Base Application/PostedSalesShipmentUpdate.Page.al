@@ -131,7 +131,7 @@ page 1350 "Posted Sales Shipment - Update"
           ("3rd Party Loader Type" <> xSalesShipmentHeader."3rd Party Loader Type") or
           ("3rd Party Loader No." <> xSalesShipmentHeader."3rd Party Loader No.");
 
-        OnAfterRecordChanged(Rec, xRec, IsChanged);
+        OnAfterRecordChanged(Rec, xSalesShipmentHeader, IsChanged);
     end;
 
     [Scope('OnPrem')]

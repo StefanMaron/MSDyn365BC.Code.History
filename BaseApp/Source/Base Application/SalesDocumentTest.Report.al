@@ -693,7 +693,7 @@ report 202 "Sales Document - Test"
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATExemption__VAT_Exempt__No__; VATExemption."VAT Exempt. No.")
+                        column(VATExemption__VAT_Exempt__No__; VATExemption.GetVATExemptNo())
                         {
                         }
                         column(VATExemption__VAT_Exempt__Date_; Format(VATExemption."VAT Exempt. Date"))

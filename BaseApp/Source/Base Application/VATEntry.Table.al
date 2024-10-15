@@ -493,6 +493,7 @@ table 254 "VAT Entry"
             Editable = false;
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(12131; "Blacklist Amount"; Decimal)
         {
@@ -500,6 +501,7 @@ table 254 "VAT Entry"
             Editable = false;
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(12132; "Related Entry No."; Integer)
         {

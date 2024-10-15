@@ -246,7 +246,7 @@ table 12116 "Withholding Tax"
         WithholdingTaxCreateQst: Label 'The program will create the withhold entry for entry %1 based on the Withholding Tax Code %2.\Do you want to create the withhold entry?', Comment = 'Parameter 1 - entry number, 2 - withholding tax code';
         WithholdingTaxCreatedMsg: Label 'Withholding tax with entry number %1 has been created.';
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure ValorizzaRitenute()
     begin
         WithholdCode.Get("Withholding Tax Code");

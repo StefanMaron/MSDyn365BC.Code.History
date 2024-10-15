@@ -15,6 +15,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        Assert: Codeunit Assert;
         IsInitialized: Boolean;
 
     [Test]
@@ -42,7 +43,9 @@ codeunit 144071 "UT PAG VAT Exemption"
         CustomerCard."VAT E&xemption".Invoke;
 
         // [THEN] VAT Exemption Starting Date, VAT Exemption Ending Date and VAT Exemption Interest Registry Number are filled on page - VAT Exemptions.
-        VerifyVATExemptionDetail(VATExemptions, SalesNoSeriesNextNo);
+        // [THEN] Consecutive VAT Exempt. No. field is visible from the Customer Card page
+        // TFS 341871
+        VerifyVATExemptionDetail(VATExemptions, SalesNoSeriesNextNo, true);
         CustomerCard.Close;
     end;
 
@@ -71,7 +74,9 @@ codeunit 144071 "UT PAG VAT Exemption"
         VendorCard."VAT E&xemption".Invoke;
 
         // [THEN] VAT Exemption Starting Date, VAT Exemption Ending Date and VAT Exemption Interest Registry Number are filled on page - VAT Exemptions.
-        VerifyVATExemptionDetail(VATExemptions, PurchasesNoSeriesNextNo);
+        // [THEN] Consecutive VAT Exempt. No. field is not visible from the Vendor Card page
+        // TFS 341871
+        VerifyVATExemptionDetail(VATExemptions, PurchasesNoSeriesNextNo, false);
         VendorCard.Close;
     end;
 
@@ -131,13 +136,15 @@ codeunit 144071 "UT PAG VAT Exemption"
         exit(NoSeriesMgt.GetNextNo(NoSeries.Code, 0D, false));
     end;
 
-    local procedure VerifyVATExemptionDetail(VATExemptions: TestPage "VAT Exemptions"; VATExemptIntRegistryNo: Code[20])
+    local procedure VerifyVATExemptionDetail(VATExemptions: TestPage "VAT Exemptions"; VATExemptIntRegistryNo: Code[20]; VATProgressiveNoVisible: Boolean)
     begin
         VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit;
 
         VATExemptions."VAT Exempt. Starting Date".AssertEquals(WorkDate);
         VATExemptions."VAT Exempt. Ending Date".AssertEquals(WorkDate);
         VATExemptions."VAT Exempt. Int. Registry No.".AssertEquals(VATExemptIntRegistryNo);
+        Assert.AreEqual(
+          VATProgressiveNoVisible, VATExemptions."Consecutive VAT Exempt. No.".Visible, 'Consecutive VAT Exempt. No. visibility is incorrect');
         VATExemptions.OK.Invoke;
     end;
 

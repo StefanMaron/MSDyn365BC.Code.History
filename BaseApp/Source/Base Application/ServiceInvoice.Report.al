@@ -316,7 +316,7 @@ report 5911 "Service - Invoice"
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATExemptionVATExemptNo; VATExemption."VAT Exempt. No.")
+                        column(VATExemptionVATExemptNo; VATExemption.GetVATExemptNo())
                         {
                         }
                         column(VATExemptionVATExemptDate; Format(VATExemption."VAT Exempt. Date"))

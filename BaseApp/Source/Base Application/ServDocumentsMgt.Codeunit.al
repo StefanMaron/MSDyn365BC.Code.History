@@ -102,13 +102,13 @@ codeunit 5988 "Serv-Documents Mgt."
         Clear(ServAmountsMgt);
         PassedServiceHeader.ValidateSalesPersonOnServiceHeader(PassedServiceHeader, true, true);
         PrepareDocument(PassedServiceHeader, PassedServiceLine);
-        CheckSysCreatedEntry;
-        CheckShippingAdvice;
-        CheckDim;
-        ServMgtSetup.Get;
-        GetAndCheckCustomer;
-        SalesSetup.Get;
-        SrcCodeSetup.Get;
+        CheckSysCreatedEntry();
+        CheckShippingAdvice();
+        CheckDimensions();
+        ServMgtSetup.Get();
+        GetAndCheckCustomer();
+        SalesSetup.Get();
+        SrcCodeSetup.Get();
         SrcCode := SrcCodeSetup."Service Management";
         ServPostingJnlsMgt.Initialize(ServHeader, Consume, Invoice);
         ServAmountsMgt.Initialize(ServHeader."Currency Code"); // roundingLineInserted is set to FALSE;
@@ -349,6 +349,7 @@ codeunit 5988 "Serv-Documents Mgt."
                     end;
 
                     if Consume and ("Document Type" = "Document Type"::Order) then begin
+                        OnPostDocumentLinesOnBeforePostRemQtyToBeConsumed(ServHeader, ServLine);
                         if ServPostingJnlsMgt.PostJobJnlLine(ServHeader, ServLine, RemQtyToBeConsumed) then
                             UpdateServiceLedgerEntry(NextServLedgerEntryNo - 1)
                         else
@@ -367,6 +368,8 @@ codeunit 5988 "Serv-Documents Mgt."
                     if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then
                         // Copy sales to buffer
                         ServAmountsMgt.FillInvPostingBuffer(InvPostingBuffer, ServLine, ServiceLineACY, ServHeader);
+
+                    OnPostDocumentLinesOnAfterFillInvPostingBuffer(ServHeader, ServLine);
 
                     // prepare posted document lines
                     if Ship then
@@ -587,10 +590,10 @@ codeunit 5988 "Serv-Documents Mgt."
         // Fetch persistent Service Lines and Service Item Lines bound to Service Header.
         // Copy persistent records to temporary.
         with ServHeader do begin
-            ServLine.DeleteAll;
-            PassedServLine.Reset;
-
+            ServLine.DeleteAll();
+            PassedServLine.Reset();
             // collect passed lines
+            OnPrepareDocumentOnBeforePassedServLineFind(PassedServLine, ServHeader);
             if PassedServLine.Find('-') then begin
                 repeat
                     ServLine.Copy(PassedServLine);
@@ -602,16 +605,17 @@ codeunit 5988 "Serv-Documents Mgt."
                 PServLine.Reset;
                 PServLine.SetRange("Document Type", "Document Type");
                 PServLine.SetRange("Document No.", "No.");
+                OnPrepareDocumentOnAfterSetPServLineFilters(PServLine);
                 if PServLine.Find('-') then
                     repeat
                         ServLine.Copy(PServLine);
                         ServLine."Posting Date" := "Posting Date";
-                        ServLine.Insert; // temptable
-                    until PServLine.Next = 0;
+                        ServLine.Insert(); // temptable
+                    until PServLine.Next() = 0;
                 ServLinesPassed := false;
             end;
 
-            RemoveLinesNotSatisfyPosting;
+            RemoveLinesNotSatisfyPosting();
 
             ServItemLine.DeleteAll;
             PServItemLine.Reset;
@@ -620,8 +624,8 @@ codeunit 5988 "Serv-Documents Mgt."
             if PServItemLine.Find('-') then
                 repeat
                     ServItemLine.Copy(PServItemLine);
-                    ServItemLine.Insert; // temptable
-                until PServItemLine.Next = 0;
+                    ServItemLine.Insert(); // temptable
+                until PServItemLine.Next() = 0;
         end;
 
         OnAfterPrepareDocument(PassedServHeader, PassedServLine);
@@ -901,27 +905,27 @@ codeunit 5988 "Serv-Documents Mgt."
         OnBeforeFinalize(PassedServHeader, CloseCondition);
 
         // finalize codeunits calls
-        ServPostingJnlsMgt.Finalize;
+        ServPostingJnlsMgt.Finalize();
 
         // finalize posted documents
-        FinalizeShipmentDocument;
-        FinalizeInvoiceDocument;
-        FinalizeCrMemoDocument;
+        FinalizeShipmentDocument();
+        FinalizeInvoiceDocument();
+        FinalizeCrMemoDocument();
         FinalizeWarrantyLedgerEntries(PassedServHeader, CloseCondition);
 
         if ((ServHeader."Document Type" = ServHeader."Document Type"::Order) and CloseCondition) or
            (ServHeader."Document Type" <> ServHeader."Document Type"::Order)
         then begin
             // Service Lines, Service Item Lines, Service Header
-            FinalizeDeleteLines;
-            FinalizeDeleteServOrdAllocat;
-            FinalizeDeleteItemLines;
+            FinalizeDeleteLines();
+            FinalizeDeleteServOrdAllocat();
+            FinalizeDeleteItemLines();
             FinalizeDeleteComments(PassedServHeader."Document Type");
             FinalizeDeleteHeader(PassedServHeader);
         end else begin
             // Service Lines, Service Item Lines, Service Header
-            FinalizeLines;
-            FinalizeItemLines;
+            FinalizeLines();
+            FinalizeItemLines();
             FinalizeHeader(PassedServHeader);
         end;
 
@@ -948,6 +952,7 @@ codeunit 5988 "Serv-Documents Mgt."
         PServLine.Reset;
         ServLine.Reset;
         ServLine.SetFilter(Quantity, '<>0');
+        OnFinalizeLinesOnAfterSetFilters(ServLine);
         if ServLine.Find('-') then
             repeat
                 with ServLine do
@@ -969,7 +974,8 @@ codeunit 5988 "Serv-Documents Mgt."
     local procedure FinalizeItemLines()
     begin
         // copy Service Item Lines to persistent from temporary
-        ServItemLine.Reset;
+        ServItemLine.Reset();
+        OnFinalizeItemLinesOnAfterSetFilters(ServItemLine);
         if ServItemLine.Find('-') then
             repeat
                 with ServItemLine do begin
@@ -1009,7 +1015,8 @@ codeunit 5988 "Serv-Documents Mgt."
         PServItemLine.Reset;
         PServItemLine.SetRange("Document Type", ServHeader."Document Type");
         PServItemLine.SetRange("Document No.", ServHeader."No.");
-        PServItemLine.DeleteAll;
+        OnFinalizeDeleteLinesOnAfterSetPServItemLineFilters(PServItemLine);
+        PServItemLine.DeleteAll();
 
         ServItemLine.Reset;
         ServItemLine.DeleteAll;
@@ -1154,7 +1161,7 @@ codeunit 5988 "Serv-Documents Mgt."
         end;
     end;
 
-    local procedure CheckDim()
+    local procedure CheckDimensions()
     var
         ServiceLine2: Record "Service Line";
     begin
@@ -1163,6 +1170,7 @@ codeunit 5988 "Serv-Documents Mgt."
         CheckDimValuePosting(ServiceLine2);
 
         ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
+        OnCheckDimensionsAnAfterSetServLineFilters(ServLine);
         if ServLine.Find('-') then
             repeat
                 if (Invoice and (ServLine."Qty. to Invoice" <> 0)) or
@@ -1263,6 +1271,8 @@ codeunit 5988 "Serv-Documents Mgt."
             if not DimMgt.CheckDimIDComb(ServiceLine."Dimension Set ID") then
                 Error(Text029,
                   ServHeader."Document Type", ServHeader."No.", ServiceLine."Line No.", DimMgt.GetDimCombErr);
+
+        OnAfterCheckDimComb(ServHeader, ServiceLine);
     end;
 
     local procedure CheckDimValuePosting(var ServiceLine2: Record "Service Line")
@@ -1321,6 +1331,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 ServLine.SetFilter(Quantity, '<>0');
                 if "Document Type" = "Document Type"::Order then
                     ServLine.SetFilter("Qty. to Consume", '<>0');
+                OnCheckAndSetPostingContantsOnAfterSetFilterForConsume(ServLine);
                 PassedConsume := ServLine.Find('-');
                 if PassedConsume and ("Document Type" = "Document Type"::Order) and not PassedShip then begin
                     PassedConsume := false;
@@ -1335,6 +1346,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 ServLine.SetFilter(Quantity, '<>0');
                 if "Document Type" = "Document Type"::Order then
                     ServLine.SetFilter("Qty. to Invoice", '<>0');
+                OnCheckAndSetPostingContantsOnAfterSetFilterForInvoice(ServLine);
                 PassedInvoice := ServLine.Find('-');
                 if PassedInvoice and ("Document Type" = "Document Type"::Order) and not PassedShip then begin
                     PassedInvoice := false;
@@ -1350,6 +1362,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 if "Document Type" = "Document Type"::Order then
                     ServLine.SetFilter("Qty. to Ship", '<>0');
                 ServLine.SetRange("Shipment No.", '');
+                OnCheckAndSetPostingContantsOnAfterSetFilterForShip(ServLine);
                 PassedShip := ServLine.Find('-');
                 if PassedShip then
                     ServITRMgt.CheckTrackingSpecification(ServHeader, ServLine);
@@ -1364,7 +1377,8 @@ codeunit 5988 "Serv-Documents Mgt."
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        ServLine.Reset;
+        ServLine.Reset();
+        OnCheckAndBlankQtysOnAfterServLineSetFilters(ServLine);
         if ServLine.Find('-') then
             repeat
                 with ServLine do begin
@@ -1877,6 +1891,7 @@ codeunit 5988 "Serv-Documents Mgt."
     local procedure RemoveLinesNotSatisfyPosting()
     var
         ServLine2: Record "Service Line";
+        IsHandled: Boolean;
     begin
         // Find ServLines not selected to post, and check if they were completely posted
         if ServLine.FindFirst then begin
@@ -1907,10 +1922,14 @@ codeunit 5988 "Serv-Documents Mgt."
                            ((Type <> Type::" ") and (Description <> '') and ("No." <> ''))
                         then begin
                             ServLine2 := ServLine;
-                            if ServLine2.Find then begin
-                                ServLine2.InitOutstanding;
-                                ServLine2.InitQtyToShip;
-                                ServLine2.Modify;
+                            if ServLine2.Find() then begin
+                                IsHandled := false;
+                                OnRemoveLinesNotSatisfyPostingOnBeforeInitRemainingServLine(ServLine2, IsHandled);
+                                if not IsHandled then begin
+                                    ServLine2.InitOutstanding();
+                                    ServLine2.InitQtyToShip();
+                                    ServLine2.Modify();
+                                end;
                             end;
                             DeleteWithAttachedLines;
                         end;
@@ -2005,7 +2024,9 @@ codeunit 5988 "Serv-Documents Mgt."
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        OnBeforeSortLines(ServLine);
+
+        GLSetup.Get();
         if GLSetup.OptimGLEntLockForMultiuserEnv then
             ServLine.SetCurrentKey("Document Type", "Document No.", Type, "No.")
         else
@@ -2100,6 +2121,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckCertificateOfSupplyStatus(ServShptHeader: Record "Service Shipment Header"; ServShptLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDimComb(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
     end;
 
@@ -2254,12 +2280,82 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSortLines(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimensionsAnAfterSetServLineFilters(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAndSetPostingContantsOnAfterSetFilterForConsume(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAndSetPostingContantsOnAfterSetFilterForInvoice(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAndSetPostingContantsOnAfterSetFilterForShip(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAndBlankQtysOnAfterServLineSetFilters(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeDeleteLinesOnAfterSetPServItemLineFilters(var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeItemLinesOnAfterSetFilters(var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeLinesOnAfterSetFilters(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnAfterFillInvPostingBuffer(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostDocumentLinesOnBeforeCheckServLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Ship: Boolean; Invoice: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentLinesOnBeforePostInvoicePostBuffer(ServiceHeader: Record "Service Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnBeforePostRemQtyToBeConsumed(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareDocumentOnBeforePassedServLineFind(var PassedServLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareDocumentOnAfterSetPServLineFilters(var PServLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveLinesNotSatisfyPostingOnBeforeInitRemainingServLine(var ServiceLine2: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 

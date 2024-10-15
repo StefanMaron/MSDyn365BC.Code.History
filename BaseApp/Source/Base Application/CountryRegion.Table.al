@@ -97,6 +97,7 @@ table 9 "Country/Region"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(12100; "Currency Code"; Code[10])
         {
@@ -108,6 +109,7 @@ table 9 "Country/Region"
             Caption = 'Blacklisted';
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(12102; "Foreign Country/Region Code"; Code[3])
         {

@@ -995,6 +995,60 @@ codeunit 144202 "FatturaPA II"
 
     [Test]
     [Scope('OnPrem')]
+    procedure RiferimentoNormativoNodeHasVATTransNatureAndExemptionWithProgressiveNo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATIdentifier: Record "VAT Identifier";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        VATExemption: Record "VAT Exemption";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+        ExpectedVATExemptNo: Text;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 341871] RiferimentoNormativo node has value of VAT Identifier description and VAT Exemption No. plus Progressive No. and Date formatted to dd/mm/yyyy
+
+        Initialize;
+
+        // [GIVEN] Validated the VAT Exemption Nos. in Purchases & Payables Setup
+        UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode);
+
+        // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0, "VAT Identifier" with description "X", "VAT Exemption No." = "Y", "Consecutive VAT Exempt. No." = "001" and "VAT Exemption Date" = 01.02.2019 (dd.mm.yyyy format)
+        CustomerNo := CreateCustomer;
+        CreateVATExemptionForCustomer(VATExemption, CustomerNo);
+        VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID);
+        VATExemption.Modify(true);
+        CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
+        SetVATIdentifierInSalesLine(SalesLine);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] RiferimentoNormativo node has value "X Dich.Intento n. Y-001 del 02/01/2019"
+        ExpectedVATExemptNo := VATExemption."VAT Exempt. No." + '-' + VATExemption."Consecutive VAT Exempt. No.";
+        VATIdentifier.Get(SalesLine."VAT Identifier");
+        VerifyRiferimentoNormativoNode(
+          ServerFileName, StrSubstNo('%1 %2 %3', VATIdentifier.Description, VATExemptionPrefixTok,
+            StrSubstNo(ExemptionDataMsg, ExpectedVATExemptNo,
+              Format(VATExemption."VAT Exempt. Date", 0, '<Day,2>/<Month,2>/<Year4>'))));
+
+        // Tear down
+        VATBusinessPostingGroup.Get(SalesHeader."VAT Bus. Posting Group");
+        VATBusinessPostingGroup.Validate("Check VAT Exemption", false);
+        VATBusinessPostingGroup.Modify(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure SalesOrderWithRemovedExtendedText()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -2667,14 +2721,16 @@ codeunit 144202 "FatturaPA II"
     local procedure VerifyImponibileImportoNodes(ServerFileName: Text[250]; VATAmount: array[2] of Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
+        i: Integer;
     begin
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/ImponibileImporto');
         Assert.RecordCount(TempXMLBuffer, ArrayLen(VATAmount));
-        AssertCurrentElementValue(TempXMLBuffer, FormatAmount(VATAmount[1]));
-        FindNextElement(TempXMLBuffer);
-        AssertCurrentElementValue(TempXMLBuffer, FormatAmount(VATAmount[2]));
+        for i := 1 to ArrayLen(VATAmount) do begin
+            TempXMLBuffer.SetRange(Value, FormatAmount(VATAmount[i]));
+            TempXMLBuffer.FindFirst;
+        end;
         DeleteServerFile(ServerFileName);
     end;
 

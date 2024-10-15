@@ -39,10 +39,10 @@ codeunit 5812 "Calculate Standard Cost"
 
     procedure SetProperties(NewCalculationDate: Date; NewCalcMultiLevel: Boolean; NewUseAssemblyList: Boolean; NewLogErrors: Boolean; NewStdCostWkshName: Text[50]; NewShowDialog: Boolean)
     begin
-        TempItem.DeleteAll;
-        ProdBOMVersionErrBuf.DeleteAll;
-        RtngVersionErrBuf.DeleteAll;
-        ClearAll;
+        TempItem.DeleteAll();
+        ProdBOMVersionErrBuf.DeleteAll();
+        RtngVersionErrBuf.DeleteAll();
+        ClearAll();
 
         CalculationDate := NewCalculationDate;
         CalcMultiLevel := NewCalcMultiLevel;
@@ -52,8 +52,10 @@ codeunit 5812 "Calculate Standard Cost"
         ShowDialog := NewShowDialog;
 
         MaxLevel := 50;
-        MfgSetup.Get;
-        GLSetup.Get;
+        MfgSetup.Get();
+        GLSetup.Get();
+
+        OnAfterSetProperties(NewCalculationDate, NewCalcMultiLevel, NewUseAssemblyList, NewLogErrors, NewStdCostWkshName, NewShowDialog);
     end;
 
     procedure TestPreconditions(var Item: Record Item; var NewProdBOMVersionErrBuf: Record "Production BOM Version"; var NewRtngVersionErrBuf: Record "Routing Version")
@@ -610,6 +612,7 @@ codeunit 5812 "Calculate Standard Cost"
         MachineCenter: Record "Machine Center";
         SubContPrices: Record "Subcontractor Prices";
         SubContPriceMgt: Codeunit SubcontractingPricesMgt;
+        IsHandled: Boolean;
     begin
         case Type of
             Type::"Work Center":
@@ -617,6 +620,12 @@ codeunit 5812 "Calculate Standard Cost"
             Type::"Machine Center":
                 GetMachineCenter(No, MachineCenter);
         end;
+
+        IsHandled := false;
+        OnCalcRtngCostPerUnitOnBeforeCalc(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Type = Type::"Work Center") and
            (WorkCenter."Subcontractor No." <> '')
         then begin
@@ -631,8 +640,8 @@ codeunit 5812 "Calculate Standard Cost"
             SubContPriceMgt.RoutingPricelistCost(SubContPrices, WorkCenter, DirUnitCost, IndirCostPct, OvhdRate,
               UnitCost, UnitCostCalculation, 1, 1, 1);
         end else
-            CostCalcMgt.RoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter)
-          ;
+            CostCalcMgt.RoutingCostPerUnit(
+                Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
     end;
 
     local procedure CalcCostPerUnit(CostPerLot: Decimal; LotSize: Decimal): Decimal
@@ -940,6 +949,11 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetProperties(NewCalculationDate: Date; NewCalcMultiLevel: Boolean; NewUseAssemblyList: Boolean; NewLogErrors: Boolean; NewStdCostWkshName: Text[50]; NewShowDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcItems(var Item: Record Item)
     begin
     end;
@@ -971,6 +985,11 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdBOMCostOnAfterCalcCompItemQtyBase(CalculationDate: Date; MfgItem: Record Item; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; var ProdBOMLine: Record "Production BOM Line"; var CompItemQtyBase: Decimal; RtngNo: Code[20]; UOMFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRtngCostPerUnitOnBeforeCalc(Type: Option "Work Center","Machine Center"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
     begin
     end;
 

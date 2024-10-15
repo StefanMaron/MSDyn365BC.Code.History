@@ -451,6 +451,16 @@ page 118 "General Ledger Setup"
                     Editable = true;
                     ToolTip = 'Specifies the number of the last printed page of the general ledger book.';
                 }
+                field("Official Debit Amount"; "Official Debit Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the official debit amount in the current fiscal year.';
+                }
+                field("Official Credit Amount"; "Official Credit Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the official credit amount in the current fiscal year.';
+                }
                 field("VAT Settlement Period"; "VAT Settlement Period")
                 {
                     ApplicationArea = Basic, Suite;

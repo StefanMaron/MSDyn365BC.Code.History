@@ -403,7 +403,7 @@ table 12137 "Purch. Withh. Contribution"
         SocSecBracketLine: Codeunit "Withholding - Contribution";
         WHTAmtManualEqWHTAmtErr: Label '%1 must not be equal to %2 in %3.', Comment = '%1=FIELDCAPTION("WHT Amount Manual"),%2=FIELDCAPTION("Withholding Tax Amount"),%3=TABLECAPTION("Purch. Withh. Contribution")';
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure ValorizzaRitenute()
     begin
         if "Payment Date" <> 0D then

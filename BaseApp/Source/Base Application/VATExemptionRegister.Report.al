@@ -107,7 +107,7 @@ report 12181 "VAT Exemption Register"
                 column(VATExemptIntRegistryNo; "VAT Exemption"."VAT Exempt. Int. Registry No.")
                 {
                 }
-                column(VATExemptNo; "VAT Exemption"."VAT Exempt. No.")
+                column(VATExemptNo; "VAT Exemption".GetVATExemptNo())
                 {
                 }
                 column(VATExemptStartingDate; "VAT Exemption"."VAT Exempt. Starting Date")
@@ -195,7 +195,7 @@ report 12181 "VAT Exemption Register"
                 VATExemption.SetFilter("VAT Exempt. Int. Registry Date", '<%1', StartDate);
                 VATExemption.SetRange(Printed, false);
                 if VATExemption.FindFirst then
-                    Error(Text12100, VATExemption."VAT Exempt. No.");
+                    Error(Text12100, VATExemption.GetVATExemptNo());
 
                 SetCurrentKey("VAT Exempt. Int. Registry No.", Type, "No.");
                 SetRange("VAT Exempt. Int. Registry Date", StartDate, EndDate);

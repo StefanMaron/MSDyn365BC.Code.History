@@ -43,6 +43,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptionPeriodLbl: Label 'VATExemptionPeriod';
         VATExemptionEndingDateLbl: Label 'VATExemptionEndingDate';
         VATExemptionOurProtocolNoLbl: Label 'VATExemptionOurProtocolNo';
+        LibraryUtility: Codeunit "Library - Utility";
         PrintTypeRef: Option "Test Print","Final Print",Reprint;
         NameVendLbl: Label 'Name_Vend';
         VATRegistrationNoVendLbl: Label 'VATRegistrationNoVend';
@@ -694,6 +695,198 @@ codeunit 144073 "UT REP VAT Exemption"
         LibraryReportDataset.AssertCurrentRowValueEquals('StartingPage', 1);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesDocumentTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesDocumentTestReportPrintVATExemptNoWithConsecutiveNo()
+    var
+        SalesHeader: Record "Sales Header";
+        VATExemption: Record "VAT Exemption";
+        VATExemptionNumber: Text;
+    begin
+        // [FEATURE] [Sales] [Invoice] [Report]
+        // [SCENARIO 341871] Sales Document Test report prints VAT Exemption Number with Consecutive VAT Exempt. No.
+
+        Initialize;
+
+        // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
+        // [GIVEN] Sales Invoice with customer related to above VAT Exemption
+        CreateSalesHeader(SalesHeader);
+        CreateSalesLine(SalesHeader."No.");
+        VATExemptionNumber :=
+          CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, SalesHeader."Bill-to Customer No.", false, WorkDate);
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");  // Enqueue Values for SalesDocumentTestRequestPageHandler.
+        Commit;
+
+        // [WHEN] Print Sales Document - Test
+        REPORT.Run(REPORT::"Sales Document - Test");
+
+        // [THEN] VAT Exemption value in the report is "1234-001"
+        VerifyDocumentVATExemptionOnReport(VATExemptionNumberCap, VATExemptionNumber);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceReportPrintVATExemptNoWithConsecutiveNo()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATExemption: Record "VAT Exemption";
+        VATExemptionNumber: Text;
+    begin
+        // [FEATURE] [Sales] [Invoice] [Report]
+        // [SCENARIO 341871] Sales Invoice report pints VAT Exemption Number with Consecutive VAT Exempt. No.
+
+        Initialize;
+
+        // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
+        // [GIVEN] Sales invoice with customer related to above VAT Exemption
+        CreateSalesInvoiceHeader(SalesInvoiceHeader, '', '', '');
+        CreateSalesInvoiceLine(SalesInvoiceHeader."No.");
+        VATExemptionNumber :=
+          CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, SalesInvoiceHeader."Sell-to Customer No.", false, WorkDate);
+        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue value in handler - SalesInvoiceRequestPageHandler.
+        Commit;
+
+        // [WHEN] Print Sales invoice
+        REPORT.Run(REPORT::"Sales - Invoice");
+
+        // [THEN] VAT Exemption value in the report is "1234-001"
+        VerifyDocumentVATExemptionOnReport(VATExemptionNoCap, VATExemptionNumber);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoReportPrintVATExemptNoWithConsecutiveNo()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        VATExemption: Record "VAT Exemption";
+        VATExemptionNumber: Text;
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [Report]
+        // [SCENARIO 341871] Sales Credit Memo report pints VAT Exemption Number with Consecutive VAT Exempt. No.
+
+        Initialize;
+
+        // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
+        // [GIVEN] Sales Credit Memo with customer related to above VAT Exemption
+        CreateSalesCreditMemoHeader(SalesCrMemoHeader, '', '', '');
+        CreateSalesCreditMemoLine(SalesCrMemoHeader."No.");
+        VATExemptionNumber :=
+          CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, SalesCrMemoHeader."Sell-to Customer No.", false, WorkDate);
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");  // Enqueue value in handler - SalesCreditMemoRequestPageHandler.
+        Commit;
+
+        // [WHEN] Print Sales - Credit Memo
+        REPORT.Run(REPORT::"Sales - Credit Memo");
+
+        // [THEN] VAT Exemption value in the report is "1234-001"
+        VerifyDocumentVATExemptionOnReport(VATExemptionNoCap, VATExemptionNumber);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceReportPrintVATExemptNoWithConsecutiveNo()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        VATExemption: Record "VAT Exemption";
+        VATExemptionNumber: Text;
+    begin
+        // [FEATURE] [Service] [Invoice] [Report]
+        // [SCENARIO 341871] Servicve Invoice report pints VAT Exemption Number with Consecutive VAT Exempt. No.
+
+        Initialize;
+
+        // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
+        // [GIVEN] Service invoice with customer related to above VAT Exemption
+        CreateServiceInvoiceHeader(ServiceInvoiceHeader, '', '', '');
+        CreateServiceInvoiceLine(ServiceInvoiceHeader."No.");
+        VATExemptionNumber :=
+          CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, ServiceInvoiceHeader."Customer No.", false, WorkDate);
+        LibraryVariableStorage.Enqueue(ServiceInvoiceHeader."No.");  // Enqueue value in handler - ServiceInvoiceRequestPageHandler.
+        Commit;
+
+        // [WHEN] Print Service Invoice
+        REPORT.Run(REPORT::"Service - Invoice");  // Opens handler - ServiceInvoiceRequestPageHandler.
+
+        // [THEN] VAT Exemption value in the report is "1234-001"
+        VerifyDocumentVATExemptionOnReport(VATExemptionNoCap, VATExemptionNumber);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceCreditMemoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceCrMemoReportPrintVATExemptNoWithConsecutiveNo()
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        VATExemption: Record "VAT Exemption";
+        VATExemptionNumber: Text;
+    begin
+        // [FEATURE] [Service] [Credit Memo] [Report]
+        // [SCENARIO 341871] Servicve Credit Memo report pints VAT Exemption Number with Consecutive VAT Exempt. No.
+
+        Initialize;
+
+        // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
+        // [GIVEN] Service Credit Memo with customer related to above VAT Exemption
+        CreateServiceCreditMemoHeader(ServiceCrMemoHeader, '', '', '');
+        CreateServiceCreditMemoLine(ServiceCrMemoHeader."No.");
+        VATExemptionNumber :=
+          CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, ServiceCrMemoHeader."Customer No.", false, WorkDate);
+        LibraryVariableStorage.Enqueue(ServiceCrMemoHeader."No.");  // Enqueue value in handler - ServiceCreditMemoRequestPageHandler.
+        Commit;
+
+        // [WHEN] Print Service Credit Memo
+        REPORT.Run(REPORT::"Service - Credit Memo");
+
+        // [THEN] VAT Exemption value in the report is "1234-001"
+        VerifyDocumentVATExemptionOnReport(VATExemptionNoCap, VATExemptionNumber);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceDocumentTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceDocumentTestReportPrintVATExemptNoWithConsecutiveNo()
+    var
+        ServiceHeader: Record "Service Header";
+        VATExemption: Record "VAT Exemption";
+        VATExemptionNumber: Text;
+    begin
+        // [FEATURE] [Service] [Invoice] [Report]
+        // [SCENARIO 341871] Servicve Document Test report pints VAT Exemption Number with Consecutive No.
+
+        Initialize;
+
+        // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
+        // [GIVEN] Service Invoice with customer related to above VAT Exemption
+        CreateServiceHeader(ServiceHeader);
+        CreateServiceLine(ServiceHeader."No.");
+        VATExemptionNumber :=
+          CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, ServiceHeader."Bill-to Customer No.", false, WorkDate);
+        LibraryVariableStorage.Enqueue(ServiceHeader."No.");  // Enqueue value in handler - ServiceDocumentTestRequestPageHandler.
+        Commit;
+
+        // [WHEN] Print Service Document - Test
+        REPORT.Run(REPORT::"Service Document - Test");
+
+        // [THEN] VAT Exemption value in the report is "1234-001"
+        VerifyDocumentVATExemptionOnReport(VATExemptionNumberCap, VATExemptionNumber);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -935,6 +1128,16 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemption.Insert;
     end;
 
+    local procedure CreateVATExemptionWithConsecutiveNo(Type: Option; No: Code[20]; Printed: Boolean; VATExemptIntRegistryDate: Date): Text
+    var
+        VATExemption: Record "VAT Exemption";
+    begin
+        CreateVATExemptionRec(VATExemption, Type, No, Printed, VATExemptIntRegistryDate);
+        VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID);
+        VATExemption.Modify(true);
+        exit(VATExemption.GetVATExemptNo());
+    end;
+
     local procedure CreateVATPlafondPeriod(): Decimal
     var
         VATPlafondPeriod: Record "VAT Plafond Period";
@@ -1003,6 +1206,12 @@ codeunit 144073 "UT REP VAT Exemption"
         LibraryReportDataset.AssertElementWithValueExists(BillToCustomerNoCap, BillToCustomerNumber);
         LibraryReportDataset.AssertElementWithValueExists(VATExemptionNumberCap, VATExemption."VAT Exempt. No.");
         LibraryReportDataset.AssertElementWithValueExists(VATExemptionDateCap, Format(VATExemption."VAT Exempt. Date"));
+    end;
+
+    local procedure VerifyDocumentVATExemptionOnReport(ElementName: Text; VATExemptionNumber: Text)
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(ElementName, VATExemptionNumber);
     end;
 
     local procedure VerifyPeriodProtocolNoEndingDate(VATExemptionNumber: Code[20]; PostingDate: Date)

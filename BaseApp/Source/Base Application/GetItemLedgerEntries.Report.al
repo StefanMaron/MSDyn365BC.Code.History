@@ -433,7 +433,7 @@ report 594 "Get Item Ledger Entries"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField(Reported, false);
 
-        GetGLSetup;
+        GetGLSetup();
         if IntrastatJnlBatch."Amounts in Add. Currency" then begin
             GLSetup.TestField("Additional Reporting Currency");
             AddCurrencyFactor :=
@@ -488,9 +488,10 @@ report 594 "Get Item Ledger Entries"
     local procedure InsertItemJnlLine()
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        IsHandled: Boolean;
     begin
         Item.Get("Item Ledger Entry"."Item No.");
-        GetGLSetup;
+        GetGLSetup();
         with IntrastatJnlLine do begin
             Init;
             "Line No." := "Line No." + 10000;
@@ -504,7 +505,6 @@ report 594 "Get Item Ledger Entries"
             "Document No." := ValueEntry."Document No.";
             "Item No." := Item."No.";
             "Item Description" := Item.Description;
-
             "Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
             Area := "Item Ledger Entry".Area;
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
@@ -574,8 +574,10 @@ report 594 "Get Item Ledger Entries"
             Validate("Cost Regulation %", IndirectCostPctReq);
             "Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
 
-            OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry");
-            Insert;
+            IsHandled := false;
+            OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
+            if not IsHandled then
+                Insert();
         end;
     end;
 
@@ -584,6 +586,7 @@ report 594 "Get Item Ledger Entries"
         Job: Record Job;
         Customer: Record Customer;
         VendLedgEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
     begin
         with IntrastatJnlLine do begin
             Init;
@@ -633,8 +636,10 @@ report 594 "Get Item Ledger Entries"
             Validate("Cost Regulation %", IndirectCostPctReq);
             "Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
 
-            OnBeforeInsertJobLedgerLine(IntrastatJnlLine, "Job Ledger Entry");
-            Insert;
+            IsHandled := false;
+            OnBeforeInsertJobLedgerLine(IntrastatJnlLine, "Job Ledger Entry", IsHandled);
+            if not IsHandled then
+                Insert();
         end;
     end;
 
@@ -741,8 +746,9 @@ report 594 "Get Item Ledger Entries"
     local procedure InsertValueEntryLine()
     var
         Location: Record Location;
+        IsHandled: Boolean;
     begin
-        GetGLSetup;
+        GetGLSetup();
         with IntrastatJnlLine do begin
             Init;
             "Line No." := "Line No." + 10000;
@@ -776,8 +782,10 @@ report 594 "Get Item Ledger Entries"
             Validate(Quantity, Round(Abs(Quantity), 0.00001));
             Validate("Cost Regulation %", IndirectCostPctReq);
 
-            OnBeforeInsertValueEntryLine(IntrastatJnlLine, "Item Ledger Entry");
-            Insert;
+            IsHandled := false;
+            OnBeforeInsertValueEntryLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
+            if not IsHandled then
+                Insert();
         end;
     end;
 
@@ -1530,17 +1538,17 @@ report 594 "Get Item Ledger Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertItemJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnBeforeInsertItemJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertJobLedgerLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JobLedgerEntry: Record "Job Ledger Entry")
+    local procedure OnBeforeInsertJobLedgerLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JobLedgerEntry: Record "Job Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertValueEntryLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnBeforeInsertValueEntryLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

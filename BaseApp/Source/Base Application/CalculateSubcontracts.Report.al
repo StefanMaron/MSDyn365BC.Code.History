@@ -145,7 +145,7 @@ report 99001015 "Calculate Subcontracts"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertReqWkshLine("Prod. Order Routing Line", "Work Center", ReqLine, IsHandled);
+        OnBeforeInsertReqWkshLine("Prod. Order Routing Line", "Work Center", ReqLine, IsHandled, ProdOrderLine);
         if IsHandled then
             exit;
 
@@ -270,7 +270,7 @@ report 99001015 "Calculate Subcontracts"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertReqWkshLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var WorkCenter: Record "Work Center"; var ReqLine: Record "Requisition Line"; var IsHandled: Boolean);
+    local procedure OnBeforeInsertReqWkshLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var WorkCenter: Record "Work Center"; var ReqLine: Record "Requisition Line"; var IsHandled: Boolean; ProdOrderLine: Record "Prod. Order Line");
     begin
     end;
 

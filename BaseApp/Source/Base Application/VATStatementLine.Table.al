@@ -182,6 +182,7 @@ table 256 "VAT Statement Line"
             Caption = 'Blacklisted Comm. Field';
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(12129; "Refers To Period"; Option)
         {
@@ -194,6 +195,7 @@ table 256 "VAT Statement Line"
             Caption = 'Blacklist Country/Region Transaction';
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
     }
 

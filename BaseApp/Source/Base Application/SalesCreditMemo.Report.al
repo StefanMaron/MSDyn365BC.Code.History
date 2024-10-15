@@ -6,6 +6,7 @@ report 207 "Sales - Credit Memo"
     Permissions = TableData "Sales Shipment Buffer" = rimd;
     ObsoleteReason = 'Replaced with report 1307 Standard Sales - Credit Memo';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.2';
 
     dataset
     {
@@ -322,7 +323,7 @@ report 207 "Sales - Credit Memo"
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
                         {
                         }
-                        column(VATExemptionVATExemptNo; VATExemption."VAT Exempt. No.")
+                        column(VATExemptionVATExemptNo; VATExemption.GetVATExemptNo())
                         {
                         }
                         column(VATExemptionVATExemptDate; Format(VATExemption."VAT Exempt. Date"))

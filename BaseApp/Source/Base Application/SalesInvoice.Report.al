@@ -8,6 +8,7 @@ report 206 "Sales - Invoice"
     PreviewMode = PrintLayout;
     ObsoleteReason = 'Replaced with report 1306 Standard Sales - Invoice';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.2';
 
     dataset
     {
@@ -406,7 +407,7 @@ report 206 "Sales - Invoice"
                         {
                             AutoCalcField = false;
                         }
-                        column(VATExemptionVATExemptNo; VATExemption."VAT Exempt. No.")
+                        column(VATExemptionVATExemptNo; VATExemption.GetVATExemptNo())
                         {
                         }
                         column(VATExemptionCheck; VATExemptionCheck)

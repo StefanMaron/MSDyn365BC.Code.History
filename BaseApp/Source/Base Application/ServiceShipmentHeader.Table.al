@@ -901,7 +901,7 @@ table 5990 "Service Shipment Header"
               FieldCaption("Shipment Method Code"), "Shipment Method Code");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure CheckTDDData(): Boolean
     var
         ShippingAgent: Record "Shipping Agent";

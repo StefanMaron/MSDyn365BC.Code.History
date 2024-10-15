@@ -404,7 +404,7 @@ table 12113 "Tmp Withholding Contribution"
         Vend: Record Vendor;
         WithholdingSocSec: Codeunit "Withholding - Contribution";
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure CalculateWithholdingTax()
     begin
         WithholdCode.Get("Withholding Tax Code");

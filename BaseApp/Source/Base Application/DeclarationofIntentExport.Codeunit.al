@@ -38,7 +38,7 @@ codeunit 12134 "Declaration of Intent Export"
         EndFile;
 
         if not TempErrorMessage.HasErrors(true) then begin
-            FlatFileManagement.DownloadFile(StrSubstNo(FileNameLbl, VATExemption."No.", VATExemption."VAT Exempt. No."));
+            FlatFileManagement.DownloadFile(StrSubstNo(FileNameLbl, VATExemption."No.", VATExemption.GetVATExemptNo()));
             exit(true);
         end;
 

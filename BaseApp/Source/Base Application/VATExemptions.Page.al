@@ -28,6 +28,12 @@ page 12100 "VAT Exemptions"
                     ToolTip = 'Specifies the identification number of the VAT exemption.';
                     Visible = VATExemptNoVisible;
                 }
+                field("Consecutive VAT Exempt. No."; "Consecutive VAT Exempt. No.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the consecutive number of the VAT exemption.';
+                    Visible = VATExemptNoVisible;
+                }
                 field("VAT Exempt. Date"; "VAT Exempt. Date")
                 {
                     ApplicationArea = All;

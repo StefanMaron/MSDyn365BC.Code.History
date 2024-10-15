@@ -105,6 +105,7 @@ page 9176 "My Settings"
                     Visible = RunningOnSaaS;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Use field Locale instead';
+                    ObsoleteTag = '15.2';
 
                     trigger OnAssistEdit()
                     var
@@ -123,6 +124,7 @@ page 9176 "My Settings"
                     Visible = RunningOnSaaS;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Use field Language instead';
+                    ObsoleteTag = '15.2';
 
                     trigger OnAssistEdit()
                     var
@@ -137,6 +139,7 @@ page 9176 "My Settings"
                     Visible = not RunningOnSaaS;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Group will be removed. NB: Only group, not fields in group!';
+                    ObsoleteTag = '15.2';
 
                     field(Locale; GetLocale)
                     {

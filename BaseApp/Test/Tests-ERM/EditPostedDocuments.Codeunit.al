@@ -16,7 +16,9 @@ codeunit 134658 "Edit Posted Documents"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryService: Codeunit "Library - Service";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
+        isInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('PostedSalesShipmentUpdateGetEditablelModalPageHandler')]
@@ -27,6 +29,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Sales Shipment]
         // [SCENARIO 308913] Editable and non-editable fields on page "Posted Sales Shipment - Update".
+        Initialize();
 
         // [WHEN] Open "Posted Sales Shipment - Update" page.
         PostedSalesShipment.OpenView;
@@ -54,6 +57,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Sales Shipment]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Sales Shipment - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedSalesShipment(SalesShptHeader);
 
         // [GIVEN] Opened "Posted Sales Shipment - Update" page.
@@ -88,6 +92,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Sales Shipment]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Sales Shipment - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedSalesShipment(SalesShptHeader);
 
         // [GIVEN] Opened "Posted Sales Shipment - Update" page.
@@ -121,6 +126,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Purchase Invoice]
         // [SCENARIO 308913] Editable and non-editable fields on page "Posted Purch. Invoice - Update".
+        Initialize();
 
         // [WHEN] Open "Posted Purch. Invoice - Update" page.
         PostedPurchaseInvoice.OpenView;
@@ -148,6 +154,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Purchase Invoice]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Purch. Invoice - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeader);
 
         // [GIVEN] Opened "Posted Purch. Invoice - Update" page.
@@ -177,6 +184,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Purchase Invoice]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Purch. Invoice - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeader);
 
         // [GIVEN] Opened "Posted Purch. Invoice - Update" page.
@@ -205,6 +213,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Return Shipment]
         // [SCENARIO 308913] Editable and non-editable fields on page "Posted Return Shpt. - Update".
+        Initialize();
 
         // [WHEN] Open "Posted Return Shpt. - Update" page.
         PostedReturnShipment.OpenView;
@@ -231,6 +240,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Return Shipment]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Return Shpt. - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedReturnShipment(ReturnShptHeader);
 
         // [GIVEN] Opened "Posted Return Shpt. - Update" page.
@@ -267,6 +277,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Return Shipment]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Return Shpt. - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedReturnShipment(ReturnShptHeader);
 
         // [GIVEN] Opened "Posted Return Shpt. - Update" page.
@@ -301,6 +312,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Return Receipt]
         // [SCENARIO 308913] Editable and non-editable fields on page "Posted Return Receipt - Update".
+        Initialize();
 
         // [WHEN] Open "Posted Return Receipt - Update" page.
         PostedReturnReceipt.OpenView;
@@ -329,6 +341,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Return Receipt]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Return Receipt - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedReturnReceipt(ReturnRcptHeader);
 
         // [GIVEN] Opened "Posted Return Receipt - Update" page.
@@ -359,6 +372,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Return Receipt]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Return Receipt - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedReturnReceipt(ReturnRcptHeader);
 
         // [GIVEN] Opened "Posted Return Receipt - Update" page.
@@ -388,6 +402,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Transfer Shipment]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Transfer Shipment - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedTransferShipment(TransferShptHeader);
 
         // [GIVEN] Opened "Posted Transfer Shipment - Update" page.
@@ -429,6 +444,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Transfer Shipment]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Transfer Shipment - Update" modal page.
+        Initialize();
         PrepareValuesForEditableFieldsPostedTransferShipment(TransferShptHeader);
 
         // [GIVEN] Opened "Posted Transfer Shipment - Update" page.
@@ -471,6 +487,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Service Shipment]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Service Shipment - Update" modal page.
+        Initialize();
         OrderNo := CreateAndPostServiceOrder;
         PrepareValuesForEditableFieldsPostedServiceShipment(ServiceShptHeader);
 
@@ -507,6 +524,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         // [FEATURE] [Service Shipment]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Service Shipment - Update" modal page.
+        Initialize();
         OrderNo := CreateAndPostServiceOrder;
         PrepareValuesForEditableFieldsPostedServiceShipment(ServiceShptHeader);
 
@@ -530,6 +548,22 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(ServiceShptHeader."3rd Party Loader No.", PostedServiceShipment."3rd Party Loader No.".Value, '');
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents");
+
+        LibraryVariableStorage.Clear;
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Edit Posted Documents");
+
+        Commit();
+        IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Edit Posted Documents");
     end;
 
     local procedure CreateAndPostPurchaseInvoiceWithSellToCustomer(CustomerNo: Code[20]): Code[20]

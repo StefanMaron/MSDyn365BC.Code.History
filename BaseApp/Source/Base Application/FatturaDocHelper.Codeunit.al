@@ -671,7 +671,7 @@ codeunit 12184 "Fattura Doc. Helper"
     begin
         if VATExemption.FindCustVATExemptionOnDate(CustomerNo, DocumentDate, DocumentDate) then
             exit(
-              StrSubstNo(ExemptionDataMsg, VATExemption."VAT Exempt. No.",
+              StrSubstNo(ExemptionDataMsg, VATExemption.GetVATExemptNo(),
                 Format(VATExemption."VAT Exempt. Date", 0, '<Day,2>/<Month,2>/<Year4>')));
     end;
 

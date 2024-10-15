@@ -615,6 +615,7 @@ table 23 Vendor
                                (Item."VAT Prod. Posting Group" <> VATPostingSetup."VAT Prod. Posting Group")
                             then
                                 VATPostingSetup.Get("VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
+                            OnValidatePricesIncludingVATOnAfterGetVATPostingSetup(VATPostingSetup);
                             if PurchPrice."Currency Code" = '' then
                                 Currency.InitRoundingPrecision
                             else
@@ -685,6 +686,7 @@ table 23 Vendor
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(90; GLN; Code[13])
         {
@@ -797,7 +799,9 @@ table 23 Vendor
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("E-Mail");
+                if "E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
         field(103; "Home Page"; Text[80])
@@ -1362,6 +1366,7 @@ table 23 Vendor
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Currency Id"; Guid)
         {
@@ -2803,6 +2808,11 @@ table 23 Vendor
 
     [IntegrationEvent(false, false)]
     local procedure OnMarkVendorsWithSimilarNameOnBeforeVendorFindSet(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
 }

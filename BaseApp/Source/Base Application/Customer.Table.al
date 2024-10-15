@@ -725,6 +725,7 @@ table 18 Customer
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(90; GLN; Code[13])
         {
@@ -837,7 +838,9 @@ table 18 Customer
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("E-Mail");
+                if "E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
         field(103; "Home Page"; Text[80])
@@ -1506,6 +1509,7 @@ table 18 Customer
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Currency Id"; Guid)
         {
@@ -1563,6 +1567,7 @@ table 18 Customer
             FieldClass = FlowField;
             ObsoleteReason = 'This field is not needed and it should not be used.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(9005; "Contact ID"; Guid)
         {

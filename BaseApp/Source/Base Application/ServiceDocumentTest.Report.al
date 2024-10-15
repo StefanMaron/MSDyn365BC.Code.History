@@ -544,7 +544,7 @@ report 5915 "Service Document - Test"
                         column(ShowRoundLoop8; "Service Header"."Prices Including VAT" and (VATAmount <> 0))
                         {
                         }
-                        column(VATExemption__VAT_Exempt__No__; VATExemption."VAT Exempt. No.")
+                        column(VATExemption__VAT_Exempt__No__; VATExemption.GetVATExemptNo())
                         {
                         }
                         column(VATExemption__VAT_Exempt__Date_; Format(VATExemption."VAT Exempt. Date"))

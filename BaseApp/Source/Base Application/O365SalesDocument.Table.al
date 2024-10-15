@@ -128,6 +128,7 @@ table 2103 "O365 Sales Document"
             Caption = 'Document Icon';
             ObsoleteReason = 'We no longer show a document icon.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(2109; "Payment Method"; Code[10])
         {

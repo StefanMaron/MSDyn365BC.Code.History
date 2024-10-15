@@ -121,6 +121,9 @@ table 12186 "VAT Exemption"
                         Error('');
             end;
         }
+        field(13; "Consecutive VAT Exempt. No."; Code[20])
+        {
+        }
     }
 
     keys
@@ -176,6 +179,13 @@ table 12186 "VAT Exemption"
         SetFilter("VAT Exempt. Starting Date", '<=%1', VATExemptionStartingDate);
         SetFilter("VAT Exempt. Ending Date", '>=%1', VATExemptionEndingDate);
         exit(FindFirst);
+    end;
+
+    procedure GetVATExemptNo() VATExemptNo: Text
+    begin
+        VATExemptNo += "VAT Exempt. No.";
+        if "Consecutive VAT Exempt. No." <> '' then
+            VATExemptNo += '-' + "Consecutive VAT Exempt. No.";
     end;
 }
 

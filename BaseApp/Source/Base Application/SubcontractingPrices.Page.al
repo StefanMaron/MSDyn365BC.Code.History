@@ -230,7 +230,7 @@ page 12156 "Subcontracting Prices"
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure SetRecFilters()
     begin
         if VendNoFilter <> '' then

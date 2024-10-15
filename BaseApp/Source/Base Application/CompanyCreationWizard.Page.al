@@ -262,7 +262,7 @@ page 9192 "Company Creation Wizard"
 
                 trigger OnAction()
                 begin
-                    FinishAction;
+                    FinishAction();
                 end;
             }
         }
@@ -277,8 +277,8 @@ page 9192 "Company Creation Wizard"
         if not UserPermissions.IsSuper(UserSecurityId) then
             Error(OnlySuperCanCreateNewCompanyErr);
 
-        LoadTopBanners;
-        IsSandbox := EnvironmentInfo.IsSandbox;
+        LoadTopBanners();
+        IsSandbox := EnvironmentInfo.IsSandbox();
         CanManageUser := PermissionManager.CanManageUsersOnTenant(UserSecurityId);
     end;
 
@@ -286,8 +286,8 @@ page 9192 "Company Creation Wizard"
     begin
         Step := Step::Start;
         NewCompanyData := NewCompanyData::"Standard Data";
-        UpdateDataDescription;
-        EnableControls;
+        UpdateDataDescription();
+        EnableControls();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -340,17 +340,17 @@ page 9192 "Company Creation Wizard"
 
     local procedure EnableControls()
     begin
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Start:
-                ShowStartStep;
+                ShowStartStep();
             Step::Creation:
-                ShowCreationStep;
+                ShowCreationStep();
             Step::"Add Users":
-                ShowAddUsersStep;
+                ShowAddUsersStep();
             Step::Finish:
-                ShowFinalStep;
+                ShowFinalStep();
         end;
     end;
 
@@ -360,15 +360,17 @@ page 9192 "Company Creation Wizard"
         PermissionManager: Codeunit "Permission Manager";
     begin
         AssistedCompanySetup.CreateNewCompany(NewCompanyName);
+        OnAfterCreateNewCompany(NewCompanyData, NewCompanyName);
+
         AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData);
 
-        if FindSet then
+        if FindSet() then
             repeat
                 PermissionManager.AddUserToDefaultUserGroupsForCompany("User Security ID", NewCompanyName);
             until Next = 0;
 
         CompanyCreated := true;
-        CurrPage.Close;
+        CurrPage.Close();
         if not (NewCompanyData in [NewCompanyData::None, NewCompanyData::"Full No Data"]) then
             Message(CompanySetUpInProgressMsg, NewCompanyName);
     end;
@@ -386,7 +388,7 @@ page 9192 "Company Creation Wizard"
         else
             Step := Step + 1;
 
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure ShowStartStep()
@@ -474,6 +476,8 @@ page 9192 "Company Creation Wizard"
                 NewCompanyDataDescription := ExtendedDataTxt;
             NewCompanyData::None, NewCompanyData::"Full No Data":
                 NewCompanyDataDescription := NoDataTxt;
+            else
+                OnUpdateDataDescriptionCaseElse(NewCompanyData, NewCompanyDataDescription);
         end;
 
         if IsSandbox then
@@ -486,9 +490,19 @@ page 9192 "Company Creation Wizard"
             NewCompanyData::"Evaluation Data":
                 NewCompanyDataDescription += EvalPeriodTxt;
             NewCompanyData::"Standard Data",
-          NewCompanyData::None:
+            NewCompanyData::None:
                 NewCompanyDataDescription += TrialPeriodTxt;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateNewCompany(NewCompanyData: Option; NewCompanyName: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDataDescriptionCaseElse(NewCompanyData: Option; var NewCompanyDataDescription: Text)
+    begin
     end;
 }
 
