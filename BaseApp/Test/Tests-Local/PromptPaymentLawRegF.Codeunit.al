@@ -2746,13 +2746,11 @@ codeunit 147300 "Prompt Payment Law RegF"
 
     local procedure CreateNonPaymentPeriod(var NonPaymentPeriod: Record "Non-Payment Period"; TableNameOption: Option; FromInterval: Integer; ToInterval: Integer; DocumentDate: Date; MaxDueDate: Date)
     begin
-        with NonPaymentPeriod do begin
-            "Table Name" := TableNameOption;
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Non-Payment Period"));
-            "From Date" := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(FromInterval)), DocumentDate);
-            "To Date" := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(ToInterval)), MaxDueDate);
-            Insert(true);
-        end
+        NonPaymentPeriod."Table Name" := TableNameOption;
+        NonPaymentPeriod.Validate(Code, LibraryUtility.GenerateRandomCode(NonPaymentPeriod.FieldNo(Code), DATABASE::"Non-Payment Period"));
+        NonPaymentPeriod."From Date" := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(FromInterval)), DocumentDate);
+        NonPaymentPeriod."To Date" := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(ToInterval)), MaxDueDate);
+        NonPaymentPeriod.Insert(true);
     end;
 
     local procedure CreatePaymentTermMaxEqualDueDate(var PaymentTerms: Record "Payment Terms")
@@ -2807,12 +2805,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
     local procedure CreatePaymentDay(var PaymentDay: Record "Payment Day"; TableNameOption: Option; Interval: Integer; BaseDate: Date)
     begin
-        with PaymentDay do begin
-            Validate("Table Name", TableNameOption);
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Day"));
-            Validate("Day of the month", Date2DMY(CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(Interval)), BaseDate), 1));
-            Insert(true);
-        end
+        PaymentDay.Validate("Table Name", TableNameOption);
+        PaymentDay.Validate(Code, LibraryUtility.GenerateRandomCode(PaymentDay.FieldNo(Code), DATABASE::"Payment Day"));
+        PaymentDay.Validate("Day of the month", Date2DMY(CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(Interval)), BaseDate), 1));
+        PaymentDay.Insert(true);
     end;
 
     local procedure CreateCompanyPaymentDay(var PaymentDay: Record "Payment Day"; Interval: Integer; BaseDate: Date)
@@ -2820,12 +2816,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        with PaymentDay do begin
-            Validate("Table Name", PaymentTableNameOption::"Company Information");
-            Validate(Code, CompanyInformation."Payment Days Code");
-            Validate("Day of the month", Date2DMY(CalcDate(StrSubstNo('<-CM-1D+%1D>', Interval), BaseDate), 1));
-            Insert(true);
-        end;
+        PaymentDay.Validate("Table Name", PaymentTableNameOption::"Company Information");
+        PaymentDay.Validate(Code, CompanyInformation."Payment Days Code");
+        PaymentDay.Validate("Day of the month", Date2DMY(CalcDate(StrSubstNo('<-CM-1D+%1D>', Interval), BaseDate), 1));
+        PaymentDay.Insert(true);
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")

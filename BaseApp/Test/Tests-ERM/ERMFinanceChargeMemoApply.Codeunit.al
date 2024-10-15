@@ -386,19 +386,17 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
     local procedure CreateFinanceChargeTerms(var FinanceChargeTerms: Record "Finance Charge Terms"; PostInterest: Boolean; PostAdditioanalFee: Boolean)
     begin
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
-        with FinanceChargeTerms do begin
-            Validate("Interest Calculation", "Interest Calculation"::"Open Entries");
-            Validate("Interest Calculation Method", "Interest Calculation Method"::"Average Daily Balance");
-            Validate("Interest Rate", 1.5);
-            Validate("Interest Period (Days)", 30);
-            Validate("Minimum Amount (LCY)", 10);
-            Validate("Additional Fee (LCY)", 0);
-            Evaluate("Grace Period", '<5D>');
-            Evaluate("Due Date Calculation", '<1M>');
-            Validate("Post Interest", PostInterest);
-            Validate("Post Additional Fee", PostAdditioanalFee);
-            Modify(true);
-        end;
+        FinanceChargeTerms.Validate("Interest Calculation", FinanceChargeTerms."Interest Calculation"::"Open Entries");
+        FinanceChargeTerms.Validate("Interest Calculation Method", FinanceChargeTerms."Interest Calculation Method"::"Average Daily Balance");
+        FinanceChargeTerms.Validate("Interest Rate", 1.5);
+        FinanceChargeTerms.Validate("Interest Period (Days)", 30);
+        FinanceChargeTerms.Validate("Minimum Amount (LCY)", 10);
+        FinanceChargeTerms.Validate("Additional Fee (LCY)", 0);
+        Evaluate(FinanceChargeTerms."Grace Period", '<5D>');
+        Evaluate(FinanceChargeTerms."Due Date Calculation", '<1M>');
+        FinanceChargeTerms.Validate("Post Interest", PostInterest);
+        FinanceChargeTerms.Validate("Post Additional Fee", PostAdditioanalFee);
+        FinanceChargeTerms.Modify(true);
     end;
 
     local procedure CreateAndPostSalesInvoice(Customer: Record Customer; PostingDate: Date; LineAmount: Decimal)

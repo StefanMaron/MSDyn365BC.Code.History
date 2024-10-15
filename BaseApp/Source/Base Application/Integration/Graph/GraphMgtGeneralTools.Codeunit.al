@@ -341,16 +341,6 @@ codeunit 5465 "Graph Mgt - General Tools"
     begin
     end;
 
-#if not CLEAN22
-#pragma warning disable AA0228 
-    [Obsolete('This event is not used.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnForceIsApiEnabledVerification(var ForceIsApiEnabledVerification: Boolean)
-    begin
-    end;
-#pragma warning restore AA0228
-#endif
-
     [EventSubscriber(ObjectType::Table, Database::"Config. Template Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeleteConfigTemplates(var Rec: Record "Config. Template Header"; RunTrigger: Boolean)
     var

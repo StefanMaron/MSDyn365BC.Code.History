@@ -1291,8 +1291,8 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         VerifyArchivedWorkflowStepInstanceIsNOTCompleted(WorkflowStep);
 
         // Return for posting
-        Result := FALSE;
-        ERROR('');
+        Result := false;
+        Error('');
     end;
 
     [Test]

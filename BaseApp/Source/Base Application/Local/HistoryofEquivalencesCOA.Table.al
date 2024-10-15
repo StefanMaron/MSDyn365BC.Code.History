@@ -10,8 +10,13 @@ table 10724 "History of Equivalences COA"
 {
     Caption = 'History of Equivalences COA';
     ObsoleteReason = 'Obsolete feature';
+#if CLEAN28
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#else
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+#endif
     DataClassification = CustomerContent;
 
     fields
@@ -23,12 +28,16 @@ table 10724 "History of Equivalences COA"
         field(2; "Old G/L Account No."; Code[20])
         {
             Caption = 'Old G/L Account No.';
+#if not CLEAN25
             TableRelation = "Historic G/L Account"."No.";
             ValidateTableRelation = true;
+#endif
         }
         field(3; "Old G/L Account Name"; Text[30])
         {
-            CalcFormula = Lookup("Historic G/L Account".Name where("No." = field("Old G/L Account No.")));
+#if not CLEAN25
+            CalcFormula = lookup("Historic G/L Account".Name where("No." = field("Old G/L Account No.")));
+#endif
             Caption = 'Old G/L Account Name';
             FieldClass = FlowField;
         }
@@ -40,7 +49,7 @@ table 10724 "History of Equivalences COA"
         }
         field(5; "New G/L Account Name"; Text[30])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("New G/L Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("New G/L Account No.")));
             Caption = 'New G/L Account Name';
             FieldClass = FlowField;
         }

@@ -47,7 +47,11 @@ table 959 "Time Sheet Chart Setup"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Period: %1..%2 | Show by: %3 | Updated: %4.', Comment = 'Period: (date)..(date) | show by (Status or Posted) | updated (time).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetCurrentSelectionText(): Text[250]
     begin

@@ -147,12 +147,10 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
 
     local procedure CreateIncomingDoc(var IncomingDocument: Record "Incoming Document")
     begin
-        with IncomingDocument do begin
-            Clear(IncomingDocument);
-            Init();
-            Validate(Status, Status::New);
-            Insert(true);
-        end;
+        Clear(IncomingDocument);
+        IncomingDocument.Init();
+        IncomingDocument.Validate(Status, IncomingDocument.Status::New);
+        IncomingDocument.Insert(true);
     end;
 
     local procedure CreateIncomingDocAttachment(IncomingDocument: Record "Incoming Document"; var IncomingDocumentAttachment: Record "Incoming Document Attachment"; AttachmentType: Text[10])

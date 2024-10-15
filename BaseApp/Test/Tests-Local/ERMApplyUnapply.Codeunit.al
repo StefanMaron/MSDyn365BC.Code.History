@@ -1804,19 +1804,17 @@ codeunit 147310 "ERM Apply Unapply"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry2 do begin
-            LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, DocumentNo);
-            LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
-            SetRange("Document Type", ApplDocType);
-            SetRange("Customer No.", CustLedgerEntry."Customer No.");
-            SetRange(Open, true);
-            FindSet();
-            repeat
-                CalcFields("Remaining Amount");
-                Validate("Amount to Apply", -AmountToApply);
-                Modify(true);
-            until Next() = 0;
-        end;
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, DocumentNo);
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
+        CustLedgerEntry2.SetRange("Document Type", ApplDocType);
+        CustLedgerEntry2.SetRange("Customer No.", CustLedgerEntry."Customer No.");
+        CustLedgerEntry2.SetRange(Open, true);
+        CustLedgerEntry2.FindSet();
+        repeat
+            CustLedgerEntry2.CalcFields("Remaining Amount");
+            CustLedgerEntry2.Validate("Amount to Apply", -AmountToApply);
+            CustLedgerEntry2.Modify(true);
+        until CustLedgerEntry2.Next() = 0;
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
@@ -1827,19 +1825,17 @@ codeunit 147310 "ERM Apply Unapply"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         VendLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        with VendLedgerEntry2 do begin
-            LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, DocType, DocumentNo);
-            LibraryERM.SetApplyVendorEntry(VendLedgerEntry, AmountToApply);
-            SetRange("Document Type", ApplDocType);
-            SetRange("Vendor No.", VendLedgerEntry."Vendor No.");
-            SetRange(Open, true);
-            FindSet();
-            repeat
-                CalcFields("Remaining Amount");
-                Validate("Amount to Apply", -AmountToApply);
-                Modify(true);
-            until Next() = 0;
-        end;
+        LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, DocType, DocumentNo);
+        LibraryERM.SetApplyVendorEntry(VendLedgerEntry, AmountToApply);
+        VendLedgerEntry2.SetRange("Document Type", ApplDocType);
+        VendLedgerEntry2.SetRange("Vendor No.", VendLedgerEntry."Vendor No.");
+        VendLedgerEntry2.SetRange(Open, true);
+        VendLedgerEntry2.FindSet();
+        repeat
+            VendLedgerEntry2.CalcFields("Remaining Amount");
+            VendLedgerEntry2.Validate("Amount to Apply", -AmountToApply);
+            VendLedgerEntry2.Modify(true);
+        until VendLedgerEntry2.Next() = 0;
 
         LibraryERM.SetAppliestoIdVendor(VendLedgerEntry2);
         LibraryERM.PostVendLedgerApplication(VendLedgerEntry);
@@ -1849,44 +1845,40 @@ codeunit 147310 "ERM Apply Unapply"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Applying Entry", true);
-            if FindSet() then
-                repeat
-                    Validate("Applying Entry", false);
-                    Modify(true);
-                until Next() = 0;
+        CustLedgerEntry.SetRange("Applying Entry", true);
+        if CustLedgerEntry.FindSet() then
+            repeat
+                CustLedgerEntry.Validate("Applying Entry", false);
+                CustLedgerEntry.Modify(true);
+            until CustLedgerEntry.Next() = 0;
 
-            Reset();
-            SetFilter("Applies-to ID", '<>%1', '');
-            if FindSet() then
-                repeat
-                    Validate("Applies-to ID", '');
-                    Modify(true);
-                until Next() = 0;
-        end;
+        CustLedgerEntry.Reset();
+        CustLedgerEntry.SetFilter("Applies-to ID", '<>%1', '');
+        if CustLedgerEntry.FindSet() then
+            repeat
+                CustLedgerEntry.Validate("Applies-to ID", '');
+                CustLedgerEntry.Modify(true);
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure ClearVendApplyingEntries()
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgerEntry do begin
-            SetRange("Applying Entry", true);
-            if FindSet() then
-                repeat
-                    Validate("Applying Entry", false);
-                    Modify(true);
-                until Next() = 0;
+        VendLedgerEntry.SetRange("Applying Entry", true);
+        if VendLedgerEntry.FindSet() then
+            repeat
+                VendLedgerEntry.Validate("Applying Entry", false);
+                VendLedgerEntry.Modify(true);
+            until VendLedgerEntry.Next() = 0;
 
-            Reset();
-            SetFilter("Applies-to ID", '<>%1', '');
-            if FindSet() then
-                repeat
-                    Validate("Applies-to ID", '');
-                    Modify(true);
-                until Next() = 0;
-        end;
+        VendLedgerEntry.Reset();
+        VendLedgerEntry.SetFilter("Applies-to ID", '<>%1', '');
+        if VendLedgerEntry.FindSet() then
+            repeat
+                VendLedgerEntry.Validate("Applies-to ID", '');
+                VendLedgerEntry.Modify(true);
+            until VendLedgerEntry.Next() = 0;
     end;
 
     local procedure CreateCustomer(PaymentMethodCreatesBill: Boolean; CurrencyCode: Code[10]): Code[20]
@@ -2041,12 +2033,10 @@ codeunit 147310 "ERM Apply Unapply"
     local procedure CreatePostApplySalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; var Amount: Decimal; ApplType: Option; ApplDocNo: Code[20]): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocType, CustomerNo, Amount);
-        with SalesHeader do begin
-            Validate("Applies-to Doc. Type", ApplType);
-            Validate("Applies-to Doc. No.", ApplDocNo);
-            Validate("Applies-to Bill No.", '1');
-            Modify(true);
-        end;
+        SalesHeader.Validate("Applies-to Doc. Type", ApplType);
+        SalesHeader.Validate("Applies-to Doc. No.", ApplDocNo);
+        SalesHeader.Validate("Applies-to Bill No.", '1');
+        SalesHeader.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -2104,12 +2094,10 @@ codeunit 147310 "ERM Apply Unapply"
     local procedure CreatePostApplyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendorNo: Code[20]; var Amount: Decimal; ApplType: Option; ApplDocNo: Code[20]): Code[20]
     begin
         CreatePurchaseDocument(PurchaseHeader, DocType, VendorNo, Amount);
-        with PurchaseHeader do begin
-            Validate("Applies-to Doc. Type", ApplType);
-            Validate("Applies-to Doc. No.", ApplDocNo);
-            Validate("Applies-to Bill No.", '1');
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Applies-to Doc. Type", ApplType);
+        PurchaseHeader.Validate("Applies-to Doc. No.", ApplDocNo);
+        PurchaseHeader.Validate("Applies-to Bill No.", '1');
+        PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
@@ -2148,42 +2136,36 @@ codeunit 147310 "ERM Apply Unapply"
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
-        with CarteraDoc do begin
-            SetRange(Type, CarteraDocType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("No.");
-        end;
+        CarteraDoc.SetRange(Type, CarteraDocType);
+        CarteraDoc.SetRange("Document No.", DocumentNo);
+        CarteraDoc.FindFirst();
+        exit(CarteraDoc."No.");
     end;
 
     local procedure FindLastPostedSalesDocumentBill(CustomerNo: Code[20]): Code[20]
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Bill);
-            SetRange("Customer No.", CustomerNo);
-            SetRange(Open, true);
-            FindLast();
-            Validate("Bill No.", '');
-            Modify(true);
-            exit("Document No.");
-        end;
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Bill);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange(Open, true);
+        CustLedgerEntry.FindLast();
+        CustLedgerEntry.Validate("Bill No.", '');
+        CustLedgerEntry.Modify(true);
+        exit(CustLedgerEntry."Document No.");
     end;
 
     local procedure FindLastPostedPurchDocumentBill(VendorNo: Code[20]): Code[20]
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Bill);
-            SetRange("Vendor No.", VendorNo);
-            SetRange(Open, true);
-            FindLast();
-            Validate("Bill No.", '');
-            Modify(true);
-            exit("Document No.");
-        end;
+        VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Bill);
+        VendLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendLedgerEntry.SetRange(Open, true);
+        VendLedgerEntry.FindLast();
+        VendLedgerEntry.Validate("Bill No.", '');
+        VendLedgerEntry.Modify(true);
+        exit(VendLedgerEntry."Document No.");
     end;
 
     local procedure CreateCarteraJournalLines(var GenJournalLine: Record "Gen. Journal Line"; InvoiceNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
@@ -2310,23 +2292,19 @@ codeunit 147310 "ERM Apply Unapply"
 
     local procedure SetApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal)
     begin
-        with CustLedgerEntry do begin
-            Validate("Applying Entry", true);
-            Validate("Applies-to ID", UserId);
-            Validate("Amount to Apply", AmountToApply);
-            Modify(true);
-        end;
+        CustLedgerEntry.Validate("Applying Entry", true);
+        CustLedgerEntry.Validate("Applies-to ID", UserId);
+        CustLedgerEntry.Validate("Amount to Apply", AmountToApply);
+        CustLedgerEntry.Modify(true);
         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
     end;
 
     local procedure SetApplyVendorEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; AmountToApply: Decimal)
     begin
-        with VendLedgerEntry do begin
-            Validate("Applying Entry", true);
-            Validate("Applies-to ID", UserId);
-            Validate("Amount to Apply", AmountToApply);
-            Modify(true);
-        end;
+        VendLedgerEntry.Validate("Applying Entry", true);
+        VendLedgerEntry.Validate("Applies-to ID", UserId);
+        VendLedgerEntry.Validate("Amount to Apply", AmountToApply);
+        VendLedgerEntry.Modify(true);
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgerEntry);
     end;
 
@@ -2609,12 +2587,10 @@ codeunit 147310 "ERM Apply Unapply"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccount);
-            Assert.RecordCount(GLEntry, ExpectedCount);
-        end;
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccount);
+        Assert.RecordCount(GLEntry, ExpectedCount);
     end;
 
     local procedure ApplyEmployeeLedgerEntries(EmployeeNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")

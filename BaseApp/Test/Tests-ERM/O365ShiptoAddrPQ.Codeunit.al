@@ -57,7 +57,8 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
           CompanyInformation."Ship-to Address 2",
           CompanyInformation."Ship-to City",
           CompanyInformation."Ship-to Contact",
-          CompanyInformation."Ship-to Post Code");
+          CompanyInformation."Ship-to Post Code",
+          CompanyInformation."Ship-to Phone No.");
     end;
 
     [Test]
@@ -94,7 +95,8 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
           Location."Address 2",
           Location.City,
           Location.Contact,
-          Location."Post Code");
+          Location."Post Code",
+          Location."Phone No.");
     end;
 
     [Test]
@@ -533,9 +535,10 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to City".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
         Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Contact".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
         Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Post Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Phone No.".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
     end;
 
-    local procedure VerifyShipToAddressValues(PurchaseQuote: TestPage "Purchase Quote"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; PostCode: Code[20])
+    local procedure VerifyShipToAddressValues(PurchaseQuote: TestPage "Purchase Quote"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; PostCode: Code[20]; PhoneNo: Text[30])
     begin
         PurchaseQuote."Ship-to Name".AssertEquals(Name);
         PurchaseQuote."Ship-to Address".AssertEquals(Address);
@@ -543,6 +546,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         PurchaseQuote."Ship-to City".AssertEquals(City);
         PurchaseQuote."Ship-to Contact".AssertEquals(Contact);
         PurchaseQuote."Ship-to Post Code".AssertEquals(PostCode);
+        PurchaseQuote."Ship-to Phone No.".AssertEquals(PhoneNo);
     end;
 
     local procedure VerifyShippingOptionWithoutLocationIsHiddenForLocation(var PurchaseQuote: TestPage "Purchase Quote"; ExpectedHideValue: Boolean)

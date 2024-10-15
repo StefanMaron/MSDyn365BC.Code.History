@@ -149,7 +149,7 @@ page 10769 "Posted Serv. Cr. Memo - Update"
           (Rec."Operation Description 2" <> xServiceCrMemoHeader."Operation Description 2") or
           (Rec."Special Scheme Code" <> xServiceCrMemoHeader."Special Scheme Code") or
           (Rec."Cr. Memo Type" <> xServiceCrMemoHeader."Cr. Memo Type") or
-          (Rec."Issued By Third Party" <> xServiceCrMemoHeader."Issued By Third Party") OR
+          (Rec."Issued By Third Party" <> xServiceCrMemoHeader."Issued By Third Party") or
           (Rec.GetSIIFirstSummaryDocNo() <> xServiceCrMemoHeader.GetSIIFirstSummaryDocNo()) or
           (Rec.GetSIILastSummaryDocNo() <> xServiceCrMemoHeader.GetSIILastSummaryDocNo());
 

@@ -402,7 +402,7 @@ page 132 "Posted Sales Invoice"
                             Editable = false;
                             ShowCaption = false;
                             Style = StandardAccent;
-                            StyleExpr = TRUE;
+                            StyleExpr = true;
 
                             trigger OnDrillDown()
                             var
@@ -471,18 +471,6 @@ page 132 "Posted Sales Invoice"
             group(Payment)
             {
                 Caption = 'Payment';
-#if not CLEAN22
-                field("Pay-at Code"; Rec."Pay-at Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the customer''s payment address code that was on the sales header, Payments tab, when the invoice was created.';
-                    Visible = false;
-                    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Cust. Bank Acc. Code"; Rec."Cust. Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -598,6 +586,14 @@ page 132 "Posted Sales Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                     }
+                    field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Agent Service';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
+                    }
                     field("Package Tracking No."; Rec."Package Tracking No.")
                     {
                         ApplicationArea = Suite;
@@ -670,6 +666,13 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Country/Region';
                         Editable = false;
                         ToolTip = 'Specifies the country or region of the address.';
+                    }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
@@ -824,10 +827,23 @@ page 132 "Posted Sales Invoice"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Sales Invoice Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Sales Invoice Header"),
                               "No." = field("No.");
             }
@@ -1422,7 +1438,7 @@ page 132 "Posted Sales Invoice"
         IncomingDocument: Record "Incoming Document";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         SIIManagement: Codeunit "SII Management";
-        IsHandled: Boolean;	
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeOnAfterGetCurrRecord(Rec, IsHandled, CRMIsCoupledToRecord, CRMIntegrationEnabled);

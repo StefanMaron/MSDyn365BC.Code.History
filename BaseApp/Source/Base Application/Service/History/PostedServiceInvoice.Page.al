@@ -327,6 +327,11 @@ page 5978 "Posted Service Invoice"
                         ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies a customer reference, which will be used when printing service documents.';
+                }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -384,7 +389,7 @@ page 5978 "Posted Service Invoice"
                             Editable = false;
                             ShowCaption = false;
                             Style = StandardAccent;
-                            StyleExpr = TRUE;
+                            StyleExpr = true;
 
                             trigger OnDrillDown()
                             var
@@ -525,6 +530,12 @@ page 5978 "Posted Service Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     }
+                    field("Ship-to Phone"; Rec."Ship-to Phone")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -598,10 +609,23 @@ page 5978 "Posted Service Invoice"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Invoice Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Invoice Header"),
                               "No." = field("No.");
             }
@@ -637,10 +661,13 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    RunObject = Page "Service Invoice Statistics";
-                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.OpenStatistics();
+                    end;
                 }
                 action("Co&mments")
                 {

@@ -23,7 +23,7 @@ page 7000002 "Payables Cartera Docs"
     SaveValues = true;
     SourceTable = "Cartera Doc.";
     SourceTableView = sorting(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Accepted, "Due Date", Place)
-                      WHERE(Type = const(Payable),
+                      where(Type = const(Payable),
                             "Bill Gr./Pmt. Order No." = filter(= ''));
     UsageCategory = Lists;
 

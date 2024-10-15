@@ -444,6 +444,8 @@ report 6 "Trial Balance"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1100002: Label 'The date %1 is not a Closing Date';
         Text1100003: Label 'Period: ';
         Text1100004: Label 'All Amounts in %1';
@@ -451,6 +453,8 @@ report 6 "Trial Balance"
         Text1100006: Label 'Include Closing Entries';
         Text1100007: Label 'Include Closing/Opening Entries';
         Text1100008: Label 'The fiscal year does not exist';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         GLAcc2: Record "G/L Account";
@@ -570,12 +574,11 @@ report 6 "Trial Balance"
                     OpenDebitAmtEnd := GlAccount3."Additional-Currency Net Change"
                 else
                     OpenCreditAmtEnd := Abs(GlAccount3."Additional-Currency Net Change");
-            end else begin
+            end else
                 if GlAccount3."Net Change" > 0 then
                     OpenDebitAmtEnd := GlAccount3."Net Change"
                 else
                     OpenCreditAmtEnd := Abs(GlAccount3."Net Change");
-            end;
             if IsOpenDate then begin
                 OpenDebitAmt := OpenDebitAmtEnd;
                 OpenCreditAmt := OpenCreditAmtEnd;
@@ -603,12 +606,11 @@ report 6 "Trial Balance"
                 CloseCreditAmt := Abs(GlAccount4."Additional-Currency Net Change")
             else
                 CloseDebitAmt := Abs(GlAccount4."Additional-Currency Net Change");
-        end else begin
+        end else
             if GlAccount4."Net Change" > 0 then
                 CloseCreditAmt := Abs(GlAccount4."Net Change")
             else
                 CloseDebitAmt := Abs(GlAccount4."Net Change");
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -624,7 +626,7 @@ report 6 "Trial Balance"
         if GlobalDim2 <> '' then
             GLAcc.SetFilter("Global Dimension 2 Filter", GlobalDim2);
 
-        if GLAcc.Find('-') then begin
+        if GLAcc.Find('-') then
             repeat
                 GLAcc.CalcFields("Additional-Currency Net Change", "Net Change");
                 if PrintAmountsInAddCurrency then begin
@@ -632,14 +634,12 @@ report 6 "Trial Balance"
                         CloseCreditAmt := CloseCreditAmt + Abs(GLAcc."Additional-Currency Net Change")
                     else
                         CloseDebitAmt := CloseDebitAmt + Abs(GLAcc."Additional-Currency Net Change");
-                end else begin
+                end else
                     if GLAcc."Net Change" > 0 then
                         CloseCreditAmt := CloseCreditAmt + Abs(GLAcc."Net Change")
                     else
                         CloseDebitAmt := CloseDebitAmt + Abs(GLAcc."Net Change");
-                end;
             until GLAcc.Next() = 0;
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -658,7 +658,7 @@ report 6 "Trial Balance"
                 GLAcc.SetFilter("Global Dimension 1 Filter", GlobalDim1);
             if GlobalDim2 <> '' then
                 GLAcc.SetFilter("Global Dimension 2 Filter", GlobalDim2);
-            if GLAcc.Find('-') then begin
+            if GLAcc.Find('-') then
                 repeat
                     GLAcc.CalcFields("Additional-Currency Net Change", "Net Change");
                     if PrintAmountsInAddCurrency then begin
@@ -666,14 +666,12 @@ report 6 "Trial Balance"
                             OpenDebitAmtEnd := OpenDebitAmtEnd + Abs(GLAcc."Additional-Currency Net Change")
                         else
                             OpenCreditAmtEnd := OpenCreditAmtEnd + Abs(GLAcc."Additional-Currency Net Change");
-                    end else begin
+                    end else
                         if GLAcc."Net Change" > 0 then
                             OpenDebitAmtEnd := OpenDebitAmtEnd + Abs(GLAcc."Net Change")
                         else
                             OpenCreditAmtEnd := OpenCreditAmtEnd + Abs(GLAcc."Net Change");
-                    end;
                 until GLAcc.Next() = 0;
-            end;
             if IsOpenDate then begin
                 OpenDebitAmt := OpenDebitAmtEnd;
                 OpenCreditAmt := OpenCreditAmtEnd;

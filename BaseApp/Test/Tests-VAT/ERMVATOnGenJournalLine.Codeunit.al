@@ -741,18 +741,14 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
 
     local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure FindVendLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -828,11 +824,9 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        with GenJournalTemplate do begin
-            Get(GenJnlTemplateName);
-            Validate("Force Doc. Balance", true);
-            Modify();
-        end;
+        GenJournalTemplate.Get(GenJnlTemplateName);
+        GenJournalTemplate.Validate("Force Doc. Balance", true);
+        GenJournalTemplate.Modify();
     end;
 
     local procedure VerifyGLEntriesAfterPosting(DocumentNo: Code[20]; VATPercent: Decimal; Amount: Decimal)
@@ -898,13 +892,11 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Transaction No.", TransactionNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedCountryCode, "Country/Region Code", StrSubstNo(VATEntryFieldErr, FieldCaption("Country/Region Code")));
-            Assert.AreEqual(ExpectedVATRegNo, "VAT Registration No.", StrSubstNo(VATEntryFieldErr, FieldCaption("VAT Registration No.")));
-            Assert.AreEqual(ExpectedBillToPayToNo, "Bill-to/Pay-to No.", StrSubstNo(VATEntryFieldErr, FieldCaption("Bill-to/Pay-to No.")));
-        end;
+        VATEntry.SetRange("Transaction No.", TransactionNo);
+        VATEntry.FindFirst();
+        Assert.AreEqual(ExpectedCountryCode, VATEntry."Country/Region Code", StrSubstNo(VATEntryFieldErr, VATEntry.FieldCaption("Country/Region Code")));
+        Assert.AreEqual(ExpectedVATRegNo, VATEntry."VAT Registration No.", StrSubstNo(VATEntryFieldErr, VATEntry.FieldCaption("VAT Registration No.")));
+        Assert.AreEqual(ExpectedBillToPayToNo, VATEntry."Bill-to/Pay-to No.", StrSubstNo(VATEntryFieldErr, VATEntry.FieldCaption("Bill-to/Pay-to No.")));
     end;
 
     local procedure VerifyVATEntryExists(CountryRegionCode: Code[10]; VATRegistrationNo: Text[20])
@@ -951,11 +943,9 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            TestField("Sales (LCY)", ExpectedAmount);
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Sales (LCY)", ExpectedAmount);
     end;
 
     [ConfirmHandler]

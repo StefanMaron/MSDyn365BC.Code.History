@@ -389,30 +389,26 @@ codeunit 147542 "Cartera Recv. Unit Tests"
 
     local procedure MockCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CarteraDoc: Record "Cartera Doc.")
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            Open := true;
-            "Document No." := CarteraDoc."Document No.";
-            "Customer No." := CarteraDoc."Account No.";
-            "Bill No." := CarteraDoc."No.";
-            Insert();
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry."Document No." := CarteraDoc."Document No.";
+        CustLedgerEntry."Customer No." := CarteraDoc."Account No.";
+        CustLedgerEntry."Bill No." := CarteraDoc."No.";
+        CustLedgerEntry.Insert();
     end;
 
     local procedure ModifyPermissionData(RoleID: Code[20]; ObjectID: Integer; NewReadPermission: Integer; NewInsertPermission: Integer; NewModifyPermission: Integer; NewDeletePermission: Integer)
     var
         Permission: Record Permission;
     begin
-        with Permission do begin
-            Get(RoleID, "Object Type"::"Table Data", ObjectID);
-            "Read Permission" := NewReadPermission;
-            "Insert Permission" := NewInsertPermission;
-            "Modify Permission" := NewModifyPermission;
-            "Delete Permission" := NewDeletePermission;
-            "Execute Permission" := "Execute Permission"::" ";
-            Modify();
-        end;
+        Permission.Get(RoleID, Permission."Object Type"::"Table Data", ObjectID);
+        Permission."Read Permission" := NewReadPermission;
+        Permission."Insert Permission" := NewInsertPermission;
+        Permission."Modify Permission" := NewModifyPermission;
+        Permission."Delete Permission" := NewDeletePermission;
+        Permission."Execute Permission" := Permission."Execute Permission"::" ";
+        Permission.Modify();
     end;
 
     local procedure AddCommentLineFromList(BillGroupNo: Code[20])
@@ -435,26 +431,22 @@ codeunit 147542 "Cartera Recv. Unit Tests"
 
     local procedure MockReceivableCarteraDoc(var CarteraDoc: Record "Cartera Doc.")
     begin
-        with CarteraDoc do begin
-            Init();
-            Type := Type::Receivable;
-            "Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, FieldNo("Entry No."));
-            "Document Type" := "Document Type"::Bill;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Account No." := LibraryUtility.GenerateGUID();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        CarteraDoc.Init();
+        CarteraDoc.Type := CarteraDoc.Type::Receivable;
+        CarteraDoc."Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, CarteraDoc.FieldNo("Entry No."));
+        CarteraDoc."Document Type" := CarteraDoc."Document Type"::Bill;
+        CarteraDoc."Document No." := LibraryUtility.GenerateGUID();
+        CarteraDoc."Account No." := LibraryUtility.GenerateGUID();
+        CarteraDoc."No." := LibraryUtility.GenerateGUID();
+        CarteraDoc.Insert();
     end;
 
     local procedure MockPostedBillGroup(var PostedBillGroup: Record "Posted Bill Group")
     begin
-        with PostedBillGroup do begin
-            Init();
-            "No." :=
-              LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Posted Bill Group");
-            Insert();
-        end;
+        PostedBillGroup.Init();
+        PostedBillGroup."No." :=
+          LibraryUtility.GenerateRandomCode(PostedBillGroup.FieldNo("No."), DATABASE::"Posted Bill Group");
+        PostedBillGroup.Insert();
     end;
 
     [PageHandler]

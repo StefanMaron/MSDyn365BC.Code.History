@@ -335,7 +335,7 @@ report 10704 "Sales Invoice Book"
                             VATBuffer3."VAT %" := "VAT %";
                             VATBuffer3."EC %" := "EC %";
 
-                            if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
+                            if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
                                 if not PrintAmountsInAddCurrency then
                                     if VATBuffer3.Find() then begin
                                         VATBuffer3.Base := VATBuffer3.Base + Base;
@@ -356,7 +356,6 @@ report 10704 "Sales Invoice Book"
                                         VATBuffer3.Amount := "Additional-Currency Amount";
                                         VATBuffer3.Insert();
                                     end
-                            end;
                         end;
 
                         trigger OnPostDataItem()
@@ -839,7 +838,7 @@ report 10704 "Sales Invoice Book"
                         VATBuffer."VAT %" := "VAT %";
                         VATBuffer."EC %" := "EC %";
 
-                        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
+                        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
                             if not PrintAmountsInAddCurrency then
                                 if VATBuffer.Find() then begin
                                     VarBase2 := (VATBuffer.Base + Base) - VATBuffer.Base;
@@ -863,9 +862,8 @@ report 10704 "Sales Invoice Book"
                                     VATBuffer.Base := "Additional-Currency Base";
                                     VATBuffer.Amount := "Additional-Currency Amount";
                                     VATBuffer.Insert();
-                                end
-                        end;
-                        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
+                                end;
+                        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
                             if not PrintAmountsInAddCurrency then begin
                                 NotBaseReverse := NotBaseReverse + VarBase2;
                                 NotAmountReverse := NotAmountReverse + VarAmount2;
@@ -873,7 +871,6 @@ report 10704 "Sales Invoice Book"
                                 NotBaseReverse := NotBaseReverse + VATBuffer.Base;
                                 NotAmountReverse := NotAmountReverse + VATBuffer.Amount;
                             end;
-                        end;
                     end;
 
                     trigger OnPostDataItem()

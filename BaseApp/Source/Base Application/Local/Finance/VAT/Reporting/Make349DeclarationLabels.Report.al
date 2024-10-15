@@ -338,12 +338,11 @@ report 10709 "Make 349 Declaration Labels"
 
                 if SectionsCounter <> 5 then begin
                     SectionsCounter := SectionsCounter + 1;
-                    if Counter <= NoOfLabels + 1 then begin
+                    if Counter <= NoOfLabels + 1 then
                         if SectionsPerPage = SectionsCounter then begin
                             PageBreaker := PageBreaker + 1;
                             SectionsCounter := 0;
                         end;
-                    end;
                 end;
                 if SectionsCounter = 5 then
                     SectionsCounter := 0;

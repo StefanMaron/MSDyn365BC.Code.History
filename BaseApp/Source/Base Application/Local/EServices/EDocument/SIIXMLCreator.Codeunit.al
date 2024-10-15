@@ -646,7 +646,7 @@ codeunit 10750 "SII XML Creator"
             GenerateNodeForFechaOperacionPurch(XMLNode, VendorLedgerEntry);
             GetClaveRegimenNodePurchases(RegimeCodes, SIIDocUploadState, VendorLedgerEntry, Vendor);
             GenerateClaveRegimenNode(XMLNode, RegimeCodes);
-            if SIIManagement.FindVatEntriesFromLedger(VendorLedgerEntryRecRef, VATEntry) then begin
+            if SIIManagement.FindVatEntriesFromLedger(VendorLedgerEntryRecRef, VATEntry) then
                 repeat
                     CalculatePurchVATEntries(
                       TempVATEntryNormalCalculated, TempVATEntryReverseChargeCalculated,
@@ -654,7 +654,6 @@ codeunit 10750 "SII XML Creator"
                       VendNo, VendorLedgerEntry."Posting Date", InvoiceType);
                     ECVATEntryExists := ECVATEntryExists or (VATEntry."EC %" <> 0);
                 until VATEntry.Next() = 0;
-            end;
 
             AddNodeForTotals :=
               IncludeImporteTotalNode() and
@@ -1220,17 +1219,14 @@ codeunit 10750 "SII XML Creator"
             if TransactionType = TransactionType::Initial then
                 TransactionType := TransactionType::S2
             else
-                if TransactionType = TransactionType::S1 then begin
-                    TransactionType := TransactionType::S3
-                end
-        end else begin
+                if TransactionType = TransactionType::S1 then
+                    TransactionType := TransactionType::S3;
+        end else
             if TransactionType = TransactionType::Initial then
                 TransactionType := TransactionType::S1
             else
-                if TransactionType = TransactionType::S2 then begin
-                    TransactionType := TransactionType::S3
-                end
-        end;
+                if TransactionType = TransactionType::S2 then
+                    TransactionType := TransactionType::S3;
         OnAfterBuildNonExemptTransactionType(VATEntry, TransactionType);
     end;
 
@@ -1823,7 +1819,7 @@ codeunit 10750 "SII XML Creator"
         TotalBaseAmount := 0;
         TotalVATAmount := 0;
 
-        if SIIManagement.FindVatEntriesFromLedger(LedgerEntryRecRef, VATEntry) then begin
+        if SIIManagement.FindVatEntriesFromLedger(LedgerEntryRecRef, VATEntry) then
             repeat
                 OnCalculateTotalVatAndBaseAmountsOnBeforeAssignTotalBaseAmount(LedgerEntryRecRef, VATEntry);
                 TotalBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
@@ -1832,7 +1828,7 @@ codeunit 10750 "SII XML Creator"
                 if VATEntry."VAT Calculation Type" <> VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
                     TotalVATAmount += VATEntry.Amount + VATEntry."Unrealized Amount";
             until VATEntry.Next() = 0;
-        end;
+
         SIIManagement.FindNoTaxableEntriesFromLedger(LedgerEntryRecRef, NoTaxableEntry);
         NoTaxableEntry.CalcSums(NoTaxableEntry."Base (LCY)");
         TotalBaseAmount += NoTaxableEntry."Base (LCY)";
@@ -2493,7 +2489,7 @@ codeunit 10750 "SII XML Creator"
              NoTaxableEntry,
              SIIManagement.GetCustFromLedgEntryByGLSetup(CustLedgerEntry), CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.",
              CustLedgerEntry."Posting Date", IsService, false, false, false)
-        then begin
+        then
             if NoTaxableEntry.FindSet() then
                 repeat
                     EntryNo += 1;
@@ -2502,7 +2498,6 @@ codeunit 10750 "SII XML Creator"
                     TempVATEntryCalculatedNonExempt.Amount := 0;
                     TempVATEntryCalculatedNonExempt.Insert();
                 until NoTaxableEntry.Next() = 0;
-        end;
     end;
 
     local procedure IsPurchInvoice(var InvoiceType: Text; SIIDocUploadState: Record "SII Doc. Upload State") IsInvoice: Boolean
@@ -2581,7 +2576,7 @@ codeunit 10750 "SII XML Creator"
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
         exit(
-          CrMemoType IN [SIIDocUploadState."Sales Cr. Memo Type"::"F1 Invoice",
+          CrMemoType in [SIIDocUploadState."Sales Cr. Memo Type"::"F1 Invoice",
                          SIIDocUploadState."Sales Cr. Memo Type"::"F2 Simplified Invoice",
                          SIIDocUploadState."Sales Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices",
                          SIIDocUploadState."Sales Cr. Memo Type"::"F4 Invoice summary entry"]);

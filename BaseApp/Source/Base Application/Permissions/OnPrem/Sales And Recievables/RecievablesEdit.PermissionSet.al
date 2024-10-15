@@ -20,6 +20,7 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.VAT.Calculation;
 
 permissionset 7071 "Recievables - Edit"
@@ -64,6 +65,7 @@ permissionset 7071 "Recievables - Edit"
                   tabledata "Line Fee Note on Report Hist." = R,
                   tabledata "Reminder Comment Line" = RIMD,
                   tabledata "Reminder Attachment Text" = R,
+                  tabledata "Reminder Attachment Text Line" = R,
                   tabledata "Reminder Header" = RIMD,
                   tabledata "Reminder Email Text" = R,
                   tabledata "Reminder Level" = R,
@@ -102,5 +104,6 @@ permissionset 7071 "Recievables - Edit"
                   tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "VAT Setup" = R,
-                  tabledata "VAT Posting Parameters" = R;
+                  tabledata "VAT Posting Parameters" = R,
+                  tabledata "Alt. Cust. VAT Reg." = R;
 }

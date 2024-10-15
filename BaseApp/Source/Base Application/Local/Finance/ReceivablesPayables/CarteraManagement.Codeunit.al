@@ -737,9 +737,9 @@ codeunit 7000000 CarteraManagement
                         else
                             TotalVATAmount := VATAmount * CurrencyFactor;
 
-                        if NoRealVATBuffer.Get(SalesVATUnrealAccount, SalesVATAccount, VATEntry2."Entry No.") then begin
-                            NoRealVATBuffer.Amount := NoRealVATBuffer.Amount + TotalVATAmount;
-                        end else begin
+                        if NoRealVATBuffer.Get(SalesVATUnrealAccount, SalesVATAccount, VATEntry2."Entry No.") then
+                            NoRealVATBuffer.Amount := NoRealVATBuffer.Amount + TotalVATAmount
+                        else begin
                             NoRealVATBuffer.Init();
                             NoRealVATBuffer.Account := SalesVATUnrealAccount;
                             NoRealVATBuffer."Balance Account" := SalesVATAccount;
@@ -944,9 +944,9 @@ codeunit 7000000 CarteraManagement
                         else
                             TotalVATAmount := VATAmount * CurrencyFactor;
 
-                        if NoRealVATBuffer.Get(PurchVATUnrealAccount, PurchVATAccount, VATEntry2."Entry No.") then begin
-                            NoRealVATBuffer.Amount := NoRealVATBuffer.Amount + TotalVATAmount;
-                        end else begin
+                        if NoRealVATBuffer.Get(PurchVATUnrealAccount, PurchVATAccount, VATEntry2."Entry No.") then
+                            NoRealVATBuffer.Amount := NoRealVATBuffer.Amount + TotalVATAmount
+                        else begin
                             NoRealVATBuffer.Init();
                             NoRealVATBuffer.Account := PurchVATUnrealAccount;
                             NoRealVATBuffer."Balance Account" := PurchVATAccount;

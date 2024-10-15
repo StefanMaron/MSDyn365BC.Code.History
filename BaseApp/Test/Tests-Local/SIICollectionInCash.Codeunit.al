@@ -340,23 +340,21 @@ codeunit 147554 "SII Collection In Cash"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine,
-              GenJournalBatch."Journal Template Name",
-              GenJournalBatch.Name,
-              "Document Type"::Payment,
-              AccountType,
-              AccountNo,
-              "Bal. Account Type"::"G/L Account",
-              BalGLAccNo,
-              PmtAmount);
-            Validate("Posting Date", PostingDate);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", ApplToDocNo);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine,
+          GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment,
+          AccountType,
+          AccountNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account",
+          BalGLAccNo,
+          PmtAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", ApplToDocNo);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

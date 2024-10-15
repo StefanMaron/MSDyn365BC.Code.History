@@ -23,16 +23,16 @@ codeunit 104100 "UPG SII"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag()) then
+            exit;
 
-        IF NOT Employee.FindSet() then
-            EXIT;
+        if not Employee.FindSet() then
+            exit;
 
-        REPEAT
+        repeat
             Employee.UpdateNamesFromOldFields();
             Employee.Modify();
-        UNTIL Employee.Next() = 0;
+        until Employee.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag());
     end;
@@ -43,8 +43,8 @@ codeunit 104100 "UPG SII"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateSIISetupSchemasTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateSIISetupSchemasTag()) then
+            exit;
 
         if SIISetup.Get() then
             SIISetup.SetDefaults();

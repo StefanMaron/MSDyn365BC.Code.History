@@ -29,7 +29,6 @@ codeunit 144054 "ERM ES Income Statement"
     var
         Assert: Codeunit Assert;
         IncomeStatementBalanceAccTxt: Label '1290001';
-        IncomeStmtBalAccErr: Label 'Income Stmt. Bal. Acc. must have a value in G/L Account: No.=%1. It cannot be zero or empty';
         ValueMustBeSameMsg: Label 'Value must be same.';
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -103,7 +102,7 @@ codeunit 144054 "ERM ES Income Statement"
 
         // Verify: Verify Expected Error - Income Stmt. Bal. Acc. must have a value for G/L Account Number. It cannot be zero or empty.
         ChartOfAccounts.Close();
-        Assert.ExpectedError(StrSubstNo(IncomeStmtBalAccErr, GLAccountNo));
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption("Income Stmt. Bal. Acc."), '');
     end;
 
     [Test]

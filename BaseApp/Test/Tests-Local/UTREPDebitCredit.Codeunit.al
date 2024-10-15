@@ -916,18 +916,16 @@ codeunit 144040 "UT REP Debit Credit"
 
     local procedure CreateGLEntryWithAdditionalCurrency(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; PostingDate: Date)
     begin
-        with GLEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "G/L Account No." := GLAccountNo;
-            "Posting Date" := PostingDate;
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Debit Amount" := LibraryRandom.RandDec(100, 2);
-            "Credit Amount" := LibraryRandom.RandDec(100, 2);
-            "Additional-Currency Amount" := LibraryRandom.RandDec(100, 2);
-            "Add.-Currency Debit Amount" := LibraryRandom.RandDec(100, 2);
-            "Add.-Currency Credit Amount" := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."G/L Account No." := GLAccountNo;
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry.Amount := LibraryRandom.RandDec(100, 2);
+        GLEntry."Debit Amount" := LibraryRandom.RandDec(100, 2);
+        GLEntry."Credit Amount" := LibraryRandom.RandDec(100, 2);
+        GLEntry."Additional-Currency Amount" := LibraryRandom.RandDec(100, 2);
+        GLEntry."Add.-Currency Debit Amount" := LibraryRandom.RandDec(100, 2);
+        GLEntry."Add.-Currency Credit Amount" := LibraryRandom.RandDec(100, 2);
+        GLEntry.Insert();
     end;
 
     local procedure CreateGLRegister(EntryNo: Integer): Integer

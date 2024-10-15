@@ -944,10 +944,8 @@ codeunit 137207 "SCM Archive Orders"
 
     local procedure GetSalesHeaderArchivedVersion(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            CalcFields("No. of Archived Versions");
-            SalesHeaderArchive.Get("Document Type", "No.", "Doc. No. Occurrence", "No. of Archived Versions");
-        end;
+        SalesHeader.CalcFields("No. of Archived Versions");
+        SalesHeaderArchive.Get(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Doc. No. Occurrence", SalesHeader."No. of Archived Versions");
     end;
 
     local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")

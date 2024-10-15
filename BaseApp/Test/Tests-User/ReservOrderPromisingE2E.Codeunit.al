@@ -412,12 +412,10 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         DateFormulaForQuarter: DateFormula;
     begin
         Evaluate(DateFormulaForQuarter, '<3M>');
-        with CompanyInformation do begin
-            Get();
-            Validate("Check-Avail. Period Calc.", DateFormulaForQuarter);
-            Validate("Check-Avail. Time Bucket", "Check-Avail. Time Bucket"::Day);
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Check-Avail. Period Calc.", DateFormulaForQuarter);
+        CompanyInformation.Validate("Check-Avail. Time Bucket", CompanyInformation."Check-Avail. Time Bucket"::Day);
+        CompanyInformation.Modify(true);
     end;
 
     [StrMenuHandler]

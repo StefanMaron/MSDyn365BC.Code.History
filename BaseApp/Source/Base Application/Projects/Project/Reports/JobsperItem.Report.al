@@ -161,7 +161,9 @@ report 1014 "Jobs per Item"
         TempJobBuffer: Record "Job Buffer" temporary;
         JobFilter: Text;
         ItemFilter: Text;
+#pragma warning disable AA0074
         Text000: Label 'Total for';
+#pragma warning restore AA0074
         CurrReportPageNoCaptionLbl: Label 'Page';
         JobsperItemCaptionLbl: Label 'Projects per Item';
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY';

@@ -16,7 +16,6 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Contract;
 using System.Reflection;
 using System.Utilities;
 
@@ -30,7 +29,9 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     var
         TempGLAccWhereUsed: Record "G/L Account Where-Used" temporary;
         NextEntryNo: Integer;
+#pragma warning disable AA0074
         Text000: Label 'The update has been interrupted to respect the warning.';
+#pragma warning restore AA0074
         ShowWhereUsedQst: Label 'You cannot delete a %1 that is used in one or more setup windows.\Do you want to open the G/L Account No. Where-Used List Window?', Comment = '%1 -  Table Caption';
 
     procedure ShowSetupForm(GLAccWhereUsed: Record "G/L Account Where-Used")
@@ -48,7 +49,6 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         FAPostingGr: Record "FA Posting Group";
         FAAlloc: Record "FA Allocation";
         InventoryPostingSetup: Record "Inventory Posting Setup";
-        ServiceContractAccGr: Record "Service Contract Account Group";
         ICPartner: Record "IC Partner";
         PaymentMethod: Record "Payment Method";
     begin
@@ -138,11 +138,6 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                     InventoryPostingSetup."Invt. Posting Group Code" :=
                       CopyStr(GLAccWhereUsed."Key 2", 1, MaxStrLen(InventoryPostingSetup."Invt. Posting Group Code"));
                     PAGE.Run(PAGE::"Inventory Posting Setup", InventoryPostingSetup);
-                end;
-            Database::"Service Contract Account Group":
-                begin
-                    ServiceContractAccGr.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(ServiceContractAccGr.Code));
-                    PAGE.Run(0, ServiceContractAccGr);
                 end;
             Database::"IC Partner":
                 begin
@@ -305,7 +300,6 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         AddTable(TableBuffer, Database::"FA Posting Group");
         AddTable(TableBuffer, Database::"FA Allocation");
         AddTable(TableBuffer, Database::"Inventory Posting Setup");
-        AddTable(TableBuffer, Database::"Service Contract Account Group");
         AddTable(TableBuffer, Database::"IC Partner");
         AddTable(TableBuffer, Database::"Payment Method");
         AddTable(TableBuffer, Database::"Sales & Receivables Setup");

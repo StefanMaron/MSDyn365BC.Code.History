@@ -1060,7 +1060,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     [Scope('OnPrem')]
     procedure VATToolAdjustExtTextsAttachedToLineNo()
     var
-        VATProdPostingGroup: Array[2] of Record "VAT Product Posting Group";
+        VATProdPostingGroup: array[2] of Record "VAT Product Posting Group";
         VATBusPostingGroup: Record "VAT Business Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
         Item: Record Item;
@@ -1092,8 +1092,8 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // [GIVEN] Item with VAT Prod. Posting Group = 'VPPG1' and enabled Automatic Ext. Texts with one line Ext. Text
         LibraryInventory.CreateItem(Item);
         Item.VALIDATE("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
-        Item.Validate("Automatic Ext. Texts", TRUE);
-        Item.Modify(TRUE);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
         LibraryService.CreateExtendedTextForItem(Item."No.");
 
         // [GIVEN] Blanket Purchase Order with line of type Item, Qty = 10 and one Ext. Text line
@@ -1115,8 +1115,8 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         // [GIVEN] Purchase Order posted with Quanitity = 8.
         PurchOrderLine.Validate(Quantity, 8);
-        PurchOrderLine.Modify(TRUE);
-        LibraryPurchase.PostPurchaseDocument(PurchOrderHeader, TRUE, TRUE);
+        PurchOrderLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchOrderHeader, true, true);
 
         // [WHEN] Run VAT Change Tool with option to convert 'VPPG1' into 'VPPG2' for Purchase documents
         ERMVATToolHelper.SetupToolConvGroups(
@@ -1698,18 +1698,16 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         GetPurchaseLine(PurchaseHeader, PurchaseLine3);
         PurchaseLine3.FindLast();
 
-        with PurchaseLine do begin
-            Init();
-            Validate("Document Type", PurchaseHeader."Document Type");
-            Validate("Document No.", PurchaseHeader."No.");
-            Validate("Line No.", PurchaseLine3."Line No." + 1);
-            Insert(true);
+        PurchaseLine.Init();
+        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchaseLine.Validate("Line No.", PurchaseLine3."Line No." + 1);
+        PurchaseLine.Insert(true);
 
-            Validate(Type, PurchaseLine3.Type);
-            Validate("No.", PurchaseLine3."No.");
-            Validate(Quantity, PurchaseLine3.Quantity);
-            Modify(true);
-        end;
+        PurchaseLine.Validate(Type, PurchaseLine3.Type);
+        PurchaseLine.Validate("No.", PurchaseLine3."No.");
+        PurchaseLine.Validate(Quantity, PurchaseLine3.Quantity);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CopyPurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PurchaseLine3: Record "Purchase Line")
@@ -1865,9 +1863,8 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order,
           PurchaseHeader."Buy-from Vendor No.");
         CreatePurchaseItemChargeLine(PurchaseLine, PurchaseHeader);
-        with PurchRcptLine do
-            LibraryInventory.CreateItemChargeAssignPurchase(ItemChargeAssignmentPurch,
-              PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt, "Document No.", "Line No.", "No.");
+        LibraryInventory.CreateItemChargeAssignPurchase(ItemChargeAssignmentPurch,
+              PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt, PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
         RecRef.GetTable(PurchaseLine);
         TempRecRef.Open(DATABASE::"Purchase Line", true);
         ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
@@ -1892,9 +1889,8 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine3.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine3.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine3.FindFirst();
-        with PurchaseLine3 do
-            LibraryInventory.CreateItemChargeAssignPurchase(ItemChargeAssignmentPurch,
-              PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order, "Document No.", "Line No.", "No.");
+        LibraryInventory.CreateItemChargeAssignPurchase(ItemChargeAssignmentPurch,
+              PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order, PurchaseLine3."Document No.", PurchaseLine3."Line No.", PurchaseLine3."No.");
 
         PurchaseLine.Find();
         RecRef.GetTable(PurchaseLine);
@@ -2091,17 +2087,15 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         TempPurchLn.Next();
         QtyItem += TempPurchLn.Quantity;
 
-        with ItemChargeAssignmentPurch do begin
-            SetRange("Document Type", TempPurchLn."Document Type");
-            SetFilter("Document No.", TempPurchLn."Document No.");
-            FindSet();
-            Assert.AreEqual(2, Count, ERMVATToolHelper.GetItemChargeErrorCount());
-            Assert.AreNearlyEqual(
-              QtyReceivedItem / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
-            Next();
-            Assert.AreNearlyEqual(
-              (QtyItem - QtyReceivedItem) / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
-        end;
+        ItemChargeAssignmentPurch.SetRange("Document Type", TempPurchLn."Document Type");
+        ItemChargeAssignmentPurch.SetFilter("Document No.", TempPurchLn."Document No.");
+        ItemChargeAssignmentPurch.FindSet();
+        Assert.AreEqual(2, ItemChargeAssignmentPurch.Count, ERMVATToolHelper.GetItemChargeErrorCount());
+        Assert.AreNearlyEqual(
+          QtyReceivedItem / QtyItem * QtyItemCharge, ItemChargeAssignmentPurch."Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
+        ItemChargeAssignmentPurch.Next();
+        Assert.AreNearlyEqual(
+          (QtyItem - QtyReceivedItem) / QtyItem * QtyItemCharge, ItemChargeAssignmentPurch."Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
     end;
 
     local procedure VerifyPurchDocWithReservation(Tracking: Boolean)
@@ -2199,42 +2193,38 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     local procedure VerifySplitOldLinePurch(var PurchLn1: Record "Purchase Line"; PurchLn2: Record "Purchase Line")
     begin
         // Splitted Line should have Quantity = Quantity to Ship/Receive of the Original Line and old Product Posting Groups.
-        with PurchLn2 do begin
-            TestField("Line No.", PurchLn1."Line No.");
-            case "Document Type" of
-                "Document Type"::Order:
-                    TestField(Quantity, PurchLn1."Qty. to Receive");
-                "Document Type"::"Return Order":
-                    TestField(Quantity, PurchLn1."Return Qty. to Ship");
-            end;
-            TestField("Qty. to Receive", 0);
-            TestField("Return Qty. to Ship", 0);
-            TestField("Quantity Received", PurchLn1."Qty. to Receive");
-            TestField("Return Qty. Shipped", PurchLn1."Return Qty. to Ship");
-            TestField("Blanket Order No.", PurchLn1."Blanket Order No.");
-            TestField("Blanket Order Line No.", PurchLn1."Blanket Order Line No.");
-            TestField("VAT Prod. Posting Group", PurchLn1."VAT Prod. Posting Group");
-            TestField("Gen. Prod. Posting Group", PurchLn1."Gen. Prod. Posting Group");
+        PurchLn2.TestField("Line No.", PurchLn1."Line No.");
+        case PurchLn2."Document Type" of
+            PurchLn2."Document Type"::Order:
+                PurchLn2.TestField(Quantity, PurchLn1."Qty. to Receive");
+            PurchLn2."Document Type"::"Return Order":
+                PurchLn2.TestField(Quantity, PurchLn1."Return Qty. to Ship");
         end;
+        PurchLn2.TestField("Qty. to Receive", 0);
+        PurchLn2.TestField("Return Qty. to Ship", 0);
+        PurchLn2.TestField("Quantity Received", PurchLn1."Qty. to Receive");
+        PurchLn2.TestField("Return Qty. Shipped", PurchLn1."Return Qty. to Ship");
+        PurchLn2.TestField("Blanket Order No.", PurchLn1."Blanket Order No.");
+        PurchLn2.TestField("Blanket Order Line No.", PurchLn1."Blanket Order Line No.");
+        PurchLn2.TestField("VAT Prod. Posting Group", PurchLn1."VAT Prod. Posting Group");
+        PurchLn2.TestField("Gen. Prod. Posting Group", PurchLn1."Gen. Prod. Posting Group");
     end;
 
     local procedure VerifySplitNewLinePurch(var PurchLn1: Record "Purchase Line"; PurchLn2: Record "Purchase Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
     begin
         // Line should have Quantity = Original Quantity - Quantity Shipped/Received,
         // Quantity Shipped/Received = 0 and new Posting Groups.
-        with PurchLn2 do begin
-            TestField(Quantity, PurchLn1.Quantity);
-            if PurchLn2."Document Type" = PurchLn2."Document Type"::"Blanket Order" then
-                TestField("Qty. to Receive", 0)
-            else
-                TestField("Qty. to Receive", PurchLn1."Qty. to Receive");
-            TestField("Return Qty. to Ship", PurchLn1."Return Qty. to Ship");
-            TestField("Dimension Set ID", PurchLn1."Dimension Set ID");
-            TestField("Blanket Order No.", PurchLn1."Blanket Order No.");
-            TestField("Blanket Order Line No.", PurchLn1."Blanket Order Line No.");
-            TestField("VAT Prod. Posting Group", VATProdPostingGroup);
-            TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
-        end;
+        PurchLn2.TestField(Quantity, PurchLn1.Quantity);
+        if PurchLn2."Document Type" = PurchLn2."Document Type"::"Blanket Order" then
+            PurchLn2.TestField("Qty. to Receive", 0)
+        else
+            PurchLn2.TestField("Qty. to Receive", PurchLn1."Qty. to Receive");
+        PurchLn2.TestField("Return Qty. to Ship", PurchLn1."Return Qty. to Ship");
+        PurchLn2.TestField("Dimension Set ID", PurchLn1."Dimension Set ID");
+        PurchLn2.TestField("Blanket Order No.", PurchLn1."Blanket Order No.");
+        PurchLn2.TestField("Blanket Order Line No.", PurchLn1."Blanket Order Line No.");
+        PurchLn2.TestField("VAT Prod. Posting Group", VATProdPostingGroup);
+        PurchLn2.TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
     end;
 
     local procedure VerifyLineConverted(PurchaseHeader: Record "Purchase Header"; QtyReceived: Decimal; QtyToBeConverted: Decimal)

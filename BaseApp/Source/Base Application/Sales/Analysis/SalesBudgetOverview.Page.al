@@ -648,10 +648,12 @@ page 7139 "Sales Budget Overview"
         InternalDateFilter: Text;
         PeriodInitialized: Boolean;
         ShowColumnName: Boolean;
+#pragma warning disable AA0074
         Text003: Label '1,6,,Budget Dimension 1 Filter';
         Text004: Label '1,6,,Budget Dimension 2 Filter';
         Text005: Label '1,6,,Budget Dimension 3 Filter';
         Text100: Label 'Period';
+#pragma warning restore AA0074
         NewBudgetName: Code[10];
         BudgetDim1FilterEnable: Boolean;
         BudgetDim2FilterEnable: Boolean;

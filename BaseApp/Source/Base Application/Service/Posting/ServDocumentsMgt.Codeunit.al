@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Service.Posting;
 
 using Microsoft.CRM.Team;
-using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -87,6 +86,7 @@ codeunit 5988 "Serv-Documents Mgt."
         ServOrderMgt: Codeunit ServOrderManagement;
         ServLogMgt: Codeunit ServLogManagement;
         DimMgt: Codeunit DimensionManagement;
+        ServDimMgt: Codeunit "Serv. Dimension Management";
         ServAllocMgt: Codeunit ServAllocationManagement;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
@@ -103,24 +103,36 @@ codeunit 5988 "Serv-Documents Mgt."
         Ship: Boolean;
         Consume: Boolean;
         Invoice: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label '%1 %2 -> Invoice %3';
         Text008: Label '%1 %2 -> Credit Memo %3';
+#pragma warning restore AA0470
         Text011: Label 'must have the same sign as the shipment.';
         Text013: Label 'The shipment lines have been deleted.';
+#pragma warning disable AA0470
         Text014: Label 'You cannot invoice more than you have shipped for order %1.';
         Text015: Label 'The %1 you are going to invoice has a %2 entered.\You may need to run price adjustment. Do you want to continue posting? ';
+#pragma warning restore AA0470
         Text023: Label 'This order must be a complete Shipment.';
+#pragma warning disable AA0470
         Text026: Label 'Line %1 of the shipment %2, which you are attempting to invoice, has already been invoiced.';
         Text027: Label 'The quantity you are attempting to invoice is greater than the quantity in shipment %1.';
         Text028: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
         Text029: Label 'The combination of dimensions used in %1 %2, line no. %3 is blocked. %4';
         Text030: Label 'The dimensions used in %1 %2 are invalid. %3';
         Text031: Label 'The dimensions used in %1 %2, line no. %3 are invalid. %4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CloseCondition: Boolean;
         ServLinesPassed: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text035: Label 'The %1 %2 relates to the same %3 as %1 %4.';
         Text039: Label '%1 %2 on %3 %4 relates to a %5 that has already been invoiced.';
         Text041: Label 'Old %1 service ledger entries have been found for service contract %2.\You must close them by posting the old service invoices.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TrackingSpecificationExists: Boolean;
         ServLineInvoicedConsumedQty: Decimal;
         ServLedgEntryNo: Integer;
@@ -303,8 +315,8 @@ codeunit 5988 "Serv-Documents Mgt."
                         ServLine.TestField("Variant Code");
                 end;
 
-                if CheckCloseCondition(
-                     ServLine.Quantity, ServLine."Qty. to Invoice", ServLine."Qty. to Consume", ServLine."Quantity Invoiced", ServLine."Quantity Consumed") = false
+                if not CheckCloseCondition(
+                     ServLine.Quantity, ServLine."Qty. to Invoice", ServLine."Qty. to Consume", ServLine."Quantity Invoiced", ServLine."Quantity Consumed")
                 then
                     CloseCondition := false;
 
@@ -539,7 +551,7 @@ codeunit 5988 "Serv-Documents Mgt."
 #if not CLEAN23
                     end;
 #endif
-            end;
+                end;
 
             MakeInvtAdjustment();
             ServPostingJnlsMgt.CreateBills(TotalServiceLine, Window, GenJnlLineDocNo, GenJnlLineExtDocNo);
@@ -847,51 +859,51 @@ codeunit 5988 "Serv-Documents Mgt."
         end;
     end;
 
-    local procedure PrepareShipmentLine(var passedServLine: Record "Service Line"; passedWarrantyNo: Integer)
+    local procedure PrepareShipmentLine(var PassedServLine: Record "Service Line"; passedWarrantyNo: Integer)
     var
         WarrantyLedgerEntry: Record "Warranty Ledger Entry";
     begin
-        if (ServShptHeader."No." <> '') and (passedServLine."Shipment No." = '') and not ServAmountsMgt.RoundingLineInserted() then begin
+        if (ServShptHeader."No." <> '') and (PassedServLine."Shipment No." = '') and not ServAmountsMgt.RoundingLineInserted() then begin
             // Insert shipment line
             ServShptLine.Init();
-            ServShptLine.TransferFields(passedServLine);
+            ServShptLine.TransferFields(PassedServLine);
             ServShptLine."Document No." := ServShptHeader."No.";
-            ServShptLine.Quantity := passedServLine."Qty. to Ship";
-            ServShptLine."Quantity (Base)" := passedServLine."Qty. to Ship (Base)";
+            ServShptLine.Quantity := PassedServLine."Qty. to Ship";
+            ServShptLine."Quantity (Base)" := PassedServLine."Qty. to Ship (Base)";
             ServShptLine."Appl.-to Warranty Entry" := passedWarrantyNo;
-            if Abs(passedServLine."Qty. to Consume") > Abs(passedServLine."Qty. to Ship" - passedServLine."Qty. to Invoice") then begin
-                ServShptLine."Quantity Consumed" := passedServLine."Qty. to Ship" - passedServLine."Qty. to Invoice";
-                ServShptLine."Qty. Consumed (Base)" := passedServLine."Qty. to Ship (Base)" - passedServLine."Qty. to Invoice (Base)";
+            if Abs(PassedServLine."Qty. to Consume") > Abs(PassedServLine."Qty. to Ship" - PassedServLine."Qty. to Invoice") then begin
+                ServShptLine."Quantity Consumed" := PassedServLine."Qty. to Ship" - PassedServLine."Qty. to Invoice";
+                ServShptLine."Qty. Consumed (Base)" := PassedServLine."Qty. to Ship (Base)" - PassedServLine."Qty. to Invoice (Base)";
             end else begin
-                ServShptLine."Quantity Consumed" := passedServLine."Qty. to Consume";
-                ServShptLine."Qty. Consumed (Base)" := passedServLine."Qty. to Consume (Base)";
+                ServShptLine."Quantity Consumed" := PassedServLine."Qty. to Consume";
+                ServShptLine."Qty. Consumed (Base)" := PassedServLine."Qty. to Consume (Base)";
             end;
-            if Abs(passedServLine."Qty. to Invoice") > Abs(passedServLine."Qty. to Ship" - passedServLine."Qty. to Consume") then begin
-                ServShptLine."Quantity Invoiced" := passedServLine."Qty. to Ship" - passedServLine."Qty. to Consume";
-                ServShptLine."Qty. Invoiced (Base)" := passedServLine."Qty. to Ship (Base)" - passedServLine."Qty. to Consume (Base)";
+            if Abs(PassedServLine."Qty. to Invoice") > Abs(PassedServLine."Qty. to Ship" - PassedServLine."Qty. to Consume") then begin
+                ServShptLine."Quantity Invoiced" := PassedServLine."Qty. to Ship" - PassedServLine."Qty. to Consume";
+                ServShptLine."Qty. Invoiced (Base)" := PassedServLine."Qty. to Ship (Base)" - PassedServLine."Qty. to Consume (Base)";
             end else begin
-                ServShptLine."Quantity Invoiced" := passedServLine."Qty. to Invoice";
-                ServShptLine."Qty. Invoiced (Base)" := passedServLine."Qty. to Invoice (Base)";
+                ServShptLine."Quantity Invoiced" := PassedServLine."Qty. to Invoice";
+                ServShptLine."Qty. Invoiced (Base)" := PassedServLine."Qty. to Invoice (Base)";
             end;
             ServShptLine."Qty. Shipped Not Invoiced" := ServShptLine.Quantity -
               ServShptLine."Quantity Invoiced" - ServShptLine."Quantity Consumed";
             ServShptLine."Qty. Shipped Not Invd. (Base)" := ServShptLine."Quantity (Base)" -
               ServShptLine."Qty. Invoiced (Base)" - ServShptLine."Qty. Consumed (Base)";
-            if passedServLine."Document Type" = passedServLine."Document Type"::Order then begin
-                ServShptLine."Order No." := passedServLine."Document No.";
-                ServShptLine."Order Line No." := passedServLine."Line No.";
+            if PassedServLine."Document Type" = PassedServLine."Document Type"::Order then begin
+                ServShptLine."Order No." := PassedServLine."Document No.";
+                ServShptLine."Order Line No." := PassedServLine."Line No.";
             end;
 
-            if (passedServLine.Type = passedServLine.Type::Item) and (passedServLine."Qty. to Ship" <> 0) then
+            if (PassedServLine.Type = PassedServLine.Type::Item) and (PassedServLine."Qty. to Ship" <> 0) then
                 ServShptLine."Item Shpt. Entry No." :=
                   ServITRMgt.InsertShptEntryRelation(ServShptLine,
                     TempHandlingSpecification, TempTrackingSpecificationInv, ItemLedgShptEntryNo);
 
-            passedServLine.CalcFields(passedServLine."Service Item Line Description");
-            ServShptLine."Service Item Line Description" := passedServLine."Service Item Line Description";
+            PassedServLine.CalcFields(PassedServLine."Service Item Line Description");
+            ServShptLine."Service Item Line Description" := PassedServLine."Service Item Line Description";
             OnBeforeServShptLineInsert(ServShptLine, ServLine, ServShptHeader);
             ServShptLine.Insert();
-            OnAfterServShptLineInsert(ServShptLine, ServLine, ServShptHeader, ServInvHeader, passedServLine);
+            OnAfterServShptLineInsert(ServShptLine, ServLine, ServShptHeader, ServInvHeader, PassedServLine);
             CheckCertificateOfSupplyStatus(ServShptHeader, ServShptLine);
         end;
         // end inserting Service Shipment Line
@@ -969,22 +981,22 @@ codeunit 5988 "Serv-Documents Mgt."
         exit(ServInvHeader."No.");
     end;
 
-    local procedure PrepareInvoiceLine(var passedServLine: Record "Service Line")
+    local procedure PrepareInvoiceLine(var PassedServLine: Record "Service Line")
     begin
         ServInvLine.Init();
-        ServInvLine.TransferFields(passedServLine);
+        ServInvLine.TransferFields(PassedServLine);
         ServInvLine."Document No." := ServInvHeader."No.";
-        ServInvLine.Quantity := passedServLine."Qty. to Invoice";
-        ServInvLine."Quantity (Base)" := passedServLine."Qty. to Invoice (Base)";
-        passedServLine.CalcFields(passedServLine."Service Item Line Description");
-        ServInvLine."Service Item Line Description" := passedServLine."Service Item Line Description";
+        ServInvLine.Quantity := PassedServLine."Qty. to Invoice";
+        ServInvLine."Quantity (Base)" := PassedServLine."Qty. to Invoice (Base)";
+        PassedServLine.CalcFields(PassedServLine."Service Item Line Description");
+        ServInvLine."Service Item Line Description" := PassedServLine."Service Item Line Description";
 
-        if passedServLine."Document Type" = passedServLine."Document Type"::Order then
-            ServInvLine."Order No." := passedServLine."Document No.";
+        if PassedServLine."Document Type" = PassedServLine."Document Type"::Order then
+            ServInvLine."Order No." := PassedServLine."Document No.";
 
-        OnBeforeServInvLineInsert(ServInvLine, passedServLine);
+        OnBeforeServInvLineInsert(ServInvLine, PassedServLine);
         ServInvLine.Insert();
-        OnAfterServInvLineInsert(ServInvLine, passedServLine);
+        OnAfterServInvLineInsert(ServInvLine, PassedServLine);
     end;
 
     procedure PrepareCrMemoHeader(var Window: Dialog): Code[20]
@@ -1029,20 +1041,20 @@ codeunit 5988 "Serv-Documents Mgt."
         exit(ServCrMemoHeader."No.");
     end;
 
-    local procedure PrepareCrMemoLine(var passedServLine: Record "Service Line")
+    local procedure PrepareCrMemoLine(var PassedServLine: Record "Service Line")
     begin
         // TempSrvLine is initialized (in Sales module) in RoundAmount
         // procedure, and likely does not differ from initial ServLine.
         ServCrMemoLine.Init();
-        ServCrMemoLine.TransferFields(passedServLine);
+        ServCrMemoLine.TransferFields(PassedServLine);
         ServCrMemoLine."Document No." := ServCrMemoHeader."No.";
-        ServCrMemoLine.Quantity := passedServLine."Qty. to Invoice";
-        ServCrMemoLine."Quantity (Base)" := passedServLine."Qty. to Invoice (Base)";
-        passedServLine.CalcFields(passedServLine."Service Item Line Description");
-        ServCrMemoLine."Service Item Line Description" := passedServLine."Service Item Line Description";
-        OnBeforeServCrMemoLineInsert(ServCrMemoLine, passedServLine);
+        ServCrMemoLine.Quantity := PassedServLine."Qty. to Invoice";
+        ServCrMemoLine."Quantity (Base)" := PassedServLine."Qty. to Invoice (Base)";
+        PassedServLine.CalcFields(PassedServLine."Service Item Line Description");
+        ServCrMemoLine."Service Item Line Description" := PassedServLine."Service Item Line Description";
+        OnBeforeServCrMemoLineInsert(ServCrMemoLine, PassedServLine);
         ServCrMemoLine.Insert();
-        OnAfterServCrMemoLineInsert(ServCrMemoLine, passedServLine);
+        OnAfterServCrMemoLineInsert(ServCrMemoLine, PassedServLine);
     end;
 
     procedure Finalize(var PassedServHeader: Record "Service Header")
@@ -1352,14 +1364,10 @@ codeunit 5988 "Serv-Documents Mgt."
             SalesSetup.Get();
             if SalesSetup."Correct. Doc. No. Mandatory" then
                 ServHeader.TestField(ServHeader."Corrected Invoice No.")
-            else begin
+            else
                 if ServHeader."Corrected Invoice No." = '' then
-                    if not
-                       Confirm(
-                         Text1100000, false)
-                    then
+                    if not Confirm(Text1100000, false) then
                         Error(Text1100001);
-            end;
             if (ServHeader."Corrected Invoice No." <> '') and (ServHeader."Posting Description" = '') then
                 ServHeader."Posting Description" := Format(Text1100002) + ' ' + ServHeader."No."
         end;
@@ -1536,7 +1544,7 @@ codeunit 5988 "Serv-Documents Mgt."
                   Text030,
                   ServHeader."Document Type", ServHeader."No.", DimMgt.GetDimValuePostingErr());
         end else begin
-            TableIDArr[1] := DimMgt.TypeToTableID5(ServiceLine2.Type.AsInteger());
+            TableIDArr[1] := ServDimMgt.ServiceLineTypeToTableID(ServiceLine2.Type);
             NumberArr[1] := ServiceLine2."No.";
             TableIDArr[2] := Database::Job;
             NumberArr[2] := ServiceLine2."Job No.";
@@ -1690,29 +1698,29 @@ codeunit 5988 "Serv-Documents Mgt."
             until ServLine.Next() = 0;
     end;
 
-    local procedure CheckCloseCondition(Qty: Decimal; QtytoInv: Decimal; QtyToCsm: Decimal; QtyInvd: Decimal; QtyCsmd: Decimal): Boolean
+    procedure CheckCloseCondition(LineQuantity: Decimal; LineQtytoInvoice: Decimal; LineQtyToConsume: Decimal; LineQuantityInvoiced: Decimal; LineQuantityConsumed: Decimal): Boolean
     var
-        ServiceItemLineTemp: Record "Service Item Line";
-        ServiceLineTemp: Record "Service Line";
+        ServiceItemLineToCheckCloseCondition: Record "Service Item Line";
+        ServiceLineToCheckCloseCondition: Record "Service Line";
         QtyClosedCondition: Boolean;
         ServiceItemClosedCondition: Boolean;
     begin
-        QtyClosedCondition := (Qty = QtyToCsm + QtytoInv + QtyCsmd + QtyInvd);
+        QtyClosedCondition := (LineQuantity = LineQtytoInvoice + LineQtyToConsume + LineQuantityInvoiced + LineQuantityConsumed);
         ServiceItemClosedCondition := true;
-        ServiceItemLineTemp.SetCurrentKey("Document Type", "Document No.", "Line No.");
-        ServiceItemLineTemp.SetRange("Document Type", ServItemLine."Document Type");
-        ServiceItemLineTemp.SetRange("Document No.", ServItemLine."Document No.");
-        ServiceItemLineTemp.SetFilter("Service Item No.", '<>%1', '');
-        if ServiceItemLineTemp.FindSet() then
+        ServiceItemLineToCheckCloseCondition.SetCurrentKey("Document Type", "Document No.", "Line No.");
+        ServiceItemLineToCheckCloseCondition.SetRange("Document Type", ServItemLine."Document Type");
+        ServiceItemLineToCheckCloseCondition.SetRange("Document No.", ServItemLine."Document No.");
+        ServiceItemLineToCheckCloseCondition.SetFilter("Service Item No.", '<>%1', '');
+        if ServiceItemLineToCheckCloseCondition.FindSet() then
             repeat
-                ServiceLineTemp.SetCurrentKey("Document Type", "Document No.", "Service Item No.");
-                ServiceLineTemp.SetRange("Document Type", ServiceItemLineTemp."Document Type");
-                ServiceLineTemp.SetRange("Document No.", ServiceItemLineTemp."Document No.");
-                ServiceLineTemp.SetRange("Service Item No.", ServiceItemLineTemp."Service Item No.");
-                if not ServiceLineTemp.FindFirst() then
+                ServiceLineToCheckCloseCondition.SetCurrentKey("Document Type", "Document No.", "Service Item No.");
+                ServiceLineToCheckCloseCondition.SetRange("Document Type", ServiceItemLineToCheckCloseCondition."Document Type");
+                ServiceLineToCheckCloseCondition.SetRange("Document No.", ServiceItemLineToCheckCloseCondition."Document No.");
+                ServiceLineToCheckCloseCondition.SetRange("Service Item No.", ServiceItemLineToCheckCloseCondition."Service Item No.");
+                if not ServiceLineToCheckCloseCondition.FindFirst() then
                     ServiceItemClosedCondition := false;
-                OnCheckCloseConditionOnAfterServiceLineTempLoop(ServiceItemLineTemp, ServiceLineTemp, Qty, QtytoInv, QtyToCsm, QtyInvd, QtyCsmd, ServiceItemClosedCondition);
-            until (ServiceItemLineTemp.Next() = 0) or (not ServiceItemClosedCondition);
+                OnCheckCloseConditionOnAfterServiceLineTempLoop(ServiceItemLineToCheckCloseCondition, ServiceLineToCheckCloseCondition, LineQuantity, LineQtytoInvoice, LineQtyToConsume, LineQuantityInvoiced, LineQuantityConsumed, ServiceItemClosedCondition);
+            until (ServiceItemLineToCheckCloseCondition.Next() = 0) or (not ServiceItemClosedCondition);
         exit(QtyClosedCondition and ServiceItemClosedCondition);
     end;
 
@@ -2127,13 +2135,12 @@ codeunit 5988 "Serv-Documents Mgt."
         OnGetShippingAdviceOnAfterServLine2SetFilters(ServLine2);
         if ServLine2.FindSet() then
             repeat
-                if ServLine2.IsShipment() then begin
+                if ServLine2.IsShipment() then
                     if ServLine2."Document Type" <> ServLine2."Document Type"::"Credit Memo" then
                         if ServLine2."Quantity (Base)" <>
                            ServLine2."Qty. to Ship (Base)" + ServLine2."Qty. Shipped (Base)"
                         then
                             exit(false);
-                end;
             until ServLine2.Next() = 0;
         exit(true);
     end;
@@ -2338,53 +2345,6 @@ codeunit 5988 "Serv-Documents Mgt."
         ServiceLedgerEntry.Modify();
     end;
 
-    internal procedure UpdateServiceLedgerEntry(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line")
-    var
-        ServiceLedgerEntry: Record "Service Ledger Entry";
-        Currency: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        LCYRoundingPrecision: Decimal;
-        CurrencyFactor: Decimal;
-    begin
-        if ServiceLine."Appl.-to Service Entry" = 0 then
-            exit;
-        if not ServiceLedgerEntry.Get(ServiceLine."Appl.-to Service Entry") then
-            exit;
-        if (ServiceLine."Unit Price" = xServiceLine."Unit Price") and (ServiceLine."Unit Cost" = xServiceLine."Unit Cost") and
-           (ServiceLine.Amount = xServiceLine.Amount) and (ServiceLine."Line Discount Amount" = xServiceLine."Line Discount Amount") and
-           (ServiceLine."Line Discount %" = xServiceLine."Line Discount %")
-        then
-            exit;
-
-        CurrencyFactor := 1;
-        if ServiceLine."Currency Code" <> '' then begin
-            CurrencyExchangeRate.SetRange("Currency Code", ServiceLine."Currency Code");
-            CurrencyExchangeRate.SetRange("Starting Date", 0D, ServiceLine."Order Date");
-            if CurrencyExchangeRate.FindLast() then
-                CurrencyFactor := CurrencyExchangeRate."Adjustment Exch. Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
-        end;
-        GeneralLedgerSetup.Get();
-        LCYRoundingPrecision := 0.01;
-        if Currency.Get(GeneralLedgerSetup."LCY Code") then
-            LCYRoundingPrecision := Currency."Amount Rounding Precision";
-
-        if ServiceLine."Unit Price" <> xServiceLine."Unit Price" then
-            ServiceLedgerEntry."Unit Price" := -Round(ServiceLine."Unit Price" / CurrencyFactor, LCYRoundingPrecision);
-        if ServiceLine."Unit Cost (LCY)" <> xServiceLine."Unit Cost (LCY)" then
-            ServiceLedgerEntry."Unit Cost" := ServiceLine."Unit Cost (LCY)";
-        if ServiceLine.Amount <> xServiceLine.Amount then begin
-            ServiceLedgerEntry.Amount := -ServiceLine.Amount;
-            ServiceLedgerEntry."Amount (LCY)" := -Round(ServiceLine.Amount / CurrencyFactor, LCYRoundingPrecision);
-        end;
-        if ServiceLine."Line Discount Amount" <> xServiceLine."Line Discount Amount" then
-            ServiceLedgerEntry."Discount Amount" := Round(ServiceLine."Line Discount Amount" / CurrencyFactor, LCYRoundingPrecision);
-        if ServiceLine."Line Discount %" <> xServiceLine."Line Discount %" then
-            ServiceLedgerEntry."Discount %" := ServiceLine."Line Discount %";
-        ServiceLedgerEntry.Modify();
-    end;
-
-
     local procedure UpdWarrantyLedgEntriesFromTemp()
     var
         WarrantyLedgerEntryLocal: Record "Warranty Ledger Entry";
@@ -2410,7 +2370,7 @@ codeunit 5988 "Serv-Documents Mgt."
             if VATPostingSetup.Get(ServShptHeader."VAT Bus. Posting Group", ServShptLine."VAT Prod. Posting Group") and
                VATPostingSetup."Certificate of Supply Required"
             then begin
-                CertificateOfSupply.InitFromService(ServShptHeader);
+                ServShptHeader.InitCertificateOfSupply(CertificateOfSupply);
                 CertificateOfSupply.SetRequired(ServShptHeader."No.");
                 OnAfterCheckCertificateOfSupplyStatus(ServShptHeader, ServShptLine);
             end;

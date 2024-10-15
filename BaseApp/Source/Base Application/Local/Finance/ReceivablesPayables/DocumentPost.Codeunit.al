@@ -190,9 +190,6 @@ codeunit 7000006 "Document-Post"
         PaymentMethod: Record "Payment Method";
         CompanyInfo: Record "Company Information";
         CustBankAcc: Record "Customer Bank Account";
-#if not CLEAN22
-        CustPmtAddress: Record "Customer Pmt. Address";
-#endif
         Cust: Record Customer;
     begin
         CarteraDoc."No." := GenJnlLine."Bill No.";
@@ -212,9 +209,6 @@ codeunit 7000006 "Document-Post"
         CarteraDoc."Currency Code" := GenJnlLine."Currency Code";
         CarteraDoc."Cust./Vendor Bank Acc. Code" :=
           CopyStr(GenJnlLine."Recipient Bank Account", 1, MaxStrLen(CarteraDoc."Cust./Vendor Bank Acc. Code"));
-#if not CLEAN22
-        CarteraDoc."Pmt. Address Code" := GenJnlLine."Pmt. Address Code";
-#endif
         CarteraDoc."Global Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
         CarteraDoc."Global Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
         CarteraDoc."Dimension Set ID" := GenJnlLine."Dimension Set ID";
@@ -234,13 +228,6 @@ codeunit 7000006 "Document-Post"
                 CarteraDoc.Place := CompanyInfo."Post Code" = CustBankAcc."Post Code";
                 exit;
             end;
-#if not CLEAN22
-            if GenJnlLine."Pmt. Address Code" <> '' then begin
-                CustPmtAddress.Get(GenJnlLine."Account No.", GenJnlLine."Pmt. Address Code");
-                CarteraDoc.Place := CompanyInfo."Post Code" = CustPmtAddress."Post Code";
-                exit;
-            end;
-#endif
             Cust.Get(GenJnlLine."Account No.");
             CarteraDoc.Place := CompanyInfo."Post Code" = Cust."Post Code";
         end;
@@ -720,10 +707,9 @@ codeunit 7000006 "Document-Post"
         if Print then begin
             if not Confirm(Text1100013, false) then
                 exit;
-        end else begin
+        end else
             if not Confirm(Text1100014, false) then
                 exit;
-        end;
 
         TempJnlBatchName := GenJnlLine."Journal Batch Name";
 

@@ -96,8 +96,10 @@ table 485 "Business Chart Buffer"
         TempBusChartMapToColumn: Record "Business Chart Map" temporary;
         BusinessChart: Codeunit "Business Chart";
         CurrentMeasure: Integer;
+#pragma warning disable AA0470
         CannotInsertErr: Label 'You cannot insert into table %1.';
         MeasureLimitErr: Label 'You cannot add more than %1 measures.';
+#pragma warning restore AA0470
 
     local procedure GetDataType(Type: Option): Enum "Business Chart Data Type"
     begin

@@ -31,7 +31,7 @@ page 99000782 "Where-Used Item List"
                 field("Production BOM No."; Rec."Production BOM No.")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the production BOM that the item represents.';
+                    ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
                 }
                 field("Inventory Posting Group"; Rec."Inventory Posting Group")
                 {

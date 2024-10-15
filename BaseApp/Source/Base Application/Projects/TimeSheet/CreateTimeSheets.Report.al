@@ -205,12 +205,18 @@ report 950 "Create Time Sheets"
         TimeSheetCounter: Integer;
         NoOfPeriods: Integer;
         CreateLinesFromJobPlanning: Boolean;
+#pragma warning disable AA0074
         Text002: Label 'Time sheet administrator only is allowed to create time sheets.';
+#pragma warning disable AA0470
         Text003: Label '%1 time sheets have been created.';
         Text004: Label '%1 must be filled in.';
+#pragma warning restore AA0470
         Text005: Label 'Starting Date';
         Text006: Label 'No. of Weeks';
+#pragma warning disable AA0470
         Text010: Label 'Starting Date must be %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         HideDialog: Boolean;
         OpenUserSetupQst: Label 'You aren''t allowed to run this report. If you want, you can give yourself the Time Sheet Admin. rights, and then try again.\\ Do you want to do that now?';
         DescriptionTxt: Label 'Week %1', Comment = '%1 - week number';

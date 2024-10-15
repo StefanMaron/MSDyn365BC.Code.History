@@ -54,14 +54,13 @@ codeunit 5323 "Exchange Add-in Setup"
     var
         ExchangeServiceSetup: Record "Exchange Service Setup";
         AzureADMgt: Codeunit "Azure AD Mgt.";
-        [NonDebuggable]
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
         Session.LogMessage('0000BX8', TryInitializeWithEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
-        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
+        AccessToken := AzureADMgt.GetAccessTokenAsSecretText(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
 
-        if AccessToken <> '' then begin
+        if not AccessToken.IsEmpty() then begin
             ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint());
             if ValidateCredentials() then begin
                 Session.LogMessage('0000BX9', InitializedWithOAuthTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);

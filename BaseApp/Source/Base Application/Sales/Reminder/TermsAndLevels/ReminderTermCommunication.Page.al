@@ -313,7 +313,7 @@ page 1897 "Reminder Term Communication"
                 Error(NoTextForSelectedLanguageErr, CurrentLanguage.Code);
 
         CurrPage.Update(false);
-        CurrPage.ReminderAttachmentTextPart.Page.SetSourceData(CurrentLanguage.Code);
+        CurrPage.ReminderAttachmentTextPart.Page.SetSourceDataAsTerm(CurrentLanguage.Code);
         CurrPage.ReminderEmailTextPart.Page.SetSourceData(CurrentLanguage.Code);
     end;
 }

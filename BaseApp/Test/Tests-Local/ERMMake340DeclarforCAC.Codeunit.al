@@ -68,19 +68,16 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReportWithGLAcc(ReferenceDate, GLAccount."No.");
-
         // [THEN] Payment record contains blank Collection info
-        with TempTest340DeclarationLineBuf do begin
-            "Document No." := PadStr('', 20, ' ');
-            "VAT Document No." := '';
-            "Operation Code" := '';
-            "Collection Date" := 0D;
-            "Collection Amount" := 0;
-            "Collection Payment Method" := '';
-            "Collection Bank Acc./Check No." := '';
-            Type := Type::Sale;
-            Insert();
-        end;
+        TempTest340DeclarationLineBuf."Document No." := PadStr('', 20, ' ');
+        TempTest340DeclarationLineBuf."VAT Document No." := '';
+        TempTest340DeclarationLineBuf."Operation Code" := '';
+        TempTest340DeclarationLineBuf."Collection Date" := 0D;
+        TempTest340DeclarationLineBuf."Collection Amount" := 0;
+        TempTest340DeclarationLineBuf."Collection Payment Method" := '';
+        TempTest340DeclarationLineBuf."Collection Bank Acc./Check No." := '';
+        TempTest340DeclarationLineBuf.Type := TempTest340DeclarationLineBuf.Type::Sale;
+        TempTest340DeclarationLineBuf.Insert();
 
         VerifyCollectionInfoInFile(ExportFileName, TempTest340DeclarationLineBuf);
     end;
@@ -114,10 +111,8 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
         // [THEN] Payment record 'Document No.'='SERV.INV'
         FillSalesExpectedBuffer(TempTest340DeclarationLineBuf, PaymentNo, ServiceInvNo, '', '', '');
-        with TempTest340DeclarationLineBuf do begin
-            Line := FindLine(ExportFileName, GetFieldPos(FieldNo("Document No.")), PaymentNo);
-            VerifyField(Line, FieldNo("VAT Document No."))
-        end;
+        Line := FindLine(ExportFileName, TempTest340DeclarationLineBuf.GetFieldPos(TempTest340DeclarationLineBuf.FieldNo("Document No.")), PaymentNo);
+        TempTest340DeclarationLineBuf.VerifyField(Line, TempTest340DeclarationLineBuf.FieldNo("VAT Document No."))
     end;
 
     [Test]
@@ -152,10 +147,8 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
         // [THEN] Payment record 'Document No.' = 'EXT.P.INV'
         FillPurchExpectedBuffer(TempTest340DeclarationLineBuf, PaymentNo, ExtPurchaseInvNo, '', '', '', 1);
-        with TempTest340DeclarationLineBuf do begin
-            Line := FindLine(ExportFileName, GetFieldPos(FieldNo("Document No.")), PaymentNo);
-            VerifyField(Line, FieldNo("VAT Document No."))
-        end;
+        Line := FindLine(ExportFileName, TempTest340DeclarationLineBuf.GetFieldPos(TempTest340DeclarationLineBuf.FieldNo("Document No.")), PaymentNo);
+        TempTest340DeclarationLineBuf.VerifyField(Line, TempTest340DeclarationLineBuf.FieldNo("VAT Document No."))
     end;
 
     [Test]
@@ -1064,11 +1057,10 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [THEN] Payment record contains 3 dates:
         // [THEN] 'Issued Date'=10.02.14; 'Operation Date'=14.02.14; 'Collection Date'=25.02.14
         FillSalesExpectedBuffer(TempTest340DeclarationLineBuf, PaymentNo, SalesInvNo, 'Z', 'C', FindBancAccountNoUsed(true, CustomerNo));
-        with TempTest340DeclarationLineBuf do begin
-            VerifyFieldInExportedFile(101, ExportFileName, DateToText(DocumentDate));  // 101 - Starting Position of 'Issued Date'.
-            VerifyFieldInExportedFile(GetFieldPos(FieldNo("Posting Date")), ExportFileName, DateToText(InvPostingDate));
-            VerifyFieldInExportedFile(GetFieldPos(FieldNo("Collection Date")), ExportFileName, DateToText(PayPostingDate));
-        end;
+        VerifyFieldInExportedFile(101, ExportFileName, DateToText(DocumentDate));
+        // 101 - Starting Position of 'Issued Date'.
+        VerifyFieldInExportedFile(TempTest340DeclarationLineBuf.GetFieldPos(TempTest340DeclarationLineBuf.FieldNo("Posting Date")), ExportFileName, DateToText(InvPostingDate));
+        VerifyFieldInExportedFile(TempTest340DeclarationLineBuf.GetFieldPos(TempTest340DeclarationLineBuf.FieldNo("Collection Date")), ExportFileName, DateToText(PayPostingDate));
     end;
 
     [Test]
@@ -2509,14 +2501,12 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        with NewVATPostingSetup do begin
-            NewVATPostingSetup := VATPostingSetup;
-            LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-            "VAT Prod. Posting Group" := VATProductPostingGroup.Code;
-            "VAT %" += 1;
-            "VAT Identifier" := IncStr(VATPostingSetup."VAT Identifier");
-            Insert();
-        end;
+        NewVATPostingSetup := VATPostingSetup;
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        NewVATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        NewVATPostingSetup."VAT %" += 1;
+        NewVATPostingSetup."VAT Identifier" := IncStr(VATPostingSetup."VAT Identifier");
+        NewVATPostingSetup.Insert();
     end;
 
     local procedure UpdatePurchReverseChargePaymentCollectionAmount(var TempTest340DeclarationLineBuf: Record "Test 340 Declaration Line Buf." temporary; DocNo: Code[20])
@@ -2563,54 +2553,52 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            Test340DeclarationLineBuf.Init();
-            Test340DeclarationLineBuf.Type := Test340DeclarationLineBuf.Type::Sale;
-            Test340DeclarationLineBuf."Entry No." += 1;
-            Test340DeclarationLineBuf."CV No." := "Customer No.";
-            Test340DeclarationLineBuf."Posting Date" := "Posting Date";
-            Test340DeclarationLineBuf."Document Type" := "Document Type".AsInteger();
-            Test340DeclarationLineBuf."Document No." := "Document No.";
-            Test340DeclarationLineBuf."VAT Document No." := VATDocumentNo;
-            Test340DeclarationLineBuf."Operation Code" := OperationCode;
-            Test340DeclarationLineBuf."Tax %" := -1; // a marker of not set value
-            Test340DeclarationLineBuf."No. of Registers" := 1;
-            if CollectionPaymentMethod <> '' then begin
-                Test340DeclarationLineBuf."Collection Date" := "Posting Date";
-                CalcFields("Original Amount");
-                Test340DeclarationLineBuf."Collection Amount" := "Original Amount";
-                Test340DeclarationLineBuf."Collection Payment Method" := CollectionPaymentMethod;
-                Test340DeclarationLineBuf."Collection Bank Acc./Check No." := CollectionBankAcc;
-            end;
-            Test340DeclarationLineBuf.Insert();
+        CustLedgEntry.SetRange("Document No.", DocumentNo);
+        CustLedgEntry.FindLast();
+        Test340DeclarationLineBuf.Init();
+        Test340DeclarationLineBuf.Type := Test340DeclarationLineBuf.Type::Sale;
+        Test340DeclarationLineBuf."Entry No." += 1;
+        Test340DeclarationLineBuf."CV No." := CustLedgEntry."Customer No.";
+        Test340DeclarationLineBuf."Posting Date" := CustLedgEntry."Posting Date";
+        Test340DeclarationLineBuf."Document Type" := CustLedgEntry."Document Type".AsInteger();
+        Test340DeclarationLineBuf."Document No." := CustLedgEntry."Document No.";
+        Test340DeclarationLineBuf."VAT Document No." := VATDocumentNo;
+        Test340DeclarationLineBuf."Operation Code" := OperationCode;
+        Test340DeclarationLineBuf."Tax %" := -1;
+        // a marker of not set value
+        Test340DeclarationLineBuf."No. of Registers" := 1;
+        if CollectionPaymentMethod <> '' then begin
+            Test340DeclarationLineBuf."Collection Date" := CustLedgEntry."Posting Date";
+            CustLedgEntry.CalcFields("Original Amount");
+            Test340DeclarationLineBuf."Collection Amount" := CustLedgEntry."Original Amount";
+            Test340DeclarationLineBuf."Collection Payment Method" := CollectionPaymentMethod;
+            Test340DeclarationLineBuf."Collection Bank Acc./Check No." := CollectionBankAcc;
         end;
+        Test340DeclarationLineBuf.Insert();
     end;
 
     local procedure Create340DeclarationLineBufPurch(VendLedgEntry: Record "Vendor Ledger Entry"; var Test340DeclarationLineBuf: Record "Test 340 Declaration Line Buf."; VATDocumentNo: Code[35]; OperationCode: Code[1]; CollectionPaymentMethod: Text[1]; CollectionBankAcc: Text[35]; NoOfRegisters: Integer)
     begin
-        with VendLedgEntry do begin
-            Test340DeclarationLineBuf.Init();
-            Test340DeclarationLineBuf.Type := Test340DeclarationLineBuf.Type::Purchase;
-            Test340DeclarationLineBuf."Entry No." += 1;
-            Test340DeclarationLineBuf."CV No." := "Vendor No.";
-            Test340DeclarationLineBuf."Posting Date" := "Posting Date";
-            Test340DeclarationLineBuf."Document Type" := "Document Type".AsInteger();
-            Test340DeclarationLineBuf."Document No." := "Document No.";
-            Test340DeclarationLineBuf."VAT Document No." := VATDocumentNo;
-            Test340DeclarationLineBuf."Operation Code" := OperationCode;
-            Test340DeclarationLineBuf."Tax %" := -1; // a marker of not set value
-            Test340DeclarationLineBuf."No. of Registers" := NoOfRegisters;
-            if CollectionPaymentMethod <> '' then begin
-                Test340DeclarationLineBuf."Collection Date" := "Posting Date";
-                CalcFields("Original Amount");
-                Test340DeclarationLineBuf."Collection Amount" := "Original Amount";
-                Test340DeclarationLineBuf."Collection Payment Method" := CollectionPaymentMethod;
-                Test340DeclarationLineBuf."Collection Bank Acc./Check No." := CollectionBankAcc;
-            end;
-            Test340DeclarationLineBuf.Insert();
+        Test340DeclarationLineBuf.Init();
+        Test340DeclarationLineBuf.Type := Test340DeclarationLineBuf.Type::Purchase;
+        Test340DeclarationLineBuf."Entry No." += 1;
+        Test340DeclarationLineBuf."CV No." := VendLedgEntry."Vendor No.";
+        Test340DeclarationLineBuf."Posting Date" := VendLedgEntry."Posting Date";
+        Test340DeclarationLineBuf."Document Type" := VendLedgEntry."Document Type".AsInteger();
+        Test340DeclarationLineBuf."Document No." := VendLedgEntry."Document No.";
+        Test340DeclarationLineBuf."VAT Document No." := VATDocumentNo;
+        Test340DeclarationLineBuf."Operation Code" := OperationCode;
+        Test340DeclarationLineBuf."Tax %" := -1;
+        // a marker of not set value
+        Test340DeclarationLineBuf."No. of Registers" := NoOfRegisters;
+        if CollectionPaymentMethod <> '' then begin
+            Test340DeclarationLineBuf."Collection Date" := VendLedgEntry."Posting Date";
+            VendLedgEntry.CalcFields("Original Amount");
+            Test340DeclarationLineBuf."Collection Amount" := VendLedgEntry."Original Amount";
+            Test340DeclarationLineBuf."Collection Payment Method" := CollectionPaymentMethod;
+            Test340DeclarationLineBuf."Collection Bank Acc./Check No." := CollectionBankAcc;
         end;
+        Test340DeclarationLineBuf.Insert();
     end;
 
     local procedure FindLine(ExportFileName: Text[1024]; SearchStartingPosition: Integer; TextToSearch: Text[500]) Line: Text[1024]
@@ -2640,29 +2628,25 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            FindLast();
-            Validate("Direct Unit Cost", DirectUnitCost);
-            Modify(true);
-        end;
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.FindLast();
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure FindBancAccountUsed(IsForCustomer: Boolean; CustVendNo: Code[20]): Code[20]
     var
         BankAccountLedgEntry: Record "Bank Account Ledger Entry";
     begin
-        with BankAccountLedgEntry do begin
-            SetRange("Bal. Account No.", CustVendNo);
-            if IsForCustomer then
-                SetRange("Bal. Account Type", "Bal. Account Type"::Customer)
-            else
-                SetRange("Bal. Account Type", "Bal. Account Type"::Vendor);
-            if not FindFirst() then
-                exit('');
-            exit("Bank Account No.");
-        end;
+        BankAccountLedgEntry.SetRange("Bal. Account No.", CustVendNo);
+        if IsForCustomer then
+            BankAccountLedgEntry.SetRange("Bal. Account Type", BankAccountLedgEntry."Bal. Account Type"::Customer)
+        else
+            BankAccountLedgEntry.SetRange("Bal. Account Type", BankAccountLedgEntry."Bal. Account Type"::Vendor);
+        if not BankAccountLedgEntry.FindFirst() then
+            exit('');
+        exit(BankAccountLedgEntry."Bank Account No.");
     end;
 
     local procedure FindBancAccountNoUsed(IsForCustomer: Boolean; CustVendNo: Code[20]): Code[35]
@@ -2674,15 +2658,13 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     var
         BankAccount: Record "Bank Account";
     begin
-        with BankAccount do begin
-            if not Get(BankAccountNo) then
-                exit('');
-            if "CCC No." <> '' then
-                exit("CCC No.");
-            if "Bank Account No." <> '' then
-                exit("Bank Account No.");
-            exit(IBAN);
-        end;
+        if not BankAccount.Get(BankAccountNo) then
+            exit('');
+        if BankAccount."CCC No." <> '' then
+            exit(BankAccount."CCC No.");
+        if BankAccount."Bank Account No." <> '' then
+            exit(BankAccount."Bank Account No.");
+        exit(BankAccount.IBAN);
     end;
 
     local procedure FindGenBusPostingGroup(VATBusPostingGroupCode: Code[20]): Code[20]
@@ -2698,16 +2680,14 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetFilter("VAT Bus. Posting Group", '<>''''');
-            SetFilter("VAT Prod. Posting Group", '<>%1', '');
-            SetFilter("VAT %", '<>%1', 0);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            SetFilter("Sales VAT Account", '<>%1', '');
-            SetFilter("Purchase VAT Account", '<>%1', '');
-            FindFirst();
-            exit("VAT Bus. Posting Group");
-        end;
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>''''');
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        VATPostingSetup.SetFilter("VAT %", '<>%1', 0);
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
+        VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
+        VATPostingSetup.FindFirst();
+        exit(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroupCode: Code[20])
@@ -2728,15 +2708,13 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            if FindSet() then
-                repeat
-                    Validate("Line Discount %", 100);
-                    Modify(true);
-                until Next() = 0;
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                SalesLine.Validate("Line Discount %", 100);
+                SalesLine.Modify(true);
+            until SalesLine.Next() = 0;
     end;
 
     local procedure SetOperationCodeOnGPPG(NewOperationCode: Code[1])
@@ -2834,26 +2812,24 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         Len: array[5] of Integer;
         Pos: array[5] of Integer;
     begin
-        with TempTest340DeclarationLineBuf2 do begin
-            GetFieldData(FieldNo("Document No."), ExpectedValue[1], Pos[1], Len[1]);
-            GetFieldData(FieldNo("Collection Amount"), ExpectedValue[2], Pos[2], Len[2]);
-            Line := LibraryTextFileValidation.FindLineWithValues(ExportFileName, Pos, Len, ExpectedValue);
-            if Line = '' then
-                Error(
-                  StrSubstNo(
-                    'Line for value #%1 not found on expected position %2.',
-                    StrSubstNo('%1|%2', ExpectedValue[1], ExpectedValue[2]), StrSubstNo('%1|%2', Pos[1], Pos[2])));
+        TempTest340DeclarationLineBuf2.GetFieldData(TempTest340DeclarationLineBuf2.FieldNo("Document No."), ExpectedValue[1], Pos[1], Len[1]);
+        TempTest340DeclarationLineBuf2.GetFieldData(TempTest340DeclarationLineBuf2.FieldNo("Collection Amount"), ExpectedValue[2], Pos[2], Len[2]);
+        Line := LibraryTextFileValidation.FindLineWithValues(ExportFileName, Pos, Len, ExpectedValue);
+        if Line = '' then
+            Error(
+              StrSubstNo(
+                'Line for value #%1 not found on expected position %2.',
+                StrSubstNo('%1|%2', ExpectedValue[1], ExpectedValue[2]), StrSubstNo('%1|%2', Pos[1], Pos[2])));
 
-            Assert.AreEqual(GetFieldLen(0), StrLen(Line), 'Record Line length');
-            if "Document No." <> '' then
-                VerifyField(Line, FieldNo("No. of Registers"));
-            VerifyField(Line, FieldNo("VAT Document No."));
-            VerifyField(Line, FieldNo("Operation Code"));
-            VerifyField(Line, FieldNo("Collection Date"));
-            VerifyField(Line, FieldNo("Collection Amount"));
-            VerifyField(Line, FieldNo("Collection Payment Method"));
-            VerifyField(Line, FieldNo("Collection Bank Acc./Check No."));
-        end;
+        Assert.AreEqual(TempTest340DeclarationLineBuf2.GetFieldLen(0), StrLen(Line), 'Record Line length');
+        if TempTest340DeclarationLineBuf2."Document No." <> '' then
+            TempTest340DeclarationLineBuf2.VerifyField(Line, TempTest340DeclarationLineBuf2.FieldNo("No. of Registers"));
+        TempTest340DeclarationLineBuf2.VerifyField(Line, TempTest340DeclarationLineBuf2.FieldNo("VAT Document No."));
+        TempTest340DeclarationLineBuf2.VerifyField(Line, TempTest340DeclarationLineBuf2.FieldNo("Operation Code"));
+        TempTest340DeclarationLineBuf2.VerifyField(Line, TempTest340DeclarationLineBuf2.FieldNo("Collection Date"));
+        TempTest340DeclarationLineBuf2.VerifyField(Line, TempTest340DeclarationLineBuf2.FieldNo("Collection Amount"));
+        TempTest340DeclarationLineBuf2.VerifyField(Line, TempTest340DeclarationLineBuf2.FieldNo("Collection Payment Method"));
+        TempTest340DeclarationLineBuf2.VerifyField(Line, TempTest340DeclarationLineBuf2.FieldNo("Collection Bank Acc./Check No."));
     end;
 
     [ModalPageHandler]

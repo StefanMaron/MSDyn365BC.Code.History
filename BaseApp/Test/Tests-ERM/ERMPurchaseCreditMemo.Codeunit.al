@@ -11,7 +11,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
     var
         Assert: Codeunit Assert;
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -23,7 +23,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         DocumentNo2: Code[20];
@@ -32,17 +32,12 @@ codeunit 134330 "ERM Purchase Credit Memo"
         LineErr: Label 'Number of lines for %1 and %2 must be equal.', Comment = '%1 = Table Name, %2 = Table Name';
         VATAmountErr: Label 'VAT Amount must be %1 in %2.', Comment = '%1 = Amount, %2 = Table Name';
         CommonErr: Label '%1 in %2 must be same as %3.', Comment = '%1 = Field Name, %2 = Table Name, %3 = Table Name';
-        GetPostedDocErr: Label 'Prices Including VAT must be equal to ''%1''', Comment = '%1 = Yes or No';
         CurrencyChangeErr: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?', Comment = '%1 = Currency Code';
-        ChangeCrMemoInfoErr: Label 'Return Shipment No. must be equal to ''''  in Purchase Line: Document Type=Credit Memo, Document No.=%1, Line No.=%2. Current value is ''%3''.', Comment = '%1 = Document No., %2 = Line No., %3 = Document No.';
         ChangeQuantitySignErr: Label 'Qty. to Invoice must have the same sign as the return shipment in Purchase Line Document Type=''Credit Memo'',Document No.=''%1'',Line No.=''%2''.', Comment = '%1 = Document No., %2 = Line No.';
         ChangeRetQtyToShipErr: Label 'You cannot return more than %1 units.', Comment = '%1 = Quantity';
         ChangeQuantityErr: Label 'The quantity that you are trying to invoice is greater than the quantity in return shipment %1.', Comment = '%1 = Document No.';
-        DeletePurchRetOrdErr: Label 'Return Qty. Shipped Not Invd. must be equal to ''0''  in Purchase Line: Document Type=Return Order, Document No.=%1, Line No.=%2. Current value is ''%3''.', Comment = '%1 = Document No., %2 = Line No., %3 = Quantity';
-        ExplodBOMErr: Label 'Type must be equal to ''Item''  in Purchase Line: Document Type=Credit Memo, Document No.=%1, Line No.=%2. Current value is '' ''.', Comment = '%1 = Document No., %2 = Line No.';
         WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
         WrongErrorReturnedErr: Label 'Wrong error returned: %1.', Comment = '%1 = Error Text';
-        WrongCurrCodeDuringCopyErr: Label 'Currency Code must be equal to ''%1''  in Purchase Header: Document Type=%2, No.=%3. Current value is ''%4''.', Comment = '%1 = Currency Code, %2 = Document Type, %3 = Document No., %4 = Currency Code';
         ContactShouldNotBeEditableErr: Label 'Contact should not be editable when vendor is not selected.';
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
         PostedDocType: Option PostedReturnShipments,PostedInvoices;
@@ -73,10 +68,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
         // Use CopyDocument for new Credit Memo
         asserterror CreditMemoWithCopyDocument(NewPurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedInvoiceNo, false, true);
-        Assert.ExpectedError(
-          StrSubstNo(
-            WrongCurrCodeDuringCopyErr, PurchaseHeader."Currency Code",
-            NewPurchaseHeader."Document Type", NewPurchaseHeader."No.", NewPurchaseHeader."Currency Code"));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption("Currency Code"), PurchaseHeader."Currency Code");
     end;
 
     [Test]
@@ -278,7 +270,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         Location.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPurchaseCreditMemo()
@@ -743,7 +735,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         asserterror GetPostedDocumentLines(PurchaseHeader."No.", PostedDocType::PostedInvoices);
 
         // Verify: Verify error while Get Posted Document to Reverse from Credit Memo.
-        Assert.ExpectedError(StrSubstNo(GetPostedDocErr, PurchaseHeader."Prices Including VAT"));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption("Prices Including VAT"), Format(PurchaseHeader."Prices Including VAT"));
     end;
 
     [Test]
@@ -807,7 +799,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // Exercise.
         asserterror PurchaseHeader.Validate("Currency Code", Currency.Code);
         // Verify: Verify error when change Currency Code on Purchase Credit Memo.
-        Assert.ExpectedError(StrSubstNo(ChangeCrMemoInfoErr, PurchaseLine."Document No.", PurchaseLine."Line No.", DocumentNo));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Return Shipment No."), '');
     end;
 
     [Test]
@@ -831,8 +823,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         asserterror PurchaseHeader.Delete(true);
 
         // Verify: Verify error when Purchase Return Order.
-        Assert.ExpectedError(
-          StrSubstNo(DeletePurchRetOrdErr, PurchaseLine."Document No.", PurchaseLine."Line No.", PurchaseLine.Quantity));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Return Qty. Shipped Not Invd."), Format(0));
     end;
 
     [Test]
@@ -857,7 +848,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         asserterror PurchaseLine.Validate(Type, PurchaseLine.Type::"G/L Account");
 
         // Verify: Verify error when change Line Type on Purchase Credit Memo.
-        Assert.ExpectedError(StrSubstNo(ChangeCrMemoInfoErr, PurchaseLine."Document No.", PurchaseLine."Line No.", DocumentNo));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Return Shipment No."), '');
     end;
 
     [Test]
@@ -955,7 +946,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         asserterror LibraryPurchase.ExplodeBOM(PurchaseLine);
 
         // Verify: Verify error while applying Explode BOM on Purchase Credit Memo.
-        Assert.ExpectedError(StrSubstNo(ExplodBOMErr, PurchaseLine."Document No.", PurchaseLine."Line No."));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption(Type), Format(PurchaseLine.Type::Item));
     end;
 
     [Test]
@@ -1136,7 +1127,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // Verification done in handler PostedPurchaseDocumentLinesWithSpecificCrMemoValidationHandler
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -1297,7 +1288,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         Assert.AreEqual('Purchase Credit Memo', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -1540,13 +1531,11 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
     local procedure CreatePurchCrMemoWithCurrency(var PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do begin
-            Init();
-            Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
-            Validate("Currency Code", CreateCurrency());
-            Validate("Document Type", "Document Type"::"Credit Memo");
-            Insert(true);
-        end;
+        PurchaseHeader.Init();
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Currency Code", CreateCurrency());
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseHeader.Insert(true);
     end;
 
     local procedure ModifyPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; NewQuantity: Decimal; NewDirectUnitCost: Decimal; NewLineDiscountAmt: Decimal)
@@ -1554,12 +1543,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLine: Record "Purchase Line";
     begin
         GetPurchaseLine(PurchaseLine, DocumentType, DocumentNo);
-        with PurchaseLine do begin
-            Validate(Quantity, NewQuantity);
-            Validate("Direct Unit Cost", NewDirectUnitCost);
-            Validate("Line Discount Amount", NewLineDiscountAmt);
-            Modify();
-        end;
+        PurchaseLine.Validate(Quantity, NewQuantity);
+        PurchaseLine.Validate("Direct Unit Cost", NewDirectUnitCost);
+        PurchaseLine.Validate("Line Discount Amount", NewLineDiscountAmt);
+        PurchaseLine.Modify();
     end;
 
     local procedure FindAndUpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -1610,7 +1597,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;

@@ -10,9 +10,6 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Sales.History;
 using Microsoft.Purchases.History;
 using Microsoft.EServices.EDocument;
-#if not CLEAN22
-using Microsoft.Purchases.Reports;
-#endif
 
 permissionset 1002 "LOCAL READ"
 {
@@ -35,23 +32,22 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Closed Cartera Doc." = R,
                   tabledata "Closed Payment Order" = R,
                   tabledata "Customer Cash Buffer" = R,
-#if not CLEAN22
-                  tabledata "Customer Pmt. Address" = R,
-#endif
                   tabledata "Customer Rating" = R,
                   tabledata "Customer/Vendor Warning 349" = R,
                   tabledata "Doc. Post. Buffer" = R,
                   tabledata "Fee Range" = R,
+#if not CLEAN25
                   tabledata "G/L Acc. Equiv. Tool Setup" = R,
-                  tabledata "G/L Account Buffer" = R,
                   tabledata "G/L Accounts Equivalence Tool" = R,
-                  tabledata "Gen. Prod. Post. Group Buffer" = R,
                   tabledata "Hist. G/L Account (An. View)" = R,
                   tabledata "Historic G/L Account" = R,
                   tabledata "History of Equivalences COA" = R,
+                  tabledata "New G/L Account" = R,
+#endif
+                  tabledata "G/L Account Buffer" = R,
+                  tabledata "Gen. Prod. Post. Group Buffer" = R,
                   tabledata "Inc. Stmt. Clos. Buffer" = R,
                   tabledata Installment = R,
-                  tabledata "New G/L Account" = R,
                   tabledata "No Taxable Entry" = R,
                   tabledata "Non-Payment Period" = R,
                   tabledata "Operation Code" = R,
@@ -74,10 +70,5 @@ permissionset 1002 "LOCAL READ"
                   tabledata "SII Session" = R,
                   tabledata "SII Setup" = R,
                   tabledata "Statistical Code" = R,
-#if not CLEAN22
-                  tabledata Suffix = R,
-                  tabledata "Vendor Pmt. Address" = R;
-#else
                   tabledata Suffix = R;
-#endif
 }

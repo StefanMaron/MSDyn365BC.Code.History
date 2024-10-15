@@ -87,9 +87,8 @@ table 19 "Cust. Invoice Disc."
                           "Service Charge", CurrencyFactor),
                         Currency."Amount Rounding Precision");
                 end;
-            end else begin
-                Init();
-            end
+            end else
+                Init()
         else
             CustInvDiscFound := true;
     end;

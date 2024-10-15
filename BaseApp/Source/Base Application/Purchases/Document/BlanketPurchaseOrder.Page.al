@@ -114,6 +114,14 @@ page 509 "Blanket Purchase Order"
                         Caption = 'County';
                         ToolTip = 'Specifies the county of the address.';
                     }
+                    field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Country/Region';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country or region of the address.';
+                    }
                     field("Buy-from Contact No."; Rec."Buy-from Contact No.")
                     {
                         ApplicationArea = Suite;
@@ -300,17 +308,6 @@ page 509 "Blanket Purchase Order"
             group(Payment)
             {
                 Caption = 'Payment';
-#if not CLEAN22
-                field("Pay-at Code"; Rec."Pay-at Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code associated with a payment address, other than the vendor''s standard payment address.';
-                    Visible = false;
-                    ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Vendor Bank Acc. Code"; Rec."Vendor Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -465,6 +462,14 @@ page 509 "Blanket Purchase Order"
                         Caption = 'County';
                         ToolTip = 'Specifies the county of the address.';
                     }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Suite;
@@ -537,6 +542,16 @@ page 509 "Blanket Purchase Order"
                         ApplicationArea = Basic, Suite;
                         Caption = 'County';
                         ToolTip = 'Specifies the county of the address.';
+                    }
+                    field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region';
+                        Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country/region code of the vendor on the purchase document.';
                     }
                     field("Pay-to Contact No."; Rec."Pay-to Contact No.")
                     {
@@ -612,10 +627,24 @@ page 509 "Blanket Purchase Order"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Purchase Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Purchase Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -884,6 +913,7 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';

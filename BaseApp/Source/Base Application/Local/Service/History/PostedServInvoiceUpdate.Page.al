@@ -196,8 +196,8 @@ page 10768 "Posted Serv. Invoice - Update"
           (Rec."ID Type" <> xServiceInvoiceHeader."ID Type") or
           (Rec."Succeeded Company Name" <> xServiceInvoiceHeader."Succeeded Company Name") or
           (Rec."Succeeded VAT Registration No." <> xServiceInvoiceHeader."Succeeded VAT Registration No.") or
-          (Rec."Issued By Third Party" <> xServiceInvoiceHeader."Issued By Third Party") OR
-          (Rec.GetSIIFirstSummaryDocNo() <> xServiceInvoiceHeader.GetSIIFirstSummaryDocNo()) OR
+          (Rec."Issued By Third Party" <> xServiceInvoiceHeader."Issued By Third Party") or
+          (Rec.GetSIIFirstSummaryDocNo() <> xServiceInvoiceHeader.GetSIIFirstSummaryDocNo()) or
           (Rec.GetSIILastSummaryDocNo() <> xServiceInvoiceHeader.GetSIILastSummaryDocNo());
 
         OnAfterRecordIsChanged(Rec, xServiceInvoiceHeader, RecordIsChanged);

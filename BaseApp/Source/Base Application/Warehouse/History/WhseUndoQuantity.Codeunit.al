@@ -7,7 +7,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
@@ -28,8 +27,12 @@ codeunit 7320 "Whse. Undo Quantity"
         WMSMgmt: Codeunit "WMS Management";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Assertion failed, %1.';
+#pragma warning restore AA0470
         Text001: Label 'There is not enough space to insert correction lines.';
+#pragma warning restore AA0074
 
     procedure InsertTempWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; RefDoc: Integer; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer)
     var
@@ -174,13 +177,12 @@ codeunit 7320 "Whse. Undo Quantity"
         if not PostedWhseShptLine.ReadPermission then
             exit;
         PostedWhseShptLine.Reset();
-        case UndoType of
-            Database::"Sales Shipment Line",
-          Database::"Service Shipment Line":
+        case true of
+            IsShipmentLine(UndoType):
                 PostedWhseShptLine.SetRange("Posted Source Document", PostedWhseShptLine."Posted Source Document"::"Posted Shipment");
-            Database::"Return Shipment Line":
+            UndoType = Database::"Return Shipment Line":
                 PostedWhseShptLine.SetRange("Posted Source Document", PostedWhseShptLine."Posted Source Document"::"Posted Return Shipment");
-            Database::"Transfer Shipment Line":
+            UndoType = Database::"Transfer Shipment Line":
                 PostedWhseShptLine.SetRange("Posted Source Document", PostedWhseShptLine."Posted Source Document"::"Posted Transfer Shipment");
             else
                 exit;
@@ -197,6 +199,12 @@ codeunit 7320 "Whse. Undo Quantity"
             // Assert: only one posted line.
             Ok := true;
         end;
+    end;
+
+    local procedure IsShipmentLine(UndoType: Integer) IsSalesShipment: Boolean
+    begin
+        IsSalesShipment := UndoType = Database::"Sales Shipment Line";
+        OnAfterIsShipmentLine(UndoType, IsSalesShipment);
     end;
 
     local procedure InsertPostedWhseRcptLine(OldPostedWhseRcptLine: Record "Posted Whse. Receipt Line")
@@ -616,6 +624,11 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateWhseShptLine(PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsShipmentLine(UndoType: Integer; var IsShipment: Boolean)
     begin
     end;
 }

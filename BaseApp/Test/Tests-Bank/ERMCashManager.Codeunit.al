@@ -30,10 +30,8 @@ codeunit 134500 "ERM Cash Manager"
         BankAccountBlockedErrorErr: Label '%1 must be equal to No in %2.', Comment = '%1 Blocked field; %2 Bank Account table';
         VATAmountErrorErr: Label 'VAT Amount must be equal.';
         NoOfVATEntryErrorErr: Label 'No. of  %1 must be %2. ', Comment = '%1 VAT Entry table; %2 count';
-        CheckPrintErrorErr: Label 'Check Printed must be equal to ''Yes''  in %1: %2=%3, %4=%5, %6=%7. Current value is ''No''.', Comment = '%1 Gen.Journal Line table; %2 Journal Template Name caption; %3 Journal Template Name value; %4 Journal Batch Name caption; %5 Journal Batch Name value; %6 Line No caption; %7 Line No value.';
         StatementEndingBalanceErrorErr: Label '%1 must be equal to Total Balance.', Comment = 'Statement Ending Balance';
         UnknownErrorErr: Label 'Unknown Error.';
-        ExportedToPaymentFileMustBeNoMsg: Label 'Exported to Payment File must be equal to ''No''  in Gen. Journal Line';
         SameCurrencyErrorMsg: Label 'The Bank Account and the General Journal Line must have the same currency';
 
     [Test]
@@ -333,13 +331,7 @@ codeunit 134500 "ERM Cash Manager"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 3.Verification: Error occurs while Posting General Journal with Computer Check option before Check is printed.
-        Assert.AreEqual(
-          StrSubstNo(
-            CheckPrintErrorErr, GenJournalLine.TableCaption(), GenJournalLine.FieldCaption("Journal Template Name"),
-            GenJournalLine."Journal Template Name", GenJournalLine.FieldCaption("Journal Batch Name"),
-            GenJournalLine."Journal Batch Name", GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."),
-          GetLastErrorText,
-          UnknownErrorErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Check Printed"), Format(true));
     end;
 
     [Test]
@@ -733,7 +725,7 @@ codeunit 134500 "ERM Cash Manager"
         asserterror REPORT.Run(REPORT::Check, true, false, GenJournalLine);
 
         // [THEN] Error "Exported to Payment File must be equal to 'No' in Gen. Journal Line" should be show
-        Assert.ExpectedError(ExportedToPaymentFileMustBeNoMsg);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Exported to Payment File"), Format(false));
     end;
 
     [Test]
@@ -1407,4 +1399,3 @@ codeunit 134500 "ERM Cash Manager"
         Assert.IsTrue(HasSecondEntry, 'Entry for account not found in the check drilldown');
     end;
 }
-

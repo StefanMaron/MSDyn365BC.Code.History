@@ -20,8 +20,10 @@ codeunit 89 "Sales-Post + Email"
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         HideMailDialog: Boolean;
+#pragma warning disable AA0470
         PostAndSaveInvoiceQst: Label 'Do you want to post and save the %1?';
         NotSupportedDocumentTypeSavingErr: Label 'The %1 is not posted because saving document of type %1 is not supported.';
+#pragma warning restore AA0470
 
     local procedure "Code"()
     var

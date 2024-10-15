@@ -291,6 +291,12 @@ page 6627 "Sales Return Order Archive"
                         ApplicationArea = Advanced;
                         Caption = 'Country/Region Code';
                     }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Suite;

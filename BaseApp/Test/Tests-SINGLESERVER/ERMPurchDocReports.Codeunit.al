@@ -390,14 +390,12 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.SetRange('PurchOrderHeaderNo', PurchaseHeader."No.");
         if not LibraryReportDataset.GetNextRow() then
             Error(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No.");
-        with PurchaseLine do begin
-            LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', Quantity);
-            LibraryReportDataset.AssertCurrentRowValueEquals('OutstandingQty_PurchLine', "Outstanding Quantity");
-            LibraryReportDataset.AssertCurrentRowValueEquals('DirectUnitCost_PurchLine', "Direct Unit Cost");
-            LibraryReportDataset.FindCurrentRowValue('PurchOrderAmount', ActualOutstandingOrders);
-            Assert.AreNearlyEqual("Outstanding Amt. Ex. VAT (LCY)", ActualOutstandingOrders, LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(MustBeEqualErr, "Outstanding Amt. Ex. VAT (LCY)", 'Outstanding Orders'));
-        end;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', PurchaseLine.Quantity);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OutstandingQty_PurchLine', PurchaseLine."Outstanding Quantity");
+        LibraryReportDataset.AssertCurrentRowValueEquals('DirectUnitCost_PurchLine', PurchaseLine."Direct Unit Cost");
+        LibraryReportDataset.FindCurrentRowValue('PurchOrderAmount', ActualOutstandingOrders);
+        Assert.AreNearlyEqual(PurchaseLine."Outstanding Amt. Ex. VAT (LCY)", ActualOutstandingOrders, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(MustBeEqualErr, PurchaseLine."Outstanding Amt. Ex. VAT (LCY)", 'Outstanding Orders'));
     end;
 
     [Test]
@@ -427,14 +425,12 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.SetRange('PurchOrderHeaderNo', PurchaseHeader."No.");
         if not LibraryReportDataset.GetNextRow() then
             Error(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No.");
-        with PurchaseLine do begin
-            LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', Quantity);
-            LibraryReportDataset.AssertCurrentRowValueEquals('OutstandingQty_PurchLine', "Outstanding Quantity");
-            LibraryReportDataset.AssertCurrentRowValueEquals('DirectUnitCost_PurchLine', "Unit Cost (LCY)");
-            LibraryReportDataset.FindCurrentRowValue('PurchOrderAmount', ActualOutstandingOrders);
-            Assert.AreNearlyEqual("Outstanding Amt. Ex. VAT (LCY)", ActualOutstandingOrders, LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(MustBeEqualErr, "Outstanding Amt. Ex. VAT (LCY)", 'Outstanding Orders'));
-        end;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', PurchaseLine.Quantity);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OutstandingQty_PurchLine', PurchaseLine."Outstanding Quantity");
+        LibraryReportDataset.AssertCurrentRowValueEquals('DirectUnitCost_PurchLine', PurchaseLine."Unit Cost (LCY)");
+        LibraryReportDataset.FindCurrentRowValue('PurchOrderAmount', ActualOutstandingOrders);
+        Assert.AreNearlyEqual(PurchaseLine."Outstanding Amt. Ex. VAT (LCY)", ActualOutstandingOrders, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(MustBeEqualErr, PurchaseLine."Outstanding Amt. Ex. VAT (LCY)", 'Outstanding Orders'));
     end;
 
     [Test]
@@ -460,12 +456,10 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
         LibraryReportDataset.LoadDataSetFile();
-        with VendorLedgerEntry do begin
-            LibraryReportDataset.AssertElementWithValueExists('VendCreditAmt', -Amount);
-            LibraryReportDataset.AssertElementWithValueExists('VendRemainAmt', "Remaining Amount");
-            LibraryReportDataset.AssertElementWithValueExists('VendBalLCY', Amount);
-            LibraryReportDataset.AssertElementWithValueExists('EntryNo_VendLedgEntry', "Entry No.");
-        end;
+        LibraryReportDataset.AssertElementWithValueExists('VendCreditAmt', -VendorLedgerEntry.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('VendRemainAmt', VendorLedgerEntry."Remaining Amount");
+        LibraryReportDataset.AssertElementWithValueExists('VendBalLCY', VendorLedgerEntry.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('EntryNo_VendLedgEntry', VendorLedgerEntry."Entry No.");
     end;
 
     [Test]
@@ -491,12 +485,10 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
         VendorLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
         LibraryReportDataset.LoadDataSetFile();
-        with VendorLedgerEntry do begin
-            LibraryReportDataset.AssertElementWithValueExists('VendCreditAmt', -"Amount (LCY)");
-            LibraryReportDataset.AssertElementWithValueExists('VendRemainAmt', "Remaining Amt. (LCY)");
-            LibraryReportDataset.AssertElementWithValueExists('VendBalLCY', "Amount (LCY)");
-            LibraryReportDataset.AssertElementWithValueExists('DocNo_VendLedgEntry', "Document No.");
-        end;
+        LibraryReportDataset.AssertElementWithValueExists('VendCreditAmt', -VendorLedgerEntry."Amount (LCY)");
+        LibraryReportDataset.AssertElementWithValueExists('VendRemainAmt', VendorLedgerEntry."Remaining Amt. (LCY)");
+        LibraryReportDataset.AssertElementWithValueExists('VendBalLCY', VendorLedgerEntry."Amount (LCY)");
+        LibraryReportDataset.AssertElementWithValueExists('DocNo_VendLedgEntry', VendorLedgerEntry."Document No.");
     end;
 
     [Test]
@@ -524,7 +516,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         asserterror LibraryReportDataset.AssertElementWithValueExists('', DocumentNo);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ReportHandlerVendorItemCatalog')]
     [Scope('OnPrem')]
@@ -637,8 +629,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Save and Verify Vendor Balance to Date Report.
         SaveVendorBalanceToDate(PurchaseHeader, false, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
-        with VendorLedgerEntry do
-            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format("Original Amount"));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(VendorLedgerEntry."Original Amount"));
     end;
 
     [Test]
@@ -664,8 +655,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         SaveVendorBalanceToDate(PurchaseHeader, false, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('CurrTotalBufferCurrCode', PurchaseHeader."Currency Code");
-        with VendorLedgerEntry do
-            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format("Original Amount"));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(VendorLedgerEntry."Original Amount"));
     end;
 
     [Test]
@@ -724,11 +714,9 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Save and Verify Report Vendor Balance to Date.
         SaveVendorBalanceToDate(PurchaseHeader, false, true, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
-        with GenJournalLine do begin
-            LibraryReportDataset.AssertElementWithValueExists('DocType_DtldVendLedEnt', Format("Document Type"));
-            LibraryReportDataset.AssertElementWithValueExists('Amt', Format(Round(LineAmount / 2), 0,
-                AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, "Currency Code")));
-        end;
+        LibraryReportDataset.AssertElementWithValueExists('DocType_DtldVendLedEnt', Format(GenJournalLine."Document Type"));
+        LibraryReportDataset.AssertElementWithValueExists('Amt', Format(Round(LineAmount / 2), 0,
+            AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, GenJournalLine."Currency Code")));
     end;
 
     [Test]
@@ -809,8 +797,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
         Vendor.CalcFields("Inv. Discounts (LCY)");
         LibraryReportDataset.LoadDataSetFile();
-        with Vendor do
-            LibraryReportDataset.AssertElementWithValueExists('VendInvDiscAmountLCY_1_', "Inv. Discounts (LCY)");
+        LibraryReportDataset.AssertElementWithValueExists('VendInvDiscAmountLCY_1_', Vendor."Inv. Discounts (LCY)");
     end;
 
     [Test]
@@ -841,8 +828,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.Get(GenJournalLine."Account No.");
         Vendor.CalcFields("Pmt. Discounts (LCY)");
         LibraryReportDataset.LoadDataSetFile();
-        with Vendor do
-            LibraryReportDataset.AssertElementWithValueExists('VendPaymentDiscLCY_1_', "Pmt. Discounts (LCY)");
+        LibraryReportDataset.AssertElementWithValueExists('VendPaymentDiscLCY_1_', Vendor."Pmt. Discounts (LCY)");
     end;
 
     [Test]
@@ -866,8 +852,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.Get(GenJournalLine."Account No.");
         Vendor.CalcFields("Pmt. Tolerance (LCY)");
         LibraryReportDataset.LoadDataSetFile();
-        with Vendor do
-            LibraryReportDataset.AssertElementWithValueExists('VendPaymentTolLcy_1_', "Pmt. Tolerance (LCY)");
+        LibraryReportDataset.AssertElementWithValueExists('VendPaymentTolLcy_1_', Vendor."Pmt. Tolerance (LCY)");
     end;
 
     [Test]
@@ -890,10 +875,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // Verify:
         LibraryReportDataset.LoadDataSetFile();
-        with PurchaseLine do begin
-            LibraryReportDataset.AssertElementWithValueExists('Quantity_PurchLine', Quantity);
-            LibraryReportDataset.AssertElementWithValueExists('UOM_PurchLine', "Unit of Measure");
-        end;
+        LibraryReportDataset.AssertElementWithValueExists('Quantity_PurchLine', PurchaseLine.Quantity);
+        LibraryReportDataset.AssertElementWithValueExists('UOM_PurchLine', PurchaseLine."Unit of Measure");
     end;
 
     [Test]
@@ -916,9 +899,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // Verify: Verify Dimension on Blanket Purchase Order.
         LibraryReportDataset.LoadDataSetFile();
-        with DefaultDimension do
-            LibraryReportDataset.AssertElementWithValueExists('DimText1',
-              StrSubstNo(DimensionValueTxt, "Dimension Code", "Dimension Value Code"));
+        LibraryReportDataset.AssertElementWithValueExists('DimText1',
+              StrSubstNo(DimensionValueTxt, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code"));
     end;
 
     [Test]
@@ -1635,8 +1617,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // [THEN] In resulting file cell with Total Amount Excluding VAT is equal to 200.
         LibraryReportValidation.OpenExcelFile();
-        with PurchaseLine do
-            LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('AA', Format(Round(Quantity * "Direct Unit Cost" * 100 / (100 + "VAT %"))));
+        LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('AA', Format(Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost" * 100 / (100 + PurchaseLine."VAT %"))));
     end;
 
     [Test]
@@ -2016,7 +1997,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20])
     var
         Item: Record Item;
@@ -2154,11 +2135,9 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
     local procedure FindPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeaderArchive do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("No.", PurchaseHeader."No.");
-            FindFirst();
-        end;
+        PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
+        PurchaseHeaderArchive.FindFirst();
     end;
 
     local procedure PreparePurchLineWithBlankType(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -2200,16 +2179,14 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
     local procedure MockVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; EntryAmount: Decimal; PostingDate: Date)
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorNo;
-            "Posting Date" := PostingDate;
-            Amount := EntryAmount;
-            Open := true;
-            Insert();
-            MockInitialDtldVendLedgEntry(VendorNo, "Entry No.", EntryAmount, PostingDate);
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry."Posting Date" := PostingDate;
+        VendorLedgerEntry.Amount := EntryAmount;
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Insert();
+        MockInitialDtldVendLedgEntry(VendorNo, VendorLedgerEntry."Entry No.", EntryAmount, PostingDate);
     end;
 
     local procedure MockInitialDtldVendLedgEntry(VendorNo: Code[20]; VendLedgEntryNo: Integer; EntryAmount: Decimal; PostingDate: Date)
@@ -2232,17 +2209,15 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
     local procedure MockDtldVLE(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; VendLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; EntryAmount: Decimal; UnappliedEntry: Boolean; PostingDate: Date)
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorNo;
-            "Entry Type" := EntryType;
-            "Posting Date" := PostingDate;
-            "Vendor Ledger Entry No." := VendLedgEntryNo;
-            Amount := EntryAmount;
-            Unapplied := UnappliedEntry;
-            Insert();
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Vendor No." := VendorNo;
+        DetailedVendorLedgEntry."Entry Type" := EntryType;
+        DetailedVendorLedgEntry."Posting Date" := PostingDate;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
+        DetailedVendorLedgEntry.Amount := EntryAmount;
+        DetailedVendorLedgEntry.Unapplied := UnappliedEntry;
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure SaveAndVerifySummaryAging(GenJournalLine: Record "Gen. Journal Line"; AmountLCY: Boolean)
@@ -2546,12 +2521,10 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            Get(EntryNo);
-            CalcFields(Amount);
-            Open := Amount <> 0;
-            Modify();
-        end;
+        VendorLedgerEntry.Get(EntryNo);
+        VendorLedgerEntry.CalcFields(Amount);
+        VendorLedgerEntry.Open := VendorLedgerEntry.Amount <> 0;
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure VendorPurchaseList(HideAddress: Boolean)
@@ -2626,8 +2599,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     local procedure VerifyPurchRtnShipReport(PurchaseLine: Record "Purchase Line")
     begin
         LibraryReportDataset.LoadDataSetFile();
-        with PurchaseLine do
-            LibraryReportDataset.AssertElementWithValueExists('Qty_ReturnShipmentLine', Quantity);
+        LibraryReportDataset.AssertElementWithValueExists('Qty_ReturnShipmentLine', PurchaseLine.Quantity);
     end;
 
     local procedure VerifyVendorBalanceToDate(VendorNo: Code[20]; DocumentNo: Code[20])
@@ -2640,10 +2612,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile();
-        with VendorLedgerEntry do begin
-            LibraryReportDataset.AssertElementWithValueExists('DocType_VendLedgEntry3', Format("Document Type"));
-            LibraryReportDataset.AssertElementWithValueExists('DocNo_VendLedgEntry3', "Document No.");
-        end;
+        LibraryReportDataset.AssertElementWithValueExists('DocType_VendLedgEntry3', Format(VendorLedgerEntry."Document Type"));
+        LibraryReportDataset.AssertElementWithValueExists('DocNo_VendLedgEntry3', VendorLedgerEntry."Document No.");
         LibraryReportDataset.AssertElementWithValueExists('StrNoVenGetMaxDtFilter', StrSubstNo(BalanceOnCaptionTxt, WorkDate()));
     end;
 
@@ -2682,17 +2652,15 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
     local procedure VerifyOutstandingOrdersAndTotalOnVendorOrderDetailReport(PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ExpectedTotal: Decimal)
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            SetRange('No_Vendor', VendorNo);
-            if not GetNextRow() then
-                Error(NoDatasetRowErr, 'No_Vendor', VendorNo);
-            AssertCurrentRowValueEquals('PurchOrderAmount', PurchaseLine.Amount);
-            GetNextRow();
-            PurchaseLine.Next();
-            AssertCurrentRowValueEquals('PurchOrderAmount', PurchaseLine.Amount);
-            AssertElementWithValueExists('TotalAmtCurrTotalBuffer', ExpectedTotal);
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('No_Vendor', VendorNo);
+        if not LibraryReportDataset.GetNextRow() then
+            Error(NoDatasetRowErr, 'No_Vendor', VendorNo);
+        LibraryReportDataset.AssertCurrentRowValueEquals('PurchOrderAmount', PurchaseLine.Amount);
+        LibraryReportDataset.GetNextRow();
+        PurchaseLine.Next();
+        LibraryReportDataset.AssertCurrentRowValueEquals('PurchOrderAmount', PurchaseLine.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmtCurrTotalBuffer', ExpectedTotal);
     end;
 
     local procedure VerifyVendorPaymentReceiptReport(InvoiceNo: Code[20]; PaymentNo: Code[20]; PaymentAmount: Decimal)

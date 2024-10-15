@@ -595,7 +595,7 @@ report 10715 "Telematic VAT Declaration"
                             CM[Position] := '0';
                             Position := Position + 1;
                         end;
-                        if TransFormat.Subtype = TransFormat.Subtype::"Integer and Decimal Part" then begin
+                        if TransFormat.Subtype = TransFormat.Subtype::"Integer and Decimal Part" then
                             if StrPos(FieldValue, '.') <> 0 then begin
                                 Decimal1 := DelStr(FieldValue, 1, StrLen(FieldValue) - 1);
                                 Decimal2 := DelStr(FieldValue, 1, StrLen(FieldValue) - 2);
@@ -604,7 +604,6 @@ report 10715 "Telematic VAT Declaration"
                                 FieldValue := '0' + FieldValue;
                                 FieldValue := FieldValue + Decimal2 + Decimal1;
                             end;
-                        end;
                         for i := 1 to StrLen(FieldValue) do begin
                             CM[Position] := FieldValue[i];
                             Position := Position + 1;

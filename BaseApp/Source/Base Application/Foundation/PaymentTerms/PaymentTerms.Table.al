@@ -80,7 +80,7 @@ table 3 "Payment Terms"
         field(7000000; "No. of Installments"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count(Installment where("Payment Terms Code" = field(Code)));
+            CalcFormula = count(Installment where("Payment Terms Code" = field(Code)));
             Caption = 'No. of Installments';
             Editable = false;
             FieldClass = FlowField;

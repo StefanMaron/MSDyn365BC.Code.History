@@ -1,4 +1,4 @@
-﻿#if not CLEAN23
+﻿#if not CLEAN25
 namespace Microsoft.Purchases.Pricing;
 
 using Microsoft.Finance.Currency;
@@ -17,7 +17,6 @@ using Microsoft.Projects.Resources.Pricing;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 codeunit 7010 "Purch. Price Calc. Mgt."
 {
@@ -50,8 +49,12 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         ExchRateDate: Date;
         FoundPurchPrice: Boolean;
         DateCaption: Text[30];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 is less than %2 in the %3.';
         Text001: Label 'The %1 in the %2 must be same as in the %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure FindPurchLinePrice(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; CalledByFieldNo: Integer)
     var
@@ -880,7 +883,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         SalesLine.Validate("Unit Cost (LCY)", ResCost."Unit Cost" * SalesLine."Qty. per Unit of Measure");
     end;
 
-    procedure FindResUnitCost(var ServiceLine: Record "Service Line")
+    procedure FindResUnitCost(var ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
         ResCost.Init();
         ResCost.Code := ServiceLine."No.";

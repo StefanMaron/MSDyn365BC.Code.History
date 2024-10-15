@@ -146,8 +146,12 @@ codeunit 97 "Blanket Purch. Order to Order"
         SkipCommit: Boolean;
 
         QuantityCheckErr: Label '%1 of %2 %3 in %4 %5 cannot be more than %6.\%7\%8 - %9 = %6.', Comment = '%1: FIELDCAPTION("Qty. to Receive (Base)"); %2: Field(Type); %3: Field(No.); %4: FIELDCAPTION("Line No."); %5: Field(Line No.); %6: Decimal Qty Difference; %7: Text001; %8: Field(Outstanding Qty. (Base)); %9: Decimal Quantity On Orders';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 - Unposted %1 = Possible %2';
+#pragma warning restore AA0470
         Text002: Label 'There is nothing to create.';
+#pragma warning restore AA0074
 
     local procedure CalcQuantityOnOrders()
     var

@@ -47,7 +47,9 @@ codeunit 60 "Sales-Calc. Discount"
         CustInvDiscFound: Boolean;
         InvAllow: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Service Charge';
+#pragma warning restore AA0074
 
     local procedure CalculateInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line")
     var
@@ -224,25 +226,21 @@ codeunit 60 "Sales-Calc. Discount"
                         case GLSetup."Discount Calculation" of
                             GLSetup."Discount Calculation"::"Line Disc. + Inv. Disc. + Payment Disc.",
                             GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. + Payment Disc.":
-                                begin
-                                    if SalesLine2."Line Amount" <> 0 then begin
-                                        TempSalesLine."Pmt. Discount Amount" :=
-                                          TempSalesLine."Pmt. Discount Amount" +
-                                          (SalesLine2."Line Amount" + SalesLine2."Line Discount Amount") *
-                                          SalesHeader."Payment Discount %" / 100;
-                                        SalesLine2."Pmt. Discount Amount" := Round(TempSalesLine."Pmt. Discount Amount", 0.01);
-                                    end;
+                                if SalesLine2."Line Amount" <> 0 then begin
+                                    TempSalesLine."Pmt. Discount Amount" :=
+                                        TempSalesLine."Pmt. Discount Amount" +
+                                        (SalesLine2."Line Amount" + SalesLine2."Line Discount Amount") *
+                                        SalesHeader."Payment Discount %" / 100;
+                                    SalesLine2."Pmt. Discount Amount" := Round(TempSalesLine."Pmt. Discount Amount", 0.01);
                                 end;
                             GLSetup."Discount Calculation"::"Line Disc. + Inv. Disc. * Payment Disc.",
                             GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.":
-                                begin
-                                    if SalesLine2."Line Amount" <> 0 then begin
-                                        TempSalesLine."Pmt. Discount Amount" :=
-                                          TempSalesLine."Pmt. Discount Amount" +
-                                          (SalesLine2."Line Amount" - SalesLine2."Inv. Discount Amount") *
-                                          SalesHeader."Payment Discount %" / 100;
-                                        SalesLine2."Pmt. Discount Amount" := Round(TempSalesLine."Pmt. Discount Amount", 0.01);
-                                    end;
+                                if SalesLine2."Line Amount" <> 0 then begin
+                                    TempSalesLine."Pmt. Discount Amount" :=
+                                        TempSalesLine."Pmt. Discount Amount" +
+                                        (SalesLine2."Line Amount" - SalesLine2."Inv. Discount Amount") *
+                                        SalesHeader."Payment Discount %" / 100;
+                                    SalesLine2."Pmt. Discount Amount" := Round(TempSalesLine."Pmt. Discount Amount", 0.01);
                                 end;
                         end;
                         TempSalesLine."Pmt. Discount Amount" :=
@@ -517,5 +515,11 @@ codeunit 60 "Sales-Calc. Discount"
     local procedure OnCalculateInvoiceDiscountOnBeforeGetGLSetup(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header")
     begin
     end;
-}
 
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnSumVATAmountLineOnBeforeModify', '', false, false)]
+    local procedure OnSumVATAmountLineOnBeforeModify(var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+        VATAmountLine."Pmt. Discount Amount" += SalesLine."Pmt. Discount Amount";
+        VATAmountLine."EC Difference" += SalesLine."EC Difference";
+    end;
+}

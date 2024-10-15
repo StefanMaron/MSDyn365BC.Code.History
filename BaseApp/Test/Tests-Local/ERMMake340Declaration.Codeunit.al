@@ -1467,11 +1467,9 @@ codeunit 144048 "ERM Make 340 Declaration"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         CreatePurchaseJournalBatch(GenJournalBatch);
-        with GenJournalBatch do begin
-            Result := "No. Series";
-            Validate("No. Series", NewNoSeries);
-            Modify();
-        end;
+        Result := GenJournalBatch."No. Series";
+        GenJournalBatch.Validate("No. Series", NewNoSeries);
+        GenJournalBatch.Modify();
     end;
 
     local procedure SetupUnrealizedVAT(var UnrealizedVATPostingSetup: Record "VAT Posting Setup")
@@ -1511,21 +1509,19 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         VATEntry.Init();
         VATEntry."Document Type" := DocumentType;
-        with Rec340DeclarationLine do begin
-            Init();
-            RecRef.GetTable(Rec340DeclarationLine);
-            Validate(Key, LibraryUtility.GetNewLineNo(RecRef, FieldNo(Key)));
-            "Document Type" := Format(VATEntry."Document Type");
-            "VAT Cash Regime" := true;
-            "VAT Amount" := LibraryRandom.RandInt(10);
-            "VAT Amount / EC Amount" := LibraryRandom.RandInt(10);
-            "Amount Including VAT / EC" := LibraryRandom.RandInt(10);
-            "VAT %" := LibraryRandom.RandInt(10);
-            Base := LibraryRandom.RandInt(10);
-            "EC %" := LibraryRandom.RandInt(10);
-            "EC Amount" := LibraryRandom.RandInt(10);
-            Insert();
-        end;
+        Rec340DeclarationLine.Init();
+        RecRef.GetTable(Rec340DeclarationLine);
+        Rec340DeclarationLine.Validate(Key, LibraryUtility.GetNewLineNo(RecRef, Rec340DeclarationLine.FieldNo(Key)));
+        Rec340DeclarationLine."Document Type" := Format(VATEntry."Document Type");
+        Rec340DeclarationLine."VAT Cash Regime" := true;
+        Rec340DeclarationLine."VAT Amount" := LibraryRandom.RandInt(10);
+        Rec340DeclarationLine."VAT Amount / EC Amount" := LibraryRandom.RandInt(10);
+        Rec340DeclarationLine."Amount Including VAT / EC" := LibraryRandom.RandInt(10);
+        Rec340DeclarationLine."VAT %" := LibraryRandom.RandInt(10);
+        Rec340DeclarationLine.Base := LibraryRandom.RandInt(10);
+        Rec340DeclarationLine."EC %" := LibraryRandom.RandInt(10);
+        Rec340DeclarationLine."EC Amount" := LibraryRandom.RandInt(10);
+        Rec340DeclarationLine.Insert();
     end;
 
     local procedure CreatePurchaseInvoiceWithTwoLines(var PurchaseHeader: Record "Purchase Header"; VATBusGrpCode: Code[20]; VATProdGrpCode: Code[20])
@@ -2007,14 +2003,12 @@ codeunit 144048 "ERM Make 340 Declaration"
 
     local procedure CreateSalesLineWithDim(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; ItemNo: Code[20]): Decimal
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
-            Validate("Dimension Set ID", CreateDimSetID("Dimension Set ID"));
-            Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-            exit(Amount);
-        end;
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Dimension Set ID", CreateDimSetID(SalesLine."Dimension Set ID"));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        exit(SalesLine.Amount);
     end;
 
     local procedure CreateSalesLineWithVATProdGroupAndDim(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; VATProdPostingGroupCode: Code[20]): Decimal
@@ -2082,13 +2076,11 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
         GenPostingSetup.SetRange("Gen. Bus. Posting Group", GenBusPostGr);
         GenPostingSetup.FindFirst();
-        with GLAccount do begin
-            Validate("Gen. Bus. Posting Group", GenPostingSetup."Gen. Bus. Posting Group");
-            Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
-            Validate("VAT Prod. Posting Group", VATProdPostGr);
-            Modify(true);
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Bus. Posting Group", GenPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostGr);
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure GenerateRandomCode(NumberOfDigit: Integer) ElectronicCode: Text[1024]
@@ -2127,19 +2119,17 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostGrCode, VATProductPostingGroup.Code);
         LibraryERM.CreateGLAccount(GLAccount);
-        with VATPostingSetup do begin
-            Validate("VAT Identifier", LibraryUtility.GenerateRandomCode20(FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
-            Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
-            Validate("Unrealized VAT Type", UnrealizedType);
-            Validate("Purchase VAT Account", GLAccount."No.");
-            Validate("Purch. VAT Unreal. Account", GLAccount."No.");
-            Validate("Sales VAT Account", GLAccount."No.");
-            Validate("Sales VAT Unreal. Account", GLAccount."No.");
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Reverse Chrg. VAT Unreal. Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("VAT Cash Regime", UseVATCashRegime);
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateRandomCode20(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
+        VATPostingSetup.Validate("Unrealized VAT Type", UnrealizedType);
+        VATPostingSetup.Validate("Purchase VAT Account", GLAccount."No.");
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", GLAccount."No.");
+        VATPostingSetup.Validate("Sales VAT Account", GLAccount."No.");
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", GLAccount."No.");
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Unreal. Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("VAT Cash Regime", UseVATCashRegime);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateVATRegistrationNoFormat(CountryRegion: Record "Country/Region"; VATRegNoHasCountryPrefix: Boolean)
@@ -2198,24 +2188,20 @@ codeunit 144048 "ERM Make 340 Declaration"
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            CalcFields(Amount);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount);
     end;
 
     local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            CalcFields(Amount);
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields(Amount);
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; SourceNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -2374,19 +2360,17 @@ codeunit 144048 "ERM Make 340 Declaration"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            Get(InvoiceNo);
-            Assert.AreEqual(
-              ExpectedInvoiceLineCount,
-              LibraryTextFileValidation.CountNoOfLinesWithValue(
-                ExportFileName, "Vendor Invoice No.", 178, StrLen("Vendor Invoice No.")),
-              StrSubstNo(IncorrectLineCountErr, FieldCaption("Vendor Invoice No.")));
-            Assert.AreEqual(
-              ExpectedPaymentLineCount,
-              LibraryTextFileValidation.CountNoOfLinesWithValue(
-                ExportFileName, FormatDate("Posting Date") + '00000', 109, 13),
-              StrSubstNo(IncorrectLineCountErr, FieldCaption("Posting Date")));
-        end;
+        PurchInvHeader.Get(InvoiceNo);
+        Assert.AreEqual(
+          ExpectedInvoiceLineCount,
+          LibraryTextFileValidation.CountNoOfLinesWithValue(
+            ExportFileName, PurchInvHeader."Vendor Invoice No.", 178, StrLen(PurchInvHeader."Vendor Invoice No.")),
+          StrSubstNo(IncorrectLineCountErr, PurchInvHeader.FieldCaption("Vendor Invoice No.")));
+        Assert.AreEqual(
+          ExpectedPaymentLineCount,
+          LibraryTextFileValidation.CountNoOfLinesWithValue(
+            ExportFileName, FormatDate(PurchInvHeader."Posting Date") + '00000', 109, 13),
+          StrSubstNo(IncorrectLineCountErr, PurchInvHeader.FieldCaption("Posting Date")));
     end;
 
     local procedure VerifyPaymentWithDeductibleAmount(VendorNo: Code[20]; InvoiceNo: Code[20]; ExportFileName: Text[1024])
@@ -2407,15 +2391,13 @@ codeunit 144048 "ERM Make 340 Declaration"
 
     local procedure Verify340DeclarationEmptyAmounts(Rec340DeclarationLine: Record "340 Declaration Line")
     begin
-        with Rec340DeclarationLine do begin
-            Assert.AreEqual(0, "VAT Amount", FieldCaption("VAT Amount"));
-            Assert.AreEqual(0, "VAT Amount / EC Amount", FieldCaption("VAT Amount / EC Amount"));
-            Assert.AreEqual(0, "Amount Including VAT / EC", FieldCaption("Amount Including VAT / EC"));
-            Assert.AreEqual(0, "VAT %", FieldCaption("VAT %"));
-            Assert.AreEqual(0, Base, FieldCaption(Base));
-            Assert.AreEqual(0, "EC %", FieldCaption("EC %"));
-            Assert.AreEqual(0, "EC Amount", FieldCaption("EC Amount"));
-        end;
+        Assert.AreEqual(0, Rec340DeclarationLine."VAT Amount", Rec340DeclarationLine.FieldCaption("VAT Amount"));
+        Assert.AreEqual(0, Rec340DeclarationLine."VAT Amount / EC Amount", Rec340DeclarationLine.FieldCaption("VAT Amount / EC Amount"));
+        Assert.AreEqual(0, Rec340DeclarationLine."Amount Including VAT / EC", Rec340DeclarationLine.FieldCaption("Amount Including VAT / EC"));
+        Assert.AreEqual(0, Rec340DeclarationLine."VAT %", Rec340DeclarationLine.FieldCaption("VAT %"));
+        Assert.AreEqual(0, Rec340DeclarationLine.Base, Rec340DeclarationLine.FieldCaption(Base));
+        Assert.AreEqual(0, Rec340DeclarationLine."EC %", Rec340DeclarationLine.FieldCaption("EC %"));
+        Assert.AreEqual(0, Rec340DeclarationLine."EC Amount", Rec340DeclarationLine.FieldCaption("EC Amount"));
     end;
 
     local procedure VerifyCounterpartyLineVATRegNo(Name: Text; VATRegNo: Text; CountryRegionCode: Code[10]; VATRegNoHasCountryPrefix: Boolean; ExportFileName: Text[1024])

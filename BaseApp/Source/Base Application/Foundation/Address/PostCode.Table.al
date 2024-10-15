@@ -18,6 +18,7 @@ table 225 "Post Code"
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
+            OptimizeForTextSearch = true;
             NotBlank = true;
 
             trigger OnValidate()
@@ -40,6 +41,7 @@ table 225 "Post Code"
         field(2; City; Text[30])
         {
             Caption = 'City';
+            OptimizeForTextSearch = true;
             NotBlank = true;
 
             trigger OnValidate()
@@ -73,6 +75,7 @@ table 225 "Post Code"
         field(5; County; Text[30])
         {
             Caption = 'County';
+            OptimizeForTextSearch = true;
         }
         field(30; "Time Zone"; Text[180])
         {
@@ -195,7 +198,7 @@ table 225 "Post Code"
             exit;
 
         if PostCode <> '' then begin
-            if StrPos(PostCode, '*') = StrLen(PostCode) then
+            if IsFilter(PostCode) then
                 PostCodeRec.SetFilter(Code, PostCode)
             else
                 PostCodeRec.SetRange(Code, PostCode);
@@ -208,6 +211,13 @@ table 225 "Post Code"
                 if not PostCodeRec.FindFirst() then
                     PostCodeRec.SetRange("Country/Region Code");
             end;
+
+            if not (UseDialog and IsFilter(PostCode)) then
+                if CityTxt <> '' then begin
+                    PostCodeRec.SetRange("Search City", CityTxt);
+                    if not PostCodeRec.FindFirst() then
+                        PostCodeRec.SetRange("Search City");
+                end;
 
             PostCodeRec2.Copy(PostCodeRec);
             if UseDialog and (PostCodeRec2.Next() = 1) and GuiAllowed then
@@ -300,6 +310,14 @@ table 225 "Post Code"
             County := NewCounty;
             Insert();
         end;
+    end;
+
+    local procedure IsFilter(PostCode: Code[20]): Boolean
+    var
+        Result: Boolean;
+    begin
+        Result := StrPos(PostCode, '*') = StrLen(PostCode);
+        exit(Result);
     end;
 
     procedure ValidateCountryCode(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10])
@@ -437,4 +455,3 @@ table 225 "Post Code"
     begin
     end;
 }
-

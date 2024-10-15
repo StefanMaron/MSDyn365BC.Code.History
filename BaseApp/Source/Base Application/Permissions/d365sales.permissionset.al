@@ -18,6 +18,7 @@ permissionset 2918 "D365 SALES"
                              "D365 IC, VIEW",
                              "D365 ITEM, EDIT",
                              "D365 ITEM, VIEW",
+                             "D365 ITEM AVAIL CALC",
                              "D365 JOBS, EDIT",
                              "D365 SALES DOC, EDIT",
                              "D365 SALES DOC, POST";

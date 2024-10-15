@@ -11,6 +11,8 @@ page 5606 "FA Ledger Entries Preview"
     PageType = List;
     SourceTable = "FA Ledger Entry";
     SourceTableTemporary = true;
+    AboutTitle = 'About FA Ledger Entries Preview';
+    AboutText = 'With the **FA Ledger Entries Preview**, you can review the FA ledger entry details that will be created when you post the document or journal with the fixed assets.';
 
     layout
     {

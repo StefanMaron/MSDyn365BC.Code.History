@@ -32,11 +32,10 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                EmployeeInvPmtCorrection("Document Type"::Payment, "Document Type"::" ", EmployeeAmount, Stepwise);
-                EmployeeInvPmtCorrection("Document Type"::" ", "Document Type"::" ", -EmployeeAmount, Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            EmployeeInvPmtCorrection(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::" ", EmployeeAmount, Stepwise);
+            EmployeeInvPmtCorrection(GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::" ", -EmployeeAmount, Stepwise);
+        end;
     end;
 
     [Test]
@@ -49,13 +48,12 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                EmployeeRealizedAdjust("Document Type"::Payment, "Document Type"::" ", EmployeeAmount, Stepwise,
-                  0.9, DtldEmployeeLedgEntry."Entry Type"::"Realized Gain");
-                EmployeeRealizedAdjust("Document Type"::" ", "Document Type"::" ", -EmployeeAmount, Stepwise,
-                  1.1, DtldEmployeeLedgEntry."Entry Type"::"Realized Gain");
-            end;
+        for Stepwise := false to true do begin
+            EmployeeRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::" ", EmployeeAmount, Stepwise,
+              0.9, DtldEmployeeLedgEntry."Entry Type"::"Realized Gain");
+            EmployeeRealizedAdjust(GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::" ", -EmployeeAmount, Stepwise,
+              1.1, DtldEmployeeLedgEntry."Entry Type"::"Realized Gain");
+        end;
     end;
 
     [Test]
@@ -68,13 +66,12 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                EmployeeRealizedAdjust("Document Type"::Payment, "Document Type"::" ", EmployeeAmount, Stepwise,
-                  1.1, DtldEmployeeLedgEntry."Entry Type"::"Realized Loss");
-                EmployeeRealizedAdjust("Document Type"::" ", "Document Type"::" ", -EmployeeAmount, Stepwise,
-                  0.9, DtldEmployeeLedgEntry."Entry Type"::"Realized Loss");
-            end;
+        for Stepwise := false to true do begin
+            EmployeeRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::" ", EmployeeAmount, Stepwise,
+              1.1, DtldEmployeeLedgEntry."Entry Type"::"Realized Loss");
+            EmployeeRealizedAdjust(GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::" ", -EmployeeAmount, Stepwise,
+              0.9, DtldEmployeeLedgEntry."Entry Type"::"Realized Loss");
+        end;
     end;
 
     [Test]
@@ -105,33 +102,30 @@
         LibraryrHR.CreateEmployee(Employee);
 
         GetGLBalancedBatch(GenJournalBatch);
-        for i := 1 to 3 do
-            with GenJournalLine do begin
-                // [GIVEN] Post Invoice in "FCY" on WorkDate
-                InvAmount := LibraryRandom.RandDec(1000, 2);
-                DocumentNo := CreateJournalLine(
-                    GenJournalLine, GenJournalBatch, "Document Type"::" ", "Account Type"::Employee,
-                    Employee."No.", -InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                RunGenJnlPostLine(GenJournalLine);
-
-                // [GIVEN] Post 1st partial Payment in "FCY" on WorkDate with application to Invoice
-                CreateJournalLine(
-                  GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Employee,
-                  Employee."No.", InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::" ");
-                Validate("Applies-to Doc. No.", DocumentNo);
-                Modify();
-                RunGenJnlPostLine(GenJournalLine);
-
-                // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate() + 2) with application to Invoice
-                CreateJournalLine(
-                  GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Employee,
-                  Employee."No.", InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::" ");
-                Validate("Applies-to Doc. No.", DocumentNo);
-                Modify();
-                RunGenJnlPostLine(GenJournalLine);
-            end;
+        for i := 1 to 3 do begin
+            // [GIVEN] Post Invoice in "FCY" on WorkDate
+            InvAmount := LibraryRandom.RandDec(1000, 2);
+            DocumentNo := CreateJournalLine(
+                GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee,
+                Employee."No.", -InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            RunGenJnlPostLine(GenJournalLine);
+            // [GIVEN] Post 1st partial Payment in "FCY" on WorkDate with application to Invoice
+            CreateJournalLine(
+              GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Employee,
+              Employee."No.", InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::" ");
+            GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+            GenJournalLine.Modify();
+            RunGenJnlPostLine(GenJournalLine);
+            // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate() + 2) with application to Invoice
+            CreateJournalLine(
+              GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Employee,
+              Employee."No.", InvAmount - GenJournalLine.Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::" ");
+            GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+            GenJournalLine.Modify();
+            RunGenJnlPostLine(GenJournalLine);
+        end;
 
         LastTransactionNo[1] := GetLastTransactionNo();
 
@@ -321,23 +315,20 @@
         Desc: Text[30];
     begin
         ClearJournalBatch(GenJournalBatch);
-
         // Create four documents with seperate document no. and external document no. but with unique description.
-        with GenJournalLine do begin
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Employee,
-                Employee."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, DocumentNo, '');
-            Desc := DocumentNo;
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Employee,
-                Employee."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Employee,
-                Employee."No.", PmtAmount / 2, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, InvType, "Account Type"::Employee,
-                Employee."No.", -InvAmount, '<0D>', InvCurrencyCode, IncStr(DocumentNo), Desc);
-        end;
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Employee,
+            Employee."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, DocumentNo, '');
+        Desc := DocumentNo;
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Employee,
+            Employee."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Employee,
+            Employee."No.", PmtAmount / 2, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, InvType, GenJournalLine."Account Type"::Employee,
+            Employee."No.", -InvAmount, '<0D>', InvCurrencyCode, IncStr(DocumentNo), Desc);
 
         PostJournalBatch(GenJournalBatch);
         exit(Desc);
@@ -541,22 +532,18 @@
 
     local procedure VerifyEmployeeEntriesClosed(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
-        with EmployeeLedgerEntry do begin
-            FindFirst();
-            repeat
-                Assert.IsFalse(Open, StrSubstNo('Employee ledger entry %1 did not close.', "Entry No."));
-            until Next() = 0;
-        end;
+        EmployeeLedgerEntry.FindFirst();
+        repeat
+            Assert.IsFalse(EmployeeLedgerEntry.Open, StrSubstNo('Employee ledger entry %1 did not close.', EmployeeLedgerEntry."Entry No."));
+        until EmployeeLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyEmployeeEntriesOpen(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
-        with EmployeeLedgerEntry do begin
-            FindFirst();
-            repeat
-                Assert.IsTrue(Open, StrSubstNo('Employee ledger entry %1 did not open.', "Entry No."));
-            until Next() = 0;
-        end;
+        EmployeeLedgerEntry.FindFirst();
+        repeat
+            Assert.IsTrue(EmployeeLedgerEntry.Open, StrSubstNo('Employee ledger entry %1 did not open.', EmployeeLedgerEntry."Entry No."));
+        until EmployeeLedgerEntry.Next() = 0;
     end;
 
     local procedure FindLastApplEntry(EmplLedgEntryNo: Integer): Integer

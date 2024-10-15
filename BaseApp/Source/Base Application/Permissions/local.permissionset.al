@@ -10,9 +10,6 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Sales.History;
 using Microsoft.Purchases.History;
 using Microsoft.EServices.EDocument;
-#if not CLEAN22
-using Microsoft.Purchases.Reports;
-#endif
 
 permissionset 1001 "LOCAL"
 {
@@ -35,23 +32,22 @@ permissionset 1001 "LOCAL"
                   tabledata "Closed Cartera Doc." = RIMd,
                   tabledata "Closed Payment Order" = RIMd,
                   tabledata "Customer Cash Buffer" = RIMD,
-#if not CLEAN22
-                  tabledata "Customer Pmt. Address" = RIMD,
-#endif
                   tabledata "Customer Rating" = RIMD,
                   tabledata "Customer/Vendor Warning 349" = RIMD,
                   tabledata "Doc. Post. Buffer" = RIMD,
                   tabledata "Fee Range" = RIMD,
+#if not CLEAN25
                   tabledata "G/L Acc. Equiv. Tool Setup" = RIMD,
-                  tabledata "G/L Account Buffer" = RIMD,
                   tabledata "G/L Accounts Equivalence Tool" = RIMD,
-                  tabledata "Gen. Prod. Post. Group Buffer" = RIMD,
                   tabledata "Hist. G/L Account (An. View)" = RIMD,
                   tabledata "Historic G/L Account" = RIMD,
                   tabledata "History of Equivalences COA" = RIMD,
+                  tabledata "New G/L Account" = RIMD,
+#endif
+                  tabledata "G/L Account Buffer" = RIMD,
+                  tabledata "Gen. Prod. Post. Group Buffer" = RIMD,
                   tabledata "Inc. Stmt. Clos. Buffer" = RIMD,
                   tabledata Installment = RIMD,
-                  tabledata "New G/L Account" = RIMD,
                   tabledata "No Taxable Entry" = Rimd,
                   tabledata "Non-Payment Period" = RIMD,
                   tabledata "Operation Code" = RIMD,
@@ -75,10 +71,5 @@ permissionset 1001 "LOCAL"
                   tabledata "SII Setup" = RIMD,
                   tabledata "SII Sending State" = RIMD,
                   tabledata "Statistical Code" = RIMD,
-#if not CLEAN22
-                  tabledata Suffix = RIMD,
-                  tabledata "Vendor Pmt. Address" = RIMD;
-#else
                   tabledata Suffix = RIMD;
-#endif
 }

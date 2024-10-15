@@ -85,7 +85,7 @@ page 5416 "Item Availability by UOM"
 
                         trigger OnAction()
                         begin
-                            ItemAvailabilityFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailabilityFormsMgt.ByEvent());
+                            ItemAvailabilityFormsMgt.ShowItemAvailabilityFromItem(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -125,7 +125,7 @@ page 5416 "Item Availability by UOM"
 
                         trigger OnAction()
                         begin
-                            ItemAvailabilityFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailabilityFormsMgt.ByBOM());
+                            ItemAvailabilityFormsMgt.ShowItemAvailabilityFromItem(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }

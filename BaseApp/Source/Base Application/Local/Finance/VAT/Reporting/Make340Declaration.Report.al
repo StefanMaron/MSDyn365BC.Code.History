@@ -960,7 +960,7 @@ report 10743 "Make 340 Declaration"
                     CorreInvoiceText := '';
                 end;
             end else
-                if ServiceCrMemoHeader.Get(VATEntry."Document No.") then begin
+                if ServiceCrMemoHeader.Get(VATEntry."Document No.") then
                     if ServiceCrMemoHeader."Corrected Invoice No." <> '' then begin
                         if ServiceInvHeader.Get(ServiceCrMemoHeader."Corrected Invoice No.") then begin
                             OperationDateText := FormatDate(ServiceInvHeader."Posting Date");
@@ -968,7 +968,6 @@ report 10743 "Make 340 Declaration"
                         end;
                     end else
                         OperationDateText := FormatDate(ServiceCrMemoHeader."Posting Date");
-                end;
         end else
             if VATEntry."Document Type" = VATEntry."Document Type"::Invoice then begin
                 OperationDate := GetSalesShipmentDate(VATEntry."Document No.");

@@ -474,10 +474,10 @@ page 7000067 "Posted Bills"
         TotalCurrAmtLCY := PostedDoc."Remaining Amt. (LCY)";
 
         ActiveFilter := Rec.GetFilter(Status);
-        if ActiveFilter = '' then
-            StatusFilter := StatusFilter::All
-        else begin
-            if ActiveFilter = Text1100003 then
+        case ActiveFilter of
+            '':
+                StatusFilter := StatusFilter::All;
+            Text1100003:
                 StatusFilter := StatusFilter::All
             else
                 StatusFilter := Rec.Status.AsInteger();

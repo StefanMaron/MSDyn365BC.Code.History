@@ -18,7 +18,6 @@ codeunit 144073 "ERM Corrected Invoice"
         Assert: Codeunit Assert;
         CorrInvDoesNotExistErr: Label 'The Corrected Invoice No. does not exist';
         IncorrectAccOrBalAccTypeErr: Label 'Account Type or Bal. Account Type must be a Customer or Vendor.';
-        DocumentTypeMustBeCrMemoErr: Label 'Document Type must be equal to ''Credit Memo''';
         CorrectiveInvoiceTxt: Label 'Corrective Invoice %1';
 
     [Test]
@@ -108,7 +107,7 @@ codeunit 144073 "ERM Corrected Invoice"
 
         GenJournalLine.Init();
         asserterror GenJournalLine.Validate("Correction Type", GenJournalLine."Correction Type"::Difference);
-        Assert.ExpectedError(DocumentTypeMustBeCrMemoErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Document Type"), Format(GenJournalLine."Document Type"::"Credit Memo"));
     end;
 
     [Test]
@@ -122,7 +121,7 @@ codeunit 144073 "ERM Corrected Invoice"
 
         GenJournalLine.Init();
         asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID());
-        Assert.ExpectedError(DocumentTypeMustBeCrMemoErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Document Type"), Format(GenJournalLine."Document Type"::"Credit Memo"));
     end;
 
     [Test]

@@ -27,7 +27,9 @@ codeunit 5951 "Service-Disc. (Yes/No)"
         GLSetup: Record "General Ledger Setup";
         ServiceLine: Record "Service Line";
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to calculate the invoice discount?';
         Text1100000: Label 'Do you want to calculate the invoice discount and payment discount?';
+#pragma warning restore AA0074
 }
 

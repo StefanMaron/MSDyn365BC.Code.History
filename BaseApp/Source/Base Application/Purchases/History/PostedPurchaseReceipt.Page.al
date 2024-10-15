@@ -390,6 +390,13 @@ page 136 "Posted Purchase Receipt"
                         Editable = false;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Suite;
@@ -432,18 +439,6 @@ page 136 "Posted Purchase Receipt"
             group(Payment)
             {
                 Caption = 'Payment';
-#if not CLEAN22
-                field("Pay-at Code"; Rec."Pay-at Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the vendor''s payment address code that was on the order header, Payment tab, from which this purchase receipt was created.';
-                    Visible = false;
-                    ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Vendor Bank Acc. Code"; Rec."Vendor Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;

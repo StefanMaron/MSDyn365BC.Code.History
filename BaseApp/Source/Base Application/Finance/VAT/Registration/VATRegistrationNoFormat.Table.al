@@ -52,11 +52,14 @@ table 381 "VAT Registration No. Format"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The entered VAT Registration number is not in agreement with the format specified for Country/Region Code %1.\';
         Text001: Label 'The following formats are acceptable: %1', Comment = '1 - format list';
         Text002: Label 'This VAT registration number has already been entered for the following customers:\ %1';
         Text003: Label 'This VAT registration number has already been entered for the following vendors:\ %1';
         Text004: Label 'This VAT registration number has already been entered for the following contacts:\ %1';
+#pragma warning restore AA0470
         Text005: Label 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         Text1100000: Label 'The VAT Registration number is not valid.';
         Text1100001: Label 'Do you still want to save it?';
@@ -65,6 +68,7 @@ table 381 "VAT Registration No. Format"
         Text1100004: Label 'The first character (T Element) of the number is invalid.';
         Text1100005: Label 'There should not be any alphabetic characters in the mid part of the number.';
         Text1100006: Label 'The control element is not correct.';
+#pragma warning restore AA0074
         VATRegistrationNumberErr: Label 'The entered VAT Registration number for %1 %2 is not in agreement with the format specified for Country/Region Code %3.\', Comment = '%1 - Record Type, %2 - Record No., %3 - Country Region Code';
 
     procedure Test(VATRegNo: Text[20]; CountryCode: Code[10]; Number: Code[20]; TableID: Option): Boolean
@@ -356,9 +360,9 @@ table 381 "VAT Registration No. Format"
                 'X', 'Y', 'Z':
                     VATRegNoType := VATRegNoType::NIE;
                 else begin
-                        ErrorText := Text1100004;
-                        ReturnValue := false;
-                    end;
+                    ErrorText := Text1100004;
+                    ReturnValue := false;
+                end;
             end;
 
             // verify chars 2..MaxLength-1; must be numeric

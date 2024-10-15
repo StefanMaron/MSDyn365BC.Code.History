@@ -188,7 +188,7 @@ report 597 "G/L Currency Revaluation"
                 GLAccountSourceCurrency."Currency Code", GLAccountSourceCurrency."G/L Account No.", PostingDateReq);
         GenJnlLine."Account No." := GLAccountSourceCurrency."G/L Account No.";
         GenJnlLine.Validate("Posting Date", PostingDateReq);
-        GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
+        GenJnlLine."Source Code" := SourceCodeSetup."G/L Currency Revaluation";
         GenJnlLine."System-Created Entry" := true;
         Currency.Get(GLAccountSourceCurrency."Currency Code");
         if RevaluationAmount > 0 then

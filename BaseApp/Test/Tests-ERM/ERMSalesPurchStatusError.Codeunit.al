@@ -28,8 +28,6 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         NoSeriesNumbersPrefix: Code[3];
-        ErrorValidationErr: Label 'Error must be same.';
-        StatusErr: Label 'Status must be equal to ''Open''  in %1: %2=%3, %4=%5. Current value is ''Released''.';
         StringLengthExceededErr: Label 'StringLengthExceeded';
         DateFilterTok: Label '%1..%2', Locked = true;
         JournalLineErr: Label 'You are not allowed to apply and post an entry to an entry with an earlier posting date.';
@@ -59,9 +57,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror SalesLine2.Validate("VAT Prod. Posting Group");
 
         // Verify: Verify Error Raised on Sales Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
-            SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -83,9 +79,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror SalesLine2.Validate(Quantity);
 
         // Verify: Verify Error Raised on Sales Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
-            SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -107,9 +101,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror SalesLine2.Validate("No.");
 
         // Verify: Verify Error Raised on Sales Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
-            SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -131,9 +123,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror SalesLine2.Validate("Line Discount %");
 
         // Verify: Verify Error Raised on Sales Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
-            SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -155,9 +145,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror SalesLine2.Validate("Unit Price");
 
         // Verify: Verify Error Raised on Sales Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
-            SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -179,9 +167,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror SalesLine2.Validate("Allow Invoice Disc.");
 
         // Verify: Verify Error Raised on Sales Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
-            SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -203,9 +189,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror SalesLine2.Validate(Type);
 
         // Verify: Verify Error Raised on Sales Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
-            SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -396,10 +380,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror PurchaseLine2.Validate("VAT Prod. Posting Group");
 
         // Verify: Verify Error Raised on Purchase Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
-            PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
-          GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     [Test]
@@ -421,10 +402,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror PurchaseLine2.Validate(Quantity);
 
         // Verify: Verify Error Raised on Purchase Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
-            PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
-          GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     [Test]
@@ -446,10 +424,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror PurchaseLine2.Validate("No.");
 
         // Verify: Verify Error Raised on Purchase Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
-            PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
-          GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     [Test]
@@ -471,10 +446,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror PurchaseLine2.Validate("Line Discount Amount");
 
         // Verify: Verify Error Raised on Purchase Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
-            PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
-          GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     [Test]
@@ -496,10 +468,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror PurchaseLine2.Validate("Line Amount");
 
         // Verify: Verify Error Raised on Purchase Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
-            PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
-          GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     [Test]
@@ -521,10 +490,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror PurchaseLine2.Validate(Type, PurchaseLine2.Type::"Charge (Item)");
 
         // Verify: Verify Error Raised on Purchase Line Validation.
-        Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
-            PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
-          GetLastErrorText, ErrorValidationErr);
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     [Test]
@@ -2337,14 +2303,12 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        with SalesLine do begin
-            Init();
-            Validate("Document Type", SalesHeader."Document Type");
-            Validate("Document No.", SalesHeader."No.");
-            RecRef.GetTable(SalesLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
-        end;
+        SalesLine.Init();
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        RecRef.GetTable(SalesLine);
+        SalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No.")));
+        SalesLine.Insert(true);
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
@@ -2364,14 +2328,12 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, Vendor."No.");
-        with PurchLine do begin
-            Init();
-            Validate("Document Type", PurchHeader."Document Type");
-            Validate("Document No.", PurchHeader."No.");
-            RecRef.GetTable(PurchLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
-        end;
+        PurchLine.Init();
+        PurchLine.Validate("Document Type", PurchHeader."Document Type");
+        PurchLine.Validate("Document No.", PurchHeader."No.");
+        RecRef.GetTable(PurchLine);
+        PurchLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PurchLine.FieldNo("Line No.")));
+        PurchLine.Insert(true);
     end;
 
     local procedure CreateSalesDocumentWithFCY(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
@@ -2535,21 +2497,20 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            // TFS ID: 307158
-            if "Gen. Posting Type" = "Gen. Posting Type"::Purchase then
-                Get(LibraryERM.CreateGLAccountWithPurchSetup())
-            else
-                Get(LibraryERM.CreateGLAccountWithSalesSetup());
-            Validate("Gen. Posting Type", GenPostingType);
-            Validate("Income/Balance", "Income/Balance"::"Income Statement");
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT"); // required for NO
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-            exit("No.");
-        end;
+        // TFS ID: 307158
+        if GLAccount."Gen. Posting Type" = GLAccount."Gen. Posting Type"::Purchase then
+            GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup())
+        else
+            GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        GLAccount.Validate("Gen. Posting Type", GenPostingType);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        GLAccount.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        // required for NO
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateCustDefaultDimension(CustNo: Code[20])
@@ -2644,16 +2605,14 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            "Posted Invoice Nos." := '';
-            "Posted Receipt Nos." := '';
-            "Posted Return Shpt. Nos." := '';
-            "Posted Credit Memo Nos." := '';
-            "Return Shipment on Credit Memo" := true;
-            "Receipt on Invoice" := true;
-            Modify();
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Posted Invoice Nos." := '';
+        PurchasesPayablesSetup."Posted Receipt Nos." := '';
+        PurchasesPayablesSetup."Posted Return Shpt. Nos." := '';
+        PurchasesPayablesSetup."Posted Credit Memo Nos." := '';
+        PurchasesPayablesSetup."Return Shipment on Credit Memo" := true;
+        PurchasesPayablesSetup."Receipt on Invoice" := true;
+        PurchasesPayablesSetup.Modify();
         Commit();
     end;
 
@@ -2661,16 +2620,14 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            "Posted Invoice Nos." := '';
-            "Posted Shipment Nos." := '';
-            "Posted Return Receipt Nos." := '';
-            "Posted Credit Memo Nos." := '';
-            "Return Receipt on Credit Memo" := true;
-            "Shipment on Invoice" := true;
-            Modify();
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Posted Invoice Nos." := '';
+        SalesReceivablesSetup."Posted Shipment Nos." := '';
+        SalesReceivablesSetup."Posted Return Receipt Nos." := '';
+        SalesReceivablesSetup."Posted Credit Memo Nos." := '';
+        SalesReceivablesSetup."Return Receipt on Credit Memo" := true;
+        SalesReceivablesSetup."Shipment on Invoice" := true;
+        SalesReceivablesSetup.Modify();
         Commit();
     end;
 
@@ -2713,48 +2670,40 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode());
-            Modify(true);
-            exit("Posted Prepmt. Inv. Nos.");
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify(true);
+        exit(SalesReceivablesSetup."Posted Prepmt. Inv. Nos.");
     end;
 
     local procedure SetupPurchasePrepaymentInvNoSeries(): Code[20]
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode());
-            Modify(true);
-            exit("Posted Prepmt. Inv. Nos.");
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
+        exit(PurchasesPayablesSetup."Posted Prepmt. Inv. Nos.");
     end;
 
     local procedure SetupSalesPrepaymentCrMemoNoSeries(): Code[20]
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode());
-            Modify(true);
-            exit("Posted Prepmt. Cr. Memo Nos.");
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify(true);
+        exit(SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.");
     end;
 
     local procedure SetupPurchasePrepaymentCrMemoNoSeries(): Code[20]
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode());
-            Modify(true);
-            exit("Posted Prepmt. Cr. Memo Nos.");
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
+        exit(PurchasesPayablesSetup."Posted Prepmt. Cr. Memo Nos.");
     end;
 
     local procedure SetupReturnReasonCode(InventoryValueZero: Boolean): Code[10]
@@ -2798,30 +2747,24 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
     local procedure UpdateReturnReasonCodeOnSalesLine(var SalesLine: Record "Sales Line"; InventoryValueZero: Boolean)
     begin
-        with SalesLine do begin
-            VerifySalesLineUnitCost(SalesLine, GetItemCost("No."));
-            Validate("Return Reason Code", SetupReturnReasonCode(InventoryValueZero));
-        end;
+        VerifySalesLineUnitCost(SalesLine, GetItemCost(SalesLine."No."));
+        SalesLine.Validate("Return Reason Code", SetupReturnReasonCode(InventoryValueZero));
     end;
 
     local procedure UpdateReturnReasonCodeOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; InventoryValueZero: Boolean)
     begin
-        with PurchaseLine do begin
-            VerifyPurchaseLineUnitCost(PurchaseLine, GetItemCost("No."));
-            Validate("Return Reason Code", SetupReturnReasonCode(InventoryValueZero));
-        end;
+        VerifyPurchaseLineUnitCost(PurchaseLine, GetItemCost(PurchaseLine."No."));
+        PurchaseLine.Validate("Return Reason Code", SetupReturnReasonCode(InventoryValueZero));
     end;
 
     local procedure UpdateAllowedPostingDateInGLSetup(FromDate: Date; ToDate: Date)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Allow Posting From" := FromDate;
-            "Allow Posting To" := ToDate;
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Posting From" := FromDate;
+        GeneralLedgerSetup."Allow Posting To" := ToDate;
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure CreateAndPostSalesInvForNewItemAndCust(var Item: Record Item; var Cust: Record Customer; UnitPrice: Decimal; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")

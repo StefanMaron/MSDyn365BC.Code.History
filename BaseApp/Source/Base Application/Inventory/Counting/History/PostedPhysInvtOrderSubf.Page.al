@@ -87,12 +87,12 @@ page 5885 "Posted Phys. Invt. Order Subf."
                 field("Qty. Exp. Tracking (Base)"; Rec."Qty. Exp. Tracking (Base)")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the item''s current expected inventory of serial and lot numbers in the base unit of measure.';
+                    ToolTip = 'Specifies the item''s current expected inventory of serial, lot and package numbers in the base unit of measure.';
                 }
                 field("Use Item Tracking"; Rec."Use Item Tracking")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies that the counting of the item is done by counting its serial and lot numbers.';
+                    ToolTip = 'Specifies that the counting of the item is done by counting its serial, lot and package numbers.';
                 }
                 field("Qty. Recorded (Base)"; Rec."Qty. Recorded (Base)")
                 {
@@ -257,7 +257,7 @@ page 5885 "Posted Phys. Invt. Order Subf."
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'E&xpected Tracking Lines';
-                        ToolTip = 'View the serial or lot numbers that are currently recorded (expected) for the item on the line.';
+                        ToolTip = 'View the serial, lot or package numbers that are currently recorded (expected) for the item on the line.';
 
                         trigger OnAction()
                         begin
@@ -269,7 +269,7 @@ page 5885 "Posted Phys. Invt. Order Subf."
                         ApplicationArea = Warehouse;
                         Caption = 'Item &Tracking Entries';
                         Image = ItemTrackingLedger;
-                        ToolTip = 'View the item ledger entries that originate from serial and lot number posting for the item on the line.';
+                        ToolTip = 'View the item ledger entries that originate from serial, lot and package number posting for the item on the line.';
 
                         trigger OnAction()
                         begin

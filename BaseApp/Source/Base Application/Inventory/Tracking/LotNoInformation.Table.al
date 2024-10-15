@@ -19,6 +19,7 @@ table 6505 "Lot No. Information"
         field(1; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            OptimizeForTextSearch = true;
             NotBlank = true;
             TableRelation = Item;
         }
@@ -30,12 +31,14 @@ table 6505 "Lot No. Information"
         field(3; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = Barcode;
             NotBlank = true;
         }
         field(10; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(11; "Test Quality"; Option)
         {

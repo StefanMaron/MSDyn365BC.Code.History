@@ -587,13 +587,11 @@ codeunit 144012 "ERM Transaction No."
 
     local procedure MockGLEntry(var GLEntry: Record "G/L Entry"; PostingDate: Date; TransactionNo: Integer)
     begin
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "Posting Date" := PostingDate;
-            "Transaction No." := TransactionNo;
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry."Transaction No." := TransactionNo;
+        GLEntry.Insert();
     end;
 
     local procedure GetPeriodTransactionNo(JournalBatchName: Code[10]): Integer

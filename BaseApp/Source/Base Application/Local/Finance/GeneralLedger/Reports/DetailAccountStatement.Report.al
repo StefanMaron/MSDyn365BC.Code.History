@@ -220,14 +220,12 @@ report 10711 "Detail Account Statement"
                                         TotalDebit := TotalDebit + GLAccount."Additional-Currency Net Change"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Additional-Currency Net Change");
-                                end else begin
+                                end else
                                     if GLAccount."Net Change" > 0 then
                                         TotalDebit := TotalDebit + GLAccount."Net Change"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
-                                end;
                             until GLAccount.Next() = 0;
-
 
                         GLBalance := TotalDebit - TotalCredit;
                         if GLBalance = 0 then begin
@@ -308,9 +306,8 @@ report 10711 "Detail Account Statement"
                         if GLEntry3.Find('-') then begin
                             GLEntry3.Next(-1);
                             PostDate := GLEntry3."Posting Date";
-                        end else begin
-                            NotFound := true
-                        end;
+                        end else
+                            NotFound := true;
 
                         SetRange("New Fiscal Year", true);
                         SetRange("Date Locked", true);
@@ -425,12 +422,11 @@ report 10711 "Detail Account Statement"
                                             TotalDebit := TotalDebit + GLAccount."Additional-Currency Net Change"
                                         else
                                             TotalCredit := TotalCredit + Abs(GLAccount."Additional-Currency Net Change");
-                                    end else begin
+                                    end else
                                         if GLAccount."Net Change" > 0 then
                                             TotalDebit := TotalDebit + GLAccount."Net Change"
                                         else
                                             TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
-                                    end;
                                 until GLAccount.Next() = 0;
 
                             if GLBalance = 0 then begin
@@ -576,12 +572,11 @@ report 10711 "Detail Account Statement"
                                         TotalDebit := TotalDebit + GLAccount."Additional-Currency Net Change"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Additional-Currency Net Change");
-                                end else begin
+                                end else
                                     if GLAccount."Net Change" > 0 then
                                         TotalDebit := TotalDebit + GLAccount."Net Change"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
-                                end;
                             until GLAccount.Next() = 0;
 
                         if GLBalance = 0 then begin
@@ -669,12 +664,11 @@ report 10711 "Detail Account Statement"
                                             TotalDebit := TotalDebit + GLAccount."Additional-Currency Net Change"
                                         else
                                             TotalCredit := TotalCredit + Abs(GLAccount."Additional-Currency Net Change");
-                                    end else begin
+                                    end else
                                         if GLAccount."Net Change" > 0 then
                                             TotalDebit := TotalDebit + GLAccount."Net Change"
                                         else
                                             TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
-                                    end;
                                 until GLAccount.Next() = 0;
 
                             TFTotalDebitAmt := TFTotalDebitAmt + TotalCredit;
@@ -693,14 +687,11 @@ report 10711 "Detail Account Statement"
                         "Accounting Period".SetRange("New Fiscal Year", true);
                         "Accounting Period".Find('+');
                         if ToDate <> NormalDate(ToDate) then
-                            if "Accounting Period".Get(CalcDate('<1D>', NormalDate(ToDate))) then begin
-                                if ("Accounting Period"."New Fiscal Year" = true) and
-                                   ("Accounting Period"."Date Locked" = true)
-                                then
+                            if "Accounting Period".Get(CalcDate('<1D>', NormalDate(ToDate))) then
+                                if "Accounting Period"."New Fiscal Year" and "Accounting Period"."Date Locked" then
                                     Found := true
                                 else
                                     Found := false;
-                            end;
                     end;
                 }
 

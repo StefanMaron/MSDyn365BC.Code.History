@@ -19,7 +19,7 @@ report 10720 "Export Schedules to ASC format"
     {
         dataitem(CompanyData; "Integer")
         {
-            DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = const(1));
+            DataItemTableView = sorting(Number) order(ascending) where(Number = const(1));
 
             trigger OnAfterGetRecord()
             begin
@@ -78,7 +78,7 @@ report 10720 "Export Schedules to ASC format"
         }
         dataitem(AccScheduleLineBalance; "Acc. Schedule Line")
         {
-            DataItemTableView = sorting("Schedule Name", "Line No.") ORDER(Ascending) where(Show = const(Yes));
+            DataItemTableView = sorting("Schedule Name", "Line No.") order(ascending) where(Show = const(Yes));
 
             trigger OnAfterGetRecord()
             begin
@@ -100,7 +100,7 @@ report 10720 "Export Schedules to ASC format"
         }
         dataitem(AccScheduleLinePyg; "Acc. Schedule Line")
         {
-            DataItemTableView = sorting("Schedule Name", "Line No.") ORDER(Ascending) where(Show = const(Yes));
+            DataItemTableView = sorting("Schedule Name", "Line No.") order(ascending) where(Show = const(Yes));
 
             trigger OnAfterGetRecord()
             begin
@@ -338,7 +338,7 @@ report 10720 "Export Schedules to ASC format"
     var
         FieldCode: Text[5];
     begin
-        if AccSchedLine.Type = AccSchedLine.Type::Debit then begin
+        if AccSchedLine.Type = AccSchedLine.Type::Debit then
             case String of
                 '1', '1.':
                     FieldCode := FieldCode + '01';
@@ -390,8 +390,8 @@ report 10720 "Export Schedules to ASC format"
                     FieldCode := FieldCode + '059';
                 'VI':
                     FieldCode := FieldCode + '069';
-            end;
-        end else
+            end
+        else
             case String of
                 '1', '1.':
                     FieldCode := FieldCode + '01';
@@ -601,9 +601,7 @@ report 10720 "Export Schedules to ASC format"
     local procedure ExportAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line")
     var
         AccScheduleName: Record "Acc. Schedule Name";
-#if CLEAN22
         FinancialReport: Record "Financial Report";
-#endif
         CheckColumnLayout: Boolean;
     begin
         ok := false;
@@ -613,14 +611,10 @@ report 10720 "Export Schedules to ASC format"
             b := 0;
             AccScheduleName.Get(AccScheduleLine."Schedule Name");
             CheckColumnLayout := true;
-#if not CLEAN22
-            ColumnLayout.SetRange("Column Layout Name", AccScheduleName."Default Column Layout");
-#else
             if FinancialReport.Get(AccScheduleLine."Schedule Name") then
                 ColumnLayout.SetRange("Column Layout Name", FinancialReport."Financial Report Column Group")
             else
                 CheckColumnLayout := false;
-#endif
             if CheckColumnLayout and ColumnLayout.Find('-') then
                 repeat
                     b := b + 1;

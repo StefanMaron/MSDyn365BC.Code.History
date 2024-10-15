@@ -149,6 +149,7 @@ table 36 "Sales Header"
                         CheckReturnInfo(SalesLine, false);
 
                         SalesLine.Reset();
+                        AltCustVATRegFacade.Init(Rec, xRec);
                     end else begin
                         Rec := xRec;
                         exit;
@@ -268,9 +269,6 @@ table 36 "Sales Header"
                             CheckReturnInfo(SalesLine, true);
 
                             SalesLine.Reset();
-#if not CLEAN22
-                            "Pay-at Code" := '';
-#endif
 
                             if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
                                 "Corrected Invoice No." := '';
@@ -485,6 +483,7 @@ table 36 "Sales Header"
                         if "Sell-to Customer No." <> '' then begin
                             GetCust("Sell-to Customer No.");
                             CopyShipToCustomerAddressFieldsFromCust(Customer);
+                            AltCustVATRegFacade.CopyFromCustomer(Rec, xRec);
                         end;
 
                 UpdateShipToSalespersonCode();
@@ -494,7 +493,7 @@ table 36 "Sales Header"
                 if (xRec."Sell-to Customer No." = "Sell-to Customer No.") and
                    (xRec."Ship-to Code" <> "Ship-to Code")
                 then
-                    if (xRec."VAT Country/Region Code" <> "VAT Country/Region Code") or
+                    if AltCustVATRegFacade.VATDataIsChangedOnShipToCodeValidation(Rec, xRec) or
                        (xRec."Tax Area Code" <> "Tax Area Code")
                     then
                         RecreateSalesLines(FieldCaption("Ship-to Code"))
@@ -1265,16 +1264,21 @@ table 36 "Sales Header"
                 if "VAT Registration No." = Customer."VAT Registration No." then
                     exit;
 
-                if not VATRegistrationNoFormat.Test("VAT Registration No.", Customer."Country/Region Code", Customer."No.", DATABASE::Customer) then
+                ApplicableCountryCode := Rec."VAT Country/Region Code";
+                if ApplicableCountryCode = '' then
+                    ApplicableCountryCode := Customer."Country/Region Code";
+                if not VATRegistrationNoFormat.Test("VAT Registration No.", ApplicableCountryCode, Customer."No.", DATABASE::Customer) then
                     exit;
 
-                Customer."VAT Registration No." := "VAT Registration No.";
                 ApplicableCountryCode := Customer."Country/Region Code";
                 if ApplicableCountryCode = '' then
                     ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
 
                 if not VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
-                    Customer.Modify(true);
+                    if AltCustVATRegFacade.UpdateVATRegNoInCustFromSalesHeader(Rec, Customer) then begin
+                        Customer."VAT Registration No." := "VAT Registration No.";
+                        Customer.Modify(true);
+                    end;
                     exit;
                 end;
 
@@ -1284,7 +1288,10 @@ table 36 "Sales Header"
 
                 if VATRegistrationLog.Status = VATRegistrationLog.Status::Valid then begin
                     Message(ValidVATNoMsg);
-                    Customer.Modify(true);
+                    if AltCustVATRegFacade.UpdateVATRegNoInCustFromSalesHeader(Rec, Customer) then begin
+                        Customer."VAT Registration No." := "VAT Registration No.";
+                        Customer.Modify(true);
+                    end;
                 end else
                     Message(InvalidVatRegNoMsg);
             end;
@@ -1348,6 +1355,11 @@ table 36 "Sales Header"
         {
             Caption = 'VAT Country/Region Code';
             TableRelation = "Country/Region";
+
+            trigger OnValidate()
+            begin
+                AltCustVATRegFacade.UpdateSetupOnVATCountryChangeInSalesHeader(Rec, xRec);
+            end;
         }
         field(79; "Sell-to Customer Name"; Text[100])
         {
@@ -1643,6 +1655,7 @@ table 36 "Sales Header"
                         "VAT Country/Region Code" := "Ship-to Country/Region Code"
                     else
                         "VAT Country/Region Code" := "Sell-to Country/Region Code";
+                AltCustVATRegFacade.UpdateSetupOnShipToCountryChangeInSalesHeader(Rec, xRec);	
             end;
         }
         field(94; "Bal. Account Type"; Enum "Payment Balance Account Type")
@@ -1700,6 +1713,12 @@ table 36 "Sales Header"
                 OnBeforeValidateExternalDocumentNo(Rec, xRec, CurrFieldNo, IsHandled);
                 if IsHandled then
                     exit;
+
+                if "External Document No." <> '' then
+                    if FindDocumentWithSameExternalDocNo() then
+                        ShowExternalDocAlreadyExistNotification()
+                    else
+                        RecallExternalDocAlreadyExistsNotification();
 
                 if (xRec."External Document No." <> "External Document No.") and (Status = Status::Released) and
                    ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
@@ -2173,10 +2192,9 @@ table 36 "Sales Header"
                         GLSetup.Get();
                         if GLSetup."Payment Discount Type" = GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then
                             Validate("Prepmt. Payment Discount %", 0)
-                        else begin
+                        else
                             if not UpdateDocumentDate then
                                 Validate("Prepmt. Payment Discount %", PaymentTerms."Discount %");
-                        end;
                     end;
                 end else begin
                     IsHandled := false;
@@ -2293,6 +2311,21 @@ table 36 "Sales Header"
                     IncomingDocument.SetSalesDoc(Rec);
             end;
         }
+        field(166; "Alt. VAT Registration No."; Boolean)
+        {
+            Caption = 'Alternative VAT Registration No.';
+            Editable = false;
+        }
+        field(167; "Alt. Gen. Bus Posting Group"; Boolean)
+        {
+            Caption = 'Alternative Gen. Bus. Posting Group';
+            Editable = false;
+        }
+        field(168; "Alt. VAT Bus Posting Group"; Boolean)
+        {
+            Caption = 'Alternative VAT Bus. Posting Group';
+            Editable = false;
+        }
         field(170; IsTest; Boolean)
         {
             Caption = 'IsTest';
@@ -2311,6 +2344,8 @@ table 36 "Sales Header"
                 for i := 1 to StrLen("Sell-to Phone No.") do
                     if Char.IsLetter("Sell-to Phone No."[i]) then
                         Error(PhoneNoCannotContainLettersErr);
+
+                UpdateShipToAddressFromSellToAddress(Rec.FieldNo("Ship-to Phone No."));
             end;
         }
         field(172; "Sell-to E-Mail"; Text[80])
@@ -2377,9 +2412,27 @@ table 36 "Sales Header"
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
         }
+        field(185; "Last Email Sent Time"; DateTime)
+        {
+            Caption = 'Last Email Sent Time';
+            FieldClass = FlowField;
+            CalcFormula = max("Email Related Record".SystemCreatedAt where("Table Id" = const(Database::"Sales Header"),
+                                                                           "System Id" = field(SystemId)));
+        }
+        field(186; "Last Email Sent Message Id"; Guid)
+        {
+            Caption = 'Last Email Sent Message Id';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Email Related Record"."Email Message Id" where(SystemCreatedAt = field("Last Email Sent Time")));
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
+        }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
         }
         field(300; "Amt. Ship. Not Inv. (LCY)"; Decimal)
         {
@@ -3143,13 +3196,8 @@ table 36 "Sales Header"
             Caption = 'Pay-at Code';
             TableRelation = "Customer Pmt. Address".Code where("Customer No." = field("Bill-to Customer No."));
             ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
     }
 
@@ -3293,29 +3341,48 @@ table 36 "Sales Header"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'You cannot reset %1 because the document still has one or more lines.';
         Text006: Label 'You cannot change %1 because the order is associated with one or more purchase orders.';
         Text007: Label '%1 cannot be greater than %2 in the %3 table.';
         Text009: Label 'Deleting this document will cause a gap in the number series for shipments. An empty shipment %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text012: Label 'Deleting this document will cause a gap in the number series for posted invoices. An empty posted invoice %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text014: Label 'Deleting this document will cause a gap in the number series for posted credit memos. An empty posted credit memo %1 will be created to fill this gap in the number series.\\Do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         RecreateSalesLinesMsg: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.\\Do you want to continue?', Comment = '%1: FieldCaption';
         ResetItemChargeAssignMsg: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.\The amount of the item charge assignment will be reset to 0.\\Do you want to continue?', Comment = '%1: FieldCaption';
+#pragma warning disable AA0470
         LinesNotUpdatedMsg: Label 'You have changed %1 on the sales header, but it has not been changed on the existing sales lines.', Comment = 'You have changed Order Date on the sales header, but it has not been changed on the existing sales lines.';
+#pragma warning restore AA0470
         LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.', Comment = '%1: OrderDate';
+#pragma warning disable AA0074
         Text019: Label 'You must update the existing sales lines manually.';
+#pragma warning restore AA0074
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
+#pragma warning disable AA0074
         Text021: Label 'Do you want to update the exchange rate?';
+#pragma warning disable AA0470
         Text022: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.';
         Text024: Label 'You have modified the %1 field. The recalculation of VAT may cause penny differences, so you must check the amounts afterward. Do you want to update the %2 field on the lines to reflect the new value of %1?';
         Text027: Label 'Your identification is set up to process from %1 %2 only.';
         Text028: Label 'You cannot change the %1 when the %2 has been filled in.';
         Text030: Label 'Deleting this document will cause a gap in the number series for return receipts. An empty return receipt %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text031: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Shipment Date.\\Do you want to update the lines?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MaxAllowedValueIs100Err: Label 'The values must be less than or equal 100.';
         DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to recalculate/update dimensions?';
+        SalesAlreadyExistsTxt: Label 'Sales %1 %2 already exists for this customer.', Comment = '%1 = Document Type; %2 = External Document No.';
+        ShowDocAlreadyExistNotificationNameTxt: Label 'Sales document with same external document number already exists.';
+        ShowDocAlreadyExistNotificationDescriptionTxt: Label 'Warn if sales document with same external document number already exists.';
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -3350,14 +3417,24 @@ table 36 "Sales Header"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        AdjustDueDate: Codeunit "Due Date-Adjust";
+        AltCustVATRegFacade: Codeunit "Alt. Cust. VAT. Reg. Facade";
         CurrencyDate: Date;
         Confirmed: Boolean;
+#pragma warning disable AA0074
         Text035: Label 'You cannot Release Quote or Make Order unless you specify a customer on the quote.\\Do you want to create customer(s) now?';
+#pragma warning disable AA0470
         Text037: Label 'Contact %1 %2 is not related to customer %3.';
         Text038: Label 'Contact %1 %2 is related to a different company than customer %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         ContactIsNotRelatedToAnyCostomerErr: Label 'Contact %1 %2 is not related to a customer.';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
         Text040: Label 'A won opportunity is linked to this order.\It has to be changed to status Lost before the Order can be deleted.\Do you want to change the status for this opportunity now?';
         Text044: Label 'The status of the opportunity has not been changed. The program has aborted deleting the order.';
+#pragma warning disable AA0470
         Text045: Label 'You can not change the %1 field because %2 %3 has %4 = %5 and the %6 has already been assigned %7 %8.';
         Text048: Label 'Sales quote %1 has already been assigned to opportunity %2. Would you like to reassign this quote?';
         Text049: Label 'The %1 field cannot be blank because this quote is linked to an opportunity.';
@@ -3367,19 +3444,30 @@ table 36 "Sales Header"
         Text057: Label 'Deleting this document will cause a gap in the number series for prepayment credit memos. An empty prepayment credit memo %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text061: Label '%1 is set up to process from %2 %3 only.';
         Text062: Label 'You cannot change %1 because the corresponding %2 %3 has been assigned to this %4.';
+#pragma warning restore AA0470
         Text063: Label 'Reservations exist for this order. These reservations will be canceled if a date conflict is caused by this change.\\Do you want to continue?';
         Text064: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+#pragma warning disable AA0470
         Text066: Label 'You cannot change %1 to %2 because an open inventory pick on the %3.';
         Text070: Label 'You cannot change %1  to %2 because an open warehouse shipment exists for the %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BilltoCustomerNoChanged: Boolean;
         SelectNoSeriesAllowed: Boolean;
+#pragma warning disable AA0470
         PrepaymentInvoicesNotPaidErr: Label 'You cannot post the document of type %1 with the number %2 before all related prepayment invoices are posted.', Comment = 'You cannot post the document of type Order with the number 1001 before all related prepayment invoices are posted.';
+#pragma warning restore AA0470
         StatisticsInsuffucientPermissionsErr: Label 'You don''t have permission to view statistics.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text072: Label 'There are unpaid prepayment invoices related to the document of type %1 with the number %2.';
-        AdjustDueDate: Codeunit "Due Date-Adjust";
         Text10700: Label '%1 cannot be different from 0 when %2 is %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DeferralLineQst: Label 'Do you want to update the deferral schedules for the lines?';
+#pragma warning disable AA0470
         SynchronizingMsg: Label 'Synchronizing ...\ from: Sales Header with %1\ to: Assembly Header with %2.';
+#pragma warning restore AA0470
         ShippingAdviceErr: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
@@ -3429,6 +3517,9 @@ table 36 "Sales Header"
         SkipBillToContact: Boolean;
         SkipTaxCalculation: Boolean;
 
+    /// <summary>
+    /// Initializes a new sales header with a new document number from the number series.
+    /// </summary>
     procedure InitInsert()
     var
         SalesHeader2: Record "Sales Header";
@@ -3449,14 +3540,14 @@ table 36 "Sales Header"
                 NoSeriesMgt2.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
                 if not IsHandled then begin
 #endif
-                "No. Series" := NoSeriesCode;
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                SalesHeader2.SetLoadFields("No.");
-                while SalesHeader2.Get("Document Type", "No.") do
+                    "No. Series" := NoSeriesCode;
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                    SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                    SalesHeader2.SetLoadFields("No.");
+                    while SalesHeader2.Get("Document Type", "No.") do
+                        "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
                     NoSeriesMgt2.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
                 end;
@@ -3520,6 +3611,9 @@ table 36 "Sales Header"
         OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
+    /// <summary>
+    /// Initializes a new sales header with default values.
+    /// </summary>
     procedure InitRecord()
     var
         ShipToAddress: Record "Ship-to Address";
@@ -3551,6 +3645,7 @@ table 36 "Sales Header"
         if "Sell-to Customer No." <> '' then
             GetCust("Sell-to Customer No.");
         LocationCode := Customer."Location Code";
+        AltCustVATRegFacade.Init(Rec, xRec);
         if "Ship-to Code" <> '' then begin
             ShipToAddress.SetLoadFields("Location Code");
             if ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code") then
@@ -3652,6 +3747,9 @@ table 36 "Sales Header"
         OnAfterInitNoSeries(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Initializes the posting description with formatted document type and number text for the sales header.
+    /// </summary>
     procedure InitPostingDescription()
     var
         IsHandled: Boolean;
@@ -3664,11 +3762,26 @@ table 36 "Sales Header"
         "Posting Description" := Format("Document Type") + ' ' + "No.";
     end;
 
+    /// <summary>
+    /// Sets global StandardCodesMgtGlobal codeunit to a new instance.
+    /// </summary>
+    /// <remarks>
+    /// StandardCodesMgtGlobal codeunit is used to check whether sales recurring lines should be applied for sales document,
+    /// if necessary, creates a sales line on insert sales header.
+    /// </remarks>
+    /// <param name="StandardCodesMgtNew">The new codeunit instance to set.</param>
     procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
     begin
         StandardCodesMgtGlobal := StandardCodesMgtNew;
     end;
 
+    /// <summary>
+    /// Opens a page to select related number series for the sales header and updates the document number with the selected number series.
+    /// </summary>
+    /// <param name="OldSalesHeader">
+    /// Sales header record before the change. The no series code from this record will be highlighted by default on the open page.
+    /// </param>
+    /// <returns>True if the document number has changed, otherwise false.</returns>
     procedure AssistEdit(OldSalesHeader: Record "Sales Header") Result: Boolean
     var
         SalesHeader2: Record "Sales Header";
@@ -3697,6 +3810,9 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Checks if the number series for different types of sales documents are filled in the sales setup.
+    /// </summary>
     procedure TestNoSeries()
     var
         IsHandled: Boolean;
@@ -3751,6 +3867,10 @@ table 36 "Sales Header"
         OnAfterTestNoSeries(Rec, SalesSetup);
     end;
 
+    /// <summary>
+    /// Returns the number series code from the sales setup based on the document type of the sales header.
+    /// </summary>
+    /// <returns>Number series code.</returns>
     procedure GetNoSeriesCode(): Code[20]
     var
         NoSeries: Codeunit "No. Series";
@@ -3824,6 +3944,13 @@ table 36 "Sales Header"
         OnAfterGetPrepaymentPostingNoSeriesCode(Rec, PostingNos);
     end;
 
+    /// <summary>
+    /// Checks if the number series has to be assigned chronologically after various documents are already posted.
+    /// </summary>
+    /// <param name="No">Posted document number.</param>
+    /// <param name="NoSeriesCode">Number series code to check.</param>
+    /// <param name="NoCapt">Posted document number field caption.</param>
+    /// <param name="NoSeriesCapt">Number series field caption.</param>
     procedure TestNoSeriesDate(No: Code[20]; NoSeriesCode: Code[20]; NoCapt: Text[1024]; NoSeriesCapt: Text[1024])
     begin
         if (No <> '') and (NoSeriesCode <> '') then begin
@@ -3837,6 +3964,11 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Opens a confirmation dialog to confirm the deletion of the sales header.
+    /// This check is to confirm with the user that gaps will happen in the posted documents if the document is deleted.
+    /// </summary>
+    /// <returns>True if sales header should be deleted, otherwise false.</returns>
     procedure ConfirmDeletion() Result: Boolean
     var
         SourceCode: Record "Source Code";
@@ -3903,6 +4035,11 @@ table 36 "Sales Header"
         exit(true);
     end;
 
+    /// <summary>
+    /// Updates the global Customer record. Record will not be retrieved if document type is quote and provided customer no is blank.
+    /// </summary>
+    /// <param name="CustNo">Customer number to retrieve the record for.</param>
+    /// <returns>Retrieved customer record.</returns>
     procedure GetCust(CustNo: Code[20]): Record Customer
     begin
         OnBeforeGetCust(Rec, Customer, CustNo);
@@ -3922,6 +4059,10 @@ table 36 "Sales Header"
         OnAfterGetSalesSetup(Rec, SalesSetup, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Checks if any sales lines exists for sales header.
+    /// </summary>
+    /// <returns>True if sales lines exists, otherwise false.</returns>
     procedure SalesLinesExist(): Boolean
     var
         IsHandled: Boolean;
@@ -3954,6 +4095,18 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Recreates sales lines for a sales document when the provided field in the sales header is changed.
+    /// </summary>
+    /// <remarks>
+    /// Opens confirmation dialog to confirm the deletion of existing sales lines
+    /// and then recreates the sales lines based on the new information in the sales header.
+    /// It also handles item charge assignments and extended text lines.
+    /// </remarks>
+    /// <param name="ChangedFieldName">
+    /// Name of the field that is changed.
+    /// This name is used only in error messages and confirmation dialogs.
+    /// </param>
     procedure RecreateSalesLines(ChangedFieldName: Text[100])
     var
         TempSalesLine: Record "Sales Line" temporary;
@@ -3963,6 +4116,7 @@ table 36 "Sales Header"
         TempATOLink: Record "Assemble-to-Order Link" temporary;
         SalesCommentLine: Record "Sales Comment Line";
         TempSalesCommentLine: Record "Sales Comment Line" temporary;
+        TempReqLine: Record "Requisition Line" temporary;
         ATOLink: Record "Assemble-to-Order Link";
         ExtendedTextAdded: Boolean;
         ConfirmText: Text;
@@ -4002,7 +4156,7 @@ table 36 "Sales Header"
             if SalesLine.FindSet() then begin
                 OnRecreateSalesLinesOnAfterFindSalesLine(Rec, SalesLine, ChangedFieldName);
                 TempReservEntry.DeleteAll();
-                RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
+                RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink, TempReqLine);
                 StoreSalesCommentLineToTemp(TempSalesCommentLine);
                 SalesCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
                 TransferItemChargeAssgntSalesToTemp(ItemChargeAssgntSales, TempItemChargeAssgntSales);
@@ -4022,7 +4176,7 @@ table 36 "Sales Header"
                     RestoreSalesCommentLine(TempSalesCommentLine, TempSalesLine."Line No.", SalesLine."Line No.");
                     OnRecreateSalesLinesOnBeforeCopyReservEntryFromTemp(SalesLine, TempSalesLine, Rec, xRec, ChangedFieldName);
                     SalesLineReserve.CopyReservEntryFromTemp(TempReservEntry, TempSalesLine, SalesLine."Line No.");
-                    RecreateReqLine(TempSalesLine, SalesLine."Line No.", false);
+                    RecreateReqLine(TempReqLine, TempSalesLine, SalesLine."Line No.", false);
                     SynchronizeForReservations(SalesLine, TempSalesLine);
 
                     if TempATOLink.AsmExistsForSalesLine(TempSalesLine) then begin
@@ -4095,6 +4249,10 @@ table 36 "Sales Header"
         OnAfterRecreateSalesLinesHandleSupplementTypes(Rec);
     end;
 
+    /// <summary>
+    /// Inserts existing sales comment lines into a temporary record.
+    /// </summary>
+    /// <param name="TempSalesCommentLine">Return value: Inserted sales comment lines.</param>
     procedure StoreSalesCommentLineToTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
     var
         SalesCommentLine: Record "Sales Comment Line";
@@ -4114,6 +4272,13 @@ table 36 "Sales Header"
             until SalesCommentLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Inserts sales comment lines for the sales line of the document.
+    /// Lines are inserted from the provided temporary sales comment line record set.
+    /// </summary>
+    /// <param name="TempSalesCommentLine">Temporary sales comment line record set to insert.</param>
+    /// <param name="OldDocumnetLineNo">Previous sales line number.</param>
+    /// <param name="NewDocumentLineNo">New sales line number.</param>
     procedure RestoreSalesCommentLine(var TempSalesCommentLine: Record "Sales Comment Line" temporary; OldDocumnetLineNo: Integer; NewDocumentLineNo: Integer)
     var
         SalesCommentLine: Record "Sales Comment Line";
@@ -4146,6 +4311,13 @@ table 36 "Sales Header"
             until TempItemChargeAssgntSales.Next() = 0;
     end;
 
+    /// <summary>
+    /// Displays a message if sales lines exist for the sales header and the changed field was not updated on the lines.
+    /// </summary>
+    /// <remarks>
+    /// Message states that the user must update the existing sales lines manually.
+    /// </remarks>
+    /// <param name="ChangedFieldName">Changed sales header field caption.</param>
     procedure MessageIfSalesLinesExist(ChangedFieldName: Text[100])
     var
         MessageText: Text;
@@ -4163,6 +4335,11 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Displays a message to the user if there are existing sales lines and a provided field in the sales header has been changed,
+    /// which might affect the prices and discounts on the sales lines.
+    /// </summary>
+    /// <param name="ChangedFieldName">Changed sales header field caption.</param>
     procedure PriceMessageIfSalesLinesExist(ChangedFieldName: Text[100])
     var
         MessageText: Text;
@@ -4180,6 +4357,9 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates currency factor on the sales header and recreates sales lines if the currency code has changed.
+    /// </summary>
     procedure UpdateCurrencyFactor()
     var
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
@@ -4210,6 +4390,9 @@ table 36 "Sales Header"
         OnAfterUpdateCurrencyFactor(Rec, GetHideValidationDialog());
     end;
 
+    /// <summary>
+    /// Updates currency factor on the sales header if confirmed by the user.
+    /// </summary>
     procedure ConfirmCurrencyFactorUpdate()
     var
         IsHandled: Boolean;
@@ -4233,21 +4416,49 @@ table 36 "Sales Header"
         OnAfterConfirmCurrencyFactorUpdate(Rec, Confirmed);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag HideValidationDialog.
+    /// </summary>
+    /// <remarks>
+    /// Global flag HideValidationDialog is used to hide various confirmation/message/other dialogs.
+    /// </remarks>
+    /// <param name="NewHideValidationDialog">The new value to set.</param>
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
     end;
 
+    /// <summary>
+    /// Returns the value of the global flag HideValidationDialog.
+    /// </summary>
+    /// <remarks>
+    /// Global flag HideValidationDialog is used to hide various confirmation/message/other dialogs.
+    /// </remarks>
+    /// <returns>The value of the global flag HideValidationDialog.</returns>
     procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag HideCreditCheckDialogue.
+    /// </summary>
+    /// <remarks>
+    /// Global flag HideCreditCheckDialogue is used to hide exceeded credit limit notification in sales document.
+    /// </remarks>
+    /// <param name="NewHideCreditCheckDialogue">The new value to set.</param>
     procedure SetHideCreditCheckDialogue(NewHideCreditCheckDialogue: Boolean)
     begin
         HideCreditCheckDialogue := NewHideCreditCheckDialogue;
     end;
 
+    /// <summary>
+    /// Returns the value of the global flag HideCreditCheckDialogue.
+    /// </summary>
+    /// <remarks>
+    /// Global flag HideCreditCheckDialogue is used to hide exceeded credit limit notification in sales document.
+    /// </remarks>
+    /// <returns>The value of the global flag HideCreditCheckDialogue.</returns>
     procedure GetHideCreditCheckDialogue(): Boolean
     begin
         exit(HideCreditCheckDialogue);
@@ -4274,6 +4485,10 @@ table 36 "Sales Header"
             "Direct Debit Mandate ID" := '';
     end;
 
+    /// <summary>
+    /// Updates the location code with the specified location code. If it's empty, it takes location code from user setup management.
+    /// </summary>
+    /// <param name="LocationCode">New location code.</param>
     procedure UpdateLocationCode(LocationCode: Code[10])
     var
         IsHandled: Boolean;
@@ -4284,6 +4499,17 @@ table 36 "Sales Header"
             Validate("Location Code", UserSetupMgt.GetLocation(0, LocationCode, "Responsibility Center"));
     end;
 
+    /// <summary>
+    /// Updates sales lines to reflect changes in the sales header field.
+    /// Optionally the confirmation is raised, for the user to confirm the update of lines.
+    /// </summary>
+    /// <remarks>
+    /// Field captions must not be duplicated in the sales header, otherwise an error will be raised.
+    /// </remarks>
+    /// <param name="ChangedFieldName">Changed sales header field caption.</param>
+    /// <param name="AskQuestion">
+    /// If true, a confirmation message is shown to update the lines, otherwise confirmation is not shown.
+    /// </param>
     procedure UpdateSalesLines(ChangedFieldName: Text[100]; AskQuestion: Boolean)
     var
         "Field": Record "Field";
@@ -4348,6 +4574,13 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates sales lines based on the provided field number.
+    /// </summary>
+    /// <param name="ChangedFieldNo">Changed field number.</param>
+    /// <param name="AskQuestion">
+    /// If true, confirmation message is shown to update the lines, otherwise confirmation is not shown.
+    /// </param>
     procedure UpdateSalesLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
     var
         "Field": Record "Field";
@@ -4474,6 +4707,10 @@ table 36 "Sales Header"
         OnAfterUpdateSalesLinesByFieldNo(Rec, xRec, ChangedFieldNo);
     end;
 
+    /// <summary>
+    /// Raises a confirmation informing the user that reservations may be canceled if the change in the field causes a date conflict.
+    /// Confirmation is only raised if reservations exist. If not confirmed, the execution stops.
+    /// </summary>
     procedure ConfirmReservationDateConflict()
     var
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
@@ -4483,6 +4720,13 @@ table 36 "Sales Header"
                 Error('');
     end;
 
+    /// <summary>
+    /// Creates and assigns dimensions for the sales header based on the provided default dimension sources.
+    /// </summary>
+    /// <remarks>
+    /// If sales lines exist and the dimension set has changed the dimensions are updated on the lines as well.
+    /// </remarks>
+    /// <param name="DefaultDimSource">The list of default dimension sources.</param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -4553,6 +4797,15 @@ table 36 "Sales Header"
         OnAfterCouldDimensionsBeKept(Rec, xRec, Result);
     end;
 
+    /// <summary>
+    /// Verifies whether the provided shortcut dimension code and value are valid.
+    /// If valid, assigns it to the sales document.
+    /// </summary>
+    /// <remarks>
+    /// If sales lines exist, the dimensions are updated on the lines as well.
+    /// </remarks>
+    /// <param name="FieldNumber">Number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">Value of the shortcut dimension.</param>
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         OldDimSetID: Integer;
@@ -4579,6 +4832,10 @@ table 36 "Sales Header"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Determines if sales lines that are already shipped exist.
+    /// </summary>
+    /// <returns>True if shipped sales lines exists, otherwise false.</returns>
     procedure ShippedSalesLinesExist(): Boolean
     begin
         SalesLine.Reset();
@@ -4588,6 +4845,10 @@ table 36 "Sales Header"
         exit(SalesLine.FindFirst());
     end;
 
+    /// <summary>
+    /// Determines if sales lines that are already returned exist.
+    /// </summary>
+    /// <returns>True if return receipt exists, otherwise false.</returns>
     procedure ReturnReceiptExist(): Boolean
     begin
         SalesLine.Reset();
@@ -4597,6 +4858,9 @@ table 36 "Sales Header"
         exit(SalesLine.FindFirst());
     end;
 
+    /// <summary>
+    /// Deletes all sales lines, reservation, and comment lines for the document.
+    /// </summary>
     procedure DeleteAllSalesLines()
     var
         SalesCommentLine: Record "Sales Comment Line";
@@ -4653,6 +4917,16 @@ table 36 "Sales Header"
         TempItemChargeAssgntSales.SetRange("Applies-to Doc. Line No.");
     end;
 
+    /// <summary>
+    /// Checks if sell-to and bill-to customer numbers are filled. If not, it creates customers based on the associated
+    /// contact and customer template, and assigns the new customer number to the document.
+    /// </summary>
+    /// <remarks>
+    /// The transaction is committed after each customer record is created.
+    /// Procedure are used in release sales quote or make order from quote processes.
+    /// </remarks>
+    /// <param name="Prompt">If set to true, a confirmation dialog to create a customer will be shown, otherwise not.</param>
+    /// <returns>True if sell-to and bill-to customer numbers are filled, otherwise false.</returns>
     procedure CheckCustomerCreated(Prompt: Boolean): Boolean
     var
         Cont: Record Contact;
@@ -4825,10 +5099,24 @@ table 36 "Sales Header"
         OnAfterCopyFromNewSellToCustTemplate(Rec, SellToCustTemplate);
     end;
 
-    procedure RecreateReqLine(OldSalesLine: Record "Sales Line"; NewSourceRefNo: Integer; ToTemp: Boolean)
+    /// <summary>
+    /// Recreates requisition lines linked to a sales line, either shifting them to a temporary table or
+    /// back based on the provided ToTemp flag, updating the order promising line ID in the process.
+    /// </summary>
+    /// <remarks>
+    /// Temporary requisition line table is defined as a local variable and the caller has no way to pass in / retrieve lines.
+    /// Old requisition lines after recreation are deleted.
+    /// </remarks>
+    /// <param name="TempReqLine">Return value Temporary Requisition Line that contains the requisition lines that have been recreated.</param>
+    /// <param name="OldSalesLine">Sales line that is associated with the requisition lines that need to be recreated.</param>
+    /// <param name="NewSourceRefNo">New order promising line ID that should be assigned to the requisition lines when they are moved back from the temporary table to the main table.</param>
+    /// <param name="ToTemp">
+    /// If true, the procedure moves the requisition lines to a temporary table,
+    /// otherwise it moves the requisition lines back from the temporary table to the main table.
+    /// </param>
+    procedure RecreateReqLine(var TempReqLine: Record "Requisition Line" temporary; OldSalesLine: Record "Sales Line"; NewSourceRefNo: Integer; ToTemp: Boolean)
     var
         ReqLine: Record "Requisition Line";
-        TempReqLine: Record "Requisition Line" temporary;
     begin
         if ("Document Type" = "Document Type"::Order) then
             if ToTemp then begin
@@ -4858,6 +5146,37 @@ table 36 "Sales Header"
             end;
     end;
 
+#if not CLEAN25
+    /// <summary>
+    /// Recreates requisition lines linked to a sales line, either shifting them to a temporary table or
+    /// back based on the provided ToTemp flag, updating the order promising line ID in the process.
+    /// </summary>
+    /// <remarks>
+    /// Temporary requisition line table is defined as a local variable and the caller has no way to pass in / retrieve lines.
+    /// Old requisition lines after recreation are deleted.
+    /// </remarks>
+    /// <param name="OldSalesLine">Sales line that is associated with the requisition lines that need to be recreated.</param>
+    /// <param name="NewSourceRefNo">New order promising line ID that should be assigned to the requisition lines when they are moved back from the temporary table to the main table.</param>
+    /// <param name="ToTemp">
+    /// If true, the procedure moves the requisition lines to a temporary table,
+    /// otherwise it moves the requisition lines back from the temporary table to the main table.
+    /// </param>
+    [Obsolete('Use RecreateReqLine with TempReqLine parameter instead.', '25.0')]
+    procedure RecreateReqLine(OldSalesLine: Record "Sales Line"; NewSourceRefNo: Integer; ToTemp: Boolean)
+    var
+        TempReqLine: Record "Requisition Line" temporary;
+    begin
+        RecreateReqLine(TempReqLine, OldSalesLine, NewSourceRefNo, ToTemp);
+    end;
+#endif
+
+    /// <summary>
+    /// Updates the sell-to contact details of a sales header based on the provided customer number.
+    /// </summary>
+    /// <remarks>
+    /// If the contact linked to a specific business relation is found, sell-to contact information is updated from the contact.
+    /// </remarks>
+    /// <param name="CustomerNo">Customer number from which details are taken.</param>
     procedure UpdateSellToCont(CustomerNo: Code[20])
     var
         ContBusRel: Record "Contact Business Relation";
@@ -4892,6 +5211,13 @@ table 36 "Sales Header"
         OnAfterUpdateSellToCont(Rec, Cust, OfficeContact, HideValidationDialog);
     end;
 
+    /// <summary>
+    /// Updates the bill-to contact details of a sales header based on the provided customer number.
+    /// </summary>
+    /// <remarks>
+    /// If the contact linked to a specific business relation is found, bill-to contact information is updated from the contact.
+    /// </remarks>
+    /// <param name="CustomerNo">Customer number from which details are taken.</param>
     procedure UpdateBillToCont(CustomerNo: Code[20])
     var
         ContBusRel: Record "Contact Business Relation";
@@ -4926,6 +5252,13 @@ table 36 "Sales Header"
         OnAfterUpdateBillToCont(Rec, Cust, Contact);
     end;
 
+    /// <summary>
+    /// Updates the sell-to customer details of a sales header based on the provided contact number.
+    /// </summary>
+    /// <remarks>
+    /// If the contact linked to a specific business relation is found, sell-to customer information is updated from the contact.
+    /// </remarks>
+    /// <param name="ContactNo">Contact number from which details are taken.</param>
     procedure UpdateSellToCust(ContactNo: Code[20])
     var
         ContBusinessRelation: Record "Contact Business Relation";
@@ -4983,6 +5316,7 @@ table 36 "Sales Header"
                 SetShipToAddress(
                   SearchContact."Company Name", SearchContact."Name 2", SearchContact.Address, SearchContact."Address 2",
                   SearchContact.City, SearchContact."Post Code", SearchContact.County, SearchContact."Country/Region Code");
+                "Ship-to Phone No." := SearchContact."Phone No.";
                 OnUpdateSellToCustOnAfterSetShipToAddress(Rec, SearchContact);
                 if ("Sell-to Customer Templ. Code" = '') and (not CustomerTempl.IsEmpty) then
                     Validate("Sell-to Customer Templ. Code", Cont.FindNewCustomerTemplate());
@@ -5059,6 +5393,7 @@ table 36 "Sales Header"
 
     local procedure CheckCustomerContactRelation(Cont: Record Contact; CustomerNo: Code[20]; ContBusinessRelationNo: Code[20])
     var
+        ContactBusinessRelationLinkType: Enum "Contact Business Relation Link To Table";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5067,7 +5402,8 @@ table 36 "Sales Header"
             exit;
 
         if (CustomerNo <> '') and (CustomerNo <> ContBusinessRelationNo) then
-            Error(Text037, Cont."No.", Cont.Name, CustomerNo);
+            if FindContactBusinessRelation(CustomerNo, Cont."Company No.", ContactBusinessRelationLinkType::Customer) then
+                Error(Text037, Cont."No.", Cont.Name, CustomerNo);
     end;
 
     local procedure UpdateBillToCust(ContactNo: Code[20])
@@ -5112,7 +5448,7 @@ table 36 "Sales Header"
                 "Bill-to Customer Templ. Code" := '';
             end else
                 CheckCustomerContactRelation(Cont, "Bill-to Customer No.", ContBusinessRelation."No.");
-        end else begin
+        end else
             if "Document Type" = "Document Type"::Quote then begin
                 if not GetContactAsCompany(Cont, SearchContact) then
                     SearchContact := Cont;
@@ -5140,7 +5476,6 @@ table 36 "Sales Header"
                 if not IsHandled then
                     Error(ContactIsNotRelatedToAnyCostomerErr, Cont."No.", Cont.Name);
             end;
-        end;
 
         OnAfterUpdateBillToCust(Rec, Cont);
     end;
@@ -5197,6 +5532,16 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates the shipping time on the sales header.
+    /// </summary>
+    /// <remarks>
+    /// Checks if the procedure is called by a field other than the current field. If so, the procedure exits.
+    /// If shipping agent is defined in sales header then shipping time is set from the shipping agent services, otherwise from sell-to customer.
+    /// If the procedure was not called by the shipping agent code or shipping agent service code fields,
+    /// it validates the current shipping time value.
+    /// </remarks>
+    /// <param name="CalledByFieldNo">Field number of the field that called this procedure.</param>
     procedure GetShippingTime(CalledByFieldNo: Integer)
     var
         ShippingAgentServices: Record "Shipping Agent Services";
@@ -5226,6 +5571,10 @@ table 36 "Sales Header"
             Contact.Get(Contact."Company No.");
     end;
 
+    /// <summary>
+    /// Gets sell-to customer fax number.
+    /// </summary>
+    /// <returns>Customer fax number.</returns>
     procedure GetSellToCustomerFaxNo(): Text
     var
         Customer2: Record Customer;
@@ -5234,6 +5583,12 @@ table 36 "Sales Header"
             exit(Customer2."Fax No.");
     end;
 
+    /// <summary>
+    /// Checks the bill to customer credit limit and if credit limit is exceeded, creates a notification.
+    /// </summary>
+    /// <remarks>
+    /// Notifiction will be created only if credit warnings is not disabled in sales setup.
+    /// </remarks>
     procedure CheckCreditMaxBeforeInsert()
     var
         SalesHeader2: Record "Sales Header";
@@ -5276,6 +5631,9 @@ table 36 "Sales Header"
         OnAfterCheckCreditMaxBeforeInsert(Rec);
     end;
 
+    /// <summary>
+    /// Creates inventory put-away, pick, or movement documents for a released sales document.
+    /// </summary>
     procedure CreateInvtPutAwayPick()
     begin
         OnBeforeCreateInvtPutAwayPick(Rec);
@@ -5303,6 +5661,9 @@ table 36 "Sales Header"
         REPORT.RunModal(REPORT::"Create Invt Put-away/Pick/Mvmt", true, false, WhseRequest);
     end;
 
+    /// <summary>
+    /// Starts the create task wizard with information from the sales header.
+    /// </summary>
     procedure CreateTask()
     var
         TempTask: Record "To-do" temporary;
@@ -5311,6 +5672,9 @@ table 36 "Sales Header"
         TempTask.CreateTaskFromSalesHeader(Rec);
     end;
 
+    /// <summary>
+    /// Updates the ship-to address information if the sales header has a credit document type.
+    /// </summary>
     procedure UpdateShipToAddress()
     var
         IsHandled: Boolean;
@@ -5325,6 +5689,7 @@ table 36 "Sales Header"
                 SetShipToAddress(
                   Location.Name, Location."Name 2", Location.Address, Location."Address 2", Location.City,
                   Location."Post Code", Location.County, Location."Country/Region Code");
+                "Ship-to Phone No." := Location."Phone No.";
                 "Ship-to Contact" := Location.Contact;
             end else begin
                 CompanyInfo.Get();
@@ -5333,6 +5698,7 @@ table 36 "Sales Header"
                   CompanyInfo."Ship-to Name", CompanyInfo."Ship-to Name 2", CompanyInfo."Ship-to Address", CompanyInfo."Ship-to Address 2",
                   CompanyInfo."Ship-to City", CompanyInfo."Ship-to Post Code", CompanyInfo."Ship-to County",
                   CompanyInfo."Ship-to Country/Region Code");
+                "Ship-to Phone No." := CompanyInfo."Ship-to Phone No.";
                 "Ship-to Contact" := CompanyInfo."Ship-to Contact";
             end;
             "VAT Country/Region Code" := "Sell-to Country/Region Code";
@@ -5360,6 +5726,10 @@ table 36 "Sales Header"
         Rec.Validate("Ship-to Code", Customer."Ship-to Code");
     end;
 
+    /// <summary>
+    /// Opens a page for editing dimensions for the sales header.
+    /// If dimensions are changed, they're updated on the sales lines as well.
+    /// </summary>
     procedure ShowDocDim()
     var
         OldDimSetID: Integer;
@@ -5394,6 +5764,11 @@ table 36 "Sales Header"
             Confirmed := Confirm(Text064);
     end;
 
+    /// <summary>
+    /// Updates the dimensions of sales lines in a sales document when the dimensions of the sales header are changed.
+    /// </summary>
+    /// <param name="NewParentDimSetID">New dimension set ID.</param>
+    /// <param name="OldParentDimSetID">Previous dimension set ID.</param>
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
         ATOLink: Record "Assemble-to-Order Link";
@@ -5447,6 +5822,13 @@ table 36 "Sales Header"
                 ShippedReceivedItemLineDimChangeConfirmed := SalesLine.ConfirmShippedReceivedItemDimChange();
     end;
 
+    /// <summary>
+    /// Opens a page with adjustment value entries related to the sales header.
+    /// </summary>
+    /// <param name="QtyType">
+    /// General - filters all related value entries.
+    /// Invoicing - filters only not invoiced value entries.
+    /// </param>
     procedure LookupAdjmtValueEntries(QtyType: Option General,Invoicing)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -5462,67 +5844,67 @@ table 36 "Sales Header"
 
         case "Document Type" of
             "Document Type"::Order, "Document Type"::Invoice:
-                begin
-                    if SalesLine.FindSet() then
-                        repeat
-                            if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then begin
-                                if SalesLine."Shipment No." <> '' then begin
-                                    SalesShptLine.SetRange("Document No.", SalesLine."Shipment No.");
-                                    SalesShptLine.SetRange("Line No.", SalesLine."Shipment Line No.");
-                                end else begin
-                                    SalesShptLine.SetCurrentKey("Order No.", "Order Line No.");
-                                    SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
-                                    SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
-                                end;
-                                SalesShptLine.SetRange(Correction, false);
-                                if QtyType = QtyType::Invoicing then
-                                    SalesShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
-
-                                if SalesShptLine.FindSet() then
-                                    repeat
-                                        SalesShptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                                        if ItemLedgEntry.FindSet() then
-                                            repeat
-                                                CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
-                                            until ItemLedgEntry.Next() = 0;
-                                    until SalesShptLine.Next() = 0;
+                if SalesLine.FindSet() then
+                    repeat
+                        if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then begin
+                            if SalesLine."Shipment No." <> '' then begin
+                                SalesShptLine.SetRange("Document No.", SalesLine."Shipment No.");
+                                SalesShptLine.SetRange("Line No.", SalesLine."Shipment Line No.");
+                            end else begin
+                                SalesShptLine.SetCurrentKey("Order No.", "Order Line No.");
+                                SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
+                                SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
                             end;
-                        until SalesLine.Next() = 0;
-                end;
+                            SalesShptLine.SetRange(Correction, false);
+                            if QtyType = QtyType::Invoicing then
+                                SalesShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+
+                            if SalesShptLine.FindSet() then
+                                repeat
+                                    SalesShptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
+                                    if ItemLedgEntry.FindSet() then
+                                        repeat
+                                            CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
+                                        until ItemLedgEntry.Next() = 0;
+                                until SalesShptLine.Next() = 0;
+                        end;
+                    until SalesLine.Next() = 0;
             "Document Type"::"Return Order", "Document Type"::"Credit Memo":
-                begin
-                    if SalesLine.FindSet() then
-                        repeat
-                            if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then begin
-                                if SalesLine."Return Receipt No." <> '' then begin
-                                    ReturnRcptLine.SetRange("Document No.", SalesLine."Return Receipt No.");
-                                    ReturnRcptLine.SetRange("Line No.", SalesLine."Return Receipt Line No.");
-                                end else begin
-                                    ReturnRcptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
-                                    ReturnRcptLine.SetRange("Return Order No.", SalesLine."Document No.");
-                                    ReturnRcptLine.SetRange("Return Order Line No.", SalesLine."Line No.");
-                                end;
-                                ReturnRcptLine.SetRange(Correction, false);
-                                if QtyType = QtyType::Invoicing then
-                                    ReturnRcptLine.SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
-
-                                if ReturnRcptLine.FindSet() then
-                                    repeat
-                                        ReturnRcptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                                        if ItemLedgEntry.FindSet() then
-                                            repeat
-                                                CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
-                                            until ItemLedgEntry.Next() = 0;
-                                    until ReturnRcptLine.Next() = 0;
+                if SalesLine.FindSet() then
+                    repeat
+                        if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then begin
+                            if SalesLine."Return Receipt No." <> '' then begin
+                                ReturnRcptLine.SetRange("Document No.", SalesLine."Return Receipt No.");
+                                ReturnRcptLine.SetRange("Line No.", SalesLine."Return Receipt Line No.");
+                            end else begin
+                                ReturnRcptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
+                                ReturnRcptLine.SetRange("Return Order No.", SalesLine."Document No.");
+                                ReturnRcptLine.SetRange("Return Order Line No.", SalesLine."Line No.");
                             end;
-                        until SalesLine.Next() = 0;
-                end;
+                            ReturnRcptLine.SetRange(Correction, false);
+                            if QtyType = QtyType::Invoicing then
+                                ReturnRcptLine.SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
+
+                            if ReturnRcptLine.FindSet() then
+                                repeat
+                                    ReturnRcptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
+                                    if ItemLedgEntry.FindSet() then
+                                        repeat
+                                            CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
+                                        until ItemLedgEntry.Next() = 0;
+                                until ReturnRcptLine.Next() = 0;
+                        end;
+                    until SalesLine.Next() = 0;
             else
                 OnLookupAdjmtValueEntriesCaseDocumentTypeElse(Rec, SalesLine, QtyType);
         end;
         PAGE.RunModal(0, TempValueEntry);
     end;
 
+    /// <summary>
+    /// Returns the VAT registration number from a sales header.
+    /// </summary>
+    /// <returns>VAT registration number.</returns>
     procedure GetCustomerVATRegistrationNumber() ReturnValue: Text
     var
         IsHandled: Boolean;
@@ -5535,6 +5917,10 @@ table 36 "Sales Header"
         exit("VAT Registration No.");
     end;
 
+    /// <summary>
+    /// Returns the VAT registration number field caption from a sales header.
+    /// </summary>
+    /// <returns>Caption of the VAT registration number field in the sales header.</returns>
     procedure GetCustomerVATRegistrationNumberLbl() ReturnValue: Text
     var
         IsHandled: Boolean;
@@ -5547,16 +5933,32 @@ table 36 "Sales Header"
         exit(FieldCaption("VAT Registration No."));
     end;
 
+    /// <summary>
+    /// Returns customer global location number. Currently defined to return an empty value.
+    /// </summary>
+    /// <returns>Empty text.</returns>
+#if not CLEAN25
+    [Obsolete('The procedure is not used and will be obsoleted.', '25.0')]
     procedure GetCustomerGlobalLocationNumber(): Text
     begin
         exit('');
     end;
 
+    /// <summary>
+    /// Returns customer global location number caption. Currently defined to return an empty value.
+    /// </summary>
+    /// <returns>Empty text.</returns>
+    [Obsolete('The procedure is not used and will be obsoleted.', '25.0')]
     procedure GetCustomerGlobalLocationNumberLbl(): Text
     begin
         exit('');
     end;
+#endif
 
+    /// <summary>
+    /// Returns document status field style expression based on the status of the sales header.
+    /// </summary>
+    /// <returns>Status style expression.</returns>
     procedure GetStatusStyleText() StatusStyleText: Text
     begin
         if Status = Status::Open then
@@ -5582,6 +5984,10 @@ table 36 "Sales Header"
             until ValueEntry.Next() = 0;
     end;
 
+    /// <summary>
+    /// Opens a page with posted document lines that can be reversed. After the user selects the lines,
+    /// they are copied to the current document.
+    /// </summary>
     procedure GetPstdDocLinesToReverse()
     var
         SalesPostedDocLines: Page "Posted Sales Document Lines";
@@ -5604,6 +6010,9 @@ table 36 "Sales Header"
         OnAfterGetPstdDocLinesToReverse(Rec);
     end;
 
+    /// <summary>
+    /// Calculates invoice discount for a sales header if calculate invoice discount is enabled in the sales setup.
+    /// </summary>
     procedure CalcInvDiscForHeader()
     var
         SalesInvDisc: Codeunit "Sales-Calc. Discount";
@@ -5619,6 +6028,14 @@ table 36 "Sales Header"
             SalesInvDisc.CalculateIncDiscForHeader(Rec);
     end;
 
+    /// <summary>
+    /// Filters the sales header for responsibility center set in the user setup or company information.
+    /// The filter is set in filter group 2 and is hidden from the user.
+    /// </summary>
+    /// <remarks>
+    /// Responsibility filter is set from user setup sales responsibility control filter field if this field is filled,
+    /// otherwise it is set from the company information responsibility center field.
+    /// </remarks>
     procedure SetSecurityFilterOnRespCenter()
     var
         IsHandled: Boolean;
@@ -5637,6 +6054,14 @@ table 36 "Sales Header"
         Rec.SetRange("Date Filter", 0D, WorkDate());
     end;
 
+    /// <summary>
+    /// Updates reservations data if location or bin have changed on the sales line.
+    /// </summary>
+    /// <remarks>
+    /// Procedure is used on sales lines recreation process.
+    /// </remarks>
+    /// <param name="NewSalesLine">Return value: Updated sales line record.</param>
+    /// <param name="OldSalesLine">The original sales line record before updates.</param>
     procedure SynchronizeForReservations(var NewSalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line")
     var
         IsHandled: Boolean;
@@ -5656,6 +6081,13 @@ table 36 "Sales Header"
         if NewSalesLine.Modify() then;
     end;
 
+    /// <summary>
+    /// Determines if there is a conflict between inventory pick and sales line for a given sales document.
+    /// </summary>
+    /// <param name="DocType">The type of the sales document.</param>
+    /// <param name="DocNo">The number of the sales document.</param>
+    /// <param name="ShippingAdvice">The shipping advice for the sales document.</param>
+    /// <returns>True if there is a conflict, otherwise false.</returns>
     procedure InventoryPickConflict(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -5677,6 +6109,13 @@ table 36 "Sales Header"
         exit(true);
     end;
 
+    /// <summary>
+    /// Determines if there is a conflict between warehouse shipment and sales line for a given sales document.
+    /// </summary>
+    /// <param name="DocType">The type of the sales document.</param>
+    /// <param name="DocNo">The number of the sales document.</param>
+    /// <param name="ShippingAdvice">The shipping advice for the sales document.</param>
+    /// <returns>True if there is a conflict, otherwise false.</returns>
     procedure WhseShipmentConflict(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
@@ -5729,6 +6168,13 @@ table 36 "Sales Header"
         exit(RunCheck);
     end;
 
+    /// <summary>
+    /// Checks if all lines of the document are in stock.
+    /// If the quantity in stock is too low, a notification is shown.
+    /// </summary>
+    /// <remarks>
+    /// Notifications will be displayed if stock notifications are not disabled.
+    /// </remarks>
     procedure CheckItemAvailabilityInLines()
     var
         SalesLine: Record "Sales Line";
@@ -5753,6 +6199,10 @@ table 36 "Sales Header"
             until SalesLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Determines if the quantity to ship is zero for all sales document lines.
+    /// </summary>
+    /// <returns>True if the quantity to ship is zero for all lines, otherwise false.</returns>
     procedure QtyToShipIsZero() Result: Boolean
     var
         IsHandled: Boolean;
@@ -5769,6 +6219,11 @@ table 36 "Sales Header"
         Result := SalesLine.IsEmpty();
     end;
 
+    /// <summary>
+    /// Checks if the sales document can be posted.
+    /// It checks for status, approvals, payments and prepayments, and throws an error if conditions are not met.
+    /// </summary>
+    /// <returns>True if the sales header is approved for posting, otherwise false.</returns>
     procedure IsApprovedForPosting() Approved: Boolean
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
@@ -5790,6 +6245,13 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Determines if the sales document can be posted. It checks for status, approvals, payments, and prepayments.
+    /// </summary>
+    /// <remarks>
+    /// All the checks are executed in the try function, so no errors will be thrown if they appear.
+    /// </remarks>
+    /// <returns>True if the sales header is approved for posting, otherwise false.</returns>
     procedure IsApprovedForPostingBatch() Approved: Boolean
     var
         IsHandled: Boolean;
@@ -5836,12 +6298,25 @@ table 36 "Sales Header"
             end;
     end;
 
+    /// <summary>
+    /// Returns legal statement from sales setup. Currently defined to return an empty value.
+    /// </summary>
+    /// <returns>Empty text.</returns>
     procedure GetLegalStatement(): Text
     begin
         GetSalesSetup();
         exit(SalesSetup.GetLegalStatement());
     end;
 
+    /// <summary>
+    /// Posts a sales document by running the provided codeunit if the document is approved for posting.
+    /// </summary>
+    /// <remarks>
+    /// The transaction is committed before the posting codeunit is run.
+    /// After the posting codeunit is executed any errors that occur during the posting operation are shown.
+    /// </remarks>
+    /// <param name="PostingCodeunitID">Posting codeunit id that is executed.</param>
+    /// <returns>True if the document was successfully posted, otherwise false.</returns>
     procedure SendToPosting(PostingCodeunitID: Integer) IsSuccess: Boolean
     var
         ErrorContextElement: Codeunit "Error Context Element";
@@ -5879,6 +6354,9 @@ table 36 "Sales Header"
             WhseRequest.DeleteAll(true);
     end;
 
+    /// <summary>
+    /// Cancels a background posting job for a sales document.
+    /// </summary>
     procedure CancelBackgroundPosting()
     var
         SalesPostViaJobQueue: Codeunit "Sales Post via Job Queue";
@@ -5886,6 +6364,10 @@ table 36 "Sales Header"
         SalesPostViaJobQueue.CancelQueueEntry(Rec);
     end;
 
+    /// <summary>
+    /// Sends an email with the sales document attached.
+    /// </summary>
+    /// <param name="ShowDialog">Determines whether to show the email dialog before sending the email.</param>
     [Scope('Cloud')]
     procedure EmailRecords(ShowDialog: Boolean)
     var
@@ -5911,6 +6393,10 @@ table 36 "Sales Header"
         OnAfterSendSalesHeader(Rec, ShowDialog);
     end;
 
+    /// <summary>
+    /// Retrieves the full document type name based on the sales header document type.
+    /// </summary>
+    /// <returns>Retrieved document type name.</returns>
     procedure GetDocTypeTxt() TypeText: Text[50]
     var
         ReportDistributionMgt: Codeunit "Report Distribution Management";
@@ -5920,6 +6406,10 @@ table 36 "Sales Header"
         OnAfterGetDocTypeText(Rec, TypeText);
     end;
 
+    /// <summary>
+    /// Retrieves the full sales document type name based on the sales header document type.
+    /// </summary>
+    /// <returns>Retrieved document type name.</returns>
     procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
     var
         IsHandled: Boolean;
@@ -5932,6 +6422,10 @@ table 36 "Sales Header"
         FullDocTypeTxt := SelectStr("Document Type".AsInteger() + 1, FullSalesTypesTxt);
     end;
 
+    /// <summary>
+    /// Updates the link between the sales document and an opportunity.
+    /// </summary>
+    /// <param name="OldOpportunityNo">The opportunity number before the update.</param>
     procedure LinkSalesDocWithOpportunity(OldOpportunityNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -5986,6 +6480,12 @@ table 36 "Sales Header"
         Opportunity.Modify();
     end;
 
+    /// <summary>
+    /// Updates the posting date of related assembly headers with the sales header.
+    /// </summary>
+    /// <remarks>
+    /// During the update dialog window will be shown for the user.
+    /// </remarks>
     procedure SynchronizeAsmHeader()
     var
         AsmHeader: Record "Assembly Header";
@@ -6008,6 +6508,9 @@ table 36 "Sales Header"
             until ATOLink.Next() = 0;
     end;
 
+    /// <summary>
+    /// Checks if the sales document can be shipped completely and throws an error if it cannot.
+    /// </summary>
     procedure CheckShippingAdvice()
     var
         SalesLine2: Record "Sales Line";
@@ -6045,6 +6548,12 @@ table 36 "Sales Header"
             Error(ErrorInfo.Create(ShippingAdviceErr, true, Rec));
     end;
 
+    /// <summary>
+    /// Retrieves the company contact associated with the provided contact.
+    /// </summary>
+    /// <param name="Contact">The contact record to get the associated company contact for.</param>
+    /// <param name="SearchContact">Return value: associated company contact.</param>
+    /// <returns>True if company contact was found, otherwise false.</returns>
     protected procedure GetContactAsCompany(Contact: Record Contact; var SearchContact: Record Contact): Boolean;
     var
         IsHandled: Boolean;
@@ -6060,11 +6569,10 @@ table 36 "Sales Header"
         MinValue: Code[20];
         MaxValue: Code[20];
     begin
-        if GetFilter("Sell-to Customer No.") <> '' then begin
+        if GetFilter("Sell-to Customer No.") <> '' then
             if TryGetFilterCustNoRange(MinValue, MaxValue) then
                 if MinValue = MaxValue then
                     exit(MaxValue);
-        end;
     end;
 
     [TryFunction]
@@ -6115,6 +6623,10 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Determines whether there are invoiced sales lines for the sales header.
+    /// </summary>
+    /// <returns>True if invoiced sales lines exists, otherwise false.</returns>
     procedure InvoicedLineExists(): Boolean
     var
         SalesLine: Record "Sales Line";
@@ -6126,6 +6638,13 @@ table 36 "Sales Header"
         exit(not SalesLine.IsEmpty);
     end;
 
+    /// <summary>
+    /// Updates dimensions on lines with prepayments.
+    /// </summary>
+    /// <remarks>
+    /// Dimensions are updated on temporary sales line table.
+    /// Temporary sales line table is defined as a local variable and the caller has no way to retrieve lines.
+    /// </remarks>
     procedure CreateDimSetForPrepmtAccDefaultDim()
     var
         SalesLine: Record "Sales Line";
@@ -6202,6 +6721,12 @@ table 36 "Sales Header"
         TempSalesLine.Insert();
     end;
 
+    /// <summary>
+    /// Open statistics page for sales document.
+    /// </summary>
+    /// <remarks>
+    /// Commit is executed before opening the statistics page.
+    /// </remarks>
     procedure OpenSalesOrderStatistics()
     var
         IsHandled: Boolean;
@@ -6214,11 +6739,24 @@ table 36 "Sales Header"
         OpenDocumentStatisticsInternal();
     end;
 
+    /// <summary>
+    /// Open statistics page for sales documents.
+    /// </summary>
+    /// <remarks>
+    /// Commit is executed before opening the statistics page.
+    /// </remarks>
     procedure OpenDocumentStatistics()
     begin
         OpenDocumentStatisticsInternal();
     end;
 
+    /// <summary>
+    /// Runs checks and prepares data needed to open the document statistics page.
+    /// </summary>
+    /// <remarks>
+    /// It checks the user's permissions,
+    /// calculates the invoice discount, creates a dimension set for order documents, and commits any changes made.
+    /// </remarks>
     procedure PrepareOpeningDocumentStatistics()
     var
         [SecurityFiltering(SecurityFilter::Ignored)]
@@ -6239,6 +6777,10 @@ table 36 "Sales Header"
         Commit();
     end;
 
+    /// <summary>
+    /// Opens a sales document statistics page based on the document type.
+    /// After the page is closed, the recalculate invoice discount field is set to false on all sales document lines.
+    /// </summary>
     procedure ShowDocumentStatisticsPage() StatisticsPageId: Integer
     begin
         StatisticsPageId := GetStatisticsPageID();
@@ -6283,6 +6825,10 @@ table 36 "Sales Header"
         exit(PAGE::"Sales Statistics");
     end;
 
+    /// <summary>
+    /// Determines the available credit limit for the customer associated with the sales header.
+    /// </summary>
+    /// <returns>Available credit limit.</returns>
     procedure CheckAvailableCreditLimit() ReturnValue: Decimal
     var
         Customer: Record Customer;
@@ -6310,6 +6856,10 @@ table 36 "Sales Header"
         exit(AvailableCreditLimit);
     end;
 
+    /// <summary>
+    /// Sets the status of a sales document.
+    /// </summary>
+    /// <param name="NewStatus">New status to set.</param>
     procedure SetStatus(NewStatus: Option)
     begin
         Status := Enum::"Sales Document Status".FromInteger(NewStatus);
@@ -6336,7 +6886,7 @@ table 36 "Sales Header"
         TestQuantityShippedField(SalesLine);
     end;
 
-    local procedure RecreateReservEntryReqLine(var TempSalesLine: Record "Sales Line" temporary; var TempATOLink: Record "Assemble-to-Order Link" temporary; var ATOLink: Record "Assemble-to-Order Link")
+    local procedure RecreateReservEntryReqLine(var TempSalesLine: Record "Sales Line" temporary; var TempATOLink: Record "Assemble-to-Order Link" temporary; var ATOLink: Record "Assemble-to-Order Link"; var TempReqLine: Record "Requisition Line" temporary);
     var
         ShouldValidateLocationCode: Boolean;
     begin
@@ -6362,7 +6912,7 @@ table 36 "Sales Header"
                 TempSalesLine.Insert();
             OnAfterInsertTempSalesLine(SalesLine, TempSalesLine);
             SalesLineReserve.CopyReservEntryToTemp(TempReservEntry, SalesLine);
-            RecreateReqLine(SalesLine, 0, true);
+            RecreateReqLine(TempReqLine, SalesLine, 0, true);
             OnRecreateReservEntryReqLineOnAfterLoop(Rec, SalesLine);
         until SalesLine.Next() = 0;
     end;
@@ -6375,6 +6925,11 @@ table 36 "Sales Header"
                     exit(true);
     end;
 
+    /// <summary>
+    /// Transfers item charge assignments to the temporary record set and deletes them from the original record.
+    /// </summary>
+    /// <param name="ItemChargeAssgntSales">Item charge assignment record set to transfer.</param>
+    /// <param name="TempItemChargeAssgntSales">Return value: Temporary item charge assignment record set to transfer to.</param>
     procedure TransferItemChargeAssgntSalesToTemp(var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary)
     var
         IsHandled: Boolean;
@@ -6496,6 +7051,9 @@ table 36 "Sales Header"
     begin
     end;
 
+    /// <summary>
+    /// Triggers the OnCheckSalesPostRestrictions event that allows customized restrictions to be added to the sales document post process.
+    /// </summary>
     procedure CheckSalesPostRestrictions()
     begin
         OnCheckSalesPostRestrictions();
@@ -6506,6 +7064,10 @@ table 36 "Sales Header"
     begin
     end;
 
+    /// <summary>
+    /// Triggers the OnCustomerCreditLimitExceeded event that allows a custom solution to be
+    /// added when the calculated credit limit exceeds the customer's credit limit.
+    /// </summary>
     procedure CustomerCreditLimitExceeded()
     var
         NotificationId: Guid;
@@ -6513,6 +7075,14 @@ table 36 "Sales Header"
         OnCustomerCreditLimitExceeded(NotificationId);
     end;
 
+    /// <summary>
+    /// Triggers the OnCustomerCreditLimitExceeded event that allows a custom solution to be added
+    /// when the calculated credit limit exceeds the customer's credit limit.
+    /// </summary>
+    /// <remarks>
+    /// Used on sales lines and sales header check procedures which creates exceeded credit limit notification if needed.
+    /// </remarks>
+    /// <param name="NotificationID">GUID of the credit limit notification.</param>
     procedure CustomerCreditLimitExceeded(NotificationId: Guid)
     begin
         OnCustomerCreditLimitExceeded(NotificationId);
@@ -6523,6 +7093,10 @@ table 36 "Sales Header"
     begin
     end;
 
+    /// <summary>
+    /// Triggers the OnCustomerCreditLimitNotExceeded event that allows a custom solution to be added
+    /// when the calculated credit limit not exceeds the customer's credit limit.
+    /// </summary>
     procedure CustomerCreditLimitNotExceeded()
     begin
         OnCustomerCreditLimitNotExceeded();
@@ -6533,6 +7107,9 @@ table 36 "Sales Header"
     begin
     end;
 
+    /// <summary>
+    /// Checks the sales document approvals if the status is open.
+    /// </summary>
     procedure CheckSalesReleaseRestrictions()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -6541,6 +7118,10 @@ table 36 "Sales Header"
         ApprovalsMgmt.PrePostApprovalCheckSales(Rec);
     end;
 
+    /// <summary>
+    /// Determines whether there are related deferrals.
+    /// </summary>
+    /// <returns>True if any related deferal header exists, otherwise false.</returns>
     procedure DeferralHeadersExist(): Boolean
     var
         DeferralHeader: Record "Deferral Header";
@@ -6554,6 +7135,9 @@ table 36 "Sales Header"
         exit(not DeferralHeader.IsEmpty);
     end;
 
+    /// <summary>
+    /// Sets the sell-to customer number from the filter applied to the sell-to customer field if the filter is not blank.
+    /// </summary>
     procedure SetSellToCustomerFromFilter()
     var
         SellToCustomerNo: Code[20];
@@ -6566,6 +7150,13 @@ table 36 "Sales Header"
         OnAfterSetSellToCustomerFromFilter(Rec);
     end;
 
+    /// <summary>
+    /// Retrieves the sell-to customer no. of a sales header based on a single-value filter applied to the sell-to customer no. field.
+    /// </summary>
+    /// <remarks>
+    /// Single-value filter is retrieved from the current filter group or filter group 2.
+    /// </remarks>
+    /// <returns>Sell-to customer number.</returns>
     procedure GetSellToCustomerFromFilter() SellToCustomerNo: Code[20]
     begin
         SellToCustomerNo := GetFilterCustNo();
@@ -6578,6 +7169,9 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Moves the filter on sell-to customer no. from the current filter group to filter group 2.
+    /// </summary>
     procedure CopySellToCustomerFilter()
     var
         SellToCustomerFilter: Text;
@@ -6622,33 +7216,15 @@ table 36 "Sales Header"
             UpdateSalesLinesByFieldNo(SalesLine.FieldNo("Deferral Code"), false);
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by BatchConfirmUpdateDeferralDate with VAT Date parameters.', '22.0')]
-    procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date)
-    begin
-        if (not ReplacePostingDate) or (PostingDateReq = "Posting Date") or (BatchConfirm = BatchConfirm::Skip) then
-            exit;
-
-        if not DeferralHeadersExist() then
-            exit;
-
-        "Posting Date" := PostingDateReq;
-        case BatchConfirm of
-            BatchConfirm::" ":
-                begin
-                    ConfirmUpdateDeferralDate();
-                    if Confirmed then
-                        BatchConfirm := BatchConfirm::Update
-                    else
-                        BatchConfirm := BatchConfirm::Skip;
-                end;
-            BatchConfirm::Update:
-                UpdateSalesLinesByFieldNo(SalesLine.FieldNo("Deferral Code"), false);
-        end;
-        Commit();
-    end;
-#endif
-
+    /// <summary>
+    /// Raises a confirmation to update the deferral schedules on the lines to reflect the changed dates.
+    /// If user confirms the update, the sales lines are updated.
+    /// </summary>
+    /// <param name="BatchConfirm"></param>
+    /// <param name="ReplacePostingDate">If true, the sales header's posting date will be replaced with the specified PostingDateReq.</param>
+    /// <param name="PostingDateReq">Posting date to replace.</param>
+    /// <param name="ReplaceVATDate"></param>
+    /// <param name="VATDateReq">Vat reporting date to replace.</param>
     procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date; ReplaceVATDate: Boolean; VATDateReq: Date)
     begin
         if ((not ReplacePostingDate) and (not ReplaceVATDate)) or (BatchConfirm = BatchConfirm::Skip) then
@@ -6678,6 +7254,9 @@ table 36 "Sales Header"
         Commit();
     end;
 
+    /// <summary>
+    /// Retrieves the name of the payment service assigned to the document.
+    /// </summary>
     procedure GetSelectedPaymentServicesText(): Text
     var
         PaymentServiceSetup: Record "Payment Service Setup";
@@ -6685,6 +7264,9 @@ table 36 "Sales Header"
         exit(PaymentServiceSetup.GetSelectedPaymentsText("Payment Service Set ID"));
     end;
 
+    /// <summary>
+    /// Updates the payment service on the document with the default payment service from the setup.
+    /// </summary>
     procedure SetDefaultPaymentServices()
     var
         PaymentServiceSetup: Record "Payment Service Setup";
@@ -6703,6 +7285,10 @@ table 36 "Sales Header"
             Validate("Payment Service Set ID", SetID);
     end;
 
+    /// <summary>
+    /// Opens a page to either select an existing payment service or set up a new one if none exists.
+    /// The payment service is then assigned to the document.
+    /// </summary>
     procedure ChangePaymentServiceSetting()
     var
         PaymentServiceSetup: Record "Payment Service Setup";
@@ -6715,12 +7301,20 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Check if sales header is credit document type. Credit documents are return orders and credit memos.
+    /// </summary>
+    /// <returns>True if the sales header is a credit document, otherwise false.</returns>
     procedure IsCreditDocType() CreditDocType: Boolean
     begin
         CreditDocType := "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"];
         OnBeforeIsCreditDocType(Rec, CreditDocType);
     end;
 
+    /// <summary>
+    /// Determines if sales header has sell-to information.
+    /// </summary>
+    /// <returns>True if sales header has sell-to information, otherwise false.</returns>
     procedure HasSellToAddress() Result: Boolean
     var
         IsHandled: Boolean;
@@ -6750,6 +7344,10 @@ table 36 "Sales Header"
         exit(false);
     end;
 
+    /// <summary>
+    /// Determines if sales header has ship-to information.
+    /// </summary>
+    /// <returns>True if sales header has ship-to information, otherwise false.</returns>
     procedure HasShipToAddress() Result: Boolean
     var
         IsHandled: Boolean;
@@ -6779,6 +7377,10 @@ table 36 "Sales Header"
         exit(false);
     end;
 
+    /// <summary>
+    /// Determines if sales header has bill-to information.
+    /// </summary>
+    /// <returns>True if sales header has bill-to information, otherwise false.</returns>
     procedure HasBillToAddress() Result: Boolean
     var
         IsHandled: Boolean;
@@ -6808,6 +7410,10 @@ table 36 "Sales Header"
         exit(false);
     end;
 
+    /// <summary>
+    /// Determines if the sales header has any item charge assignments.
+    /// </summary>
+    /// <returns>True if item charge assignments exists, otherwise false.</returns>
     procedure HasItemChargeAssignment(): Boolean
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
@@ -6870,6 +7476,10 @@ table 36 "Sales Header"
         OnAfterCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, CurrFieldNo, SkipBillToContact, SkipSellToContact);
     end;
 
+    /// <summary>
+    /// Updates sales header with data from provided sell-to customer record.
+    /// </summary>
+    /// <param name="SellToCustomer">Sell-to customer record to copy data from.</param>
     procedure CopyShipToCustomerAddressFieldsFromCust(var SellToCustomer: Record Customer)
     var
         CustomerTempl: Record "Customer Templ.";
@@ -6891,9 +7501,11 @@ table 36 "Sales Header"
             "Ship-to City" := SellToCustomer.City;
             "Ship-to Post Code" := SellToCustomer."Post Code";
             "Ship-to County" := SellToCustomer.County;
+            "Ship-to Phone No." := SellToCustomer."Phone No.";
             Validate("Ship-to Country/Region Code", SellToCustomer."Country/Region Code");
             OnCopyShipToCustomerAddressFieldsFromCustOnAfterAssignAddressFromSellToCustomer(Rec, SellToCustomer);
         end;
+        "Ship-to Phone No." := SellToCustomer."Phone No.";
         "Ship-to Contact" := SellToCustomer.Contact;
         if not CustomerTempl.Get("Sell-to Customer Templ. Code") then begin
             Validate("Tax Area Code", SellToCustomer."Tax Area Code");
@@ -6936,10 +7548,15 @@ table 36 "Sales Header"
         OnAfterSetCompanyBankAccount(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Updates the document's shipping address from the provided ship-to address.
+    /// </summary>
+    /// <param name="ShipToAddr">Ship-to address to update the shipping address with.</param>
     procedure SetShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr: Record "Ship-to Address")
     var
         IsHandled: Boolean;
         ShouldCopyLocationCode: Boolean;
+        ShouldCopySalespersonCode: Boolean;
     begin
         IsHandled := false;
         OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr, IsHandled);
@@ -6954,11 +7571,15 @@ table 36 "Sales Header"
         "Ship-to Post Code" := ShipToAddr."Post Code";
         "Ship-to County" := ShipToAddr.County;
         Validate("Ship-to Country/Region Code", ShipToAddr."Country/Region Code");
+        "Ship-to Phone No." := ShipToAddr."Phone No.";
         "Ship-to Contact" := ShipToAddr.Contact;
         ShouldCopyLocationCode := ShipToAddr."Location Code" <> '';
-        OnSetShipToCustomerAddressFieldsFromShipToAddrOnAfterCalcShouldCopyLocationCode(Rec, xRec, ShipToAddr, ShouldCopyLocationCode);
+        ShouldCopySalespersonCode := ShipToAddr."Salesperson Code" <> '';
+        OnSetShipToCustomerAddressFieldsFromShipToAddrOnAfterCalcShouldCopyLocationCode(Rec, xRec, ShipToAddr, ShouldCopyLocationCode, ShouldCopySalespersonCode);
         if ShouldCopyLocationCode then
             Validate("Location Code", ShipToAddr."Location Code");
+        if ShouldCopySalespersonCode then
+            Validate("Salesperson Code", ShipToAddr."Salesperson Code");
         IsHandled := false;
         OnSetShipToCustomerAddressFieldsFromShipToAddrOnBeforeValidateShippingAgentFields(Rec, xRec, ShipToAddr, IsHandled);
         if not IsHandled then begin
@@ -6972,6 +7593,10 @@ table 36 "Sales Header"
         OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr, xRec);
     end;
 
+    /// <summary>
+    /// Updates the billing information on the document from the provided bill-to customer.
+    /// </summary>
+    /// <param name="BillToCustomer">Bill-to customer to update the billing infromation from.</param>
     procedure SetBillToCustomerAddressFieldsFromCustomer(var BillToCustomer: Record Customer)
     var
         IsHandled: Boolean;
@@ -7009,17 +7634,8 @@ table 36 "Sales Header"
         end else
             "Payment Method Code" := BillToCustomer."Payment Method Code";
 
-        GLSetup.Get();
-        if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then begin
-            if ("VAT Bus. Posting Group" <> '') and ("VAT Bus. Posting Group" <> BillToCustomer."VAT Bus. Posting Group") then
-                Validate("VAT Bus. Posting Group", BillToCustomer."VAT Bus. Posting Group")
-            else
-                "VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
-            "VAT Country/Region Code" := BillToCustomer."Country/Region Code";
-            "VAT Registration No." := BillToCustomer."VAT Registration No.";
-            "Registration Number" := BillToCustomer."Registration Number";
-            "Gen. Bus. Posting Group" := BillToCustomer."Gen. Bus. Posting Group";
-        end;
+        AltCustVATRegFacade.UpdateSetupOnBillToCustomerChangeInSalesHeader(Rec, xRec, BillToCustomer);
+
         "Customer Posting Group" := BillToCustomer."Customer Posting Group";
         "Currency Code" := BillToCustomer."Currency Code";
         "Customer Price Group" := BillToCustomer."Customer Price Group";
@@ -7030,7 +7646,8 @@ table 36 "Sales Header"
         "Customer Disc. Group" := BillToCustomer."Customer Disc. Group";
         "Language Code" := BillToCustomer."Language Code";
         "Format Region" := BillToCustomer."Format Region";
-        SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
+        if (BilltoCustomer."No." <> "Sell-to Customer No.") or BillToCustomerIsReplaced() or ("Salesperson Code" = '') then
+            SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
         "Combine Shipments" := BillToCustomer."Combine Shipments";
         Reserve := BillToCustomer.Reserve;
         if "Document Type" in ["Document Type"::Order, "Document Type"::Quote] then
@@ -7043,6 +7660,17 @@ table 36 "Sales Header"
         OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer, xRec, SkipBillToContact, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Sets the shipping address details for a sales header.
+    /// </summary>
+    /// <param name="ShipToName">New ship-to name value.</param>
+    /// <param name="ShipToName2">New ship-to name 2 value.</param>
+    /// <param name="ShipToAddress">New ship-to address value.</param>
+    /// <param name="ShipToAddress2">New ship-to address 2 value.</param>
+    /// <param name="ShipToCity">New ship-to city value.</param>
+    /// <param name="ShipToPostCode">New ship-to post code value.</param>
+    /// <param name="ShipToCounty">New ship-to county value.</param>
+    /// <param name="ShipToCountryRegionCode">New ship-to country/region code value.</param>
     procedure SetShipToAddress(ShipToName: Text[100]; ShipToName2: Text[50]; ShipToAddress: Text[100]; ShipToAddress2: Text[50]; ShipToCity: Text[30]; ShipToPostCode: Code[20]; ShipToCounty: Text[30]; ShipToCountryRegionCode: Code[10])
     begin
         "Ship-to Name" := ShipToName;
@@ -7119,6 +7747,8 @@ table 36 "Sales Header"
                     "Ship-to County" := "Sell-to County";
                 FieldNo("Ship-to Country/Region Code"):
                     "Ship-to Country/Region Code" := "Sell-to Country/Region Code";
+                FieldNo("Ship-to Phone No."):
+                    "Ship-to Phone No." := "Sell-to Phone No.";
             end;
             OnAfterUpdateShipToAddressFromSellToAddress(Rec, xRec, FieldNumber);
         end;
@@ -7129,6 +7759,10 @@ table 36 "Sales Header"
         exit(IsShipToAddressEqualToSellToAddress(xRec, Rec));
     end;
 
+    /// <summary>
+    /// Determines if sell-to address matches the ship-to address.
+    /// </summary>
+    /// <returns>True if the address match, otherwise false.</returns>
     procedure ShipToAddressEqualsSellToAddress(): Boolean
     begin
         exit(IsShipToAddressEqualToSellToAddress(Rec, Rec));
@@ -7145,12 +7779,17 @@ table 36 "Sales Header"
           (SalesHeaderWithSellTo."Sell-to County" = SalesHeaderWithShipTo."Ship-to County") and
           (SalesHeaderWithSellTo."Sell-to Post Code" = SalesHeaderWithShipTo."Ship-to Post Code") and
           (SalesHeaderWithSellTo."Sell-to Country/Region Code" = SalesHeaderWithShipTo."Ship-to Country/Region Code") and
+          (SalesHeaderWithSellTo."Sell-to Phone No." = SalesHeaderWithShipTo."Ship-to Phone No.") and
           (SalesHeaderWithSellTo."Sell-to Contact" = SalesHeaderWithShipTo."Ship-to Contact");
 
         OnAfterIsShipToAddressEqualToSellToAddress(SalesHeaderWithSellTo, SalesHeaderWithShipTo, Result);
         exit(Result);
     end;
 
+    /// <summary>
+    /// Determines if sell-to address matches the bill-to address.
+    /// </summary>
+    /// <returns>True if addresses match, otherwise false.</returns>
     procedure BillToAddressEqualsSellToAddress(): Boolean
     begin
         exit(IsBillToAddressEqualToSellToAddress(Rec, Rec));
@@ -7169,6 +7808,9 @@ table 36 "Sales Header"
         OnAfterIsBillToAddressEqualToSellToAddress(SalesHeaderWithSellTo, SalesHeaderWithBillTo, Result);
     end;
 
+    /// <summary>
+    /// Copies the sell-to address to the ship-to address.
+    /// </summary>
     procedure CopySellToAddressToShipToAddress()
     begin
         "Ship-to Address" := "Sell-to Address";
@@ -7178,10 +7820,14 @@ table 36 "Sales Header"
         "Ship-to Country/Region Code" := "Sell-to Country/Region Code";
         "Ship-to County" := "Sell-to County";
         "Ship-to Post Code" := "Sell-to Post Code";
+        "Ship-to Phone No." := "Sell-to Phone No.";
 
         OnAfterCopySellToAddressToShipToAddress(Rec);
     end;
 
+    /// <summary>
+    /// Copies the sell-to address to the bill-to address if bill-to and sell-to customer numbers are the same.
+    /// </summary>
     procedure CopySellToAddressToBillToAddress()
     begin
         OnBeforeCopySellToAddressToBillToAddress(Rec);
@@ -7212,6 +7858,10 @@ table 36 "Sales Header"
             Validate("Ship-to Contact", "Sell-to Contact");
     end;
 
+    /// <summary>
+    /// Raises a dialog to confirm closing a page if unposted lines exist.
+    /// </summary>
+    /// <returns>True if page should be closed, otherwise false.</returns>
     procedure ConfirmCloseUnposted() Result: Boolean
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -7288,6 +7938,10 @@ table 36 "Sales Header"
             exit(OpportunityEntry."Estimated Value (LCY)");
     end;
 
+    /// <summary>
+    /// Initializes a sales header from the provided sales header.
+    /// </summary>
+    /// <param name="SourceSalesHeader">Sales header to copy information from.</param>
     procedure InitFromSalesHeader(SourceSalesHeader: Record "Sales Header")
     var
         IsHandled: Boolean;
@@ -7305,6 +7959,7 @@ table 36 "Sales Header"
             SourceSalesHeader."Ship-to Name", SourceSalesHeader."Ship-to Name 2", SourceSalesHeader."Ship-to Address",
             SourceSalesHeader."Ship-to Address 2", SourceSalesHeader."Ship-to City", SourceSalesHeader."Ship-to Post Code",
             SourceSalesHeader."Ship-to County", SourceSalesHeader."Ship-to Country/Region Code");
+            "Ship-to Phone No." := SourceSalesHeader."Ship-to Phone No.";
             "Ship-to Contact" := SourceSalesHeader."Ship-to Contact";
         end;
 
@@ -7377,6 +8032,10 @@ table 36 "Sales Header"
         TaxArea.Get("Tax Area Code");
     end;
 
+    /// <summary>
+    /// Updates current sales header work description with the provided description.
+    /// </summary>
+    /// <param name="NewWorkDescription">New work description.</param>
     procedure SetWorkDescription(NewWorkDescription: Text)
     var
         OutStream: OutStream;
@@ -7387,6 +8046,10 @@ table 36 "Sales Header"
         Modify();
     end;
 
+    /// <summary>
+    /// Retrieves work description from the sales header.
+    /// </summary>
+    /// <returns>Work description.</returns>
     procedure GetWorkDescription() WorkDescription: Text
     var
         TypeHelper: Codeunit "Type Helper";
@@ -7397,6 +8060,16 @@ table 36 "Sales Header"
         exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
+    /// <summary>
+    /// Filters the contact for the company number that is associated with either the customer or contact number.
+    /// </summary>
+    /// <remarks>
+    /// If no business relations exist within provided customer and contacts
+    /// and document type is quote, then filters company contact based on provided contact number.
+    /// </remarks>
+    /// <param name="CustomerNo">The number of the customer to filter the contact for.</param>
+    /// <param name="ContactNo">The number of the contact to look up.</param>
+    /// <param name="Contact">Return value: Filtered contact record set.</param>
     procedure LookupContact(CustomerNo: Code[20]; ContactNo: Code[20]; var Contact: Record Contact)
     var
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -7421,11 +8094,24 @@ table 36 "Sales Header"
                     Contact.SetRange("Company No.", Contact."Company No.");
     end;
 
+    /// <summary>
+    /// Sets the global flag SelectNoSeriesAllowed to true.
+    /// </summary>
+    /// <remarks>
+    /// The global flag is used to determine if the lookup for the number series can been shown.
+    /// </remarks>
     procedure SetAllowSelectNoSeries()
     begin
         SelectNoSeriesAllowed := true;
     end;
 
+    /// <summary>
+    /// Sets the default salesperson code for the sales header.
+    /// </summary>
+    /// <remarks>
+    /// Retrieves default salesperson code from user setup. If retrieved salesperson code privacy is not blocked,
+    /// sets it for the sales header.
+    /// </remarks>
     procedure SetDefaultSalesperson()
     var
         UserSetupSalespersonCode: Code[20];
@@ -7443,6 +8129,10 @@ table 36 "Sales Header"
                     Validate("Salesperson Code", UserSetupSalespersonCode);
     end;
 
+    /// <summary>
+    /// Retrieves the salesperson code of the current user from the user setup.
+    /// </summary>
+    /// <returns>Salesperson code of the current user from the user setup.</returns>
     procedure GetUserSetupSalespersonCode(): Code[20]
     var
         UserSetup: Record "User Setup";
@@ -7453,6 +8143,11 @@ table 36 "Sales Header"
         exit(UserSetup."Salespers./Purch. Code");
     end;
 
+    /// <summary>
+    /// Removes the filter on customer number if the customer number has changed.
+    /// </summary>
+    /// <param name="SalesHeader">The current sales header record.</param>
+    /// <param name="xSalesHeader">Sales header record before the changes.</param>
     procedure SelltoCustomerNoOnAfterValidate(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
     begin
         if SalesHeader.GetFilter("Sell-to Customer No.") = xSalesHeader."Sell-to Customer No." then
@@ -7462,6 +8157,10 @@ table 36 "Sales Header"
         OnAfterSelltoCustomerNoOnAfterValidate(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Releases the sales documents that are not yet released.
+    /// </summary>
+    /// <param name="SalesHeader">Filtered sales headers to release.</param>
     procedure PerformManualRelease(var SalesHeader: Record "Sales Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
@@ -7480,6 +8179,12 @@ table 36 "Sales Header"
 
     end;
 
+    /// <summary>
+    /// Releases the sales document if it's not already released.
+    /// </summary>
+    /// <remarks>
+    /// The transaction is committed after release.
+    /// </remarks>
     procedure PerformManualRelease()
     var
         ReleaseSalesDoc: Codeunit "Release Sales Document";
@@ -7490,6 +8195,10 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Reopens sales documents that are not already open.
+    /// </summary>
+    /// <param name="SalesHeader">Filtered sales headers to reopen.</param>
     procedure PerformManualReopen(var SalesHeader: Record "Sales Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
@@ -7502,6 +8211,15 @@ table 36 "Sales Header"
         BatchProcessingMgt.BatchProcess(SalesHeader, Codeunit::"Sales Manual Reopen", Enum::"Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
     end;
 
+    /// <summary>
+    /// Opens a page for selecting a customer template to use for creating a new customer.
+    /// </summary>
+    /// <remarks>
+    /// If sell-to contact has no business relations a confirmation for template selection is raised.
+    /// If the user confirms, it commits any changes
+    /// and returns the code of the new customer template selected by the user.
+    /// </remarks>
+    /// <returns>Customer template code.</returns>
     procedure SelectSalesHeaderNewCustomerTemplate(): Code[20]
     var
         Contact: Record Contact;
@@ -7583,6 +8301,13 @@ table 36 "Sales Header"
         NotificationLifecycleMgt.SendNotification(ModifyCustomerAddressNotification, RecordId);
     end;
 
+    /// <summary>
+    /// Recalls a sent notification for the provided notification GUID.
+    /// </summary>
+    /// <remarks>
+    /// If it is a credit document or if notification isn't enabled, it won't recall the notification.
+    /// </remarks>
+    /// <param name="NotificationID">GUID of the notification to recall.</param>
     procedure RecallModifyAddressNotification(NotificationID: Guid)
     var
         MyNotifications: Record "My Notifications";
@@ -7595,26 +8320,51 @@ table 36 "Sales Header"
         ModifyCustomerAddressNotification.Recall();
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns if the sell-to address on sales documents is different
+    /// from the customer's existing address.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetModifyCustomerAddressNotificationId(): Guid
     begin
         exit('509FD112-31EC-4CDC-AEBF-19B8FEBA526F');
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns if the bill-to address on sales documents is different
+    /// from the customer's existing address.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetModifyBillToCustomerAddressNotificationId(): Guid
     begin
         exit('2096CE78-6A74-48DB-BC9A-CD5C21504FC1');
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns if the invoice discount amount for the sales line record has been reset.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetLineInvoiceDiscountResetNotificationId(): Guid
     begin
         exit('35AB3090-2E03-4849-BBF9-9664DE464605');
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns before posting lines on sales documents where quantity is 0.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetWarnWhenZeroQuantitySalesLinePosting(): Guid
     begin
         exit('ce906407-2f7e-410a-8fb9-4fdc76954876');
     end;
 
+    /// <summary>
+    /// Inserts the default notification to warn that sell-to address on sales documents is different
+    /// from the customer's existing address.
+    /// </summary>
+    /// <remarks>
+    /// Notification is enabled by default.
+    /// </remarks>
     procedure SetModifyCustomerAddressNotificationDefaultState()
     var
         MyNotifications: Record "My Notifications";
@@ -7623,6 +8373,13 @@ table 36 "Sales Header"
           ModifySellToCustomerAddressNotificationNameTxt, ModifySellToCustomerAddressNotificationDescriptionTxt, true);
     end;
 
+    /// <summary>
+    /// Inserts the default notification to warn that bill-to address on sales documents is different
+    /// from the customer's existing address.
+    /// </summary>
+    /// <remarks>
+    /// Notification is enabled by default.
+    /// </remarks>
     procedure SetModifyBillToCustomerAddressNotificationDefaultState()
     var
         MyNotifications: Record "My Notifications";
@@ -7631,6 +8388,18 @@ table 36 "Sales Header"
           ModifyBillToCustomerAddressNotificationNameTxt, ModifyBillToCustomerAddressNotificationDescriptionTxt, true);
     end;
 
+    procedure SetShowExternalDocAlreadyExistNotificationDefaultState(DefaultState: Boolean)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(GetShowExternalDocAlreadyExistNotificationId(),
+          ShowDocAlreadyExistNotificationNameTxt, ShowDocAlreadyExistNotificationDescriptionTxt, DefaultState);
+    end;
+
+    /// <summary>
+    /// Disables a specified notification for the current user.
+    /// </summary>
+    /// <param name="NotificationID">GUID of the notification that needs to be disabled.</param>
     procedure DontNotifyCurrentUserAgain(NotificationID: Guid)
     var
         MyNotifications: Record "My Notifications";
@@ -7646,6 +8415,11 @@ table 36 "Sales Header"
             end;
     end;
 
+    /// <summary>
+    /// Determines if the sell-to address matches the provided customer's address.
+    /// </summary>
+    /// <param name="Customer">Customer to compare the sell-to address with.</param>
+    /// <returns>True if sell-to address is different from provided customer's address, otherwise false.</returns>
     procedure HasDifferentSellToAddress(Customer: Record Customer) Result: Boolean
     begin
         Result := ("Sell-to Address" <> Customer.Address) or
@@ -7659,6 +8433,11 @@ table 36 "Sales Header"
         OnAfterHasDifferentSellToAddress(Rec, Customer, Result);
     end;
 
+    /// <summary>
+    /// Determines if the bill-to address matches the provided customer's address.
+    /// </summary>
+    /// <param name="Customer">Customer to compare the bill-to address with.</param>
+    /// <returns>True if bill-to address is different from provided customer's address, otherwise false.</returns>
     procedure HasDifferentBillToAddress(Customer: Record Customer) Result: Boolean
     begin
         Result := ("Bill-to Address" <> Customer.Address) or
@@ -7672,6 +8451,11 @@ table 36 "Sales Header"
         OnAfterHasDifferentBillToAddress(Rec, Customer, Result);
     end;
 
+    /// <summary>
+    /// Determines if the ship-to address matches the provided customer's address.
+    /// </summary>
+    /// <param name="Customer">Customer to compare the ship-to address with.</param>
+    /// <returns>True if ship-to address is different from provided customer's address, otherwise false.</returns>
     procedure HasDifferentShipToAddress(Customer: Record Customer) Result: Boolean
     begin
         Result := ("Ship-to Address" <> Customer.Address) or
@@ -7680,11 +8464,15 @@ table 36 "Sales Header"
           ("Ship-to Country/Region Code" <> Customer."Country/Region Code") or
           ("Ship-to County" <> Customer.County) or
           ("Ship-to Post Code" <> Customer."Post Code") or
+          ("Ship-to Phone No." <> Customer."Phone No.") or
           ("Ship-to Contact" <> Customer.Contact);
 
         OnAfterHasDifferentShipToAddress(Rec, Customer, Result);
     end;
 
+    /// <summary>
+    /// Opens the interaction log entries page where entries related to the sales document are displayed.
+    /// </summary>
     procedure ShowInteractionLogEntries()
     var
         InteractionLogEntry: Record "Interaction Log Entry";
@@ -7705,6 +8493,15 @@ table 36 "Sales Header"
         PAGE.Run(PAGE::"Interaction Log Entries", InteractionLogEntry);
     end;
 
+    /// <summary>
+    /// Retrieves the bill-to (customer or contact) number for a sales document.
+    /// </summary>
+    /// <remarks>
+    /// If sales document type is quote where the bill-to customer number is blank, but the bill-to contact number
+    /// and bill-to customer template code are specified, it returns the bill-to contact number.
+    /// For all other cases, it returns the bill-to customer number.
+    /// </remarks>
+    /// <returns>Bill-to number.</returns>
     procedure GetBillToNo(): Code[20]
     begin
         if ("Document Type" = "Document Type"::Quote) and
@@ -7716,6 +8513,10 @@ table 36 "Sales Header"
         exit("Bill-to Customer No.");
     end;
 
+    /// <summary>
+    /// Gets the currency symbol for sales document. If currency symbol is not specified returns the currency code.
+    /// </summary>
+    /// <returns>Currency symbol.</returns>
     procedure GetCurrencySymbol(): Text[10]
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -7731,6 +8532,13 @@ table 36 "Sales Header"
         exit("Currency Code");
     end;
 
+    /// <summary>
+    /// Updates the salesperson code from either the ship-to addresses or bill-to customer's salesperson.
+    /// </summary>
+    /// <remarks>
+    /// If neither are set, it uses the default salesperson from the user setup.
+    /// If salesperson is blocked, it doesn't get assigned.
+    /// </remarks>
     procedure UpdateShipToSalespersonCode()
     var
         ShipToAddress: Record "Ship-to Address";
@@ -7768,6 +8576,15 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates salesperson code. If the provided salesperson code privacy is not blocked, returns provided salesperson code,
+    /// otherwise returns empty value to assign.
+    /// </summary>
+    /// <remarks>
+    /// If the provided salesperson code is empty, it uses the default one from the user setup.
+    /// </remarks>
+    /// <param name="SalesPersonCodeToCheck">Salesperson code to set.</param>
+    /// <param name="SalesPersonCodeToAssign">Return value: Salesperson code to assign.</param>
     procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
     var
         IsHandled: Boolean;
@@ -7788,6 +8605,12 @@ table 36 "Sales Header"
             SalesPersonCodeToAssign := '';
     end;
 
+    /// <summary>
+    /// Checks if the document can be created/posted depending on the privacy blocked of the salesperson.
+    /// </summary>
+    /// <param name="SalesHeader2">Sales header on which salesperson code has been changed.</param>
+    /// <param name="IsTransaction">Determines if the check is completed during a write transaction.</param>
+    /// <param name="IsPostAction">Determines if the check is completed during the posting.</param>
     procedure ValidateSalesPersonOnSalesHeader(SalesHeader2: Record "Sales Header"; IsTransaction: Boolean; IsPostAction: Boolean)
     begin
         if SalesHeader2."Salesperson Code" <> '' then
@@ -7808,6 +8631,11 @@ table 36 "Sales Header"
                 end;
     end;
 
+    /// <summary>
+    /// Determines whether a search for a customer should be performed by name for the provided customer number.
+    /// </summary>
+    /// <param name="CustomerNo">Customer number to check.</param>
+    /// <returns>True if customer should be searched by name, otherwise false.</returns>
     procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]) Result: Boolean
     var
         Customer2: Record Customer;
@@ -7840,16 +8668,34 @@ table 36 "Sales Header"
             "Quote Valid Until Date" := CalcDate(SalesSetup."Quote Validity Calculation", "Document Date");
     end;
 
+    /// <summary>
+    /// Returns the value of the global variable SkipTaxCalculation.
+    /// </summary>
+    /// <remarks>
+    /// Currently SkipTaxCalculation in sales header is used only in variable set and get procedures.
+    /// </remarks>
+    /// <returns>The value of the global variable SkipTaxCalculation.</returns>
     procedure CanCalculateTax(): Boolean
     begin
         exit(SkipTaxCalculation);
     end;
 
+    /// <summary>
+    /// Sets the value of the global variable SkipTaxCalculation.
+    /// </summary>
+    /// <remarks>
+    /// Currently SkipTaxCalculation in sales header is used only in variable set and get procedures.
+    /// </remarks>
+    /// <param name="Skip">The new value to set.</param>
     procedure SetSkipTaxCalulation(Skip: Boolean)
     begin
         SkipTaxCalculation := Skip;
     end;
 
+    /// <summary>
+    /// Checks if the sales line quantity shipped is zero. If it is not, an error is raised.
+    /// </summary>
+    /// <param name="SalesLine">Sales line which shipped quantity has to be checked.</param>
     procedure TestQuantityShippedField(SalesLine: Record "Sales Line")
     var
         IsHandled: Boolean;
@@ -7863,6 +8709,10 @@ table 36 "Sales Header"
         OnAfterTestQuantityShippedField(SalesLine);
     end;
 
+    /// <summary>
+    /// Determines if sales document status is not pending approval.
+    /// </summary>
+    /// <returns>True if status is not pending approval, otherwise false.</returns>
     procedure TestStatusIsNotPendingApproval() NotPending: Boolean;
     begin
         NotPending := Status <> Status::"Pending Approval";
@@ -7870,6 +8720,10 @@ table 36 "Sales Header"
         OnTestStatusIsNotPendingApproval(Rec, NotPending);
     end;
 
+    /// <summary>
+    /// Determines if sales document status is not pending prepayment.
+    /// </summary>
+    /// <returns>True if status is not pending prepayment, otherwise false.</returns>
     procedure TestStatusIsNotPendingPrepayment() NotPending: Boolean;
     begin
         NotPending := Status <> Status::"Pending Prepayment";
@@ -7877,6 +8731,10 @@ table 36 "Sales Header"
         OnTestStatusIsNotPendingPrepayment(Rec, NotPending);
     end;
 
+    /// <summary>
+    /// Determines if sales document status is not released.
+    /// </summary>
+    /// <returns>True if status is not released, otherwise false.</returns>
     procedure TestStatusIsNotReleased() NotReleased: Boolean;
     begin
         NotReleased := Status <> Status::Released;
@@ -7884,6 +8742,12 @@ table 36 "Sales Header"
         OnTestStatusIsNotReleased(Rec, NotReleased);
     end;
 
+    /// <summary>
+    /// Checks if sales document status is open. If it is not, an error is raised.
+    /// </summary>
+    /// <remakrs>
+    /// If global flag StatusCheckSuspended is set to true, the procedure is not executed.
+    /// </remakrs>
     procedure TestStatusOpen()
     begin
         OnBeforeTestStatusOpen(Rec, xRec, CurrFieldNo);
@@ -7896,11 +8760,21 @@ table 36 "Sales Header"
         OnAfterTestStatusOpen(Rec);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag StatusCheckSuspended.
+    /// </summary>
+    /// <remarks>
+    /// The global flag is used to suspend the check if the document status is open.
+    /// </remarks>
+    /// <param name="Suspend">The new value to set.</param>
     procedure SuspendStatusCheck(Suspend: Boolean)
     begin
         StatusCheckSuspended := Suspend;
     end;
 
+    /// <summary>
+    /// Checks if there are any blocked items or resources in the sales lines of the sales header.
+    /// </summary>
     procedure CheckForBlockedLines()
     var
         CurrentSalesLine: Record "Sales Line";
@@ -7940,6 +8814,12 @@ table 36 "Sales Header"
             until CurrentSalesLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Runs the copy sales document report for the sales header.
+    /// </summary>
+    /// <remarks>
+    /// The report creates new sales documents based on the existing one.
+    /// </remarks>
     procedure CopyDocument()
     var
         CopySalesDocument: Report "Copy Sales Document";
@@ -7989,6 +8869,11 @@ table 36 "Sales Header"
                 StrSubstNo(Text024, FieldCaption("Prices Including VAT"), SalesLine.FieldCaption("Unit Price")), true);
     end;
 
+    /// <summary>
+    /// Opens customer lookup page to select a customer.
+    /// </summary>
+    /// <param name="CustomerName">Return value: Selected customer name.</param>
+    /// <returns>True if customer is selected, otherwise false.</returns>
     procedure LookupSellToCustomerName(var CustomerName: Text): Boolean
     var
         Customer: Record Customer;
@@ -8044,16 +8929,37 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Returns the value of the global flag StatusCheckSuspended.
+    /// </summary>
+    /// <remarks>
+    /// The global flag is used to suspend the check if the document status is open.
+    /// </remarks>
+    /// <returns>The value of the global flag StatusCheckSuspended.</returns>
     procedure GetStatusCheckSuspended(): Boolean
     begin
         exit(StatusCheckSuspended);
     end;
 
+    /// <summary>
+    /// Returns the value of the global flag CalledFromWhseDoc.
+    /// </summary>
+    /// <remarks>
+    /// Global flag CalledFromWhseDoc is used on posting date validation to check if currency factor can be updated.
+    /// </remarks>
+    /// <returns>The value of the global flag CalledFromWhseDoc.</returns>
     procedure GetCalledFromWhseDoc(): Boolean
     begin
         exit(CalledFromWhseDoc);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag CalledFromWhseDoc.
+    /// </summary>
+    /// <remarks>
+    /// Global flag CalledFromWhseDoc is set to true on init source header in warahoure shipment and receipt posting.
+    /// </remarks>
+    /// <param name="NewCalledFromWhseDoc">The new value to set.</param>
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
     begin
         CalledFromWhseDoc := NewCalledFromWhseDoc;
@@ -8094,6 +9000,10 @@ table 36 "Sales Header"
         end;
     end;
 
+    /// <summary>
+    /// Returns the date to use for the sales document.
+    /// </summary>
+    /// <returns>Posting date if posting date is set in sales header, otherwise work date.</returns>
     procedure GetUseDate(): Date
     begin
         if "Posting Date" = 0D then
@@ -8102,6 +9012,9 @@ table 36 "Sales Header"
         exit("Posting Date");
     end;
 
+    /// <summary>
+    /// Initializes the number series for sales document posting based on the document type.
+    /// </summary>
     procedure InitPostingNoSeries()
     var
 #if CLEAN24
@@ -8217,6 +9130,10 @@ table 36 "Sales Header"
         OnAfterInitPostingNoSeries(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Initializes the dimensions for the document from default dimensions for the related entry specified in the field.
+    /// </summary>
+    /// <param name="FieldNo">The field number for which to initialize the dimensions.</param>
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -8239,6 +9156,10 @@ table 36 "Sales Header"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
+    /// <summary>
+    /// Opens a contact lookup page and validates the sell-to contact number with the selected contact.
+    /// </summary>
+    /// <returns>True if the contact was validated, otherwise false.</returns>
     procedure SelltoContactLookup(): Boolean
     var
         Contact: Record Contact;
@@ -8280,6 +9201,12 @@ table 36 "Sales Header"
         );
     end;
 
+    /// <summary>
+    /// Inserts the default notification to warn before posting lines on sales documents where quantity is 0.
+    /// </summary>
+    /// <remarks>
+    /// Notification is enabled by default.
+    /// </remarks>
     procedure SetWarnZeroQuantitySalesPosting()
     var
         MyNotifications: Record "My Notifications";
@@ -8288,6 +9215,10 @@ table 36 "Sales Header"
          WarnZeroQuantitySalesPostingTxt, WarnZeroQuantitySalesPostingDescriptionTxt, true);
     end;
 
+    /// <summary>
+    /// Determines if the sales lines are editable based on whether sell-to information is in the sales header.
+    /// </summary>
+    /// <returns>True if sales lines are editable, otherwise false.</returns>
     procedure SalesLinesEditable() IsEditable: Boolean;
     begin
         if "Document Type" = "Document Type"::Quote then
@@ -8356,6 +9287,60 @@ table 36 "Sales Header"
         exit(Connected);
     end;
 # endif
+
+    local procedure FindDocumentWithSameExternalDocNo(): Boolean
+    var
+        CustomerMgt: Codeunit "Customer Mgt.";
+    begin
+        exit(CustomerMgt.SearchForExternalDocNo(Rec));
+    end;
+
+    local procedure ShowExternalDocAlreadyExistNotification()
+    var
+        MyNotifications: Record "My Notifications";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        DocAlreadyExistNotification: Notification;
+    begin
+        if not MyNotifications.IsEnabled(GetShowExternalDocAlreadyExistNotificationId()) then
+            exit;
+        InstructionMgt.CreateMissingMyNotificationsWithDefaultState(GetShowExternalDocAlreadyExistNotificationId());
+
+        if not IsDocAlreadyExistNotificationEnabled() then
+            exit;
+
+        DocAlreadyExistNotification.Id := GetShowExternalDocAlreadyExistNotificationId();
+        DocAlreadyExistNotification.Message :=
+          StrSubstNo(SalesAlreadyExistsTxt, "Document Type", "External Document No.");
+        DocAlreadyExistNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
+        DocAlreadyExistNotification.SetData(FieldName("Document Type"), Format("Document Type"));
+        DocAlreadyExistNotification.SetData(FieldName("No."), "No.");
+        NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
+          DocAlreadyExistNotification, RecordId, GetShowExternalDocAlreadyExistNotificationId());
+    end;
+
+    procedure GetShowExternalDocAlreadyExistNotificationId(): Guid
+    begin
+        exit('0677e7f8-cc39-442e-b9c2-65aadaa85ae9');
+    end;
+
+    local procedure RecallExternalDocAlreadyExistsNotification()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        if not IsDocAlreadyExistNotificationEnabled() then
+            exit;
+
+        NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
+          RecordId, GetShowExternalDocAlreadyExistNotificationId(), true);
+    end;
+
+    local procedure IsDocAlreadyExistNotificationEnabled(): Boolean
+    var
+        InstructionMgt: Codeunit "Instruction Mgt.";
+    begin
+        exit(InstructionMgt.IsMyNotificationEnabled(GetShowExternalDocAlreadyExistNotificationId()));
+    end;
 
     internal procedure UpdateSalesOrderLineIfExist()
     var
@@ -8439,6 +9424,16 @@ table 36 "Sales Header"
                 GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
         end;
         Validate("VAT Reporting Date");
+    end;
+
+    local procedure FindContactBusinessRelation(CustomerNo: Code[20]; ContactNo: Code[20]; ContactBusinessRelationLinkType: Enum "Contact Business Relation Link To Table"): Boolean
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        ContactBusinessRelation.SetRange("No.", CustomerNo);
+        ContactBusinessRelation.SetRange("Contact No.", ContactNo);
+        ContactBusinessRelation.SetRange(ContactBusinessRelation."Link to Table", ContactBusinessRelationLinkType);
+        exit(ContactBusinessRelation.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]
@@ -9592,7 +10587,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetShipToCustomerAddressFieldsFromShipToAddrOnAfterCalcShouldCopyLocationCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; ShipToAddress: Record "Ship-to Address"; var ShouldCopyLocationCode: Boolean)
+    local procedure OnSetShipToCustomerAddressFieldsFromShipToAddrOnAfterCalcShouldCopyLocationCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; ShipToAddress: Record "Ship-to Address"; var ShouldCopyLocationCode: Boolean; var ShouldCopySalespersonCode: Boolean)
     begin
     end;
 

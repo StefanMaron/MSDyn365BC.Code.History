@@ -23,8 +23,8 @@ codeunit 104107 "Upg Report Selections"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateReportSelectionsTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateReportSelectionsTag()) then
+            exit;
 
         TempReportSelections.DeleteAll();
 

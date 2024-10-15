@@ -172,14 +172,14 @@ report 7000092 "Bill group - Export N19"
                 DLDACurrency();
 
                 Clear(OutText);
-                if ChargDate <> 0D then begin
+                if ChargDate <> 0D then
                     OutText :=
                       RegisterString + '80' + Format(CompanyInfo."VAT Registration No.", 9) + PadStr(BankSuffix, 3, ' ') +
                       Format(WorkDate(), 6, 5) + Format(ChargDate, 6, 5) + PadStr(CompanyInfo.Name, 40, ' ') +
                       ConvertStr(CCCBankNo, ' ', '0') + ConvertStr(CCCBankBranchNo, ' ', '0') +
                       ConvertStr(CCCControlDigits, ' ', '0') + ConvertStr(CCCAccNo, ' ', '0') +
-                      PadStr('', 8, ' ') + '01' + PadStr('', 10, ' ') + PadStr('', 40, ' ') + PadStr('', 14, ' ');
-                end else begin
+                      PadStr('', 8, ' ') + '01' + PadStr('', 10, ' ') + PadStr('', 40, ' ') + PadStr('', 14, ' ')
+                else begin
                     DateMaxEfe := DateMax();
                     OutText :=
                       RegisterString + '80' + Format(CompanyInfo."VAT Registration No.", 9) + PadStr(BankSuffix, 3, ' ') +

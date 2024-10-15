@@ -103,7 +103,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
           GenJournalLine."Document No.", GLAccountNo, GenJournalLine."Document Type", DiscountAmountExclVAT, VATAmountForDiscount);
         VerifyVATEntry(GenJournalLine."Document No.", DiscountAmountExclVAT, VATAmountForDiscount);
         VerifyVATEntryVatDate(GenJournalLine."Document No.", GenJournalLine."VAT Reporting Date");
-       
+
 
         // Tear Down: Rollback modified setups.
         UpdateGeneralPostingSetupSales(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", OldPmtDiscDebitAcc);
@@ -716,21 +716,17 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup_FULLVAT, VATPostingSetup_FULLVAT."VAT Calculation Type"::"Full VAT", 100);
-        with VATPostingSetup_FULLVAT do begin
-            Validate("Sales VAT Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup_FULLVAT, GLAccount."Gen. Posting Type"::Sale));
-            Validate("Purchase VAT Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup_FULLVAT, GLAccount."Gen. Posting Type"::Purchase));
-            Validate("Adjust for Payment Discount", true);
-            Modify(true);
-        end;
+        VATPostingSetup_FULLVAT.Validate("Sales VAT Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup_FULLVAT, GLAccount."Gen. Posting Type"::Sale));
+        VATPostingSetup_FULLVAT.Validate("Purchase VAT Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup_FULLVAT, GLAccount."Gen. Posting Type"::Purchase));
+        VATPostingSetup_FULLVAT.Validate("Adjust for Payment Discount", true);
+        VATPostingSetup_FULLVAT.Modify(true);
 
-        with GLAccount do begin
-            Get(VATPostingSetup_FULLVAT."Purchase VAT Account");
-            UpdateGeneralPostingSetupPurch("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
-            Get(VATPostingSetup_FULLVAT."Sales VAT Account");
-            UpdateGeneralPostingSetupSales("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
-        end;
+        GLAccount.Get(VATPostingSetup_FULLVAT."Purchase VAT Account");
+        UpdateGeneralPostingSetupPurch(GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
+        GLAccount.Get(VATPostingSetup_FULLVAT."Sales VAT Account");
+        UpdateGeneralPostingSetupSales(GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
     end;
 
     local procedure CreateNormalVATPostingSetupWithAdjPmtDisc(var VATPostingSetup: Record "VAT Posting Setup"; VATPct: Decimal)
@@ -761,13 +757,11 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         DiscountPct := PaymentTerms."Discount %";
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Application Method", "Application Method"::"Apply to Oldest");
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Application Method", Customer."Application Method"::"Apply to Oldest");
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerAndItem(var Customer: Record Customer; var Item: Record Item; VATPostingSetup: Record "VAT Posting Setup")
@@ -786,12 +780,10 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         DiscountPct := PaymentTerms."Discount %";
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Application Method", "Application Method"::Manual);
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Application Method", Customer."Application Method"::Manual);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerAndGLAccount(var CustomerNo: Code[20]; var GLAccountNo: Code[20]; VATPct: Decimal)
@@ -847,27 +839,23 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
 
     local procedure CreateVendorInvoiceGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; LineAmount: Decimal)
     begin
-        with GenJournalLine do
-            CreateGenJnlLine(GenJournalLine, '', "Document Type"::Invoice, "Account Type"::Vendor, VendorNo, LineAmount);
+        CreateGenJnlLine(GenJournalLine, '', GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, LineAmount);
     end;
 
     local procedure CreateVendorInvoiceGenJnlLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; LineAmount: Decimal)
     begin
-        with GenJournalLine do
-            CreateGenJnlLine(GenJournalLine, "Document No.", "Document Type"::Invoice, "Account Type"::Vendor, VendorNo, LineAmount);
+        CreateGenJnlLine(GenJournalLine, GenJournalLine."Document No.", GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, LineAmount);
     end;
 
     local procedure CreateCustomerInvoiceGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; LineAmount: Decimal)
     begin
-        with GenJournalLine do
-            CreateGenJnlLine(GenJournalLine, '', "Document Type"::Invoice, "Account Type"::Customer, CustomerNo, LineAmount);
+        CreateGenJnlLine(GenJournalLine, '', GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, LineAmount);
     end;
 
     local procedure CreateCustomerInvoiceGenJnlLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; LineAmount: Decimal)
     begin
-        with GenJournalLine do
-            CreateGenJnlLine(
-              GenJournalLine, "Document No.", "Document Type"::Invoice, "Account Type"::Customer, CustomerNo, LineAmount);
+        CreateGenJnlLine(
+              GenJournalLine, GenJournalLine."Document No.", GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, LineAmount);
     end;
 
     local procedure CreatePostVendorPaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; LineAmount: Decimal)
@@ -879,11 +867,10 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     local procedure CreateVendorPaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; LineAmount: Decimal)
     begin
         PrepareGenJnlLine(GenJournalLine);
-        with GenJournalLine do
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name",
-              "Document Type"::Payment, "Account Type"::Vendor, VendorNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LineAmount);
+        LibraryJournals.CreateGenJournalLine(
+              GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+              GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo,
+              GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LineAmount);
     end;
 
     local procedure CreatePostCustomerPaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; LineAmount: Decimal)
@@ -895,32 +882,28 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     local procedure CreateCustomerPaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; LineAmount: Decimal)
     begin
         PrepareGenJnlLine(GenJournalLine);
-        with GenJournalLine do
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name",
-              "Document Type"::Payment, "Account Type"::Customer, CustomerNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LineAmount);
+        LibraryJournals.CreateGenJournalLine(
+              GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+              GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
+              GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LineAmount);
     end;
 
     local procedure CreateGLAccountInvoiceGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GLAccountNo: Code[20]; LineAmount: Decimal)
     begin
-        with GenJournalLine do
-            CreateGenJnlLine(GenJournalLine, "Document No.", "Document Type"::Invoice,
-              "Account Type"::"G/L Account", GLAccountNo, LineAmount);
+        CreateGenJnlLine(GenJournalLine, GenJournalLine."Document No.", GenJournalLine."Document Type"::Invoice,
+              GenJournalLine."Account Type"::"G/L Account", GLAccountNo, LineAmount);
     end;
 
     local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; UseDocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenJnlAmount: Decimal): Code[20]
     begin
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name",
-              DocumentType, AccountType, AccountNo, GenJnlAmount);
-            if UseDocumentNo <> '' then begin
-                Validate("Document No.", UseDocumentNo);
-                Modify(true);
-            end;
-            exit("Document No.");
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          DocumentType, AccountType, AccountNo, GenJnlAmount);
+        if UseDocumentNo <> '' then begin
+            GenJournalLine.Validate("Document No.", UseDocumentNo);
+            GenJournalLine.Modify(true);
         end;
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; ItemNo: Code[20]; DocumentType: Enum "Purchase Document Type") LineAmount: Decimal
@@ -986,13 +969,11 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         DiscountPct := PaymentTerms."Discount %";
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Application Method", "Application Method"::"Apply to Oldest");
-            Validate("VAT Bus. Posting Group", UseVATBusPostingGroup);
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Application Method", Vendor."Application Method"::"Apply to Oldest");
+        Vendor.Validate("VAT Bus. Posting Group", UseVATBusPostingGroup);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorAndItem(var Vendor: Record Vendor; var Item: Record Item; VATPostingSetup: Record "VAT Posting Setup")
@@ -1016,12 +997,10 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         DiscountPct := PaymentTerms."Discount %";
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Application Method", "Application Method"::Manual);
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Application Method", Vendor."Application Method"::Manual);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorAndGLAccount(var VendorNo: Code[20]; var GLAccountNo: Code[20]; VATPct: Decimal)
@@ -1048,21 +1027,17 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
           NormalVATPostingSetup, NormalVATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(1, 25));
-        with NormalVATPostingSetup do begin
-            Validate("Sales VAT Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(NormalVATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
-            Validate("Purchase VAT Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(NormalVATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
-            Validate("Adjust for Payment Discount", true);
-            Modify(true);
-        end;
+        NormalVATPostingSetup.Validate("Sales VAT Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(NormalVATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+        NormalVATPostingSetup.Validate("Purchase VAT Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(NormalVATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        NormalVATPostingSetup.Validate("Adjust for Payment Discount", true);
+        NormalVATPostingSetup.Modify(true);
 
-        with GLAccount do begin
-            Get(NormalVATPostingSetup."Purchase VAT Account");
-            UpdateGeneralPostingSetupPurch("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
-            Get(NormalVATPostingSetup."Sales VAT Account");
-            UpdateGeneralPostingSetupSales("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
-        end;
+        GLAccount.Get(NormalVATPostingSetup."Purchase VAT Account");
+        UpdateGeneralPostingSetupPurch(GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
+        GLAccount.Get(NormalVATPostingSetup."Sales VAT Account");
+        UpdateGeneralPostingSetupSales(GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
     end;
 
     local procedure CreatePostGenJnlLinesInvoiceVendor(var GenJournalLine: Record "Gen. Journal Line"; FullVATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20]; VendorNo: Code[20]; var PmtAmount: Decimal; var Amount: Decimal; var AmountFullVAT: Decimal)
@@ -1180,12 +1155,10 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Payment Tolerance %", PmtTolPct);
-            Validate("Max. Payment Tolerance Amount", MaxPmtTolAmount);
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Payment Tolerance %", PmtTolPct);
+        GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", MaxPmtTolAmount);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure SetGenJnlLineProcessWithPmtTol(var GenJournalLine: Record "Gen. Journal Line")
@@ -1312,29 +1285,23 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
 
     local procedure UpdateGenJnlLineVATAmount(var GenJournalLine: Record "Gen. Journal Line"; NewVATAmount: Decimal)
     begin
-        with GenJournalLine do begin
-            Validate("VAT Amount", NewVATAmount);
-            Modify(true);
-        end;
+        GenJournalLine.Validate("VAT Amount", NewVATAmount);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure UpdateGenJnlLineAppliesToID(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
-            Validate("Applies-to ID", UserId);
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure UpdateGenJnlTemplateAllowVATDifference(GenJournalTemplateName: Code[10]; AllowVATDifference: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        with GenJournalTemplate do begin
-            Get(GenJournalTemplateName);
-            Validate("Allow VAT Difference", AllowVATDifference);
-            Modify(true);
-        end;
+        GenJournalTemplate.Get(GenJournalTemplateName);
+        GenJournalTemplate.Validate("Allow VAT Difference", AllowVATDifference);
+        GenJournalTemplate.Modify(true);
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; ExpectedAmount: Decimal; ExpectedVATAmount: Decimal)
@@ -1351,13 +1318,11 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            CalcSums(Amount, "VAT Amount");
-            TestField(Amount, ExpectedAmount);
-            TestField("VAT Amount", ExpectedVATAmount);
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.CalcSums(Amount, "VAT Amount");
+        GLEntry.TestField(Amount, ExpectedAmount);
+        GLEntry.TestField("VAT Amount", ExpectedVATAmount);
     end;
 
     local procedure VerifyPmtDiscEntryInGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedAmount: Decimal; ExpectedVATAmount: Decimal)
@@ -1374,29 +1339,25 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            CalcSums(Base, Amount);
-            Assert.AreEqual(
-              ExpectedBase, Base,
-              StrSubstNo(AmountError, FieldCaption(Base), ExpectedBase, TableCaption));
-            Assert.AreEqual(
-              ExpectedAmount, Amount,
-              StrSubstNo(AmountError, FieldCaption(Amount), ExpectedAmount, TableCaption));
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums(Base, Amount);
+        Assert.AreEqual(
+          ExpectedBase, VATEntry.Base,
+          StrSubstNo(AmountError, VATEntry.FieldCaption(Base), ExpectedBase, VATEntry.TableCaption));
+        Assert.AreEqual(
+          ExpectedAmount, VATEntry.Amount,
+          StrSubstNo(AmountError, VATEntry.FieldCaption(Amount), ExpectedAmount, VATEntry.TableCaption));
     end;
 
     local procedure VerifyVATEntryVatDate(DocumentNo: Code[20]; ExpectedVATDate: Date)
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(
-                ExpectedVATDate, "VAT Reporting Date", StrSubstNo(AmountError, FieldCaption("VAT Reporting Date"), ExpectedVATDate, TableCaption)
-            );
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        Assert.AreEqual(
+            ExpectedVATDate, VATEntry."VAT Reporting Date", StrSubstNo(AmountError, VATEntry.FieldCaption("VAT Reporting Date"), ExpectedVATDate, VATEntry.TableCaption)
+        );
     end;
 
     local procedure VerifyVATEntryCount(DocumentNo: Code[20]; ExpectedCount: Integer)

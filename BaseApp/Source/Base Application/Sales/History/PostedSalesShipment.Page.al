@@ -286,6 +286,13 @@ page 130 "Posted Sales Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the customer''s country/region.';
                 }
+                field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Phone No.';
+                    Editable = false;
+                    ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                }
                 field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
@@ -357,18 +364,6 @@ page 130 "Posted Sales Shipment"
             group(Payment)
             {
                 Caption = 'Payment';
-#if not CLEAN22
-                field("Pay-at Code"; Rec."Pay-at Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the client''s payment address code that was on the order header, Payments tab, from which this sales receipt was created.';
-                    Visible = false;
-                    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Cust. Bank Acc. Code"; Rec."Cust. Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;

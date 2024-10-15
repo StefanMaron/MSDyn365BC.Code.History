@@ -7,6 +7,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Family;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -38,24 +39,26 @@ table 5765 "Warehouse Request"
             Caption = 'Source No.';
             Editable = false;
             TableRelation = if ("Source Document" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order),
-                                                                                                    "No." = field("Source No."))
+                                                                                                     "No." = field("Source No."))
             else
             if ("Source Document" = const("Sales Return Order")) "Sales Header"."No." where("Document Type" = const("Return Order"),
-                                                                                                                                                                                        "No." = field("Source No."))
+                                                                                            "No." = field("Source No."))
             else
             if ("Source Document" = const("Purchase Order")) "Purchase Header"."No." where("Document Type" = const(Order),
-                                                                                                                                                                                                                                                                           "No." = field("Source No."))
+                                                                                           "No." = field("Source No."))
             else
             if ("Source Document" = const("Purchase Return Order")) "Purchase Header"."No." where("Document Type" = const("Return Order"),
-                                                                                                                                                                                                                                                                                                                                                                     "No." = field("Source No."))
+                                                                                                  "No." = field("Source No."))
             else
             if ("Source Type" = const(5741)) "Transfer Header"."No." where("No." = field("Source No."))
             else
             if ("Source Type" = filter(5406 | 5407)) "Production Order"."No." where(Status = const(Released),
-                                                                                                                                                                                                                                                                                                                                                                                                                                               "No." = field("Source No."))
+                                                                                    "No." = field("Source No."))
             else
             if ("Source Type" = filter(901)) "Assembly Header"."No." where("Document Type" = const(Order),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  "No." = field("Source No."));
+                                                                           "No." = field("Source No."))
+            else
+            if ("Source Type" = const(167)) "Job"."No." where("No." = field("Source No."));
         }
         field(4; "Source Document"; Enum "Warehouse Request Source Document")
         {

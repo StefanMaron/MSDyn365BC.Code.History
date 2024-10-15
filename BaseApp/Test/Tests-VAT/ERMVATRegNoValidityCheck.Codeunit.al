@@ -30,7 +30,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         IsInitialized: Boolean;
         GetVATRegNoErr: Label 'Unexpected output of GetVATRegNo method';
         GetCountryCodeErr: Label 'Not expected country code.';
-        CountryRegionDoesNotExistErr: Label 'The %1 does not exist.', Comment = '%1 - Table caption.';
         DisclaimerTxt: Label 'You are accessing a third-party website and service. Review the disclaimer before you continue.';
         VATRegNoVIESSettingIsNotEnabledErr: Label 'VAT Reg. No. Validation Setup is not enabled.';
         NoVATNoToValidateErr: Label 'Specify the VAT registration number that you want to verify.';
@@ -837,8 +836,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         asserterror VATRegistrationLog.GetCountryCode();
 
         // [THEN] "Country/Region does not exist" error appears
-        Assert.ExpectedError(
-          StrSubstNo(CountryRegionDoesNotExistErr, CountryRegion.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Country/Region");
     end;
 
     [Test]
@@ -1073,7 +1071,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATRegNoSrvConfig.Insert();
 
         asserterror VATRegNoSrvConfig.GetVATRegNoURL();
-        Assert.ExpectedError('Service Endpoint must have a value in VAT Reg. No. Srv Config: Entry No.=0.');
+        Assert.ExpectedTestFieldError(VATRegNoSrvConfig.FieldCaption("Service Endpoint"), '');
     end;
 
     [Test]
@@ -1229,11 +1227,12 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         // [WHEN] New VAT Registration No "CCC" is validated in Sales invoice
         SalesHeader.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer[1]."Country/Region Code"));
 
-        // [THEN] Customer "C1" has new VAT Registration No. "CCC"
+        // [THEN] Customer "C1" has old VAT Registration No. "AAA"
+        // Work item 525644: "VAT Registration No." only updates in the customer card if it is blank there
         Customer[1].Find();
-        Customer[1].TestField("VAT Registration No.", SalesHeader."VAT Registration No.");
+        Customer[1].TestField("VAT Registration No.", VATRegistrationNo[1]);
 
-        // [THEN] Customer "C2" has old VAT Registration No. "AAA"
+        // [THEN] Customer "C2" has old VAT Registration No. "BBB"
         Customer[2].Find();
         Customer[2].TestField("VAT Registration No.", VATRegistrationNo[2]);
 
@@ -1278,9 +1277,10 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         Customer[1].Find();
         Customer[1].TestField("VAT Registration No.", VATRegistrationNo[1]);
 
-        // [THEN] Customer "C2" has new VAT Registration No. "CCC"
+        // [THEN] Customer "C2" has old VAT Registration No. "BBB"
+        // Work item 525644: "VAT Registration No." only updates in the customer card if it is blank there
         Customer[2].Find();
-        Customer[2].TestField("VAT Registration No.", SalesHeader."VAT Registration No.");
+        Customer[2].TestField("VAT Registration No.", VATRegistrationNo[2]);
 
         // Tear Down
         Customer[1].Delete();
@@ -1312,6 +1312,94 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         CustomerCard."VAT Registration No.".DrillDown();
 
         // [THEN] On opened page selected line has VAT Registration No. = "B".
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYES')]
+    procedure VATCountryRegionCodeIsUsedForVATRegNoValidationInSalesHeader()
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        VATRegistrationNoFormat: Record "VAT Registration No. Format";
+        SalesHeader: Record "Sales Header";
+        VATRegistrationNo: Text[20];
+    begin
+        // [SCENARIO 525644] "VAT Country/Region Code" of the sales header is used for the "VAT Registration No." validation
+
+        Initialize();
+        // [GIVEN] Customer with Country/Region Code = "DK" and VAT Registration = "DK123456789"
+        LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo(Customer);
+        // [GIVEN] VAT Registration No. Format with Country/Region Code = "DK" and Format = "DK#########""
+        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, Customer."Country/Region Code");
+        VATRegistrationNoFormat.Validate(Format, Customer."Country/Region Code" + '#########');
+        VATRegistrationNoFormat.Modify();
+        // [GIVEN] VAT Registration No. Format with Country/Region Code = "ES" and Format = "ES#########""
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CountryRegion.Code);
+        VATRegistrationNoFormat.Validate(Format, CountryRegion.Code + '#########');
+        VATRegistrationNoFormat.Modify();
+
+        // [GIVEN] Sales invoice is created for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [GIVEN] "VAT Country/Region Code" = "ES"
+        SalesHeader.Validate("VAT Country/Region Code", CountryRegion.Code);
+
+        VATRegistrationNo := LibraryERM.GenerateVATRegistrationNo(CountryRegion.Code);
+
+        // [WHEN] Set "VAT Registration No." to "ES123456789"
+        SalesHeader.Validate("VAT Registration No.", VATRegistrationNo);
+
+        // [THEN] "VAT Registration No." has passed the validation
+        SalesHeader.TestField("VAT Registration No.", VATRegistrationNo);
+    end;
+
+    [Test]
+    procedure VATRegistrationNoIsSavedInCustomerFromSalesHeaderIfItIsBlank()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        VATRegistrationNo: Text[20];
+    begin
+        // [SCENARIO 525644] "VAT Registration No." is saved in the customer card from the sales header if it is blank
+
+        Initialize();
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Country/Region Code", LibraryERM.CreateCountryRegion());
+        Customer.Modify(true);
+        // [GIVEN] Sales invoice is created for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        VATRegistrationNo := LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code");
+        // [WHEN] Set "VAT Registration No." to "X"
+        SalesHeader.Validate("VAT Registration No.", VATRegistrationNo);
+        SalesHeader.Modify(true);
+        // [THEN] "VAT Registration No." is "X" for the customer
+        Customer.Find();
+        Customer.TestField("VAT Registration No.", VATRegistrationNo);
+    end;
+
+    [Test]
+    procedure VATRegistrationNoIsNotSavedInCustomerFromSalesHeaderIfItIsNotBlank()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustomerVATRegistrationNo: Text[20];
+        VATRegistrationNo: Text[20];
+    begin
+        // [SCENARIO 525644] "VAT Registration No." is not saved in the customer card from the sales header if it is not blank
+
+        Initialize();
+        // [GIVEN] Customer with Country/Region Code = "DK" and VAT Registration = "X"
+        LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo(Customer);
+        CustomerVATRegistrationNo := Customer."VAT Registration No.";
+        // [GIVEN] Sales invoice is created for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        VATRegistrationNo := LibraryERM.GenerateVATRegistrationNo('');
+        // [WHEN] Set "VAT Registration No." to "Y"
+        SalesHeader.Validate("VAT Registration No.", VATRegistrationNo);
+        SalesHeader.Modify(true);
+        // [THEN] "VAT Registration No." is "X" for the customer
+        Customer.Find();
+        Customer.TestField("VAT Registration No.", CustomerVATRegistrationNo);
     end;
 
     local procedure Initialize()
@@ -1395,35 +1483,29 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
     local procedure CreateContact(var Contact: Record Contact)
     begin
-        with Contact do begin
-            Init();
-            Validate("No.", LibraryUtility.GenerateGUID());
-            Type := Type::Company;
-            "Company No." := "No.";
-            Validate("Country/Region Code", 'DK');
-            Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Insert();
-        end;
+        Contact.Init();
+        Contact.Validate("No.", LibraryUtility.GenerateGUID());
+        Contact.Type := Contact.Type::Company;
+        Contact."Company No." := Contact."No.";
+        Contact.Validate("Country/Region Code", 'DK');
+        Contact.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
+        Contact.Insert();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Country/Region Code", 'DK');
-            Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Modify();
-        end;
+        Customer.Validate("Country/Region Code", 'DK');
+        Customer.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
+        Customer.Modify();
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Country/Region Code", 'DK');
-            Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Modify();
-        end;
+        Vendor.Validate("Country/Region Code", 'DK');
+        Vendor.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
+        Vendor.Modify();
     end;
 
     local procedure CreateCustomerWithVATRegNoWithValidFormat(var Customer: Record Customer; var VATRegistrationNo: Text[20])

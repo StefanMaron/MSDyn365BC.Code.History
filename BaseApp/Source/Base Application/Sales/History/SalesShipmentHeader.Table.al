@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -529,6 +529,11 @@ table 110 "Sales Shipment Header"
             Caption = 'Work Description';
             DataClassification = CustomerContent;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -632,13 +637,8 @@ table 110 "Sales Shipment Header"
             Caption = 'Pay-at Code';
             TableRelation = "Customer Pmt. Address".Code where("Customer No." = field("Bill-to Customer No."));
             ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
     }
 

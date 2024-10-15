@@ -179,7 +179,8 @@ report 109 "Customer - Summary Aging Simp."
         CustBalanceDueLCY: array[5] of Decimal;
         PrintCust: Boolean;
         i: Integer;
-
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'As of %1';
         CustSummaryAgingSimpCaptionLbl: Label 'Customer - Summary Aging Simp.';
         PageCaptionLbl: Label 'Page';
@@ -189,6 +190,8 @@ report 109 "Customer - Summary Aging Simp."
         CustBalanceDueLCY3CaptionLbl: Label '31-60 days';
         CustBalanceDueLCY2CaptionLbl: Label '61-90 days';
         CustBalanceDueLCY1CaptionLbl: Label 'Over 90 days';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TotalCaptionLbl: Label 'Total';
 
     protected var

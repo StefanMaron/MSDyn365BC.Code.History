@@ -10,8 +10,6 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     end;
 
     var
-        ErrorDocumentNo: Label '%1  Must Be %2 In %3';
-        ErrorRec: Label '%1  Must be Empty For Location %2.';
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -26,6 +24,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         PutAwayNo: Code[20];
         PutawayRequestDocumentNo: Code[20];
         IsInitialized: Boolean;
+        DocumentNoErr: Label '%1 must be %2 in %3';
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandler,PutAwayPageHandler')]
@@ -338,7 +337,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
                 begin
                     CreateAndPostWarehouseReceipt(PurchaseHeader, TransferHeaderNo, LocationCode2, ItemNo);
                     TransferHeader.SetRange("No.", TransferHeaderNo);
-                    Assert.IsTrue(TransferHeader.IsEmpty, StrSubstNo(ErrorRec, TransferHeader.TableCaption(), LocationCode));
+                    Assert.RecordIsEmpty(TransferHeader);
                 end;
             ProcessTypeGlobal::RequestBlank:  // Check no request pending after register Warehouse Activity line.
                 begin
@@ -390,7 +389,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         // Create Location, Warehouse Employee And Inventory Posting Setup.
         SetupWarehouseLocation(LocationCode, true, RequirePick, true, RequireShipment, UsePutawayWorksheet);
         ItemNo := CreateItem();
-        Quantity := LibraryRandom.RandDec(20, 2);
+        Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
 
         case DocumentType of
             DocumentType::Sales:
@@ -589,7 +588,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhsePostShipment.Run(WarehouseShipmentLine);
     end;
 
-    local procedure FindWarehouseReceiptNo(): Code[10]
+    local procedure FindWarehouseReceiptNo(): Code[20]
     var
         WarehouseSetup: Record "Warehouse Setup";
         NoSeries: Codeunit "No. Series";
@@ -674,7 +673,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WhsePutAwayRequest.TestField(Status, WhsePutAwayRequest.Status::Open);
         Assert.AreEqual(
           PutawayRequestDocumentNo, WhsePutAwayRequest."Document No.",
-          StrSubstNo(ErrorDocumentNo, WhsePutAwayRequest.FieldCaption("Document No."), PutawayRequestDocumentNo,
+          StrSubstNo(DocumentNoErr, WhsePutAwayRequest.FieldCaption("Document No."), PutawayRequestDocumentNo,
             WhsePutAwayRequest.TableCaption()));
     end;
 
@@ -687,7 +686,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WarehouseRequest.TestField("Source No.", SourceNo);
         Assert.AreEqual(
           PutAwayNo, WarehouseRequest."Put-away / Pick No.",
-          StrSubstNo(ErrorDocumentNo, WarehouseRequest.FieldCaption("Put-away / Pick No."), PutAwayNo, WarehouseRequest.TableCaption()));
+          StrSubstNo(DocumentNoErr, WarehouseRequest.FieldCaption("Put-away / Pick No."), PutAwayNo, WarehouseRequest.TableCaption()));
     end;
 
     local procedure VerifyShipmentQuantity(Quantity: Decimal; No: Code[20])

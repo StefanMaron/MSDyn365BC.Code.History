@@ -182,9 +182,13 @@ table 99000763 "Routing Header"
         RoutingHeader: Record "Routing Header";
         RtngVersion: Record "Routing Version";
         CheckRouting: Codeunit "Check Routing Lines";
+#pragma warning disable AA0074
         Text000: Label 'This Routing is being used on Items.';
         Text001: Label 'All versions attached to the routing will be closed. Close routing?';
+#pragma warning disable AA0470
         Text002: Label 'You cannot rename the %1 when %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldRtngHeader: Record "Routing Header"): Boolean
     var

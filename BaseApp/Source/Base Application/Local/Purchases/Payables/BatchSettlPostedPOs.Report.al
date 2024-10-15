@@ -34,7 +34,7 @@ report 7000087 "Batch Settl. Posted POs"
     {
         dataitem(PostedPmtOrd; "Posted Payment Order")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             dataitem(PostedDoc; "Posted Cartera Doc.")
             {
                 DataItemLink = "Bill Gr./Pmt. Order No." = field("No.");
@@ -152,7 +152,6 @@ report 7000087 "Batch Settl. Posted POs"
 
                                     if NoRealVATBuffer.Find('-') then begin
                                         repeat
-                                        begin
                                             InsertGenJournalLine(
                                               GenJnlLine."Account Type"::"G/L Account",
                                               NoRealVATBuffer.Account,
@@ -161,7 +160,6 @@ report 7000087 "Batch Settl. Posted POs"
                                               GenJnlLine."Account Type"::"G/L Account",
                                               NoRealVATBuffer."Balance Account",
                                               -NoRealVATBuffer.Amount);
-                                        end;
                                         until NoRealVATBuffer.Next() = 0;
                                         NoRealVATBuffer.DeleteAll();
                                     end;

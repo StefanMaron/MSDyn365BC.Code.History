@@ -47,13 +47,11 @@ codeunit 139321 "Teams Centralized Depl. Tests"
         // [WHEN] The Teams Centralized Deployment is completed
         TeamsCentralizedDeployment.Trap();
         Page.Run(Page::"Teams Centralized Deployment");
-        with TeamsCentralizedDeployment do begin
-            Assert.IsFalse(ActionBack.Visible(), 'Back is visible');
-            Assert.IsFalse(ActionDone.Visible(), 'Done is visible');
-            Assert.IsFalse(ActionNext.Visible(), 'Next is visible');
-            Assert.IsTrue(ActionOkay.Visible(), 'Okay is not visible');
-            ActionOkay.Invoke();
-        end;
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionBack.Visible(), 'Back is visible');
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionDone.Visible(), 'Done is visible');
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionNext.Visible(), 'Next is visible');
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionOkay.Visible(), 'Okay is not visible');
+        TeamsCentralizedDeployment.ActionOkay.Invoke();
         // [THEN] Status of the setup step is not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Teams Centralized Deployment"), 'Teams Centralized Deployment Setup status should be completed.');
     end;
@@ -73,26 +71,23 @@ codeunit 139321 "Teams Centralized Depl. Tests"
         // [WHEN] The Teams Centralized Deployment is completed
         TeamsCentralizedDeployment.Trap();
         Page.Run(Page::"Teams Centralized Deployment");
-        with TeamsCentralizedDeployment do begin
-            Assert.IsTrue(ActionNext.Visible(), 'Next is not visible');
-            Assert.IsTrue(ActionBack.Visible(), 'Back is not visible');
-            Assert.IsFalse(ActionBack.Enabled(), 'Back is enabled');
-            Assert.IsFalse(ActionDone.Visible(), 'Done is visible');
-            Assert.IsFalse(ActionOkay.Visible(), 'Okay is visible');
-            ActionNext.Invoke();
-            Assert.IsTrue(ActionNext.Visible(), 'Next is not visible');
-            Assert.IsTrue(ActionBack.Visible(), 'Back is not visible');
-            Assert.IsTrue(ActionBack.Enabled(), 'Back is not enabled');
-            Assert.IsFalse(ActionDone.Visible(), 'Done is visible');
-            Assert.IsFalse(ActionOkay.Visible(), 'Okay is visible');
-            ActionNext.Invoke();
-            Assert.IsFalse(ActionNext.Visible(), 'Next is visible');
-            Assert.IsTrue(ActionBack.Visible(), 'Back is not visible');
-            Assert.IsTrue(ActionBack.Enabled(), 'Back is not enabled');
-            Assert.IsTrue(ActionDone.Visible(), 'Done is not visible');
-            Assert.IsFalse(ActionOkay.Visible(), 'Okay is visible');
-            
-        end;
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionNext.Visible(), 'Next is not visible');
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionBack.Visible(), 'Back is not visible');
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionBack.Enabled(), 'Back is enabled');
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionDone.Visible(), 'Done is visible');
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionOkay.Visible(), 'Okay is visible');
+        TeamsCentralizedDeployment.ActionNext.Invoke();
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionNext.Visible(), 'Next is not visible');
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionBack.Visible(), 'Back is not visible');
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionBack.Enabled(), 'Back is not enabled');
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionDone.Visible(), 'Done is visible');
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionOkay.Visible(), 'Okay is visible');
+        TeamsCentralizedDeployment.ActionNext.Invoke();
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionNext.Visible(), 'Next is visible');
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionBack.Visible(), 'Back is not visible');
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionBack.Enabled(), 'Back is not enabled');
+        Assert.IsTrue(TeamsCentralizedDeployment.ActionDone.Visible(), 'Done is not visible');
+        Assert.IsFalse(TeamsCentralizedDeployment.ActionOkay.Visible(), 'Okay is visible');
         TeamsCentralizedDeployment.ActionDone.Invoke();
 
         // [THEN] Status of the setup step is set to Completed

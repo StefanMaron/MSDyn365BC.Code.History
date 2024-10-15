@@ -295,8 +295,12 @@ page 397 "Sales Invoice Statistics"
         VATAmountText: Text[30];
         PmtDiscAmount: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text001: Label '%1% VAT';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         Currency: Record Currency;

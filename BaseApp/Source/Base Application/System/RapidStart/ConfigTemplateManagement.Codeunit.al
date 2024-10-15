@@ -14,7 +14,9 @@ codeunit 8612 "Config. Template Management"
     var
         HierarchyErr: Label 'The template %1 is in this hierarchy and contains the same field.', Comment = '%1 - Field Value';
         NoSeriesErr: Label 'A number series has not been set up for table %1 %2. The instance could not be created.', Comment = '%1 = Table ID, %2 = Table caption';
+#pragma warning disable AA0470
         InstanceErr: Label 'The instance %1 already exists in table %2 %3.', Comment = '%2 = Table ID, %3 = Table caption';
+#pragma warning restore AA0470
         KeyFieldValueErr: Label 'The value for the key field %1 is not filled for the instance.', Comment = '%1 - Field Name';
         UpdatingRelatedTable: Boolean;
 
@@ -61,9 +63,15 @@ codeunit 8612 "Config. Template Management"
     var
         ConfigTemplateLine: Record "Config. Template Line";
         ConfigTemplateHeader2: Record "Config. Template Header";
+#if CLEAN25
+        ConfigValidateMgt: Codeunit "Config. Validate Management";
+#endif
         FieldRef: FieldRef;
         RecRef2: RecordRef;
         SkipCurrentField: Boolean;
+        FieldIsModified: Boolean;
+        IsHandled: Boolean;
+        IsNotSkipped: Boolean;
     begin
         OnBeforeInsertTemplate(ConfigTemplateLine, ConfigTemplateHeader);
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
@@ -79,7 +87,17 @@ codeunit 8612 "Config. Template Management"
 
                             if not SkipCurrentField then begin
                                 FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
-                                ModifyRecordWithField(RecRef, FieldRef, ConfigTemplateLine);
+
+                                IsHandled := false;
+                                OnInsertTemplateBeforeValidateFieldValue(RecRef, FieldRef, ConfigTemplateLine."Default Value", ConfigTemplateLine."Language ID", IsHandled, ConfigTemplateLine);
+                                if not IsHandled then begin
+#if CLEAN25
+                                    ConfigValidateMgt.ValidateFieldValue(RecRef, FieldRef, ConfigTemplateLine."Default Value", false, ConfigTemplateLine."Language ID");                                    
+#else
+                                    IsNotSkipped := ValidateFieldValue(RecRef, FieldRef, ConfigTemplateLine);
+#endif
+                                    FieldIsModified := IsNotSkipped or FieldIsModified;
+                                end;
                             end;
                         end;
                     ConfigTemplateLine.Type::Template:
@@ -97,6 +115,15 @@ codeunit 8612 "Config. Template Management"
                         OnInsertTemplateCaseElse(ConfigTemplateLine, ConfigTemplateHeader2, FieldRef, RecRef2, SkipFields, TempSkipField, RecRef);
                 end;
             until ConfigTemplateLine.Next() = 0;
+
+        IsHandled := false;
+        OnAfterInsertTemplateBeforeModify(ConfigTemplateLine, ConfigTemplateHeader, FieldIsModified, IsHandled);
+
+        if IsHandled then
+            exit;
+
+        if FieldIsModified then
+            RecRef.Modify(true);
     end;
 
     procedure ApplyTemplate(var OriginalRecRef: RecordRef; var TempFieldsAssigned: Record "Field" temporary; var TemplateAppliedRecRef: RecordRef; var ConfigTemplateHeader: Record "Config. Template Header"): Boolean
@@ -125,7 +152,8 @@ codeunit 8612 "Config. Template Management"
         exit(true);
     end;
 
-    local procedure ModifyRecordWithField(var RecRef: RecordRef; FieldRef: FieldRef; ConfigTemplateLine: Record "Config. Template Line")
+#if not CLEAN25
+    local procedure ValidateFieldValue(var RecRef: RecordRef; FieldRef: FieldRef; ConfigTemplateLine: Record "Config. Template Line"): Boolean
     var
         ConfigValidateMgt: Codeunit "Config. Validate Management";
         IsHandled: Boolean;
@@ -133,11 +161,12 @@ codeunit 8612 "Config. Template Management"
         IsHandled := false;
         OnBeforeModifyRecordWithField(RecRef, FieldRef, ConfigTemplateLine."Default Value", ConfigTemplateLine."Language ID", IsHandled, ConfigTemplateLine);
         if IsHandled then
-            exit;
+            exit(false);
 
         ConfigValidateMgt.ValidateFieldValue(RecRef, FieldRef, ConfigTemplateLine."Default Value", false, ConfigTemplateLine."Language ID");
-        RecRef.Modify(true);
+        exit(true);
     end;
+#endif
 
     local procedure TestKeyFields(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header") Result: Boolean
     var
@@ -612,7 +641,20 @@ codeunit 8612 "Config. Template Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertTemplateBeforeModify(var ConfigTemplateLine: Record "Config. Template Line"; var ConfigTemplateHeader: Record "Config. Template Header"; var FieldIsModified: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by event OnInsertTemplateBeforeValidateFieldValue', '25.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyRecordWithField(var RecRef: RecordRef; FieldRef: FieldRef; Value: Text[2048]; LanguageID: Integer; var IsHandled: Boolean; ConfigTemplateLine: Record "Config. Template Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTemplateBeforeValidateFieldValue(var RecRef: RecordRef; FieldRef: FieldRef; Value: Text[2048]; LanguageID: Integer; var IsHandled: Boolean; ConfigTemplateLine: Record "Config. Template Line")
     begin
     end;
 

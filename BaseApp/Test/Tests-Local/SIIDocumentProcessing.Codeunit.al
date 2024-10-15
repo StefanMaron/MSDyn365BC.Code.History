@@ -94,13 +94,10 @@ codeunit 147522 "SII Document Processing"
 
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
         // [THEN] SII Doc. Upload State in state "Pending" is created
-        with SIIDocUploadState do begin
-            LibrarySII.FindSIIDocUploadState(
-              SIIDocUploadState, "Document Source"::"Customer Ledger", "Document Type"::Invoice, GenJournalLine."Document No.");
-            TestField(Status, Status::Pending);
-        end;
+        LibrarySII.FindSIIDocUploadState(
+            SIIDocUploadState, SIIDocUploadState."Document Source"::"Customer Ledger", SIIDocUploadState."Document Type"::Invoice, GenJournalLine."Document No.");
+        SIIDocUploadState.TestField(Status, SIIDocUploadState.Status::Pending);
 
         // [THEN] Version of SII Doc. Upload State is 1.1bis
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
@@ -139,13 +136,10 @@ codeunit 147522 "SII Document Processing"
 
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
         // [THEN] SII Doc. Upload State in state "Pending" is created
-        with SIIDocUploadState do begin
-            LibrarySII.FindSIIDocUploadState(
-              SIIDocUploadState, "Document Source"::"Customer Ledger", "Document Type"::Invoice, GenJournalLine."Document No.");
-            TestField(Status, Status::Pending);
-        end;
+        LibrarySII.FindSIIDocUploadState(
+          SIIDocUploadState, SIIDocUploadState."Document Source"::"Customer Ledger", SIIDocUploadState."Document Type"::Invoice, GenJournalLine."Document No.");
+        SIIDocUploadState.TestField(Status, SIIDocUploadState.Status::Pending);
 
         // [THEN] Version of SII Doc. Upload State is 1.1
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"1.1");
@@ -178,13 +172,10 @@ codeunit 147522 "SII Document Processing"
 
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
         // [THEN] SII Doc. Upload State in state "Pending" is created
-        with SIIDocUploadState do begin
-            LibrarySII.FindSIIDocUploadState(
-              SIIDocUploadState, "Document Source"::"Vendor Ledger", "Document Type"::Invoice, GenJournalLine."Document No.");
-            TestField(Status, Status::Pending);
-        end;
+        LibrarySII.FindSIIDocUploadState(
+          SIIDocUploadState, SIIDocUploadState."Document Source"::"Vendor Ledger", SIIDocUploadState."Document Type"::Invoice, GenJournalLine."Document No.");
+        SIIDocUploadState.TestField(Status, SIIDocUploadState.Status::Pending);
 
         // [THEN] Version of SII Doc. Upload State is 1.1bis
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
@@ -217,11 +208,9 @@ codeunit 147522 "SII Document Processing"
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        with SIIDocUploadState do begin
-            LibrarySII.FindSIIDocUploadState(
-              SIIDocUploadState, "Document Source"::"Customer Ledger", "Document Type"::"Credit Memo", GenJournalLine."Document No.");
-            TestField(Status, Status::Pending);
-        end;
+        LibrarySII.FindSIIDocUploadState(
+          SIIDocUploadState, SIIDocUploadState."Document Source"::"Customer Ledger", SIIDocUploadState."Document Type"::"Credit Memo", GenJournalLine."Document No.");
+        SIIDocUploadState.TestField(Status, SIIDocUploadState.Status::Pending);
 
         // [THEN] The SII job queue entry has been created
         // TFS ID 402592: Job Queue Entry triggers on general journal line posting with "Document Type" = Invoice
@@ -248,11 +237,9 @@ codeunit 147522 "SII Document Processing"
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        with SIIDocUploadState do begin
-            LibrarySII.FindSIIDocUploadState(
-              SIIDocUploadState, "Document Source"::"Vendor Ledger", "Document Type"::"Credit Memo", GenJournalLine."Document No.");
-            TestField(Status, Status::Pending);
-        end;
+        LibrarySII.FindSIIDocUploadState(
+          SIIDocUploadState, SIIDocUploadState."Document Source"::"Vendor Ledger", SIIDocUploadState."Document Type"::"Credit Memo", GenJournalLine."Document No.");
+        SIIDocUploadState.TestField(Status, SIIDocUploadState.Status::Pending);
 
         // [THEN] The SII job queue entry has been created
         // TFS ID 402592: Job Queue Entry triggers on general journal line posting with "Document Type" = Invoice
@@ -2198,23 +2185,19 @@ codeunit 147522 "SII Document Processing"
         SIIHistory: Record "SII History";
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
-        with SIIHistory do begin
-            SetRange("Document State Id", DocumentStateId);
-            Assert.RecordCount(SIIHistory, 1);
-            FindLast();
-            TestField(Status, ExpectedStatus);
-            Assert.ExpectedMessage(ExpectedErrorMessage, "Error Message");
-            TestField("Upload Type", ExpectedUploadType);
-            TestField("Is Accepted With Errors Retry", false);
-            TestField("Retry Accepted", ExpectedRetryAccepted);
-        end;
+        SIIHistory.SetRange("Document State Id", DocumentStateId);
+        Assert.RecordCount(SIIHistory, 1);
+        SIIHistory.FindLast();
+        SIIHistory.TestField(Status, ExpectedStatus);
+        Assert.ExpectedMessage(ExpectedErrorMessage, SIIHistory."Error Message");
+        SIIHistory.TestField("Upload Type", ExpectedUploadType);
+        SIIHistory.TestField("Is Accepted With Errors Retry", false);
+        SIIHistory.TestField("Retry Accepted", ExpectedRetryAccepted);
 
-        with SIIDocUploadState do begin
-            Get(DocumentStateId);
-            TestField(Status, ExpectedStatus);
-            TestField("Transaction Type", ExpectedUploadType);
-            TestField("Retry Accepted", ExpectedRetryAccepted);
-        end;
+        SIIDocUploadState.Get(DocumentStateId);
+        SIIDocUploadState.TestField(Status, ExpectedStatus);
+        SIIDocUploadState.TestField("Transaction Type", ExpectedUploadType);
+        SIIDocUploadState.TestField("Retry Accepted", ExpectedRetryAccepted);
     end;
 
     local procedure VerifyNoSIIDocUploadState(DocType: Enum "SII Doc. Upload State Document Type"; DocNo: Code[20]; DocSource: Enum "SII Doc. Upload State Document Source")

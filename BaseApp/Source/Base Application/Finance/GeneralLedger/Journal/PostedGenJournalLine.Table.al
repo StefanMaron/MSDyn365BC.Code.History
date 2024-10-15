@@ -39,8 +39,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using System.IO;
-using Microsoft.Sales.Receivables;
-using Microsoft.Purchases.Reports;
 
 table 181 "Posted Gen. Journal Line"
 {
@@ -627,15 +625,9 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'IC Partner G/L Acc. No.';
             TableRelation = "IC G/L Account";
-#if not CLEAN22
-            ObsoleteReason = 'This field will be replaced by IC Account No.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteReason = 'Replaced by IC Account No.';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(117; "IC Partner Transaction No."; Integer)
         {
@@ -1260,16 +1252,8 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Pmt. Address Code';
             ObsoleteReason = 'Address is taken from the fields Address, City, etc. of Customer/Vendor table.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
-            TableRelation = if ("Account Type" = const(Customer)) "Customer Pmt. Address".Code where("Customer No." = field("Account No."))
-            else
-            if ("Account Type" = const(Vendor)) "Vendor Pmt. Address".Code where("Vendor No." = field("Account No."));
         }
     }
 

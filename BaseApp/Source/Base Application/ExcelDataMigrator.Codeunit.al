@@ -403,19 +403,21 @@ codeunit 1806 "Excel Data Migrator"
                     ConfigPackageManagement.InitPackageRecord(ConfigPackageRecord, PackageCodeTxt,
                       ConfigPackageTable."Table ID");
                     RecordNo := ConfigPackageRecord."No.";
-                    if ConfigPackageTable."Table ID" = 15 then begin
-                        for I := 1 to ColumnCount do
-                            if TempExcelBuffer.Get(TempExcelBuffer."Row No.", I) then // Mapping for Account fields
-                                InsertAccountsFieldData(ConfigPackageTable."Table ID", RecordNo, FieldID[I], TempExcelBuffer."Cell Value as Text")
-                    end else
-                        for I := 1 to ColumnCount do
-                            if TempExcelBuffer.Get(TempExcelBuffer."Row No.", I) then
-                                // Fields are populated in the record created
-                                InsertFieldData(
-                                    ConfigPackageTable."Table ID", RecordNo, FieldID[I], TempExcelBuffer."Cell Value as Text")
-                            else
-                                InsertFieldData(
-                                  ConfigPackageTable."Table ID", RecordNo, FieldID[I], '');
+                    case ConfigPackageTable."Table ID" of
+                        15:
+                            for I := 1 to ColumnCount do
+                                if TempExcelBuffer.Get(TempExcelBuffer."Row No.", I) then // Mapping for Account fields
+                                    InsertAccountsFieldData(ConfigPackageTable."Table ID", RecordNo, FieldID[I], TempExcelBuffer."Cell Value as Text");
+                        else
+                            for I := 1 to ColumnCount do
+                                if TempExcelBuffer.Get(TempExcelBuffer."Row No.", I) then
+                                    // Fields are populated in the record created
+                                    InsertFieldData(
+                                        ConfigPackageTable."Table ID", RecordNo, FieldID[I], TempExcelBuffer."Cell Value as Text")
+                                else
+                                    InsertFieldData(
+                                        ConfigPackageTable."Table ID", RecordNo, FieldID[I], '');
+                    end;
 
                     // Go to next line
                     TempExcelBuffer.SetFilter("Row No.", '%1..', TempExcelBuffer."Row No." + 1);

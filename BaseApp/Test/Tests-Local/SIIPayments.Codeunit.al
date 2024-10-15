@@ -808,13 +808,11 @@ codeunit 147529 "SII Payments"
         CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
 
         Assert.IsTrue(SIIManagement.FindPaymentDetailedCustomerLedgerEntries(FoundDetailedCustLedgEntry, CustLedgerEntry), '');
-        with FoundDetailedCustLedgEntry do begin
-            Assert.AreEqual(Format(CustLedgerEntry."Entry No."), GetFilter("Cust. Ledger Entry No."), '');
-            // TFS ID 398897: VAT Cash refunds
-            Assert.AreEqual(
-              StrSubstNo('%1|%2', Format("Document Type"::Payment), Format("Document Type"::Refund)), GetFilter("Document Type"), '');
-            Assert.AreEqual(Format(false), GetFilter(Unapplied), '');
-        end;
+        Assert.AreEqual(Format(CustLedgerEntry."Entry No."), FoundDetailedCustLedgEntry.GetFilter("Cust. Ledger Entry No."), '');
+        // TFS ID 398897: VAT Cash refunds
+        Assert.AreEqual(
+          StrSubstNo('%1|%2', Format(FoundDetailedCustLedgEntry."Document Type"::Payment), Format(FoundDetailedCustLedgEntry."Document Type"::Refund)), FoundDetailedCustLedgEntry.GetFilter("Document Type"), '');
+        Assert.AreEqual(Format(false), FoundDetailedCustLedgEntry.GetFilter(Unapplied), '');
     end;
 
     [Test]
@@ -834,13 +832,11 @@ codeunit 147529 "SII Payments"
         VendorLedgerEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
 
         Assert.IsTrue(SIIManagement.FindPaymentDetailedVendorLedgerEntries(FoundDetailedVendorLedgEntry, VendorLedgerEntry), '');
-        with FoundDetailedVendorLedgEntry do begin
-            Assert.AreEqual(Format(VendorLedgerEntry."Entry No."), GetFilter("Vendor Ledger Entry No."), '');
-            // TFS ID 398897: VAT Cash refunds
-            Assert.AreEqual(
-              StrSubstNo('%1|%2', Format("Document Type"::Payment), Format("Document Type"::Refund)), GetFilter("Document Type"), '');
-            Assert.AreEqual(Format(false), GetFilter(Unapplied), '');
-        end;
+        Assert.AreEqual(Format(VendorLedgerEntry."Entry No."), FoundDetailedVendorLedgEntry.GetFilter("Vendor Ledger Entry No."), '');
+        // TFS ID 398897: VAT Cash refunds
+        Assert.AreEqual(
+          StrSubstNo('%1|%2', Format(FoundDetailedVendorLedgEntry."Document Type"::Payment), Format(FoundDetailedVendorLedgEntry."Document Type"::Refund)), FoundDetailedVendorLedgEntry.GetFilter("Document Type"), '');
+        Assert.AreEqual(Format(false), FoundDetailedVendorLedgEntry.GetFilter(Unapplied), '');
     end;
 
     [Test]

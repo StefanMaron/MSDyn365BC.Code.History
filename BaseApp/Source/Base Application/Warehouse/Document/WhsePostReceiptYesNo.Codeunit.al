@@ -17,7 +17,9 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
     var
         WhseReceiptLine: Record "Warehouse Receipt Line";
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to post the receipt?';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

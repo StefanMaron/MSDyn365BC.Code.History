@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Projects.Resources.Ledger;
+namespace Microsoft.Projects.Resources.Ledger;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;

@@ -5381,6 +5381,55 @@ codeunit 144117 "ERM Make 349 Declaration"
     end;
 
     [Test]
+    [HandlerFunctions('CustomerVendorWarnings349ModalPageHandler,ConfirmHandler,Make349DeclarationRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceInForeignCurrencyAmountLCYOnDeclaration349()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ExportFileName: Text[1024];
+        CurrencyCode: Code[10];
+        ExpectedAmount: Decimal;
+        FileTxt: Text;
+        File: File;
+        InStr: InStream;
+        Line: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 537264] Declaration 349 must report Amount (LCY) for invoices in foreign currency
+        Initialize();
+
+        // [GIVEN] Foreign customer
+        Customer.Get(CreateForeignCustomerWithVATRegNo(CreateCountryWithSpecificVATRegNoFormat(true)));
+
+        // [GIVEN] Customer's Currency Code is not LCY
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 0.5, 0.5);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+
+        // [GIVEN] Sales invoice posted
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", WorkDate(), false);
+        CreateSalesLine(SalesHeader, SalesLine);
+        ExpectedAmount := SalesLine."Unit Cost (LCY)" * SalesLine.Quantity;
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Run Make 349 Declaration
+        ExportFileName := RunMake349DeclarationWithDate(WorkDate());
+
+        // [THEN] Amount (LCY) is used
+        File.TextMode(true);
+        File.Open(ExportFileName);
+        File.CreateInStream(InStr);
+        while not Instr.EOS() do begin
+            Instr.ReadText(Line);
+            FileTxt += Line;
+        end;
+        Assert.IsTrue(FileTxt.Contains(Format(ExpectedAmount, 0, 9)), '');
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandler')]
     procedure SalesCreditMemoWithCorrectiveInvoiceWhenOrigDeclPeiodNotChanged()
     var
@@ -7133,11 +7182,9 @@ codeunit 144117 "ERM Make 349 Declaration"
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesCrMemoLine do begin
-            SetRange("Document No.", SalesCrMemoNo);
-            FindFirst();
-            exit(Amount);
-        end;
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoNo);
+        SalesCrMemoLine.FindFirst();
+        exit(SalesCrMemoLine.Amount);
     end;
 
     local procedure GetSalesInvoiceDocAmount(SalesInvoiceNo: Code[20]): Decimal

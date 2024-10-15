@@ -2141,15 +2141,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     local procedure CreateBankAccReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; BankAccReconciliation: Record "Bank Acc. Reconciliation"; CustomerNo: Code[20]; InvoiceNo: Code[20]; StatementAmount: Decimal)
     begin
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        with BankAccReconciliationLine do begin
-            Validate("Transaction Date", WorkDate());
-            Validate("Transaction Text", InvoiceNo);
-            Validate("Account Type", "Account Type"::Customer);
-            Validate("Account No.", CustomerNo);
-            Validate("Document No.", LibraryUtility.GenerateGUID());
-            Validate("Statement Amount", StatementAmount);
-            Modify(true);
-        end;
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
+        BankAccReconciliationLine.Validate("Transaction Text", InvoiceNo);
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::Customer);
+        BankAccReconciliationLine.Validate("Account No.", CustomerNo);
+        BankAccReconciliationLine.Validate("Document No.", LibraryUtility.GenerateGUID());
+        BankAccReconciliationLine.Validate("Statement Amount", StatementAmount);
+        BankAccReconciliationLine.Modify(true);
     end;
 
     local procedure OpenPmtReconJnl(BankAccRecon: Record "Bank Acc. Reconciliation"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")
@@ -2240,12 +2238,10 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
     local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure WriteCAMTHeader(var OutStream: OutStream; CurrTxt: Code[10]; BankAccNo: Code[20])
@@ -2274,18 +2270,16 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
 
-        with CustLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, CustLedgEntry."Posting Date", CustLedgEntry."Document No.", CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible", CustLedgEntry."Currency Code");
     end;
 
     local procedure OneSaleOnePmtExcessiveAmount(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream; ExcessiveAmount: Decimal)
     begin
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
 
-        with CustLedgEntry do
-            WriteCAMTStmtLine(OutStream,
-              "Posting Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible" + ExcessiveAmount, "Currency Code");
+        WriteCAMTStmtLine(OutStream,
+              CustLedgEntry."Posting Date", CustLedgEntry."Document No.", CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible" + ExcessiveAmount, CustLedgEntry."Currency Code");
     end;
 
     local procedure OneSaleTwoPmt(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream)
@@ -2294,13 +2288,11 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
 
-        with CustLedgEntry do begin
-            HalfAmt := Round("Remaining Amount" / 2);
-            WriteCAMTStmtLine(OutStream, "Posting Date", "Document No.", HalfAmt, "Currency Code");
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", "Document No.",
-              "Remaining Amount" - HalfAmt - "Remaining Pmt. Disc. Possible", "Currency Code");
-        end;
+        HalfAmt := Round(CustLedgEntry."Remaining Amount" / 2);
+        WriteCAMTStmtLine(OutStream, CustLedgEntry."Posting Date", CustLedgEntry."Document No.", HalfAmt, CustLedgEntry."Currency Code");
+        WriteCAMTStmtLine(
+          OutStream, CustLedgEntry."Posting Date", CustLedgEntry."Document No.",
+          CustLedgEntry."Remaining Amount" - HalfAmt - CustLedgEntry."Remaining Pmt. Disc. Possible", CustLedgEntry."Currency Code");
     end;
 
     local procedure TwoSaleTwoPmt(var CustLedgEntry: Record "Cust. Ledger Entry"; var CustLedgEntry2: Record "Cust. Ledger Entry"; var OutStream: OutStream)
@@ -2311,12 +2303,10 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry2, '');
 
-        with CustLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
-        with CustLedgEntry2 do
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, CustLedgEntry."Posting Date", CustLedgEntry."Document No.", CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible", CustLedgEntry."Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, CustLedgEntry2."Posting Date", CustLedgEntry2."Document No.", CustLedgEntry2."Remaining Amount" - CustLedgEntry2."Remaining Pmt. Disc. Possible", CustLedgEntry2."Currency Code");
     end;
 
     local procedure TwoSaleOnePmt(var CustLedgEntry: array[25] of Record "Cust. Ledger Entry"; var OutStream: OutStream; FromPos: Integer; ToPos: Integer)
@@ -2345,9 +2335,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
 
-        with CustLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, CustLedgEntry."Pmt. Discount Date", CustLedgEntry."Document No.", CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible", CustLedgEntry."Currency Code");
     end;
 
     local procedure OneSaleTwoPmtWithPmtDisc(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream)
@@ -2358,13 +2347,11 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateCustWithPmtDisc(Cust);
 
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
-        with CustLedgEntry do begin
-            HalfAmt := Round("Remaining Amount" / 2);
-            WriteCAMTStmtLine(OutStream, "Pmt. Discount Date", "Document No.", HalfAmt, "Currency Code");
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", "Document No."
-              , "Remaining Amount" - HalfAmt - "Remaining Pmt. Disc. Possible", "Currency Code");
-        end;
+        HalfAmt := Round(CustLedgEntry."Remaining Amount" / 2);
+        WriteCAMTStmtLine(OutStream, CustLedgEntry."Pmt. Discount Date", CustLedgEntry."Document No.", HalfAmt, CustLedgEntry."Currency Code");
+        WriteCAMTStmtLine(
+          OutStream, CustLedgEntry."Pmt. Discount Date", CustLedgEntry."Document No."
+          , CustLedgEntry."Remaining Amount" - HalfAmt - CustLedgEntry."Remaining Pmt. Disc. Possible", CustLedgEntry."Currency Code");
     end;
 
     local procedure TwoSaleTwoPmtWithPmtDisc(var CustLedgEntry: Record "Cust. Ledger Entry"; var CustLedgEntry2: Record "Cust. Ledger Entry"; var OutStream: OutStream)
@@ -2376,12 +2363,10 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry2, '');
 
-        with CustLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
-        with CustLedgEntry2 do
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, CustLedgEntry."Pmt. Discount Date", CustLedgEntry."Document No.", CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible", CustLedgEntry."Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, CustLedgEntry2."Pmt. Discount Date", CustLedgEntry2."Document No.", CustLedgEntry2."Remaining Amount" - CustLedgEntry2."Remaining Pmt. Disc. Possible", CustLedgEntry2."Currency Code");
     end;
 
     local procedure TwoSaleOnePmtWithPmtDisc(var CustLedgEntry: Record "Cust. Ledger Entry"; var CustLedgEntry2: Record "Cust. Ledger Entry"; var OutStream: OutStream)
@@ -2393,12 +2378,11 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry2, '');
 
-        with CustLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", StrSubstNo('%1;%2', "Document No.", CustLedgEntry2."Document No."),
-              "Remaining Amount" - "Remaining Pmt. Disc. Possible" +
+        WriteCAMTStmtLine(
+              OutStream, CustLedgEntry."Pmt. Discount Date", StrSubstNo('%1;%2', CustLedgEntry."Document No.", CustLedgEntry2."Document No."),
+              CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible" +
               CustLedgEntry2."Remaining Amount" - CustLedgEntry2."Remaining Pmt. Disc. Possible",
-              "Currency Code");
+              CustLedgEntry."Currency Code");
     end;
 
     local procedure OneSaleOnePmtWithLateDueDatePmtDisc(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream; CurrCode: Code[10])
@@ -2413,11 +2397,10 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry, CurrCode);
 
-        with CustLedgEntry do
-            WriteCAMTStmtLine(
+        WriteCAMTStmtLine(
               OutStream,
-              CalcDate('<+1D>', "Pmt. Discount Date"),
-              "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+              CalcDate('<+1D>', CustLedgEntry."Pmt. Discount Date"),
+              CustLedgEntry."Document No.", CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible", CustLedgEntry."Currency Code");
     end;
 
     local procedure OneFCYSaleOnePmtWithLateDueDatePmtDisc(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream)
@@ -2436,25 +2419,22 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry, Curr.Code);
 
-        with CustLedgEntry do begin
-            StmtAmt :=
-              "Remaining Amt. (LCY)" -
-              Round("Remaining Pmt. Disc. Possible" * ("Remaining Amt. (LCY)" / "Remaining Amount"));
+        StmtAmt :=
+            CustLedgEntry."Remaining Amt. (LCY)" -
+            Round(CustLedgEntry."Remaining Pmt. Disc. Possible" * (CustLedgEntry."Remaining Amt. (LCY)" / CustLedgEntry."Remaining Amount"));
 
-            WriteCAMTStmtLine(OutStream, CalcDate('<+1D>', "Pmt. Discount Date"), "Document No.", StmtAmt, "Currency Code");
-        end;
+        WriteCAMTStmtLine(OutStream, CalcDate('<+1D>', CustLedgEntry."Pmt. Discount Date"), CustLedgEntry."Document No.", StmtAmt, CustLedgEntry."Currency Code");
     end;
 
     local procedure OneSaleOnePmtWithWrongPmtDiscPct(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream)
     begin
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
 
-        with CustLedgEntry do
-            WriteCAMTStmtLine(
+        WriteCAMTStmtLine(
               OutStream,
-              "Pmt. Discount Date",
-              "Document No.", Round("Remaining Amount" - "Remaining Pmt. Disc. Possible" - 5 / 100 * "Remaining Amount"),
-              "Currency Code");
+              CustLedgEntry."Pmt. Discount Date",
+              CustLedgEntry."Document No.", Round(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible" - 5 / 100 * CustLedgEntry."Remaining Amount"),
+              CustLedgEntry."Currency Code");
     end;
 
     local procedure BankTransfer(var BankAcc: Record "Bank Account"; var OutStream: OutStream; TransferAmount: Decimal; StmtTxt: Text)
@@ -2733,18 +2713,17 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         GLAcc: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAcc);
-        with CustPostingGroup do
-            if FindSet() then
-                repeat
-                    if "Payment Disc. Debit Acc." = '' then begin
-                        Validate("Payment Disc. Debit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                    if "Payment Disc. Credit Acc." = '' then begin
-                        Validate("Payment Disc. Credit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                until Next() = 0;
+        if CustPostingGroup.FindSet() then
+            repeat
+                if CustPostingGroup."Payment Disc. Debit Acc." = '' then begin
+                    CustPostingGroup.Validate("Payment Disc. Debit Acc.", GLAcc."No.");
+                    CustPostingGroup.Modify(true);
+                end;
+                if CustPostingGroup."Payment Disc. Credit Acc." = '' then begin
+                    CustPostingGroup.Validate("Payment Disc. Credit Acc.", GLAcc."No.");
+                    CustPostingGroup.Modify(true);
+                end;
+            until CustPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateVendPostingGrp()
@@ -2753,18 +2732,17 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         GLAcc: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAcc);
-        with VendPostingGroup do
-            if FindSet() then
-                repeat
-                    if "Payment Disc. Debit Acc." = '' then begin
-                        Validate("Payment Disc. Debit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                    if "Payment Disc. Credit Acc." = '' then begin
-                        Validate("Payment Disc. Credit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                until Next() = 0;
+        if VendPostingGroup.FindSet() then
+            repeat
+                if VendPostingGroup."Payment Disc. Debit Acc." = '' then begin
+                    VendPostingGroup.Validate("Payment Disc. Debit Acc.", GLAcc."No.");
+                    VendPostingGroup.Modify(true);
+                end;
+                if VendPostingGroup."Payment Disc. Credit Acc." = '' then begin
+                    VendPostingGroup.Validate("Payment Disc. Credit Acc.", GLAcc."No.");
+                    VendPostingGroup.Modify(true);
+                end;
+            until VendPostingGroup.Next() = 0;
     end;
 
     [MessageHandler]
@@ -2813,48 +2791,43 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnlStatementAmount := LibraryVariableStorage.DequeueDecimal();
         AdjustDiscountAmount := LibraryVariableStorage.DequeueBoolean();
         AdjustDiscountDate := LibraryVariableStorage.DequeueBoolean();
-
-        with PmtAppln do begin
-            // Remove Entry is not the same customer
-            if AppliedAmount.AsDecimal() <> 0 then
-                if "Account No.".Value <> CustomerNo then begin
-                    Applied.SetValue(false);
-                    Next();
-                end;
-
-            // Go to the first and check that it is the customer and scroll down to find the entry
-            if Applied.AsBoolean() then begin
-                RelatedPartyOpenEntries.Invoke();
-                while "Applies-to Entry No.".AsInteger() <> CLEEntryNo do begin
-                    "Account No.".AssertEquals(CustomerNo);
-                    Next();
-                end;
+        // Remove Entry is not the same customer
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> CustomerNo then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
+            end;
+        // Go to the first and check that it is the customer and scroll down to find the entry
+        if PmtAppln.Applied.AsBoolean() then begin
+            PmtAppln.RelatedPartyOpenEntries.Invoke();
+            while PmtAppln."Applies-to Entry No.".AsInteger() <> CLEEntryNo do begin
+                PmtAppln."Account No.".AssertEquals(CustomerNo);
+                PmtAppln.Next();
+            end;
+        end;
+        // check that it is the customer ledger entry and apply
+        if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then
+            if PmtAppln.AppliedAmount.AsDecimal() = 0 then begin
+                PmtAppln.Applied.SetValue(true);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
             end;
 
-            // check that it is the customer ledger entry and apply
-            if RemainingAmountAfterPosting.AsDecimal() <> 0 then
-                if AppliedAmount.AsDecimal() = 0 then begin
-                    Applied.SetValue(true);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
+        if AdjustDiscountAmount then
+            // Introduce payment discount
+            if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then begin
+                PmtAppln."Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
+                PmtAppln."Remaining Pmt. Disc. Possible".SetValue(
+                  CLERemAmtLCY - PmtReconJnlStatementAmount);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
 
-            if AdjustDiscountAmount then
-                // Introduce payment discount
-                if RemainingAmountAfterPosting.AsDecimal() <> 0 then begin
-                    "Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
-                    "Remaining Pmt. Disc. Possible".SetValue(
-                      CLERemAmtLCY - PmtReconJnlStatementAmount);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
+        if AdjustDiscountDate then
+            if PmtReconJnlTransactionDate > PmtAppln."Pmt. Disc. Due Date".AsDate() then begin
+                PmtAppln."Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
 
-            if AdjustDiscountDate then
-                if PmtReconJnlTransactionDate > "Pmt. Disc. Due Date".AsDate() then begin
-                    "Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
-
-            OK().Invoke();
-        end;
+        PmtAppln.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2881,11 +2854,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         LibraryVariableStorage.Dequeue(AccountTypeVar);
         LibraryVariableStorage.Dequeue(AccountNoVar);
-        with TransferDifferenceToAccount do begin
-            "Account Type".SetValue(AccountTypeVar);
-            "Account No.".SetValue(AccountNoVar);
-            OK().Invoke();
-        end;
+        TransferDifferenceToAccount."Account Type".SetValue(AccountTypeVar);
+        TransferDifferenceToAccount."Account No.".SetValue(AccountNoVar);
+        TransferDifferenceToAccount.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2923,26 +2894,22 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryVariableStorage.DequeueDecimal();
         LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.DequeueBoolean();
+        // Remove Entry is not the same customer
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> CustomerNo then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
+            end;
 
-        with PmtAppln do begin
-            // Remove Entry is not the same customer
-            if AppliedAmount.AsDecimal() <> 0 then
-                if "Account No.".Value <> CustomerNo then begin
-                    Applied.SetValue(false);
-                    Next();
-                end;
+        PmtAppln.AllOpenBankTransactions.Invoke();
+        // check that it is the customer ledger entry and apply
+        if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then
+            if PmtAppln.AppliedAmount.AsDecimal() = 0 then begin
+                PmtAppln.Applied.SetValue(true);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
 
-            AllOpenBankTransactions.Invoke();
-
-            // check that it is the customer ledger entry and apply
-            if RemainingAmountAfterPosting.AsDecimal() <> 0 then
-                if AppliedAmount.AsDecimal() = 0 then begin
-                    Applied.SetValue(true);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
-
-            OK().Invoke();
-        end;
+        PmtAppln.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2952,24 +2919,20 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CustomerNo: Code[20];
     begin
         CustomerNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(CustomerNo));
+        // Remove Entry is not the same customer
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> CustomerNo then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
+            end;
 
-        with PmtAppln do begin
-            // Remove Entry is not the same customer
-            if AppliedAmount.AsDecimal() <> 0 then
-                if "Account No.".Value <> CustomerNo then begin
-                    Applied.SetValue(false);
-                    Next();
-                end;
+        PmtAppln.AllOpenBankTransactions.Invoke();
+        // check that it is the customer ledger entry and apply
+        if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then
+            if PmtAppln.AppliedAmount.AsDecimal() = 0 then
+                PmtAppln.AppliedAmount.SetValue(10);
 
-            AllOpenBankTransactions.Invoke();
-
-            // check that it is the customer ledger entry and apply
-            if RemainingAmountAfterPosting.AsDecimal() <> 0 then
-                if AppliedAmount.AsDecimal() = 0 then
-                    AppliedAmount.SetValue(10);
-
-            OK().Invoke();
-        end;
+        PmtAppln.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2979,26 +2942,22 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         VendorNo: Code[20];
     begin
         VendorNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(VendorNo));
+        // Remove Entry is not the same customer
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> VendorNo then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
+            end;
 
-        with PmtAppln do begin
-            // Remove Entry is not the same customer
-            if AppliedAmount.AsDecimal() <> 0 then
-                if "Account No.".Value <> VendorNo then begin
-                    Applied.SetValue(false);
-                    Next();
-                end;
+        PmtAppln.AllOpenPayments.Invoke();
+        // check that it is the customer ledger entry and apply
+        if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then
+            if PmtAppln.AppliedAmount.AsDecimal() = 0 then begin
+                PmtAppln.Applied.SetValue(true);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
 
-            AllOpenPayments.Invoke();
-
-            // check that it is the customer ledger entry and apply
-            if RemainingAmountAfterPosting.AsDecimal() <> 0 then
-                if AppliedAmount.AsDecimal() = 0 then begin
-                    Applied.SetValue(true);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
-
-            OK().Invoke();
-        end;
+        PmtAppln.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3008,24 +2967,20 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         VendorNo: Code[20];
     begin
         VendorNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(VendorNo));
+        // Remove Entry is not the same customer
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> VendorNo then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
+            end;
 
-        with PmtAppln do begin
-            // Remove Entry is not the same customer
-            if AppliedAmount.AsDecimal() <> 0 then
-                if "Account No.".Value <> VendorNo then begin
-                    Applied.SetValue(false);
-                    Next();
-                end;
+        PmtAppln.AllOpenPayments.Invoke();
+        // check that it is the customer ledger entry and apply
+        if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then
+            if PmtAppln.AppliedAmount.AsDecimal() = 0 then
+                PmtAppln.AppliedAmount.SetValue(-10);
 
-            AllOpenPayments.Invoke();
-
-            // check that it is the customer ledger entry and apply
-            if RemainingAmountAfterPosting.AsDecimal() <> 0 then
-                if AppliedAmount.AsDecimal() = 0 then
-                    AppliedAmount.SetValue(-10);
-
-            OK().Invoke();
-        end;
+        PmtAppln.OK().Invoke();
     end;
 
     local procedure CreateOneSaleOnePmtOutstream(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")

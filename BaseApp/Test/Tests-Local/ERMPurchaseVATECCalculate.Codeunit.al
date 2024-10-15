@@ -865,13 +865,11 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-            Validate("VAT %", LibraryRandom.RandDec(10, 2));
-            Validate("EC %", LibraryRandom.RandDec(10, 2));
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandDec(10, 2));
+        VATPostingSetup.Validate("EC %", LibraryRandom.RandDec(10, 2));
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateGLAccountWithPostingSetup(GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -879,15 +877,13 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Sale);
-            Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
@@ -1074,12 +1070,10 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendor(VATBusPostingGroup: Code[20]; CurrencyCode: Code[10]): Code[20]
@@ -1140,38 +1134,32 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GetPrepaymentInvoicesAmt(VendorNo: Code[20]) Result: Decimal
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange("Prepayment Invoice", true);
-            FindSet();
-            repeat
-                Result += GetPrepaymentInvoiceAmt("No.");
-            until Next() = 0;
-        end;
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchInvHeader.SetRange("Prepayment Invoice", true);
+        PurchInvHeader.FindSet();
+        repeat
+            Result += GetPrepaymentInvoiceAmt(PurchInvHeader."No.");
+        until PurchInvHeader.Next() = 0;
     end;
 
     local procedure GetPrepaymentInvoiceAmt(DocumentNo: Code[20]) Result: Decimal
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        with PurchInvLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                Result += "Amount Including VAT";
-            until Next() = 0;
-        end;
+        PurchInvLine.SetRange("Document No.", DocumentNo);
+        PurchInvLine.FindSet();
+        repeat
+            Result += PurchInvLine."Amount Including VAT";
+        until PurchInvLine.Next() = 0;
     end;
 
     local procedure OpenPurchaseInvoiceStatisticsPage(PurchaseStatisticsOption: Option; MaxVATDifferenceAllowed: Decimal; VATPct: Decimal; No: Code[20])
@@ -1203,10 +1191,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
     local procedure UpdatePurchaseDocPrepaymentPct(var PurchaseHeader: Record "Purchase Header"; NewPrepaymentPct: Decimal)
     begin
-        with PurchaseHeader do begin
-            Validate("Prepayment %", NewPrepaymentPct);
-            Modify();
-        end;
+        PurchaseHeader.Validate("Prepayment %", NewPrepaymentPct);
+        PurchaseHeader.Modify();
     end;
 
     local procedure UpdatePrepmtAccGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")

@@ -98,7 +98,7 @@ report 10710 "Make 349 Declaration"
                         VATCredSales.SetFilter("Gen. Prod. Posting Group", FilterString);
                         if VATCredSales.FindSet() then
                             repeat
-                                if IncludeIn349(VATCredSales, AmountToIncludein349, LocationDiffCountryCode) then begin
+                                if IncludeIn349(VATCredSales, AmountToIncludein349, LocationDiffCountryCode) then
                                     if (VATCredSales."Country/Region Code" <> CountryCode) or
                                        ((VATCredSales."Country/Region Code" = CountryCode) and LocationDiffCountryCode) and
                                        (VATCredSales."Country/Region Code" <> CompanyInfo."Country/Region Code")
@@ -108,7 +108,6 @@ report 10710 "Make 349 Declaration"
                                           VATCredSales."Document Type", VATCredSales."Document No.",
                                           VATCredSales."EU 3-Party Trade", VATCredSales."EU Service", VATCredSales.Base >= 0,
                                           VATCredSales."Entry No.", 0, VATCredSales."Delivery Operation Code", VATCredSales."Posting Date");
-                                end;
                             until VATCredSales.Next() = 0;
 
                         InsertCustWarningsFromSalesCrMemoLine();
@@ -147,7 +146,7 @@ report 10710 "Make 349 Declaration"
                         VATCredPurch.SetFilter("Gen. Prod. Posting Group", FilterString);
                         if VATCredPurch.FindSet() then
                             repeat
-                                if IncludeIn349(VATCredPurch, AmountToIncludein349, LocationDiffCountryCode) then begin
+                                if IncludeIn349(VATCredPurch, AmountToIncludein349, LocationDiffCountryCode) then
                                     if (VATCredPurch."Country/Region Code" <> CountryCode) or
                                        ((VATCredPurch."Country/Region Code" = CountryCode) and LocationDiffCountryCode) and
                                        (VATCredPurch."Country/Region Code" <> CompanyInfo."Country/Region Code")
@@ -156,7 +155,6 @@ report 10710 "Make 349 Declaration"
                                           Vendor2."No.", Vendor2.Name, VATCredPurch."VAT Reporting Date",
                                           VATCredPurch."Document Type", VATCredPurch."Document No.",
                                           VATCredPurch."EU 3-Party Trade", VATCredPurch."EU Service", VATCredPurch.Base >= 0, VATCredPurch."Entry No.", 0, VATCredPurch."Posting Date");
-                                end;
                             until VATCredPurch.Next() = 0;
 
                         InsertVendWarningsFromPurchCrMemoLine();
@@ -168,7 +166,7 @@ report 10710 "Make 349 Declaration"
 
             trigger OnPostDataItem()
             begin
-                if CustVendWarning349.FindFirst() then begin
+                if CustVendWarning349.FindFirst() then
                     if not Confirm(Text1100008, false) then
                         Message(Text1100009)
                     else begin
@@ -181,7 +179,6 @@ report 10710 "Make 349 Declaration"
                             Error(Text1100011);
                         end;
                     end;
-                end;
             end;
 
             trigger OnPreDataItem()
@@ -235,10 +232,10 @@ report 10710 "Make 349 Declaration"
                             VATInvSales.SetRange("EU 3-Party Trade", true);
                             if VATInvSales.FindSet() then
                                 repeat
-                                    if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then begin
+                                    if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then
                                         if (VATInvSales."Country/Region Code" <> CountryCode) or
                                            ((VATInvSales."Country/Region Code" = CountryCode) and LocationDiffCountryCode)
-                                        then begin
+                                        then
                                             if "VAT Registration No." <> '' then begin
                                                 if AmountToIncludein349 <> 0 then
                                                     AmountOpTri += AmountToIncludein349
@@ -246,33 +243,29 @@ report 10710 "Make 349 Declaration"
                                                     AmountOpTri += VATInvSales.Base;
                                             end else
                                                 EmptyVATRegNo := true;
-                                        end;
-                                    end;
                                 until VATInvSales.Next() = 0;
 
                             FilterVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, false, FilterString);
                             VATInvSales.SetRange("EU 3-Party Trade", false);
                             if VATInvSales.FindSet() then
                                 repeat
-                                    if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then begin
+                                    if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then
                                         if (VATInvSales."Country/Region Code" <> CountryCode) or
                                            ((VATInvSales."Country/Region Code" = CountryCode) and LocationDiffCountryCode)
-                                        then begin
+                                        then
                                             if "VAT Registration No." <> '' then
                                                 SummarizeBaseAmount(VATInvSales, AmountToIncludein349, Amount)
                                             else
                                                 EmptyVATRegNo := true;
-                                        end;
-                                    end;
                                 until VATInvSales.Next() = 0;
 
                             FilterVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, true, FilterString);
                             if VATInvSales.FindSet() then
                                 repeat
-                                    if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then begin
+                                    if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then
                                         if (VATInvSales."Country/Region Code" <> CountryCode) or
                                            ((VATInvSales."Country/Region Code" = CountryCode) and LocationDiffCountryCode)
-                                        then begin
+                                        then
                                             if "VAT Registration No." <> '' then begin
                                                 if AmountToIncludein349 <> 0 then
                                                     AmountEUService += AmountToIncludein349
@@ -280,8 +273,6 @@ report 10710 "Make 349 Declaration"
                                                     AmountEUService += VATInvSales.Base;
                                             end else
                                                 EmptyVATRegNo := true;
-                                        end;
-                                    end;
                                 until VATInvSales.Next() = 0;
 
                             NoTaxableAmountOpTri := 0;
@@ -308,10 +299,10 @@ report 10710 "Make 349 Declaration"
                                        ((CorrectedInvPostingDate >= FromDate) and (CorrectedInvPostingDate <= ToDate))
                                     then begin
                                         // Credit Memo corrects Invoice from the same period
-                                        if "VAT Registration No." <> '' then begin
+                                        if "VAT Registration No." <> '' then
                                             if CustVendWarning349."EU Service" then
                                                 CorrectAmountEU()
-                                            else begin
+                                            else
                                                 if CustVendWarning349."EU 3-Party Trade" then begin
                                                     AmountOpTri += CustVendWarning349."Original Declared Amount";
                                                     CorrIncludedForOpTriAmount := true;
@@ -319,8 +310,6 @@ report 10710 "Make 349 Declaration"
                                                     InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
                                                     SummarizeBaseAmount(VATEntry, -CustVendWarning349."Original Declared Amount", Amount);
                                                 end;
-                                            end;
-                                        end;
                                     end else begin
                                         // Credit Memo corrects Invoice from previous period OR Credit Memo does not correct any Invoice OR \
                                         // (Credit Memo corrects Invoice from previous period AND Original Declaration Period was not changed on Customer/Vendor Warnings 349)
@@ -403,7 +392,7 @@ report 10710 "Make 349 Declaration"
 
                                         Sign := CustVendWarning349.Sign;
 
-                                        if not (AlreadyExported and EUServiceAlreadyExported and ThirdPartyAlreadyExported) then begin
+                                        if not (AlreadyExported and EUServiceAlreadyExported and ThirdPartyAlreadyExported) then
                                             if "VAT Registration No." <> '' then begin
                                                 if CustVendWarning349."EU Service" then begin
                                                     TextAmount := CopyStr(FormatTextAmt(AccumOrigDeclAmountEUService), 3, 13);
@@ -439,10 +428,8 @@ report 10710 "Make 349 Declaration"
                                                                     TextAmount + TextAmount2 + PadStr('', 322, ' ');
                                                                 AppendLine(Txt);
                                                             end;
-
                                             end else
                                                 EmptyVATRegNo := true;
-                                        end;
                                     end;
                                 until CustVendWarning349.Next() = 0;
                         until Customer2.Next() = 0;
@@ -534,10 +521,10 @@ report 10710 "Make 349 Declaration"
                             VATInvPurch.SetRange("EU 3-Party Trade", true);
                             if VATInvPurch.FindSet() then
                                 repeat
-                                    if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then begin
+                                    if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then
                                         if (VATInvPurch."Country/Region Code" <> CountryCode) or
                                            ((VATInvPurch."Country/Region Code" = CountryCode) and LocationDiffCountryCode)
-                                        then begin
+                                        then
                                             if "VAT Registration No." <> '' then begin
                                                 if AmountToIncludein349 <> 0 then
                                                     AmountOpTri += AmountToIncludein349
@@ -545,18 +532,16 @@ report 10710 "Make 349 Declaration"
                                                     AmountOpTri += VATInvPurch.Base;
                                             end else
                                                 EmptyVATRegNo := true;
-                                        end;
-                                    end;
                                 until VATInvPurch.Next() = 0;
 
                             FilterVATInvPurchEntries(VATInvPurch, Vendor2."No.", FromDate, ToDate, false, FilterString);
                             VATInvPurch.SetRange("EU 3-Party Trade", false);
                             if VATInvPurch.FindSet() then
                                 repeat
-                                    if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then begin
+                                    if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then
                                         if (VATInvPurch."Country/Region Code" <> CountryCode) or
                                            ((VATInvPurch."Country/Region Code" = CountryCode) and LocationDiffCountryCode)
-                                        then begin
+                                        then
                                             if "VAT Registration No." <> '' then begin
                                                 if (AmountToIncludein349 <> 0) and ("Currency Code" = '') then
                                                     NormalAmount += AmountToIncludein349
@@ -564,17 +549,15 @@ report 10710 "Make 349 Declaration"
                                                     NormalAmount += VATInvPurch.Base;
                                             end else
                                                 EmptyVATRegNo := true;
-                                        end;
-                                    end;
                                 until VATInvPurch.Next() = 0;
 
                             FilterVATInvPurchEntries(VATInvPurch, Vendor2."No.", FromDate, ToDate, true, FilterString);
                             if VATInvPurch.FindSet() then
                                 repeat
-                                    if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then begin
+                                    if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then
                                         if (VATInvPurch."Country/Region Code" <> CountryCode) or
                                            ((VATInvPurch."Country/Region Code" = CountryCode) and LocationDiffCountryCode)
-                                        then begin
+                                        then
                                             if "VAT Registration No." <> '' then begin
                                                 if (AmountToIncludein349 <> 0) and ("Currency Code" = '') then
                                                     AmountEUService += AmountToIncludein349
@@ -582,8 +565,6 @@ report 10710 "Make 349 Declaration"
                                                     AmountEUService += VATInvPurch.Base;
                                             end else
                                                 EmptyVATRegNo := true;
-                                        end;
-                                    end;
                                 until VATInvPurch.Next() = 0;
 
                             CalcNoTaxableAmountVendor(NormalAmount, AmountEUService, Vendor2."No.", FromDate, ToDate, FilterString);
@@ -602,17 +583,15 @@ report 10710 "Make 349 Declaration"
                                     ((CorrectedInvPostingDate >= FromDate) and (CorrectedInvPostingDate <= ToDate))
                                     then begin
                                         // Credit Memo corrects Invoice from the same period
-                                        if "VAT Registration No." <> '' then begin
+                                        if "VAT Registration No." <> '' then
                                             if CustVendWarning349."EU Service" then
                                                 CorrectAmountEU()
-                                            else begin
+                                            else
                                                 if CustVendWarning349."EU 3-Party Trade" then begin
                                                     AmountOpTri -= CustVendWarning349."Original Declared Amount";
                                                     CorrIncludedForOpTriAmount := true;
                                                 end else
                                                     CorrectAmountPurchNoEU();
-                                            end;
-                                        end;
                                     end else begin
                                         // Credit Memo corrects Invoice from previous period OR Credit Memo does not correct any Invoice OR \
                                         // (Credit Memo corrects Invoice from previous period AND Original Declaration Period was not changed on Customer/Vendor Warnings 349)
@@ -691,7 +670,7 @@ report 10710 "Make 349 Declaration"
                                         Sign := CustVendWarning349.Sign;
 
                                         if not (AlreadyExported and EUServiceAlreadyExported and ThirdPartyAlreadyExported) then begin
-                                            if "VAT Registration No." <> '' then begin
+                                            if "VAT Registration No." <> '' then
                                                 if CustVendWarning349."EU Service" then begin
                                                     TextAmount := CopyStr(FormatTextAmt(AccumOrigDeclAmountEUService), 3, 13);
                                                     TextAmount2 := CopyStr(FormatTextAmt(AccumPrevDeclAmountEUService), 3, 13);
@@ -724,9 +703,8 @@ report 10710 "Make 349 Declaration"
                                                             TextAmount + TextAmount2 + PadStr('', 322, ' ');
                                                         AppendLine(Txt);
                                                     end;
-                                            end else
-                                                EmptyVATRegNo := true;
-                                        end;
+                                        end else
+                                            EmptyVATRegNo := true;
                                     end;
                                 until CustVendWarning349.Next() = 0;
                         until Vendor2.Next() = 0;
@@ -786,7 +764,7 @@ report 10710 "Make 349 Declaration"
 
             trigger OnPreDataItem()
             begin
-                if EmptyVATRegNo then begin
+                if EmptyVATRegNo then
                     if not Confirm(StrSubstNo(Text1100015, Customer.TableCaption(), Vendor.TableCaption(),
                            Customer.FieldCaption("VAT Registration No.")), false)
                     then begin
@@ -797,7 +775,6 @@ report 10710 "Make 349 Declaration"
                         Erase(FileName);
                         Error(Text1100011);
                     end;
-                end;
             end;
         }
     }
@@ -1019,7 +996,7 @@ report 10710 "Make 349 Declaration"
         NewEncoding := NewEncoding.GetEncoding(NewEncodingCode);
         DotNetEncoding.SetEncoding(NewEncoding);
         FileContents := FileManagement.GetFileContents(FileName);
-        IF not Erase(FileName) then
+        if not Erase(FileName) then
             exit;
         OutFile.Create(FileName);
         OutFile.CreateOutStream(OutStr);
@@ -1212,7 +1189,7 @@ report 10710 "Make 349 Declaration"
 
         AmountIn349 := 0;
         VATEntryEUCountryRegCode := FindEUCountryRegionCode(VATEntry."Country/Region Code");
-        if VATEntryEUCountryRegCode then begin
+        if VATEntryEUCountryRegCode then
             if CompInfShipToCountryRegCode then begin
                 if AllLocationsAreEU then
                     exit(true);
@@ -1227,7 +1204,6 @@ report 10710 "Make 349 Declaration"
                 if EUCountryInLocCodeHeader or EUCountryInLocCodeLines then
                     exit(true);
             end;
-        end;
     end;
 
     local procedure AppendLine(Content: Text)
@@ -1293,7 +1269,7 @@ report 10710 "Make 349 Declaration"
                         begin
                             SourceCodeSetup.Get();
                             if VATEntry."Source Code" = SourceCodeSetup.Sales then begin
-                                if SalesInvHeader.Get(DocNo) then begin
+                                if SalesInvHeader.Get(DocNo) then
                                     if SalesInvHeader."Location Code" <> '' then begin
                                         if Location.Get(SalesInvHeader."Location Code") then begin
                                             EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
@@ -1336,8 +1312,7 @@ report 10710 "Make 349 Declaration"
                                                 until SalesInvLines.Next() = 0;
                                         end;
                                     end;
-                                end;
-                            end else begin
+                            end else
                                 if ServiceInvHeader.Get(DocNo) then begin
                                     if ServiceInvHeader."Location Code" <> '' then begin
                                         if Location.Get(ServiceInvHeader."Location Code") then begin
@@ -1381,14 +1356,13 @@ report 10710 "Make 349 Declaration"
                                     GetSalesEntryPostedByJournal(
                                       DocNo, AmountToIncludeIn349,
                                       EUCountryLinesLocationCode, CompInforShipToCountryCode);
-                            end;
                             AmountToIncludeIn349 := -AmountToIncludeIn349;
                         end;
                     VATEntry."Document Type"::"Credit Memo":
                         begin
                             SourceCodeSetup.Get();
                             if VATEntry."Source Code" = SourceCodeSetup.Sales then begin
-                                if SalesCrMemoHeader.Get(DocNo) then begin
+                                if SalesCrMemoHeader.Get(DocNo) then
                                     if SalesCrMemoHeader."Location Code" <> '' then begin
                                         if Location.Get(SalesCrMemoHeader."Location Code") then begin
                                             EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
@@ -1414,8 +1388,7 @@ report 10710 "Make 349 Declaration"
                                                         EUCountryLinesLocationCode := true;
                                             until SalesCrMemoLine.Next() = 0;
                                     end;
-                                end;
-                            end else begin
+                            end else
                                 if ServiceCrMemoHeader.Get(DocNo) then begin
                                     if ServiceCrMemoHeader."Location Code" <> '' then begin
                                         if Location.Get(ServiceCrMemoHeader."Location Code") then begin
@@ -1446,95 +1419,90 @@ report 10710 "Make 349 Declaration"
                                     CustLedgeEntry.SetRange("Document Type", CustLedgeEntry."Document Type"::"Credit Memo");
                                     EUCountryLinesLocationCode := (not CustLedgeEntry.IsEmpty) and CompInforShipToCountryCode;
                                 end;
-                            end;
                         end;
                 end;
             VATEntry.Type::Purchase:
                 case VATEntry."Document Type" of
                     VATEntry."Document Type"::Invoice:
-                        begin
-                            if PurchInvHeader.Get(DocNo) then begin
-                                if PurchInvHeader."Location Code" <> '' then begin
-                                    if Location.Get(PurchInvHeader."Location Code") then begin
-                                        EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                        LocationDifferentCountryCode :=
-                                          IsPurchsLocationDifferentCountryCode(
-                                            EUCountryHeaderLocationCode, PurchInvHeader."Pay-to Vendor No.", PurchInvHeader."Location Code");
-                                    end;
-                                end else begin
-                                    TempPurchInvLines.SetRange("Document No.", DocNo);
-                                    TempPurchInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
-                                    TempPurchInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
-                                    if not TempPurchInvLines.FindFirst() then begin
-                                        PurchInvLines.SetRange("Document No.", DocNo);
-                                        PurchInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
-                                        PurchInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
-                                        if PurchInvLines.FindSet() then
-                                            repeat
-                                                if PurchInvLines."Location Code" <> '' then begin
-                                                    if Location.Get(PurchInvLines."Location Code") then
-                                                        EUCountryLinesLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                                    if EUCountryLinesLocationCode then begin
-                                                        AmountToIncludeIn349 +=
-                                                          GetExportedAmountIn349(PurchInvHeader."Currency Code",
-                                                            PurchInvHeader."Currency Factor", PurchInvLines.Amount);
-                                                        LocationDifferentCountryCode :=
-                                                          IsPurchsLocationDifferentCountryCode(
-                                                            true, PurchInvLines."Pay-to Vendor No.", PurchInvLines."Location Code");
-                                                        TempPurchInvLines := PurchInvLines;
-                                                        TempPurchInvLines.Insert();
-                                                    end;
-                                                end else
-                                                    if CompInforShipToCountryCode then begin
-                                                        EUCountryLinesLocationCode := true;
-                                                        AmountToIncludeIn349 +=
-                                                          GetExportedAmountIn349(PurchInvHeader."Currency Code",
-                                                            PurchInvHeader."Currency Factor", PurchInvLines.Amount);
-                                                        TempPurchInvLines := PurchInvLines;
-                                                        TempPurchInvLines.Insert();
-                                                    end;
-                                            until PurchInvLines.Next() = 0;
-                                    end;
-                                end;
-                            end else
-                                GetPurchEntryPostedByJournal(
-                                  DocNo, AmountToIncludeIn349,
-                                  EUCountryLinesLocationCode, CompInforShipToCountryCode);
-                        end;
-                    VATEntry."Document Type"::"Credit Memo":
-                        begin
-                            if PurchCrMemoHdr.Get(DocNo) then begin
-                                if PurchCrMemoHdr."Location Code" <> '' then begin
-                                    if Location.Get(PurchCrMemoHdr."Location Code") then begin
-                                        EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                        LocationDifferentCountryCode :=
-                                          IsPurchsLocationDifferentCountryCode(
-                                            EUCountryHeaderLocationCode, PurchCrMemoHdr."Pay-to Vendor No.", PurchCrMemoHdr."Location Code");
-                                    end;
-                                end else begin
-                                    PurchCrMemoLine.SetRange("Document No.", DocNo);
-                                    PurchCrMemoLine.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
-                                    PurchCrMemoLine.SetRange("VAT Prod. Posting Group", VATPPG);
-                                    if PurchCrMemoLine.Find('-') then
-                                        repeat
-                                            if PurchCrMemoLine."Location Code" <> '' then begin
-                                                if Location.Get(PurchCrMemoLine."Location Code") then begin
-                                                    EUCountryLinesLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                                    LocationDifferentCountryCode :=
-                                                      IsPurchsLocationDifferentCountryCode(
-                                                        EUCountryHeaderLocationCode, PurchCrMemoLine."Pay-to Vendor No.", PurchCrMemoLine."Location Code");
-                                                end;
-                                            end else
-                                                if CompInforShipToCountryCode then
-                                                    EUCountryLinesLocationCode := true;
-                                        until PurchCrMemoLine.Next() = 0;
+                        if PurchInvHeader.Get(DocNo) then begin
+                            if PurchInvHeader."Location Code" <> '' then begin
+                                if Location.Get(PurchInvHeader."Location Code") then begin
+                                    EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
+                                    LocationDifferentCountryCode :=
+                                        IsPurchsLocationDifferentCountryCode(
+                                        EUCountryHeaderLocationCode, PurchInvHeader."Pay-to Vendor No.", PurchInvHeader."Location Code");
                                 end;
                             end else begin
-                                VendLedgerEntry.SetFilter("Journal Batch Name", '<>%1', '');
-                                VendLedgerEntry.SetRange("Document No.", DocNo);
-                                VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::"Credit Memo");
-                                EUCountryLinesLocationCode := (not VendLedgerEntry.IsEmpty) and CompInforShipToCountryCode;
+                                TempPurchInvLines.SetRange("Document No.", DocNo);
+                                TempPurchInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
+                                TempPurchInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
+                                if not TempPurchInvLines.FindFirst() then begin
+                                    PurchInvLines.SetRange("Document No.", DocNo);
+                                    PurchInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
+                                    PurchInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
+                                    if PurchInvLines.FindSet() then
+                                        repeat
+                                            if PurchInvLines."Location Code" <> '' then begin
+                                                if Location.Get(PurchInvLines."Location Code") then
+                                                    EUCountryLinesLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
+                                                if EUCountryLinesLocationCode then begin
+                                                    AmountToIncludeIn349 +=
+                                                        GetExportedAmountIn349(PurchInvHeader."Currency Code",
+                                                        PurchInvHeader."Currency Factor", PurchInvLines.Amount);
+                                                    LocationDifferentCountryCode :=
+                                                        IsPurchsLocationDifferentCountryCode(
+                                                        true, PurchInvLines."Pay-to Vendor No.", PurchInvLines."Location Code");
+                                                    TempPurchInvLines := PurchInvLines;
+                                                    TempPurchInvLines.Insert();
+                                                end;
+                                            end else
+                                                if CompInforShipToCountryCode then begin
+                                                    EUCountryLinesLocationCode := true;
+                                                    AmountToIncludeIn349 +=
+                                                        GetExportedAmountIn349(PurchInvHeader."Currency Code",
+                                                        PurchInvHeader."Currency Factor", PurchInvLines.Amount);
+                                                    TempPurchInvLines := PurchInvLines;
+                                                    TempPurchInvLines.Insert();
+                                                end;
+                                        until PurchInvLines.Next() = 0;
+                                end;
                             end;
+                        end else
+                            GetPurchEntryPostedByJournal(
+                                DocNo, AmountToIncludeIn349,
+                                EUCountryLinesLocationCode, CompInforShipToCountryCode);
+                    VATEntry."Document Type"::"Credit Memo":
+                        if PurchCrMemoHdr.Get(DocNo) then begin
+                            if PurchCrMemoHdr."Location Code" <> '' then begin
+                                if Location.Get(PurchCrMemoHdr."Location Code") then begin
+                                    EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
+                                    LocationDifferentCountryCode :=
+                                        IsPurchsLocationDifferentCountryCode(
+                                        EUCountryHeaderLocationCode, PurchCrMemoHdr."Pay-to Vendor No.", PurchCrMemoHdr."Location Code");
+                                end;
+                            end else begin
+                                PurchCrMemoLine.SetRange("Document No.", DocNo);
+                                PurchCrMemoLine.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
+                                PurchCrMemoLine.SetRange("VAT Prod. Posting Group", VATPPG);
+                                if PurchCrMemoLine.Find('-') then
+                                    repeat
+                                        if PurchCrMemoLine."Location Code" <> '' then begin
+                                            if Location.Get(PurchCrMemoLine."Location Code") then begin
+                                                EUCountryLinesLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
+                                                LocationDifferentCountryCode :=
+                                                    IsPurchsLocationDifferentCountryCode(
+                                                    EUCountryHeaderLocationCode, PurchCrMemoLine."Pay-to Vendor No.", PurchCrMemoLine."Location Code");
+                                            end;
+                                        end else
+                                            if CompInforShipToCountryCode then
+                                                EUCountryLinesLocationCode := true;
+                                    until PurchCrMemoLine.Next() = 0;
+                            end;
+                        end else begin
+                            VendLedgerEntry.SetFilter("Journal Batch Name", '<>%1', '');
+                            VendLedgerEntry.SetRange("Document No.", DocNo);
+                            VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::"Credit Memo");
+                            EUCountryLinesLocationCode := (not VendLedgerEntry.IsEmpty) and CompInforShipToCountryCode;
                         end;
                 end;
         end;
@@ -1846,11 +1814,9 @@ report 10710 "Make 349 Declaration"
                             exit(ServiceInvoiceHeader."Posting Date");
                 end;
             CustVendWarning349.Type::Purchase:
-                begin
-                    if PurchCrMemoHeader.Get(CustVendWarning349."Document No.") then
-                        if PurchInvHeader.Get(PurchCrMemoHeader."Corrected Invoice No.") then
-                            exit(PurchInvHeader."Posting Date");
-                end;
+                if PurchCrMemoHeader.Get(CustVendWarning349."Document No.") then
+                    if PurchInvHeader.Get(PurchCrMemoHeader."Corrected Invoice No.") then
+                        exit(PurchInvHeader."Posting Date");
         end;
 
         exit(0D);

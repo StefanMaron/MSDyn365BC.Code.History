@@ -474,20 +474,18 @@ codeunit 144010 "ELECPMTS Transfer Type"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
-        with VendorBankAccount do begin
-            Validate("Country/Region Code", CountryCode);
-            Validate("Use For Electronic Payments", UseForEpay);
-            Validate("CCC Bank No.",
-              LibraryUtility.GenerateRandomCode(FieldNo("CCC Bank No."), DATABASE::"Vendor Bank Account"));
-            Validate("CCC Bank Branch No.",
-              LibraryUtility.GenerateRandomCode(FieldNo("CCC Bank Branch No."), DATABASE::"Vendor Bank Account"));
-            Validate("CCC Control Digits",
-              LibraryUtility.GenerateRandomCode(FieldNo("CCC Control Digits"), DATABASE::"Vendor Bank Account"));
-            Validate("CCC Bank Account No.",
-              LibraryUtility.GenerateRandomCode(FieldNo("CCC Bank Account No."), DATABASE::"Vendor Bank Account"));
-            Modify();
-            exit(Code);
-        end;
+        VendorBankAccount.Validate("Country/Region Code", CountryCode);
+        VendorBankAccount.Validate("Use For Electronic Payments", UseForEpay);
+        VendorBankAccount.Validate("CCC Bank No.",
+          LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("CCC Bank No."), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Validate("CCC Bank Branch No.",
+          LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("CCC Bank Branch No."), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Validate("CCC Control Digits",
+          LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("CCC Control Digits"), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Validate("CCC Bank Account No.",
+          LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("CCC Bank Account No."), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Modify();
+        exit(VendorBankAccount.Code);
     end;
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; UnitCost: Decimal)

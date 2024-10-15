@@ -34,7 +34,7 @@ table 7000013 "Cartera Report Selections"
         }
         field(4; "Report Name"; Text[30])
         {
-            CalcFormula = Lookup(Object.Name where(Type = const(Report),
+            CalcFormula = lookup(Object.Name where(Type = const(Report),
                                                     ID = field("Report ID")));
             Caption = 'Report Name';
             Editable = false;

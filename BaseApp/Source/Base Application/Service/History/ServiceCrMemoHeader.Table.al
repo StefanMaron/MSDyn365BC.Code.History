@@ -814,7 +814,7 @@ table 5994 "Service Cr.Memo Header"
         }
         field(10706; "SII Status"; Enum "SII Document Status")
         {
-            CalcFormula = Lookup("SII Doc. Upload State".Status where("Document Source" = const("Customer Ledger"),
+            CalcFormula = lookup("SII Doc. Upload State".Status where("Document Source" = const("Customer Ledger"),
                                                                        "Document Type" = const("Credit Memo"),
                                                                        "Document No." = field("No.")));
             Caption = 'SII Status';
@@ -920,13 +920,8 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'Pay-at Code';
             TableRelation = "Customer Pmt. Address".Code where("Customer No." = field("Bill-to Customer No."));
             ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
     }
 
@@ -1121,6 +1116,15 @@ table 5994 "Service Cr.Memo Header"
         end;
     end;
 
+    procedure OpenStatistics()
+    var
+        StatPageID: Integer;
+    begin
+        StatPageID := Page::"Service Credit Memo Statistics";
+        OnOpenStatisticsOnAfterSetStatPageID(Rec, StatPageID);
+        Page.RunModal(StatPageID, Rec);
+    end;
+
     procedure GetDocExchStatusStyle(): Text
     begin
         case "Document Exchange Status" of
@@ -1180,6 +1184,11 @@ table 5994 "Service Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRecords(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var StatPageID: Integer);
     begin
     end;
 }

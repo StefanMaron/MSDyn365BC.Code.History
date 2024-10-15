@@ -5,7 +5,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
-using Microsoft;
 
 table 366 "Analysis View Budget Entry"
 {
@@ -77,7 +76,6 @@ table 366 "Analysis View Budget Entry"
         field(10720; "Old G/L Account No."; Code[20])
         {
             Caption = 'Old G/L Account No.';
-            TableRelation = "Historic G/L Account"."No.";
         }
         field(10721; Updated; Boolean)
         {

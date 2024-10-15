@@ -79,7 +79,7 @@ table 7000005 "Bill Group"
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup("Bank Account".Name where("No." = field("Bank Account No.")));
+            CalcFormula = lookup("Bank Account".Name where("No." = field("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;

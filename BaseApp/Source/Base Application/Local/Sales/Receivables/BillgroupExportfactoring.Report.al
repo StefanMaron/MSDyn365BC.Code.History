@@ -281,12 +281,11 @@ report 7000089 "Bill group - Export factoring"
         GLSetup.Get();
         if Doc."Currency Code" = '' then
             Code := CopyStr(GLSetup."LCY Code", 1, 3)
-        else begin
+        else
             if StrLen(Doc."Currency Code") > 3 then
                 Code := CopyStr(Doc."Currency Code", 1, 3)
             else
                 Code := PadStr(Doc."Currency Code", 3, ' ');
-        end;
     end;
 
     [Scope('OnPrem')]

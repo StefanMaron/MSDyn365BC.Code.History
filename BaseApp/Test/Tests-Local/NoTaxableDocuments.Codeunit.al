@@ -23,7 +23,6 @@ codeunit 147515 "No Taxable Documents"
         Assert: Codeunit Assert;
         LibrarySII: Codeunit "Library - SII";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        VATCalcTypeMustBeErr: Label 'VAT Calculation Type must be equal to ''No Taxable VAT''  in VAT Posting Setup';
         NoTaxableEntryIsNotFoundErr: Label 'No Taxable is not found.';
         NoTaxableEntryShouldNotBeCreatedErr: Label 'No Taxable Entry should not be created.';
         CarteraDocShouldNotBeCreatedErr: Label ' Cartera Doc should not be created.';
@@ -819,8 +818,7 @@ codeunit 147515 "No Taxable Documents"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Error appeared: "VAT Calculation Type must be No Taxable VAT"
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(VATCalcTypeMustBeErr);
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]
@@ -845,8 +843,7 @@ codeunit 147515 "No Taxable Documents"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Error appeared: "VAT Calculation Type must be No Taxable VAT"
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(VATCalcTypeMustBeErr);
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]
@@ -875,8 +872,7 @@ codeunit 147515 "No Taxable Documents"
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, true, true);
 
         // [THEN] Error appeared: "VAT Calculation Type must be No Taxable VAT"
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(VATCalcTypeMustBeErr);
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]
@@ -906,8 +902,7 @@ codeunit 147515 "No Taxable Documents"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Error appeared: "VAT Calculation Type must be No Taxable VAT"
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(VATCalcTypeMustBeErr);
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]

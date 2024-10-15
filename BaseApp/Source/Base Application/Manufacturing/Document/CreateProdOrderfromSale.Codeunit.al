@@ -1,6 +1,7 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Sales.Document;
@@ -16,12 +17,17 @@ codeunit 99000792 "Create Prod. Order from Sale"
         UOMMgt: Codeunit "Unit of Measure Management";
         HideValidationDialog: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 Prod. Order %2 has been created.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateProductionOrder(SalesLine: Record "Sales Line"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Enum "Create Production Order Type")
     var
         ProdOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
+        TrackingSpecification: Record "Tracking Specification";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         CreateProdOrderLines: Codeunit "Create Prod. Order Lines";
         ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
@@ -47,7 +53,8 @@ codeunit 99000792 "Create Prod. Order from Sale"
             ProdOrder.Validate("Source No.", SalesLine."Document No.");
             ProdOrder."Due Date" := SalesLine."Shipment Date";
             ProdOrder."Ending Date" :=
-              LeadTimeMgt.PlannedEndingDate(SalesLine."No.", SalesLine."Location Code", '', ProdOrder."Due Date", '', 2);
+              LeadTimeMgt.GetPlannedEndingDate(
+                SalesLine."No.", SalesLine."Location Code", '', ProdOrder."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
         end else begin
             OnCreateProductionOrderOnBeforeItemOrder(ProdOrder, SalesLine);
             ProdOrder."Due Date" := SalesLine."Shipment Date";
@@ -96,7 +103,11 @@ codeunit 99000792 "Create Prod. Order from Sale"
                         ReservQty := Round(ProdOrderLine."Remaining Qty. (Base)" / SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                         ReservQtyBase := ProdOrderLine."Remaining Qty. (Base)";
                     end;
-                    SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
+                    TrackingSpecification.InitTrackingSpecification(
+                        Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+                        ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
+                    SalesLineReserve.BindToTracking(
+                        SalesLine, TrackingSpecification, ProdOrderLine.Description, ProdOrderLine."Ending Date", ReservQty, ReservQtyBase);
                     UpdateSalesLineReserve(SalesLine, ProdOrderLine);
                     OnCreateProductionOrderOnBeforeProdOrderLineModify(ProdOrderLine, SalesLine, ProdOrder, SalesLineReserve);
                     ProdOrderLine.Modify();

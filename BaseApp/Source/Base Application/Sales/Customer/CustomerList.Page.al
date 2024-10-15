@@ -6,6 +6,7 @@ using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Comment;
 using Microsoft.Integration.D365Sales;
@@ -24,9 +25,6 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Reports;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
 using System.Automation;
 using System.Email;
 using System.Integration.PowerBI;
@@ -316,10 +314,24 @@ page 22 "Customer List"
                 SubPageLink = "No." = field("No.");
                 Visible = CRMIsCoupledToRecord and CRMIntegrationEnabled;
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Customer),
+                              "No." = field("No.");
+                Visible = not IsOfficeAddin;
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Customer),
                               "No." = field("No.");
                 Visible = not IsOfficeAddin;
@@ -373,26 +385,6 @@ page 22 "Customer List"
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = field("No.");
                 Visible = true;
-            }
-            part(Control1907829707; "Service Hist. Sell-to FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = field("No."),
-                              "Currency Filter" = field("Currency Filter"),
-                              "Date Filter" = field("Date Filter"),
-                              "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
-                              "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
-                Visible = false;
-            }
-            part(Control1902613707; "Service Hist. Bill-to FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = field("No."),
-                              "Currency Filter" = field("Currency Filter"),
-                              "Date Filter" = field("Date Filter"),
-                              "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
-                              "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
-                Visible = false;
             }
             systempart(Control1900383207; Links)
             {
@@ -504,21 +496,15 @@ page 22 "Customer List"
                     RunPageLink = "Customer No." = field("No.");
                     ToolTip = 'View or edit alternate shipping addresses where the customer wants items delivered if different from the regular address.';
                 }
-#if not CLEAN22
-                action("Payment A&ddresses")
+                action(AlternativeVATRegistration)
                 {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Payment A&ddresses';
-                    Image = Addresses;
-                    RunObject = Page "Customer Pmt. Address List";
+                    ApplicationArea = VAT;
+                    Caption = 'Alternative VAT Registration';
+                    Image = VATPostingSetup;
+                    RunObject = Page "Alt. Cust. VAT Reg.";
                     RunPageLink = "Customer No." = field("No.");
-                    ToolTip = 'View or edit customers'' payment address. If necessary, you can assign more than one payment address to a customer record. The payment addresses are listed by customer number.';
-                    Visible = false;
-                    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
+                    ToolTip = 'View or set up an alternative VAT registration number for the customer.';
                 }
-#endif
                 action("C&ontact")
                 {
                     AccessByPermission = TableData Contact = R;
@@ -811,7 +797,7 @@ page 22 "Customer List"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                    ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                     trigger OnAction()
                     var
@@ -848,7 +834,7 @@ page 22 "Customer List"
                     RunPageLink = Code = field("Invoice Disc. Code");
                     ToolTip = 'Set up different discounts that are applied to invoices for the customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(Sales_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -973,41 +959,6 @@ page 22 "Customer List"
                     ToolTip = 'Open the list of ongoing blanket orders.';
                 }
             }
-            group(Service)
-            {
-                Caption = 'Service';
-                Image = ServiceItem;
-                action("Service Orders")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service Orders';
-                    Image = Document;
-                    RunObject = Page "Service Orders";
-                    RunPageLink = "Customer No." = field("No.");
-                    RunPageView = sorting("Document Type", "Customer No.");
-                    ToolTip = 'Open the list of ongoing service orders.';
-                }
-                action("Ser&vice Contracts")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Ser&vice Contracts';
-                    Image = ServiceAgreement;
-                    RunObject = Page "Customer Service Contracts";
-                    RunPageLink = "Customer No." = field("No.");
-                    RunPageView = sorting("Customer No.", "Ship-to Code");
-                    ToolTip = 'Open the list of ongoing service contracts.';
-                }
-                action("Service &Items")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service &Items';
-                    Image = ServiceItem;
-                    RunObject = Page "Service Items";
-                    RunPageLink = "Customer No." = field("No.");
-                    RunPageView = sorting("Customer No.", "Ship-to Code", "Item No.", "Serial No.");
-                    ToolTip = 'View or edit the service items that are registered for the customer.';
-                }
-            }
         }
         area(creation)
         {
@@ -1070,46 +1021,6 @@ page 22 "Customer List"
                 RunPageLink = "Sell-to Customer No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new sales return order for items or services.';
-            }
-            action(NewServiceQuote)
-            {
-                ApplicationArea = Service;
-                Caption = 'Service Quote';
-                Image = Quote;
-                RunObject = Page "Service Quote";
-                RunPageLink = "Customer No." = field("No.");
-                RunPageMode = Create;
-                ToolTip = 'Create a new service quote for the customer.';
-            }
-            action(NewServiceInvoice)
-            {
-                ApplicationArea = Service;
-                Caption = 'Service Invoice';
-                Image = Invoice;
-                RunObject = Page "Service Invoice";
-                RunPageLink = "Customer No." = field("No.");
-                RunPageMode = Create;
-                ToolTip = 'Create a new service invoice for the customer.';
-            }
-            action(NewServiceOrder)
-            {
-                ApplicationArea = Service;
-                Caption = 'Service Order';
-                Image = Document;
-                RunObject = Page "Service Order";
-                RunPageLink = "Customer No." = field("No.");
-                RunPageMode = Create;
-                ToolTip = 'Create a new service order for the customer.';
-            }
-            action(NewServiceCrMemo)
-            {
-                ApplicationArea = Service;
-                Caption = 'Service Credit Memo';
-                Image = CreditMemo;
-                RunObject = Page "Service Credit Memo";
-                RunPageLink = "Customer No." = field("No.");
-                RunPageMode = Create;
-                ToolTip = 'Create a new service credit memo for the customer.';
             }
             action(NewReminder)
             {
@@ -1203,7 +1114,7 @@ page 22 "Customer List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1722,7 +1633,7 @@ page 22 "Customer List"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 8.';
 
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_Prices_Promoted; Prices_Prices)
                 {
                     ObsoleteState = Pending;
@@ -1730,7 +1641,7 @@ page 22 "Customer List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_LineDiscounts_Promoted; Prices_LineDiscounts)
                 {
                     ObsoleteState = Pending;
@@ -1765,7 +1676,7 @@ page 22 "Customer List"
                 actionref("Customer - Order Summary_Promoted"; "Customer - Order Summary")
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Customer - Sales List_Promoted"; "Customer - Sales List")
                 {
                     Visible = false;
@@ -1916,7 +1827,7 @@ page 22 "Customer List"
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, EventFilter);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var

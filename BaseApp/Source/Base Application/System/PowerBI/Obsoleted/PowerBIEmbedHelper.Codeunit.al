@@ -217,19 +217,31 @@ codeunit 6299 "Power BI Embed Helper"
     [TryFunction]
     procedure TryGetLoadReportMessage(var LoadReportMessage: Text)
     var
-        AccessToken: Text;
+        Result: SecretText;
+    begin
+        Result := LoadReportMessage;
+        TryGetLoadReportMessage(Result);
+        LoadReportMessage := Result.Unwrap();
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    [TryFunction]
+    procedure TryGetLoadReportMessage(var LoadReportMessage: SecretText)
+    var
+        AccessToken: SecretText;
         HttpUtility: DotNet HttpUtility;
     begin
         AccessToken := HttpUtility.JavaScriptStringEncode(
-            AzureAdMgt.GetAccessToken(PowerBiServiceMgt.GetPowerBIResourceUrl(), PowerBiServiceMgt.GetPowerBiResourceName(), false)
+            AzureAdMgt.GetAccessTokenAsSecretText(PowerBiServiceMgt.GetPowerBIResourceUrl(), PowerBiServiceMgt.GetPowerBiResourceName(), false).Unwrap()
             );
 
-        if AccessToken = '' then begin
+        if AccessToken.IsEmpty() then begin
             Session.LogMessage('0000FT0', EmptyAccessTokenForPBITelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
             Error(FailedAuthErr);
         end;
 
-        LoadReportMessage := StrSubstNo(LoadReportMessageJsonTxt, AccessToken);
+        LoadReportMessage := SecretStrSubstNo(LoadReportMessageJsonTxt, AccessToken);
     end;
 
     procedure IsIgnoredEventUrl(EventUrl: Text): Boolean

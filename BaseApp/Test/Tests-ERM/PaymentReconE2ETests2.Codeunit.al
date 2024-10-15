@@ -2032,15 +2032,13 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     local procedure CreateBankAccReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; BankAccReconciliation: Record "Bank Acc. Reconciliation"; VendorNo: Code[20]; InvoiceNo: Code[20]; StatementAmount: Decimal)
     begin
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        with BankAccReconciliationLine do begin
-            Validate("Transaction Date", WorkDate());
-            Validate("Transaction Text", InvoiceNo);
-            Validate("Document No.", LibraryUtility.GenerateGUID());
-            Validate("Statement Amount", StatementAmount);
-            Validate("Account Type", "Account Type"::Vendor);
-            Validate("Account No.", VendorNo);
-            Modify(true);
-        end;
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
+        BankAccReconciliationLine.Validate("Transaction Text", InvoiceNo);
+        BankAccReconciliationLine.Validate("Document No.", LibraryUtility.GenerateGUID());
+        BankAccReconciliationLine.Validate("Statement Amount", StatementAmount);
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::Vendor);
+        BankAccReconciliationLine.Validate("Account No.", VendorNo);
+        BankAccReconciliationLine.Modify(true);
     end;
 
     local procedure CreateBankAccReconSetCopyVATSetupInJnlLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; CopyVATSetupToJnlLine: Boolean)
@@ -2058,19 +2056,17 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GLAccNo: Code[20];
     begin
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        with BankAccReconciliationLine do begin
-            Validate("Transaction Date", WorkDate());
-            Validate("Document No.", LibraryUtility.GenerateGUID());
-            Validate(Description, "Document No.");
-            Validate("Statement Amount", LibraryRandom.RandDec(100, 2));
-            Validate("Account Type", "Account Type"::"G/L Account");
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-            GLAccNo :=
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
-            Validate("Account No.", GLAccNo);
-            Modify(true);
-            TransferRemainingAmountToAccount();
-        end;
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
+        BankAccReconciliationLine.Validate("Document No.", LibraryUtility.GenerateGUID());
+        BankAccReconciliationLine.Validate(Description, BankAccReconciliationLine."Document No.");
+        BankAccReconciliationLine.Validate("Statement Amount", LibraryRandom.RandDec(100, 2));
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::"G/L Account");
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        GLAccNo :=
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
+        BankAccReconciliationLine.Validate("Account No.", GLAccNo);
+        BankAccReconciliationLine.Modify(true);
+        BankAccReconciliationLine.TransferRemainingAmountToAccount();
     end;
 
     local procedure CopyApplRulesToTemp(var TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary)
@@ -2196,12 +2192,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocNo: Code[20]; GLAccNo: Code[20])
@@ -2261,18 +2255,16 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         CreateVendAndPostPurchInvoice(VendLedgEntry, '');
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, VendLedgEntry."Posting Date", VendLedgEntry."Document No.", VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible", VendLedgEntry."Currency Code");
     end;
 
     local procedure OnePurchOnePmtExcessiveAmount(var VendLedgEntry: Record "Vendor Ledger Entry"; var OutStream: OutStream; Excessiveamount: Decimal)
     begin
         CreateVendAndPostPurchInvoice(VendLedgEntry, '');
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(OutStream,
-              "Posting Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible" - Excessiveamount, "Currency Code");
+        WriteCAMTStmtLine(OutStream,
+              VendLedgEntry."Posting Date", VendLedgEntry."Document No.", VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible" - Excessiveamount, VendLedgEntry."Currency Code");
     end;
 
     local procedure OnePurchTwoPmt(var VendLedgEntry: Record "Vendor Ledger Entry"; var OutStream: OutStream)
@@ -2281,13 +2273,11 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         CreateVendAndPostPurchInvoice(VendLedgEntry, '');
 
-        with VendLedgEntry do begin
-            HalfAmt := Round("Remaining Amount" / 2);
-            WriteCAMTStmtLine(OutStream, "Posting Date", "Document No.", HalfAmt, "Currency Code");
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", "Document No.",
-              "Remaining Amount" - HalfAmt - "Remaining Pmt. Disc. Possible", "Currency Code");
-        end;
+        HalfAmt := Round(VendLedgEntry."Remaining Amount" / 2);
+        WriteCAMTStmtLine(OutStream, VendLedgEntry."Posting Date", VendLedgEntry."Document No.", HalfAmt, VendLedgEntry."Currency Code");
+        WriteCAMTStmtLine(
+          OutStream, VendLedgEntry."Posting Date", VendLedgEntry."Document No.",
+          VendLedgEntry."Remaining Amount" - HalfAmt - VendLedgEntry."Remaining Pmt. Disc. Possible", VendLedgEntry."Currency Code");
     end;
 
     [Scope('OnPrem')]
@@ -2299,12 +2289,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry, '');
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry2, '');
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
-        with VendLedgEntry2 do
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, VendLedgEntry."Posting Date", VendLedgEntry."Document No.", VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible", VendLedgEntry."Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, VendLedgEntry2."Posting Date", VendLedgEntry2."Document No.", VendLedgEntry2."Remaining Amount" - VendLedgEntry2."Remaining Pmt. Disc. Possible", VendLedgEntry2."Currency Code");
     end;
 
     local procedure TwoPurchOnePmt(var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry2: Record "Vendor Ledger Entry"; var OutStream: OutStream)
@@ -2315,12 +2303,11 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry, '');
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry2, '');
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Posting Date", StrSubstNo('%1;%2', "Document No.", VendLedgEntry2."Document No."),
-              "Remaining Amount" - "Remaining Pmt. Disc. Possible" +
+        WriteCAMTStmtLine(
+              OutStream, VendLedgEntry."Posting Date", StrSubstNo('%1;%2', VendLedgEntry."Document No.", VendLedgEntry2."Document No."),
+              VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible" +
               VendLedgEntry2."Remaining Amount" - VendLedgEntry2."Remaining Pmt. Disc. Possible",
-              "Currency Code");
+              VendLedgEntry."Currency Code");
     end;
 
     local procedure OnePurchOnePmtWithPmtDisc(var VendLedgEntry: Record "Vendor Ledger Entry"; var OutStream: OutStream)
@@ -2331,9 +2318,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry, '');
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, VendLedgEntry."Pmt. Discount Date", VendLedgEntry."Document No.", VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible", VendLedgEntry."Currency Code");
     end;
 
     local procedure OnePurchTwoPmtWithPmtDisc(var VendLedgEntry: Record "Vendor Ledger Entry"; var OutStream: OutStream)
@@ -2345,13 +2331,11 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry, '');
 
-        with VendLedgEntry do begin
-            HalfAmt := Round("Remaining Amount" / 2);
-            WriteCAMTStmtLine(OutStream, "Pmt. Discount Date", "Document No.", HalfAmt, "Currency Code");
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", "Document No.",
-              "Remaining Amount" - HalfAmt - "Remaining Pmt. Disc. Possible", "Currency Code");
-        end;
+        HalfAmt := Round(VendLedgEntry."Remaining Amount" / 2);
+        WriteCAMTStmtLine(OutStream, VendLedgEntry."Pmt. Discount Date", VendLedgEntry."Document No.", HalfAmt, VendLedgEntry."Currency Code");
+        WriteCAMTStmtLine(
+          OutStream, VendLedgEntry."Pmt. Discount Date", VendLedgEntry."Document No.",
+          VendLedgEntry."Remaining Amount" - HalfAmt - VendLedgEntry."Remaining Pmt. Disc. Possible", VendLedgEntry."Currency Code");
     end;
 
     local procedure TwoPurchTwoPmtWithPmtDisc(var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry2: Record "Vendor Ledger Entry"; var OutStream: OutStream)
@@ -2363,12 +2347,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry, '');
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry2, '');
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
-        with VendLedgEntry2 do
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, VendLedgEntry."Pmt. Discount Date", VendLedgEntry."Document No.", VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible", VendLedgEntry."Currency Code");
+        WriteCAMTStmtLine(
+              OutStream, VendLedgEntry2."Pmt. Discount Date", VendLedgEntry2."Document No.", VendLedgEntry2."Remaining Amount" - VendLedgEntry2."Remaining Pmt. Disc. Possible", VendLedgEntry2."Currency Code");
     end;
 
     local procedure TwoPurchOnePmtWithPmtDisc(var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry2: Record "Vendor Ledger Entry"; var OutStream: OutStream)
@@ -2380,12 +2362,11 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry, '');
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry2, '');
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(
-              OutStream, "Pmt. Discount Date", StrSubstNo('%1;%2', "Document No.", VendLedgEntry2."Document No."),
-              "Remaining Amount" - "Remaining Pmt. Disc. Possible" +
+        WriteCAMTStmtLine(
+              OutStream, VendLedgEntry."Pmt. Discount Date", StrSubstNo('%1;%2', VendLedgEntry."Document No.", VendLedgEntry2."Document No."),
+              VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible" +
               VendLedgEntry2."Remaining Amount" - VendLedgEntry2."Remaining Pmt. Disc. Possible",
-              "Currency Code");
+              VendLedgEntry."Currency Code");
     end;
 
     local procedure OnePurchOnePmtWithLateDueDatePmtDisc(var VendLedgEntry: Record "Vendor Ledger Entry"; var OutStream: OutStream; CurrencyCode: Code[10])
@@ -2400,11 +2381,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry, CurrencyCode);
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(
+        WriteCAMTStmtLine(
               OutStream,
-              CalcDate('<+1D>', "Pmt. Discount Date"),
-              "Document No.", "Remaining Amount" - "Remaining Pmt. Disc. Possible", "Currency Code");
+              CalcDate('<+1D>', VendLedgEntry."Pmt. Discount Date"),
+              VendLedgEntry."Document No.", VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible", VendLedgEntry."Currency Code");
     end;
 
     local procedure OneFCYPurchOnePmtWithLateDueDatePmtDisc(var VendLedgEntry: Record "Vendor Ledger Entry"; var OutStream: OutStream)
@@ -2423,28 +2403,25 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         CreatePurchInvoiceAndPost(Vend, VendLedgEntry, Curr.Code);
 
-        with VendLedgEntry do begin
-            StmtAmt :=
-              "Remaining Amt. (LCY)" -
-              Round("Remaining Pmt. Disc. Possible" * ("Remaining Amt. (LCY)" / "Remaining Amount"));
+        StmtAmt :=
+            VendLedgEntry."Remaining Amt. (LCY)" -
+            Round(VendLedgEntry."Remaining Pmt. Disc. Possible" * (VendLedgEntry."Remaining Amt. (LCY)" / VendLedgEntry."Remaining Amount"));
 
-            WriteCAMTStmtLine(
-              OutStream,
-              CalcDate('<+1D>', "Pmt. Discount Date"),
-              "Document No.", StmtAmt, "Currency Code");
-        end;
+        WriteCAMTStmtLine(
+          OutStream,
+          CalcDate('<+1D>', VendLedgEntry."Pmt. Discount Date"),
+          VendLedgEntry."Document No.", StmtAmt, VendLedgEntry."Currency Code");
     end;
 
     local procedure OnePurchOnePmtWithWrongPmtDiscPct(var VendLedgEntry: Record "Vendor Ledger Entry"; var OutStream: OutStream)
     begin
         CreateVendAndPostPurchInvoice(VendLedgEntry, '');
 
-        with VendLedgEntry do
-            WriteCAMTStmtLine(
+        WriteCAMTStmtLine(
               OutStream,
-              "Pmt. Discount Date",
-              "Document No.", "Remaining Amount" + Round("Remaining Pmt. Disc. Possible" - 5 / 100 * "Remaining Amount"),
-              "Currency Code");
+              VendLedgEntry."Pmt. Discount Date",
+              VendLedgEntry."Document No.", VendLedgEntry."Remaining Amount" + Round(VendLedgEntry."Remaining Pmt. Disc. Possible" - 5 / 100 * VendLedgEntry."Remaining Amount"),
+              VendLedgEntry."Currency Code");
     end;
 
     local procedure RecurringInterest(var GLAcc: Record "G/L Account"; var OutStream: OutStream)
@@ -2725,18 +2702,17 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GLAcc: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAcc);
-        with VendPostingGroup do
-            if FindSet() then
-                repeat
-                    if "Payment Disc. Debit Acc." = '' then begin
-                        Validate("Payment Disc. Debit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                    if "Payment Disc. Credit Acc." = '' then begin
-                        Validate("Payment Disc. Credit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                until Next() = 0;
+        if VendPostingGroup.FindSet() then
+            repeat
+                if VendPostingGroup."Payment Disc. Debit Acc." = '' then begin
+                    VendPostingGroup.Validate("Payment Disc. Debit Acc.", GLAcc."No.");
+                    VendPostingGroup.Modify(true);
+                end;
+                if VendPostingGroup."Payment Disc. Credit Acc." = '' then begin
+                    VendPostingGroup.Validate("Payment Disc. Credit Acc.", GLAcc."No.");
+                    VendPostingGroup.Modify(true);
+                end;
+            until VendPostingGroup.Next() = 0;
     end;
 
     [MessageHandler]
@@ -2779,50 +2755,45 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         IsRecurringInterest := LibraryVariableStorage.DequeueBoolean();
         IsRecurringRent := LibraryVariableStorage.DequeueBoolean();
 
-        with PmtAppln do begin
-            if IsRecurringRent or IsRecurringInterest then begin
-                RemainingAmountAfterPosting.AssertEquals(0);
-                exit;
-            end;
-
-            // Remove Entry is not the same Vendor
-            if AppliedAmount.AsDecimal() <> 0 then
-                if "Account No.".Value <> VendorNo then begin
-                    Applied.SetValue(false);
-                    Next();
-                end;
-
-            // Go to the first and check that it is the Vendor and scroll down to find the entry
-            if Applied.AsBoolean() then begin
-                RelatedPartyOpenEntries.Invoke();
-                while "Applies-to Entry No.".AsInteger() <> VLEEntryNo do begin
-                    "Account No.".AssertEquals(VendorNo);
-                    Next();
-                end;
-            end;
-
-            // check that it is the Vendor ledger entry and apply
-            if RemainingAmountAfterPosting.AsDecimal() <> 0 then
-                if AppliedAmount.AsDecimal() = 0 then begin
-                    Applied.SetValue(true);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
-            if AdjustDiscountAmount then
-                // Introduce payment discount
-                if RemainingAmountAfterPosting.AsDecimal() <> 0 then begin
-                    "Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
-                    "Remaining Pmt. Disc. Possible".SetValue(
-                      VLERemAmtLCY - PmtReconJnlStatementAmount);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
-            if AdjustDiscountDate then
-                if PmtReconJnlTransactionDate > "Pmt. Disc. Due Date".AsDate() then begin
-                    "Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
-
-            OK().Invoke();
+        if IsRecurringRent or IsRecurringInterest then begin
+            PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            exit;
         end;
+        // Remove Entry is not the same Vendor
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> VendorNo then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
+            end;
+        // Go to the first and check that it is the Vendor and scroll down to find the entry
+        if PmtAppln.Applied.AsBoolean() then begin
+            PmtAppln.RelatedPartyOpenEntries.Invoke();
+            while PmtAppln."Applies-to Entry No.".AsInteger() <> VLEEntryNo do begin
+                PmtAppln."Account No.".AssertEquals(VendorNo);
+                PmtAppln.Next();
+            end;
+        end;
+        // check that it is the Vendor ledger entry and apply
+        if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then
+            if PmtAppln.AppliedAmount.AsDecimal() = 0 then begin
+                PmtAppln.Applied.SetValue(true);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
+        if AdjustDiscountAmount then
+            // Introduce payment discount
+            if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then begin
+                PmtAppln."Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
+                PmtAppln."Remaining Pmt. Disc. Possible".SetValue(
+                  VLERemAmtLCY - PmtReconJnlStatementAmount);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
+        if AdjustDiscountDate then
+            if PmtReconJnlTransactionDate > PmtAppln."Pmt. Disc. Due Date".AsDate() then begin
+                PmtAppln."Pmt. Disc. Due Date".SetValue(PmtReconJnlTransactionDate);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
+
+        PmtAppln.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2846,11 +2817,9 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         LibraryVariableStorage.Dequeue(AccountTypeVar);
         LibraryVariableStorage.Dequeue(AccountNoVar);
-        with TransferDifferenceToAccount do begin
-            "Account Type".SetValue(AccountTypeVar);
-            "Account No.".SetValue(AccountNoVar);
-            OK().Invoke();
-        end;
+        TransferDifferenceToAccount."Account Type".SetValue(AccountTypeVar);
+        TransferDifferenceToAccount."Account No.".SetValue(AccountNoVar);
+        TransferDifferenceToAccount.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2869,26 +2838,22 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.DequeueBoolean();
+        // Remove Entry is not the same customer
+        if PmtAppln.AppliedAmount.AsDecimal() <> 0 then
+            if PmtAppln."Account No.".Value <> VendorNo then begin
+                PmtAppln.Applied.SetValue(false);
+                PmtAppln.Next();
+            end;
 
-        with PmtAppln do begin
-            // Remove Entry is not the same customer
-            if AppliedAmount.AsDecimal() <> 0 then
-                if "Account No.".Value <> VendorNo then begin
-                    Applied.SetValue(false);
-                    Next();
-                end;
+        PmtAppln.AllOpenPayments.Invoke();
+        // check that it is the customer ledger entry and apply
+        if PmtAppln.RemainingAmountAfterPosting.AsDecimal() <> 0 then
+            if PmtAppln.AppliedAmount.AsDecimal() = 0 then begin
+                PmtAppln.Applied.SetValue(true);
+                PmtAppln.RemainingAmountAfterPosting.AssertEquals(0);
+            end;
 
-            AllOpenPayments.Invoke();
-
-            // check that it is the customer ledger entry and apply
-            if RemainingAmountAfterPosting.AsDecimal() <> 0 then
-                if AppliedAmount.AsDecimal() = 0 then begin
-                    Applied.SetValue(true);
-                    RemainingAmountAfterPosting.AssertEquals(0);
-                end;
-
-            OK().Invoke();
-        end;
+        PmtAppln.OK().Invoke();
     end;
 
     [Scope('OnPrem')]

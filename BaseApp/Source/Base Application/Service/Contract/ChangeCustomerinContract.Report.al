@@ -251,6 +251,7 @@ report 6037 "Change Customer in Contract"
         ContractNoText: Text[20];
         ServiceItemNoText: Text[20];
 
+#pragma warning disable AA0074
         Text000: Label 'You must fill in the New Customer No. field.';
         Text002: Label 'If you change the customer number or the ship-to code, the related service orders and sales invoices will not be updated.\\Do you want to continue?';
         Text004: Label '(Multiple)';
@@ -258,9 +259,12 @@ report 6037 "Change Customer in Contract"
         Text006: Label 'Contract     ';
         Text007: Label ' from ';
         Text008: Label 'Service item ';
+#pragma warning disable AA0470
         Text009: Label 'Are you sure that you want to change the customer number in %1 related contracts/quotes and %2 related service items?';
+#pragma warning restore AA0470
         Text010: Label 'You cannot select a customer with the status Blocked.';
         Text011: Label 'The customer number and the ship-to code that you have selected are the same as the ones on this document.';
+#pragma warning restore AA0074
 
     procedure SetRecord(ContrNo: Code[20])
     begin

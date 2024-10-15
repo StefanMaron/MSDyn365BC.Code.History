@@ -22,12 +22,9 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
-        CurrencyNotExistsErr: Label 'The Currency does not exist.';
-        ErrorMessageErr: Label 'Error message expected.';
         FieldMustHaveAValueErr: Label '%1 must have a value in %2';
         SyncStartedMsg: Label 'The synchronization has been scheduled.';
         DisabledSalesOrderIntSubmittedOrderErr: Label 'You cannot disable CRM sales order integration when a CRM sales order has the Submitted status.';
-        IsCRMSolutionInstalledYesErr: Label 'Is CRM Solution Installed must be equal to ''Yes''';
         SalesOrdernoteNotFoundErr: Label 'Couldn''t find a note for sales order %1 with note text %2.', Locked = true;
         CRMSalesOrdernoteNotFoundErr: Label 'Couldn''t find a note for CRM sales order %1 with note text %2.', Locked = true;
         OrderStatusReleasedTxt: Label 'The order status has changed to Released.';
@@ -247,8 +244,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         asserterror CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
 
         // [THEN] Error: Currency 'X' does not exist
-        Assert.IsTrue(
-          CopyStr(GetLastErrorText, 1, StrLen(CurrencyNotExistsErr)) = CurrencyNotExistsErr, ErrorMessageErr);
+        Assert.ExpectedErrorCannotFind(Database::Currency);
     end;
 
     [Test]
@@ -527,16 +523,13 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [WHEN] Run 'Create in NAV' CRM Sales Orders page
         CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
-
         // [THEN] Sales Order created, where is "Order Discount Amount" = 700
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::"G/L Account");
-            SetRange("No.", FreightGLAccNo);
-            FindFirst();
-            TestField(Amount, CRMSalesorder.FreightAmount);
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
+        SalesLine.SetRange("No.", FreightGLAccNo);
+        SalesLine.FindFirst();
+        SalesLine.TestField(Amount, CRMSalesorder.FreightAmount);
     end;
 
     [Test]
@@ -702,7 +695,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         asserterror CRMConnectionSetup.SetCRMSOPEnabled();
 
         // [THEN] Error message appears stating CRM Solution should be installed
-        Assert.ExpectedError(IsCRMSolutionInstalledYesErr);
+        Assert.ExpectedTestFieldError(CRMConnectionSetup.FieldCaption("Is CRM Solution Installed"), Format(true));
         ResetDefaultCRMSetupConfiguration(false);
     end;
 
@@ -2115,12 +2108,14 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMConnectionSetup."Is CRM Solution Installed" := true;

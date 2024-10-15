@@ -21,8 +21,10 @@ codeunit 1317 "Aged Inventory Chart Mgt."
         PeriodStartDate: array[6] of Date;
         XFromToYearsTxt: Label '%1..%2 years', Comment = '%1=number of years,%2=number of years';
         XFromToDaysTxt: Label '%1..%2 days', Comment = '%1=number of days,%2=number of days';
+#pragma warning disable AA0470
         XOverYearsTxt: Label 'Over %1 years';
         XOverDaysTxt: Label 'Over %1 days';
+#pragma warning restore AA0470
 
     procedure UpdateChart(var BusChartBuf: Record "Business Chart Buffer")
     var

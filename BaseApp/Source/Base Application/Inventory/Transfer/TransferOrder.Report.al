@@ -310,9 +310,13 @@ report 5703 "Transfer Order"
         OldDimText: Text[75];
         Continue: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'COPY';
+#pragma warning disable AA0470
         Text001: Label 'Transfer Order %1';
         Text002: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         HdrDimensionsCaptionLbl: Label 'Header Dimensions';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         TransferOrderNoCaptionLbl: Label 'Transfer Order No.';

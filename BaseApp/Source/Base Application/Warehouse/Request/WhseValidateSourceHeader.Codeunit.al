@@ -1,11 +1,6 @@
 namespace Microsoft.Warehouse.Request;
 
 using Microsoft.Foundation.Shipping;
-#if not CLEAN23
-using Microsoft.Inventory.Transfer;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
-#endif
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Worksheet;
@@ -14,9 +9,9 @@ codeunit 5781 "Whse. Validate Source Header"
 {
 #if not CLEAN23
     var
-        SalesWarehouseMgt: Codeunit "Sales Warehouse Mgt.";
-        ServiceWarehouseMgt: Codeunit "Service Warehouse Mgt.";
-        TransferWarehouseMgt: Codeunit "Transfer Warehouse Mgt.";
+        SalesWarehouseMgt: Codeunit Microsoft.Sales.Document."Sales Warehouse Mgt.";
+        ServiceWarehouseMgt: Codeunit Microsoft.Service.Document."Service Warehouse Mgt.";
+        TransferWarehouseMgt: Codeunit Microsoft.Inventory.Transfer."Transfer Warehouse Mgt.";
 #endif
 
     trigger OnRun()
@@ -25,7 +20,7 @@ codeunit 5781 "Whse. Validate Source Header"
 
 #if not CLEAN23
     [Obsolete('Replaced by same procedure in codeunit Sales Warehouse Mgt.', '23.0')]
-    procedure SalesHeaderVerifyChange(var NewSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header")
+    procedure SalesHeaderVerifyChange(var NewSalesHeader: Record Microsoft.Sales.Document."Sales Header"; var OldSalesHeader: Record Microsoft.Sales.Document."Sales Header")
     begin
         SalesWarehouseMgt.SalesHeaderVerifyChange(NewSalesHeader, OldSalesHeader);
     end;
@@ -33,7 +28,7 @@ codeunit 5781 "Whse. Validate Source Header"
 
 #if not CLEAN23
     [Obsolete('Replaced by same procedure in codeunit Service Warehouse Mgt.', '23.0')]
-    procedure ServiceHeaderVerifyChange(var NewServiceHeader: Record "Service Header"; var OldServiceHeader: Record "Service Header")
+    procedure ServiceHeaderVerifyChange(var NewServiceHeader: Record Microsoft.Service.Document."Service Header"; var OldServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
         ServiceWarehouseMgt.ServiceHeaderVerifyChange(NewServiceHeader, OldServiceHeader);
     end;
@@ -41,7 +36,7 @@ codeunit 5781 "Whse. Validate Source Header"
 
 #if not CLEAN23
     [Obsolete('Replaced by same procedure in codeunit Service Warehouse Mgt.', '23.0')]
-    procedure TransHeaderVerifyChange(var NewTransferHeader: Record "Transfer Header"; var OldTransferHeader: Record "Transfer Header")
+    procedure TransHeaderVerifyChange(var NewTransferHeader: Record Microsoft.Inventory.Transfer."Transfer Header"; var OldTransferHeader: Record Microsoft.Inventory.Transfer."Transfer Header")
     begin
         TransferWarehouseMgt.TransHeaderVerifyChange(NewTransferHeader, OldTransferHeader);
     end;
@@ -70,14 +65,14 @@ codeunit 5781 "Whse. Validate Source Header"
     end;
 
 #if not CLEAN23
-    internal procedure RunOnBeforeSalesHeaderVerifyChange(var NewSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    internal procedure RunOnBeforeSalesHeaderVerifyChange(var NewSalesHeader: Record Microsoft.Sales.Document."Sales Header"; var OldSalesHeader: Record Microsoft.Sales.Document."Sales Header"; var IsHandled: Boolean)
     begin
         OnBeforeSalesHeaderVerifyChange(NewSalesHeader, OldSalesHeader, IsHandled);
     end;
 
     [IntegrationEvent(false, false)]
     [Obsolete('Replaced by same event in codeunit Sales Warehouse Mgt.', '23.0')]
-    local procedure OnBeforeSalesHeaderVerifyChange(var NewSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeSalesHeaderVerifyChange(var NewSalesHeader: Record Microsoft.Sales.Document."Sales Header"; var OldSalesHeader: Record Microsoft.Sales.Document."Sales Header"; var IsHandled: Boolean)
     begin
     end;
 #endif

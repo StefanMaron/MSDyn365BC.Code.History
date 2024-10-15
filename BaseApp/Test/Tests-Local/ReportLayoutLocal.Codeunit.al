@@ -539,24 +539,22 @@ codeunit 144002 "Report Layout - Local"
         GLEntryFrom: Record "G/L Entry";
         GLEntryTo: Record "G/L Entry";
     begin
-        with GLRegister do begin
-            Init();
-            "No." := LibraryUtility.GetNewRecNo(GLRegister, FieldNo("No."));
+        GLRegister.Init();
+        GLRegister."No." := LibraryUtility.GetNewRecNo(GLRegister, GLRegister.FieldNo("No."));
 
-            MockGLEntry(
-              GLEntryFrom, LibraryUtility.GenerateRandomCode(GLEntryFrom.FieldNo("G/L Account No."), DATABASE::"G/L Entry"),
-              CalcDate('<1M>', WorkDate()), LibraryRandom.RandDec(100, 2), "No.");
-            MockGLEntry(
-              GLEntryTo, LibraryUtility.GenerateRandomCode(GLEntryFrom.FieldNo("G/L Account No."), DATABASE::"G/L Entry"),
-              GLEntryFrom."Posting Date" + 1, LibraryRandom.RandDec(100, 2), "No.");
-            GLEntryTo."Period Trans. No." := GLEntryFrom."Entry No.";
-            GLEntryTo.Modify();
+        MockGLEntry(
+          GLEntryFrom, LibraryUtility.GenerateRandomCode(GLEntryFrom.FieldNo("G/L Account No."), DATABASE::"G/L Entry"),
+          CalcDate('<1M>', WorkDate()), LibraryRandom.RandDec(100, 2), GLRegister."No.");
+        MockGLEntry(
+          GLEntryTo, LibraryUtility.GenerateRandomCode(GLEntryFrom.FieldNo("G/L Account No."), DATABASE::"G/L Entry"),
+          GLEntryFrom."Posting Date" + 1, LibraryRandom.RandDec(100, 2), GLRegister."No.");
+        GLEntryTo."Period Trans. No." := GLEntryFrom."Entry No.";
+        GLEntryTo.Modify();
 
-            "Posting Date" := GLEntryFrom."Posting Date";
-            "From Entry No." := GLEntryFrom."Entry No.";
-            "To Entry No." := GLEntryTo."Entry No.";
-            Insert();
-        end;
+        GLRegister."Posting Date" := GLEntryFrom."Posting Date";
+        GLRegister."From Entry No." := GLEntryFrom."Entry No.";
+        GLRegister."To Entry No." := GLEntryTo."Entry No.";
+        GLRegister.Insert();
         GLAccFrom := GLEntryFrom."G/L Account No.";
         DateFrom := GLEntryFrom."Posting Date";
         GLAccTo := GLEntryTo."G/L Account No.";
@@ -568,109 +566,97 @@ codeunit 144002 "Report Layout - Local"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        with GLRegister do begin
-            Init();
-            "No." := LibraryUtility.GetNewRecNo(GLRegister, FieldNo("No."));
-            MockGLEntry(GLEntry, GLAccountNo, PostingDate, DebitAmount, "No.");
-            "Posting Date" := GLEntry."Posting Date";
-            "From Entry No." := GLEntry."Entry No.";
-            "To Entry No." := GLEntry."Entry No.";
-            Insert();
-            exit(GLEntry."Entry No.");
-        end;
+        GLRegister.Init();
+        GLRegister."No." := LibraryUtility.GetNewRecNo(GLRegister, GLRegister.FieldNo("No."));
+        MockGLEntry(GLEntry, GLAccountNo, PostingDate, DebitAmount, GLRegister."No.");
+        GLRegister."Posting Date" := GLEntry."Posting Date";
+        GLRegister."From Entry No." := GLEntry."Entry No.";
+        GLRegister."To Entry No." := GLEntry."Entry No.";
+        GLRegister.Insert();
+        exit(GLEntry."Entry No.");
     end;
 
     local procedure MockGLEntry(var GLEntry: Record "G/L Entry"; GLAccNo: Code[20]; PostingDate: Date; DebitAmount: Decimal; TransactionNo: Integer)
     begin
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "G/L Account No." := GLAccNo;
-            "Posting Date" := PostingDate;
-            Amount := DebitAmount;
-            "Debit Amount" := DebitAmount;
-            "Transaction No." := TransactionNo;
-            "Period Trans. No." := "Entry No.";
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."G/L Account No." := GLAccNo;
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry.Amount := DebitAmount;
+        GLEntry."Debit Amount" := DebitAmount;
+        GLEntry."Transaction No." := TransactionNo;
+        GLEntry."Period Trans. No." := GLEntry."Entry No.";
+        GLEntry.Insert();
     end;
 
     local procedure MockVendorLedgerEntry(VendorNo: Code[20]; PostingDate: Date; Sign: Integer): Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorNo;
-            "Posting Date" := PostingDate;
-            Insert();
-            exit(MockDetailedVendorLedgerEntry(VendorNo, "Entry No.", PostingDate, Sign));
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry."Posting Date" := PostingDate;
+        VendorLedgerEntry.Insert();
+        exit(MockDetailedVendorLedgerEntry(VendorNo, VendorLedgerEntry."Entry No.", PostingDate, Sign));
     end;
 
     local procedure MockDetailedVendorLedgerEntry(VendorNo: Code[20]; VLENo: Integer; PostingDate: Date; Sign: Integer): Decimal
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorNo;
-            "Vendor Ledger Entry No." := VLENo;
-            "Posting Date" := PostingDate;
-            "Ledger Entry Amount" := true;
-            Amount := Sign * LibraryRandom.RandDecInRange(1000, 2000, 2);
-            "Amount (LCY)" := Sign * LibraryRandom.RandDecInRange(1000, 2000, 2);
-            if Sign > 0 then begin
-                "Debit Amount" := Amount;
-                "Debit Amount (LCY)" := "Amount (LCY)";
-            end else begin
-                "Credit Amount" := -Amount;
-                "Credit Amount (LCY)" := -"Amount (LCY)";
-            end;
-            Insert();
-            exit(Abs("Amount (LCY)"));
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Vendor No." := VendorNo;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VLENo;
+        DetailedVendorLedgEntry."Posting Date" := PostingDate;
+        DetailedVendorLedgEntry."Ledger Entry Amount" := true;
+        DetailedVendorLedgEntry.Amount := Sign * LibraryRandom.RandDecInRange(1000, 2000, 2);
+        DetailedVendorLedgEntry."Amount (LCY)" := Sign * LibraryRandom.RandDecInRange(1000, 2000, 2);
+        if Sign > 0 then begin
+            DetailedVendorLedgEntry."Debit Amount" := DetailedVendorLedgEntry.Amount;
+            DetailedVendorLedgEntry."Debit Amount (LCY)" := DetailedVendorLedgEntry."Amount (LCY)";
+        end else begin
+            DetailedVendorLedgEntry."Credit Amount" := -DetailedVendorLedgEntry.Amount;
+            DetailedVendorLedgEntry."Credit Amount (LCY)" := -DetailedVendorLedgEntry."Amount (LCY)";
         end;
+        DetailedVendorLedgEntry.Insert();
+        exit(Abs(DetailedVendorLedgEntry."Amount (LCY)"));
     end;
 
     local procedure MockCustomerLedgerEntry(CustomerNo: Code[20]; PostingDate: Date; Sign: Integer): Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Posting Date" := PostingDate;
-            Insert();
-            exit(MockDetailedCustomerLedgerEntry(CustomerNo, "Entry No.", PostingDate, Sign));
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry.Insert();
+        exit(MockDetailedCustomerLedgerEntry(CustomerNo, CustLedgerEntry."Entry No.", PostingDate, Sign));
     end;
 
     local procedure MockDetailedCustomerLedgerEntry(CustomerNo: Code[20]; CLENo: Integer; PostingDate: Date; Sign: Integer): Decimal
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Cust. Ledger Entry No." := CLENo;
-            "Posting Date" := PostingDate;
-            "Ledger Entry Amount" := true;
-            Amount := Sign * LibraryRandom.RandDecInRange(1000, 2000, 2);
-            "Amount (LCY)" := Sign * LibraryRandom.RandDecInRange(1000, 2000, 2);
-            if Sign < 0 then begin
-                "Debit Amount" := -Amount;
-                "Debit Amount (LCY)" := -"Amount (LCY)";
-            end else begin
-                "Credit Amount" := Amount;
-                "Credit Amount (LCY)" := "Amount (LCY)";
-            end;
-            Insert();
-            exit(Abs("Amount (LCY)"));
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Customer No." := CustomerNo;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CLENo;
+        DetailedCustLedgEntry."Posting Date" := PostingDate;
+        DetailedCustLedgEntry."Ledger Entry Amount" := true;
+        DetailedCustLedgEntry.Amount := Sign * LibraryRandom.RandDecInRange(1000, 2000, 2);
+        DetailedCustLedgEntry."Amount (LCY)" := Sign * LibraryRandom.RandDecInRange(1000, 2000, 2);
+        if Sign < 0 then begin
+            DetailedCustLedgEntry."Debit Amount" := -DetailedCustLedgEntry.Amount;
+            DetailedCustLedgEntry."Debit Amount (LCY)" := -DetailedCustLedgEntry."Amount (LCY)";
+        end else begin
+            DetailedCustLedgEntry."Credit Amount" := DetailedCustLedgEntry.Amount;
+            DetailedCustLedgEntry."Credit Amount (LCY)" := DetailedCustLedgEntry."Amount (LCY)";
         end;
+        DetailedCustLedgEntry.Insert();
+        exit(Abs(DetailedCustLedgEntry."Amount (LCY)"));
     end;
 
     local procedure FormatFileName(ReportCaption: Text) ReportFileName: Text

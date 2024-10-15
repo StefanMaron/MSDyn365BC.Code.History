@@ -7,6 +7,8 @@ page 5638 "FA Reclass. Jnl. Template List"
     PageType = List;
     SourceTable = "FA Reclass. Journal Template";
     AnalysisModeEnabled = false;
+    AboutTitle = 'About FA ReclassJnl Template List';
+    AboutText = 'With the **FA ReclassJnl Template List** you can review all the templates created related to the Fixed Asset Reclassification process.';
 
     layout
     {

@@ -97,9 +97,9 @@ report 10700 "Set Period Trans. Nos."
                     CurrPeriodTransNo := 1
                 else begin
                     Period.SetRange("Starting Date", FromDate);
-                    if Period.FindFirst() then begin
-                        CurrPeriodTransNo := 2;
-                    end else begin
+                    if Period.FindFirst() then
+                        CurrPeriodTransNo := 2
+                    else begin
                         GLEntry2.SetFilter("Posting Date", '< %1', FromDate);
                         GLEntry2.FindLast();
                         CurrPeriodTransNo := GLEntry2."Period Trans. No." + 1;

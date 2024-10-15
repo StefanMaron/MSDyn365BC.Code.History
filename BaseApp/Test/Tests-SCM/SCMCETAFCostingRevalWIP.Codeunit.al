@@ -1156,8 +1156,8 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         CompILEoutput: Integer;
         RevaluationFactor: Decimal;
         ExpectedCostAmount: Decimal;
-        OldAvgCostPeriod: Option;
-        NewAvgCostPeriod: Option;
+        OldAvgCostPeriod: Enum "Average Cost Period Type";
+        NewAvgCostPeriod: Enum "Average Cost Period Type";
         i: Integer;
     begin
         // VSTF 336187 Positive Cost Amount (Actual) figures while it should be negative in a specific Scenario including Production,
@@ -1512,7 +1512,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ReservEntry.Insert();
     end;
 
-    local procedure SetupAvgCostPeriod(NewAvgCostPeriod: Option; var OldAvgCostPeriod: Option)
+    local procedure SetupAvgCostPeriod(NewAvgCostPeriod: Enum "Average Cost Period Type"; var OldAvgCostPeriod: Enum "Average Cost Period Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -1522,11 +1522,10 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         if InventorySetup."Average Cost Period" <> NewAvgCostPeriod then begin
             InventorySetup.Validate("Average Cost Period", NewAvgCostPeriod);
             InventorySetup.Modify();
-        end else begin
+        end else
             // For message handler if no change for Average Cost Period
             if Confirm(AnyQst) then
                 Message(AnyMsg);
-        end;
     end;
 
     local procedure VerifyCost(Item1: Record Item; Item2: Record Item; Item3: Record Item; ProdOrder1: Record "Production Order"; ProdOrder2: Record "Production Order"; VerifyVariance: Boolean)

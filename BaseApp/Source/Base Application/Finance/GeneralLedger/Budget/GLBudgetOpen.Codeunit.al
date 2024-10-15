@@ -32,8 +32,10 @@ codeunit 7 "GLBudget-Open"
         GLBudgetName: Record "G/L Budget Name";
         SearchForName: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'DEFAULT';
         Text001: Label 'Default Budget';
+#pragma warning restore AA0074
 
     procedure SetupFiltersOnGLAccBudgetPage(var GlobalDim1Filter: Text; var GlobalDim2Filter: Text; var GlobalDim1FilterEnable: Boolean; var GlobalDim2FilterEnable: Boolean; var PeriodType: Enum "Analysis Period Type"; var DateFilter: Text; var GLAccount: Record "G/L Account")
     var

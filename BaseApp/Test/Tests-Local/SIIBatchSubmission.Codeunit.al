@@ -39,21 +39,19 @@ codeunit 147553 "SII Batch Submission"
         // [FEATURE] [UT]
         // [SCENARIO 232557] TAB 10753 "SII Session".StoreRequestXml()
         // [SCENARIO 253954]
-        with SIISession do begin
-            Init();
-            Insert();
+        SIISession.Init();
+        SIISession.Insert();
 
-            ElementValueText := LibraryUtility.GenerateRandomXMLText(LibraryRandom.RandIntInRange(100, 200));
-            OriginalText := '<?xml version="1.0" encoding="utf-8"?><Element>' + ElementValueText + '</Element>';
-            CRLF[1] := 13;
-            CRLF[2] := 10;
-            ExpectedText := '<?xml version="1.0" encoding="utf-8"?>' + CRLF + '<Element>' + ElementValueText + '</Element>';
-            StoreRequestXml(OriginalText);
+        ElementValueText := LibraryUtility.GenerateRandomXMLText(LibraryRandom.RandIntInRange(100, 200));
+        OriginalText := '<?xml version="1.0" encoding="utf-8"?><Element>' + ElementValueText + '</Element>';
+        CRLF[1] := 13;
+        CRLF[2] := 10;
+        ExpectedText := '<?xml version="1.0" encoding="utf-8"?>' + CRLF + '<Element>' + ElementValueText + '</Element>';
+        SIISession.StoreRequestXml(OriginalText);
 
-            "Request XML".CreateInStream(InStream, TEXTENCODING::UTF8);
-            InStream.Read(ActualText);
-            Assert.AreEqual(ExpectedText, ActualText, FieldCaption("Request XML"));
-        end;
+        SIISession."Request XML".CreateInStream(InStream, TEXTENCODING::UTF8);
+        InStream.Read(ActualText);
+        Assert.AreEqual(ExpectedText, ActualText, SIISession.FieldCaption("Request XML"));
     end;
 
     [Test]
@@ -71,21 +69,19 @@ codeunit 147553 "SII Batch Submission"
         // [FEATURE] [UT]
         // [SCENARIO 232557] TAB 10753 "SII Session".StoreResponseXml()
         // [SCENARIO 253954]
-        with SIISession do begin
-            Init();
-            Insert();
+        SIISession.Init();
+        SIISession.Insert();
 
-            ElementValueText := LibraryUtility.GenerateRandomXMLText(LibraryRandom.RandIntInRange(100, 200));
-            OriginalText := '<?xml version="1.0" encoding="utf-8"?><Element>' + ElementValueText + '</Element>';
-            CRLF[1] := 13;
-            CRLF[2] := 10;
-            ExpectedText := '<?xml version="1.0" encoding="utf-8"?>' + CRLF + '<Element>' + ElementValueText + '</Element>';
-            StoreResponseXml(OriginalText);
+        ElementValueText := LibraryUtility.GenerateRandomXMLText(LibraryRandom.RandIntInRange(100, 200));
+        OriginalText := '<?xml version="1.0" encoding="utf-8"?><Element>' + ElementValueText + '</Element>';
+        CRLF[1] := 13;
+        CRLF[2] := 10;
+        ExpectedText := '<?xml version="1.0" encoding="utf-8"?>' + CRLF + '<Element>' + ElementValueText + '</Element>';
+        SIISession.StoreResponseXml(OriginalText);
 
-            "Response XML".CreateInStream(InStream, TEXTENCODING::UTF8);
-            InStream.Read(ActualText);
-            Assert.AreEqual(ExpectedText, ActualText, FieldCaption("Response XML"));
-        end;
+        SIISession."Response XML".CreateInStream(InStream, TEXTENCODING::UTF8);
+        InStream.Read(ActualText);
+        Assert.AreEqual(ExpectedText, ActualText, SIISession.FieldCaption("Response XML"));
     end;
 
     [Test]
@@ -99,32 +95,30 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 232557] TAB 10752 "SII Doc. Upload State".IsCreditMemoRemoval()
-        with SIIDocUploadState do begin
-            Init();
-            Insert();
-            Assert.IsFalse(IsCreditMemoRemoval(), '');
+        SIIDocUploadState.Init();
+        SIIDocUploadState.Insert();
+        Assert.IsFalse(SIIDocUploadState.IsCreditMemoRemoval(), '');
 
-            "Document Source" := "Document Source"::"Customer Ledger";
-            "Document Type" := "Document Type"::"Credit Memo";
-            "Entry No" := LibrarySII.MockCLE(LibrarySII.MockSalesCrMemo(SalesCrMemoHeader."Correction Type"::Removal));
-            Assert.IsTrue(IsCreditMemoRemoval(), '');
+        SIIDocUploadState."Document Source" := SIIDocUploadState."Document Source"::"Customer Ledger";
+        SIIDocUploadState."Document Type" := SIIDocUploadState."Document Type"::"Credit Memo";
+        SIIDocUploadState."Entry No" := LibrarySII.MockCLE(LibrarySII.MockSalesCrMemo(SalesCrMemoHeader."Correction Type"::Removal));
+        Assert.IsTrue(SIIDocUploadState.IsCreditMemoRemoval(), '');
 
-            "Entry No" := LibrarySII.MockCLE(LibrarySII.MockSalesCrMemo(SalesCrMemoHeader."Correction Type"::" "));
-            Assert.IsFalse(IsCreditMemoRemoval(), '');
+        SIIDocUploadState."Entry No" := LibrarySII.MockCLE(LibrarySII.MockSalesCrMemo(SalesCrMemoHeader."Correction Type"::" "));
+        Assert.IsFalse(SIIDocUploadState.IsCreditMemoRemoval(), '');
 
-            "Entry No" := LibrarySII.MockCLE(LibrarySII.MockServiceCrMemo(ServiceCrMemoHeader."Correction Type"::Removal));
-            Assert.IsTrue(IsCreditMemoRemoval(), '');
+        SIIDocUploadState."Entry No" := LibrarySII.MockCLE(LibrarySII.MockServiceCrMemo(ServiceCrMemoHeader."Correction Type"::Removal));
+        Assert.IsTrue(SIIDocUploadState.IsCreditMemoRemoval(), '');
 
-            "Entry No" := LibrarySII.MockCLE(LibrarySII.MockServiceCrMemo(ServiceCrMemoHeader."Correction Type"::" "));
-            Assert.IsFalse(IsCreditMemoRemoval(), '');
+        SIIDocUploadState."Entry No" := LibrarySII.MockCLE(LibrarySII.MockServiceCrMemo(ServiceCrMemoHeader."Correction Type"::" "));
+        Assert.IsFalse(SIIDocUploadState.IsCreditMemoRemoval(), '');
 
-            "Document Source" := "Document Source"::"Vendor Ledger";
-            "Entry No" := LibrarySII.MockVLE(LibrarySII.MockPurchaseCrMemo(PurchCrMemoHdr."Correction Type"::Removal));
-            Assert.IsTrue(IsCreditMemoRemoval(), '');
+        SIIDocUploadState."Document Source" := SIIDocUploadState."Document Source"::"Vendor Ledger";
+        SIIDocUploadState."Entry No" := LibrarySII.MockVLE(LibrarySII.MockPurchaseCrMemo(PurchCrMemoHdr."Correction Type"::Removal));
+        Assert.IsTrue(SIIDocUploadState.IsCreditMemoRemoval(), '');
 
-            "Entry No" := LibrarySII.MockVLE(LibrarySII.MockPurchaseCrMemo(PurchCrMemoHdr."Correction Type"::" "));
-            Assert.IsFalse(IsCreditMemoRemoval(), '');
-        end;
+        SIIDocUploadState."Entry No" := LibrarySII.MockVLE(LibrarySII.MockPurchaseCrMemo(PurchCrMemoHdr."Correction Type"::" "));
+        Assert.IsFalse(SIIDocUploadState.IsCreditMemoRemoval(), '');
     end;
 
     [Test]
@@ -140,29 +134,25 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] TAB 10752 "SII Doc. Upload State".CreateNewRequest()
         LibrarySII.InitSetup(true, false);
 
-        with SIIDocUploadState do begin
-            ExternalDocumentNo := LibraryUtility.GenerateGUID();
-            DocumentNo := LibrarySII.MockSalesInvoice(ExternalDocumentNo);
+        ExternalDocumentNo := LibraryUtility.GenerateGUID();
+        DocumentNo := LibrarySII.MockSalesInvoice(ExternalDocumentNo);
 
-            CreateNewRequest(
-              LibrarySII.MockCLE(DocumentNo), "Document Source"::"Customer Ledger".AsInteger(),
-              "Document Type"::Invoice.AsInteger(), DocumentNo, ExternalDocumentNo, WorkDate());
+        SIIDocUploadState.CreateNewRequest(
+          LibrarySII.MockCLE(DocumentNo), SIIDocUploadState."Document Source"::"Customer Ledger".AsInteger(),
+          SIIDocUploadState."Document Type"::Invoice.AsInteger(), DocumentNo, ExternalDocumentNo, WorkDate());
 
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("External Document No.", ExternalDocumentNo);
-            TestField("Is Manual", false);
-            TestField("Transaction Type", "Transaction Type"::Regular);
-            TestField("Is Credit Memo Removal", false);
-        end;
+        SIIDocUploadState.SetRange("Document No.", DocumentNo);
+        SIIDocUploadState.FindFirst();
+        SIIDocUploadState.TestField("External Document No.", ExternalDocumentNo);
+        SIIDocUploadState.TestField("Is Manual", false);
+        SIIDocUploadState.TestField("Transaction Type", SIIDocUploadState."Transaction Type"::Regular);
+        SIIDocUploadState.TestField("Is Credit Memo Removal", false);
 
-        with SIIHistory do begin
-            SetRange("Document State Id", SIIDocUploadState.Id);
-            FindFirst();
-            TestField("Is Manual", false);
-            TestField(Status, Status::Pending);
-            TestField("Upload Type", "Upload Type"::Regular);
-        end;
+        SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
+        SIIHistory.FindFirst();
+        SIIHistory.TestField("Is Manual", false);
+        SIIHistory.TestField(Status, SIIHistory.Status::Pending);
+        SIIHistory.TestField("Upload Type", SIIHistory."Upload Type"::Regular);
     end;
 
     [Test]
@@ -592,12 +582,10 @@ codeunit 147553 "SII Batch Submission"
 
     local procedure FindDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; DocumentSource: Option; DocumentType: Option; DocumentNo: Code[20])
     begin
-        with SIIDocUploadState do begin
-            SetRange("Document Source", DocumentSource);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        SIIDocUploadState.SetRange("Document Source", DocumentSource);
+        SIIDocUploadState.SetRange("Document Type", DocumentType);
+        SIIDocUploadState.SetRange("Document No.", DocumentNo);
+        SIIDocUploadState.FindFirst();
     end;
 
     local procedure FindHistory(var SIIHistory: Record "SII History"; DocumentSource: Option; DocumentType: Option; DocumentNo: Code[20])
@@ -605,10 +593,8 @@ codeunit 147553 "SII Batch Submission"
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
         FindDocUploadState(SIIDocUploadState, DocumentSource, DocumentType, DocumentNo);
-        with SIIHistory do begin
-            SetRange("Document State Id", SIIDocUploadState.Id);
-            FindFirst();
-        end;
+        SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
+        SIIHistory.FindFirst();
     end;
 
     local procedure GetHistorySessionId(DocumentSource: Option; DocumentType: Option; DocumentNo: Code[20]): Integer
@@ -622,10 +608,8 @@ codeunit 147553 "SII Batch Submission"
     local procedure VerifyLastHistoryRecord(var SIIHistory: Record "SII History"; ExpectedStatus: Enum "SII Document Status"; ExpectedCount: Integer)
     begin
         Assert.RecordCount(SIIHistory, ExpectedCount);
-        with SIIHistory do begin
-            FindLast();
-            TestField(Status, ExpectedStatus);
-        end;
+        SIIHistory.FindLast();
+        SIIHistory.TestField(Status, ExpectedStatus);
     end;
 
     local procedure VerifyTwoHistoryInOneSession(DocumentSource: Option; DocumentType: Option; DocumentNo: array[2] of Code[20]): Integer

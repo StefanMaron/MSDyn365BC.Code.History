@@ -483,8 +483,6 @@
         TaskIdCalculateCue: Integer;
         PBTTelemetryCategoryLbl: Label 'PBT', Locked = true;
         PBTTelemetryMsgTxt: Label 'PBT errored with code %1 and text %2. The call stack is as follows %3.', Locked = true;
-        PBTTimeoutSystemErrorCode: Label 'ChildSessionTaskTimeout', Locked = true;
-        PBTTimeoutNotificationTxt: Label 'Calculation of %1 was cancelled because it took too long. Run ''Refresh Data'' force refresh data in the foreground.', Locked = true;
         IntegrationErrorsCue: Text;
         CoupledErrorsCue: Text;
         PBTList: Dictionary of [Integer, Text];
@@ -509,22 +507,23 @@
 
     trigger OnPageBackgroundTaskError(TaskId: Integer; ErrorCode: Text; ErrorText: Text; ErrorCallStack: Text; var IsHandled: Boolean)
     var
-        PBTErrorNotification: Notification;
+        ScheduledTask: Record "Scheduled Task";
     begin
         Session.LogMessage('00009V0', StrSubstNo(PBTTelemetryMsgTxt, ErrorCode, ErrorText, ErrorCallStack), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PBTTelemetryCategoryLbl);
 
         if not PBTList.ContainsKey(TaskId) then
             exit;
 
-        if ErrorCode = PBTTimeoutSystemErrorCode then begin
-            PBTErrorNotification.Message(StrSubstNo(PBTTimeoutNotificationTxt, PBTList.Get(TaskId)));
-            PBTErrorNotification.Send();
-        end else
-            if ActivitiesMgt.IsCueDataStale() then
-                if not TASKSCHEDULER.CanCreateTask() then
-                    CODEUNIT.Run(CODEUNIT::"Activities Mgt.")
-                else
+        if ActivitiesMgt.IsCueDataStale() then
+            if not TASKSCHEDULER.CanCreateTask() then
+                CODEUNIT.Run(CODEUNIT::"Activities Mgt.")
+            else begin
+                ScheduledTask.SetRange("Run Codeunit", CODEUNIT::"Activities Mgt.");
+                ScheduledTask.SetRange(Company, CompanyName);
+                ScheduledTask.SetRange("Is Ready", true);
+                if ScheduledTask.IsEmpty() then
                     TASKSCHEDULER.CreateTask(CODEUNIT::"Activities Mgt.", 0, true, CompanyName, CurrentDateTime);
+            end;
 
         IsHandled := true;
     end;

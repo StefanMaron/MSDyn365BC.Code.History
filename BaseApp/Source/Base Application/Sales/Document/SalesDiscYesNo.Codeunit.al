@@ -33,8 +33,10 @@ codeunit 61 "Sales-Disc. (Yes/No)"
         SalesLine: Record "Sales Line";
         GLSetup: Record "General Ledger Setup";
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to calculate the invoice discount?';
         Text1100000: Label 'Do you want to calculate the invoice discount and payment discount?';
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)

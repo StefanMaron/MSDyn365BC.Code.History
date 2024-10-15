@@ -28,6 +28,7 @@ xmlport 10720 "G/L Importing Tool"
                 {
                 }
             }
+#if not CLEAN25
             tableelement(newglacct; "New G/L Account")
             {
                 XmlName = 'NewGLAcct';
@@ -83,6 +84,7 @@ xmlport 10720 "G/L Importing Tool"
                     RegNo := RegNo + 1;
                 end;
             }
+#endif
         }
     }
 
@@ -108,8 +110,10 @@ xmlport 10720 "G/L Importing Tool"
 
     var
         RegNo: Integer;
+#if not CLEAN25
         Text1100000: Label 'Some G/L Accounts have been found in the %1 table. Are you sure you want to replace the existing information?';
         Text1100001: Label 'The process has been cancelled by the user.';
+#endif
         Text1100002: Label '%1 records have been imported. Please check that the file contained registers and try again.';
         Text1100003: Label 'The importing process has finished. %1 records have been imported.';
 }

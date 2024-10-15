@@ -690,7 +690,7 @@ codeunit 10740 "No Taxable Mgt."
                 NoTaxableEntry.CalcSums("Amount (LCY)");
                 NormalAmount += NoTaxableEntry."Amount (LCY)"
             end
-        else begin
+        else
             if NoTaxableEntry.FindSet() then
                 repeat
                     if AmountInACY then
@@ -698,7 +698,6 @@ codeunit 10740 "No Taxable Mgt."
                     else
                         NoTaxableNormalAmountSales[MapDeliveryOperationCode(NoTaxableEntry."Delivery Operation Code")] += NoTaxableEntry."Amount (LCY)"
                 until NoTaxableEntry.Next() = 0;
-        end;
     end;
 
     [Scope('OnPrem')]

@@ -187,9 +187,8 @@ page 317 "VAT Statement"
                             VATStmtLine.SetRange("Statement Template Name", Rec."Statement Template Name");
                             VATStmtLine.SetRange("Statement Name", Rec."Statement Name");
                             REPORT.Run(REPORT::"VAT Statement", true, false, VATStmtLine);
-                        end else begin
+                        end else
                             ReportPrint.PrintVATStmtLine(Rec);
-                        end;
                     end;
                 }
                 action("Calc. and Post VAT Settlement")

@@ -18,7 +18,9 @@ codeunit 1202 "Import Payroll Transaction"
 
     var
         FileMgt: Codeunit "File Management";
+#pragma warning disable AA0074
         ImportPayrollTransCap: Label 'Select Payroll Transaction';
+#pragma warning restore AA0074
         FileFilterTxt: Label 'Text Files(*.txt;*.csv)|*.txt;*.csv';
         FileFilterExtensionTxt: Label 'txt,csv', Locked = true;
         ProcessingSetupErr: Label 'You must specify either a reading/writing XMLport or a reading/writing codeunit.';

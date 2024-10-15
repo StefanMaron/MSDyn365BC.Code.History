@@ -310,7 +310,9 @@ report 409 "Purchase Reservation Avail."
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Purchase lines must be shown.';
+#pragma warning restore AA0074
         PurchHeader: Record "Purchase Header";
         ReservEntry: Record "Reservation Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";

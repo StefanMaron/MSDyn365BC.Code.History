@@ -26,7 +26,6 @@ codeunit 137090 "SCM Kitting - D1"
         ErrorItemNotAssembled: Label 'Item %1 %2 does not use replenishment system Assembly. The %3 will not be calculated.';
         ErrorCyclicalKit: Label 'You cannot insert item %1 as an assembly component of itself.';
         ErrorWrongType: Label 'Type must be equal to ''Item''  in BOM Component: Parent Item No.';
-        ErrorQtyPer: Label 'Quantity per must be equal to ''1''  in BOM Component: Parent Item No.';
         StdCostRollupMessage: Label 'Select All levels to include and update the ';
         ReplMethodMessage: Label 'use replenishment system Prod. Order. Do you want to calculate standard cost for those subassemblies?';
 
@@ -952,7 +951,7 @@ codeunit 137090 "SCM Kitting - D1"
         if Qty <> 1 then begin
             asserterror BOMComponent.Validate("Installed in Item No.", Item1."No.");
             // Validate.
-            Assert.IsTrue(StrPos(GetLastErrorText, ErrorQtyPer) > 0, 'Actual:' + GetLastErrorText);
+            Assert.ExpectedTestFieldError(BOMComponent.FieldCaption("Quantity per"), Format(1));
             ClearLastError();
         end
         else
@@ -1124,12 +1123,10 @@ codeunit 137090 "SCM Kitting - D1"
     var
         BOMComponent: Record "BOM Component";
     begin
-        with LibraryAssembly do begin
-            CreateItem(ParentItem, ParentItem."Costing Method"::Average, ParentItem."Replenishment System"::Assembly, '', '');
-            CreateItem(ComponentItem, ComponentItem."Costing Method"::Average, ComponentItem."Replenishment System"::Purchase, '', '');
-            CreateAssemblyListComponent(
-              BOMComponent.Type::Item, ComponentItem."No.", ParentItem."No.", '', BOMComponent."Resource Usage Type", QuantityPerParent, true);
-        end;
+        LibraryAssembly.CreateItem(ParentItem, ParentItem."Costing Method"::Average, ParentItem."Replenishment System"::Assembly, '', '');
+        LibraryAssembly.CreateItem(ComponentItem, ComponentItem."Costing Method"::Average, ComponentItem."Replenishment System"::Purchase, '', '');
+        LibraryAssembly.CreateAssemblyListComponent(
+          BOMComponent.Type::Item, ComponentItem."No.", ParentItem."No.", '', BOMComponent."Resource Usage Type", QuantityPerParent, true);
     end;
 
     local procedure RenameFirstComponent(var SourceParentItem: Record Item; var DestParentItem: Record Item)

@@ -18,10 +18,6 @@ codeunit 137908 "SCM Assembly Order"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
-        CnfmRefreshLines: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
-        MSGAssertLineCount: Label 'Bad Line count of Order: %1 expected %2, got %3';
-        UpdateDimensionOnLine: Label 'You may have changed a dimension.\\Do you want to update the lines?';
-        NotMatchingDimensionsMsg: Label 'Dimensions are not matching on header and line.';
         LibraryKitting: Codeunit "Library - Kitting";
         LibraryInventory: Codeunit "Library - Inventory";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -34,10 +30,15 @@ codeunit 137908 "SCM Assembly Order"
         LibraryERM: Codeunit "Library - ERM";
         WorkDate2: Date;
         Initialized: Boolean;
-        TXTQtyPerNoChange: Label 'You cannot change Quantity per when Type is '' ''.';
+        CnfmRefreshLinesQst: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
+        AssertLineCountErr: Label 'Bad Line count of Order: %1 expected %2, got %3', Comment = '%1: Order No.; %2: Expected line count; %3: Actual line count';
+        UpdateDimensionOnLineQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+        NotMatchingDimensionsMsg: Label 'Dimensions are not matching on header and line.';
+        QtyPerNoChangeErr: Label 'You cannot change Quantity per when Type is '' ''.';
         RoundingTo0Err: Label 'Rounding of the field';
-        RoundingErr: Label 'is of lesser precision than expected';
+        RoundingErr: Label 'is of lower precision than expected';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
+        QtyToConsumeMustBeUpdatedErr: Label 'Quantity to Consume in assembly line must be updated.';
 
     [Normal]
     local procedure Initialize()
@@ -68,7 +69,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyLine.FindFirst();
     end;
 
-    local procedure FindItemUnitOfMeasure(Item: Record Item; Var ItemUOM: Record "Item Unit of Measure")
+    local procedure FindItemUnitOfMeasure(Item: Record Item; var ItemUOM: Record "Item Unit of Measure")
     begin
         ItemUOM.Get(Item."No.", Item."Base Unit of Measure");
     end;
@@ -392,14 +393,14 @@ codeunit 137908 "SCM Assembly Order"
     [Scope('OnPrem')]
     procedure ConfirmRefreshLines(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.IsTrue(StrPos(Question, CnfmRefreshLines) > 0, Question);
+        Assert.IsTrue(StrPos(Question, CnfmRefreshLinesQst) > 0, Question);
         Reply := true;
     end;
 
     [ConfirmHandler]
     procedure ConfirmUpdateDimensionOnLines(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.IsTrue(StrPos(Question, UpdateDimensionOnLine) > 0, Question);
+        Assert.IsTrue(StrPos(Question, UpdateDimensionOnLineQst) > 0, Question);
         Reply := true;
     end;
 
@@ -824,7 +825,7 @@ codeunit 137908 "SCM Assembly Order"
 
     [Test]
     [Scope('OnPrem')]
-    procedure QuantityToConsume()
+    procedure ValidateQuantityToConsumeSuccess()
     var
         AssemblyLine: Record "Assembly Line";
     begin
@@ -839,7 +840,7 @@ codeunit 137908 "SCM Assembly Order"
 
     [Test]
     [Scope('OnPrem')]
-    procedure QuantityToConsumeFail()
+    procedure ValidateQuantityToConsumeFail()
     var
         AssemblyLine: Record "Assembly Line";
     begin
@@ -1554,7 +1555,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyHeader.Validate(Quantity, 90);
         AssemblyHeader.Modify();
 
-        AssemblyLine.Find();
+        AssemblyLine.Get(AssemblyLine.RecordId);
         Assert.AreEqual(0.45, AssemblyLine.Quantity, 'Quantity is not calculated correctly.');
         Assert.AreEqual(0.45, AssemblyLine."Quantity to Consume", 'Quantity to Consume is not calculated correctly from Quantity.');
         Assert.AreEqual(0.00045, AssemblyLine."Quantity to Consume (Base)", 'Quantity to Consume (Base) is not calculated correctly from Quantity to Consume.');
@@ -1694,7 +1695,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyOrder.Filter.SetFilter("No.", AssemblyHeader."No.");
         asserterror AssemblyOrder."Refresh Lines".Invoke();
 
-        Assert.ExpectedError('Status must be equal');
+        Assert.ExpectedTestFieldError(AssemblyHeader.FieldCaption(Status), Format(AssemblyHeader.Status::Open));
     end;
 
     [Test]
@@ -1894,13 +1895,62 @@ codeunit 137908 "SCM Assembly Order"
         VerifyDimensionValue(AssemblyLineItem."Dimension Set ID", DimensionValue[3]);
     end;
 
+    [Test]
+    procedure QtyToConsumeUpdatedAfterPartialPostingWithRounding()
+    var
+        ComponentItem: Record Item;
+        AssemblyItem: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        QtyPerParentItem: Decimal;
+        OrderQty: Decimal;
+        QtyToAssemble: Decimal;
+    begin
+        // [SCENARIO] "Qty. to Consume" in assembly order is updated after partial posting when its value exceeds the remaining quantity due to rounding error
+
+        Initialize();
+
+        QtyPerParentItem := 38.19715;
+        OrderQty := 3.08;
+        QtyToAssemble := 0.77;
+
+        // [GIVEN] Component item "COMPONENT" and an assembly item "ASM"
+        LibraryInventory.CreateItem(ComponentItem);
+        LibraryInventory.CreateItem(AssemblyItem);
+
+        // [GIVEN] Create an assembly BOM for the item "ASM", including the "COMPONENT", set "Qty. per" = 38.19715
+        LibraryAssembly.CreateAssemblyListComponent(Enum::"BOM Component Type"::Item, ComponentItem."No.", AssemblyItem."No.", '', 0, QtyPerParentItem, true);
+
+        // [GIVEN] Post positive adjustment of 120 pcs of the "COMPONENT" item (quantity sufficient to cover the assembly demand) 
+        CreateAndPostItemJournalLine(ComponentItem."No.", Round(QtyPerParentItem * OrderQty, 1, '>'), '');
+
+        // [GIVEN] Create an assembly order for the "ASM" item, set Quantity = 3.08 and "Qty. to Assemble" = 0.77
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalcDate('<1M>', WorkDate()), AssemblyItem."No.", '', OrderQty, '');
+        AssemblyHeader.Validate("Quantity to Assemble", QtyToAssemble);
+        AssemblyHeader.Modify(true);
+
+        // [WHEN] Post the assembly order
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [THEN] "Qty. to Consume" in the assembly line is updated to 88.23541, which is equal to the remaining quantity
+        FindAssemblyLine(AssemblyLine, AssemblyHeader."No.");
+        Assert.AreEqual(AssemblyLine."Remaining Quantity", AssemblyLine."Quantity to Consume", QtyToConsumeMustBeUpdatedErr);
+    end;
+
+    local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; AssemblyOrderNo: Code[20])
+    begin
+        AssemblyLine.SetRange("Document Type", Enum::"Assembly Document Type"::Order);
+        AssemblyLine.SetRange("Document No.", AssemblyOrderNo);
+        AssemblyLine.FindFirst();
+    end;
+
     local procedure VerifyAssemblyHeaderDimensionNotExistsOnAssemblyLine(DimensionSetID: Integer; DimensionValue: Record "Dimension Value")
     var
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
-        Assert.IsFalse(not DimensionSetEntry.FindFirst(), NotMatchingDimensionsMsg);
+        Assert.RecordIsNotEmpty(DimensionSetEntry);
     end;
 
     local procedure VerifyDimensionValue(DimensionSetID: Integer; DimensionValue: Record "Dimension Value")
@@ -1910,7 +1960,7 @@ codeunit 137908 "SCM Assembly Order"
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         DimensionSetEntry.FindFirst();
-        Assert.IsTrue(DimensionSetEntry."Dimension Value Code" = DimensionValue.Code, NotMatchingDimensionsMsg);
+        Assert.AreEqual(DimensionValue.Code, DimensionSetEntry."Dimension Value Code", NotMatchingDimensionsMsg);
     end;
 
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; VariantCode: Code[10])
@@ -2052,7 +2102,7 @@ codeunit 137908 "SCM Assembly Order"
     begin
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, OrderNo);
         Assert.AreEqual(Count, LibraryAssembly.LineCount(AssemblyHeader),
-          StrSubstNo(MSGAssertLineCount, OrderNo, Count, LibraryAssembly.LineCount(AssemblyHeader)));
+          StrSubstNo(AssertLineCountErr, OrderNo, Count, LibraryAssembly.LineCount(AssemblyHeader)));
     end;
 
     [Normal]
@@ -2064,7 +2114,7 @@ codeunit 137908 "SCM Assembly Order"
           StrSubstNo('Order %1 Existed', AsmHeader."No."));
 
         Assert.AreEqual(LibraryAssembly.LineCount(AssemblyHeader), Count,
-          StrSubstNo(MSGAssertLineCount, AsmHeader."No.", Count, LibraryAssembly.LineCount(AssemblyHeader)))
+          StrSubstNo(AssertLineCountErr, AsmHeader."No.", Count, LibraryAssembly.LineCount(AssemblyHeader)))
     end;
 
     [Normal]
@@ -2167,7 +2217,7 @@ codeunit 137908 "SCM Assembly Order"
         asserterror AsmLine.Validate("Quantity per", 1);
 
         // VERIFY
-        Assert.IsTrue(StrPos(GetLastErrorText, TXTQtyPerNoChange) > 0, GetLastErrorText);
+        Assert.IsTrue(StrPos(GetLastErrorText, QtyPerNoChangeErr) > 0, GetLastErrorText);
         ClearLastError();
     end;
 

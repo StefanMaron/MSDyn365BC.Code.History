@@ -313,23 +313,6 @@ page 434 Reminder
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-                action(CreateReminders)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Create Reminders';
-                    Ellipsis = true;
-                    Image = CreateReminders;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '18.0';
-                    ObsoleteReason = 'This action should not be on the Reminder card';
-                    ToolTip = 'Create reminders for one or more customers with overdue payments.';
-
-                    trigger OnAction()
-                    begin
-                        REPORT.RunModal(REPORT::"Create Reminders");
-                    end;
-                }
                 action(SuggestReminderLines)
                 {
                     ApplicationArea = Basic, Suite;

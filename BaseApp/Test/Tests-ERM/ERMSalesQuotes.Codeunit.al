@@ -1606,31 +1606,6 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryERM.SetEnableDataCheck(true);
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure SalesOrderFromSalesQuoteWithTransactionType()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        // [FEATURE] [Order]
-        // [SCENARIO 379229] "Transaction Type" is populated from Intrastat Setup on Sales Order from Sales Quote
-        Initialize();
-
-        // [GIVEN] Set Default Transaction Types on Intrastat Setup and created Sales Quote
-        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup();
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
-
-        // [WHEN] Create Sales Order from Sales Quote.
-        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
-
-        // [THEN] Verify that New Sales Order created from Sales Quote has Transaction Type on Header and Line
-        VerifyTransactionTypeOnOrder(SalesHeader, SalesHeader."No.");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderFromSalesQuoteDeleteComments()
@@ -1811,9 +1786,6 @@ codeunit 134379 "ERM Sales Quotes"
 
     local procedure Initialize()
     var
-#if not CLEAN22
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
@@ -1829,34 +1801,11 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-#if not CLEAN22
-        if not IntrastatSetup.Get() then begin
-            IntrastatSetup.Init();
-            IntrastatSetup.Insert();
-        end;
-        LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
-#endif
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Quotes");
     end;
-
-#if not CLEAN22
-    local procedure VerifyTransactionTypeOnOrder(SalesHeader: Record "Sales Header"; QuoteNo: Code[20])
-    var
-        IntrastatSetup: Record "Intrastat Setup";
-        SalesLine: Record "Sales Line";
-    begin
-        IntrastatSetup.Get();
-        SalesHeader.SetRange("Quote No.", QuoteNo);
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.FindFirst();
-        SalesHeader.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
-        FindSalesLine(SalesLine, QuoteNo);
-        SalesLine.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
-    end;
-#endif
 
     local procedure CreateSimpleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     var
@@ -1982,14 +1931,12 @@ codeunit 134379 "ERM Sales Quotes"
 
     local procedure CreateQuoteFromContact(var SalesHeader: Record "Sales Header"; ContactNo: Code[20])
     begin
-        with SalesHeader do begin
-            Init();
-            Validate("Document Type", "Document Type"::Quote);
-            Insert(true);
-            Validate("Document Date", WorkDate());
-            Validate("Sell-to Contact No.", ContactNo);
-            Modify();
-        end;
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Document Date", WorkDate());
+        SalesHeader.Validate("Sell-to Contact No.", ContactNo);
+        SalesHeader.Modify();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; QuoteNo: Code[20])
@@ -2049,7 +1996,7 @@ codeunit 134379 "ERM Sales Quotes"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostingGrp);
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATProdPostingGrouptxt);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        IF not VATPostingSetup.FindFirst() then begin
+        if not VATPostingSetup.FindFirst() then begin
             LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGrp, VATProdPostingGroup.Code);
             VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");

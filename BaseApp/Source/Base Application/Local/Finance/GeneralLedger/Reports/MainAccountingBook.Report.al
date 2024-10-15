@@ -187,12 +187,11 @@ report 10723 "Main Accounting Book"
                                     TotalDebit := TotalDebit + GLAccount."Additional-Currency Net Change"
                                 else
                                     TotalCredit := TotalCredit + Abs(GLAccount."Additional-Currency Net Change");
-                            end else begin
+                            end else
                                 if GLAccount."Net Change" > 0 then
                                     TotalDebit := TotalDebit + GLAccount."Net Change"
                                 else
                                     TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
-                            end;
                         until GLAccount.Next() = 0;
 
                     GLBalance := TotalDebit - TotalCredit;
@@ -275,9 +274,8 @@ report 10723 "Main Accounting Book"
                     if GLEntry3.Find('-') then begin
                         GLEntry3.Next(-1);
                         PostDate := GLEntry3."Posting Date";
-                    end else begin
-                        NotFound := true
-                    end;
+                    end else
+                        NotFound := true;
 
                     SetRange("New Fiscal Year", true);
                     SetFilter("Starting Date", '> %1 & <= %2', FromDate, PostDate);
@@ -445,12 +443,11 @@ report 10723 "Main Accounting Book"
                                         TotalDebit := TotalDebit + GLAccount."Additional-Currency Net Change"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Additional-Currency Net Change");
-                                end else begin
+                                end else
                                     if GLAccount."Net Change" > 0 then
                                         TotalDebit := TotalDebit + GLAccount."Net Change"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
-                                end;
                             until GLAccount.Next() = 0;
 
                         if GLBalance = 0 then begin
@@ -601,12 +598,11 @@ report 10723 "Main Accounting Book"
                                     TotalDebit := TotalDebit + GLAccount."Additional-Currency Net Change"
                                 else
                                     TotalCredit := TotalCredit + Abs(GLAccount."Additional-Currency Net Change");
-                            end else begin
+                            end else
                                 if GLAccount."Net Change" > 0 then
                                     TotalDebit := TotalDebit + GLAccount."Net Change"
                                 else
                                     TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
-                            end;
                         until GLAccount.Next() = 0;
 
                     if GLBalance = 0 then begin
@@ -695,12 +691,11 @@ report 10723 "Main Accounting Book"
                                         TotalDebit := TotalDebit + GLAccount."Additional-Currency Net Change"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Additional-Currency Net Change");
-                                end else begin
+                                end else
                                     if GLAccount."Net Change" > 0 then
                                         TotalDebit := TotalDebit + GLAccount."Net Change"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
-                                end;
                             until GLAccount.Next() = 0;
 
                         TFTotalDebitAmt := TFTotalDebitAmt + TotalCredit;
@@ -720,12 +715,11 @@ report 10723 "Main Accounting Book"
                     "Accounting Period".SetRange("New Fiscal Year", true);
                     "Accounting Period".Find('+');
                     if ToDate <> NormalDate(ToDate) then
-                        if "Accounting Period".Get(CalcDate('<1D>', NormalDate(ToDate))) then begin
-                            if "Accounting Period"."New Fiscal Year" = true then
+                        if "Accounting Period".Get(CalcDate('<1D>', NormalDate(ToDate))) then
+                            if "Accounting Period"."New Fiscal Year" then
                                 Found := true
                             else
                                 Found := false;
-                        end;
                 end;
             }
 
@@ -743,10 +737,9 @@ report 10723 "Main Accounting Book"
                 TotalCreditHead := 0;
                 NotFound := false;
                 Print := false;
-                if GLFilterAccType = Text1100000Lbl then begin
+                if GLFilterAccType = Text1100000Lbl then
                     if StrLen("No.") <> 3 then
                         CurrReport.Skip();
-                end;
 
                 FromDate := GetRangeMin("Date Filter");
                 ToDate := GetRangeMax("Date Filter");

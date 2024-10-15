@@ -1078,21 +1078,17 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
         Item: Record Item;
     begin
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, UnitPrice, UnitPrice);
-        with Item do begin
-            Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
-        with SalesLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindFirst();
     end;
 
     local procedure GetReceivableAccount(No: Code[20]): Code[20]
@@ -1109,27 +1105,23 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            SetRange("Prepayment Invoice", true);
-            FindSet();
-            repeat
-                Result += GetPrepaymentInvoiceAmt("No.");
-            until Next() = 0;
-        end;
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesInvoiceHeader.SetRange("Prepayment Invoice", true);
+        SalesInvoiceHeader.FindSet();
+        repeat
+            Result += GetPrepaymentInvoiceAmt(SalesInvoiceHeader."No.");
+        until SalesInvoiceHeader.Next() = 0;
     end;
 
     local procedure GetPrepaymentInvoiceAmt(DocumentNo: Code[20]) Result: Decimal
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        with SalesInvoiceLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                Result += "Amount Including VAT";
-            until Next() = 0;
-        end;
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.FindSet();
+        repeat
+            Result += SalesInvoiceLine."Amount Including VAT";
+        until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure InvokeSalesCreditMemoStatistics(var SalesCreditMemoStatistics: TestPage "Sales Credit Memo Statistics"; DocumentNo: Code[20])
@@ -1153,7 +1145,7 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
         PostedSalesInvoice.Statistics.Invoke();
         PostedSalesInvoice.Close();
     end;
-    
+
     local procedure RunSalesPrepmtDocTestReport(SalesHeaderNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -1195,10 +1187,8 @@ SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
 
     local procedure UpdateSalesDocPrepaymentPct(var SalesHeader: Record "Sales Header"; NewPrepaymentPct: Decimal)
     begin
-        with SalesHeader do begin
-            Validate("Prepayment %", NewPrepaymentPct);
-            Modify();
-        end;
+        SalesHeader.Validate("Prepayment %", NewPrepaymentPct);
+        SalesHeader.Modify();
     end;
 
     local procedure UpdatePrepmtAccGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")

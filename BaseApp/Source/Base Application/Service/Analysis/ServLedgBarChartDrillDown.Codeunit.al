@@ -27,6 +27,8 @@ codeunit 6085 "Serv. Ledg Bar Chart DrillDown"
 
     var
         ServLedgEntry: Record "Service Ledger Entry";
+#pragma warning disable AA0074
         Text000: Label 'The corresponding service ledger entries cannot be displayed because the filter expression is too long.';
+#pragma warning restore AA0074
 }
 

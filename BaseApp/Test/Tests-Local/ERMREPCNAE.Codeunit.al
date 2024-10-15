@@ -19,44 +19,8 @@ codeunit 144036 "ERM REP CNAE"
     end;
 
     var
-#if not CLEAN22
-        LibraryERM: Codeunit "Library - ERM";
-        AccountScheduleNameCap: Label 'Acc__Schedule_Name_Name';
-        CompanyNameCap: Label 'CompName_1_';
-#endif
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('NormalizedAccountScheduleRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure NormalizedAccountScheduleReportForUpdatedCompanyInfo()
-    var
-        CompanyInformation: Record "Company Information";
-        CompanyInformationName: Text;
-        AccountScheduleName: Code[10];
-    begin
-        // Verify Company Information - Name and Address. Create Normalized Account and Run Report - 10717 Normalized Account Schedule.
-
-        // Setup: Update Company Information - Name, Address and Address to length - 50, Create Account Schedule.
-        CompanyInformationName := GenerateRandomCode(50);  // Number of Digit - 50.
-        UpdateCompanyInformationNameAndAddress(CompanyInformation, CompanyInformationName, CompanyInformationName, CompanyInformationName);
-        AccountScheduleName := CreateAccountSchedule();
-
-        // Exercise.
-        RunNormalizedAccountScheduleReport(AccountScheduleName);  // Opens handler - NormalizedAccountScheduleRequestPageHandler.
-
-        // Verify: Verify Account Schedule Name and Company Information - Name on generated XML of Report - Normalized Account Schedule.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(AccountScheduleNameCap, AccountScheduleName);
-        LibraryReportDataset.AssertElementWithValueExists(CompanyNameCap, CompanyInformationName);
-
-        // TearDown.
-        UpdateCompanyInformationNameAndAddress(
-          CompanyInformation, CompanyInformation.Name, CompanyInformation.Address, CompanyInformation."Address 2");
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -82,25 +46,6 @@ codeunit 144036 "ERM REP CNAE"
         // TearDown.
         UpdateCompanyInformationCNAEDescription(OldCNAEDescription);
     end;
-
-#if not CLEAN22
-    local procedure CreateAccountSchedule(): Code[10]
-    var
-        AccScheduleName: Record "Acc. Schedule Name";
-        AccScheduleLine: Record "Acc. Schedule Line";
-        ColumnLayoutName: Record "Column Layout Name";
-    begin
-        LibraryERM.CreateAccScheduleName(AccScheduleName);
-        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
-        AccScheduleName.Validate("Default Column Layout", ColumnLayoutName.Name);
-        AccScheduleName.Validate(Standardized, true);
-        AccScheduleName.Modify(true);
-        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
-        AccScheduleLine.Validate("Date Filter", WorkDate());
-        AccScheduleLine.Modify(true);
-        exit(AccScheduleLine."Schedule Name");
-    end;
-#endif
 
     local procedure GenerateRandomCode(NumberOfDigit: Integer) ElectronicCode: Text[1024]
     var

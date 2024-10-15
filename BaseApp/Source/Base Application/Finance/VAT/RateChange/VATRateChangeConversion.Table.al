@@ -75,7 +75,11 @@ table 551 "VAT Rate Change Conversion"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text0001: Label 'This entry will create a loop with the entry where the %1 field is set to %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CheckforLoop()
     var

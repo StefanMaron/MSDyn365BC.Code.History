@@ -350,7 +350,7 @@ page 7000001 "Receivables Cartera Docs"
                     if (Doc.Type <> Doc.Type::Receivable) and (Doc."Document Type" = Doc."Document Type"::Bill) then
                         Error(Text1100000);
 
-                    if Doc.Type = Doc.Type::Receivable then begin
+                    if Doc.Type = Doc.Type::Receivable then
                         if Doc."Document Type" = Doc."Document Type"::Bill then begin
                             CustLedgEntry.Reset();
                             repeat
@@ -361,7 +361,6 @@ page 7000001 "Receivables Cartera Docs"
                             CustLedgEntry.MarkedOnly(true);
                             CustLedgEntry.PrintBill(true);
                         end;
-                    end;
                 end;
             }
         }

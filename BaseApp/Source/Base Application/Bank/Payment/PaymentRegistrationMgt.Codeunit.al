@@ -12,7 +12,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 
 codeunit 980 "Payment Registration Mgt."
@@ -28,9 +27,13 @@ codeunit 980 "Payment Registration Mgt."
 
     var
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+#pragma warning disable AA0470
         EmptyDateReceivedErr: Label 'Date Received is missing for line with Document No. %1.';
+#pragma warning restore AA0470
         ConfirmPostPaymentsQst: Label 'Do you want to post the %1 payments?', Comment = '%1=number of payments to post';
+#pragma warning disable AA0470
         CloseQst: Label 'The %1 check box is selected on one or more lines. Do you want to close the window without posting these lines?';
+#pragma warning restore AA0470
         TempTableErr: Label 'The table passed as a parameter must be temporary.';
         SalesOrderTxt: Label 'Sales Order';
         SalesBlanketOrderTxt: Label 'Sales Blanket Order';
@@ -38,14 +41,12 @@ codeunit 980 "Payment Registration Mgt."
         SalesInvoiceTxt: Label 'Sales Invoice';
         SalesReturnOrderTxt: Label 'Sales Return Order';
         SalesCreditMemoTxt: Label 'Sales Credit Memo';
-        ServiceQuoteTxt: Label 'Service Quote';
-        ServiceOrderTxt: Label 'Service Order';
-        ServiceInvoiceTxt: Label 'Service Invoice';
-        ServiceCreditMemoTxt: Label 'Service Credit Memo';
         ReminderTxt: Label 'Reminder';
         FinChrgMemoTxt: Label 'Finance Charge Memo ';
+#pragma warning disable AA0470
         DistinctDateReceivedErr: Label 'To post as a lump payment, the %1 field must have the same value in all lines where the %2 check box is selected.';
         DistinctCustomerErr: Label 'To post as lump payment, the customer must be same value on all lines where the %1 check box is selected.';
+#pragma warning restore AA0470
         ConfirmLumpPaymentQst: Label 'Do you want to post the %1 payments as a lump sum of %2?', Comment = '%1=number of payments to post, %2 sum of amount received.';
         ForeignCurrNotSuportedErr: Label 'The document with type %1 and description %2 must have the same currency code as the payment you are registering.\\To register the payment, you must change %3 to use a balancing account with the same currency as the document. Alternatively, use the Cash Receipt Journal page to process the payment.', Comment = '%1 = Document Type; %2 = Description; %3 = Payment Registration Setup; Cash Receipt Journal should have the same translation as the pages with the same name.';
         PreviewMode: Boolean;
@@ -116,34 +117,34 @@ codeunit 980 "Payment Registration Mgt."
             GenJournalLine."Reason Code" := GenJnlBatch."Reason Code";
             GenJournalLine."Posting No. Series" := GenJnlBatch."Posting No. Series";
 
-            GenJournalLine.Validate(GenJournalLine."Posting Date", TempPaymentRegistrationBuffer."Date Received");
-            GenJournalLine.Validate(GenJournalLine."Account Type", GenJournalLine."Account Type"::Customer);
+            GenJournalLine.Validate("Posting Date", TempPaymentRegistrationBuffer."Date Received");
+            GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
             if TempPaymentRegistrationBuffer."Document Type" = TempPaymentRegistrationBuffer."Document Type"::"Credit Memo" then
-                GenJournalLine.Validate(GenJournalLine."Document Type", GenJournalLine."Document Type"::Refund)
+                GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Refund)
             else
-                GenJournalLine.Validate(GenJournalLine."Document Type", GenJournalLine."Document Type"::Payment);
+                GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
             GenJournalLine."Document No." := NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", GenJournalLine."Posting Date");
-            GenJournalLine.Validate(GenJournalLine."Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType());
-            GenJournalLine.Validate(GenJournalLine."Account No.", TempPaymentRegistrationBuffer."Source No.");
-            GenJournalLine.Validate(GenJournalLine.Amount, -TempPaymentRegistrationBuffer."Amount Received");
-            GenJournalLine.Validate(GenJournalLine."Bal. Account No.", PaymentRegistrationSetup."Bal. Account No.");
-            GenJournalLine.Validate(GenJournalLine."Payment Method Code", TempPaymentRegistrationBuffer."Payment Method Code");
+            GenJournalLine.Validate("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType());
+            GenJournalLine.Validate("Account No.", TempPaymentRegistrationBuffer."Source No.");
+            GenJournalLine.Validate(Amount, -TempPaymentRegistrationBuffer."Amount Received");
+            GenJournalLine.Validate("Bal. Account No.", PaymentRegistrationSetup."Bal. Account No.");
+            GenJournalLine.Validate("Payment Method Code", TempPaymentRegistrationBuffer."Payment Method Code");
             if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::"Bank Account" then begin
                 BankAcc.Get(GenJournalLine."Bal. Account No.");
-                GenJournalLine.Validate(GenJournalLine."Currency Code", BankAcc."Currency Code");
+                GenJournalLine.Validate("Currency Code", BankAcc."Currency Code");
             end;
             CheckCurrencyCode(TempPaymentRegistrationBuffer, GenJournalLine, PaymentRegistrationSetup, LumpPayment);
             if LumpPayment then begin
                 GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
                 PaymentToleranceManagement.PmtTolGenJnl(GenJournalLine);
             end else begin
-                GenJournalLine.Validate(GenJournalLine."Applies-to Doc. Type", TempPaymentRegistrationBuffer."Document Type");
-                GenJournalLine.Validate(GenJournalLine."Applies-to Doc. No.", TempPaymentRegistrationBuffer."Document No.");
+                GenJournalLine.Validate("Applies-to Doc. Type", TempPaymentRegistrationBuffer."Document Type");
+                GenJournalLine.Validate("Applies-to Doc. No.", TempPaymentRegistrationBuffer."Document No.");
                 if TempPaymentRegistrationBuffer."Document Type" = TempPaymentRegistrationBuffer."Document Type"::Bill then
                     if CustLedgerEntry.Get(TempPaymentRegistrationBuffer."Ledger Entry No.") then
-                        GenJournalLine.Validate(GenJournalLine."Applies-to Bill No.", CustLedgerEntry."Bill No.");
+                        GenJournalLine.Validate("Applies-to Bill No.", CustLedgerEntry."Bill No.");
             end;
-            GenJournalLine.Validate(GenJournalLine."External Document No.", TempPaymentRegistrationBuffer."External Document No.");
+            GenJournalLine.Validate("External Document No.", TempPaymentRegistrationBuffer."External Document No.");
             OnBeforeGenJnlLineInsert(GenJournalLine, TempPaymentRegistrationBuffer);
             GenJournalLine.Insert(true);
         until TempPaymentRegistrationBuffer.Next() = 0;
@@ -160,7 +161,7 @@ codeunit 980 "Payment Registration Mgt."
         PaymentRegistrationBuffer.Reset();
         PaymentRegistrationBuffer.SetRange(PaymentRegistrationBuffer."Payment Made", true);
         if not PaymentRegistrationBuffer.IsEmpty() then
-            exit(Confirm(StrSubstNo(CloseQst, PaymentRegistrationBuffer.FieldCaption(PaymentRegistrationBuffer."Payment Made"))));
+            exit(Confirm(StrSubstNo(CloseQst, PaymentRegistrationBuffer.FieldCaption("Payment Made"))));
 
         exit(true);
     end;
@@ -192,7 +193,6 @@ codeunit 980 "Payment Registration Mgt."
         DocNoFilter := StrSubstNo('*%1*', DocNoFilter);
 
         FindSalesHeaderRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
-        FindServiceHeaderRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
         FindReminderHeaderRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
         FindFinChargeMemoHeaderRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
 
@@ -214,28 +214,6 @@ codeunit 980 "Payment Registration Mgt."
                         InsertDocSearchResult(TempDocumentSearchResult, SalesHeader."No.", SalesHeader."Document Type".AsInteger(), DATABASE::"Sales Header",
                           GetSalesHeaderDescription(SalesHeader), SalesHeader."Amount Including VAT");
                 until SalesHeader.Next() = 0;
-        end;
-    end;
-
-    local procedure FindServiceHeaderRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNoFilter: Code[20]; AmountFilter: Decimal; AmountTolerancePerc: Decimal)
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-    begin
-        if ServiceHeader.ReadPermission then begin
-            ServiceHeader.Reset();
-            ServiceHeader.SetFilter("No.", DocNoFilter);
-            if ServiceHeader.FindSet() then
-                repeat
-                    ServiceLine.Reset();
-                    ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-                    ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-                    ServiceLine.CalcSums("Amount Including VAT");
-                    if IsWithinTolerance(ServiceLine."Amount Including VAT", AmountFilter, AmountTolerancePerc) then
-                        InsertDocSearchResult(
-                          TempDocumentSearchResult, ServiceHeader."No.", ServiceHeader."Document Type".AsInteger(), DATABASE::"Service Header",
-                          GetServiceHeaderDescription(ServiceHeader), ServiceLine."Amount Including VAT");
-                until ServiceHeader.Next() = 0;
         end;
     end;
 
@@ -285,8 +263,6 @@ codeunit 980 "Payment Registration Mgt."
         case TempDocumentSearchResult."Table ID" of
             DATABASE::"Sales Header":
                 ShowSalesHeaderRecords(TempDocumentSearchResult);
-            DATABASE::"Service Header":
-                ShowServiceHeaderRecords(TempDocumentSearchResult);
             DATABASE::"Reminder Header":
                 begin
                     ReminderHeader.Get(TempDocumentSearchResult."Doc. No.");
@@ -297,6 +273,8 @@ codeunit 980 "Payment Registration Mgt."
                     FinanceChargeMemoHeader.Get(TempDocumentSearchResult."Doc. No.");
                     PAGE.Run(PAGE::"Finance Charge Memo", FinanceChargeMemoHeader);
                 end;
+            else
+                OnShowRecords(TempDocumentSearchResult);
         end;
     end;
 
@@ -328,28 +306,6 @@ codeunit 980 "Payment Registration Mgt."
                 PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
             else
                 PAGE.Run(0, SalesHeader);
-        end;
-    end;
-
-    local procedure ShowServiceHeaderRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary)
-    var
-        ServiceHeader: Record "Service Header";
-    begin
-        TempDocumentSearchResult.TestField("Table ID", DATABASE::"Service Header");
-        ServiceHeader.SetRange("Document Type", TempDocumentSearchResult."Doc. Type");
-        ServiceHeader.SetRange("No.", TempDocumentSearchResult."Doc. No.");
-
-        case TempDocumentSearchResult."Doc. Type" of
-            ServiceHeader."Document Type"::Quote.AsInteger():
-                PAGE.Run(PAGE::"Service Quote", ServiceHeader);
-            ServiceHeader."Document Type"::Order.AsInteger():
-                PAGE.Run(PAGE::"Service Order", ServiceHeader);
-            ServiceHeader."Document Type"::Invoice.AsInteger():
-                PAGE.Run(PAGE::"Service Invoice", ServiceHeader);
-            ServiceHeader."Document Type"::"Credit Memo".AsInteger():
-                PAGE.Run(PAGE::"Service Credit Memo", ServiceHeader);
-            else
-                PAGE.Run(0, ServiceHeader);
         end;
     end;
 
@@ -400,7 +356,7 @@ codeunit 980 "Payment Registration Mgt."
         end;
     end;
 
-    local procedure InsertDocSearchResult(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNo: Code[20]; DocType: Integer; TableID: Integer; DocTypeDescription: Text[50]; Amount: Decimal)
+    procedure InsertDocSearchResult(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNo: Code[20]; DocType: Integer; TableID: Integer; DocTypeDescription: Text[50]; Amount: Decimal)
     begin
         if not TempDocumentSearchResult.Get(DocType, DocNo, TableID) then begin
             TempDocumentSearchResult.Init();
@@ -425,7 +381,7 @@ codeunit 980 "Payment Registration Mgt."
         exit('');
     end;
 
-    local procedure IsWithinTolerance(Amount: Decimal; FilterAmount: Decimal; TolerancePct: Decimal): Boolean
+    procedure IsWithinTolerance(Amount: Decimal; FilterAmount: Decimal; TolerancePct: Decimal): Boolean
     begin
         if FilterAmount = 0 then
             exit(true);
@@ -451,22 +407,6 @@ codeunit 980 "Payment Registration Mgt."
                 exit(SalesCreditMemoTxt);
             else
                 exit(SalesOrderTxt);
-        end;
-    end;
-
-    local procedure GetServiceHeaderDescription(ServiceHeader: Record "Service Header"): Text[50]
-    begin
-        case ServiceHeader."Document Type" of
-            ServiceHeader."Document Type"::Quote:
-                exit(ServiceQuoteTxt);
-            ServiceHeader."Document Type"::Order:
-                exit(ServiceOrderTxt);
-            ServiceHeader."Document Type"::Invoice:
-                exit(ServiceInvoiceTxt);
-            ServiceHeader."Document Type"::"Credit Memo":
-                exit(ServiceCreditMemoTxt);
-            else
-                exit(ServiceOrderTxt);
         end;
     end;
 
@@ -679,7 +619,7 @@ codeunit 980 "Payment Registration Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterFindRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNoFilter: Code[20]; AmountFilter: Decimal; AmountTolerancePerc: Decimal)
     begin
     end;
@@ -706,6 +646,11 @@ codeunit 980 "Payment Registration Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnShowSalesHeaderRecordsOnBeforeOpenPage(var TempDocumentSearchResult: Record "Document Search Result" temporary; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary)
     begin
     end;
 }

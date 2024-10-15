@@ -263,6 +263,9 @@ report 1303 "Standard Sales - Draft Invoice"
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(ShipToPhoneNo; Header."Ship-to Phone No.")
+            {
+            }
             column(PaymentTermsDescription; PaymentTerms.Description)
             {
             }
@@ -332,12 +335,20 @@ report 1303 "Standard Sales - Draft Invoice"
             column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber())
+#if not CLEAN25
+            column(GlobalLocationNumber; '')
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not in use anymore.';
+                ObsoleteTag = '25.0';
             }
-            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl())
+            column(GlobalLocationNumber_Lbl; '')
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not in use anymore.';
+                ObsoleteTag = '25.0';
             }
+#endif
             column(LegalEntityType; Cust.GetLegalEntityType())
             {
             }
@@ -936,9 +947,6 @@ report 1303 "Standard Sales - Draft Invoice"
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
                 PaymentServiceSetup: Record "Payment Service Setup";
-#if not CLEAN22
-                ArchiveManagement: Codeunit ArchiveManagement;
-#endif
                 SalesPost: Codeunit "Sales-Post";
             begin
                 FirstLineHasBeenOutput := false;
@@ -989,11 +997,6 @@ report 1303 "Standard Sales - Draft Invoice"
                 if SellToContact.Get("Sell-to Contact No.") then;
                 if BillToContact.Get("Bill-to Contact No.") then;
 
-#if not CLEAN22
-                if not IsReportInPreviewMode() and ArchiveDocument then
-                    ArchiveManagement.StoreSalesDocument(Header, false);
-#endif
-
                 TotalSubTotal := 0;
                 TotalInvDiscAmount := 0;
                 TotalAmount := 0;
@@ -1027,17 +1030,6 @@ report 1303 "Standard Sales - Draft Invoice"
                         Enabled = LogInteractionEnable;
                         ToolTip = 'Specifies that interactions with the contact are logged.';
                     }
-#if not CLEAN22
-                    field(ArchiveDocument; ArchiveDocument)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Archive Document';
-                        ToolTip = 'Specifies if the document is archived after you print it. Note: This option is going to be discontinued in future releases. Instead, for sales invoice versioning you can use the feature to attach draft invoice printout as PDF document.';
-                        ObsoleteReason = 'Archiving of Sales Invoice document is not supported.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-                    }
-#endif
                 }
             }
         }
@@ -1049,9 +1041,6 @@ report 1303 "Standard Sales - Draft Invoice"
         trigger OnInit()
         begin
             LogInteractionEnable := true;
-#if not CLEAN22
-            ArchiveDocument := SalesSetup."Archive Orders";
-#endif
         end;
 
         trigger OnOpenPage()
@@ -1083,6 +1072,13 @@ report 1303 "Standard Sales - Draft Invoice"
             LayoutFile = './Sales/Document/StandardDraftSalesInvoiceBlue.docx';
             Caption = 'Standard Sales Draft Invoice - Blue (Word)';
             Summary = 'The Standard Sales Draft Invoice -Blue (Word) provides a basic layout with a blue theme.';
+        }
+        layout("StandardDraftSalesInvoiceBlueThemable.docx")
+        {
+            Type = Word;
+            LayoutFile = './Sales/Document/StandardDraftSalesInvoiceBlueThemable.docx';
+            Caption = 'Standard Sales Draft Invoice - themable Word layout';
+            Summary = 'The Standard Sales Draft Invoice -Themable (Word) provides a Themable layout.';
         }
         layout("StandardDraftSalesInvoiceEmail.docx")
         {
@@ -1167,9 +1163,6 @@ report 1303 "Standard Sales - Draft Invoice"
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         SalesPersonText: Text[50];
-#if not CLEAN22
-        ArchiveDocument: Boolean;
-#endif
         LogInteractionEnable: Boolean;
         CompanyLogoPosition: Integer;
         CalculatedExchRate: Decimal;

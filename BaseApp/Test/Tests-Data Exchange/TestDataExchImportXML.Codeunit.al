@@ -1196,15 +1196,13 @@ codeunit 132547 "Test Data Exch.Import - XML"
 
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def")
     begin
-        with DataExchDef do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Data Exch. Def");
-            Type := Type::"Bank Statement Import";
-            "File Encoding" := "File Encoding"::"UTF-8";
-            "File Type" := "File Type"::Xml;
-            "Reading/Writing Codeunit" := CODEUNIT::"Import Bank Statement";
-            Insert();
-        end;
+        DataExchDef.Init();
+        DataExchDef.Code := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
+        DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
+        DataExchDef."File Encoding" := DataExchDef."File Encoding"::"UTF-8";
+        DataExchDef."File Type" := DataExchDef."File Type"::Xml;
+        DataExchDef."Reading/Writing Codeunit" := CODEUNIT::"Import Bank Statement";
+        DataExchDef.Insert();
     end;
 
     local procedure CreateDataExchLineDef(var DataExchLineDef: Record "Data Exch. Line Def"; DataExchDefCode: Code[20]; ExpectedNamespace: Text[250])

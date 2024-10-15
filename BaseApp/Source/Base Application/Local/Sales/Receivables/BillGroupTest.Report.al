@@ -376,7 +376,7 @@ report 7000008 "Bill Group - Test"
                                           NoOfDays,
                                           DocPost.FindDisctdAmt("Remaining Amount", "Account No.", BillGr."Bank Account No."),
                                           "Entry No.");
-                                end else begin
+                                end else
                                     if BillGr."Dealing Type" = BillGr."Dealing Type"::Discount then
                                         AddError(
                                           StrSubstNo(
@@ -389,7 +389,6 @@ report 7000008 "Bill Group - Test"
                                             Cust.TableCaption(),
                                             Cust.FieldCaption("No."),
                                             "Account No."));
-                                end;
                             end;
                         end;
 

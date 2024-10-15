@@ -66,6 +66,11 @@ page 460 "Purchases & Payables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that a posted return shipment and a posted purchase credit memo are automatically created when you post a credit memo.';
                 }
+                field(DefaultGLAccountQuantity; Rec."Default G/L Account Quantity")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
+                }
                 field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;

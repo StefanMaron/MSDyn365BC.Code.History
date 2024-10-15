@@ -1,4 +1,4 @@
-#if not CLEAN23
+#if not CLEAN25
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Finance.Currency;
@@ -183,7 +183,11 @@ report 1191 "Suggest Res. Price Chg. (Res.)"
         UnitPriceFactor: Decimal;
         PriceLowerLimit: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Processing items  #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InitializeCopyToResPrice(CurrencyCode: Code[10]; WorkTypeCode: Code[10])
     begin

@@ -348,8 +348,10 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment: Record "Document Attachment";
         RecRef: RecordRef;
         SalesQuotes: TestPage "Sales Quotes";
+#if not CLEAN25
         FinalDocAttachedAcount: Integer;
-    begin
+#endif
+        begin
         // [SCENARIO] Ensure that Documents Attachment factbox shows blank when quote is converted to order
 
         Initialize();
@@ -369,8 +371,18 @@ codeunit 134776 "Document Attachment Tests"
             if not SalesQuotes.Next() then
                 break;
 
+#if not CLEAN25
         // [THEN] The number of attachments is shown as 2
         Assert.AreEqual(2, SalesQuotes."Attached Documents".Documents.AsInteger(), '2 attachments should have been visible.');
+#endif
+        // [THEN] The attachment list in factbox should be updated
+        Assert.IsTrue(SalesQuotes."Attached Documents List".First(), 'Move to first record failed.');
+        Assert.AreEqual(SalesQuotes."Attached Documents List".Name.Value(), 'foo', 'File name does not match.');
+        Assert.AreEqual(SalesQuotes."Attached Documents List"."File Extension".Value(), 'jpeg', 'File extension does not match.');
+
+        Assert.IsTrue(SalesQuotes."Attached Documents List".Next(), 'Move to second record failed.');
+        Assert.AreEqual(SalesQuotes."Attached Documents List".Name.Value(), 'bar', 'File name does not match.');
+        Assert.AreEqual(SalesQuotes."Attached Documents List"."File Extension".Value(), 'jpeg', 'File extension does not match.');
 
         // [WHEN] Quote is converted to order
         SalesQuotes.MakeOrder.Invoke();
@@ -378,9 +390,11 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] Sales quote selected is a different one
         Assert.AreNotEqual(SalesHeaderQuote."No.", SalesQuotes."No.".Value(), 'Different sales quote selected.');
 
+#if not CLEAN25
         // [THEN] The number of attachments is updated
         FinalDocAttachedAcount := 0;
-        if SalesQuotes."No.".Value() <> '' then begin
+        if SalesQuotes."No.".Value() <> '' then
+        begin
             DocumentAttachment.Reset();
             DocumentAttachment.SetRange("Table ID", Database::"Sales Header");
             DocumentAttachment.SetRange("Document Type", SalesHeaderQuote."Document Type"::Quote);
@@ -388,6 +402,9 @@ codeunit 134776 "Document Attachment Tests"
             FinalDocAttachedAcount := DocumentAttachment.Count();
         end;
         Assert.AreEqual(FinalDocAttachedAcount, SalesQuotes."Attached Documents".Documents.AsInteger(), 'Attachments count should match quote.');
+#endif
+        // [THEN] The attachment list in factbox should be updated
+        Assert.IsFalse(SalesQuotes."Attached Documents List".First(), 'The attached file list should be empty');
     end;
 
     local procedure CreateDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef; FileName: Text)
@@ -533,7 +550,7 @@ codeunit 134776 "Document Attachment Tests"
         CreateDocAttach(RecRef, 'cust1.jpeg', false, true);
         CreateDocAttach(RecRef, 'cust2.jpeg', false, false);
 
-        // [GIVEN] An Item with two attacments, one marked to flow
+        // [GIVEN] An Item with two attachments, one marked to flow
         LibraryInventory.CreateItem(Item);
         RecRef.GetTable(Item);
 
@@ -572,7 +589,7 @@ codeunit 134776 "Document Attachment Tests"
         CreateDocAttach(RecRef, 'vend1.jpeg', true, true);
         CreateDocAttach(RecRef, 'vend2.jpeg', false, false);
 
-        // [GIVEN] An Item with two attacments, one marked to flow
+        // [GIVEN] An Item with two attachments, one marked to flow
         LibraryInventory.CreateItem(Item);
         RecRef.GetTable(Item);
 
@@ -2196,7 +2213,7 @@ codeunit 134776 "Document Attachment Tests"
             LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
         // [GIVEN] Set purchase invoice document layout for vendor "VEND" to report 324
-        CreateCustomReportSelection(Database::Vendor, PurchInvHeader."Buy-from Vendor No.", "Report Selection Usage"::"P.Invoice", Report::"Purchase Invoice Nos.");
+        CreateCustomReportSelection(Database::Vendor, PurchInvHeader."Buy-from Vendor No.", "Report Selection Usage"::"P.Invoice", Report::"Purchase - Invoice");
 
         // [WHEN] "Print to attachment" function is called
         PurchInvHeader.SetRecFilter();
@@ -2204,7 +2221,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] Attachment file name starts from 324
         FindDocumentAttachment(DocumentAttachment, Database::"Purch. Inv. Header", PurchInvHeader."No.", 0);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Purchase Invoice Nos.", PurchInvHeader."No."));
+        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Purchase - Invoice", PurchInvHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchInvHeader);
     end;
@@ -2402,11 +2419,28 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] "SI1" has one attachment in factbox
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesHeaders[1]);
         SalesInvoiceList.Filter.SetFilter("No.", SalesHeader."No.");
+#if not CLEAN25
         SalesInvoiceList.AttachedDocuments.Documents.AssertEquals(1);
+#endif
+        Assert.IsTrue(SalesInvoiceList."Attached Documents List".First(), 'No attachments found');
+        Assert.AreEqual('1', SalesInvoiceList."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', SalesInvoiceList."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+        Assert.IsFalse(SalesInvoiceList."Attached Documents List".Next(), 'There should be only one attachment');
+
         // [THEN] "SI2" has two attachments in factbox
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesHeaders[2]);
         SalesInvoiceList.Filter.SetFilter("No.", SalesHeader."No.");
+#if not CLEAN25
         SalesInvoiceList.AttachedDocuments.Documents.AssertEquals(2);
+#endif
+        Assert.IsTrue(SalesInvoiceList."Attached Documents List".First(), 'No attachments found');
+        Assert.AreEqual('1', SalesInvoiceList."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', SalesInvoiceList."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+
+        Assert.IsTrue(SalesInvoiceList."Attached Documents List".Next(), 'Cannot find the second attachment');
+        Assert.AreEqual('2', SalesInvoiceList."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', SalesInvoiceList."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+        Assert.IsFalse(SalesInvoiceList."Attached Documents List".Next(), 'There should be only two attachments');
     end;
 
     [Test]
@@ -2438,11 +2472,28 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] "SCM1" has one attachment in factbox
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeaders[1]);
         SalesCreditMemos.Filter.SetFilter("No.", SalesHeader."No.");
+#if not CLEAN25
         SalesCreditMemos.AttachedDocuments.Documents.AssertEquals(1);
+#endif
+        Assert.IsTrue(SalesCreditMemos."Attached Documents List".First(), 'No attachments found');
+        Assert.AreEqual('1', SalesCreditMemos."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', SalesCreditMemos."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+        Assert.IsFalse(SalesCreditMemos."Attached Documents List".Next(), 'There should be only one attachment');
+
         // [THEN] "SCM2" has two attachments in factbox
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeaders[2]);
         SalesCreditMemos.Filter.SetFilter("No.", SalesHeader."No.");
+#if not CLEAN25
         SalesCreditMemos.AttachedDocuments.Documents.AssertEquals(2);
+#endif
+        Assert.IsTrue(SalesCreditMemos."Attached Documents List".First(), 'No attachments found');
+        Assert.AreEqual('1', SalesCreditMemos."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', SalesCreditMemos."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+
+        Assert.IsTrue(SalesCreditMemos."Attached Documents List".Next(), 'Cannot find the second attachment');
+        Assert.AreEqual('2', SalesCreditMemos."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', SalesCreditMemos."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+        Assert.IsFalse(SalesCreditMemos."Attached Documents List".Next(), 'There should be only two attachments');
     end;
 
     [Test]
@@ -2474,11 +2525,28 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] "PI1" has one attachment in factbox
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseHeaders[1]);
         PurchaseInvoices.Filter.SetFilter("No.", PurchaseHeader."No.");
+#if not CLEAN25
         PurchaseInvoices.AttachedDocuments.Documents.AssertEquals(1);
+#endif
+        Assert.IsTrue(PurchaseInvoices."Attached Documents List".First(), 'No attachments found');
+        Assert.AreEqual('1', PurchaseInvoices."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', PurchaseInvoices."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+        Assert.IsFalse(PurchaseInvoices."Attached Documents List".Next(), 'There should be only one attachment');
+
         // [THEN] "PI2" has two attachments in factbox
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseHeaders[2]);
         PurchaseInvoices.Filter.SetFilter("No.", PurchaseHeader."No.");
+#if not CLEAN25
         PurchaseInvoices.AttachedDocuments.Documents.AssertEquals(2);
+#endif
+        Assert.IsTrue(PurchaseInvoices."Attached Documents List".First(), 'No attachments found');
+        Assert.AreEqual('1', PurchaseInvoices."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', PurchaseInvoices."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+
+        Assert.IsTrue(PurchaseInvoices."Attached Documents List".Next(), 'Cannot find the second attachment');
+        Assert.AreEqual('2', PurchaseInvoices."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', PurchaseInvoices."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+        Assert.IsFalse(PurchaseInvoices."Attached Documents List".Next(), 'There should be only two attachments');
     end;
 
     [Test]
@@ -2510,13 +2578,30 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] "PCM1" has one attachment in factbox
         PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeaders[1]);
         PurchaseCreditMemos.Filter.SetFilter("No.", PurchaseHeader."No.");
+#if not CLEAN25
         PurchaseCreditMemos.AttachedDocuments.Documents.AssertEquals(1);
+#endif
+        Assert.IsTrue(PurchaseCreditMemos."Attached Documents List".First(), 'No attachments found');
+        Assert.AreEqual('1', PurchaseCreditMemos."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', PurchaseCreditMemos."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+        Assert.IsFalse(PurchaseCreditMemos."Attached Documents List".Next(), 'There should be only one attachment');
+
         // [THEN] "PCM2" has two attachments in factbox
         PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeaders[2]);
         PurchaseCreditMemos.Filter.SetFilter("No.", PurchaseHeader."No.");
+#if not CLEAN25
         PurchaseCreditMemos.AttachedDocuments.Documents.AssertEquals(2);
-    end;
+#endif
+        Assert.IsTrue(PurchaseCreditMemos."Attached Documents List".First(), 'No attachments found');
+        Assert.AreEqual('1', PurchaseCreditMemos."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', PurchaseCreditMemos."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
 
+        Assert.IsTrue(PurchaseCreditMemos."Attached Documents List".Next(), 'Cannot find the second attachment');
+        Assert.AreEqual('2', PurchaseCreditMemos."Attached Documents List".Name.Value(), 'Incorrect Name of attachments');
+        Assert.AreEqual('txt', PurchaseCreditMemos."Attached Documents List"."File Extension".Value, 'Incorrect file extension of attachments');
+        Assert.IsFalse(PurchaseCreditMemos."Attached Documents List".Next(), 'There should be only two attachments');
+    end;
+    
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('QuoteToOrderConfirmHandler')]
@@ -2701,7 +2786,7 @@ codeunit 134776 "Document Attachment Tests"
         // [SCENARIO 332151] Item attachments with "Document Flow Service" are copied to Service Item attachments and refreshed on Item change.
         Initialize();
 
-        // [GIVEN] An Item[1] with 4 attacments, 2 marked with "Document Flow Service"
+        // [GIVEN] An Item[1] with 4 attachments, 2 marked with "Document Flow Service"
         LibraryInventory.CreateItem(Item[1]);
         RecordRef.GetTable(Item[1]);
         CreateDocAttachService(RecordRef, 'Item1_1.jpeg', false);
@@ -2709,7 +2794,7 @@ codeunit 134776 "Document Attachment Tests"
         CreateDocAttachService(RecordRef, 'Item1_3.jpeg', true);
         CreateDocAttachService(RecordRef, 'Item1_4.jpeg', false);
 
-        // [GIVEN] An Item[2] with 5 attacments, 3 marked with "Document Flow Service"
+        // [GIVEN] An Item[2] with 5 attachments, 3 marked with "Document Flow Service"
         LibraryInventory.CreateItem(Item[2]);
         RecordRef.GetTable(Item[2]);
         CreateDocAttachService(RecordRef, 'Item2_1.jpeg', false);
@@ -2948,13 +3033,13 @@ codeunit 134776 "Document Attachment Tests"
         CreateDocAttachService(RecordRef, 'Cust1.jpeg', true);
         CreateDocAttachService(RecordRef, 'Cust2.jpeg', false);
 
-        // [GIVEN] Item with 2 attacments, 1 marked to flow
+        // [GIVEN] Item with 2 attachments, 1 marked to flow
         LibraryInventory.CreateItem(Item);
         RecordRef.GetTable(Item);
         CreateDocAttachService(RecordRef, 'Item1.jpeg', true);
         CreateDocAttachService(RecordRef, 'Item2.jpeg', false);
 
-        // [GIVEN] Service Item with 2 attacments, 1 marked to flow
+        // [GIVEN] Service Item with 2 attachments, 1 marked to flow
         LibraryInventory.CreateItem(ItemForServiceItem);
         RecordRef.GetTable(ItemForServiceItem);
         CreateDocAttachService(RecordRef, 'ServiceItem1.jpeg', true);
@@ -3062,7 +3147,7 @@ codeunit 134776 "Document Attachment Tests"
         CreateDocAttachService(RecordRef, 'Cust1.jpeg', true);
         CreateDocAttachService(RecordRef, 'Cust2.jpeg', false);
 
-        // [GIVEN] Item with 2 attacments, 2 marked to flow
+        // [GIVEN] Item with 2 attachments, 2 marked to flow
         LibraryInventory.CreateItem(Item);
         RecordRef.GetTable(Item);
         CreateDocAttachService(RecordRef, 'Item1.jpeg', true);
@@ -3329,13 +3414,13 @@ codeunit 134776 "Document Attachment Tests"
         CreateDocAttachService(RecordRef, 'Cust1.jpeg', true);
         CreateDocAttachService(RecordRef, 'Cust2.jpeg', false);
 
-        // [GIVEN] Item with 2 attacments, 1 marked to flow
+        // [GIVEN] Item with 2 attachments, 1 marked to flow
         LibraryInventory.CreateItem(Item);
         RecordRef.GetTable(Item);
         CreateDocAttachService(RecordRef, 'Item1.jpeg', true);
         CreateDocAttachService(RecordRef, 'Item2.jpeg', false);
 
-        // [GIVEN] Service Item with 2 attacments, 1 marked to flow
+        // [GIVEN] Service Item with 2 attachments, 1 marked to flow
         LibraryInventory.CreateItem(ItemForServiceItem);
         RecordRef.GetTable(ItemForServiceItem);
         CreateDocAttachService(RecordRef, 'ServiceItem1.jpeg', true);
@@ -3388,7 +3473,7 @@ codeunit 134776 "Document Attachment Tests"
         CreateDocAttachService(RecordRef, 'Cust1.jpeg', true);
         CreateDocAttachService(RecordRef, 'Cust2.jpeg', false);
 
-        // [GIVEN] Service Item with 2 attacments, 1 marked to flow
+        // [GIVEN] Service Item with 2 attachments, 1 marked to flow
         LibraryInventory.CreateItem(ItemForServiceItem);
         RecordRef.GetTable(ItemForServiceItem);
         CreateDocAttachService(RecordRef, 'ServiceItem1.jpeg', true);
@@ -3450,6 +3535,112 @@ codeunit 134776 "Document Attachment Tests"
         CheckDocAttachments(Database::"Service Contract Line", 2, ServiceContractLineTo."Contract No.", DocumentAttachment."Document Type"::"Service Contract".AsInteger(), 'ServiceItem1');
     end;
     #endregion [Service Management]
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EnsureUploadMultipleFileBasicFunction()
+    var
+        Customer: Record Customer;
+        RecRef: RecordRef;
+        CustomerTestPage: TestPage "Customer List";
+    begin
+        // [SCENARIO] Test save multiple attachments to a new customer record
+        Initialize();
+        // [GINVE] Create a customer
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Open Customer List page
+        CustomerTestPage.OpenView();
+
+        // [THEN] Check the buttons on the Doc. Attachment List Factbox page
+        Assert.IsTrue(CustomerTestPage."Attached Documents List".OpenInDetail.Enabled(), 'OpenInDetail button must be enabled');
+        // [TODO] fileupload is not supported in TestPage for now. Add it back when supported.
+        // Assert.IsTrue(CustomerTestPage."Attached Documents List".UploadFiles.Enabled(), 'UploadFiles button must be visible');
+        Assert.IsFalse(CustomerTestPage."Attached Documents List".EditInOneDrive.Visible(), 'EditInOneDrive button must be invisible');
+        Assert.IsFalse(CustomerTestPage."Attached Documents List".DownloadInRepeater.Enabled(), 'DownloadInRepeater button must be disabled');
+        Assert.IsFalse(CustomerTestPage."Attached Documents List".OpenInOneDrive.Visible(), 'OpenInOneDrive button must be invisible');
+        Assert.IsFalse(CustomerTestPage."Attached Documents List".ShareWithOneDrive.Visible(), 'OpenInOneDrive button must be invisible');
+
+        // [WHEN] Upload 2 attachments to the customer record
+        // [TODO] fileupload is not supported in TestPage for now. Add it back when supported.
+        // CustomerTestPage."Attached Documents List".UploadFiles.Invoke();
+        RecRef.Get(Customer.RecordId);
+        // [TODO] for now cannot init fileupload in test. Replace with fileupload when supported.
+        CreateDocAttach(RecRef, 'Cust1.jpeg', false, false);
+        CreateDocAttach(RecRef, 'Cust2.jpeg', false, false);
+
+        // [WHEN] Reload this document attachment list page
+        CustomerTestPage.Close();
+        CustomerTestPage.OpenView();
+        CustomerTestPage.Filter.SetFilter("No.", Customer."No.");
+
+        // [WHEN] Move to the first attachment on the Doc. Attachment List Factbox page 
+        CustomerTestPage."Attached Documents List".First();
+        // [THEN] The download button should be enabled. And the first line should be the first attachment
+        Assert.IsTrue(CustomerTestPage."Attached Documents List".DownloadInRepeater.Enabled(), 'DownloadInRepeater button must be enabled');
+        Assert.AreEqual('Cust1', CustomerTestPage."Attached Documents List".Name.Value, 'Unexpected file name');
+        Assert.AreEqual('jpeg', CustomerTestPage."Attached Documents List"."File Extension".Value, 'Unexpected file extension');
+
+        // [WHEN] Move to the second attachment on the Doc. Attachment List Factbox page 
+        CustomerTestPage."Attached Documents List".Next();
+        // [THEN] The download button should be enabled. And the next line should be the second attachment
+        Assert.IsTrue(CustomerTestPage."Attached Documents List".DownloadInRepeater.Enabled(), 'DownloadInRepeater button must be enabled');
+        Assert.AreEqual('Cust2', CustomerTestPage."Attached Documents List".Name.Value, 'Unexpected file name');
+        Assert.AreEqual('jpeg', CustomerTestPage."Attached Documents List"."File Extension".Value, 'Unexpected file extension');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EnsureUploadMultipleFileBasicFunctionInServiceItem()
+    var
+        Customer: Record Customer;
+        ServiceItem: Record "Service Item";
+        RecRef: RecordRef;
+        ServiceItemListTestPage: TestPage "Service Item List";
+        LibraryService: Codeunit "Library - Service";
+    begin
+        // [Bug][549027] Uploading file on Service Item List page should populate the table id correctly 
+        Initialize();
+        // [GINVE] Create a customer and service item
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        // [GIVEN] Open Service Item List page
+        ServiceItemListTestPage.OpenView();
+
+        // [THEN] Check the buttons on the Doc. Attachment List Factbox page
+        Assert.IsTrue(ServiceItemListTestPage."Attached Documents List".OpenInDetail.Enabled(), 'OpenInDetail button must be enabled');
+        // [TODO] fileupload is not supported in TestPage for now. Add it back when supported.
+        // Assert.IsTrue(ServiceItemListTestPage."Attached Documents List".UploadFiles.Enabled(), 'UploadFiles button must be visible');
+        Assert.IsFalse(ServiceItemListTestPage."Attached Documents List".EditInOneDrive.Visible(), 'EditInOneDrive button must be invisible');
+        Assert.IsFalse(ServiceItemListTestPage."Attached Documents List".OpenInOneDrive.Visible(), 'OpenInOneDrive button must be invisible');
+        Assert.IsFalse(ServiceItemListTestPage."Attached Documents List".ShareWithOneDrive.Visible(), 'OpenInOneDrive button must be invisible');
+
+        // [WHEN] Upload 2 attachments to the service item record
+        // [TODO] fileupload is not supported in TestPage for now. Add it back when supported.
+        // CustomerTestPage."Attached Documents List".UploadFiles.Invoke();
+        RecRef.Get(ServiceItem.RecordId);
+        // [TODO] for now cannot init fileupload in test. Replace with fileupload when supported.
+        CreateDocAttach(RecRef, 'Cust1.jpeg', false, false);
+        CreateDocAttach(RecRef, 'Cust2.jpeg', false, false);
+
+        // [WHEN] Reload this document attachment list page
+        ServiceItemListTestPage.Close();
+        ServiceItemListTestPage.OpenView();
+        ServiceItemListTestPage.Filter.SetFilter("No.", ServiceItem."No.");
+
+        // [WHEN] Move to the first attachment on the Doc. Attachment List Factbox page 
+        ServiceItemListTestPage."Attached Documents List".First();
+        // [THEN] The download button should be enabled. And the first line should be the first attachment
+        Assert.IsTrue(ServiceItemListTestPage."Attached Documents List".DownloadInRepeater.Enabled(), 'DownloadInRepeater button must be enabled');
+        Assert.AreEqual('Cust1', ServiceItemListTestPage."Attached Documents List".Name.Value, 'Unexpected file name');
+        Assert.AreEqual('jpeg', ServiceItemListTestPage."Attached Documents List"."File Extension".Value, 'Unexpected file extension');
+
+        // [WHEN] Move to the second attachment on the Doc. Attachment List Factbox page 
+        ServiceItemListTestPage."Attached Documents List".Next();
+        // [THEN] The download button should be enabled. And the next line should be the second attachment
+        Assert.IsTrue(ServiceItemListTestPage."Attached Documents List".DownloadInRepeater.Enabled(), 'DownloadInRepeater button must be enabled');
+        Assert.AreEqual('Cust2', ServiceItemListTestPage."Attached Documents List".Name.Value, 'Unexpected file name');
+        Assert.AreEqual('jpeg', ServiceItemListTestPage."Attached Documents List"."File Extension".Value, 'Unexpected file extension');
+    end;
 
     local procedure Initialize()
     var
@@ -3730,7 +3921,8 @@ codeunit 134776 "Document Attachment Tests"
         exit(StrSubstNo('%1 %2 %3', ReportId, GetReportCaption(ReportId), DocumentNo));
     end;
 
-    local procedure MockDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; TableId: Integer; DocumentNo: Code[20]; DocumentType: Enum "Attachment Document Type"; FileName: Text; FileExtension: Text)
+    local procedure MockDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; TableId: Integer; DocumentNo: Code[20]; DocumentType: Enum "Attachment Document Type"; FileName: Text;
+                                                                                                                                                           FileExtension: Text)
     begin
         Clear(DocumentAttachment);
         DocumentAttachment."Table ID" := TableId;

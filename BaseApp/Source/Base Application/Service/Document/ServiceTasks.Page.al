@@ -1,5 +1,6 @@
 namespace Microsoft.Service.Document;
 
+using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
@@ -359,13 +360,13 @@ page 5915 "Service Tasks"
 
                     trigger OnAction()
                     var
+                        ServItemLine: Record "Service Item Line";
                         PageManagement: Codeunit "Page Management";
                     begin
                         if ServHeader.Get(Rec."Document Type", Rec."Document No.") then begin
                             PageManagement.PageRunModal(ServHeader);
 
                             if ServOrderFilter <> '' then begin
-                                ServItemLine.Reset();
                                 ServItemLine.CopyFilters(Rec);
                                 if ServItemLine.GetRangeMin("Document No.") = ServItemLine.GetRangeMax("Document No.") then
                                     if ServItemLine.IsEmpty() then begin
@@ -405,8 +406,9 @@ page 5915 "Service Tasks"
                     ToolTip = 'View information about service items on service orders, for example, repair status, response time and service shelf number.';
 
                     trigger OnAction()
+                    var
+                        ServItemLine: Record "Service Item Line";
                     begin
-                        Clear(ServItemLine);
                         Rec.FilterGroup(2);
                         ServItemLine.SetView(Rec.GetView());
                         Rec.FilterGroup(0);
@@ -425,12 +427,13 @@ page 5915 "Service Tasks"
                     ToolTip = 'Prepare to record service hours and spare parts used, repair status, fault comments, and cost.';
 
                     trigger OnAction()
+                    var
+                        ServItemLine: Record "Service Item Line";
+                        ServDocumentPrint: Codeunit "Serv. Document Print";
                     begin
-                        Clear(ServItemLine);
-                        ServItemLine.SetRange("Document Type", Rec."Document Type");
-                        ServItemLine.SetRange("Document No.", Rec."Document No.");
-                        ServItemLine.SetRange("Line No.", Rec."Line No.");
-                        REPORT.Run(REPORT::"Service Item Worksheet", true, true, ServItemLine);
+                        ServItemLine := Rec;
+                        ServItemLine.SetRecFilter();
+                        ServDocumentPrint.PrintServiceItemWorksheet(ServItemLine);
                     end;
                 }
             }
@@ -478,13 +481,16 @@ page 5915 "Service Tasks"
         RepairStatus: Record "Repair Status";
         Cust: Record Customer;
         ServHeader: Record "Service Header";
-        ServItemLine: Record "Service Item Line";
         Res: Record Resource;
         ResourceGroup: Record "Resource Group";
         AllocationStatus: Option " ",Nonactive,Active,Finished,Canceled,"Reallocation Needed";
         DocFilter: Option "Order",Quote,All;
         TempTextFilter: Text;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'There is no %1 within the filter.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TempAllocationStatus: Option " ",Nonactive,Active,Finished,Canceled,"Reallocation Needed";
 
     protected var

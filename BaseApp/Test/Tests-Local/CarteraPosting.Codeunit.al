@@ -1578,12 +1578,10 @@ codeunit 147305 "Cartera Posting"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            if "Additional Reporting Currency" <> '' then begin
-                Validate("Additional Reporting Currency", '');
-                Modify();
-            end;
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Additional Reporting Currency" <> '' then begin
+            GeneralLedgerSetup.Validate("Additional Reporting Currency", '');
+            GeneralLedgerSetup.Modify();
         end;
     end;
 
@@ -1671,11 +1669,9 @@ codeunit 147305 "Cartera Posting"
 
     local procedure CreatePaymentOrderWithSpecificBankAccount(var PaymentOrder: Record "Payment Order"; BankAccNo: Code[20])
     begin
-        with PaymentOrder do begin
-            Init();
-            Validate("Bank Account No.", BankAccNo);
-            Insert(true);
-        end;
+        PaymentOrder.Init();
+        PaymentOrder.Validate("Bank Account No.", BankAccNo);
+        PaymentOrder.Insert(true);
     end;
 
     local procedure UpdateGenLedgVATSetup(NewUnrealizedVAT: Boolean)
@@ -1685,25 +1681,21 @@ codeunit 147305 "Cartera Posting"
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            Validate("VAT Identifier", "VAT Prod. Posting Group");
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            Validate("VAT %", LibraryRandom.RandInt(10));
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Identifier", VATPostingSetup."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(10));
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure UpdateUnrealVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; UnrealizedType: Option; PurchUnrealVATAcc: Code[20]; SalesUnrealVATAcc: Code[20])
     begin
-        with VATPostingSetup do begin
-            Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-            Validate("Unrealized VAT Type", UnrealizedType);
-            Validate("Purch. VAT Unreal. Account", PurchUnrealVATAcc);
-            Validate("Sales VAT Unreal. Account", SalesUnrealVATAcc);
-            Modify(true);
-        end;
+        VATPostingSetup.Get(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("Unrealized VAT Type", UnrealizedType);
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", PurchUnrealVATAcc);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", SalesUnrealVATAcc);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure UpdateCarteraSetup()
@@ -1719,27 +1711,23 @@ codeunit 147305 "Cartera Posting"
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify();
-            exit("No.");
-        end;
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify();
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateItemWithVATGroup(VATProdPostingGroupCode: Code[20]): Code[20]
     var
         Item: Record Item;
     begin
-        with Item do begin
-            LibraryInventory.CreateItem(Item);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-            Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     [HandlerFunctions('RejectDocsHandler')]
@@ -1781,12 +1769,10 @@ codeunit 147305 "Cartera Posting"
     var
         VendorLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgEntry do begin
-            Get(VendLedgerEntryNo);
-            Mark(true);
-            MarkedOnly(true);
-            LibraryVariableStorage.Enqueue(CalcDate('<+1D>', "Due Date"));
-        end;
+        VendorLedgEntry.Get(VendLedgerEntryNo);
+        VendorLedgEntry.Mark(true);
+        VendorLedgEntry.MarkedOnly(true);
+        LibraryVariableStorage.Enqueue(CalcDate('<+1D>', VendorLedgEntry."Due Date"));
         REPORT.RunModal(REPORT::"Redraw Payable Bills", true, false, VendorLedgEntry);
     end;
 
@@ -1796,11 +1782,9 @@ codeunit 147305 "Cartera Posting"
         SettleDocsInPostedPO: Report "Settle Docs. in Posted PO";
     begin
         GetPostedCarteraDocEntry(BankAccountNo, PostedCarteraDoc);
-        with SettleDocsInPostedPO do begin
-            SetHidePrintDialog(true);
-            SetTableView(PostedCarteraDoc);
-            Run();
-        end;
+        SettleDocsInPostedPO.SetHidePrintDialog(true);
+        SettleDocsInPostedPO.SetTableView(PostedCarteraDoc);
+        SettleDocsInPostedPO.Run();
     end;
 
     local procedure PartiallySettleDocument(BankAccountNo: Code[20])
@@ -1817,11 +1801,9 @@ codeunit 147305 "Cartera Posting"
 
     local procedure GetPostedCarteraDocEntry(BankAccountNo: Code[20]; var PostedCarteraDoc: Record "Posted Cartera Doc.")
     begin
-        with PostedCarteraDoc do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            FindFirst();
-            SetRange("Entry No.", "Entry No.");
-        end;
+        PostedCarteraDoc.SetRange("Bank Account No.", BankAccountNo);
+        PostedCarteraDoc.FindFirst();
+        PostedCarteraDoc.SetRange("Entry No.", PostedCarteraDoc."Entry No.");
     end;
 
     local procedure PartiallySettlePurchDocument(BankAccountNo: Code[20])
@@ -1852,13 +1834,11 @@ codeunit 147305 "Cartera Posting"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            LibraryPurchase.CreateVendor(Vendor);
-            SetVendorPaymentData(Vendor);
-            Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryPurchase.CreateVendor(Vendor);
+        SetVendorPaymentData(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure SetVendorPaymentData(var Vendor: Record Vendor)
@@ -1866,24 +1846,20 @@ codeunit 147305 "Cartera Posting"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
     begin
-        with Vendor do begin
-            LibraryERM.CreatePaymentTerms(PaymentTerms);
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            LibraryERM.FindPaymentMethod(PaymentMethod);
-            Validate("Payment Method Code", PaymentMethod.Code);
-        end;
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        LibraryERM.FindPaymentMethod(PaymentMethod);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
     end;
 
     local procedure CreateCustWithVATBusPostGroup(VATBusPostGroupCode: Code[20]): Code[20]
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            CreateCustomer(Customer);
-            Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustWithPaymentTermsAndVATGroup(VATDistributionType: Option; VATBusPostingGroupCode: Code[20]): Code[20]
@@ -1893,14 +1869,12 @@ codeunit 147305 "Cartera Posting"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.FindPaymentMethod(PaymentMethod);
-        with Customer do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate(
-              "Payment Terms Code", CreatePaymentTermsWithVATDistribType(VATDistributionType));
-            Validate("Payment Method Code", PaymentMethod.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Validate(
+          "Payment Terms Code", CreatePaymentTermsWithVATDistribType(VATDistributionType));
+        Customer.Validate("Payment Method Code", PaymentMethod.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateVendWithPaymentTermsAndVATGroup(VATDistributionType: Option; VATBusPostingGroupCode: Code[20]): Code[20]
@@ -1910,26 +1884,22 @@ codeunit 147305 "Cartera Posting"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.FindPaymentMethod(PaymentMethod);
-        with Vendor do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate(
-              "Payment Terms Code", CreatePaymentTermsWithVATDistribType(VATDistributionType));
-            Validate("Payment Method Code", PaymentMethod.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Validate(
+          "Payment Terms Code", CreatePaymentTermsWithVATDistribType(VATDistributionType));
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreatePaymentTermsWithVATDistribType(VATDistributionType: Option): Code[10]
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        with PaymentTerms do begin
-            LibraryERM.CreatePaymentTerms(PaymentTerms);
-            Validate("VAT distribution", VATDistributionType);
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        PaymentTerms.Validate("VAT distribution", VATDistributionType);
+        PaymentTerms.Modify(true);
+        exit(PaymentTerms.Code);
     end;
 
     local procedure CreateVATPostingSetup(VATBusPostingGroupCode: Code[20]): Code[20]
@@ -2252,41 +2222,35 @@ codeunit 147305 "Cartera Posting"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        with GenJnlLine do begin
-            CreateGenJnlBatch(GenJnlBatch);
-            Init();
-            "Journal Template Name" := GenJnlBatch."Journal Template Name";
-            "Journal Batch Name" := GenJnlBatch.Name;
-        end;
+        CreateGenJnlBatch(GenJnlBatch);
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
     end;
 
     local procedure InitGenJnlLineWithGivenBatch(var GenJnlLine: Record "Gen. Journal Line"; JnlTemplateName: Code[20]; JnlBatchName: Code[20])
     begin
-        with GenJnlLine do begin
-            Init();
-            "Journal Template Name" := JnlTemplateName;
-            "Journal Batch Name" := JnlBatchName;
-        end;
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := JnlTemplateName;
+        GenJnlLine."Journal Batch Name" := JnlBatchName;
     end;
 
     local procedure CreateBalancedGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
     var
         DocNo: Code[20];
     begin
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name",
-              DocType, AccType, AccNo, GetEntryAmount(AccType, DocType));
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name",
+            DocType, AccType, AccNo, GetEntryAmount(AccType, DocType));
 
-            DocNo := "Document No.";
+        DocNo := GenJnlLine."Document No.";
 
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name",
-              DocType, "Account Type"::"G/L Account", CreateGLAccWithVAT(VATPostingSetup), -Amount);
-            Validate("Document No.", DocNo);
-            Validate("Gen. Posting Type", GetGenPostType(AccType));
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name",
+          DocType, GenJnlLine."Account Type"::"G/L Account", CreateGLAccWithVAT(VATPostingSetup), -GenJnlLine.Amount);
+        GenJnlLine.Validate("Document No.", DocNo);
+        GenJnlLine.Validate("Gen. Posting Type", GetGenPostType(AccType));
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreateApplyPostBillToInvoice(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; BillAmount: Decimal; InvoiceNo: Code[20]): Code[20]
@@ -2331,15 +2295,13 @@ codeunit 147305 "Cartera Posting"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            InitGenJnlLineWithBatch(GenJnlLine);
-            CreateGenJnlLineWithSpecialDocNo(
-              GenJnlLine, "Document Type"::" ", InvoiceNo, AccType, AccNo, -BillAmount, true, ApplyToDocType, InvoiceNo, ApplyToBillNo);
-            CreateGenJnlLineWithSpecialDocNo(
-              GenJnlLine, "Document Type"::Bill, InvoiceNo, AccType, AccNo, BillAmount, true, "Applies-to Doc. Type"::" ", '', '');
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            exit("Bill No.");
-        end;
+        InitGenJnlLineWithBatch(GenJnlLine);
+        CreateGenJnlLineWithSpecialDocNo(
+          GenJnlLine, GenJnlLine."Document Type"::" ", InvoiceNo, AccType, AccNo, -BillAmount, true, ApplyToDocType, InvoiceNo, ApplyToBillNo);
+        CreateGenJnlLineWithSpecialDocNo(
+          GenJnlLine, GenJnlLine."Document Type"::Bill, InvoiceNo, AccType, AccNo, BillAmount, true, GenJnlLine."Applies-to Doc. Type"::" ", '', '');
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        exit(GenJnlLine."Bill No.");
     end;
 
     local procedure CreateApplyPostPaymentToBill(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; InvoiceNo: Code[20]; BillNo: Code[20]; PayAmount: Decimal): Code[20]
@@ -2352,16 +2314,14 @@ codeunit 147305 "Cartera Posting"
         GenJnlLine: Record "Gen. Journal Line";
         i: Integer;
     begin
-        with GenJnlLine do begin
-            InitGenJnlLineWithBatch(GenJnlLine);
-            CreateGenJnlLine(
-              GenJnlLine, "Document Type"::Payment, AccType, AccNo, PayAmount, false, "Applies-to Doc. Type"::" ", '', '');
-            ApplyPaymentToBillFromGenJnlLine(GenJnlLine, ApplyFromJournal, InvoiceNo, BillNo);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            for i := 1 to 2 do
-                ApplyPaymentToBill(AccType, "Document No.", InvoiceNo, BillNo[i], ApplyFromJournal);
-            exit("Document No.");
-        end;
+        InitGenJnlLineWithBatch(GenJnlLine);
+        CreateGenJnlLine(
+          GenJnlLine, GenJnlLine."Document Type"::Payment, AccType, AccNo, PayAmount, false, GenJnlLine."Applies-to Doc. Type"::" ", '', '');
+        ApplyPaymentToBillFromGenJnlLine(GenJnlLine, ApplyFromJournal, InvoiceNo, BillNo);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        for i := 1 to 2 do
+            ApplyPaymentToBill(AccType, GenJnlLine."Document No.", InvoiceNo, BillNo[i], ApplyFromJournal);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure CreateApplyPostSeveralPaysToBill(var PayNo: array[2] of Code[20]; var PayAmount: array[2] of Decimal; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; InvoiceNo: Code[20]; InvAmount: Decimal; BillNo: Code[20]; ApplyFromGenJnlLine: Boolean)
@@ -2402,27 +2362,23 @@ codeunit 147305 "Cartera Posting"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            InitGenJnlLineWithBatch(GenJnlLine);
-            CreateGenJnlLine(
-              GenJnlLine, DocType, AccType, AccNo, EntryAmount, ApplyFromGenJnlLine, ApplDocType, ApplDocNo, ApplToBillNo);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            ApplyPaymentToBill(AccType, "Document No.", ApplDocNo, ApplToBillNo, ApplyFromGenJnlLine);
-            exit("Document No.");
-        end;
+        InitGenJnlLineWithBatch(GenJnlLine);
+        CreateGenJnlLine(
+          GenJnlLine, DocType, AccType, AccNo, EntryAmount, ApplyFromGenJnlLine, ApplDocType, ApplDocNo, ApplToBillNo);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        ApplyPaymentToBill(AccType, GenJnlLine."Document No.", ApplDocNo, ApplToBillNo, ApplyFromGenJnlLine);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure CreatePostSimpleGenJnlLine(JournalTemplateName: Code[20]; JournalBatchName: Code[20]; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            InitGenJnlLineWithGivenBatch(GenJnlLine, JournalTemplateName, JournalBatchName);
-            CreateGenJnlLine(
-              GenJnlLine, DocType, AccType, AccNo, EntryAmount, false, "Gen. Journal Document Type"::" ", '', '');
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            exit("Document No.");
-        end;
+        InitGenJnlLineWithGivenBatch(GenJnlLine, JournalTemplateName, JournalBatchName);
+        CreateGenJnlLine(
+          GenJnlLine, DocType, AccType, AccNo, EntryAmount, false, "Gen. Journal Document Type"::" ", '', '');
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure CreatePostSeveralGenJnlLines(JournalTemplateName: Code[20]; JournalBatchName: Code[20]; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]): Code[20]
@@ -2430,62 +2386,54 @@ codeunit 147305 "Cartera Posting"
         GenJnlLine: Record "Gen. Journal Line";
         LineAmount: Decimal;
     begin
-        with GenJnlLine do begin
-            InitGenJnlLineWithGivenBatch(GenJnlLine, JournalTemplateName, JournalBatchName);
-            CreateGenJnlLineNoBalanceAcc(GenJnlLine, "Document Type"::Payment, AccType, AccNo, 0);
-            CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJnlLine);
-            LineAmount := Amount;
-            InitGenJnlLineWithGivenBatch(GenJnlLine, JournalTemplateName, JournalBatchName);
-            CreateGenJnlLineNoBalanceAcc(GenJnlLine, "Document Type"::Bill, AccType, AccNo, -LineAmount);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            exit("Document No.");
-        end;
+        InitGenJnlLineWithGivenBatch(GenJnlLine, JournalTemplateName, JournalBatchName);
+        CreateGenJnlLineNoBalanceAcc(GenJnlLine, GenJnlLine."Document Type"::Payment, AccType, AccNo, 0);
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJnlLine);
+        LineAmount := GenJnlLine.Amount;
+        InitGenJnlLineWithGivenBatch(GenJnlLine, JournalTemplateName, JournalBatchName);
+        CreateGenJnlLineNoBalanceAcc(GenJnlLine, GenJnlLine."Document Type"::Bill, AccType, AccNo, -LineAmount);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure CreateGenJnlLineWithSpecialDocNo(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal; ApplyFromGenJnlLine: Boolean; ApplDocType: Enum "Gen. Journal Document Type"; ApplDocNo: Code[20]; ApplToBillNo: Code[20])
     begin
-        with GenJnlLine do begin
-            CreateGenJnlLine(GenJnlLine, DocType, AccType, AccNo, EntryAmount, ApplyFromGenJnlLine, ApplDocType, ApplDocNo, ApplToBillNo);
-            Validate("Document No.", DocNo);
-            Modify(true);
-        end;
+        CreateGenJnlLine(GenJnlLine, DocType, AccType, AccNo, EntryAmount, ApplyFromGenJnlLine, ApplDocType, ApplDocNo, ApplToBillNo);
+        GenJnlLine.Validate("Document No.", DocNo);
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal; ApplyFromGenJnlLine: Boolean; ApplDocType: Enum "Gen. Journal Document Type"; ApplDocNo: Code[20]; ApplToBillNo: Code[20])
     begin
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name",
-              DocType, AccType, AccNo, EntryAmount);
-            if "Document Type" = "Document Type"::Bill then begin
-                Validate(
-                  "Bill No.", LibraryUtility.GenerateRandomCode(FieldNo("Bill No."), DATABASE::"Gen. Journal Line"));
-                Validate("Payment Method Code", GetPaymentMethodCartera());
-            end;
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            if ApplyFromGenJnlLine then begin
-                Validate("Applies-to Doc. Type", ApplDocType);
-                Validate("Applies-to Doc. No.", ApplDocNo);
-                Validate("Applies-to Bill No.", ApplToBillNo);
-            end;
-            Modify(true);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name",
+            DocType, AccType, AccNo, EntryAmount);
+        if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill then begin
+            GenJnlLine.Validate(
+              "Bill No.", LibraryUtility.GenerateRandomCode(GenJnlLine.FieldNo("Bill No."), DATABASE::"Gen. Journal Line"));
+            GenJnlLine.Validate("Payment Method Code", GetPaymentMethodCartera());
         end;
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        if ApplyFromGenJnlLine then begin
+            GenJnlLine.Validate("Applies-to Doc. Type", ApplDocType);
+            GenJnlLine.Validate("Applies-to Doc. No.", ApplDocNo);
+            GenJnlLine.Validate("Applies-to Bill No.", ApplToBillNo);
+        end;
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreateGenJnlLineNoBalanceAcc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal)
     begin
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name",
-              DocType, AccType, AccNo, EntryAmount);
-            if "Document Type" = "Document Type"::Bill then begin
-                Validate(
-                  "Bill No.", LibraryUtility.GenerateRandomCode(FieldNo("Bill No."), DATABASE::"Gen. Journal Line"));
-                Validate("Payment Method Code", GetPaymentMethodCartera());
-            end;
-            Modify(true);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name",
+            DocType, AccType, AccNo, EntryAmount);
+        if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill then begin
+            GenJnlLine.Validate(
+              "Bill No.", LibraryUtility.GenerateRandomCode(GenJnlLine.FieldNo("Bill No."), DATABASE::"Gen. Journal Line"));
+            GenJnlLine.Validate("Payment Method Code", GetPaymentMethodCartera());
         end;
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreatePostDocsForCustVend(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount: Decimal): Code[20]
@@ -2511,13 +2459,11 @@ codeunit 147305 "Cartera Posting"
     var
         AlphabeticTextOption: Option Capitalized,Literal;
     begin
-        with GenJnlBatch do begin
-            Init();
-            Validate("Journal Template Name", JnlTemplateName);
-            Validate(Name,
-              LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), AlphabeticTextOption::Capitalized));
-            Insert(true);
-        end;
+        GenJnlBatch.Init();
+        GenJnlBatch.Validate("Journal Template Name", JnlTemplateName);
+        GenJnlBatch.Validate(Name,
+          LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(GenJnlBatch.Name), AlphabeticTextOption::Capitalized));
+        GenJnlBatch.Insert(true);
     end;
 
     local procedure CreateCarteraGenJnlTemplateWithBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -2549,10 +2495,8 @@ codeunit 147305 "Cartera Posting"
 
     local procedure SetAppliesToIDInGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            Validate("Applies-to ID", UserId);
-            Modify(true);
-        end;
+        GenJnlLine.Validate("Applies-to ID", UserId);
+        GenJnlLine.Modify(true);
     end;
 
     local procedure ApplyPaymentToBillFromGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; ApplyFromJournal: Boolean; InvoiceNo: Code[20]; BillNo: array[2] of Code[20])
@@ -2641,30 +2585,26 @@ codeunit 147305 "Cartera Posting"
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::"Credit Memo", SalesLine."Sell-to Customer No.");
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", SalesLine.Quantity);
-            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := ApplyDocumentNo;
-            exit(LibrarySales.PostSalesDocument(SalesHeader, true, true))
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesLine."Sell-to Customer No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", SalesLine.Quantity);
+        SalesHeader."Applies-to Doc. Type" := SalesHeader."Applies-to Doc. Type"::Invoice;
+        SalesHeader."Applies-to Doc. No." := ApplyDocumentNo;
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true))
     end;
 
     local procedure ApplyPostPurchaseCreditMemoToInvoice(PurchaseLine: Record "Purchase Line"; ApplyDocumentNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.");
-            Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", PurchaseLine.Quantity);
-            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := ApplyDocumentNo;
-            exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true))
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.");
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", PurchaseLine.Quantity);
+        PurchaseHeader."Applies-to Doc. Type" := PurchaseHeader."Applies-to Doc. Type"::Invoice;
+        PurchaseHeader."Applies-to Doc. No." := ApplyDocumentNo;
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true))
     end;
 
     local procedure AddDocToBillGroup(BillGroupNo: Code[20]; InvoiceNo: Code[20])
@@ -2690,68 +2630,57 @@ codeunit 147305 "Cartera Posting"
     var
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
-        with PostedCarteraDoc do begin
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            exit("Entry No.");
-        end;
+        PostedCarteraDoc.SetRange("Document No.", DocNo);
+        PostedCarteraDoc.FindFirst();
+        exit(PostedCarteraDoc."Entry No.");
     end;
 
     local procedure GetCustVendLedgerEntryNoWithClosedCarteraDoc(DocNo: Code[20]): Integer
     var
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
     begin
-        with ClosedCarteraDoc do begin
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            exit("Entry No.");
-        end;
+        ClosedCarteraDoc.SetRange("Document No.", DocNo);
+        ClosedCarteraDoc.FindFirst();
+        exit(ClosedCarteraDoc."Entry No.");
     end;
 
     local procedure GetPostedCarteraDocNo(BankAccountNo: Code[20]): Code[20]
     var
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
-        with PostedCarteraDoc do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            FindFirst();
-            exit("Document No.");
-        end;
+        PostedCarteraDoc.SetRange("Bank Account No.", BankAccountNo);
+        PostedCarteraDoc.FindFirst();
+        exit(PostedCarteraDoc."Document No.");
     end;
 
     local procedure GetClosedCarteraDocNo(BankAccountNo: Code[20]): Code[20]
     var
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
     begin
-        with ClosedCarteraDoc do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            FindFirst();
-            exit("Document No.");
-        end;
+        ClosedCarteraDoc.SetRange("Bank Account No.", BankAccountNo);
+        ClosedCarteraDoc.FindFirst();
+        exit(ClosedCarteraDoc."Document No.");
     end;
 
     local procedure GetEntryAmount(AccType: Enum "Gen. Journal Account Type"; DocType: Enum "Gen. Journal Document Type") Amt: Decimal
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            Amt := LibraryRandom.RandDec(100, 2);
-            if (AccType = "Account Type"::Vendor) xor (DocType = "Document Type"::"Credit Memo") then
-                Amt := -Amt;
-        end;
+        Amt := LibraryRandom.RandDec(100, 2);
+        if (AccType = GenJnlLine."Account Type"::Vendor) xor (DocType = GenJnlLine."Document Type"::"Credit Memo") then
+            Amt := -Amt;
     end;
 
     local procedure GetGenPostType(AccType: Enum "Gen. Journal Account Type"): Enum "General Posting Type"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do
-            case AccType of
-                "Account Type"::Customer:
-                    exit("Gen. Posting Type"::Sale);
-                "Account Type"::Vendor:
-                    exit("Gen. Posting Type"::Purchase);
-            end;
+        case AccType of
+            GenJnlLine."Account Type"::Customer:
+                exit(GenJnlLine."Gen. Posting Type"::Sale);
+            GenJnlLine."Account Type"::Vendor:
+                exit(GenJnlLine."Gen. Posting Type"::Purchase);
+        end;
     end;
 
     local procedure CreatePostAppliedDoc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
@@ -2760,35 +2689,32 @@ codeunit 147305 "Cartera Posting"
         ApplDocNo: Code[20];
         EntryAmount: Decimal;
     begin
-        with GenJnlLine do begin
-            ApplDocType := "Document Type";
-            ApplDocNo := "Document No.";
-            EntryAmount := Amount;
-            InitGenJnlLineWithBatch(GenJnlLine);
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name",
-              GetAppliedDocType(DocType), AccType, AccNo, EntryAmount);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Validate("Applies-to Doc. Type", ApplDocType);
-            Validate("Applies-to Doc. No.", ApplDocNo);
-            Modify(true);
+        ApplDocType := GenJnlLine."Document Type";
+        ApplDocNo := GenJnlLine."Document No.";
+        EntryAmount := GenJnlLine.Amount;
+        InitGenJnlLineWithBatch(GenJnlLine);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name",
+          GetAppliedDocType(DocType), AccType, AccNo, EntryAmount);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJnlLine.Validate("Applies-to Doc. Type", ApplDocType);
+        GenJnlLine.Validate("Applies-to Doc. No.", ApplDocNo);
+        GenJnlLine.Modify(true);
 
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-        end;
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
     local procedure GetAppliedDocType(DocType: Enum "Gen. Journal Document Type"): Enum "General Posting Type"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do
-            case DocType of
-                "Document Type"::Invoice:
-                    exit("Document Type"::Payment);
-                "Document Type"::"Credit Memo":
-                    exit("Document Type"::Refund);
-            end;
+        case DocType of
+            GenJnlLine."Document Type"::Invoice:
+                exit(GenJnlLine."Document Type"::Payment);
+            GenJnlLine."Document Type"::"Credit Memo":
+                exit(GenJnlLine."Document Type"::Refund);
+        end;
     end;
 
     local procedure SalesUnrealVATPayToBill(VATDistributionType: Option; PayAmountDiff: Decimal; ApplyFromGenJnlLine: Boolean)
@@ -3116,52 +3042,42 @@ codeunit 147305 "Cartera Posting"
 
     local procedure FindBillCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; InvoiceNo: Code[20]; BillNo: Code[20])
     begin
-        with CustLedgEntry do begin
-            SetRange("Bill No.", BillNo);
-            LibraryERM.FindCustomerLedgerEntry(
-              CustLedgEntry, "Document Type"::Bill, InvoiceNo);
-        end;
+        CustLedgEntry.SetRange("Bill No.", BillNo);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgEntry, CustLedgEntry."Document Type"::Bill, InvoiceNo);
     end;
 
     local procedure FindBillVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; InvoiceNo: Code[20]; BillNo: Code[20])
     begin
-        with VendLedgEntry do begin
-            SetRange("Bill No.", BillNo);
-            LibraryERM.FindVendorLedgerEntry(
-              VendLedgEntry, "Document Type"::Bill, InvoiceNo);
-        end;
+        VendLedgEntry.SetRange("Bill No.", BillNo);
+        LibraryERM.FindVendorLedgerEntry(
+          VendLedgEntry, VendLedgEntry."Document Type"::Bill, InvoiceNo);
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLEntry.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AccNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATEntry do begin
-            SetRange("Bill-to/Pay-to No.", AccNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            FindFirst();
-        end;
+        VATEntry.SetRange("Bill-to/Pay-to No.", AccNo);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.FindFirst();
     end;
 
     local procedure FindDocumentVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            FindFirst();
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.FindFirst();
     end;
 
     local procedure RunSettleDocs(BankAccountNo: Code[20])
@@ -3409,15 +3325,13 @@ codeunit 147305 "Cartera Posting"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Posting Date", PostingDate);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Reset();
-            SetFilter("Entry No.", '<>%1', "Entry No.");
-            SetRange("Transaction No.", "Transaction No.");
-            Assert.IsTrue(IsEmpty, VATEntryError);
-        end;
+        VATEntry.SetRange("Posting Date", PostingDate);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.Reset();
+        VATEntry.SetFilter("Entry No.", '<>%1', VATEntry."Entry No.");
+        VATEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
+        Assert.IsTrue(VATEntry.IsEmpty, VATEntryError);
     end;
 
     local procedure CalcAmtAndVerifyEntries(VATPostingSetup: Record "VAT Posting Setup"; CustNo: Code[20]; PayNo: Code[20]; InvAmount: Decimal; PayAmount: Decimal)
@@ -3508,22 +3422,18 @@ codeunit 147305 "Cartera Posting"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocNo);
-            SetRange("Posting Date", PostingDate);
-            Assert.IsFalse(IsEmpty, GLEntriesNotExistErr);
-        end;
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Posting Date", PostingDate);
+        Assert.IsFalse(GLEntry.IsEmpty, GLEntriesNotExistErr);
     end;
 
     local procedure VerifyGLEntryCount(DocNo: Code[20]; PostingDate: Date; EntryCount: Integer)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocNo);
-            SetRange("Posting Date", PostingDate);
-            Assert.AreEqual(EntryCount, Count, GLEntriesWrongCountErr);
-        end;
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Posting Date", PostingDate);
+        Assert.AreEqual(EntryCount, GLEntry.Count, GLEntriesWrongCountErr);
     end;
 
     local procedure VerifyDefDimOfBankAccExistInGLEntry(BankAccNo: Code[20])
@@ -3559,16 +3469,14 @@ codeunit 147305 "Cartera Posting"
         FindDocumentVATEntry(VATEntry, DocumentType, DocumentNo);
         FindDocumentVATEntry(VATEntryApplied, AppliedDocumentType, AppliedDocumentNo);
 
-        with VATEntryApplied do begin
-            Assert.AreEqual(-VATEntry."Unrealized Amount", "Unrealized Amount", FieldErrorMessage(FieldCaption("Unrealized Amount")));
-            Assert.AreEqual(-VATEntry."Unrealized Base", "Unrealized Base", FieldErrorMessage(FieldCaption("Unrealized Base")));
-            Assert.AreEqual(0, "Remaining Unrealized Amount", FieldErrorMessage(FieldCaption("Remaining Unrealized Amount")));
-            Assert.AreEqual(0, "Remaining Unrealized Base", FieldErrorMessage(FieldCaption("Remaining Unrealized Base")));
+        Assert.AreEqual(-VATEntry."Unrealized Amount", VATEntryApplied."Unrealized Amount", FieldErrorMessage(VATEntryApplied.FieldCaption("Unrealized Amount")));
+        Assert.AreEqual(-VATEntry."Unrealized Base", VATEntryApplied."Unrealized Base", FieldErrorMessage(VATEntryApplied.FieldCaption("Unrealized Base")));
+        Assert.AreEqual(0, VATEntryApplied."Remaining Unrealized Amount", FieldErrorMessage(VATEntryApplied.FieldCaption("Remaining Unrealized Amount")));
+        Assert.AreEqual(0, VATEntryApplied."Remaining Unrealized Base", FieldErrorMessage(VATEntryApplied.FieldCaption("Remaining Unrealized Base")));
 
-            FindLast();
-            Assert.AreEqual(-VATEntry."Unrealized Amount", Amount, FieldErrorMessage(FieldCaption(Amount)));
-            Assert.AreEqual(-VATEntry."Unrealized Base", Base, FieldErrorMessage(FieldCaption(Base)));
-        end;
+        VATEntryApplied.FindLast();
+        Assert.AreEqual(-VATEntry."Unrealized Amount", VATEntryApplied.Amount, FieldErrorMessage(VATEntryApplied.FieldCaption(Amount)));
+        Assert.AreEqual(-VATEntry."Unrealized Base", VATEntryApplied.Base, FieldErrorMessage(VATEntryApplied.FieldCaption(Base)));
     end;
 
     local procedure VerifyVendLedgEntryApplicationExists(InvNo: Code[20]; CrMemoNo: Code[20])
@@ -3639,26 +3547,22 @@ codeunit 147305 "Cartera Posting"
     [Scope('OnPrem')]
     procedure ApplyCustEntriesHandler(var ApplyCustEntries: TestPage "Apply Customer Entries")
     begin
-        with ApplyCustEntries do begin
-            Last();
-            repeat
-                "Set Applies-to ID".Invoke();
-            until Previous() = false;
-            OK().Invoke();
-        end;
+        ApplyCustEntries.Last();
+        repeat
+            ApplyCustEntries."Set Applies-to ID".Invoke();
+        until ApplyCustEntries.Previous() = false;
+        ApplyCustEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendEntriesHandler(var ApplyVendEntries: TestPage "Apply Vendor Entries")
     begin
-        with ApplyVendEntries do begin
-            Last();
-            repeat
-                ActionSetAppliesToID.Invoke();
-            until Previous() = false;
-            OK().Invoke();
-        end;
+        ApplyVendEntries.Last();
+        repeat
+            ApplyVendEntries.ActionSetAppliesToID.Invoke();
+        until ApplyVendEntries.Previous() = false;
+        ApplyVendEntries.OK().Invoke();
     end;
 }
 

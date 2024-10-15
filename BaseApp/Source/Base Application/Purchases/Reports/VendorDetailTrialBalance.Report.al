@@ -516,10 +516,13 @@ report 304 "Vendor - Detail Trial Balance"
         CreditApplicationRounding: Decimal;
         StartVendDebitAmountTotal: Decimal;
         StartVendCreditAmountTotal: Decimal;
-
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1';
         VendorDetailTrialBalCaptionLbl: Label 'Vendor - Detail Trial Balance';
         PageNoCaptionLbl: Label 'Page';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY.';
         vendorsbalancesCaptionLbl: Label 'This report also includes vendors that only have balances.';
         PostingDateCaptionLbl: Label 'Posting Date';

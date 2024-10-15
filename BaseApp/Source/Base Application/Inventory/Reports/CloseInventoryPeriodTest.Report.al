@@ -277,15 +277,23 @@ report 1004 "Close Inventory Period - Test"
         ErrorHyperlinkAnchor: Code[21];
         LastItemNoStored: Code[20];
 
+#pragma warning disable AA0074
         Text001: Label '%1 is missing in Inventory Period %2.', Comment = '%1 = FIELDCAPTION("Ending Date"), %2 = "Name"';
+#pragma warning disable AA0470
         Text003: Label 'Item Ledger Entry %1 is open.*';
+#pragma warning restore AA0470
         Text004: Label '*Close the open Item Ledger Entry, for example by posting related inbound transactions, in order to resolve the negative inventory and thereby allow the Inventory Period to be closed.';
+#pragma warning restore AA0074
         PageCaptionLbl: Label 'Page';
         CloseInventPeriodTestCaptionLbl: Label 'Close Inventory Period - Test';
         EndingDateCaptionLbl: Label 'Ending Date';
+#pragma warning disable AA0074
         Text008: Label 'The item has entries in this period that have not been adjusted.';
+#pragma warning disable AA0470
         Text009: Label 'This %1 Order has not been adjusted.';
+#pragma warning restore AA0470
         Text010: Label 'Posted Assembly';
+#pragma warning restore AA0074
 
     local procedure StoreItemInErrorBuffer(ItemNo: Code[20]; SourceTableNo: Integer; ErrorText: Text[250]; Recordbookmark: Text[250]; HyperlinkSourceRecNo: Code[20]; HyperlinkPageID: Integer)
     begin

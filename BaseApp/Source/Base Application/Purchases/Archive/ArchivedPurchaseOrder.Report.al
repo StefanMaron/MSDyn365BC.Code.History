@@ -1033,9 +1033,11 @@ report 416 "Archived Purchase Order"
         TotalAmount: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
 
+#pragma warning disable AA0074
         Text004: Label 'Purchase Order Archived %1', Comment = '%1 = Document No.';
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
         Text010: Label 'Version %1 of %2 ';
         PhoneNoCaptionLbl: Label 'Phone No.';
@@ -1044,6 +1046,8 @@ report 416 "Archived Purchase Order"
         BankNameCaptionLbl: Label 'Bank';
         BankAccNoCaptionLbl: Label 'Account No.';
         OrderNoCaptionLbl: Label 'Order No.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PageCaptionLbl: Label 'Page';
         HdrDimCaptionLbl: Label 'Header Dimensions';
         DirectUnitCostCaptionLbl: Label 'Direct Unit Cost';

@@ -293,6 +293,8 @@ report 5802 "Inventory Valuation - WIP"
 
     requestpage
     {
+        AboutTitle = 'About Production Order - WIP';
+        AboutText = 'Details Starting WIP, Consumption, Capacity and Output posted during a period and ending WIP for each Production Order. Use it to report in detail your WIP balance and to Reconcile your WIP to the General Ledger WIP Balance Sheet Account at the end of each period.';
         SaveValues = true;
 
         layout
@@ -346,7 +348,11 @@ report 5802 "Inventory Valuation - WIP"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'As of %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         StartDate: Date;
         EndDate: Date;
         ProdOrderFilter: Text;

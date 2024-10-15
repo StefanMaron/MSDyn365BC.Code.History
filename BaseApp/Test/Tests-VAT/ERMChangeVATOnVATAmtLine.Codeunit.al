@@ -393,10 +393,8 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
           VATPostingSetupNormalVAT."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 20));
 
         VATAmountLine.Init();
-        with VATPostingSetupNormalVAT do
-            VATAmountLine.InsertNewLine("VAT Identifier", "VAT Calculation Type", '', false, "VAT %", true, false, 0, 0);
-        with VATPostingSetupReverseChargeVAT do
-            VATAmountLine.InsertNewLine("VAT Identifier", "VAT Calculation Type", '', false, "VAT %", true, false, 1, 0);
+        VATAmountLine.InsertNewLine(VATPostingSetupNormalVAT."VAT Identifier", VATPostingSetupNormalVAT."VAT Calculation Type", '', false, VATPostingSetupNormalVAT."VAT %", true, false, 0, 0);
+        VATAmountLine.InsertNewLine(VATPostingSetupReverseChargeVAT."VAT Identifier", VATPostingSetupReverseChargeVAT."VAT Calculation Type", '', false, VATPostingSetupReverseChargeVAT."VAT %", true, false, 1, 0);
 
         Assert.ExpectedMessage(VATECAmountTxt, VATAmountLine.VATAmountText());
     end;

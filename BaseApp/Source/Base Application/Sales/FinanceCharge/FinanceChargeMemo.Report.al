@@ -778,11 +778,17 @@ report 118 "Finance Charge Memo"
         TotalVatAmount: Decimal;
         ShowMIRLines: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Total %1';
         Text002: Label 'Page %1';
+#pragma warning restore AA0470
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PostingDateCaptionLbl: Label 'Posting Date';
         DueDateCaptionLbl: Label 'Due Date';
         FinChargeMemoNoCaptionLbl: Label 'Fin. Chrg. Memo No.';
@@ -801,7 +807,12 @@ report 118 "Finance Charge Memo"
         VATECBaseCaptionLbl: Label 'VAT+EC Base';
         VATPercentCaptionLbl: Label 'VAT %';
         VATAmtSpECPercentCaptionLbl: Label 'VAT Amount Specification';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         VATClausesCap: Label 'VAT Clause';
+        Text1100000: Label 'Total %1 Incl. VAT+EC';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VATIdentifierLbl: Label 'VAT Identifier';
         ECPercentCaptionLbl: Label 'EC %';
         ECAmtCaptionLbl: Label 'EC Amount';
@@ -813,7 +824,6 @@ report 118 "Finance Charge Memo"
         ContactEmailLbl: Label 'Contact E-Mail';
         CACCaptionLbl: Text;
         CACTxt: Label 'Régimen especial del criterio de caja', Locked = true;
-        Text1100000: Label 'Total %1 Incl. VAT+EC';
 
     protected var
         CompanyInfo: Record "Company Information";

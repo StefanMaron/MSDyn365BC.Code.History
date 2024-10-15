@@ -25,7 +25,6 @@ codeunit 147552 "SII Update Doc. Info"
         XPathSalesIDOtroTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:Contraparte/sii:IDOtro/';
         XPathPurchIdOtroTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:Contraparte/sii:IDOtro/';
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
-        IncorrectFieldErr: Label '%1 must be equal to ''%2''', Comment = '%1 = Field name;%2 = Field value';
         UploadTypeGlb: Option Regular,Intracommunity,RetryAccepted;
         ChangeQst: Label 'Do you want to change';
 
@@ -857,7 +856,7 @@ codeunit 147552 "SII Update Doc. Info"
         ChangedSalesCrMemoHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Run codeunit "Sales Cr.Memo Header - Edit" against posted document
-        CODEUNIT.Run(CODEUNIT::"Sales Cr.Memo Header - Edit", ChangedSalesCrMemoHeader);
+        CODEUNIT.Run(CODEUNIT::"Sales Credit Memo Hdr. - Edit", ChangedSalesCrMemoHeader);
 
         // [THEN] SII Document Upload State of the posted document has updated values
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
@@ -1240,8 +1239,7 @@ codeunit 147552 "SII Update Doc. Info"
 
     local procedure VerifyError(FieldName: Text; Value: Text)
     begin
-        Assert.ExpectedError(StrSubstNo(IncorrectFieldErr, FieldName, Value));
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedTestFieldError(FieldName, Value);
     end;
 
     [ConfirmHandler]

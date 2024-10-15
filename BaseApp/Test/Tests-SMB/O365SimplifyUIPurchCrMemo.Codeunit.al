@@ -169,11 +169,9 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         UserSetup.Validate("Purchase Resp. Ctr. Filter", ResponsibilityCenter.Code);
         UserSetup.Modify();
 
-        with PurchaseCreditMemo do begin
-            OpenEdit();
-            Assert.IsFalse(GotoRecord(PurchHeader), '');
-            Close();
-        end;
+        PurchaseCreditMemo.OpenEdit();
+        Assert.IsFalse(PurchaseCreditMemo.GotoRecord(PurchHeader), '');
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -554,22 +552,18 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
     local procedure VerifyPurchCreditMemoAgainstVend(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Vend: Record Vendor)
     begin
-        with PurchaseCreditMemo do begin
-            "Buy-from Vendor Name".AssertEquals(Vend.Name);
-            "Buy-from Address".AssertEquals(Vend.Address);
-            "Buy-from City".AssertEquals(Vend.City);
-            "Buy-from Post Code".AssertEquals(Vend."Post Code");
-        end;
+        PurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(Vend.Name);
+        PurchaseCreditMemo."Buy-from Address".AssertEquals(Vend.Address);
+        PurchaseCreditMemo."Buy-from City".AssertEquals(Vend.City);
+        PurchaseCreditMemo."Buy-from Post Code".AssertEquals(Vend."Post Code");
     end;
 
     local procedure VerifyPurchCreditMemoAgainstBillToVend(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Vend: Record Vendor)
     begin
-        with PurchaseCreditMemo do begin
-            "Pay-to Name".AssertEquals(Vend.Name);
-            "Pay-to Address".AssertEquals(Vend.Address);
-            "Pay-to City".AssertEquals(Vend.City);
-            "Pay-to Post Code".AssertEquals(Vend."Post Code");
-        end;
+        PurchaseCreditMemo."Pay-to Name".AssertEquals(Vend.Name);
+        PurchaseCreditMemo."Pay-to Address".AssertEquals(Vend.Address);
+        PurchaseCreditMemo."Pay-to City".AssertEquals(Vend.City);
+        PurchaseCreditMemo."Pay-to Post Code".AssertEquals(Vend."Post Code");
     end;
 
     [ModalPageHandler]
@@ -595,14 +589,12 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
     begin
         LibrarySmallBusiness.CreateVendor(Vend);
 
-        with Vend do begin
-            Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::Vendor));
-            Validate(Address, LibraryUtility.GenerateRandomCode(FieldNo(Address), DATABASE::Vendor));
-            Validate("Address 2", LibraryUtility.GenerateRandomCode(FieldNo("Address 2"), DATABASE::Vendor));
-            Validate(City, LibraryUtility.GenerateRandomCode(FieldNo(City), DATABASE::Vendor));
-            Validate("Post Code", LibraryUtility.GenerateRandomCode(FieldNo("Post Code"), DATABASE::Vendor));
-            Modify();
-        end;
+        Vend.Validate(Name, LibraryUtility.GenerateRandomCode(Vend.FieldNo(Name), DATABASE::Vendor));
+        Vend.Validate(Address, LibraryUtility.GenerateRandomCode(Vend.FieldNo(Address), DATABASE::Vendor));
+        Vend.Validate("Address 2", LibraryUtility.GenerateRandomCode(Vend.FieldNo("Address 2"), DATABASE::Vendor));
+        Vend.Validate(City, LibraryUtility.GenerateRandomCode(Vend.FieldNo(City), DATABASE::Vendor));
+        Vend.Validate("Post Code", LibraryUtility.GenerateRandomCode(Vend.FieldNo("Post Code"), DATABASE::Vendor));
+        Vend.Modify();
     end;
 
     local procedure CreateExtTextLine(ExtendedTextHeader: Record "Extended Text Header"; Description: Text[50])

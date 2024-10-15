@@ -490,7 +490,7 @@ page 233 "Apply Vendor Entries"
                     Image = Navigate;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin
@@ -795,7 +795,9 @@ page 233 "Apply Vendor Entries"
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.\\Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.', Comment = '%1 - document type, %2 - document number,%3 - document type,%4 - document number';
         AppliesToIDVisible: Boolean;
         ApplicationPostedMsg: Label 'The application was successfully posted.';
+#pragma warning disable AA0470
         ApplicationDateErr: Label 'The %1 entered must not be before the %1 on the %2.';
+#pragma warning restore AA0470
         IsOfficeAddin: Boolean;
         HasDocumentAttachment: Boolean;
         VendNameVisible: Boolean;
@@ -1549,7 +1551,7 @@ page 233 "Apply Vendor Entries"
         ApplyToVendorLedgerEntry: Record "Vendor Ledger Entry";
         IsFirst, IsPositiv, ThereAreEntriesToApply : boolean;
         Counter: Integer;
-        AllEntriesHaveTheSameSignErr: Label 'All entries have the same sign this will not lead top an application. Update the application by including entries with opposite sign.';
+        AllEntriesHaveTheSameSignErr: Label 'All entries have the same sign this will not lead to an application. Update the application by including entries with opposite sign.';
     begin
         IsFirst := true;
         ThereAreEntriesToApply := false;
@@ -1666,7 +1668,7 @@ page 233 "Apply Vendor Entries"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine,PurchHeader; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date; var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;

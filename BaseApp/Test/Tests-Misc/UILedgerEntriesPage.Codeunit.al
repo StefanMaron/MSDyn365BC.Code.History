@@ -474,24 +474,20 @@ codeunit 134343 "UI Ledger Entries Page"
 
     local procedure CreateIssuedFinChargeMemoHeader(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; CustomerNo: Code[20]): Code[20]
     begin
-        with IssuedFinChargeMemoHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header");
-            "Customer No." := CustomerNo;
-            Insert();
-            exit("No.");
-        end;
+        IssuedFinChargeMemoHeader.Init();
+        IssuedFinChargeMemoHeader."No." := LibraryUtility.GenerateRandomCode(IssuedFinChargeMemoHeader.FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header");
+        IssuedFinChargeMemoHeader."Customer No." := CustomerNo;
+        IssuedFinChargeMemoHeader.Insert();
+        exit(IssuedFinChargeMemoHeader."No.");
     end;
 
     local procedure CreateIssuedReminderHeader(var IssuedReminderHeader: Record "Issued Reminder Header"; CustomerNo: Code[20]): Code[20]
     begin
-        with IssuedReminderHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Reminder Header");
-            "Customer No." := CustomerNo;
-            Insert();
-            exit("No.");
-        end;
+        IssuedReminderHeader.Init();
+        IssuedReminderHeader."No." := LibraryUtility.GenerateRandomCode(IssuedReminderHeader.FieldNo("No."), DATABASE::"Issued Reminder Header");
+        IssuedReminderHeader."Customer No." := CustomerNo;
+        IssuedReminderHeader.Insert();
+        exit(IssuedReminderHeader."No.");
     end;
 
     [ConfirmHandler]

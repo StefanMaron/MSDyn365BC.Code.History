@@ -141,7 +141,9 @@ report 1093 "Job Create Sales Invoice"
         InvoicePerTask: Boolean;
         OldJobNo: Code[20];
         OldJTNo: Code[20];
+#pragma warning disable AA0074
         Text000: Label 'A', Comment = 'A';
+#pragma warning restore AA0074
 
     protected var
         JobChoice: Option Job,"Job Task";

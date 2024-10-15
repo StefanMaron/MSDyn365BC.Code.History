@@ -356,44 +356,38 @@ codeunit 147506 "Cartera Payable Unit Tests"
 
     local procedure MockPayableCarteraDoc(var CarteraDoc: Record "Cartera Doc.")
     begin
-        with CarteraDoc do begin
-            Init();
-            Type := Type::Payable;
-            "Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, FieldNo("Entry No."));
-            "Document Type" := "Document Type"::Bill;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Account No." := LibraryUtility.GenerateGUID();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        CarteraDoc.Init();
+        CarteraDoc.Type := CarteraDoc.Type::Payable;
+        CarteraDoc."Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, CarteraDoc.FieldNo("Entry No."));
+        CarteraDoc."Document Type" := CarteraDoc."Document Type"::Bill;
+        CarteraDoc."Document No." := LibraryUtility.GenerateGUID();
+        CarteraDoc."Account No." := LibraryUtility.GenerateGUID();
+        CarteraDoc."No." := LibraryUtility.GenerateGUID();
+        CarteraDoc.Insert();
     end;
 
     local procedure MockVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CarteraDoc: Record "Cartera Doc.")
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            Open := true;
-            "Document No." := CarteraDoc."Document No.";
-            "Vendor No." := CarteraDoc."Account No.";
-            "Bill No." := CarteraDoc."No.";
-            Insert();
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry."Document No." := CarteraDoc."Document No.";
+        VendorLedgerEntry."Vendor No." := CarteraDoc."Account No.";
+        VendorLedgerEntry."Bill No." := CarteraDoc."No.";
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure ModifyPermissionData(RoleID: Code[20]; ObjectID: Integer; NewReadPermission: Integer; NewInsertPermission: Integer; NewModifyPermission: Integer; NewDeletePermission: Integer)
     var
         Permission: Record Permission;
     begin
-        with Permission do begin
-            Get(RoleID, "Object Type"::"Table Data", ObjectID);
-            "Read Permission" := NewReadPermission;
-            "Insert Permission" := NewInsertPermission;
-            "Modify Permission" := NewModifyPermission;
-            "Delete Permission" := NewDeletePermission;
-            "Execute Permission" := "Execute Permission"::" ";
-            Modify();
-        end;
+        Permission.Get(RoleID, Permission."Object Type"::"Table Data", ObjectID);
+        Permission."Read Permission" := NewReadPermission;
+        Permission."Insert Permission" := NewInsertPermission;
+        Permission."Modify Permission" := NewModifyPermission;
+        Permission."Delete Permission" := NewDeletePermission;
+        Permission."Execute Permission" := Permission."Execute Permission"::" ";
+        Permission.Modify();
     end;
 
     local procedure AddCommentLineFromList(PaymentOrderNo: Code[20])

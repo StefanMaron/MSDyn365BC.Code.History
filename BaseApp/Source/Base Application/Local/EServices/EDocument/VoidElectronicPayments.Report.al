@@ -16,7 +16,7 @@ report 10722 "Void Electronic Payments"
     {
         dataitem("Gen. Journal Line"; "Gen. Journal Line")
         {
-            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.") WHERE("Bank Payment Type" = const("Electronic Payment"), "Exported to Payment File" = const(true));
+            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.") where("Bank Payment Type" = const("Electronic Payment"), "Exported to Payment File" = const(true));
 
             trigger OnAfterGetRecord()
             var

@@ -22,9 +22,6 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Utilities;
 using System.Automation;
 using System.Environment;
-#if not CLEAN22
-using System.Environment.Configuration;
-#endif
 using System.Privacy;
 using System.Security.User;
 
@@ -402,17 +399,6 @@ page 41 "Sales Quote"
             group(Payment)
             {
                 Caption = 'Payment';
-#if not CLEAN22
-                field("Pay-at Code"; Rec."Pay-at Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code associated with a payment address other than the customer''s standard payment address.';
-                    Visible = false;
-                    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Cust. Bank Acc. Code"; Rec."Cust. Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -687,6 +673,12 @@ page 41 "Sales Quote"
                                 end;
                             }
                         }
+                        field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Phone No.';
+                            ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                        }
                         field("Ship-to Contact"; Rec."Ship-to Contact")
                         {
                             ApplicationArea = Basic, Suite;
@@ -947,9 +939,23 @@ page 41 "Sales Quote"
                 SubPageLink = "No." = field("Bill-to Customer No.");
                 Visible = true;
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                SubPageLink = "Table ID" = const(Database::"Sales Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -1411,6 +1417,7 @@ page 41 "Sales Quote"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
@@ -1487,37 +1494,10 @@ page 41 "Sales Quote"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create approval flow';
                         ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                        Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
                         Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
                         CustomActionType = FlowTemplateGallery;
                         FlowTemplateCategoryName = 'd365bc_approval_salesQuote';
                     }
-#if not CLEAN22
-                    action(CreateFlow)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Power Automate approval flow';
-                        Image = Flow;
-                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                        Visible = IsSaas and not PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-                        ObsoleteReason = 'This action will be handled by platform as part of the CreateFlowFromTemplate customaction';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-
-                        trigger OnAction()
-                        var
-                            FlowServiceManagement: Codeunit "Flow Service Management";
-                            FlowTemplateSelector: Page "Flow Template Selector";
-                        begin
-                            // Opens page 6400 where the user can use filtered templates to create new flows.
-                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter());
-                            FlowTemplateSelector.Run();
-                        end;
-                    }
-#endif
                 }
             }
             group("F&unctions")
@@ -1810,9 +1790,6 @@ page 41 "Sales Quote"
         EnableBillToCustomerNo := true;
         EnableSellToCustomerTemplateCode := true;
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
-#if not CLEAN22
-        InitPowerAutomateTemplateVisibility();
-#endif
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1990,22 +1967,6 @@ page 41 "Sales Quote"
     begin
         EnableNewSellToCustomerTemplateCode := Rec."Sell-to Customer No." = '';
     end;
-
-#if not CLEAN22
-    var
-        PowerAutomateTemplatesEnabled: Boolean;
-        PowerAutomateTemplatesFeatureLbl: Label 'PowerAutomateTemplates', Locked = true;
-
-    local procedure InitPowerAutomateTemplateVisibility()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        PowerAutomateTemplatesEnabled := true;
-        if FeatureKey.Get(PowerAutomateTemplatesFeatureLbl) then
-            if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then
-                PowerAutomateTemplatesEnabled := false;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)

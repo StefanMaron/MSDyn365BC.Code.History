@@ -1,4 +1,4 @@
-codeunit 147303 "Make 340 Dec. 2012 RegF"
+﻿codeunit 147303 "Make 340 Dec. 2012 RegF"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3464,9 +3464,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
             if PadStr(InvoiceNoReport, StrLen(InvoiceNoReport)) = InvoiceNo then begin
                 Evaluate(VATReport, Format(LibraryTextFileValidation.ReadValue(Line, VATStartingPosition, 4)));
                 ECText := LibraryTextFileValidation.ReadValue(Line, ECStartingPosition, 4);
-                if ECText <> '' then begin
-                    Evaluate(ECReport, Format(LibraryTextFileValidation.ReadValue(Line, ECStartingPosition, 4)));
-                end else
+                if ECText <> '' then
+                    Evaluate(ECReport, Format(LibraryTextFileValidation.ReadValue(Line, ECStartingPosition, 4)))
+                else
                     ECReport := 0;
                 if (VAT = VATReport / 100) and (EC = ECReport / 100) then
                     Occurance += 1;

@@ -215,20 +215,6 @@ report 296 "Batch Post Sales Orders"
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
 
-#if not CLEAN22
-    [Obsolete('Replaced by InitializeRequest with VAT Date parameters.', '22.0')]
-    procedure InitializeRequest(ShipParam: Boolean; InvoiceParam: Boolean; PostingDateParam: Date; ReplacePostingDateParam: Boolean; ReplaceDocumentDateParam: Boolean; CalcInvDiscParam: Boolean)
-    begin
-        ShipReq := ShipParam;
-        InvReq := InvoiceParam;
-        PostingDateReq := PostingDateParam;
-        ReplacePostingDate := ReplacePostingDateParam;
-        ReplaceDocumentDate := ReplaceDocumentDateParam;
-        ReplaceVATDateReq := false;
-        CalcInvDisc := CalcInvDiscParam;
-    end;
-#endif
-
     procedure InitializeRequest(ShipParam: Boolean; InvoiceParam: Boolean; PostingDateParam: Date; VATDateParam: Date; ReplacePostingDateParam: Boolean; ReplaceDocumentDateParam: Boolean; ReplaceVATDateParam: Boolean; CalcInvDiscParam: Boolean)
     begin
         ShipReq := ShipParam;

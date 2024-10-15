@@ -108,9 +108,6 @@ report 7000083 "Redraw Payable Bills"
                         GenJnlLine."Payment Method Code" := PostedDoc."Payment Method Code"
                     else
                         GenJnlLine."Payment Method Code" := NewPmtMethod;
-#if not CLEAN22
-                    GenJnlLine."Pmt. Address Code" := PostedDoc."Pmt. Address Code";
-#endif
                     GenJnlLine."Recipient Bank Account" := PostedDoc."Cust./Vendor Bank Acc. Code";
                 end else begin
                     ClosedDoc.Get(
@@ -119,9 +116,6 @@ report 7000083 "Redraw Payable Bills"
                         GenJnlLine."Payment Method Code" := ClosedDoc."Payment Method Code"
                     else
                         GenJnlLine."Payment Method Code" := NewPmtMethod;
-#if not CLEAN22
-                    GenJnlLine."Pmt. Address Code" := ClosedDoc."Pmt. Address Code";
-#endif
                     GenJnlLine."Recipient Bank Account" := ClosedDoc."Cust./Vendor Bank Acc. Code";
                 end;
                 GenJnlLine."Due Date" := NewDueDate;

@@ -32,7 +32,6 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         MissingConsumptionQst: Label 'Some consumption is still missing.';
         RunAdjCostMsg: Label 'You must run the Adjust Cost - Item Entries batch job once to adjust these.';
         ItemFilterTok: Label '%1|%2|%3';
-        ApplyItemEntryErr: Label '%1 must have a value in %2: Document Type=%3, Document No.=%4';
         isInitialized: Boolean;
         InvCostMustBeZeroErr: Label 'Total cost amount must be 0 after correction.';
 
@@ -443,10 +442,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error while posting Purchase Return Order when Apply to Item Entry is Zero.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ApplyItemEntryErr, PurchaseLine.FieldCaption("Appl.-to Item Entry"), PurchaseLine.TableCaption(),
-            PurchaseHeader."Document Type", PurchaseHeader."No."));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Appl.-to Item Entry"), '');
 
         // Tear Down.
         UpdateInventorySetup(
@@ -488,10 +484,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         asserterror LibrarySales.PostSalesDocument(SalesHeader2, true, true);
 
         // Verify: Verify error while posting sales Return Order when Apply from Item Entry is Zero.
-        Assert.ExpectedError(
-          StrSubstNo(
-            ApplyItemEntryErr, SalesLine.FieldCaption("Appl.-from Item Entry"), SalesLine.TableCaption(), SalesHeader2."Document Type",
-            SalesHeader2."No."));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Appl.-from Item Entry"), '');
 
         // Tear Down.
         UpdateInventorySetup(
@@ -1674,13 +1667,11 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
-            SetRange("Item No.", ItemNo);
-            CalcSums("Cost Amount (Actual)");
+        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.CalcSums("Cost Amount (Actual)");
 
-            exit("Cost Amount (Actual)");
-        end;
+        exit(ValueEntry."Cost Amount (Actual)");
     end;
 
     local procedure PostProductionJournal(var ProductionOrder: Record "Production Order")
@@ -1733,18 +1724,16 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemLedgerEntry.FindFirst();
     end;
 
-    local procedure SetAvgCostingPeriodInInvSetup(InventorySetup: Record "Inventory Setup"; AvgCostingPeriod: Option)
+    local procedure SetAvgCostingPeriodInInvSetup(InventorySetup: Record "Inventory Setup"; AvgCostingPeriod: Enum "Average Cost Period Type")
     begin
-        with InventorySetup do begin
-            Get();
-            UpdateInventorySetup(
-              InventorySetup,
-              true,
-              "Expected Cost Posting to G/L",
-              "Automatic Cost Adjustment",
-              "Average Cost Calc. Type",
-              AvgCostingPeriod);
-        end;
+        InventorySetup.Get();
+        UpdateInventorySetup(
+          InventorySetup,
+          true,
+          InventorySetup."Expected Cost Posting to G/L",
+          InventorySetup."Automatic Cost Adjustment",
+          InventorySetup."Average Cost Calc. Type",
+          AvgCostingPeriod);
     end;
 
     local procedure UpdateItemRoutingNo(var Item: Record Item; RoutingNo: Code[20])
@@ -1785,7 +1774,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    local procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Enum "Average Cost Period Type")
     begin
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, AutomaticCostPosting, ExpectedCostPostingtoGL, AutomaticCostAdjustment, AverageCostCalcType, AverageCostPeriod);
@@ -1839,14 +1828,12 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        with ProdOrderComponent do begin
-            SetRange(Status, ProductionOrder.Status);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
-            FindFirst();
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.FindFirst();
 
-            Validate("Location Code", LocationCode);
-            Modify(true);
-        end;
+        ProdOrderComponent.Validate("Location Code", LocationCode);
+        ProdOrderComponent.Modify(true);
     end;
 
     [Normal]
@@ -1939,15 +1926,13 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProdOrderNo);
-            SetRange("Valuation Date", ValuationDate);
-            CalcSums("Cost Amount (Actual)");
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProdOrderNo);
+        ValueEntry.SetRange("Valuation Date", ValuationDate);
+        ValueEntry.CalcSums("Cost Amount (Actual)");
 
-            TestField("Cost Amount (Actual)", CostAmount);
-        end;
+        ValueEntry.TestField("Cost Amount (Actual)", CostAmount);
     end;
 
     [Normal]

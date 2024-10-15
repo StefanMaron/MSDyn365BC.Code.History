@@ -146,7 +146,6 @@ report 7000097 "Reject Docs."
 
                     if NoRealVATBuffer.Find('-') then
                         repeat
-                        begin
                             FindInClosedBills := true;
                             InsertGenJournalLine(
                               GenJnlLine."Account Type"::"G/L Account",
@@ -159,7 +158,6 @@ report 7000097 "Reject Docs."
                               NoRealVATBuffer.Amount,
                               "Dimension Set ID");
                             FindInClosedBills := false;
-                        end;
                         until NoRealVATBuffer.Next() = 0;
 
                     "Currency Code" := TempCurrCode;

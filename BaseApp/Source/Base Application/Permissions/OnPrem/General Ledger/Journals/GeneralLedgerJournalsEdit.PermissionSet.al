@@ -29,8 +29,7 @@ permissionset 4103 "General Ledger Journals - Edit"
     Assignable = false;
     Caption = 'Create entries in G/L journals';
 
-
-    Permissions = tabledata "Bank Account" = R,
+    Permissions =
                   tabledata "Bill Group" = R,
                   tabledata "Cartera Doc." = R,
                   tabledata "Closed Bill Group" = R,
@@ -39,6 +38,8 @@ permissionset 4103 "General Ledger Journals - Edit"
                   tabledata "Alloc. Acc. Manual Override" = R,
                   tabledata "Alloc. Account Distribution" = R,
                   tabledata "Allocation Account" = RIMD,
+                  tabledata "Allocation Line" = RIMD,
+                  tabledata "Bank Account" = R,
                   tabledata "Comment Line" = R,
                   tabledata Currency = R,
                   tabledata "Currency Exchange Rate" = R,

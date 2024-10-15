@@ -473,34 +473,30 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
     local procedure MakeAnalysisByDimParameters(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AmountField: Enum "Analysis Show Amount Field"; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Enum "Analysis Amount Type"; ClosingEntryFilter: Option; ShowActualBudg: Enum "Analysis Show Amount Type"; BusUnitFilter: Text; AnalysisView: Record "Analysis View")
     begin
-        with AnalysisByDimParameters do begin
-            "Show Amount Field" := AmountField;
-            "Analysis View Code" := AnalysisView.Code;
-            "Date Filter" := DateFilter;
-            "Account Filter" := AccFilter;
-            "Budget Filter" := BudgetFilter;
-            "Dimension 1 Filter" := Dim1Filter;
-            "Dimension 2 Filter" := Dim2Filter;
-            "Dimension 3 Filter" := Dim3Filter;
-            "Dimension 4 Filter" := Dim4Filter;
-            "Amount Type" := AmountType;
-            "Closing Entries" := ClosingEntryFilter;
-            "Show Actual/Budgets" := ShowActualBudg;
-            "Analysis Account Source" := AnalysisView."Account Source";
-            "Bus. Unit Filter" := BusUnitFilter;
-        end;
+        AnalysisByDimParameters."Show Amount Field" := AmountField;
+        AnalysisByDimParameters."Analysis View Code" := AnalysisView.Code;
+        AnalysisByDimParameters."Date Filter" := DateFilter;
+        AnalysisByDimParameters."Account Filter" := AccFilter;
+        AnalysisByDimParameters."Budget Filter" := BudgetFilter;
+        AnalysisByDimParameters."Dimension 1 Filter" := Dim1Filter;
+        AnalysisByDimParameters."Dimension 2 Filter" := Dim2Filter;
+        AnalysisByDimParameters."Dimension 3 Filter" := Dim3Filter;
+        AnalysisByDimParameters."Dimension 4 Filter" := Dim4Filter;
+        AnalysisByDimParameters."Amount Type" := AmountType;
+        AnalysisByDimParameters."Closing Entries" := ClosingEntryFilter;
+        AnalysisByDimParameters."Show Actual/Budgets" := ShowActualBudg;
+        AnalysisByDimParameters."Analysis Account Source" := AnalysisView."Account Source";
+        AnalysisByDimParameters."Bus. Unit Filter" := BusUnitFilter;
     end;
 
     local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Enum "Analysis Account Source")
     begin
-        with AnalysisView do begin
-            Init();
-            Code := Format(LibraryRandom.RandIntInRange(1, 10000));
-            Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Name)), 1, MaxStrLen(Name));
-            "Account Source" := AccountSource;
-            if not Insert() then
-                Modify();
-        end;
+        AnalysisView.Init();
+        AnalysisView.Code := Format(LibraryRandom.RandIntInRange(1, 10000));
+        AnalysisView.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(AnalysisView.Name)), 1, MaxStrLen(AnalysisView.Name));
+        AnalysisView."Account Source" := AccountSource;
+        if not AnalysisView.Insert() then
+            AnalysisView.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -544,17 +540,15 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
     local procedure CreateAnalysisViewBudgetEntryWithDimension(AnalysisView: Record "Analysis View"; var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value"; PostingDate: Date)
     begin
-        with AnalysisViewBudgetEntry do begin
-            "Analysis View Code" := AnalysisView.Code;
-            "G/L Account No." := AccountNo;
-            "Dimension 1 Value Code" := DimensionValue[1].Code;
-            "Dimension 2 Value Code" := DimensionValue[2].Code;
-            "Dimension 3 Value Code" := DimensionValue[3].Code;
-            "Dimension 4 Value Code" := DimensionValue[4].Code;
-            "Posting Date" := PostingDate;
-            Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-            Insert();
-        end;
+        AnalysisViewBudgetEntry."Analysis View Code" := AnalysisView.Code;
+        AnalysisViewBudgetEntry."G/L Account No." := AccountNo;
+        AnalysisViewBudgetEntry."Dimension 1 Value Code" := DimensionValue[1].Code;
+        AnalysisViewBudgetEntry."Dimension 2 Value Code" := DimensionValue[2].Code;
+        AnalysisViewBudgetEntry."Dimension 3 Value Code" := DimensionValue[3].Code;
+        AnalysisViewBudgetEntry."Dimension 4 Value Code" := DimensionValue[4].Code;
+        AnalysisViewBudgetEntry."Posting Date" := PostingDate;
+        AnalysisViewBudgetEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        AnalysisViewBudgetEntry.Insert();
     end;
 
     local procedure CreateDimWithValue(var DimensionValue: Record "Dimension Value")
@@ -687,26 +681,22 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
     local procedure CreateItemAnalysisView(var ItemAnalysisView: Record "Item Analysis View")
     begin
-        with ItemAnalysisView do begin
-            Init();
-            Code := Format(LibraryRandom.RandIntInRange(1, 10000));
-            Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Name)), 1, MaxStrLen(Name));
-            if not Insert() then
-                Modify();
-        end;
+        ItemAnalysisView.Init();
+        ItemAnalysisView.Code := Format(LibraryRandom.RandIntInRange(1, 10000));
+        ItemAnalysisView.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(ItemAnalysisView.Name)), 1, MaxStrLen(ItemAnalysisView.Name));
+        if not ItemAnalysisView.Insert() then
+            ItemAnalysisView.Modify();
     end;
 
     [Scope('OnPrem')]
     procedure CreateItemAnalysisViewWithDimensions(var ItemAnalysisView: Record "Item Analysis View"; DimensionValue: array[3] of Record "Dimension Value")
     begin
         CreateItemAnalysisView(ItemAnalysisView);
-        with ItemAnalysisView do begin
-            "Update on Posting" := false;
-            "Dimension 1 Code" := DimensionValue[1]."Dimension Code";
-            "Dimension 2 Code" := DimensionValue[2]."Dimension Code";
-            "Dimension 3 Code" := DimensionValue[3]."Dimension Code";
-            Modify();
-        end;
+        ItemAnalysisView."Update on Posting" := false;
+        ItemAnalysisView."Dimension 1 Code" := DimensionValue[1]."Dimension Code";
+        ItemAnalysisView."Dimension 2 Code" := DimensionValue[2]."Dimension Code";
+        ItemAnalysisView."Dimension 3 Code" := DimensionValue[3]."Dimension Code";
+        ItemAnalysisView.Modify();
     end;
 
     local procedure CreateItemAnalysisViewEntryWithDimension(ItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; ItemNo: Code[20]; DimensionValue: array[3] of Record "Dimension Value"; PostingDate: Date; LocationCode: Code[10])
@@ -714,37 +704,33 @@ codeunit 134236 "ERM Analysis View Excel Export"
         Location: Record Location;
     begin
         LibraryWarehouse.CreateLocation(Location);
-        with ItemAnalysisViewEntry do begin
-            "Analysis View Code" := ItemAnalysisView.Code;
-            "Item No." := ItemNo;
-            "Dimension 1 Value Code" := DimensionValue[1].Code;
-            "Dimension 2 Value Code" := DimensionValue[2].Code;
-            "Dimension 3 Value Code" := DimensionValue[3].Code;
-            "Posting Date" := PostingDate;
-            "Sales Amount (Actual)" := LibraryRandom.RandDecInRange(1, 1000, 2);
-            "Cost Amount (Actual)" := LibraryRandom.RandDecInRange(1, 1000, 2);
-            Quantity := LibraryRandom.RandDecInRange(1, 1000, 2);
-            "Location Code" := LocationCode;
-            Insert();
-        end;
+        ItemAnalysisViewEntry."Analysis View Code" := ItemAnalysisView.Code;
+        ItemAnalysisViewEntry."Item No." := ItemNo;
+        ItemAnalysisViewEntry."Dimension 1 Value Code" := DimensionValue[1].Code;
+        ItemAnalysisViewEntry."Dimension 2 Value Code" := DimensionValue[2].Code;
+        ItemAnalysisViewEntry."Dimension 3 Value Code" := DimensionValue[3].Code;
+        ItemAnalysisViewEntry."Posting Date" := PostingDate;
+        ItemAnalysisViewEntry."Sales Amount (Actual)" := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ItemAnalysisViewEntry."Cost Amount (Actual)" := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ItemAnalysisViewEntry.Quantity := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ItemAnalysisViewEntry."Location Code" := LocationCode;
+        ItemAnalysisViewEntry.Insert();
     end;
 
     local procedure CreateItemAnalysisViewBudgetEntryWithDimension(ItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; ItemNo: Code[20]; LocationCode: Code[10]; DimensionValue: array[4] of Record "Dimension Value"; PostingDate: Date)
     begin
-        with ItemAnalysisViewBudgEntry do begin
-            "Analysis Area" := ItemAnalysisView."Analysis Area";
-            "Analysis View Code" := ItemAnalysisView.Code;
-            "Item No." := ItemNo;
-            "Location Code" := LocationCode;
-            "Dimension 1 Value Code" := DimensionValue[1].Code;
-            "Dimension 2 Value Code" := DimensionValue[2].Code;
-            "Dimension 3 Value Code" := DimensionValue[3].Code;
-            "Posting Date" := PostingDate;
-            Quantity := LibraryRandom.RandDecInRange(1, 1000, 2);
-            "Sales Amount" := LibraryRandom.RandDecInRange(1, 1000, 2);
-            "Cost Amount" := LibraryRandom.RandDecInRange(1, 1000, 2);
-            Insert();
-        end;
+        ItemAnalysisViewBudgEntry."Analysis Area" := ItemAnalysisView."Analysis Area";
+        ItemAnalysisViewBudgEntry."Analysis View Code" := ItemAnalysisView.Code;
+        ItemAnalysisViewBudgEntry."Item No." := ItemNo;
+        ItemAnalysisViewBudgEntry."Location Code" := LocationCode;
+        ItemAnalysisViewBudgEntry."Dimension 1 Value Code" := DimensionValue[1].Code;
+        ItemAnalysisViewBudgEntry."Dimension 2 Value Code" := DimensionValue[2].Code;
+        ItemAnalysisViewBudgEntry."Dimension 3 Value Code" := DimensionValue[3].Code;
+        ItemAnalysisViewBudgEntry."Posting Date" := PostingDate;
+        ItemAnalysisViewBudgEntry.Quantity := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ItemAnalysisViewBudgEntry."Sales Amount" := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ItemAnalysisViewBudgEntry."Cost Amount" := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ItemAnalysisViewBudgEntry.Insert();
     end;
 
     local procedure CreateLocationCode(): Code[10]
@@ -789,50 +775,46 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
     local procedure SetCommonFiltersAnalysisViewEntry(AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry"; DateFilter: Text; AccountFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; BusUnitFilter: Text)
     begin
-        with AnalysisViewEntry do begin
-            Reset();
+        AnalysisViewEntry.Reset();
 
-            SetRange("Analysis View Code", AnalysisView.Code);
-            if BusUnitFilter <> '' then
-                SetFilter("Business Unit Code", BusUnitFilter);
+        AnalysisViewEntry.SetRange("Analysis View Code", AnalysisView.Code);
+        if BusUnitFilter <> '' then
+            AnalysisViewEntry.SetFilter("Business Unit Code", BusUnitFilter);
 
-            if AccountFilter <> '' then
-                SetFilter("Account No.", AccountFilter);
+        if AccountFilter <> '' then
+            AnalysisViewEntry.SetFilter("Account No.", AccountFilter);
 
-            SetRange("Account Source", AnalysisView."Account Source");
+        AnalysisViewEntry.SetRange("Account Source", AnalysisView."Account Source");
 
-            SetFilter("Posting Date", DateFilter);
-            if Dim1Filter <> '' then
-                SetFilter("Dimension 1 Value Code", GetDimValueTotaling(Dim1Filter, AnalysisView."Dimension 1 Code"));
-            if Dim2Filter <> '' then
-                SetFilter("Dimension 2 Value Code", GetDimValueTotaling(Dim2Filter, AnalysisView."Dimension 2 Code"));
-            if Dim3Filter <> '' then
-                SetFilter("Dimension 3 Value Code", GetDimValueTotaling(Dim3Filter, AnalysisView."Dimension 3 Code"));
-            if Dim4Filter <> '' then
-                SetFilter("Dimension 4 Value Code", GetDimValueTotaling(Dim4Filter, AnalysisView."Dimension 4 Code"));
-        end;
+        AnalysisViewEntry.SetFilter("Posting Date", DateFilter);
+        if Dim1Filter <> '' then
+            AnalysisViewEntry.SetFilter("Dimension 1 Value Code", GetDimValueTotaling(Dim1Filter, AnalysisView."Dimension 1 Code"));
+        if Dim2Filter <> '' then
+            AnalysisViewEntry.SetFilter("Dimension 2 Value Code", GetDimValueTotaling(Dim2Filter, AnalysisView."Dimension 2 Code"));
+        if Dim3Filter <> '' then
+            AnalysisViewEntry.SetFilter("Dimension 3 Value Code", GetDimValueTotaling(Dim3Filter, AnalysisView."Dimension 3 Code"));
+        if Dim4Filter <> '' then
+            AnalysisViewEntry.SetFilter("Dimension 4 Value Code", GetDimValueTotaling(Dim4Filter, AnalysisView."Dimension 4 Code"));
     end;
 
     local procedure SetCommonFiltersItemAnalysisViewEntry(ItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; DateFilter: Text; ItemFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; LocationFilter: Text)
     begin
-        with ItemAnalysisViewEntry do begin
-            Reset();
+        ItemAnalysisViewEntry.Reset();
 
-            SetRange("Analysis View Code", ItemAnalysisView.Code);
+        ItemAnalysisViewEntry.SetRange("Analysis View Code", ItemAnalysisView.Code);
 
-            if ItemFilter <> '' then
-                SetFilter("Item No.", ItemFilter);
-            if LocationFilter <> '' then
-                SetFilter("Location Code", LocationFilter);
+        if ItemFilter <> '' then
+            ItemAnalysisViewEntry.SetFilter("Item No.", ItemFilter);
+        if LocationFilter <> '' then
+            ItemAnalysisViewEntry.SetFilter("Location Code", LocationFilter);
 
-            SetFilter("Posting Date", DateFilter);
-            if Dim1Filter <> '' then
-                SetFilter("Dimension 1 Value Code", GetDimValueTotaling(Dim1Filter, ItemAnalysisView."Dimension 1 Code"));
-            if Dim2Filter <> '' then
-                SetFilter("Dimension 2 Value Code", GetDimValueTotaling(Dim2Filter, ItemAnalysisView."Dimension 2 Code"));
-            if Dim3Filter <> '' then
-                SetFilter("Dimension 3 Value Code", GetDimValueTotaling(Dim3Filter, ItemAnalysisView."Dimension 3 Code"));
-        end;
+        ItemAnalysisViewEntry.SetFilter("Posting Date", DateFilter);
+        if Dim1Filter <> '' then
+            ItemAnalysisViewEntry.SetFilter("Dimension 1 Value Code", GetDimValueTotaling(Dim1Filter, ItemAnalysisView."Dimension 1 Code"));
+        if Dim2Filter <> '' then
+            ItemAnalysisViewEntry.SetFilter("Dimension 2 Value Code", GetDimValueTotaling(Dim2Filter, ItemAnalysisView."Dimension 2 Code"));
+        if Dim3Filter <> '' then
+            ItemAnalysisViewEntry.SetFilter("Dimension 3 Value Code", GetDimValueTotaling(Dim3Filter, ItemAnalysisView."Dimension 3 Code"));
     end;
 
     local procedure VerifyAnalysisVeiwGeneralInfoSheet(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; DimensionValue: array[4] of Record "Dimension Value")

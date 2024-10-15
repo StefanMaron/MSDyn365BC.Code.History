@@ -1,4 +1,4 @@
-codeunit 137075 "SCM Planning Order Tracking"
+﻿codeunit 137075 "SCM Planning Order Tracking"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -34,12 +34,12 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
-        ItemFilter: Label '%1|%2', Locked = true;
+        ItemFilterTok: Label '%1|%2', Locked = true;
         UnexpectedErrorMsg: Label 'Unexpected message';
-        NoTrackingLines: Label 'There are no order tracking entries for this line';
+        NoTrackingLinesErr: Label 'There are no order tracking entries for this line';
         ControlOptions: Option Purchase,Sale,Verification;
-        ReqLineShouldNotExistErr: Label 'The requisition line for location %1 should not exist';
-        ReqLineShouldExistErr: Label 'The requisition line for location %1 should exist';
+        ReqLineShouldNotExistErr: Label 'The requisition line for location %1 should not exist', Comment = '%1 = Location code';
+        ReqLineShouldExistErr: Label 'The requisition line for location %1 should exist', Comment = '%1 = Location code';
         ReservedQuantityErr: Label 'Reserved Quantity should not be cleared';
         ItemTrackingDefinedErr: Label 'Item tracking is defined for item %1 in the Requisition Line', Comment = '%1 = Item No.';
         DialogErr: Label 'Dialog';
@@ -92,7 +92,7 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status::Released, ProductionOrder."No.", ChildItem."No.");
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
         VerifyOrderTrackingOnRequisitionLine(
           ChildItem."No.", ProdOrderComponent."Expected Quantity", ProdOrderComponent."Expected Quantity", 0, false);
     end;
@@ -110,11 +110,11 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
 
         // [GIVEN] Create Purchase Order with Planning Flexibility - None.
-        CreatePurchaseOrder(PurchaseLine, Item."No.", '');
+        CreatePurchaseOrder(PurchaseLine, Item."No.", '', LibraryRandom.RandDec(10, 2));
         UpdatePurchaseLinePlanningFlexibilityNone(PurchaseLine);
 
         // [GIVEN] Create Sales Order.
-        CreateSalesOrder(SalesLine, Item."No.", '');
+        CreateSalesOrder(SalesLine, Item."No.", '', LibraryRandom.RandDecinRange(11, 20, 2));
 
         // [WHEN] Calculate Regenerative Plan for Planning Worksheet.
         CalculateRegenPlanForPlanningWorksheet(Item);
@@ -150,7 +150,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, StartDate, EndDate);
 
         // [THEN] Verify Untracked Quantity, Total Quantity on Requisition Line using Order Tracking.
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
         VerifyOrderTrackingOnRequisitionLine(Item."No.", Item."Maximum Inventory", Item."Maximum Inventory", 0, false);
     end;
 
@@ -212,7 +212,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, Item."No.", ChildItem."No.");
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
         VerifyOrderTrackingOnRequisitionLine(
           Item."No.", ProductionForecastEntry."Forecast Quantity" - ProductionOrder.Quantity,
           ProductionForecastEntry."Forecast Quantity" - ProductionOrder.Quantity, 0, false);
@@ -300,7 +300,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CalculateRegenPlanForPlanningWorksheet(Item);
 
         // [THEN] Verify Untracked Quantity and Total Quantity on Planning Component using Order Tracking.
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
         VerifyOrderTrackingForPlanningComponent(Item."No.");
     end;
 
@@ -318,11 +318,11 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
 
         // [GIVEN] Create and Post Purchase Order.
-        CreatePurchaseOrder(PurchaseLine, Item."No.", '');
+        CreatePurchaseOrder(PurchaseLine, Item."No.", '', LibraryRandom.RandDec(10, 2));
         PostPurchaseDocument(PurchaseLine);
 
         // [GIVEN] Create and Reserve Sales Order.
-        CreateSalesOrder(SalesLine, Item."No.", '');
+        CreateSalesOrder(SalesLine, Item."No.", '', LibraryRandom.RandDecInRange(11, 20, 2));
         SalesLine.ShowReservation();  // Open Resrevation Page - ReservationFromCurrentLineHandler
 
         // [WHEN] Calculate regenerative Plan for Planning Worksheet.
@@ -381,7 +381,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [WHEN] Calculate regenerative Plan for Planning Worksheet.
         Item.SetRange("No.", Item."No.");
         Item.SetRange("Location Filter", LocationBlue.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('-CY', WorkDate()), CalcDate('CY', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [THEN] Two purchase lines should be marked with Action Message = 'Cancel'
         RequisitionLine.SetRange("No.", Item."No.");
@@ -414,7 +414,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CalcRegenPlanForPlanWkshWithMultipleItems(Item."No.", ChildItem."No.", WorkDate(), GetRequiredDate(10, 30, WorkDate(), 1));
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status::Released, ProductionOrder."No.", ChildItem."No.");
         VerifyOrderTrackingOnRequisitionLine(
           ChildItem."No.", ProdOrderComponent."Expected Quantity", ProdOrderComponent."Expected Quantity", 0, false);
@@ -465,8 +465,8 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
         Quantity := SalesLine.Quantity - SalesLine."Qty. to Ship";
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
         VerifyOrderTrackingOnRequisitionLineWithDueDate(
           Item."No.", SelectDateWithSafetyLeadTime(StartDate, -1), SalesLine."Qty. to Ship", SalesLine."Qty. to Ship", 0, false);
         VerifyOrderTrackingOnRequisitionLineWithDueDate(
@@ -497,8 +497,8 @@ codeunit 137075 "SCM Planning Order Tracking"
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), EndDate);
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
-        LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);  // Required inside MessageHandler.
         Quantity := SalesLine.Quantity - SalesLine."Qty. to Ship";
         VerifyOrderTrackingOnRequisitionLineWithDueDate(
           Item."No.", SelectDateWithSafetyLeadTime(WorkDate(), -1), SalesLine."Qty. to Ship", SalesLine."Qty. to Ship", 0, false);
@@ -724,7 +724,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [GIVEN] Poduction order "P1" for 100 pcs of item "PROD"
         CreateAndRefreshFirmPlannedProductionOrderWithDueDate(
           ProductionOrder[1], ProdItem."No.", LibraryRandom.RandIntInRange(50, 100),
-          LeadTimeManagement.PlannedDueDate(ProdItem."No.", '', '', WorkDate(), '', 2));
+          LeadTimeManagement.GetPlannedDueDate(ProdItem."No.", '', '', WorkDate(), '', "Requisition Ref. Order Type"::"Prod. Order"));
         ProdOrderComponent.SetRange("Item No.", ComponentItem."No.");
         ProdOrderComponent.FindFirst();
 
@@ -805,7 +805,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         PostedSalesShipment.SalesShipmLines.First();
 
         // [WHEN] Order tracking is invoked from Posted Sales Shipment
-        LibraryVariableStorage.Enqueue(NoTrackingLines);
+        LibraryVariableStorage.Enqueue(NoTrackingLinesErr);
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(Item."No.");
@@ -898,13 +898,11 @@ codeunit 137075 "SCM Planning Order Tracking"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with RequisitionLine do begin
-            FilterRequisitionLine(RequisitionLine, No, LocationCode);
-            FindFirst();
-            Validate("Accept Action Message", true);
-            Modify(true);
-            LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
-        end;
+        FilterRequisitionLine(RequisitionLine, No, LocationCode);
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
 
     local procedure NoSeriesSetup()
@@ -1062,11 +1060,16 @@ codeunit 137075 "SCM Planning Order Tracking"
     end;
 
     local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreateSalesOrder(SalesLine, ItemNo, LocationCode, LibraryRandom.RandDec(10, 2));
+    end;
+
+    local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
     end;
@@ -1081,13 +1084,12 @@ codeunit 137075 "SCM Planning Order Tracking"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Modify(true);
     end;
@@ -1127,7 +1129,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     var
         Item: Record Item;
     begin
-        Item.SetFilter("No.", ItemFilter, ItemNo, ItemNo2);  // Filter Required for two Items.
+        Item.SetFilter("No.", ItemFilterTok, ItemNo, ItemNo2);  // Filter Required for two Items.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartDate, EndDate);
     end;
 
@@ -1208,7 +1210,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure AreSameMessages(Message: Text[1024]; Message2: Text[1024]): Boolean
+    local procedure AreSameMessages(Message: Text; Message2: Text): Boolean
     begin
         exit(StrPos(Message, Message2) > 0);
     end;
@@ -1481,8 +1483,8 @@ codeunit 137075 "SCM Planning Order Tracking"
     var
         PlanningComponent: Record "Planning Component";
         RequisitionLine: Record "Requisition Line";
-        OrderTracking: TestPage "Order Tracking";
         OrderTracking2: Page "Order Tracking";
+        OrderTracking: TestPage "Order Tracking";
     begin
         SelectRequisitionLine(RequisitionLine, ItemNo);
         SelectPlanningComponent(PlanningComponent, RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name");
@@ -1514,8 +1516,8 @@ codeunit 137075 "SCM Planning Order Tracking"
 
     local procedure VerifyOrderTracking(RequisitionLine: Record "Requisition Line"; UntrackedQuantity: Decimal; TotalQuantity: Decimal; LineQuantity: Decimal; LineQty: Boolean)
     var
-        OrderTracking: TestPage "Order Tracking";
         OrderTracking2: Page "Order Tracking";
+        OrderTracking: TestPage "Order Tracking";
     begin
         OrderTracking.Trap();
         OrderTracking2.SetReqLine(RequisitionLine);
@@ -1615,7 +1617,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // Calculate Regenerative Plan using page. Required where Forecast is used.
         LibraryVariableStorage.Dequeue(ItemNo);
         LibraryVariableStorage.Dequeue(ItemNo2);
-        CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo(ItemFilter, ItemNo, ItemNo2));
+        CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo(ItemFilterTok, ItemNo, ItemNo2));
         CalculatePlanPlanWksh.MPS.SetValue(true);
         CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(GetRequiredDate(10, 50, WorkDate(), 1));

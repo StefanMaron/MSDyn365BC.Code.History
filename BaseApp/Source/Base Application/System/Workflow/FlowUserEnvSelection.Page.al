@@ -1,14 +1,17 @@
 namespace System.Automation;
 
+#if not CLEAN25
 page 6416 "Flow User Env. Selection"
 {
     Caption = 'Power Automate User Environment Selection';
-    AdditionalSearchTerms = 'Flow,Microsoft Flow';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
     SourceTable = "Flow User Environment Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This funcionality has been moved to Automate Environment Picker.';
+    ObsoleteTag = '25.0';
 
     layout
     {
@@ -89,4 +92,4 @@ page 6416 "Flow User Env. Selection"
         Rec.SetAscending("Environment Display Name", true);
     end;
 }
-
+#endif

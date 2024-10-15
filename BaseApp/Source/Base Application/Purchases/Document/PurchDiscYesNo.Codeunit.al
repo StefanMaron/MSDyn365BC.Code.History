@@ -21,16 +21,17 @@ codeunit 71 "Purch.-Disc. (Yes/No)"
         if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
             if ConfirmManagement.GetResponseOrDefault(Text000, true) then
                 CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", Rec);
-        end else begin
+        end else
             if ConfirmManagement.GetResponseOrDefault(Text1100000, true) then
                 CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", Rec);
-        end;
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+#pragma warning disable AA0074
         Text000: Label 'Do you want to calculate the invoice discount?';
         Text1100000: Label 'Do you want to calculate the invoice discount and payment discount?';
-        GLSetup: Record "General Ledger Setup";
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)

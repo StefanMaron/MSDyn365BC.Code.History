@@ -26,9 +26,6 @@ codeunit 7000008 "Document-Edit"
         if Rec."Bill Gr./Pmt. Order No." = '' then begin
             CarteraDoc."Due Date" := Rec."Due Date";
             CarteraDoc."Cust./Vendor Bank Acc. Code" := Rec."Cust./Vendor Bank Acc. Code";
-#if not CLEAN22
-            CarteraDoc."Pmt. Address Code" := Rec."Pmt. Address Code";
-#endif
             CarteraDoc."Collection Agent" := Rec."Collection Agent";
             CarteraDoc.Accepted := Rec.Accepted;
         end;

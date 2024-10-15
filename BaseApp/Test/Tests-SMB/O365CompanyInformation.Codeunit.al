@@ -42,51 +42,43 @@ codeunit 138041 "O365 Company Information"
         // fill out bank account information in Company Information page
         BankAccPostingGroup.FindLast();
 
-        with CompanyInformationPage do begin
-            OpenEdit();
-            "Bank Name".SetValue('Stans Bank');
-            "CCC Bank No.".SetValue('1111');
-            "CCC Bank Branch No.".SetValue('2222');
-            "CCC Control Digits".SetValue('33');
-            "CCC Bank Account No.".SetValue('1234567890');
-            "CCC No.".SetValue('11112222331234567890');
-            BankAccountPostingGroup.SetValue(BankAccPostingGroup.Code);
-            OK().Invoke();
-        end;
+        CompanyInformationPage.OpenEdit();
+        CompanyInformationPage."Bank Name".SetValue('Stans Bank');
+        CompanyInformationPage."CCC Bank No.".SetValue('1111');
+        CompanyInformationPage."CCC Bank Branch No.".SetValue('2222');
+        CompanyInformationPage."CCC Control Digits".SetValue('33');
+        CompanyInformationPage."CCC Bank Account No.".SetValue('1234567890');
+        CompanyInformationPage."CCC No.".SetValue('11112222331234567890');
+        CompanyInformationPage.BankAccountPostingGroup.SetValue(BankAccPostingGroup.Code);
+        CompanyInformationPage.OK().Invoke();
 
         // verify that a bank account has been created
         CompanyInformation.Get();
         Assert.IsTrue(BankAccount.Get(CompanyBankAccountTxt), 'Bank account ' + CompanyBankAccountTxt + ' not generated.');
 
-        with BankAccount do begin
-            TestField(Name, CompanyInformation."Bank Name");
-            TestField("CCC Bank Account No.", CompanyInformation."CCC Bank Account No.");
-            TestField("CCC Bank Branch No.", CompanyInformation."CCC Bank Branch No.");
-            TestField("CCC Control Digits", CompanyInformation."CCC Control Digits");
-            TestField("CCC Bank No.", CompanyInformation."CCC Bank No.");
-            TestField("CCC No.", CompanyInformation."CCC No.");
-            TestField("Bank Acc. Posting Group", BankAccPostingGroup.Code);
-        end;
+        BankAccount.TestField(Name, CompanyInformation."Bank Name");
+        BankAccount.TestField("CCC Bank Account No.", CompanyInformation."CCC Bank Account No.");
+        BankAccount.TestField("CCC Bank Branch No.", CompanyInformation."CCC Bank Branch No.");
+        BankAccount.TestField("CCC Control Digits", CompanyInformation."CCC Control Digits");
+        BankAccount.TestField("CCC Bank No.", CompanyInformation."CCC Bank No.");
+        BankAccount.TestField("CCC No.", CompanyInformation."CCC No.");
+        BankAccount.TestField("Bank Acc. Posting Group", BankAccPostingGroup.Code);
 
         // verify that payment registration General Journal Batch points to the company bank account
         if GenJournalBatch.Get(XPAYMENTTxt, XPmtRegTxt) then
             GenJournalBatch.TestField("Bal. Account No.", BankAccount."No.");
 
         // verify that payment registration setup points to to the company bank account
-        with PaymentRegistrationSetup do
-            if Get(UserId) then begin
-                TestField("Journal Template Name", XPAYMENTTxt);
-                TestField("Journal Batch Name", XPmtRegTxt);
-                TestField("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-                TestField("Bal. Account No.", BankAccount."No.");
-            end;
-
-        // Modify bank name
-        with CompanyInformationPage do begin
-            OpenEdit();
-            "Bank Name".SetValue("Bank Name".Value + "Bank Name".Value);
-            OK().Invoke();
+        if PaymentRegistrationSetup.Get(UserId) then begin
+            PaymentRegistrationSetup.TestField("Journal Template Name", XPAYMENTTxt);
+            PaymentRegistrationSetup.TestField("Journal Batch Name", XPmtRegTxt);
+            PaymentRegistrationSetup.TestField("Bal. Account Type", PaymentRegistrationSetup."Bal. Account Type"::"Bank Account");
+            PaymentRegistrationSetup.TestField("Bal. Account No.", BankAccount."No.");
         end;
+        // Modify bank name
+        CompanyInformationPage.OpenEdit();
+        CompanyInformationPage."Bank Name".SetValue(CompanyInformationPage."Bank Name".Value + CompanyInformationPage."Bank Name".Value);
+        CompanyInformationPage.OK().Invoke();
 
         // Verify that company bank account has been updated
         BankAccount.TestField(Name, CompanyInformation."Bank Name");

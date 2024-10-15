@@ -60,7 +60,6 @@ codeunit 144051 "ERM Full VAT"
         EqualToTxt: Label '=';
         GreaterThanTxt: Label '>';
         LessThanTxt: Label '<';
-        NoMustBeEqualMsg: Label 'No. must be equal to ''%1''  in Sales Line: Document Type=%2, Document No.=%3, Line No.=%4. Current value is ''%5''.';
         ValueMustBeEqualMsg: Label 'Value must be equal.';
         VATEntryNotFoundErr: Label 'VAT Entry with Generated Autodocument = %1 not found';
         LibraryUtility: Codeunit "Library - Utility";
@@ -101,10 +100,7 @@ codeunit 144051 "ERM Full VAT"
             SalesLine, DocumentType, SalesLine.Type::"G/L Account", '', VATPostingSetup."VAT Bus. Posting Group", GLAccountNo);  // Currency Code as blank.
 
         // Verify.
-        Assert.ExpectedError(
-          StrSubstNo(
-            NoMustBeEqualMsg, VATPostingSetup."Sales VAT Account", SalesLine."Document Type",
-            SalesLine."Document No.", SalesLine."Line No.", GLAccountNo));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("No."), VATPostingSetup."Sales VAT Account");
     end;
 
     [Test]
@@ -490,19 +486,17 @@ codeunit 144051 "ERM Full VAT"
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            Validate("VAT Calculation Type", VATCalculationType);
-            if "VAT Calculation Type" = "VAT Calculation Type"::"Normal VAT" then begin
-                Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-                Validate("Purch. VAT Unreal. Account", CreateGLAccount(VATProductPostingGroup.Code));
-            end;
-            Validate("Purchase VAT Account", CreateGLAccount(VATProductPostingGroup.Code));
-            Validate("VAT Identifier", LibraryUtility.GenerateRandomCode20(FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
-            Validate("VAT %", LibraryRandom.RandDec(10, 2));
-            Validate("Reverse Chrg. VAT Acc.", CreateGLAccount(VATProductPostingGroup.Code));
-            Validate("Reverse Chrg. VAT Unreal. Acc.", CreateGLAccount(VATProductPostingGroup.Code));
-            Modify(true);
+        VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
+        if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Normal VAT" then begin
+            VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+            VATPostingSetup.Validate("Purch. VAT Unreal. Account", CreateGLAccount(VATProductPostingGroup.Code));
         end;
+        VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount(VATProductPostingGroup.Code));
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateRandomCode20(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandDec(10, 2));
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", CreateGLAccount(VATProductPostingGroup.Code));
+        VATPostingSetup.Validate("Reverse Chrg. VAT Unreal. Acc.", CreateGLAccount(VATProductPostingGroup.Code));
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateVendor(CurrencyCode: Code[10]; VATBusPostingGroup: Code[20]): Code[20]
@@ -527,16 +521,14 @@ codeunit 144051 "ERM Full VAT"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGLAccount(GLAccount);
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Document Type"::Payment,
-              "Account Type"::Vendor, PurchInvHeader."Buy-from Vendor No.",
-              "Bal. Account Type"::"G/L Account", GLAccount."No.",
-              PurchInvHeader."Amount Including VAT");
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", PurchInvHeader."No.");
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJnlLine."Document Type"::Payment,
+            GenJnlLine."Account Type"::Vendor, PurchInvHeader."Buy-from Vendor No.",
+            GenJnlLine."Bal. Account Type"::"G/L Account", GLAccount."No.",
+            PurchInvHeader."Amount Including VAT");
+        GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
+        GenJnlLine.Validate("Applies-to Doc. No.", PurchInvHeader."No.");
+        GenJnlLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         exit(GenJnlLine."Document No.");
     end;
@@ -590,11 +582,9 @@ codeunit 144051 "ERM Full VAT"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Unrealized VAT", UnrealizedVAT);
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Unrealized VAT", UnrealizedVAT);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; Amount: Decimal)
@@ -632,12 +622,10 @@ codeunit 144051 "ERM Full VAT"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            SetRange("Generated Autodocument", GeneratedAutoDocument);
-            Assert.IsFalse(IsEmpty, StrSubstNo(VATEntryNotFoundErr, GeneratedAutoDocument));
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        VATEntry.SetRange("Generated Autodocument", GeneratedAutoDocument);
+        Assert.IsFalse(VATEntry.IsEmpty, StrSubstNo(VATEntryNotFoundErr, GeneratedAutoDocument));
     end;
 }
 

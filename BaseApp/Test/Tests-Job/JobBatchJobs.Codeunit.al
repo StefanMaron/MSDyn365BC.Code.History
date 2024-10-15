@@ -1583,13 +1583,11 @@
     local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; LineType: Enum "Job Line Type"; ConsumableType: Enum "Job Planning Line Type"; No: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
     begin
         LibraryJob.CreateJobJournalLineForType(LineType, ConsumableType, JobTask, JobJournalLine);
-        with JobJournalLine do begin
-            Validate("No.", No);
-            Validate(Quantity, Qty);
-            Validate("Unit Cost", UnitCost);
-            Validate("Posting Date", PostingDate);
-            Modify(true);
-        end;
+        JobJournalLine.Validate("No.", No);
+        JobJournalLine.Validate(Quantity, Qty);
+        JobJournalLine.Validate("Unit Cost", UnitCost);
+        JobJournalLine.Validate("Posting Date", PostingDate);
+        JobJournalLine.Modify(true);
         LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
@@ -1742,11 +1740,9 @@
     local procedure CreateJobPlanningLineWithPlanningDate(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; PlanningDate: Date)
     begin
         CreateJobPlanningLine(JobPlanningLine, LineType, LibraryJob.ResourceType(), CreateResource(), JobTask);
-        with JobPlanningLine do begin
-            Validate("Planning Date", PlanningDate);
-            Validate("Qty. to Transfer to Journal", Quantity);
-            Modify(true);
-        end;
+        JobPlanningLine.Validate("Planning Date", PlanningDate);
+        JobPlanningLine.Validate("Qty. to Transfer to Journal", JobPlanningLine.Quantity);
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateJobWithFCYPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobCurrencyCode: Code[10]; InvoiceCurrencyCode: Code[10])
@@ -1950,15 +1946,13 @@
         ItemLedgerEntry: Record "Item Ledger Entry";
         TotalCost: Decimal;
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            FindSet();
-            repeat
-                CalcFields("Cost Amount (Actual)");
-                TotalCost += Abs("Cost Amount (Actual)");
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+            TotalCost += Abs(ItemLedgerEntry."Cost Amount (Actual)");
+        until ItemLedgerEntry.Next() = 0;
         exit(TotalCost);
     end;
 
@@ -2149,11 +2143,10 @@
     var
         JobPostingGroup: Record "Job Posting Group";
     begin
-        with JobPostingGroup do
-            if FindSet() then
-                repeat
-                    LibraryJob.UpdateJobPostingGroup(JobPostingGroup);
-                until Next() = 0;
+        if JobPostingGroup.FindSet() then
+            repeat
+                LibraryJob.UpdateJobPostingGroup(JobPostingGroup);
+            until JobPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateUnitCostOnRevaluationJournalLine(var ItemJournalLine: Record "Item Journal Line")
@@ -2200,27 +2193,23 @@
 
     local procedure CreateJobPlanningLineInvoiceTable(var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; JobNo: Code[20]; JobTaskNo: Code[20]; LineNo: Integer)
     begin
-        with JobPlanningLineInvoice do begin
-            Init();
-            Validate("Job No.", JobNo);
-            Validate("Job Task No.", JobTaskNo);
-            Validate("Job Planning Line No.", LineNo);
-            Insert();
-        end;
+        JobPlanningLineInvoice.Init();
+        JobPlanningLineInvoice.Validate("Job No.", JobNo);
+        JobPlanningLineInvoice.Validate("Job Task No.", JobTaskNo);
+        JobPlanningLineInvoice.Validate("Job Planning Line No.", LineNo);
+        JobPlanningLineInvoice.Insert();
     end;
 
     local procedure CreateJobPlanningLineTable(var JobPlanningLine: Record "Job Planning Line")
     var
         RecRef: RecordRef;
     begin
-        with JobPlanningLine do begin
-            Init();
-            "Job No." := LibraryUTUtility.GetNewCode();
-            "Job Task No." := LibraryUTUtility.GetNewCode();
-            RecRef.GetTable(JobPlanningLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Insert();
-        end;
+        JobPlanningLine.Init();
+        JobPlanningLine."Job No." := LibraryUTUtility.GetNewCode();
+        JobPlanningLine."Job Task No." := LibraryUTUtility.GetNewCode();
+        RecRef.GetTable(JobPlanningLine);
+        JobPlanningLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, JobPlanningLine.FieldNo("Line No."));
+        JobPlanningLine.Insert();
     end;
 
     local procedure VerifyGLEntry(GLAccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
@@ -2353,12 +2342,10 @@
     var
         JobWIPGLEntry: Record "Job WIP G/L Entry";
     begin
-        with JobWIPGLEntry do begin
-            SetRange("Job No.", JobNo);
-            SetRange("Posting Date", PostingDate);
-            FindFirst();
-            TestField("WIP Entry Amount", Amount);
-        end;
+        JobWIPGLEntry.SetRange("Job No.", JobNo);
+        JobWIPGLEntry.SetRange("Posting Date", PostingDate);
+        JobWIPGLEntry.FindFirst();
+        JobWIPGLEntry.TestField("WIP Entry Amount", Amount);
     end;
 
     local procedure VerifyPostedTotalCostOfJobPlanningLine(JobTask: Record "Job Task"; ItemNo: Code[20])
@@ -2381,18 +2368,16 @@
     begin
         JobTaskLine1.SetRange("Job No.", JobNo1);
         JobTaskLine1.FindSet();
-        with JobTaskLine2 do begin
-            SetRange("Job No.", JobNo2);
-            FindSet();
-            repeat
-                LineNo += 1;
-                if LineNo <> LastLineNo then
-                    Assert.AreEqual('', "WIP Method", StrSubstNo(WrongValueErr, FieldCaption("WIP Method")));
-                Assert.AreEqual(JobTaskLine1."WIP-Total", "WIP-Total", StrSubstNo(WrongValueErr, FieldCaption("WIP-Total")));
-                Assert.AreEqual(JobTaskLine1."WIP Method", "WIP Method", StrSubstNo(WrongValueErr, FieldCaption("WIP Method")));
-                JobTaskLine1.Next();
-            until Next() = 0;
-        end;
+        JobTaskLine2.SetRange("Job No.", JobNo2);
+        JobTaskLine2.FindSet();
+        repeat
+            LineNo += 1;
+            if LineNo <> LastLineNo then
+                Assert.AreEqual('', JobTaskLine2."WIP Method", StrSubstNo(WrongValueErr, JobTaskLine2.FieldCaption("WIP Method")));
+            Assert.AreEqual(JobTaskLine1."WIP-Total", JobTaskLine2."WIP-Total", StrSubstNo(WrongValueErr, JobTaskLine2.FieldCaption("WIP-Total")));
+            Assert.AreEqual(JobTaskLine1."WIP Method", JobTaskLine2."WIP Method", StrSubstNo(WrongValueErr, JobTaskLine2.FieldCaption("WIP Method")));
+            JobTaskLine1.Next();
+        until JobTaskLine2.Next() = 0;
     end;
 
     local procedure VerifyUnitPriceOnJobPlanningLineInLCY(JobPlanningLine: Record "Job Planning Line")
@@ -2564,20 +2549,18 @@
     [Scope('OnPrem')]
     procedure SetJobNoSeries(var JobsSetup: Record "Jobs Setup"; var NoSeries: Record "No. Series")
     begin
-        with JobsSetup do begin
-            Get();
-            if "Job Nos." = '' then
-                if not NoSeries.Get(XJOBTxt) then
-                    InsertSeries("Job Nos.", XJOBTxt, XJOBTxt, XJ10Txt, XJ99990Txt, '', '', 10, true)
-                else
-                    "Job Nos." := XJOBTxt;
-            if "Job WIP Nos." = '' then
-                if not NoSeries.Get(XJOBWIPTxt) then
-                    InsertSeries("Job WIP Nos.", XJOBWIPTxt, XJobWIPDescriptionTxt, XDefaultJobWIPNoTxt, XDefaultJobWIPEndNoTxt, '', '', 1, true)
-                else
-                    "Job WIP Nos." := XJOBWIPTxt;
-            Modify();
-        end
+        JobsSetup.Get();
+        if JobsSetup."Job Nos." = '' then
+            if not NoSeries.Get(XJOBTxt) then
+                InsertSeries(JobsSetup."Job Nos.", XJOBTxt, XJOBTxt, XJ10Txt, XJ99990Txt, '', '', 10, true)
+            else
+                JobsSetup."Job Nos." := XJOBTxt;
+        if JobsSetup."Job WIP Nos." = '' then
+            if not NoSeries.Get(XJOBWIPTxt) then
+                InsertSeries(JobsSetup."Job WIP Nos.", XJOBWIPTxt, XJobWIPDescriptionTxt, XDefaultJobWIPNoTxt, XDefaultJobWIPEndNoTxt, '', '', 1, true)
+            else
+                JobsSetup."Job WIP Nos." := XJOBWIPTxt;
+        JobsSetup.Modify();
     end;
 
     local procedure InsertSeries(var SeriesCode: Code[20]; "Code": Code[20]; Description: Text[30]; StartingNo: Code[20]; EndingNo: Code[20]; LastNumberUsed: Code[20]; WarningNo: Code[20]; IncrementByNo: Integer; ManualNos: Boolean)
@@ -2705,7 +2688,12 @@
     begin
         JobList.OpenEdit();
         JobList.FILTER.SetFilter("No.", JobNo);
+#if not CLEAN25
         JobList."Attached Documents".Documents.AssertEquals(1);
+#endif
+        JobList."Attached Documents List".First();
+        Assert.AreEqual('foo', JobList."Attached Documents List".Name.Value, 'Document name is not as expected');
+        Assert.AreEqual('jpeg', JobList."Attached Documents List"."File Extension".Value, 'Document extension is not as expected');
     end;
 
     local procedure PostJobJournalBatch(var JobJournalLine: Record "Job Journal Line")

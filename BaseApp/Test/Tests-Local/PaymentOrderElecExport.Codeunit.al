@@ -22,7 +22,6 @@ codeunit 147508 "Payment Order Elec. Export"
         MessageTxt: Label 'has been voided';
         FileExportHasErrorsErr: Label 'The file export has one or more errors.';
         MustHaveIBANErr: Label 'must have a value in IBAN';
-        ExportElecPaymentMustBeYesErr: Label 'Export Electronic Payment must be equal to ''Yes''  in Payment Order: No.=%1', Comment = '.';
         DownloadEPayFileQst: Label 'Do you also want to download the E-Pay export file?';
 
     local procedure Initialize()
@@ -46,7 +45,7 @@ codeunit 147508 "Payment Order Elec. Export"
         asserterror PaymentOrder.ExportToFile();
 
         // [THEN] Error message: 'Export Electronic Payment must be Yes'
-        Assert.ExpectedError(StrSubstNo(ExportElecPaymentMustBeYesErr, PaymentOrder."No."));
+        Assert.ExpectedTestFieldError(PaymentOrder.FieldCaption("Export Electronic Payment"), Format(true));
     end;
 
     [Test]
@@ -490,12 +489,10 @@ codeunit 147508 "Payment Order Elec. Export"
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        with VendorBankAccount do begin
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            IBAN := '';
-            Modify(true);
-        end;
+        VendorBankAccount.SetRange("Vendor No.", VendorNo);
+        VendorBankAccount.FindFirst();
+        VendorBankAccount.IBAN := '';
+        VendorBankAccount.Modify(true);
     end;
 
     local procedure FindSEPACTExportFormat(): Code[20]

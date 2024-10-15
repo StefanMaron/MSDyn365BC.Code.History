@@ -1292,7 +1292,7 @@
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
 
-        AssertError SalesQuote.MakeInvoice.Invoke();
+        asserterror SalesQuote.MakeInvoice.Invoke();
 
         Assert.ExpectedError(CannotConvertAssembleToOrderItemErr);
 
@@ -4271,6 +4271,8 @@
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
         AssemblySetup: Record "Assembly Setup";
+        SalesHeader: Record "Sales Header";
+        MyNotifications: Record "My Notifications";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryAssembly: Codeunit "Library - Assembly";
     begin
@@ -4324,6 +4326,11 @@
             AssemblySetup.Insert();
         LibraryAssembly.CreateAssemblySetup(AssemblySetup, '', 0, LibraryUtility.GetGlobalNoSeriesCode());
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+
+        // Disable notifications
+        if MyNotifications.Get(UserId, SalesHeader.GetShowExternalDocAlreadyExistNotificationId()) then
+            MyNotifications.Delete();
+        SalesHeader.SetShowExternalDocAlreadyExistNotificationDefaultState(false);
 
         isInitialized := true;
         Commit();
@@ -4741,10 +4748,9 @@
     var
         ExcludedFieldName: Text;
     begin
-        foreach ExcludedFieldName in FieldListToExclude do begin
+        foreach ExcludedFieldName in FieldListToExclude do
             if FieldRef.Name = ExcludedFieldName then
                 exit(true);
-        end;
 
         exit(false);
     end;
@@ -4893,13 +4899,11 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := LibraryUtility.GetNewRecNo(SalesLine, SalesLine.FieldNo("Line No."));
+        SalesLine.Description := LibraryUtility.GenerateGUID();
+        SalesLine.Insert();
     end;
 
     local procedure EnqueueForCreatePurchaseInvoiceHandlers(CopyItemsOpt: Option; VendorNo: Code[20]; ConfirmOnVendorSelection: Boolean)
@@ -5474,22 +5478,18 @@
         PurchaseHeader: Record "Purchase Header";
     begin
         VerifyPurchaseDocumentHeaderCreatedFromSalesDocument(PurchaseHeader, DocumentType, VendorNo);
-        with SalesLine do begin
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Line No.", SalesLineNo);
-        end;
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Line No.", SalesLineNo);
         VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader, SalesLine);
     end;
 
     local procedure VerifyPurchaseDocumentHeaderCreatedFromSalesDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
-        with PurchaseHeader do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Buy-from Vendor No.", VendorNo);
-            Assert.RecordIsNotEmpty(PurchaseHeader);
-            FindLast();
-        end;
+        PurchaseHeader.SetRange("Document Type", DocumentType);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        Assert.RecordIsNotEmpty(PurchaseHeader);
+        PurchaseHeader.FindLast();
     end;
 
     local procedure VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader: Record "Purchase Header"; var SalesLine: Record "Sales Line")
@@ -5911,16 +5911,14 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange("Document Type", SalesHeader."Document Type");
-            FindSet();
-            while LineIndex > 1 do begin
-                Assert.AreEqual(1, Next(), 'Expected more sales lines');
-                LineIndex -= 1;
-            end;
-            exit("Line No.");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindSet();
+        while LineIndex > 1 do begin
+            Assert.AreEqual(1, SalesLine.Next(), 'Expected more sales lines');
+            LineIndex -= 1;
         end;
+        exit(SalesLine."Line No.");
     end;
 
     [MessageHandler]

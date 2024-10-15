@@ -34,20 +34,20 @@ codeunit 104010 "Upg Set Country App Areas"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag()) then
+            exit;
 
-        IF ApplicationAreaSetup.GET() AND ApplicationAreaSetup.Basic THEN BEGIN
-            ApplicationAreaSetup.VAT := TRUE;
-            ApplicationAreaSetup."Basic EU" := TRUE;
-            ApplicationAreaSetup."Basic ES" := TRUE;
+        if ApplicationAreaSetup.GET() and ApplicationAreaSetup.Basic then begin
+            ApplicationAreaSetup.VAT := true;
+            ApplicationAreaSetup."Basic EU" := true;
+            ApplicationAreaSetup."Basic ES" := true;
             ApplicationAreaSetup.Modify();
-        END;
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag());
     end;
 
-    local procedure MoveGLBankAccountNoToGLAccountNo();
+    local procedure MoveGLBankAccountNoToGLAccountNo()
     var
         BankAccountPostingGroup: Record "Bank Account Posting Group";
         UpgradeTag: Codeunit "Upgrade Tag";

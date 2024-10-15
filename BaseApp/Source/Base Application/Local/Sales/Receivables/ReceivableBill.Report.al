@@ -119,9 +119,6 @@ report 7000003 "Receivable Bill"
             trigger OnAfterGetRecord()
             begin
                 CustBankAcc.Init();
-#if not CLEAN22
-                CustPmtAddress.Init();
-#endif
 
                 GLSetup.Get();
 
@@ -146,9 +143,6 @@ report 7000003 "Receivable Bill"
                             CollectionAgent := Doc."Collection Agent";
                             AccountNo := Doc."Account No.";
                             if CustBankAcc.Get(AccountNo, Doc."Cust./Vendor Bank Acc. Code") then;
-#if not CLEAN22
-                            if CustPmtAddress.Get(AccountNo, Doc."Pmt. Address Code") then;
-#endif
                             if PrintAmountsInLCY then
                                 PrintAmt := CustLedgEntry."Remaining Amt. (LCY)"
                             else
@@ -165,9 +159,6 @@ report 7000003 "Receivable Bill"
                             CollectionAgent := PostedDoc."Collection Agent";
                             AccountNo := PostedDoc."Account No.";
                             if CustBankAcc.Get(AccountNo, PostedDoc."Cust./Vendor Bank Acc. Code") then;
-#if not CLEAN22
-                            if CustPmtAddress.Get(AccountNo, PostedDoc."Pmt. Address Code") then;
-#endif
                             PostedBillGr.Get(PostedDoc."Bill Gr./Pmt. Order No.");
                             if PrintAmountsInLCY then
                                 PrintAmt := PostedDoc."Amt. for Collection (LCY)"
@@ -184,17 +175,8 @@ report 7000003 "Receivable Bill"
                     else
                         DrawDate := WorkDate();
 
-#if CLEAN22
                 Customer.Get(AccountNo);
                 FormatAddress.Customer(CustAddr, Customer);
-#else
-                if CustPmtAddress.Find() then
-                    FormatAddress.CustPmtAddress(CustAddr, CustPmtAddress)
-                else begin
-                    Customer.Get(AccountNo);
-                    FormatAddress.Customer(CustAddr, Customer);
-                end;
-#endif
                 if NumberText[1] = Text1100002 then
                     NumberText[1] := NumberText[1] + Text1100059;
             end;
@@ -327,9 +309,6 @@ report 7000003 "Receivable Bill"
         CompanyInfo: Record "Company Information";
         Customer: Record Customer;
         CustBankAcc: Record "Customer Bank Account";
-#if not CLEAN22
-        CustPmtAddress: Record "Customer Pmt. Address";
-#endif
         GLSetup: Record "General Ledger Setup";
         FormatAddress: Codeunit "Format Address";
         PaymentMethod: Code[10];

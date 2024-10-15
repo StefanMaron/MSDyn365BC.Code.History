@@ -553,20 +553,20 @@ codeunit 10752 "SII Doc. Upload Management"
         // Use TempXMLBuffer[2] to point the same temporary buffer and not to break TempXMLBuffer[1] cursor position
         DocumentNo := XMLParseDocumentNo(TempXMLBuffer, ParentEntryNo);
         LastDocumentNo := XMLParseLastDocumentNo(TempXMLBuffer, ParentEntryNo);
-        IF DocumentNo <> '' THEN BEGIN
-            IF LastDocumentNo = '' THEN BEGIN
-                IF SIIDocUploadState."Document Source" = SIIDocUploadState."Document Source"::"Vendor Ledger" THEN
+        if DocumentNo <> '' then begin
+            if LastDocumentNo = '' then begin
+                if SIIDocUploadState."Document Source" = SIIDocUploadState."Document Source"::"Vendor Ledger" then
                     SIIDocUploadState.SETRANGE("External Document No.", DocumentNo)
                 else
                     SIIDocUploadState.SETRANGE("Document No.", DocumentNo);
-            END else BEGIN
+            end else begin
                 SIIDocUploadState.SETRANGE("First Summary Doc. No.", DocumentNo);
                 SIIDocUploadState.SETRANGE("Last Summary Doc. No.", LastDocumentNo);
-            END;
+            end;
             Found := SIIDocUploadState.FindFirst();
-            if (NOT Found) AND
-               (SIIDocUploadState."Document Source" IN [SIIDocUploadState."Document Source"::"Customer Ledger",
-                                                        SIIDocUploadState."Document Source"::"Vendor Ledger"]) AND
+            if (not Found) and
+               (SIIDocUploadState."Document Source" in [SIIDocUploadState."Document Source"::"Customer Ledger",
+                                                        SIIDocUploadState."Document Source"::"Vendor Ledger"]) and
                                                        (LastDocumentNo = '')
             then begin
                 SIIDocUploadState.SetRange("External Document No.");
@@ -618,12 +618,12 @@ codeunit 10752 "SII Doc. Upload Management"
     begin
         XMLBuffer.SetRange("Parent Entry No.", ParentEntryNo);
         XMLBuffer.SetRange(Name, 'IDFactura');
-        IF XMLBuffer.FindFirst() THEN BEGIN
+        if XMLBuffer.FindFirst() then begin
             XMLBuffer.SetRange("Parent Entry No.", XMLBuffer."Entry No.");
             XMLBuffer.SetRange(Name, 'NumSerieFacturaEmisorResumenFin');
-            IF XMLBuffer.FindFirst() THEN
-                EXIT(COPYSTR(XMLBuffer.Value, 1, 35));
-        END;
+            if XMLBuffer.FindFirst() then
+                exit(COPYSTR(XMLBuffer.Value, 1, 35));
+        end;
     end;
 
     local procedure XMLParseDocumentResponse(var XMLBuffer: Record "XML Buffer"; var SIIHistory: Record "SII History"; ParentEntryNo: Integer)
@@ -743,7 +743,7 @@ codeunit 10752 "SII Doc. Upload Management"
             exit;
 
         if Rec.Code = SIISetup."Certificate Code" then begin
-            if not ConfirmManagement.GetResponseOrDefault(CertificateUsedInSIISetupQst, False) then
+            if not ConfirmManagement.GetResponseOrDefault(CertificateUsedInSIISetupQst, false) then
                 Error('');
             SIISetup.Validate("Certificate Code", '');
             SIISetup.Modify(true);

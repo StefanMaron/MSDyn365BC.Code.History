@@ -32,8 +32,6 @@ codeunit 147524 "SII Documents No Taxable"
         XPathSalesNoTaxLocalTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseFactura/sii:NoSujeta/sii:ImporteTAIReglasLocalizacion', Locked = true;
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         XPathEUSalesNoTaxTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/%1/sii:NoSujeta/sii:ImportePorArticulos7_14_Otros', Locked = true;
-        TestFieldErr: Label '%1 must be equal to ''%2''  in %3';
-        TestFieldCodeErr: Label 'TestField';
         NoTaxableSetupErr: Label 'The %1 for VAT Calculation Type = No Taxable VAT must be 0.', Comment = '%1 = VAT or EC percent.';
         AmountShouldBeNegative: Label 'Amount should be in negative.';
 
@@ -808,12 +806,7 @@ codeunit 147524 "SII Documents No Taxable"
           VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
         // [THEN] Error when set "No Taxable Type" = "Non Taxable Art 7-14 and others" in VAT Posting Setup
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(
-          StrSubstNo(
-            TestFieldErr,
-            VATPostingSetup.FieldCaption("VAT Calculation Type"),
-            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]
@@ -835,12 +828,7 @@ codeunit 147524 "SII Documents No Taxable"
         asserterror VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
         // [THEN] Error VAT Calculation Type must be equal to 'No Taxable VAT' in VAT Posting Setup.
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
-        Assert.ExpectedError(
-          StrSubstNo(
-            TestFieldErr,
-            VATPostingSetup.FieldCaption("VAT Calculation Type"),
-            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]
@@ -862,12 +850,7 @@ codeunit 147524 "SII Documents No Taxable"
             VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
         // [THEN] Error VAT Calculation Type must not be Full VAT
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
-        Assert.ExpectedError(
-          StrSubstNo(
-            TestFieldErr,
-            VATPostingSetup.FieldCaption("VAT Calculation Type"),
-            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]
@@ -889,12 +872,7 @@ codeunit 147524 "SII Documents No Taxable"
             VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
         // [THEN] Error VAT Calculation Type must not be Sales Tax
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
-        Assert.ExpectedError(
-          StrSubstNo(
-            TestFieldErr,
-            VATPostingSetup.FieldCaption("VAT Calculation Type"),
-            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]
@@ -916,12 +894,7 @@ codeunit 147524 "SII Documents No Taxable"
             VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
         // [THEN] Error VAT Calculation Type must not be Reverse Charge VAT
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
-        Assert.ExpectedError(
-          StrSubstNo(
-            TestFieldErr,
-            VATPostingSetup.FieldCaption("VAT Calculation Type"),
-            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
+        Assert.ExpectedTestFieldError(VATPostingSetup.FieldCaption("VAT Calculation Type"), Format(VATPostingSetup."VAT Calculation Type"::"No Taxable VAT"));
     end;
 
     [Test]

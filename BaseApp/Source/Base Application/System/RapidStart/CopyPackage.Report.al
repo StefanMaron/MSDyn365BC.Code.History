@@ -132,7 +132,11 @@ report 8615 "Copy Package"
         ConfigPackageFilter2: Record "Config. Package Filter";
         NewPackageCode: Code[20];
         CopyData: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Package %1 already exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Set(ConfigPackage2: Record "Config. Package")
     begin

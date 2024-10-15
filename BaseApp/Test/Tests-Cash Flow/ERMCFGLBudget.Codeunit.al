@@ -204,23 +204,20 @@ codeunit 134556 "ERM CF GL Budget"
 
     local procedure StoreCashFlowBudgetEntry(var CashFlowForecastEntry: Record "Cash Flow Forecast Entry"; GLBudgetEntry: Record "G/L Budget Entry")
     begin
-        with CashFlowForecastEntry do begin
-            "Amount (LCY)" := -GLBudgetEntry.Amount;
-            "Dimension Set ID" := GLBudgetEntry."Dimension Set ID";
-            "Cash Flow Date" := GLBudgetEntry.Date;
-            Insert(false);
-        end;
+        CashFlowForecastEntry."Amount (LCY)" := -GLBudgetEntry.Amount;
+        CashFlowForecastEntry."Dimension Set ID" := GLBudgetEntry."Dimension Set ID";
+        CashFlowForecastEntry."Cash Flow Date" := GLBudgetEntry.Date;
+        CashFlowForecastEntry.Insert(false);
     end;
 
     local procedure StoreCashFlowBalanceEntry(var CashFlowForecastEntry: Record "Cash Flow Forecast Entry"; GLAccount: Record "G/L Account")
     begin
-        with CashFlowForecastEntry do begin
-            GLAccount.CalcFields(Balance);
-            "Amount (LCY)" := GLAccount.Balance;
-            "Dimension Set ID" := 0; // GLAccount."Dimension Set ID";
-            "Cash Flow Date" := WorkDate();
-            Insert(false);
-        end;
+        GLAccount.CalcFields(Balance);
+        CashFlowForecastEntry."Amount (LCY)" := GLAccount.Balance;
+        CashFlowForecastEntry."Dimension Set ID" := 0;
+        // GLAccount."Dimension Set ID";
+        CashFlowForecastEntry."Cash Flow Date" := WorkDate();
+        CashFlowForecastEntry.Insert(false);
     end;
 
     local procedure FindGLAccount(var GLAccount: Record "G/L Account"; AccountType: Enum "G/L Account Type")
@@ -252,20 +249,18 @@ codeunit 134556 "ERM CF GL Budget"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        with GenJnlLine do begin
-            LibraryERM.FindGLAccount(GLAccount);
-            InitGenJnlLine(GenJnlLine);
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            LibraryERM.ClearGenJournalLines(GenJnlBatch);
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, "Journal Template Name", "Journal Batch Name",
-              "Gen. Journal Document Type"::" ", "Account Type"::"G/L Account", CreateGLAccWithType(GLAccount."Account Type"::Posting), 1);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", GLAccount."No.");
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            exit("Account No.");
-        end;
+        LibraryERM.FindGLAccount(GLAccount);
+        InitGenJnlLine(GenJnlLine);
+        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+        LibraryERM.ClearGenJournalLines(GenJnlBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name",
+          "Gen. Journal Document Type"::" ", GenJnlLine."Account Type"::"G/L Account", CreateGLAccWithType(GLAccount."Account Type"::Posting), 1);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", GLAccount."No.");
+        GenJnlLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        exit(GenJnlLine."Account No.");
     end;
 
     local procedure CreateGLAccWithType(AccountType: Enum "G/L Account Type"): Code[20]
@@ -323,13 +318,12 @@ codeunit 134556 "ERM CF GL Budget"
         CashFlowForecastEntry.FindSet();
         Assert.AreEqual(CashFlowForecastEntry.Count, CashFlowForecastEntry2.Count, 'Unexpected number of cash flow ledger entries');
 
-        with CashFlowForecastEntry2 do
-            repeat
-                CashFlowForecastEntry.SetRange("Amount (LCY)", "Amount (LCY)");
-                CashFlowForecastEntry.SetRange("Dimension Set ID", "Dimension Set ID");
-                CashFlowForecastEntry.SetRange("Cash Flow Date", "Cash Flow Date");
-                Assert.IsTrue(CashFlowForecastEntry.FindFirst(), 'Did not find expected cash flow ledger entry');
-            until Next() = 0;
+        repeat
+            CashFlowForecastEntry.SetRange("Amount (LCY)", CashFlowForecastEntry2."Amount (LCY)");
+            CashFlowForecastEntry.SetRange("Dimension Set ID", CashFlowForecastEntry2."Dimension Set ID");
+            CashFlowForecastEntry.SetRange("Cash Flow Date", CashFlowForecastEntry2."Cash Flow Date");
+            Assert.IsTrue(CashFlowForecastEntry.FindFirst(), 'Did not find expected cash flow ledger entry');
+        until CashFlowForecastEntry2.Next() = 0;
     end;
 }
 

@@ -252,18 +252,14 @@ codeunit 147315 "Test 340 Declaration"
         // Own VAT Cash Regime can only be TRUE when Unrealized VAT is TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Unrealized VAT", true);
-            Validate("VAT Cash Regime", true);
-            Modify(true);
-
-            // [WHEN] General Ledger Setup.Unrealized VAT is set to FALSE
-            asserterror Validate("Unrealized VAT", false);
-
-            // [THEN] General Ledger Setup.VAT Cash Regime is set to FALSE as well
-            Assert.ExpectedError(StrSubstNo(CannotChangeContentBecauseOfErr, FieldName("Unrealized VAT"), FieldName("VAT Cash Regime")));
-        end
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Unrealized VAT", true);
+        GeneralLedgerSetup.Validate("VAT Cash Regime", true);
+        GeneralLedgerSetup.Modify(true);
+        // [WHEN] General Ledger Setup.Unrealized VAT is set to FALSE
+        asserterror GeneralLedgerSetup.Validate("Unrealized VAT", false);
+        // [THEN] General Ledger Setup.VAT Cash Regime is set to FALSE as well
+        Assert.ExpectedError(StrSubstNo(CannotChangeContentBecauseOfErr, GeneralLedgerSetup.FieldName("Unrealized VAT"), GeneralLedgerSetup.FieldName("VAT Cash Regime")));
     end;
 
     [Test]
@@ -277,16 +273,12 @@ codeunit 147315 "Test 340 Declaration"
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         Initialize();
-
         // [WHEN] General Ledger Setup.VAT Cash Regime is set to TRUE
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("VAT Cash Regime", true);
-            Modify(true);
-
-            // [THEN] General Ledger Setup.Unrealized VAT is set to TRUE as well
-            Assert.IsTrue("Unrealized VAT", StrSubstNo(SetupErr, FieldName("Unrealized VAT")));
-        end
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Cash Regime", true);
+        GeneralLedgerSetup.Modify(true);
+        // [THEN] General Ledger Setup.Unrealized VAT is set to TRUE as well
+        Assert.IsTrue(GeneralLedgerSetup."Unrealized VAT", StrSubstNo(SetupErr, GeneralLedgerSetup.FieldName("Unrealized VAT")));
     end;
 
     [Test]
@@ -304,23 +296,17 @@ codeunit 147315 "Test 340 Declaration"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Unrealized VAT", true);
         GeneralLedgerSetup.Modify(true);
-
         // [GIVEN] VAT Posting Setup Line.Unrealized VAT Type = Percentage
-        with VATPostingSetup do begin
-            FindFirst();
-            Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-
-            // [GIVEN] The same line has VAT Cash Regime = TRUE
-            Validate("VAT Cash Regime", true);
-            Modify(true);
-
-            // [WHEN] VAT Posting Setup Line.Unrealized VAT Type is set to ' '
-            asserterror Validate("Unrealized VAT Type", "Unrealized VAT Type"::" ");
-
-            // [THEN] VAT Posting Setup.VAT Cash Regime is set to FALSE as well
-            Assert.ExpectedError(
-              StrSubstNo(CannotChangeContentBecauseOfErr, FieldName("Unrealized VAT Type"), FieldName("VAT Cash Regime")));
-        end
+        VATPostingSetup.FindFirst();
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        // [GIVEN] The same line has VAT Cash Regime = TRUE
+        VATPostingSetup.Validate("VAT Cash Regime", true);
+        VATPostingSetup.Modify(true);
+        // [WHEN] VAT Posting Setup Line.Unrealized VAT Type is set to ' '
+        asserterror VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
+        // [THEN] VAT Posting Setup.VAT Cash Regime is set to FALSE as well
+        Assert.ExpectedError(
+          StrSubstNo(CannotChangeContentBecauseOfErr, VATPostingSetup.FieldName("Unrealized VAT Type"), VATPostingSetup.FieldName("VAT Cash Regime")));
     end;
 
     [Test]
@@ -331,20 +317,14 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Initialize();
         // 3.4. Setup of the vendor's VAT Cash Regime - Negative Scenario
-
         // The attempt to set VAT Cash Regime to TRUE when Unrealized is FALSE yields an error
-
         // [GIVEN] VAT Posting Setup Line.Unrealized VAT Type = ' '
-        with VATPostingSetup do begin
-            SetRange("Unrealized VAT Type", "Unrealized VAT Type"::" ");
-            FindFirst();
-
-            // [WHEN] General Ledger Setup.VAT Cash Regime is attempted to be set to TRUE
-            asserterror Validate("VAT Cash Regime", true);
-
-            // [THEN] An error prompts the user that Unrealized VAT is mandatory if we want VAT Cash Regime to be TRUE
-            Assert.ExpectedError(StrSubstNo(VATCashRegimeErr, FieldName("VAT Cash Regime"), FieldName("Unrealized VAT Type")));
-        end
+        VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
+        VATPostingSetup.FindFirst();
+        // [WHEN] General Ledger Setup.VAT Cash Regime is attempted to be set to TRUE
+        asserterror VATPostingSetup.Validate("VAT Cash Regime", true);
+        // [THEN] An error prompts the user that Unrealized VAT is mandatory if we want VAT Cash Regime to be TRUE
+        Assert.ExpectedError(StrSubstNo(VATCashRegimeErr, VATPostingSetup.FieldName("VAT Cash Regime"), VATPostingSetup.FieldName("Unrealized VAT Type")));
     end;
 
     [Test]
@@ -1871,13 +1851,11 @@ codeunit 147315 "Test 340 Declaration"
     local procedure CreateUnrealizedVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; UseVATCashRegime: Boolean)
     begin
         MockVATEntry(VATEntry, WorkDate(), DocumentType, UseVATCashRegime);
-        with VATEntry do begin
-            "Unrealized Base" := LibraryRandom.RandDecInRange(1000, 100, 2);
-            "Unrealized Amount" := Round("Unrealized Base" * ("VAT %" + "EC %") / 100);
-            "Remaining Unrealized Base" := "Unrealized Base";
-            "Remaining Unrealized Amount" := "Unrealized Amount";
-            Modify();
-        end
+        VATEntry."Unrealized Base" := LibraryRandom.RandDecInRange(1000, 100, 2);
+        VATEntry."Unrealized Amount" := Round(VATEntry."Unrealized Base" * (VATEntry."VAT %" + VATEntry."EC %") / 100);
+        VATEntry."Remaining Unrealized Base" := VATEntry."Unrealized Base";
+        VATEntry."Remaining Unrealized Amount" := VATEntry."Unrealized Amount";
+        VATEntry.Modify();
     end;
 
     local procedure CreateRealizedVATEntry(var VATEntry: Record "VAT Entry"; var UnrealizedVATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type")
@@ -1898,44 +1876,39 @@ codeunit 147315 "Test 340 Declaration"
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         MockVATEntry(VATEntry, WorkDate(), DocumentType, false);
-        with VATEntry do begin
-            Base := LibraryRandom.RandDecInRange(1000, 100, 2);
-            Amount := Round(Base * ("VAT %" + "EC %") / 100);
-            Modify();
-        end
+        VATEntry.Base := LibraryRandom.RandDecInRange(1000, 100, 2);
+        VATEntry.Amount := Round(VATEntry.Base * (VATEntry."VAT %" + VATEntry."EC %") / 100);
+        VATEntry.Modify();
     end;
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; UseVATCashRegime: Boolean)
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            "Posting Date" := PostingDate;
-            "Document Type" := DocumentType;
-            "VAT Reporting Date" := PostingDate;
-            Type := Type::Sale;
-            "Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo();
-            "Document No." := LibraryUtility.GenerateGUID();
-            "VAT %" := LibraryRandom.RandIntInRange(15, 20);
-            "EC %" := LibraryRandom.RandIntInRange(5, 10);
-            "VAT Cash Regime" := UseVATCashRegime;
-            "Transaction No." := "Entry No.";
-            Insert();
-        end
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."Document Type" := DocumentType;
+        VATEntry."VAT Reporting Date" := PostingDate;
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo();
+        VATEntry."Document No." := LibraryUtility.GenerateGUID();
+        VATEntry."VAT %" := LibraryRandom.RandIntInRange(15, 20);
+        VATEntry."EC %" := LibraryRandom.RandIntInRange(5, 10);
+        VATEntry."VAT Cash Regime" := UseVATCashRegime;
+        VATEntry."Transaction No." := VATEntry."Entry No.";
+        VATEntry.Insert();
     end;
 
     local procedure CalcVATEntryAmounts(VATEntry: Record "VAT Entry"; var Amounts: array[3] of Decimal)
     begin
-        with VATEntry do
-            if Base <> 0 then begin
-                Amounts[1] := -Base;
-                Amounts[2] := -(Amount - Round(Base * "EC %" / 100));
-                Amounts[3] := -(Amount + Base);
-            end else begin
-                Amounts[1] := -"Unrealized Base";
-                Amounts[2] := -("Unrealized Amount" - Round("Unrealized Base" * "EC %" / 100));
-                Amounts[3] := -("Unrealized Amount" + "Unrealized Base");
-            end;
+        if VATEntry.Base <> 0 then begin
+            Amounts[1] := -VATEntry.Base;
+            Amounts[2] := -(VATEntry.Amount - Round(VATEntry.Base * VATEntry."EC %" / 100));
+            Amounts[3] := -(VATEntry.Amount + VATEntry.Base);
+        end else begin
+            Amounts[1] := -VATEntry."Unrealized Base";
+            Amounts[2] := -(VATEntry."Unrealized Amount" - Round(VATEntry."Unrealized Base" * VATEntry."EC %" / 100));
+            Amounts[3] := -(VATEntry."Unrealized Amount" + VATEntry."Unrealized Base");
+        end;
     end;
 
     local procedure UpdateAmounts(var Target: array[3] of Decimal; Source: array[3] of Decimal)
@@ -1976,16 +1949,14 @@ codeunit 147315 "Test 340 Declaration"
         Line: Text;
     begin
         Line := LibraryTextFileValidation.ReadLine(Filename, LineNo);
-        with Test340DeclarationLineBuf do begin
-            Init();
-            Type := VATEntry.Type::Sale.AsInteger();
-            Evaluate(DocumentNo,
-              LibraryTextFileValidation.ReadValue(Line, GetFieldPos(FieldNo("Document No.")), GetFieldLen(FieldNo("Document No."))));
-            Evaluate(VATPercentage,
-              LibraryTextFileValidation.ReadValue(Line, GetFieldPos(FieldNo("Tax %")), GetFieldLen(FieldNo("Tax %"))));
-            VATPercentage /= 100;
-            CollectionAmount := Library340347Declaration.GetLine340Amount(Line, GetFieldPos(FieldNo("Collection Amount")) - 1, false);
-        end;
+        Test340DeclarationLineBuf.Init();
+        Test340DeclarationLineBuf.Type := VATEntry.Type::Sale.AsInteger();
+        Evaluate(DocumentNo,
+          LibraryTextFileValidation.ReadValue(Line, Test340DeclarationLineBuf.GetFieldPos(Test340DeclarationLineBuf.FieldNo("Document No.")), Test340DeclarationLineBuf.GetFieldLen(Test340DeclarationLineBuf.FieldNo("Document No."))));
+        Evaluate(VATPercentage,
+          LibraryTextFileValidation.ReadValue(Line, Test340DeclarationLineBuf.GetFieldPos(Test340DeclarationLineBuf.FieldNo("Tax %")), Test340DeclarationLineBuf.GetFieldLen(Test340DeclarationLineBuf.FieldNo("Tax %"))));
+        VATPercentage /= 100;
+        CollectionAmount := Library340347Declaration.GetLine340Amount(Line, Test340DeclarationLineBuf.GetFieldPos(Test340DeclarationLineBuf.FieldNo("Collection Amount")) - 1, false);
         Amounts[1] := Library340347Declaration.GetLine340Amount(Line, 122, false);
         Amounts[2] := Library340347Declaration.GetLine340Amount(Line, 136, false);
         Amounts[3] := Library340347Declaration.GetLine340Amount(Line, 150, false);
@@ -1997,23 +1968,19 @@ codeunit 147315 "Test 340 Declaration"
         Line: Text[1024];
         OperationCode: Text[1024];
     begin
-        with Test340DeclarationLineBuf do begin
-            Init();
-            Type := VATEntry.Type.AsInteger();
-            Line := LibraryTextFileValidation.FindLineWithValue(Filename,
-                GetFieldPos(FieldNo("Document No.")), StrLen(VATEntry."Document No."), VATEntry."Document No.");
-            OperationCode := LibraryTextFileValidation.ReadValue(Line, GetFieldPos(FieldNo("Operation Code")), 1);
-        end;
+        Test340DeclarationLineBuf.Init();
+        Test340DeclarationLineBuf.Type := VATEntry.Type.AsInteger();
+        Line := LibraryTextFileValidation.FindLineWithValue(Filename,
+            Test340DeclarationLineBuf.GetFieldPos(Test340DeclarationLineBuf.FieldNo("Document No.")), StrLen(VATEntry."Document No."), VATEntry."Document No.");
+        OperationCode := LibraryTextFileValidation.ReadValue(Line, Test340DeclarationLineBuf.GetFieldPos(Test340DeclarationLineBuf.FieldNo("Operation Code")), 1);
 
-        with VATEntry do begin
-            if "VAT Cash Regime" then begin
-                if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::Refund] then
-                    Assert.AreEqual('3', OperationCode, StrSubstNo(Wrong340FileErr, "Document Type"))
-                else
-                    Assert.AreEqual('Z', OperationCode, StrSubstNo(Wrong340FileErr, "Document Type"));
-            end else
-                Assert.AreNotEqual('Z', OperationCode, StrSubstNo(Wrong340FileErr, "Document Type"));
-        end;
+        if VATEntry."VAT Cash Regime" then begin
+            if VATEntry."Document Type" in [VATEntry."Document Type"::"Credit Memo", VATEntry."Document Type"::Refund] then
+                Assert.AreEqual('3', OperationCode, StrSubstNo(Wrong340FileErr, VATEntry."Document Type"))
+            else
+                Assert.AreEqual('Z', OperationCode, StrSubstNo(Wrong340FileErr, VATEntry."Document Type"));
+        end else
+            Assert.AreNotEqual('Z', OperationCode, StrSubstNo(Wrong340FileErr, VATEntry."Document Type"));
     end;
 
     local procedure Verify340FileLineAmounts(Filename: Text; LineNo: Integer; VATEntry: Record "VAT Entry"; ExpectedVATPercentage: Decimal; ExpectedAmounts: array[3] of Decimal; ExpectedCollectionAmount: Decimal)

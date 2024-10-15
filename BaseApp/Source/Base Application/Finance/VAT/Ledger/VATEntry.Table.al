@@ -21,7 +21,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 using System.Utilities;
@@ -32,8 +31,10 @@ table 254 "VAT Entry"
     LookupPageID = "VAT Entries";
     Permissions = TableData "Sales Invoice Header" = rm,
                     TableData "Sales Cr.Memo Header" = rm,
-                    TableData "Service Invoice Header" = rm,
-                    TableData "Service Cr.Memo Header" = rm,
+#if not CLEAN25
+                    TableData Microsoft.Service.History."Service Invoice Header" = rm,
+                    TableData Microsoft.Service.History."Service Cr.Memo Header" = rm,
+#endif
                     TableData "Issued Reminder Header" = rm,
                     TableData "Issued Fin. Charge Memo Header" = rm,
                     TableData "Purch. Inv. Header" = rm,
@@ -683,7 +684,11 @@ table 254 "VAT Entry"
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         IsBillDoc: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot change the contents of this field when %1 is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ConfirmAdjustQst: Label 'Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?';
         ProgressMsg: Label 'Processed entries: @2@@@@@@@@@@@@@@@@@\';
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
@@ -1073,6 +1078,7 @@ table 254 "VAT Entry"
     procedure IsCorrectiveCrMemoDiffPeriod(StartDateFormula: DateFormula; EndDateFormula: DateFormula): Boolean
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        Result: Boolean;
     begin
         if "Document Type" <> "Document Type"::"Credit Memo" then
             exit(false);
@@ -1082,7 +1088,9 @@ table 254 "VAT Entry"
                 begin
                     if SalesCrMemoHeader.Get("Document No.") then
                         exit(IsCorrectiveSalesCrMemoDiffPeriod(SalesCrMemoHeader, StartDateFormula, EndDateFormula));
-                    exit(IsCorrectiveServiceCrMemoDiffPeriod("Document No.", StartDateFormula, EndDateFormula));
+                    // Service processing moved to codeunit "Service Cr. Memo Header - Edit"
+                    OnIsCorrectiveCrMemoDiffPeriodOnAfterCheckSales(Rec, StartDateFormula, EndDateFormula, Result);
+                    exit(Result);
                 end;
             Type::Purchase:
                 exit(IsCorrectivePurchCrMemoDiffPeriod("Document No.", StartDateFormula, EndDateFormula));
@@ -1098,19 +1106,6 @@ table 254 "VAT Entry"
         SalesInvoiceHeader.Get(SalesCrMemoHeader."Corrected Invoice No.");
         exit(not (SalesInvoiceHeader."Posting Date" in [CalcDate(StartDateFormula, SalesCrMemoHeader."Posting Date") ..
                                                         CalcDate(EndDateFormula, SalesCrMemoHeader."Posting Date")]));
-    end;
-
-    local procedure IsCorrectiveServiceCrMemoDiffPeriod(DocNo: Code[20]; StartDateFormula: DateFormula; EndDateFormula: DateFormula): Boolean
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-    begin
-        ServiceCrMemoHeader.Get(DocNo);
-        if ServiceCrMemoHeader."Corrected Invoice No." = '' then
-            exit(false);
-        ServiceInvoiceHeader.Get(ServiceCrMemoHeader."Corrected Invoice No.");
-        exit(not (ServiceInvoiceHeader."Posting Date" in [CalcDate(StartDateFormula, ServiceCrMemoHeader."Posting Date") ..
-                                                          CalcDate(EndDateFormula, ServiceCrMemoHeader."Posting Date")]));
     end;
 
     local procedure IsCorrectivePurchCrMemoDiffPeriod(DocNo: Code[20]; StartDateFormula: DateFormula; EndDateFormula: DateFormula): Boolean
@@ -1156,6 +1151,11 @@ table 254 "VAT Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateRates(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsCorrectiveCrMemoDiffPeriodOnAfterCheckSales(var VATEntry: Record "VAT Entry"; StartDateFormula: DateFormula; EndDateFormula: DateFormula; var Result: Boolean)
     begin
     end;
 }

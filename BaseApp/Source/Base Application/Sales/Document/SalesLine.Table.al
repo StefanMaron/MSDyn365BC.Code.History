@@ -21,6 +21,7 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.UOM;
 using Microsoft.Intercompany.GLAccount;
@@ -41,7 +42,7 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Posting;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -52,13 +53,12 @@ using Microsoft.Sales.History;
 using Microsoft.Sales.Posting;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Item;
-using Microsoft.Utilities;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
+using Microsoft.Utilities;
 using System.Utilities;
 using System.Environment.Configuration;
 using Microsoft.EServices.EDocument;
@@ -2835,7 +2835,6 @@ table 37 "Sales Line"
             trigger OnValidate()
             var
                 PurchasingCode: Record Purchasing;
-                ShippingAgentServices: Record "Shipping Agent Services";
                 IsHandled: Boolean;
                 ShouldAssignValuesFromPurchasingCode: Boolean;
             begin
@@ -2892,12 +2891,7 @@ table 37 "Sales Line"
                     end else
                         if Location.Get("Location Code") then
                             "Outbound Whse. Handling Time" := Location."Outbound Whse. Handling Time";
-                    if ShippingAgentServices.Get("Shipping Agent Code", "Shipping Agent Service Code") then
-                        "Shipping Time" := ShippingAgentServices."Shipping Time"
-                    else begin
-                        GetSalesHeader();
-                        "Shipping Time" := SalesHeader."Shipping Time";
-                    end;
+                    GetShippingTime();
                     UpdateDates();
                 end;
             end;
@@ -3140,7 +3134,6 @@ table 37 "Sales Line"
 
             trigger OnValidate()
             var
-                ShippingAgentServices: Record "Shipping Agent Services";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -3149,19 +3142,7 @@ table 37 "Sales Line"
                     exit;
 
                 TestStatusOpen();
-                if "Shipping Agent Service Code" <> xRec."Shipping Agent Service Code" then
-                    Evaluate("Shipping Time", '<>');
-
-                if "Drop Shipment" then begin
-                    Evaluate("Shipping Time", '<0D>');
-                    UpdateDates();
-                end else
-                    if ShippingAgentServices.Get("Shipping Agent Code", "Shipping Agent Service Code") then
-                        "Shipping Time" := ShippingAgentServices."Shipping Time"
-                    else begin
-                        GetSalesHeader();
-                        "Shipping Time" := SalesHeader."Shipping Time";
-                    end;
+                GetShippingTime();
 
                 if "Shipping Time" <> xRec."Shipping Time" then
                     Validate("Shipping Time");
@@ -3668,30 +3649,6 @@ table 37 "Sales Line"
     end;
 
     var
-        Text000: Label 'You cannot delete the order line because it is associated with purchase order %1 line %2.';
-        Text001: Label 'You cannot rename a %1.';
-        Text002: Label 'You can''t change %1 because the order line is associated with purchase order %2 line %3.', Comment = '%1=field name, %2=Document No., %3=Line No.';
-        Text003: Label 'must not be less than %1';
-        Text005: Label 'You cannot invoice more than %1 units.';
-        Text006: Label 'You cannot invoice more than %1 base units.';
-        Text007: Label 'You cannot ship more than %1 units.';
-        Text008: Label 'You cannot ship more than %1 base units.';
-        Text009: Label ' must be 0 when %1 is %2';
-        ShowOrderLbl: Label 'Show PO-%1', Comment = '%1=Document No.';
-        ManualReserveQst: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
-        Text014: Label '%1 %2 is before work date %3';
-        Text016: Label '%1 is required for %2 = %3.';
-        WhseRequirementMsg: Label '%1 is required for this line. The entered information may be disregarded by warehouse activities.', Comment = '%1=Document';
-        Text020: Label 'You cannot return more than %1 units.';
-        Text021: Label 'You cannot return more than %1 base units.';
-        Text026: Label 'You cannot change %1 if the item charge has already been posted.';
-        QtyShipNotValidTitleLbl: Label 'Qty. to Ship isn''t valid';
-        QtyShipActionLbl: Label 'Set value to %1', comment = '%1=Qty. to Ship';
-        QtyShipActionDescriptionLbl: Label 'Corrects %1 to %2', Comment = '%1 - Qty. to Ship field caption, %2 - Quantity';
-        QtyInvoiceNotValidTitleLbl: Label 'Qty. to Invoice isn''t valid';
-        QtyInvoiceActionLbl: Label 'Set value to %1', Comment = '%1 - Qty. to Invoice';
-        QtyInvoiceActionDescriptionLbl: Label 'Corrects %1 to %2', Comment = '%1 - Qty. to Invoice field caption, %2 - Quantity';
-        QuantityImbalanceErr: Label '%1 on %2-%3 causes the %4 and %5 to be out of balance.', Comment = '%1 - field name, %2 - table name, %3 - primary key value, %4 - field name, %5 - field name';
         ItemUOMForCaption: Record "Item Unit of Measure";
         CurrExchRate: Record "Currency Exchange Rate";
         SalesHeader: Record "Sales Header";
@@ -3736,18 +3693,38 @@ table 37 "Sales Line"
         HasBeenShown: Boolean;
         PlannedShipmentDateCalculated: Boolean;
         PlannedDeliveryDateCalculated: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text000: Label 'You cannot delete the order line because it is associated with purchase order %1 line %2.';
+        Text001: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+        Text002: Label 'You can''t change %1 because the order line is associated with purchase order %2 line %3.', Comment = '%1=field name, %2=Document No., %3=Line No.';
+#pragma warning disable AA0470
+        Text003: Label 'must not be less than %1';
+        Text005: Label 'You cannot invoice more than %1 units.';
+        Text006: Label 'You cannot invoice more than %1 base units.';
+        Text007: Label 'You cannot ship more than %1 units.';
+        Text008: Label 'You cannot ship more than %1 base units.';
+        Text009: Label ' must be 0 when %1 is %2';
+        Text014: Label '%1 %2 is before work date %3';
+        Text016: Label '%1 is required for %2 = %3.';
+        Text020: Label 'You cannot return more than %1 units.';
+        Text021: Label 'You cannot return more than %1 base units.';
+        Text026: Label 'You cannot change %1 if the item charge has already been posted.';
         Text028: Label 'You cannot change the %1 when the %2 has been filled in.';
+#pragma warning restore AA0470
         Text029: Label 'must be positive';
         Text030: Label 'must be negative';
+#pragma warning disable AA0470
         Text031: Label 'You must either specify %1 or %2.';
-        Text034: Label 'The value of %1 field must be a whole number for the item included in the service item group if the %2 field in the Service Item Groups window contains a check mark.';
+#pragma warning restore AA0470
         Text035: Label 'Warehouse ';
         Text036: Label 'Inventory ';
+#pragma warning disable AA0470
         Text037: Label 'You cannot change %1 when %2 is %3 and %4 is positive.';
         Text038: Label 'You cannot change %1 when %2 is %3 and %4 is negative.';
         Text039: Label '%1 units for %2 %3 have already been returned. Therefore, only %4 units can be returned.';
         Text042: Label 'When posting the Applied to Ledger Entry %1 will be opened first';
-        ShippingMoreUnitsThanReceivedErr: Label 'You cannot ship more than the %1 units that you have received for document no. %2.';
         Text044: Label 'cannot be less than %1';
         Text045: Label 'cannot be more than %1';
         Text046: Label 'You cannot return more than the %1 units that you have shipped for %2 %3.';
@@ -3756,12 +3733,31 @@ table 37 "Sales Line"
         Text049: Label 'cannot be %1.';
         Text051: Label 'You cannot use %1 in a %2.';
         Text053: Label 'You have changed one or more dimensions on the %1, which is already shipped. When you post the line with the changed dimension to General Ledger, amounts on the Inventory Interim account will be out of balance when reported per dimension.\\Do you want to keep the changed dimension?';
+#pragma warning restore AA0470
         Text054: Label 'Cancelled.';
+#pragma warning disable AA0470
         Text055: Label '%1 must not be greater than the sum of %2 and %3.', Comment = 'Quantity Invoiced must not be greater than the sum of Qty. Assigned and Qty. to Assign.';
+#pragma warning restore AA0470
         Text057: Label 'must have the same sign as the shipment';
+#pragma warning disable AA0470
         Text058: Label 'The quantity that you are trying to invoice is greater than the quantity in shipment %1.';
+#pragma warning restore AA0470
         Text059: Label 'must have the same sign as the return receipt';
+#pragma warning disable AA0470
         Text060: Label 'The quantity that you are trying to invoice is greater than the quantity in return receipt %1.';
+#pragma warning restore AA0074
+        ShippingMoreUnitsThanReceivedErr: Label 'You cannot ship more than the %1 units that you have received for document no. %2.';
+#pragma warning restore AA0470
+        WhseRequirementMsg: Label '%1 is required for this line. The entered information may be disregarded by warehouse activities.', Comment = '%1=Document';
+        ShowOrderLbl: Label 'Show PO-%1', Comment = '%1=Document No.';
+        ManualReserveQst: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
+        QtyShipNotValidTitleLbl: Label 'Qty. to Ship isn''t valid';
+        QtyShipActionLbl: Label 'Set value to %1', comment = '%1=Qty. to Ship';
+        QtyShipActionDescriptionLbl: Label 'Corrects %1 value to %2', Comment = '%1 - Qty. to Ship field caption, %2 - Quantity';
+        QtyInvoiceNotValidTitleLbl: Label 'Qty. to Invoice isn''t valid';
+        QtyInvoiceActionLbl: Label 'Set value to %1', Comment = '%1 - Qty. to Invoice';
+        QtyInvoiceActionDescriptionLbl: Label 'Corrects %1 value to %2', Comment = '%1 - Qty. to Invoice field caption, %2 - Quantity';
+        QuantityImbalanceErr: Label '%1 on %2-%3 causes the %4 and %5 to be out of balance.', Comment = '%1 - field name, %2 - table name, %3 - primary key value, %4 - field name, %5 - field name';
         CanNotAddItemWhsShipmentExistErr: Label 'You cannot add an item line because an open warehouse shipment exists for the sales header and Shipping Advice is %1.\\You must add items as new lines to the existing warehouse shipment or change Shipping Advice to Partial.', Comment = '%1- Shipping Advice';
         CanNotAddItemPickExistErr: Label 'You cannot add an item line because an open inventory pick exists for the Sales Header and because Shipping Advice is %1.\\You must first post or delete the inventory pick or change Shipping Advice to Partial.', Comment = '%1- Shipping Advice';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
@@ -3794,6 +3790,9 @@ table 37 "Sales Line"
         PrePaymentLineAmountEntered: Boolean;
         SkipTaxCalculation: Boolean;
 
+    /// <summary>
+    /// Updates outstanding quantities and amounts to reflect changes in posted quantities and amounts.
+    /// </summary>
     procedure InitOutstanding()
     begin
         if IsCreditDocType() then begin
@@ -3815,6 +3814,10 @@ table 37 "Sales Line"
         OnAfterInitOutstanding(Rec);
     end;
 
+
+    /// <summary>
+    /// Updates outstanding amounts to reflect changes in quantity.
+    /// </summary>
     procedure InitOutstandingAmount()
     var
         AmountInclVAT: Decimal;
@@ -3857,6 +3860,9 @@ table 37 "Sales Line"
         OnAfterInitOutstandingAmount(Rec, SalesHeader, Currency);
     end;
 
+    /// <summary>
+    /// Updates quantity to ship and quantity to invoice based on the outstanding quantities
+    /// </summary>
     procedure InitQtyToShip()
     var
         IsHandled: Boolean;
@@ -3884,6 +3890,9 @@ table 37 "Sales Line"
         InitQtyToInvoice();
     end;
 
+    /// <summary>
+    /// Updates quantity to receive and quantity to invoice based on the outstanding quantity and document type.
+    /// </summary>
     procedure InitQtyToReceive()
     var
         IsHandled: Boolean;
@@ -3907,6 +3916,9 @@ table 37 "Sales Line"
         InitQtyToInvoice();
     end;
 
+    /// <summary>
+    /// Prepares the sales line for the next invoice posting by setting the quantities and amounts to be invoiced.
+    /// </summary>
     procedure InitQtyToInvoice()
     begin
         "Qty. to Invoice" := MaxQtyToInvoice();
@@ -3929,6 +3941,10 @@ table 37 "Sales Line"
             "Appl.-from Item Entry" := 0;
     end;
 
+    /// <summary>
+    /// Determines the maximum quantity that can be invoiced for the current sales line.
+    /// </summary>
+    /// <returns>The maximum quantity that can be invoiced.</returns>
     procedure MaxQtyToInvoice(): Decimal
     var
         MaxQty: Decimal;
@@ -3950,6 +3966,10 @@ table 37 "Sales Line"
         exit("Quantity Shipped" + "Qty. to Ship" - "Quantity Invoiced");
     end;
 
+    /// <summary>
+    /// Determines the maximum quantity (base) that can be invoiced for the current sales line.
+    /// </summary>
+    /// <returns>The maximum quantity (base) that can be invoiced.</returns>
     procedure MaxQtyToInvoiceBase(): Decimal
     var
         MaxQtyBase: Decimal;
@@ -3967,6 +3987,11 @@ table 37 "Sales Line"
         exit("Qty. Shipped (Base)" + "Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
     end;
 
+    /// <summary>
+    /// Ensures that the quantity to ship does not exceed the outstanding quantity.
+    /// </summary>
+    /// <param name="QtyToShipBase">The quantity to ship to be checked.</param>
+    /// <returns>The maximum quantity that can be shipped.</returns>
     procedure MaxQtyToShipBase(QtyToShipBase: Decimal): Decimal
     begin
         if Abs(QtyToShipBase) > Abs("Outstanding Qty. (Base)") then
@@ -3975,6 +4000,10 @@ table 37 "Sales Line"
         exit(QtyToShipBase);
     end;
 
+    /// <summary>
+    /// Calculates the net line amount after applying the invoice discount.
+    /// </summary>
+    /// <returns>The calculated line amount.</returns>
     procedure CalcLineAmount() LineAmount: Decimal
     begin
         LineAmount := "Line Amount" - "Inv. Discount Amount";
@@ -3994,6 +4023,9 @@ table 37 "Sales Line"
         OnAfterAssignStdTxtValues(Rec, StandardText, SalesHeader);
     end;
 
+    /// <summary>
+    /// Updates the shipment date based on the location's customized calendar.
+    /// </summary>
     procedure CalcShipmentDateForLocation()
     var
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
@@ -4009,29 +4041,18 @@ table 37 "Sales Line"
     end;
 
     local procedure CopyFromGLAccount(var TempSalesLine: Record "Sales Line" temporary)
-#if not CLEAN22
-    var
-        IsHandled: Boolean;
-#endif
     begin
         GLAcc.Get("No.");
         GLAcc.CheckGLAcc();
-#if not CLEAN22
-        IsHandled := false;
-        OnCopyFromGLAccountOnBeforeTestDirectPosting(Rec, GLAcc, SalesHeader, IsHandled);
-        if not IsHandled then begin
-#endif
-            TestDirectPosting();
-            Description := GLAcc.Name;
-            "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
-            "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
-            "Tax Group Code" := GLAcc."Tax Group Code";
-            "Allow Invoice Disc." := not GLAcc.InvoiceDiscountAllowed("No.");
-            "Allow Item Charge Assignment" := false;
-            InitDeferralCode();
-#if not CLEAN22
-        end;
-#endif
+        TestDirectPosting();
+        Description := GLAcc.Name;
+        "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+        "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
+        "Tax Group Code" := GLAcc."Tax Group Code";
+        "Allow Invoice Disc." := not GLAcc.InvoiceDiscountAllowed("No.");
+        "Allow Item Charge Assignment" := false;
+        InitDeferralCode();
+        SetDefaultGLAccountQuantity();
         OnAfterAssignGLAccountValues(Rec, GLAcc, SalesHeader, TempSalesLine);
     end;
 
@@ -4164,6 +4185,10 @@ table 37 "Sales Line"
         OnAfterAssignItemChargeValues(Rec, ItemCharge, SalesHeader);
     end;
 
+    /// <summary>
+    /// Copies values from a specified sales line to the current sales line.
+    /// </summary>
+    /// <param name="FromSalesLine">The sales line to copy from.</param>
     [Scope('OnPrem')]
     procedure CopyFromSalesLine(FromSalesLine: Record "Sales Line")
     begin
@@ -4179,6 +4204,10 @@ table 37 "Sales Line"
         OnAfterCopyFromSalesLine(Rec, FromSalesLine);
     end;
 
+    /// <summary>
+    /// Copies values from a specified sales shipment line to the current sales line.
+    /// </summary>
+    /// <param name="FromSalesShptLine">The sales shipment line to copy from.</param>
     [Scope('OnPrem')]
     procedure CopyFromSalesShptLine(FromSalesShptLine: Record "Sales Shipment Line")
     begin
@@ -4195,6 +4224,10 @@ table 37 "Sales Line"
         OnAfterCopyFromSalesShptLine(Rec, FromSalesShptLine);
     end;
 
+    /// <summary>
+    /// Copies values from a specified sales invoice line to the current sales line.
+    /// </summary>
+    /// <param name="FromSalesInvLine">The sales invoice line to copy from.</param>
     [Scope('OnPrem')]
     procedure CopyFromSalesInvLine(FromSalesInvLine: Record "Sales Invoice Line")
     begin
@@ -4208,6 +4241,10 @@ table 37 "Sales Line"
         "Drop Shipment" := FromSalesInvLine."Drop Shipment";
     end;
 
+    /// <summary>
+    /// Copies values from a specified return receipt line to the current sales line.
+    /// </summary>
+    /// <param name="FromReturnRcptLine">The return receipt line to copy from.</param>
     [Scope('OnPrem')]
     procedure CopyFromReturnRcptLine(FromReturnRcptLine: Record "Return Receipt Line")
     begin
@@ -4221,6 +4258,10 @@ table 37 "Sales Line"
         "Drop Shipment" := false;
     end;
 
+    /// <summary>
+    /// Copies values from a specified sales cr. memo line to the current sales line.
+    /// </summary>
+    /// <param name="FromSalesCrMemoLine">The sales cr. memo line to copy from.</param>
     [Scope('OnPrem')]
     procedure CopyFromSalesCrMemoLine(FromSalesCrMemoLine: Record "Sales Cr.Memo Line")
     begin
@@ -4265,24 +4306,31 @@ table 37 "Sales Line"
         end;
     end;
 
-#if not CLEAN22
-    [Obsolete('Renaming the global procedure to GetSkipTaxCalculation():Boolean', '22.0')]
-    procedure CanCalculateTax(): Boolean
-    begin
-        exit(SkipTaxCalculation);
-    end;
-#endif
-
+    /// <summary>
+    /// Returns the value of global SkipTaxCalculation flag. The flag is unused in the object.
+    /// </summary>
+    /// <returns>The value of global SkipTaxCalculation flag.</returns>
     procedure GetSkipTaxCalculation(): Boolean
     begin
         exit(SkipTaxCalculation);
     end;
 
+    /// <summary>
+    /// Sets the value of global SkipTaxCalculation flag. The flag is unused in the object.
+    /// </summary>
+    /// <param name="Skip">The value to set.</param>
     procedure SetSkipTaxCalulation(Skip: Boolean)
     begin
         SkipTaxCalculation := Skip;
     end;
 
+    /// <summary>
+    /// Updates the global SalesHeader variable and initializes the currency based on the new sales header.
+    /// </summary>
+    /// <remarks>
+    /// The global SalesHeader is used whenever data from the sales header is used in other procedures on the object.
+    /// </remarks>
+    /// <param name="NewSalesHeader">The sales header to set.</param>
     procedure SetSalesHeader(NewSalesHeader: Record "Sales Header")
     begin
         SalesHeader := NewSalesHeader;
@@ -4299,12 +4347,23 @@ table 37 "Sales Line"
         OnAfterSetSalesHeader(Rec, SalesHeader, Currency);
     end;
 
+    /// <summary>
+    /// Gets the sales header associated with the sales line.
+    /// Ensures the global SalesHeader variable is correctly set.
+    /// </summary>
+    /// <returns>The sales header of the current line.</returns>
     procedure GetSalesHeader(): Record "Sales Header"
     begin
         GetSalesHeader(SalesHeader, Currency);
         exit(SalesHeader);
     end;
 
+    /// <summary>
+    /// Gets the sales header and the currency associated with the sales line.
+    /// Ensures that the global SalesHeader variable and the currency are correctly set.
+    /// </summary>
+    /// <param name="OutSalesHeader">Return value: The sales header of the current line.</param>
+    /// <param name="OutCurrency">Return value: The currency of the current line.</param>
     procedure GetSalesHeader(var OutSalesHeader: Record "Sales Header"; var OutCurrency: Record Currency)
     var
         IsHandled: Boolean;
@@ -4331,6 +4390,10 @@ table 37 "Sales Line"
         OutCurrency := Currency;
     end;
 
+    /// <summary>
+    /// Gets the item record from the item number on the sales line.
+    /// </summary>
+    /// <returns>The item record.</returns>
     procedure GetItem(): Record Item
     var
         Item: Record Item;
@@ -4340,12 +4403,21 @@ table 37 "Sales Line"
         exit(Item);
     end;
 
+    /// <summary>
+    /// Gets the item record from the the item number on the sales line.
+    /// </summary>
+    /// <param name="Item">Return value: The item record.</param>
     procedure GetItem(var Item: Record Item)
     begin
         TestField("No.");
         Item.Get("No.");
     end;
 
+    /// <summary>
+    /// Gets the resource record from the resource number on the sales line.
+    /// The global Resource variable is updated with the retrieved resource.
+    /// </summary>
+    /// <returns>The resource record.</returns>
     procedure GetResource(): Record Resource
     begin
         TestField("No.");
@@ -4354,6 +4426,11 @@ table 37 "Sales Line"
         exit(Resource);
     end;
 
+    /// <summary>
+    /// Calculates the quantity and quantity (base) that remain unreserved on the sales line.
+    /// </summary>
+    /// <param name="RemainingQty">Return value: The remaining unreserved quantity.</param>
+    /// <param name="RemainingQtyBase">Return value: The remaining unreserved quantity (base).</param>
     procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
     begin
         CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -4361,6 +4438,14 @@ table 37 "Sales Line"
         RemainingQtyBase := "Outstanding Qty. (Base)" - Abs("Reserved Qty. (Base)");
     end;
 
+    /// <summary>
+    /// Gets the quantities related to reservations for the sales line.
+    /// </summary>
+    /// <param name="QtyReserved">Return value: The reserved quantity.</param>
+    /// <param name="QtyReservedBase">Return value: The reserved quantity (base).</param>
+    /// <param name="QtyToReserve">Return value: The quantity to reserve.</param>
+    /// <param name="QtyToReserveBase">Return value: The quantity to reserve (base).</param>
+    /// <returns>The quantity per unit of measure.</returns>
     procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal) Result: Decimal
     var
         IsHandled: Boolean;
@@ -4385,11 +4470,19 @@ table 37 "Sales Line"
         OnAfterGetReservationQty(Rec, QtyToReserve, QtyToReserveBase, Result);
     end;
 
+    /// <summary>
+    /// Returns a caption containing the document type, document number and line number separated by spaces for the sales line.
+    /// </summary>
+    /// <returns>The formatted text.</returns>
     procedure GetSourceCaption(): Text
     begin
         exit(StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "No."));
     end;
 
+    /// <summary>
+    /// Initializes the reservation entry with information from the sales line.
+    /// </summary>
+    /// <param name="ReservEntry">Return value: The initialized reservation entry.</param>
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
         ReservEntry.SetSource(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", '', 0);
@@ -4402,6 +4495,10 @@ table 37 "Sales Line"
         OnAfterSetReservationEntry(ReservEntry, Rec);
     end;
 
+    /// <summary>
+    /// Filters the reservation entries for the sales line.
+    /// </summary>
+    /// <param name="ReservEntry">The reservation entry to filter.</param>
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
         ReservEntry.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
@@ -4410,6 +4507,10 @@ table 37 "Sales Line"
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
+    /// <summary>
+    /// Checks if a reservation entry exists for the sales line.
+    /// </summary>
+    /// <returns>True if a reservation entry exists, otherwise false.</returns>
     procedure ReservEntryExist(): Boolean
     var
         ReservEntry: Record "Reservation Entry";
@@ -4419,17 +4520,32 @@ table 37 "Sales Line"
         exit(not ReservEntry.IsEmpty);
     end;
 
+    /// <summary>
+    /// Checks if the price calculation was triggered by a specific field.
+    /// </summary>
+    /// <param name="CurrPriceFieldNo">The field number of the field that triggered the price calculation.</param>
+    /// <returns>True if the invoking field no. is the same as the planned field no., otherwise false.</returns>
     procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
     begin
         exit(FieldCausedPriceCalculation = CurrPriceFieldNo);
     end;
 
+    /// <summary>
+    /// Plans for a price calculation triggered by a specific field, ensuring that the calculation is performed only once.
+    /// </summary>
+    /// <remarks>
+    /// This field no. is checked in IsPriceCalcCalledByField to determine if price calculation should be performed .   
+    /// </remarks>
+    /// <param name="CurrPriceFieldNo">The field number of the field that can cause price calculation.</param>
     procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
     begin
         if FieldCausedPriceCalculation = 0 then
             FieldCausedPriceCalculation := CurrPriceFieldNo;
     end;
 
+    /// <summary>
+    /// Resets the tracking of the field that is planned to trigger a price calculation.
+    /// </summary>
     procedure ClearFieldCausedPriceCalculation()
     begin
         FieldCausedPriceCalculation := 0;
@@ -4447,6 +4563,10 @@ table 37 "Sales Line"
         Validate(Quantity);
     end;
 
+    /// <summary>
+    /// Updates the unit price on the sales line.    
+    /// </summary>
+    /// <param name="CalledByFieldNo">The field number of the field that triggered the price calculation.</param>
     procedure UpdateUnitPrice(CalledByFieldNo: Integer)
     var
         IsHandled: Boolean;
@@ -4461,6 +4581,11 @@ table 37 "Sales Line"
         UpdateUnitPriceByField(CalledByFieldNo);
     end;
 
+    /// <summary>
+    /// Updates the unit price on the sales line.
+    /// The calculation is only performed if the field number of the field that triggered the price calculation is the same as the planned field no.
+    /// </summary>
+    /// <param name="CalledByFieldNo">The field number of the field that triggered the price calculation.</param>
     procedure UpdateUnitPriceByField(CalledByFieldNo: Integer)
     var
         BlanketOrderSalesLine: Record "Sales Line";
@@ -4556,6 +4681,12 @@ table 37 "Sales Line"
         Rec := Line;
     end;
 
+    /// <summary>
+    /// Gets the "Price Calculation" implementation for the sales line.
+    /// </summary>
+    /// <param name="PriceType">The type of price calculation to get.</param>
+    /// <param name="SalesHeader">The sales header used for getting the price calculation.</param>
+    /// <param name="PriceCalculation">Return value: The "Price Calculation" implementation.</param>
     procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; SalesHeader: Record "Sales Header"; var PriceCalculation: Interface "Price Calculation")
     var
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
@@ -4568,6 +4699,11 @@ table 37 "Sales Line"
         PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
     end;
 
+
+    /// <summary>
+    /// Returns a default "Line With Price" implementation if not overridden.
+    /// </summary>
+    /// <param name="LineWithPrice">Return value: The default or overridden "Line With Price" implementation.</param>
     procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
     var
         SalesLinePrice: Codeunit "Sales Line - Price";
@@ -4576,12 +4712,21 @@ table 37 "Sales Line"
         OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
+    /// <summary>
+    /// Applies the discount and assigns the calculated amount to the sales line.
+    /// </summary>
+    /// <param name="PriceCalculation">The "Price Calculation" implementation to use.</param>
     procedure ApplyDiscount(var PriceCalculation: Interface "Price Calculation")
     begin
         PriceCalculation.ApplyDiscount();
         GetLineWithCalculatedPrice(PriceCalculation);
     end;
 
+    /// <summary>
+    /// Applies the price and assigns the calculated amount to the sales line.
+    /// </summary>
+    /// <param name="CalledByFieldNo">The field number of the field that triggered the price calculation.</param>
+    /// <param name="PriceCalculation">The "Price Calculation" implementation to use.</param>
     procedure ApplyPrice(CalledByFieldNo: Integer; var PriceCalculation: Interface "Price Calculation")
     begin
         PriceCalculation.ApplyPrice(CalledByFieldNo);
@@ -4599,6 +4744,12 @@ table 37 "Sales Line"
         Validate("Unit Cost (LCY)");
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method CountDiscount.
+    /// Returns the number of price list lines with discounts that fit the sales line.
+    /// </summary>
+    /// <param name="ShowAll">If true it widens the filters set to the price list line.</param>
+    /// <returns>The number of price list lines with discounts.</returns>
     procedure CountDiscount(ShowAll: Boolean): Integer;
     var
         PriceCalculation: Interface "Price Calculation";
@@ -4607,6 +4758,12 @@ table 37 "Sales Line"
         exit(PriceCalculation.CountDiscount(ShowAll));
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method CountPrice.
+    /// Returns the number of price list lines with prices that fit the sales line.
+    /// </summary>
+    /// <param name="ShowAll">If true it widens the filters set to the price list line.</param>
+    /// <returns>The number of price list lines with prices.</returns>
     procedure CountPrice(ShowAll: Boolean): Integer;
     var
         PriceCalculation: Interface "Price Calculation";
@@ -4615,6 +4772,12 @@ table 37 "Sales Line"
         exit(PriceCalculation.CountPrice(ShowAll));
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method DiscountExists.
+    /// Returns true if any price list line with discount that fit the sales line exist.
+    /// </summary>
+    /// <param name="ShowAll">If true it widens the filters set to the price list line.</param>
+    /// <returns>True if any price list line is found, otherwise false.</returns>
     procedure DiscountExists(ShowAll: Boolean): Boolean;
     var
         PriceCalculation: Interface "Price Calculation";
@@ -4623,6 +4786,12 @@ table 37 "Sales Line"
         exit(PriceCalculation.IsDiscountExists(ShowAll));
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method PriceExists.
+    /// Returns true if any price list line with price or cost that fit the sales line exist.
+    /// </summary>
+    /// <param name="ShowAll">If true it widens the filters set to the price list line.</param>
+    /// <returns>True if any price list line is found, otherwise false.</returns>
     procedure PriceExists(ShowAll: Boolean): Boolean;
     var
         PriceCalculation: Interface "Price Calculation";
@@ -4631,6 +4800,11 @@ table 37 "Sales Line"
         exit(PriceCalculation.IsPriceExists(ShowAll));
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method PickDiscount.
+    /// Opens a price list selection to pick from lines with discount that fit the sales line.
+    /// After the selection the amounts are assigned to the sales line.
+    /// </summary>
     procedure PickDiscount()
     var
         PriceCalculation: Interface "Price Calculation";
@@ -4642,6 +4816,11 @@ table 37 "Sales Line"
         OnAfterPickDiscount(Rec, PriceCalculation);
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method PickPrice.
+    /// Opens a price list selection to pick from lines with price or cost that fit the sales line.
+    /// After the selection the amounts are assigned to the sales line.
+    /// </summary>
     procedure PickPrice()
     var
         PriceCalculation: Interface "Price Calculation";
@@ -4653,6 +4832,9 @@ table 37 "Sales Line"
         OnAfterPickPrice(Rec, PriceCalculation);
     end;
 
+    /// <summary>
+    /// Applies the discount and price for "Item Reference No." field and assigns the calculated amount to the sales line.
+    /// </summary>
     procedure UpdateReferencePriceAndDiscount();
     var
         PriceCalculation: Interface "Price Calculation";
@@ -4671,7 +4853,7 @@ table 37 "Sales Line"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     procedure FindResUnitCost()
     var
@@ -4698,6 +4880,11 @@ table 37 "Sales Line"
         OnAfterFindResUnitCost(Rec, ResourceCost);
     end;
 #endif
+
+    /// <summary>
+    /// Updates the prepayment VAT fields on the sales line based on the VAT posting setup
+    /// to account for updates on the prepayment sales line.
+    /// </summary>
     procedure UpdatePrepmtSetupFields()
     var
         GenPostingSetup: Record "General Posting Setup";
@@ -4741,6 +4928,9 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates the prepayment amounts on the sales line to reflect changes in the outstanding amount.
+    /// </summary>
     protected procedure UpdatePrepmtAmounts()
     var
         OutstandingAmountExclTax: Decimal;
@@ -4769,7 +4959,7 @@ table 37 "Sales Line"
             CheckPrepmtAmounts();
     end;
 
-    local procedure CalculateOutstandingAmountExclTax(): Decimal
+    procedure CalculateOutstandingAmountExclTax(): Decimal
     var
         OutstandingAmount: Decimal;
         QuantityNotInvoiced: Decimal;
@@ -4799,7 +4989,7 @@ table 37 "Sales Line"
                 Error(LineAmountInvalidErr);
     end;
 
-    local procedure CheckPrepmtAmounts()
+    procedure CheckPrepmtAmounts()
     var
         RemLineAmountToInvoice: Decimal;
         IsHandled: Boolean;
@@ -4842,7 +5032,7 @@ table 37 "Sales Line"
             end;
     end;
 
-    local procedure ThrowWrongAmountError()
+    procedure ThrowWrongAmountError()
     var
         IsHandled: Boolean;
     begin
@@ -4886,6 +5076,10 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates line, prepayment, deferral, and VAT amounts for the sales line 
+    /// to account for any changes of the sales line that affect the amounts.
+    /// </summary>
     procedure UpdateAmounts()
     var
         VATBaseAmount: Decimal;
@@ -4948,6 +5142,10 @@ table 37 "Sales Line"
         OnAfterUpdateAmountsDone(Rec, xRec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Updates the VAT amounts on the sales line based on the VAT calculation type and other line details
+    /// to reflect changes in fields that affect them, like line amount, VAT %, and others.
+    /// </summary>
     procedure UpdateVATAmounts()
     var
         SalesLine2: Record "Sales Line";
@@ -5134,6 +5332,15 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Verifies the availability of the item on the shipment date.
+    /// If the item is not available, a notification is shown and an error is raised to stop the update.
+    /// </summary>
+    /// <remarks>
+    /// The check is only performed if CalledByFieldNo matches the field that initated the call stack (CurrFieldNo).
+    /// If the shipment date is empty, it's set from either the header or the current work date.
+    /// </remarks>
+    /// <param name="CalledByFieldNo">The field no. of the field that initiated the check.</param>
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         IsHandled: Boolean;
@@ -5212,6 +5419,21 @@ table 37 "Sales Line"
         exit(RunCheck);
     end;
 
+    /// <summary>
+    /// Opens a Order Tracking summary page for the current sales line.
+    /// </summary>
+    procedure ShowOrderTracking()
+    var
+        OrderTracking: Page "Order Tracking";
+    begin
+        OrderTracking.SetVariantRec(Rec, Rec."No.", Rec."Outstanding Qty. (Base)", Rec."Shipment Date", Rec."Shipment Date");
+        OrderTracking.RunModal();
+    end;
+
+    /// <summary>
+    /// Opens a reservation summary page for the current sales line.
+    /// After the page closes, updates the planned status of the line.
+    /// </summary>
     procedure ShowReservation()
     var
         Reservation: Page Reservation;
@@ -5231,6 +5453,10 @@ table 37 "Sales Line"
         UpdatePlanned();
     end;
 
+    /// <summary>
+    /// Opens a reservation entries page for the current sales line.
+    /// </summary>
+    /// <param name="Modal">If true, execution is paused until the page is closed.</param> 
     procedure ShowReservationEntries(Modal: Boolean)
     var
         ReservEntry: Record "Reservation Entry";
@@ -5251,6 +5477,10 @@ table 37 "Sales Line"
             PAGE.Run(PAGE::"Reservation Entries", ReservEntry);
     end;
 
+    /// <summary>
+    /// Attempts to automatically reserve the quantity of the current sales line based on the item availability.
+    /// If the quantity cannot be reserved automatically, a message is shown and the user is prompted to reserve manually.
+    /// </summary>
     procedure AutoReserve()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -5292,6 +5522,9 @@ table 37 "Sales Line"
         OnAfterAutoReserve(Rec);
     end;
 
+    /// <summary>
+    /// Creates or updates the assembly order associated with the sales line to reflect the current line details.
+    /// </summary>
     procedure AutoAsmToOrder()
     var
         IsHandled: Boolean;
@@ -5306,6 +5539,10 @@ table 37 "Sales Line"
         OnAfterAutoAsmToOrder(Rec);
     end;
 
+    /// <summary>
+    /// Retrieves the date to be used for operations on the sales line, which is the associated sales header's posting date or the work date if the posting date is not set.
+    /// </summary>
+    /// <returns>The date to be used for operations on the sales line.</returns> 
     procedure GetDate(): Date
     var
         ResultDate: Date;
@@ -5323,6 +5560,12 @@ table 37 "Sales Line"
         exit(WorkDate());
     end;
 
+    /// <summary>
+    /// Calculates the planned delivery date based on the shipping agent, planned shipment date 
+    /// and the field that initiated the calculation.
+    /// </summary>
+    /// <param name="CurrFieldNo">The field number of the field that initiated the calculation.</param>
+    /// <returns>The calculated planned delivery date.</returns>
     procedure CalcPlannedDeliveryDate(CurrFieldNo: Integer) PlannedDeliveryDate: Date
     var
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
@@ -5355,6 +5598,11 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Calculates the planned shipment date based on the shipping agent and the field that initiated the calculation.
+    /// </summary>
+    /// <param name="CurrFieldNo">The field number of the field that initiated the calculation.</param>
+    /// <returns>The calculated planned shipment date.</returns>
     procedure CalcPlannedShptDate(CurrFieldNo: Integer) PlannedShipmentDate: Date
     var
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
@@ -5382,6 +5630,10 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Calculates the shipment date based on the shipping agent, location and planned shipment date.
+    /// </summary>
+    /// <returns>The calculated shipment date.</returns>
     procedure CalcShipmentDate(): Date
     var
         CustomCalendarChange: array[2] of Record "Customized Calendar Change";
@@ -5407,6 +5659,11 @@ table 37 "Sales Line"
         exit(CalendarMgmt.CalcDateBOC(Format(Format('')), "Planned Shipment Date", CustomCalendarChange, false));
     end;
 
+    /// <summary>
+    /// Adjusts the sign of the provided value based on the document type of the sales line.
+    /// </summary>
+    /// <param name="Value">The value to adjust the sign of.</param>
+    /// <returns>The value with its sign adjusted based on the document type.</returns>
     procedure SignedXX(Value: Decimal): Decimal
     var
         IsHandled: Boolean;
@@ -5453,6 +5710,15 @@ table 37 "Sales Line"
         OnAfterBlanketOrderLookup(Rec);
     end;
 
+    /// <summary>
+    /// Opens a page for editing dimensions for the sale line.
+    /// After the page closes, updates the dimensions on the sales line and assembly orders.
+    /// </summary>
+    /// <remarks>
+    /// If the dimensions are changed for a line that is already shipped, a confirmation is raised. 
+    /// If not confirmed, and error is raised to stop the update.
+    /// </remarks>
+    /// <returns>True if the dimensions were changed, otherwise, false.</returns>
     procedure ShowDimensions() IsChanged: Boolean
     var
         OldDimSetID: Integer;
@@ -5476,6 +5742,9 @@ table 37 "Sales Line"
         OnAfterShowDimensions(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Opens a page for editing item tracking lines for the sale line.
+    /// </summary>
     procedure OpenItemTrackingLines()
     var
         Job: Record Job;
@@ -5500,6 +5769,10 @@ table 37 "Sales Line"
         OnAfterOpenItemTrackingLines(Rec);
     end;
 
+    /// <summary>
+    /// Initializes dimensions on the sales line for the provided list of default dimension sources.
+    /// </summary>
+    /// <param name="DefaultDimSource">The list of default dimension sources.</param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -5527,6 +5800,14 @@ table 37 "Sales Line"
         OnAfterCreateDim(Rec, CurrFieldNo, xRec, DefaultDimSource);
     end;
 
+    /// <summary>
+    /// Checks if the provided shortcut dimension code and value are valid.
+    /// </summary>
+    /// <remarks>
+    /// Checks include if the dimension or value are blocked or if the value is allowed.
+    /// </remarks>
+    /// <param name="FieldNumber">The number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">The value of the shortcut dimension.</param>
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         IsHandled: Boolean;
@@ -5542,6 +5823,15 @@ table 37 "Sales Line"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Opens a page for looking up a shortcut dimension code value.
+    /// </summary>
+    /// <remarks>
+    /// If the dimensions are changed for a line that is already shipped, a confirmation is raised. 
+    /// If not confirmed, and error is raised to stop the update.
+    /// </remarks>
+    /// <param name="FieldNumber">The number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">Return value: The value of the shortcut dimension.</param>
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         IsHandled: Boolean;
@@ -5555,11 +5845,19 @@ table 37 "Sales Line"
         Rec.ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Gets an array of shortcut dimension values from the dimensions of the sales line.
+    /// </summary>
+    /// <param name="ShortcutDimCode">Return value: The array of shortcut dimension values.</param>
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Opens a page for selecting multiple items to add to the document.
+    /// Selected items are added to the document.
+    /// </summary>
     procedure SelectMultipleItems()
     var
         ItemListPage: Page "Item List";
@@ -5581,6 +5879,10 @@ table 37 "Sales Line"
         OnAfterSelectMultipleItems(Rec);
     end;
 
+    /// <summary>
+    /// Adds items to the document based on the provided selection filter.
+    /// </summary>
+    /// <param name="SelectionFilter">The filter to use for selecting items.</param>
     procedure AddItems(SelectionFilter: Text)
     var
         Item: Record Item;
@@ -5600,6 +5902,15 @@ table 37 "Sales Line"
             until Item.Next() = 0;
     end;
 
+    /// <summary>
+    /// Adds an item to the document.
+    /// </summary>
+    /// <remarks>
+    /// After the line is added, assembly order is automatically created if required.
+    /// If the item has extended text, the text is added as a line.
+    /// </remarks>
+    /// <param name="SalesLine">Return value: The added sales line. Sales line must have the document type and number set.</param>
+    /// <param name="ItemNo">Return value: The number of the item to add.</param>
     procedure AddItem(var SalesLine: Record "Sales Line"; ItemNo: Code[20])
     begin
         SalesLine.Init();
@@ -5611,6 +5922,11 @@ table 37 "Sales Line"
         ProcessSalesLine(SalesLine);
     end;
 
+    /// <summary>
+    /// Creates or updates assembly orders if assemble-to-order is required.
+    /// Creates extended text lines applicable to the provided sales line.
+    /// </summary>
+    /// <param name="SalesLine">The sales line to process.</param>
     procedure ProcessSalesLine(var SalesLine: Record "Sales Line")
     var
         LastSalesLine: Record "Sales Line";
@@ -5631,6 +5947,10 @@ table 37 "Sales Line"
         OnAfterAddItem(SalesLine, LastSalesLine);
     end;
 
+    /// <summary>
+    /// Initializes a new sales line based on the current sales line.
+    /// </summary>
+    /// <param name="NewSalesLine">Return value: The new sales line.</param>
     procedure InitNewLine(var NewSalesLine: Record "Sales Line")
     var
         SalesLine: Record "Sales Line";
@@ -5644,6 +5964,13 @@ table 37 "Sales Line"
             NewSalesLine."Line No." := 0;
     end;
 
+    /// <summary>
+    /// Opens a page for looking up item substitutions for the current item on the sales line.
+    /// If substitution is selected, the item is replaced with the selected item.
+    /// </summary>
+    /// <remarks>
+    /// If item is substituted, it also adds any extended text for the new item.
+    /// </remarks>
     procedure ShowItemSub()
     var
         IsHandled: Boolean;
@@ -5662,6 +5989,10 @@ table 37 "Sales Line"
         OnAfterShowItemSub(Rec);
     end;
 
+    /// <summary>
+    /// Opens a page for selecting a nonstock item to add to the document.
+    /// If a nonstock item is selected, it is added to the document and the unit price is updated.
+    /// </summary>
     procedure ShowNonstock()
     var
         IsHandled: Boolean;
@@ -5709,6 +6040,9 @@ table 37 "Sales Line"
         OnAfterGetSalesSetup(Rec, SalesSetup);
     end;
 
+    /// <summary>
+    /// Sets tax and posting groups codes for a fixed asset sales line.
+    /// </summary>
     procedure GetFAPostingGroup()
     var
         LocalGLAcc: Record "G/L Account";
@@ -5748,6 +6082,11 @@ table 37 "Sales Line"
         OnAfterGetFAPostingGroup(Rec, LocalGLAcc);
     end;
 
+    /// <summary>
+    /// Gets a caption class for a field.
+    /// </summary>
+    /// <param name="FieldNumber">The number of the field to get the caption class for.</param>
+    /// <returns>The caption class of a field.</returns>
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
     var
         SalesLineCaptionClassMgmt: Codeunit "Sales Line CaptionClass Mgmt";
@@ -5755,11 +6094,20 @@ table 37 "Sales Line"
         exit(SalesLineCaptionClassMgmt.GetSalesLineCaptionClass(Rec, FieldNumber));
     end;
 
+    /// <summary>
+    /// Gets a stockkeeping unit for the current sales line and saves it in a global variable SKU.
+    /// </summary>
+    /// <returns>True if a stockkeeping unit was found, otherwise, false.</returns>
     procedure GetSKU() Result: Boolean
     begin
         exit(GetSKU(SKU));
     end;
 
+    /// <summary>
+    /// Gets a stockkeeping unit for the current sales line.
+    /// </summary>
+    /// <param name="StockkeepingUnit">Return value: The stockkeeping unit for the current sales line.</param>
+    /// <returns>True if a stockkeeping unit was found, otherwise, false.</returns>
     procedure GetSKU(var StockkeepingUnit: Record "Stockkeeping Unit") Result: Boolean
     begin
         if (StockkeepingUnit."Location Code" = "Location Code") and
@@ -5775,6 +6123,9 @@ table 37 "Sales Line"
         OnAfterGetSKU(Rec, Result, StockkeepingUnit);
     end;
 
+    /// <summary>
+    /// Finds and assigns the unit cost for the item specified on the sales line.
+    /// </summary>
     procedure GetUnitCost()
     var
         Item: Record Item;
@@ -5813,6 +6164,10 @@ table 37 "Sales Line"
         exit(Abs(UnitCost * "Qty. per Unit of Measure"));
     end;
 
+    /// <summary>
+    /// Opens a page for editing item charge assignment for the item charge sales line.
+    /// If assignments don't exist for the item charge, new assignments are created and committed before opening the page.
+    /// </summary>
     procedure ShowItemChargeAssgnt()
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
@@ -5881,6 +6236,9 @@ table 37 "Sales Line"
         OnAfterShowItemChargeAssgnt(Rec, ItemChargeAssgntSales);
     end;
 
+    /// <summary>
+    /// Updates amounts on item charge assignments for the current sales line.
+    /// </summary>
     procedure UpdateItemChargeAssgnt()
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
@@ -5953,6 +6311,12 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Deletes item charge assignments applied to a sales document line.
+    /// </summary>
+    /// <param name="DocType">Document type of the applied-to document.</param>
+    /// <param name="DocNo">Document number of the applied-to document.</param>
+    /// <param name="DocLineNo">Line number of the applied-to document.</param>
     procedure DeleteItemChargeAssignment(DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer)
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
@@ -5970,6 +6334,12 @@ table 37 "Sales Line"
         OnAfterDeleteItemChargeAssignment(Rec, xRec, CurrFieldNo, DocType, DocNo, DocLineNo);
     end;
 
+    /// <summary>
+    /// Deletes item charge assignments associated with a sales line.
+    /// </summary>
+    /// <param name="DocType">Document type of the sales line.</param>
+    /// <param name="DocNo">Document number of the sales line.</param>
+    /// <param name="DocLineNo">Document line number of the sales line.</param>
     protected procedure DeleteChargeChargeAssgnt(DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer)
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
@@ -6013,6 +6383,12 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Tests if sales header of the line is open.
+    /// </summary>
+    /// <remarks>
+    /// Check is executed only for non-system created lines, type changes, and lines with non-blank type.
+    /// </remarks>
     procedure TestStatusOpen()
     var
         IsHandled: Boolean;
@@ -6045,16 +6421,31 @@ table 37 "Sales Line"
         TestField(Quantity);
     end;
 
+    /// <summary>
+    /// Returns the value of the global variable StatusCheckSuspended.
+    /// </summary>
+    /// <returns>The value of the global variable StatusCheckSuspended.</returns>
     procedure GetSuspendedStatusCheck(): Boolean
     begin
         exit(StatusCheckSuspended);
     end;
 
+    /// <summary>
+    /// Sets the value of the global variable StatusCheckSuspended.
+    /// </summary>
+    /// <remarks>
+    /// Suspends several checks like testing for status open on sales header, sales line check on shipment date validate, and amount updates on delete.
+    /// </remarks>
+    /// <param name="Suspend">The new value to set.</param>
     procedure SuspendStatusCheck(Suspend: Boolean)
     begin
         StatusCheckSuspended := Suspend;
     end;
 
+    /// <summary>
+    /// Toggles the filter for lines with errors between displaying all lines and only lines with errors.
+    /// </summary>
+    /// <param name="ShowAllLinesEnabled">Return value: A toggle for showing all lines or just lines with errors. After switching the filter, the toggle is returned with the opposite value.</param>
     procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
     var
         TempLineErrorMessage: Record "Error Message" temporary;
@@ -6075,6 +6466,18 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Recalculates and updates line and VAT amounts on all lines of the document.
+    /// </summary>
+    /// <remarks>
+    /// QtyType::Shipping exits the function without updating the lines.
+    /// QtyType::Invoicing doesn't update line and VAT amounts, only invoice discount amount to invoice and VAT difference.
+    /// </remarks>
+    /// <param name="QtyType">The type of quantity to consider for the update (Qty, QtyToInvoice, QtyToShip).</param>
+    /// <param name="SalesHeader">The sales header of the document. The sales lines are filtered for this document.</param>
+    /// <param name="SalesLine">The sales line record set that is looped through. Pre-existing filters will narrow down the lines to consider.</param>
+    /// <param name="VATAmountLine">VAT amount line record set used in VAT calculations. The line used is retrieved from this set for each sales line.</param>
+    /// <returns>True if any line was modified; otherwise, false.</returns>
     procedure UpdateVATOnLines(QtyType: Option General,Invoicing,Shipping; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line") LineWasModified: Boolean
     var
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
@@ -6259,11 +6662,34 @@ table 37 "Sales Line"
         exit(IsHandled);
     end;
 
+    /// <summary>
+    /// Creates VAT amount lines for all applicable sales lines in the document.
+    /// An overload that sets IncludePrepayments to true.
+    /// </summary>
+    /// <remarks>
+    /// VATAmountLine parameter must be temporary as DeleteAll is called on it.
+    /// </remarks>    
+    /// <param name="QtyType">The type of quantity to consider for the calculation (Qty, QtyToInvoice, QtyToShip).</param>
+    /// <param name="SalesHeader">The sales header of the document. The sales lines are filtered for this document.</param>
+    /// <param name="SalesLine">The sales line record set that is looped through. Pre-existing filters will narrow down the lines to consider.</param>
+    /// <param name="VATAmountLine">Return value: VAT amount line set where records are inserted. This must be a temporary variable as DeleteAll is called on it.</param>
     procedure CalcVATAmountLines(QtyType: Option General,Invoicing,Shipping; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
         CalcVATAmountLines(QtyType, SalesHeader, SalesLine, VATAmountLine, true);
     end;
 
+    /// <summary>
+    /// Creates VAT amount lines for all applicable sales lines in the document.
+    /// </summary>
+    /// <remarks>
+    /// VATAmountLine parameter must be temporary as DeleteAll is called on it.
+    /// IncludePrepayments is only applicable to Invoicing and Shipping QtyTypes.
+    /// </remarks>
+    /// <param name="QtyType">The type of quantity to consider for the calculation (Qty, QtyToInvoice, QtyToShip).</param>
+    /// <param name="SalesHeader">The sales header of the document. The sales lines are filtered for this document.</param>
+    /// <param name="SalesLine">The sales line record set that is looped through. Pre-existing filters will narrow down the lines to consider.</param>
+    /// <param name="VATAmountLine">Return value: VAT amount line set where records are inserted. This must be a temporary variable as DeleteAll is called on it.</param>
+    /// <param name="IncludePrepayments">A flag indicating whether amount used in calculation should include prepayment amount</param>
     procedure CalcVATAmountLines(QtyType: Option General,Invoicing,Shipping; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; IncludePrepayments: Boolean)
     var
         TotalVATAmount: Decimal;
@@ -6305,7 +6731,7 @@ table 37 "Sales Line"
                     then begin
                         VATAmountLine.InsertNewLine(
                           SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, SalesLine."VAT %", SalesLine."Line Amount" >= 0, false, SalesLine."EC %", 0);
-		    	        OnCalcVATAmountLinesOnAfterInsertNewVATAmountLine(SalesLine, VATAmountLine);
+                        OnCalcVATAmountLinesOnAfterInsertNewVATAmountLine(SalesLine, VATAmountLine);
                     end;
 
                     OnCalcVATAmountLinesOnBeforeQtyTypeCase(VATAmountLine, SalesLine, SalesHeader);
@@ -6314,7 +6740,7 @@ table 37 "Sales Line"
                             begin
                                 OnCalcVATAmountLinesOnBeforeQtyTypeGeneralCase(SalesHeader, SalesLine, VATAmountLine, IncludePrepayments, QtyType, QtyToHandle, AmtToHandle);
                                 VATAmountLine.Quantity += SalesLine."Quantity (Base)";
-                                VATAmountLine.SumLine(SalesLine."Line Amount", SalesLine."Inv. Discount Amount", SalesLine."Pmt. Discount Amount", SalesLine."VAT Difference", SalesLine."EC Difference", SalesLine."Allow Invoice Disc.", SalesLine."Prepayment Line");
+                                SumVATAmountLine(SalesHeader, SalesLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
                             end;
                         QtyType::Invoicing:
                             begin
@@ -6350,16 +6776,7 @@ table 37 "Sales Line"
                                     AmtToHandle := SalesLine.GetLineAmountToHandleInclPrepmt(QtyToHandle)
                                 else
                                     AmtToHandle := SalesLine.GetLineAmountToHandle(QtyToHandle);
-                                if SalesHeader."Invoice Discount Calculation" <> SalesHeader."Invoice Discount Calculation"::Amount then
-                                    VATAmountLine.SumLine(
-                                      AmtToHandle, Round(SalesLine."Inv. Discount Amount" * QtyToHandle / SalesLine.Quantity, Currency."Amount Rounding Precision"),
-                                      Round(SalesLine."Pmt. Discount Amount" * QtyToHandle / SalesLine.Quantity, Currency."Amount Rounding Precision"),
-                                      SalesLine."VAT Difference", SalesLine."EC Difference", SalesLine."Allow Invoice Disc.", SalesLine."Prepayment Line")
-                                else
-                                    VATAmountLine.SumLine(
-                                      AmtToHandle, SalesLine."Inv. Disc. Amount to Invoice",
-                                      Round(SalesLine."Pmt. Discount Amount" * QtyToHandle / SalesLine.Quantity, Currency."Amount Rounding Precision"),
-                                      SalesLine."VAT Difference", SalesLine."EC Difference", SalesLine."Allow Invoice Disc.", SalesLine."Prepayment Line");
+                                SumVATAmountLine(SalesHeader, SalesLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
                             end;
                         QtyType::Shipping:
                             begin
@@ -6376,10 +6793,7 @@ table 37 "Sales Line"
                                     AmtToHandle := SalesLine.GetLineAmountToHandleInclPrepmt(QtyToHandle)
                                 else
                                     AmtToHandle := SalesLine.GetLineAmountToHandle(QtyToHandle);
-                                VATAmountLine.SumLine(
-                                  AmtToHandle, Round(SalesLine."Inv. Discount Amount" * QtyToHandle / SalesLine.Quantity, Currency."Amount Rounding Precision"),
-                                  Round(SalesLine."Pmt. Discount Amount" * QtyToHandle / SalesLine.Quantity, Currency."Amount Rounding Precision"),
-                                  SalesLine."VAT Difference", SalesLine."EC Difference", SalesLine."Allow Invoice Disc.", SalesLine."Prepayment Line");
+                                SumVATAmountLine(SalesHeader, SalesLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
                             end;
                     end;
                     TotalVATAmount += SalesLine."Amount Including VAT" - SalesLine.Amount;
@@ -6411,6 +6825,48 @@ table 37 "Sales Line"
         OnAfterCalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, QtyType);
     end;
 
+    local procedure SumVATAmountLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping; AmtToHandle: Decimal; QtyToHandle: Decimal)
+    begin
+        case QtyType of
+            QtyType::General:
+                begin
+                    VATAmountLine."Line Amount" += SalesLine."Line Amount";
+                    if SalesLine."Allow Invoice Disc." then
+                        VATAmountLine."Inv. Disc. Base Amount" += SalesLine."Line Amount";
+                    VATAmountLine."Invoice Discount Amount" += SalesLine."Inv. Discount Amount";
+                end;
+            QtyType::Invoicing:
+                if SalesHeader."Invoice Discount Calculation" <> SalesHeader."Invoice Discount Calculation"::Amount then begin
+                    VATAmountLine."Line Amount" += AmtToHandle;
+                    if SalesLine."Allow Invoice Disc." then
+                        VATAmountLine."Inv. Disc. Base Amount" += AmtToHandle;
+                    VATAmountLine."Invoice Discount Amount" += Round(SalesLine."Inv. Discount Amount" * QtyToHandle / SalesLine.Quantity, Currency."Amount Rounding Precision");
+                end else begin
+                    VATAmountLine."Line Amount" += AmtToHandle;
+                    if SalesLine."Allow Invoice Disc." then
+                        VATAmountLine."Inv. Disc. Base Amount" += AmtToHandle;
+                    VATAmountLine."Invoice Discount Amount" += SalesLine."Inv. Disc. Amount to Invoice";
+                end;
+            QtyType::Shipping:
+                begin
+                    VATAmountLine."Line Amount" += AmtToHandle;
+                    if SalesLine."Allow Invoice Disc." then
+                        VATAmountLine."Inv. Disc. Base Amount" += AmtToHandle;
+                    VATAmountLine."Invoice Discount Amount" += Round(SalesLine."Inv. Discount Amount" * QtyToHandle / SalesLine.Quantity, Currency."Amount Rounding Precision");
+                end;
+        end;
+        VATAmountLine."VAT Difference" += SalesLine."VAT Difference";
+        if SalesLine."Prepayment Line" then
+            VATAmountLine."Includes Prepayment" := true;
+        OnSumVATAmountLineOnBeforeModify(SalesLine, VATAmountLine);
+        VATAmountLine.Modify();
+    end;
+
+    /// <summary>
+    /// Gets the account number to use for invoice rounding from the customer posting group. If invoice rounding is disabled, returns blank
+    /// </summary>
+    /// <param name="SalesHeader">The sales header of the document.</param>
+    /// <returns>The invoice rounding account number</returns>
     procedure GetCPGInvRoundAcc(var SalesHeader: Record "Sales Header") AccountNo: Code[20]
     var
         Cust: Record Customer;
@@ -6440,6 +6896,12 @@ table 37 "Sales Line"
             CustPostingGroup.Get(CustomerTempl."Customer Posting Group");
     end;
 
+    /// <summary>
+    /// Gets the VAT amount line for the sales line with the maximum absolute amount from the VAT amount line set.
+    /// </summary>
+    /// <param name="VATAmountLine">Return value: The VAT amount line with the maximum absolute amount. The search is performed on the record set passed in this parameter.</param>
+    /// <param name="SalesLine">The sales line record to filter the VAT amount line set.</param>
+    /// <returns>True if a VAT amount line was found, otherwise, false.</returns>
     procedure GetVATAmountLineOfMaxAmt(var VATAmountLine: Record "VAT Amount Line"; SalesLine: Record "Sales Line"): Boolean
     var
         VATAmount1: Decimal;
@@ -6468,6 +6930,9 @@ table 37 "Sales Line"
         OnAfterGetVatBaseDiscountPct(Rec, SalesHeader, Result);
     end;
 
+    /// <summary>
+    /// Updates the invoice discount amount to invoice based on the current quantity and quantity to invoice.
+    /// </summary>
     procedure CalcInvDiscToInvoice()
     var
         OldInvDiscAmtToInv: Decimal;
@@ -6493,6 +6958,13 @@ table 37 "Sales Line"
         OnAfterCalcInvDiscToInvoice(Rec, OldInvDiscAmtToInv);
     end;
 
+    /// <summary>
+    /// Updates the quantities to ship or receive based on the document type, quantity, and location/warehouse requirements.
+    /// </summary>
+    /// <remarks>
+    /// If the default quantity to ship in sales setup is set to blank, 
+    /// the quantity to ship, recieve and invoice are always set to zero.
+    /// </remarks>
     procedure UpdateWithWarehouseShip()
     var
         IsHandled: Boolean;
@@ -6531,6 +7003,14 @@ table 37 "Sales Line"
         OnAfterUpdateWithWarehouseShip(SalesHeader, Rec);
     end;
 
+    /// <summary>
+    /// Checks that the warehouse requirements for the sales line, such as shipment, pick, receive, and put-away
+    /// are met based on the location and document type.
+    /// </summary>
+    /// <remarks>
+    /// If a dialog message is shown, it will either be a message or an error depending on the warehouse requirements and the document type.
+    /// </remarks>
+    /// <param name="ShowDialogMessage">Determines whether to show a dialog message if the warehouse requirements are not met.</param>
     procedure CheckWarehouse(ShowDialogMessage: Boolean)
     var
         Location2: Record Location;
@@ -6634,6 +7114,9 @@ table 37 "Sales Line"
         HandleDedicatedBin(true);
     end;
 
+    /// <summary>
+    /// Checks the warehouse requirements for the quantity to be shipped.
+    /// </summary>
     procedure CheckWarehouseForQtyToShip()
     var
         IsHandled: Boolean;
@@ -6650,6 +7133,9 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates the shipment and delivery dates for the sales line.
+    /// </summary>
     procedure UpdateDates()
     var
         IsHandled: Boolean;
@@ -6674,6 +7160,9 @@ table 37 "Sales Line"
         OnAfterUpdateDates(Rec);
     end;
 
+    /// <summary>
+    /// Retrieves the item translation for the language of the document and updates the descriptions on the sales line.
+    /// </summary>
     procedure GetItemTranslation()
     var
         ItemTranslation: Record "Item Translation";
@@ -6708,6 +7197,11 @@ table 37 "Sales Line"
                 Location.Get(LocationCode);
     end;
 
+    /// <summary>
+    /// Returns true if any price list line with price or cost that fit the sales line exist.
+    /// This is an overload that sets ShowAll to true.
+    /// </summary>
+    /// <returns>True if any price list line is found, otherwise false.</returns>
     procedure PriceExists(): Boolean
     begin
         if "Document No." <> '' then
@@ -6715,6 +7209,11 @@ table 37 "Sales Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Returns true if any price list line with discount that fit the sales line exist.
+    /// This is an overload that sets ShowAll to true.
+    /// </summary>
+    /// <returns>True if any price list line is found, otherwise false.</returns>
     procedure LineDiscExists(): Boolean
     begin
         if "Document No." <> '' then
@@ -6722,6 +7221,10 @@ table 37 "Sales Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Creates a unique row identifier for the sales line used for item tracking.
+    /// </summary>
+    /// <returns>The unique row identifier.</returns>
     procedure RowID1(): Text[250]
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -6738,6 +7241,9 @@ table 37 "Sales Line"
         OnAfterUpdateItemReference(Rec);
     end;
 
+    /// <summary>
+    /// Gets the default bin for the sales line item based on the requriments of the location.
+    /// </summary>
     procedure GetDefaultBin()
     var
         WMSManagement: Codeunit "WMS Management";
@@ -6773,6 +7279,12 @@ table 37 "Sales Line"
         OnAfterGetDefaultBin(Rec);
     end;
 
+    /// <summary>
+    /// Retrieves the Assembly-to-Order (ATO) bin for a given location.
+    /// </summary>
+    /// <param name="Location">The location record to retrieve the ATO bin for.</param>
+    /// <param name="BinCode">Return value: The ATO bin code.</param>
+    /// <returns>True if the ATO bin was found, otherwise false.</returns>
     procedure GetATOBin(Location: Record Location; var BinCode: Code[20]) Result: Boolean
     var
         AsmHeader: Record "Assembly Header";
@@ -6794,6 +7306,10 @@ table 37 "Sales Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Determines if the sales document this line belongs to is an inbound document.
+    /// </summary>
+    /// <returns>True if the document is inbound, otherwise false.</returns>
     procedure IsInbound(): Boolean
     var
         IsInboundDocument: Boolean;
@@ -6820,6 +7336,13 @@ table 37 "Sales Line"
         WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
     end;
 
+    /// <summary>
+    /// Raises an error if the sales line is associated with a purchase order to ensure no changes are made to the line.
+    /// </summary>
+    /// <param name="TheFieldCaption">
+    /// The caption of the field that is being changed. 
+    /// Used to determine if the check is executed for a field change or a line deletion.
+    /// </param>
     procedure CheckAssocPurchOrder(TheFieldCaption: Text[250])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -6864,27 +7387,27 @@ table 37 "Sales Line"
             Error(Text000, PurchaseOrderNo, PurchaseLineNo);
     end;
 
+    /// <summary>
+    /// Ensures that items that create a service item are not shipped in fractional quantities.
+    /// </summary>
     procedure CheckServItemCreation()
-    var
-        Item: Record Item;
-        ServItemGroup: Record "Service Item Group";
     begin
         if CurrFieldNo = 0 then
             exit;
         if Type <> Type::Item then
             exit;
-        GetItem(Item);
-        if Item."Service Item Group" = '' then
-            exit;
-        if ServItemGroup.Get(Item."Service Item Group") then
-            if ServItemGroup."Create Service Item" then
-                if "Qty. to Ship (Base)" <> Round("Qty. to Ship (Base)", 1) then
-                    Error(
-                      Text034,
-                      FieldCaption("Qty. to Ship (Base)"),
-                      ServItemGroup.FieldCaption("Create Service Item"));
+
+        OnCheckServItemCreation(Rec);
     end;
 
+    /// <summary>
+    /// Determines if the provided item number exists.
+    /// </summary>
+    /// <remarks>
+    ///  If the line type is not item, the function returns true.
+    /// </remarks>
+    /// <param name="ItemNo">Item number to check.</param>
+    /// <returns>True if the item exists, otherwise false.</returns>
     procedure ItemExists(ItemNo: Code[20]): Boolean
     var
         Item2: Record Item;
@@ -6895,6 +7418,11 @@ table 37 "Sales Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Finds or creates a record by a given number and returns the number of the found or created record.
+    /// </summary>
+    /// <param name="SourceNo">A record number to find or create.</param>
+    /// <returns>Number of the found or newly created record.</returns>
     procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
     var
         Item: Record Item;
@@ -6920,11 +7448,21 @@ table 37 "Sales Line"
         exit(SourceNo);
     end;
 
+    /// <summary>
+    /// Determines if the sales line represents a shipment.
+    /// </summary>
+    /// <returns>True if the line represents a shipment, otherwise false.</returns>
     procedure IsShipment(): Boolean
     begin
         exit(SignedXX("Quantity (Base)") < 0);
     end;
 
+    /// <summary>
+    /// Retrieves the absolute minimum between the quantity to handle and the quantity handled.
+    /// </summary>
+    /// <param name="QtyToHandle">The quantity to handle.</param>
+    /// <param name="QtyHandled">The quantity handled.</param>
+    /// <returns>The absolute minimum quantity.</returns>
     procedure GetAbsMin(QtyToHandle: Decimal; QtyHandled: Decimal) Result: Decimal
     var
         IsHandled: Boolean;
@@ -6940,12 +7478,23 @@ table 37 "Sales Line"
         exit(QtyToHandle);
     end;
 
+    /// <summary>
+    /// Sets the global HideValidationDialog flag.
+    /// </summary>
+    /// <remarks>
+    /// The flag is unused in the object.
+    /// </remarks>
+    /// <param name="NewHideValidationDialog">The new value of the flag.</param>
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
         OnAfterSetHideValidationDialog(Rec, NewHideValidationDialog);
     end;
 
+    /// <summary>
+    /// Gets the global HideValidationDialog flag.
+    /// </summary>
+    /// <returns>The value of the flag.</returns>
     procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
@@ -7001,6 +7550,9 @@ table 37 "Sales Line"
             end;
     end;
 
+    /// <summary>
+    /// Updates the prepayment amount to deduct with the next posting.
+    /// </summary>
     procedure CalcPrepaymentToDeduct()
     var
         IsHandled: Boolean;
@@ -7035,17 +7587,25 @@ table 37 "Sales Line"
         if IsCreditDocType() then begin
             if Quantity < 0 then
                 FieldError(Quantity, Text029);
-        end else begin
+        end else
             if Quantity > 0 then
                 FieldError(Quantity, Text030);
-        end;
     end;
 
+    /// <summary>
+    /// Determines if the line will be fully invoiced after posting.
+    /// </summary>
+    /// <returns>True if the line will be fully invoiced, otherwise false.</returns>
     procedure IsFinalInvoice(): Boolean
     begin
         exit("Qty. to Invoice" = Quantity - "Quantity Invoiced");
     end;
 
+    /// <summary>
+    /// Calculates the net line amount for the specified quantity to handle.
+    /// </summary>
+    /// <param name="QtyToHandle">The quantity to handle.</param>
+    /// <returns>The net line amount.</returns>
     procedure GetLineAmountToHandle(QtyToHandle: Decimal): Decimal
     var
         LineAmount: Decimal;
@@ -7080,6 +7640,12 @@ table 37 "Sales Line"
         exit(LineAmount - LineDiscAmount);
     end;
 
+    /// <summary>
+    /// Calculates the net line amount for the specified quantity to handle.
+    /// If line must be fully prepaid then the line amount is calculated with the prepayment amount to deduct.
+    /// </summary>
+    /// <param name="QtyToHandle">The quantity to handle.</param>
+    /// <returns>The net line amount.</returns>
     procedure GetLineAmountToHandleInclPrepmt(QtyToHandle: Decimal): Decimal
     var
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
@@ -7100,6 +7666,10 @@ table 37 "Sales Line"
         exit(GetLineAmountToHandle(QtyToHandle));
     end;
 
+    /// <summary>
+    /// Calculates the line amount excluding VAT.
+    /// </summary>
+    /// <returns>The line amount excluding VAT.</returns>
     procedure GetLineAmountExclVAT(): Decimal
     begin
         if "Document No." = '' then
@@ -7111,6 +7681,10 @@ table 37 "Sales Line"
         exit(Round("Line Amount" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
     end;
 
+    /// <summary>
+    /// Calculates the line amount including VAT.
+    /// </summary>
+    /// <returns>The line amount including VAT.</returns>
     procedure GetLineAmountInclVAT(): Decimal
     begin
         if "Document No." = '' then
@@ -7122,11 +7696,17 @@ table 37 "Sales Line"
         exit(Round("Line Amount" * (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
     end;
 
+    /// <summary>
+    /// Sets a flag to prevent showing a message if shipment date is before work date.
+    /// </summary>
     procedure SetHasBeenShown()
     begin
         HasBeenShown := true;
     end;
 
+    /// <summary>
+    /// Ensures that a sales line that is associated with a job task has not been changed.
+    /// </summary>
     procedure TestJobPlanningLine()
     var
         JobPostLine: Codeunit "Job Post-Line";
@@ -7143,11 +7723,19 @@ table 37 "Sales Line"
         JobPostLine.TestSalesLine(Rec);
     end;
 
+    /// <summary>
+    /// Sets the blocking state for dynamic tracking of reservations on quantity change.
+    /// </summary>
+    /// <param name="SetBlock">The new blocking state.</param>
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
         SalesLineReserve.Block(SetBlock);
     end;
 
+    /// <summary>
+    /// Initializes the quantity to ship and invoice to reflect changes after the sales line has been (partially) posted.
+    /// Additionally, reclaculates the proportional invoice discount and prepayment amounts for next posting.
+    /// </summary>
     procedure InitQtyToShip2()
     begin
         "Qty. to Ship" := "Outstanding Quantity";
@@ -7182,6 +7770,9 @@ table 37 "Sales Line"
         ATOLink.UpdateQtyToAsmFromSalesLine(Rec);
     end;
 
+    /// <summary>
+    /// Opens a page to show comments for the sales line.
+    /// </summary>
     procedure ShowLineComments()
     var
         SalesCommentLine: Record "Sales Comment Line";
@@ -7197,6 +7788,9 @@ table 37 "Sales Line"
         SalesCommentSheet.RunModal();
     end;
 
+    /// <summary>
+    /// Resets quantities to ship/return and invoice to zero based on the sales setup setting for default shipping quantity.
+    /// </summary>
     procedure SetDefaultQuantity()
     var
         IsHandled: Boolean;
@@ -7225,6 +7819,10 @@ table 37 "Sales Line"
         OnAfterSetDefaultQuantity(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Sets the reservation method for the sales line from the item. 
+    /// If item's reservation method is optional, the sales header's reservation method is used.
+    /// </summary>
     protected procedure SetReserveWithoutPurchasingCode()
     var
         Item: Record Item;
@@ -7237,6 +7835,28 @@ table 37 "Sales Line"
             Reserve := Item.Reserve;
 
         OnAfterSetReserveWithoutPurchasingCode(Rec, SalesHeader, Item);
+    end;
+
+    procedure SetReserveToOptional()
+    begin
+        if Reserve = Reserve::Never then begin
+            Reserve := Reserve::Optional;
+            Modify();
+        end;
+    end;
+
+    local procedure SetDefaultGLAccountQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultGLAccountQuantity(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetSalesSetup();
+        if SalesSetup."Default G/L Account Quantity" then
+            Validate(Quantity, 1);
     end;
 
     local procedure SetDefaultItemQuantity()
@@ -7255,6 +7875,9 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Recalculates prepayment amounts to reflect changes in quantity.
+    /// </summary>
     procedure UpdatePrePaymentAmounts()
     var
         ShipmentLine: Record "Sales Shipment Line";
@@ -7315,6 +7938,14 @@ table 37 "Sales Line"
         OnAfterUpdatePrePaymentAmounts(Rec);
     end;
 
+    /// <summary>
+    /// Determines if the line has a zero amount. It always returns true for a line with a blank type.
+    /// </summary>
+    /// <param name="QtyType">
+    /// The type of quantity to check. 
+    /// Only Invoicing option makes a difference by checking if quantity to invoice is zero, other options are ignored.
+    /// </param>
+    /// <returns>True if the line has a zero amount, otherwise false.</returns>
     procedure ZeroAmountLine(QtyType: Option General,Invoicing,Shipping) Result: Boolean
     var
         IsHandled: Boolean;
@@ -7336,6 +7967,11 @@ table 37 "Sales Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Sets filters on the sales line for item lines, a specified document type, and various flow filters set in the provided item record.
+    /// </summary>
+    /// <param name="Item">Item record to filter the sales lines with.</param>
+    /// <param name="DocumentType">The document type to filter the sales lines with.</param>
     procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Enum "Sales Document Type")
     begin
         Reset();
@@ -7355,18 +7991,37 @@ table 37 "Sales Line"
         OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType.AsInteger());
     end;
 
+    /// <summary>
+    /// Retrieves a record set of item sales lines that match the provided document type and various filters set on the item.
+    /// </summary>
+    /// <param name="Item">Item record to filter the sales lines with.</param>
+    /// <param name="DocumentType">The document type to filter the sales lines with.</param>
+    /// <returns>True if any sales line was found, otherwise false.</returns>
     procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Enum "Sales Document Type"): Boolean
     begin
         FilterLinesWithItemToPlan(Item, DocumentType);
         exit(Find('-'));
     end;
 
+    /// <summary>
+    /// Determines if any sales lines exist that match the provided document type and various flow filters set on the item.
+    /// </summary>
+    /// <param name="Item">Item record to filter the sales lines with.</param>
+    /// <param name="DocumentType">The document type to filter the sales lines with.</param>
+    /// <returns>True if any sales lines exist, otherwise false.</returns>
     procedure LinesWithItemToPlanExist(var Item: Record Item; DocumentType: Enum "Sales Document Type"): Boolean
     begin
         FilterLinesWithItemToPlan(Item, DocumentType);
         exit(not IsEmpty);
     end;
 
+    /// <summary>
+    /// Sets filters on the sales line for item lines that match the provided reservation entry.
+    /// </summary>
+    /// <param name="ReservationEntry">Reservation entry to filter the sales lines with.</param>
+    /// <param name="DocumentType">The document type to filter the sales lines with.</param>
+    /// <param name="AvailabilityFilter">Date filter to apply to the shipment date field.</param>
+    /// <param name="Positive">A flag to determine if the quantity filter should be positive or negative.</param>
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Sales Document Type"; AvailabilityFilter: Text; Positive: Boolean)
     begin
         Reset();
@@ -7404,6 +8059,9 @@ table 37 "Sales Line"
         Evaluate(DateFormularValue, '<0D>');
     end;
 
+    /// <summary>
+    /// Initializes quantities to assemble to order for the sales line.
+    /// </summary>
     protected procedure InitQtyToAsm()
     var
         ShouldUpdateQtyToAsm: Boolean;
@@ -7429,6 +8087,11 @@ table 37 "Sales Line"
         OnAfterInitQtyToAsm(Rec, CurrFieldNo, xRec, ShouldUpdateQtyToAsm);
     end;
 
+    /// <summary>
+    /// Determines if assembly order exists for the sales line and retrieves the assembly header.
+    /// </summary>
+    /// <param name="AsmHeader">Return value: The assembly header record asociated with the sales line.</param>
+    /// <returns>True if the assembly order exists, otherwise false.</returns>
     procedure AsmToOrderExists(var AsmHeader: Record "Assembly Header"): Boolean
     var
         ATOLink: Record "Assemble-to-Order Link";
@@ -7438,6 +8101,10 @@ table 37 "Sales Line"
         exit(AsmHeader.Get(ATOLink."Assembly Document Type", ATOLink."Assembly Document No."));
     end;
 
+    /// <summary>
+    /// Determines if the full quantity is for assembly to order.
+    /// </summary>
+    /// <returns>True if the full quantity is for assembly to order, otherwise false.</returns>
     procedure FullQtyIsForAsmToOrder(): Boolean
     begin
         if "Qty. to Asm. to Order (Base)" = 0 then
@@ -7453,15 +8120,24 @@ table 37 "Sales Line"
         exit("Reserved Qty. (Base)" = "Qty. to Asm. to Order (Base)");
     end;
 
+    /// <summary>
+    /// Returns the quantity (base) from the associated assembly order, if it doesn't exist, returns zero.
+    /// </summary>
+    /// <returns>The quantity (base) from the associated assembly order or zero.</returns>
     procedure QtyBaseOnATO(): Decimal
     var
         AsmHeader: Record "Assembly Header";
     begin
+        AsmHeader.SetLoadFields("Quantity (Base)");
         if AsmToOrderExists(AsmHeader) then
             exit(AsmHeader."Quantity (Base)");
         exit(0);
     end;
 
+    /// <summary>
+    /// Returns the remaining quantity (base) from the associated assembly order, if it doesn't exist, returns zero.
+    /// </summary>
+    /// <returns>The remaining quantity (base) from the associated assembly order or zero.</returns>
     procedure QtyAsmRemainingBaseOnATO(): Decimal
     var
         AsmHeader: Record "Assembly Header";
@@ -7471,6 +8147,10 @@ table 37 "Sales Line"
         exit(0);
     end;
 
+    /// <summary>
+    /// Returns the quantity to assemble (base) from the associated assembly order, if it doesn't exist, returns zero.
+    /// </summary>
+    /// <returns>The quantity to assemble (base) from the associated assembly order or zero.</returns>
     procedure QtyToAsmBaseOnATO(): Decimal
     var
         AsmHeader: Record "Assembly Header";
@@ -7480,6 +8160,10 @@ table 37 "Sales Line"
         exit(0);
     end;
 
+    /// <summary>
+    /// Determines if the sales line is allowed to be assembled to order.
+    /// </summary>
+    /// <returns>True if the sales line is allowed to be assembled to order, otherwise false.</returns>
     procedure IsAsmToOrderAllowed() Result: Boolean
     begin
         Result := true;
@@ -7497,6 +8181,10 @@ table 37 "Sales Line"
         OnAfterIsAsmToOrderAllowed(Rec, Result);
     end;
 
+    /// <summary>
+    /// Determines if the sales line is required to be assembled to order.
+    /// </summary>
+    /// <returns>True if the sales line is required to be assembled to order, otherwise false.</returns>
     procedure IsAsmToOrderRequired(): Boolean
     var
         Item: Record Item;
@@ -7517,6 +8205,10 @@ table 37 "Sales Line"
         exit(Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order");
     end;
 
+    /// <summary>
+    /// Checks that sales line fields match the provided assembly order.
+    /// </summary>
+    /// <param name="AsmHeader">The assembly header to check value against.</param>
     procedure CheckAsmToOrder(AsmHeader: Record "Assembly Header")
     var
         IsHandled: Boolean;
@@ -7543,6 +8235,9 @@ table 37 "Sales Line"
             AsmHeader.FieldError("Remaining Quantity (Base)", StrSubstNo(Text045, AsmHeader."Remaining Quantity (Base)"));
     end;
 
+    /// <summary>
+    /// Opens a page with assembly lines for the document of the sales line. The page is only opened if any lines exist.
+    /// </summary>
     procedure ShowAsmToOrderLines()
     var
         ATOLink: Record "Assemble-to-Order Link";
@@ -7550,16 +8245,11 @@ table 37 "Sales Line"
         ATOLink.ShowAsmToOrderLines(Rec);
     end;
 
-    [Obsolete('Replaced by FindOpenATOEntry() with parameter ItemTrackingSetup.', '17.0')]
-    procedure FindOpenATOEntry(LotNo: Code[50]; SerialNo: Code[50]): Integer
-    var
-        ItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        ItemTrackingSetup."Serial No." := SerialNo;
-        ItemTrackingSetup."Lot No." := LotNo;
-        exit(FindOpenATOEntry(ItemTrackingSetup));
-    end;
-
+    /// <summary>
+    /// Finds the first open item ledger entry number for posted assembly that matches the sales line and the provided item tracking setup.
+    /// </summary>
+    /// <param name="ItemTrackingSetup">The item tracking setup to filter the item ledger entry with.</param>
+    /// <returns>The item ledger entry no. if found, otherwise zero.</returns>
     procedure FindOpenATOEntry(ItemTrackingSetup: Record "Item Tracking Setup"): Integer
     var
         PostedATOLink: Record "Posted Assemble-to-Order Link";
@@ -7578,17 +8268,26 @@ table 37 "Sales Line"
             until PostedATOLink.Next() = 0;
     end;
 
+    /// <summary>
+    /// Sums up costs from assembly components and updates the unit cost on the sales line.
+    /// </summary>
     procedure RollUpAsmCost()
     begin
         ATOLink.RollUpCost(Rec);
     end;
 
+    /// <summary>
+    /// Sums up prices from assembly components and updates the unit price on the sales line.
+    /// </summary>
     procedure RollupAsmPrice()
     begin
         GetSalesHeader();
         ATOLink.RollUpPrice(SalesHeader, Rec);
     end;
 
+    /// <summary>
+    /// Updates the intercompany partner information on the sales line for outgoing intercompany documents.
+    /// </summary>
     procedure UpdateICPartner()
     var
         ICPartner: Record "IC Partner";
@@ -7685,6 +8384,11 @@ table 37 "Sales Line"
             "IC Partner Reference" := "No.";
     end;
 
+    /// <summary>
+    /// Calculates the outstanding invoice amount from shipments for a specified customer.
+    /// </summary>
+    /// <param name="SellToCustomerNo">The sell-to customer number to calculate the outstanding invoice amount for.</param>
+    /// <returns>The outstanding invoice amount.</returns>
     procedure OutstandingInvoiceAmountFromShipment(SellToCustomerNo: Code[20]): Decimal
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -7755,6 +8459,9 @@ table 37 "Sales Line"
         OnAfterCheckRetRcptRelation(Rec, ReturnRcptLine);
     end;
 
+    /// <summary>
+    /// Checks if dimensions have changed on an already shipped or received item line and prompts the user to confirm the change.
+    /// </summary>
     procedure VerifyItemLineDim()
     var
         IsHandled: Boolean;
@@ -7768,12 +8475,20 @@ table 37 "Sales Line"
             ConfirmShippedReceivedItemDimChange();
     end;
 
+    /// <summary>
+    /// Determines if the dimensions have changed on an already shipped or received item line.
+    /// </summary>
+    /// <returns>True if the dimensions have changed, otherwise false.</returns>
     procedure IsShippedReceivedItemDimChanged(): Boolean
     begin
         exit(("Dimension Set ID" <> xRec."Dimension Set ID") and (Type = Type::Item) and
           (("Qty. Shipped Not Invoiced" <> 0) or ("Return Rcd. Not Invd." <> 0)));
     end;
 
+    /// <summary>
+    /// Determines if the line is a service charge line.
+    /// </summary>
+    /// <returns>True if the line is a service charge line, otherwise false.</returns>
     procedure IsServiceChargeLine(): Boolean
     var
         CustomerPostingGroup: Record "Customer Posting Group";
@@ -7786,6 +8501,10 @@ table 37 "Sales Line"
         exit(CustomerPostingGroup."Service Charge Acc." = "No.");
     end;
 
+    /// <summary>
+    /// Raises a confirmation dialog to confirm the change of dimensions on an already shipped or received item line. 
+    /// </summary>
+    /// <returns>True if the user confirms the change, otherwise an error is thrown.</returns>
     procedure ConfirmShippedReceivedItemDimChange(): Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -7796,6 +8515,13 @@ table 37 "Sales Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Initializes the type of a new sales line.
+    /// </summary>
+    /// <remarks>
+    /// It keeps the type of the previous line, unless the document is released and the line type is item or fixed asset.
+    /// In that case, the type is reset to blank.
+    /// </remarks>
     procedure InitType()
     var
         IsHandled: Boolean;
@@ -7819,6 +8545,10 @@ table 37 "Sales Line"
         OnAfterInitType(Rec, xRec, SalesHeader);
     end;
 
+    /// <summary>
+    /// Gets the default line type from the sales setup if it is set.
+    /// </summary>
+    /// <returns>The default line type from the sales setup, otherwise blank.</returns>
     procedure GetDefaultLineType(): Enum "Sales Line Type"
     begin
         GetSalesSetup();
@@ -7832,6 +8562,9 @@ table 37 "Sales Line"
             CheckLocationOnWMS();
     end;
 
+    /// <summary>
+    /// Checks if shipment or receipt is required for item sales line and throws an error if it's missing.
+    /// </summary>
     procedure CheckLocationOnWMS()
     var
         DialogText: Text;
@@ -7861,6 +8594,10 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Determines if the line is a non-inventoriable item line.
+    /// </summary>
+    /// <returns>True if the line is a non-inventoriable item line, otherwise false.</returns>
     procedure IsNonInventoriableItem(): Boolean
     var
         Item: Record Item;
@@ -7869,10 +8606,15 @@ table 37 "Sales Line"
             exit(false);
         if "No." = '' then
             exit(false);
+        Item.SetLoadFields(Type);
         GetItem(Item);
         exit(Item.IsNonInventoriableType());
     end;
 
+    /// <summary>
+    /// Determines if the line is an inventoriable item line.
+    /// </summary>
+    /// <returns>True if the line is an inventoriable item line, otherwise false.</returns>
     procedure IsInventoriableItem(): Boolean
     var
         Item: Record Item;
@@ -7881,15 +8623,24 @@ table 37 "Sales Line"
             exit(false);
         if "No." = '' then
             exit(false);
+        Item.SetLoadFields(Type);
         GetItem(Item);
         exit(Item.IsInventoriableType());
     end;
 
+    /// <summary>
+    /// Determines if the line is an extended text line.
+    /// </summary>
+    /// <returns>True if the line is an extended text line, otherwise false.</returns>
     procedure IsExtendedText(): Boolean
     begin
         exit((Type = Type::" ") and ("Attached to Line No." <> 0) and (Quantity = 0));
     end;
 
+    /// <summary>
+    /// Gets the journal template name to use when posting the document if the template name is mandatory for posting.
+    /// </summary>
+    /// <returns>The journal template name for the document if it is mandatory, otherwise blank.</returns>
     procedure GetJnlTemplateName(): Code[10]
     begin
         GLSetup.Get();
@@ -7910,6 +8661,13 @@ table 37 "Sales Line"
         exit(SalesSetup."IC Sales Invoice Template Name");
     end;
 
+    /// <summary>
+    /// Updates the cost, price and location for return order line.
+    /// </summary>
+    /// <remarks>
+    /// if CallingFieldNo is 0, no updates occur.
+    /// </remarks>
+    /// <param name="CallingFieldNo">The field number that initiated the update.</param>
     procedure ValidateReturnReasonCode(CallingFieldNo: Integer)
     var
         ReturnReason: Record "Return Reason";
@@ -7942,6 +8700,14 @@ table 37 "Sales Line"
         OnAfterValidateReturnReasonCode(Rec, CallingFieldNo);
     end;
 
+    /// <summary>
+    /// Recalculates line discount amount and updates other line amounts.
+    /// Additionally, if specified, removes the invoice discount amount from the line 
+    /// and reduces the invoice discount on the header for the same amount.
+    /// </summary>
+    /// <param name="DropInvoiceDiscountAmount">
+    /// True if the invoice discount amount should be removed from the line and reduced on the header, otherwise false.
+    /// </param>
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
     var
         InvDiscountAmount: Decimal;
@@ -8023,6 +8789,11 @@ table 37 "Sales Line"
           SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Invoice Discounts");
     end;
 
+    /// <summary>
+    /// Determines if mandatory fields have to be filled in for the line based on the line type.
+    /// By default, only empty type is not considered mandatory, but can be overridden by the event.
+    /// </summary>
+    /// <returns>True if mandatory fields have to be filled in, otherwise false.</returns>
     procedure HasTypeToFillMandatoryFields() ReturnValue: Boolean
     begin
         ReturnValue := Type <> Type::" ";
@@ -8030,6 +8801,10 @@ table 37 "Sales Line"
         OnAfterHasTypeToFillMandatoryFields(Rec, ReturnValue);
     end;
 
+    /// <summary>
+    /// Gets the defferal amount for the sales line to be used in deferral schedules.
+    /// </summary>
+    /// <returns>The deferral amount.</returns>
     procedure GetDeferralAmount() DeferralAmount: Decimal
     var
         IsHandled: Boolean;
@@ -8045,6 +8820,9 @@ table 37 "Sales Line"
             DeferralAmount := CalcLineAmount();
     end;
 
+    /// <summary>
+    /// Removes or updates the deferral schedule for the sales line to reflect changes in the deferral amount and posting date.
+    /// </summary>
     procedure UpdateDeferralAmounts()
     var
         AdjustStartDate: Boolean;
@@ -8074,12 +8852,18 @@ table 37 "Sales Line"
             GetDeferralAmount(), DeferralPostDate, Description, SalesHeader."Currency Code", AdjustStartDate);
     end;
 
+    /// <summary>
+    /// Formats the price description for the sales line based on the line type and line discount.
+    /// </summary>
+    /// <remarks>
+    /// This procedure is only used in Microsoft Invoicing objects which have been discontinoued and will be removed in a future version.
+    /// </remarks>
     procedure UpdatePriceDescription()
     var
         Currency: Record Currency;
     begin
         "Price description" := '';
-        if Type in [Type::"Charge (Item)", Type::"Fixed Asset", Type::Item, Type::Resource] then begin
+        if Type in [Type::"Charge (Item)", Type::"Fixed Asset", Type::Item, Type::Resource] then
             if "Line Discount %" = 0 then
                 "Price description" := StrSubstNo(
                     PriceDescriptionTxt, Quantity, Currency.ResolveGLCurrencySymbol("Currency Code"),
@@ -8087,8 +8871,7 @@ table 37 "Sales Line"
             else
                 "Price description" := StrSubstNo(
                     PriceDescriptionWithLineDiscountTxt, Quantity, Currency.ResolveGLCurrencySymbol("Currency Code"),
-                    "Unit Price", "Unit of Measure", "Line Discount %")
-        end;
+                    "Unit Price", "Unit of Measure", "Line Discount %");
     end;
 
     local procedure UpdateVATPercent(BaseAmount: Decimal; VATAmount: Decimal)
@@ -8102,6 +8885,15 @@ table 37 "Sales Line"
         OnAfterUpdateVATPercent(Rec);
     end;
 
+    /// <summary>
+    /// Opens a page with deferral schedule for the sales line.
+    /// </summary>
+    /// <remarks>
+    /// If the deferral schedule doesn't exist yet, a new one is created and commited before the page is opened.
+    /// </remarks>
+    /// <param name="PostingDate">Posting date to calculate the schedule from if a new deferral schedule is created.</param>
+    /// <param name="CurrencyCode">Currency code to use for a new deferral schedule.</param>
+    /// <returns>True if deferral schedule was changed, otherwise false.</returns>
     procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]) ReturnValue: Boolean
     var
         IsHandled: Boolean;
@@ -8118,6 +8910,10 @@ table 37 "Sales Line"
                 GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
+    /// <summary>
+    /// Initializes the default values for the sales line based on the sales header.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header to initialize the default values from.</param>
     procedure InitHeaderDefaults(SalesHeader: Record "Sales Header")
     var
         IsHandled: Boolean;
@@ -8206,6 +9002,12 @@ table 37 "Sales Line"
             end;
     end;
 
+    /// <summary>
+    /// Updates the deferral code to the default deferral template code specified on the associated item, resource or g/l account.
+    /// </summary>
+    /// <remarks>
+    /// The deferral code is not set for lines of blanket orders and quotes.
+    /// </remarks>
     procedure DefaultDeferralCode()
     var
         Item: Record Item;
@@ -8229,6 +9031,10 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Determines if the document type of the line is a credit document type.
+    /// </summary>
+    /// <returns>True if the document type is a credit document type, otherwise false.</returns>
     procedure IsCreditDocType() CreditDocType: Boolean
     begin
         CreditDocType := "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"];
@@ -8301,6 +9107,13 @@ table 37 "Sales Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Determines if item unit of measure code can be edited.
+    /// </summary>
+    /// <remarks>
+    /// If this is not an item line or if item is not selected the procedure always return true.
+    /// </remarks>
+    /// <returns>True if item unit of measure code can be edited, otherwise false.</returns>
     procedure CanEditUnitOfMeasureCode(): Boolean
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -8320,6 +9133,14 @@ table 37 "Sales Line"
             TaxDetail.ValidateTaxSetup("Tax Area Code", "Tax Group Code", "Posting Date");
     end;
 
+    /// <summary>
+    /// Creates or updates a sales line for freight for a specified freight amount.
+    /// </summary>
+    /// <remarks>
+    /// If the freight amount is negative, it's set to 0 and no line is created or updated.
+    /// The current sales line does not point to the freight line after the procedure is executed.
+    /// </remarks>
+    /// <param name="FreightAmount">The new unit price of created or updated line.</param>
     procedure InsertFreightLine(var FreightAmount: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -8373,12 +9194,27 @@ table 37 "Sales Line"
         TotalAmtToAssign := Round(TotalAmtToAssign, Currency."Amount Rounding Precision");
     end;
 
+    /// <summary>
+    /// Determines if additional lookup for item description is required. 
+    /// Used for integration purposes when the default item description lookup is not sufficient.
+    /// </summary>
+    /// <remarks>
+    /// This is currently only used in Microsoft Invoicing functionality which has been discontinued and will be removed in a future version.
+    /// </remarks>
+    /// <returns>True if additional lookup for item description is required, otherwise false.</returns>
     procedure IsLookupRequested() Result: Boolean
     begin
         Result := LookupRequested;
         LookupRequested := false;
     end;
 
+    /// <summary>
+    /// Verifies that item related fields on the item sales line match the provided values.
+    /// If the values do not match, an error is thrown.
+    /// </summary>
+    /// <param name="ItemNo">The item number to verify.</param>
+    /// <param name="VariantCode">The variant code to verify.</param>
+    /// <param name="LocationCode">The location code to verify.</param>
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
         TestField(Type, Type::Item);
@@ -8387,6 +9223,9 @@ table 37 "Sales Line"
         TestField("Location Code", LocationCode);
     end;
 
+    /// <summary>
+    /// Calculates and sets the shipped not invoiced amount excluding VAT in LCY.
+    /// </summary>
     procedure CalculateNotShippedInvExlcVatLCY()
     var
         Currency2: Record Currency;
@@ -8396,6 +9235,9 @@ table 37 "Sales Line"
           Round("Shipped Not Invoiced (LCY)" / (1 + "VAT %" / 100), Currency2."Amount Rounding Precision");
     end;
 
+    /// <summary>
+    /// Resets the global SalesHeader variable.
+    /// </summary>
     procedure ClearSalesHeader()
     begin
         Clear(SalesHeader);
@@ -8433,6 +9275,9 @@ table 37 "Sales Line"
         NotificationLifecycleMgt.SendNotification(NotificationToSend, Rec.RecordId());
     end;
 
+    /// <summary>
+    /// Sends a notification if the line invoice discount amount is reset.
+    /// </summary>
     procedure SendLineInvoiceDiscountResetNotification()
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -8446,11 +9291,22 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Gets the text representation of the document type for the sales line.
+    /// </summary>
+    /// <returns>The text representation of the document type.</returns>
     procedure GetDocumentTypeDescription(): Text
     begin
         exit(Format("Document Type"));
     end;
 
+    /// <summary>
+    /// Gets the text representation of the line type for the sales line. 
+    /// </summary>
+    /// <remarks>
+    /// Blank line type is represented by the comment label.
+    /// </remarks>
+    /// <returns>The text representation of the line type.</returns>
     procedure FormatType() FormattedType: Text[20]
     var
         IsHandled: Boolean;
@@ -8466,6 +9322,12 @@ table 37 "Sales Line"
         exit(Format(Type));
     end;
 
+    /// <summary>
+    /// Renames all sales lines for the specified line type and number to a new number. Used when related entities are renamed.
+    /// </summary>
+    /// <param name="LineType">The line type of lines to rename.</param>
+    /// <param name="OldNo">The old number to rename from.</param>
+    /// <param name="NewNo">The new number to rename to.</param>
     procedure RenameNo(LineType: Enum "Sales Line Type"; OldNo: Code[20]; NewNo: Code[20])
     begin
         Reset();
@@ -8475,6 +9337,10 @@ table 37 "Sales Line"
             ModifyAll("No.", NewNo, true);
     end;
 
+    /// <summary>
+    /// Updates the 'planned' status of a sales line, depending if all the outstanding quantity is reserved or not.
+    /// </summary>
+    /// <returns>True if the 'planned' status was updated, otherwise false.</returns>
     procedure UpdatePlanned() Result: Boolean
     var
         IsHandled: Boolean;
@@ -8492,6 +9358,10 @@ table 37 "Sales Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Determines if the line is a charge item line that has been at least partially assigned.
+    /// </summary>
+    /// <returns>True if the line is a charge item line that has been at least partially assigned, otherwise false.</returns>
     procedure AssignedItemCharge(): Boolean
     begin
         exit((Type = Type::"Charge (Item)") and ("No." <> '') and ("Qty. to Assign" < Quantity));
@@ -8523,7 +9393,7 @@ table 37 "Sales Line"
         OnAfterUpdateLineDiscPct(Rec);
     end;
 
-    local procedure UpdateBaseAmounts(NewAmount: Decimal; NewAmountIncludingVAT: Decimal; NewVATBaseAmount: Decimal)
+    procedure UpdateBaseAmounts(NewAmount: Decimal; NewAmountIncludingVAT: Decimal; NewVATBaseAmount: Decimal)
     begin
         Amount := NewAmount;
         "Amount Including VAT" := NewAmountIncludingVAT;
@@ -8532,6 +9402,10 @@ table 37 "Sales Line"
         OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Calculates the planned delivery if shippment time is specified, otherwise the planned shipment date.
+    /// </summary>
+    /// <returns>The calculated planned delivery date or planned shipment date.</returns>
     procedure CalcPlannedDate(): Date
     begin
         if Format("Shipping Time") <> '' then
@@ -8547,6 +9421,10 @@ table 37 "Sales Line"
         exit(IsHandled);
     end;
 
+    /// <summary>
+    /// Updates the unit cost in LCY based on the quantity per unit of measure and unit cost from either the item or it's SKU.
+    /// </summary>
+    /// <param name="Item">The item record to update the unit cost from.</param>
     procedure ValidateUnitCostLCYOnGetUnitCost(Item: Record Item)
     var
         IsHandled: Boolean;
@@ -8578,6 +9456,9 @@ table 37 "Sales Line"
         OnAfterAssignResourceUOM(Rec, Resource, ResUnitofMeasure);
     end;
 
+    /// <summary>
+    /// Throws an error if requested delivery date was changed after the promised delivery date is set.
+    /// </summary>
     procedure CheckPromisedDeliveryDate()
     var
         IsHandled: Boolean;
@@ -8591,6 +9472,10 @@ table 37 "Sales Line"
             Error(Text028, FieldCaption("Requested Delivery Date"), FieldCaption("Promised Delivery Date"));
     end;
 
+    /// <summary>
+    /// Checks the changes to the sales line and adjusts the reservation for the line accordingly.
+    /// </summary>
+    /// <param name="CallingFieldNo">The field number that initiated the check.</param>
     protected procedure VerifyChangeForSalesLineReserve(CallingFieldNo: Integer)
     var
         IsHandled: Boolean;
@@ -8657,10 +9542,9 @@ table 37 "Sales Line"
         if IsCreditDocType() then begin
             if Quantity > 0 then
                 FieldError(Quantity, Text030);
-        end else begin
+        end else
             if Quantity < 0 then
                 FieldError(Quantity, Text029);
-        end;
     end;
 
     local procedure ShowReturnedUnitsError(var ItemLedgEntry: Record "Item Ledger Entry"; QtyReturned: Decimal; QtyNotReturned: Decimal)
@@ -8675,6 +9559,10 @@ table 37 "Sales Line"
         Error(Text039, -QtyReturned, ItemLedgEntry.FieldCaption("Document No."), ItemLedgEntry."Document No.", -QtyNotReturned);
     end;
 
+    /// <summary>
+    /// Open a page with the sales lines related to the blanket order line.
+    /// </summary>
+    /// <param name="DocumentType">The document type of the sales lines to show.</param>
     procedure ShowBlanketOrderSalesLines(DocumentType: Enum "Sales Document Type")
     var
         RelatedSalesLine: Record "Sales Line";
@@ -8687,6 +9575,9 @@ table 37 "Sales Line"
         PAGE.RunModal(PAGE::"Sales Lines", RelatedSalesLine);
     end;
 
+    /// <summary>
+    /// Open a page with the posted sales shipment lines related to the blanket order line.
+    /// </summary>
     procedure ShowBlanketOrderPostedShipmentLines()
     var
         SaleShptLine: Record "Sales Shipment Line";
@@ -8698,6 +9589,9 @@ table 37 "Sales Line"
         PAGE.RunModal(PAGE::"Posted Sales Shipment Lines", SaleShptLine);
     end;
 
+    /// <summary>
+    /// Open a page with the posted sales invoice lines related to the blanket order line.
+    /// </summary>
     procedure ShowBlanketOrderPostedInvoiceLines()
     var
         SalesInvLine: Record "Sales Invoice Line";
@@ -8709,6 +9603,9 @@ table 37 "Sales Line"
         PAGE.RunModal(PAGE::"Posted Sales Invoice Lines", SalesInvLine);
     end;
 
+    /// <summary>
+    /// Open a page with the posted return receipt lines related to the blanket order line.
+    /// </summary>
     procedure ShowBlanketOrderPostedReturnReceiptLines()
     var
         ReturnRcptLine: Record "Return Receipt Line";
@@ -8720,6 +9617,9 @@ table 37 "Sales Line"
         PAGE.RunModal(PAGE::"Posted Return Receipt Lines", ReturnRcptLine);
     end;
 
+    /// <summary>
+    /// Open a page with the posted sales credit memo lines related to the blanket order line.
+    /// </summary>
     procedure ShowBlanketOrderPostedCreditMemoLines()
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
@@ -8731,6 +9631,13 @@ table 37 "Sales Line"
         PAGE.RunModal(PAGE::"Posted Sales Credit Memo Lines", SalesCrMemoLine);
     end;
 
+    /// <summary>
+    /// Opens a page with deferral schedule for the sales line.
+    /// </summary>
+    /// <remarks>
+    /// If the deferral schedule doesn't exist yet, a new one is created and commited before the page is opened.
+    /// The posting date and currency code for the new schedule are taken from the sales header.
+    /// </remarks>
     procedure ShowDeferralSchedule()
     begin
         GetSalesHeader();
@@ -8765,6 +9672,13 @@ table 37 "Sales Line"
               SalesHeader.FieldCaption("Bill-to Customer Templ. Code"));
     end;
 
+    /// <summary>
+    /// Converts the specified quantity to the quantity in the base unit of measure.
+    /// </summary>
+    /// <param name="Qty">The quantity to convert.</param>
+    /// <param name="FromFieldName">Caption of the field containing the quantity to convert.</param>
+    /// <param name="ToFieldName">Caption of the field containing the converted quantity.</param>
+    /// <returns>The quantity in the base unit of measure.</returns>
     procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
         OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
@@ -8781,6 +9695,10 @@ table 37 "Sales Line"
         exit(Location."Require Shipment" and ShipmentBinAvailable);
     end;
 
+    /// <summary>
+    /// Initializes the dimensions for the sales line if default dimensions are defined for the specified field.
+    /// </summary>
+    /// <param name="FieldNo">The field number for which to initialize the dimensions.</param>
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -8816,6 +9734,12 @@ table 37 "Sales Line"
         OnAfterInitTableValuePair(TableValuePair, FieldNo, Rec);
     end;
 
+    /// <summary>
+    /// Collects default dimension sources for the sales line 
+    /// with the dimension source for the specified field added in the first place.
+    /// </summary>
+    /// <param name="DefaultDimSource">Return value: The list of default dimension sources.</param>
+    /// <param name="FieldNo">The field number for which to initialize the dimensions.</param>
     procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
         DimMgt.AddDimSource(DefaultDimSource, DimMgt.SalesLineTypeToTableID(Type), Rec."No.", FieldNo = Rec.FieldNo("No."));
@@ -8826,6 +9750,15 @@ table 37 "Sales Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
+    /// <summary>
+    /// Collects default dimension sources for the sales line.
+    /// </summary>
+    /// <remarks>
+    /// The FieldNo is only used on the event publisher.
+    /// </remarks>
+    /// <param name="DefaultDimSource">Return value: The list of default dimension sources.</param>
+    /// <param name="JobNo">The job number to add to the dimension sources.</param>
+    /// <param name="FieldNo">The field number for which to initialize the dimensions.</param>
     procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; JobNo: Code[20]; FieldNo: Integer)
     begin
         DimMgt.AddDimSource(DefaultDimSource, DimMgt.SalesLineTypeToTableID(Type), Rec."No.");
@@ -8836,6 +9769,10 @@ table 37 "Sales Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
+    /// <summary>
+    /// Saves the selected record from the lookup to the lookup state manager.
+    /// </summary>
+    /// <param name="SelectedRecordRef">The reference to the selected record from the lookup.</param>
     procedure SaveLookupSelection(SelectedRecordRef: RecordRef)
     var
         GLAccount: Record "G/L Account";
@@ -8880,6 +9817,11 @@ table 37 "Sales Line"
         end;
     end;
 
+    /// <summary>
+    /// Opens a page with inventory item lines and attaches the selected line 
+    /// to all non-inventoriable sales lines in the passed SelectedSalesLine record set.
+    /// </summary>
+    /// <param name="SelectedSalesLine">The record set of sales lines to attach the inventory item line to.</param>
     procedure AttachToInventoryItemLine(var SelectedSalesLine: Record "Sales Line")
     var
         InvtItemSalesLine: Record "Sales Line";
@@ -8918,6 +9860,9 @@ table 37 "Sales Line"
                 until SelectedSalesLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Restores the selected record from the lookup state manager to the sales line.
+    /// </summary>
     procedure RestoreLookupSelection()
     var
         GLAccount: Record "G/L Account";
@@ -8993,6 +9938,10 @@ table 37 "Sales Line"
             end;
     end;
 
+    /// <summary>
+    /// Gets the date to use in calculations for the sales line. Used in finding item references and price calculations.
+    /// </summary>
+    /// <returns>The date for calculations.</returns>
     procedure GetDateForCalculations() CalculationDate: Date;
     var
         FromSalesHeader: Record "Sales Header";
@@ -9002,18 +9951,50 @@ table 37 "Sales Line"
         CalculationDate := GetDateForCalculations(FromSalesHeader);
     end;
 
+    /// <summary>
+    /// Gets the date to use in calculations for the sales line. Used in finding item references and price calculations.
+    /// </summary>
+    /// <param name="FromSalesHeader">The sales header to get the date from.</param>
+    /// <returns>The date for calculations.</returns>
     procedure GetDateForCalculations(FromSalesHeader: Record "Sales Header") CalculationDate: Date;
     begin
         if Rec."Document No." = '' then
             CalculationDate := Rec."Posting Date"
-        else begin
+        else
             if FromSalesHeader."Document Type" in [FromSalesHeader."Document Type"::Invoice, FromSalesHeader."Document Type"::"Credit Memo"] then
                 CalculationDate := FromSalesHeader."Posting Date"
             else
                 CalculationDate := FromSalesHeader."Order Date";
-        end;
         if CalculationDate = 0D then
             CalculationDate := WorkDate();
+    end;
+
+    /// <summary>
+    /// Updates the shipping time on the sales line.
+    /// </summary>
+    procedure GetShippingTime()
+    var
+        ShippingAgentServices: Record "Shipping Agent Services";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetShippingTime(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Rec."Shipping Agent Service Code" <> xRec."Shipping Agent Service Code" then
+            Evaluate(Rec."Shipping Time", '<>');
+
+        if Rec."Drop Shipment" then begin
+            Evaluate(Rec."Shipping Time", '<0D>');
+            Rec.UpdateDates();
+        end else
+            if ShippingAgentServices.Get(Rec."Shipping Agent Code", Rec."Shipping Agent Service Code") then
+                Rec."Shipping Time" := ShippingAgentServices."Shipping Time"
+            else begin
+                Rec.GetSalesHeader();
+                Rec."Shipping Time" := SalesHeader."Shipping Time";
+            end;
     end;
 
     local procedure CheckItemCanBeAddedToSalesLine()
@@ -9040,6 +10021,12 @@ table 37 "Sales Line"
             "System-Created Entry", "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "VAT %", "Allow Invoice Disc.", "Prepayment Line", "Completely Shipped", Planned, "EC %");
     end;
 
+    /// <summary>
+    /// Determines if the reserved quantity on sales line meets the reserved from stock setting based on the quantity to post.
+    /// </summary>
+    /// <param name="QtyToPost">The quantity to post.</param>
+    /// <param name="ReservedFromStock">The reserved from stock setting.</param>
+    /// <returns>True if the reserved quantity meets the reserved from stock setting, otherwise false.</returns>
     procedure CheckIfSalesLineMeetsReservedFromStockSetting(QtyToPost: Decimal; ReservedFromStock: Enum "Reservation From Stock") Result: Boolean
     var
         QtyReservedFromStock: Decimal;
@@ -9115,7 +10102,7 @@ table 37 "Sales Line"
         ValueEntry: Record "Value Entry";
     begin
         CheckApplFromItemLedgEntry(ItemLedgerEntry);
-        ValueEntry.SetLoadFields("Item Ledger Entry No.", "Item Ledger Entry Type", "Document Type", "Document No.", "Document Line No.");
+        ValueEntry.SetLoadFields("Document No.", "Document Line No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
@@ -9276,7 +10263,7 @@ table 37 "Sales Line"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindResUnitCost(var SalesLine: Record "Sales Line"; var ResourceCost: Record "Resource Cost")
@@ -9606,6 +10593,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectMultipleItems(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultGLAccountQuantity(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -10419,7 +11411,7 @@ table 37 "Sales Line"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnFindResUnitCostOnAfterInitResCost(var SalesLine: Record "Sales Line"; var ResourceCost: Record "Resource Cost")
@@ -10686,14 +11678,6 @@ table 37 "Sales Line"
     local procedure OnValidateLocationCodeOnAfterCheckAssocPurchOrder(var SalesLine: Record "Sales Line")
     begin
     end;
-
-#if not CLEAN22
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by OnBeforeTestDirectPosting() with same params', '22.0')]
-    local procedure OnCopyFromGLAccountOnBeforeTestDirectPosting(var SalesLine: Record "Sales Line"; var GLAccount: Record "G/L Account"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateTypeOnBeforeInitRec(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
@@ -11078,6 +12062,16 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckServItemCreation(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetShippingTime(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeProcessSalesLine(var SalesLine: Record "Sales Line")
     begin
     end;
@@ -11093,8 +12087,12 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSumVATAmountLineOnBeforeModify(var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcShipmentDateForLocation(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }
-

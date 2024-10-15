@@ -48,8 +48,9 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
-        ValueMustBeEqualMsg: Label 'Value must be equal.';
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        ValueMustBeEqualMsg: Label 'Value must be equal.';
 
     [Test]
     [Scope('OnPrem')]
@@ -226,11 +227,11 @@ codeunit 144124 "ERM Service VAT EC Calculate"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ServiceInvoiceStatisticsPageHandler')]
     procedure ServiceInvoiceStatisticsWithNormalVAT()
     var
         ServiceLine: Record "Service Line";
         PostedServiceInvoice: TestPage "Posted Service Invoice";
-        ServiceInvoiceStatistics: TestPage "Service Invoice Statistics";
         DocumentNo: Code[20];
         VATAmount: Decimal;
     begin
@@ -240,31 +241,27 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         CreateAndPostServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice);
         DocumentNo := FindServiceInvoiceHeader(ServiceLine."Customer No.");
         VATAmount := ServiceLine.Amount * (ServiceLine."VAT %" + ServiceLine."EC %") / 100;
+        LibraryVariableStorage.Enqueue(ServiceLine.Amount);
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(ServiceLine.Amount + VATAmount);
         PostedServiceInvoice.OpenView();
         PostedServiceInvoice.FILTER.SetFilter("No.", DocumentNo);
-        ServiceInvoiceStatistics.Trap();
 
         // Exercise.
         PostedServiceInvoice.Statistics.Invoke();
+        PostedServiceInvoice.Close();
 
         // Verify: Verify Amount, VAT Amount and Amount Including VAT on Service Invoice Statistics.
-        Assert.AreNearlyEqual(
-          ServiceLine.Amount, ServiceInvoiceStatistics.Amount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
-        Assert.AreNearlyEqual(
-          VATAmount, ServiceInvoiceStatistics.VATAmount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
-        ServiceInvoiceStatistics.Subform.First();
-        Assert.AreNearlyEqual(
-          ServiceLine.Amount + VATAmount, ServiceInvoiceStatistics.Subform."Amount Including VAT".AsDecimal(),
-          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        // Verification in page handler ServiceInvoiceStatisticsPageHandler
     end;
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ServiceCreditMemoStatisticsPageHandler')]
     procedure ServiceCreditMemoStatisticsWithNormalVAT()
     var
         ServiceLine: Record "Service Line";
         PostedServiceCreditMemos: TestPage "Posted Service Credit Memos";
-        ServiceCreditMemoStatistics: TestPage "Service Credit Memo Statistics";
         DocumentNo: Code[20];
         VATAmount: Decimal;
     begin
@@ -274,22 +271,18 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         CreateAndPostServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo");
         DocumentNo := FindServiceCreditMemo(ServiceLine."Customer No.");
         VATAmount := ServiceLine.Amount * (ServiceLine."VAT %" + ServiceLine."EC %") / 100;
+        LibraryVariableStorage.Enqueue(ServiceLine.Amount);
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(ServiceLine.Amount + VATAmount);
         PostedServiceCreditMemos.OpenView();
         PostedServiceCreditMemos.FILTER.SetFilter("No.", DocumentNo);
-        ServiceCreditMemoStatistics.Trap();
 
         // Exercise.
         PostedServiceCreditMemos.Statistics.Invoke();
+        PostedServiceCreditMemos.Close();
 
         // Verify: Verify Amount, VAT Amount and Amount Including VAT on Service Credit Memo Statistics.
-        Assert.AreNearlyEqual(
-          ServiceLine.Amount, ServiceCreditMemoStatistics.Amount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
-        Assert.AreNearlyEqual(
-          VATAmount, ServiceCreditMemoStatistics.VATAmount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
-        ServiceCreditMemoStatistics.Subform.First();
-        Assert.AreNearlyEqual(
-          ServiceLine.Amount + VATAmount, ServiceCreditMemoStatistics.Subform."Amount Including VAT".AsDecimal(),
-          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        // Verification in page handler ServiceCreditMemoStatisticsPageHandler
     end;
 
     [Test]
@@ -627,6 +620,47 @@ codeunit 144124 "ERM Service VAT EC Calculate"
           AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
           AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceStatisticsPageHandler(var ServiceInvoiceStatistics: TestPage "Service Invoice Statistics")
+    var
+        Amount: Variant;
+        VATAmount: Variant;
+        TotalAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Amount);
+        LibraryVariableStorage.Dequeue(VATAmount);
+        LibraryVariableStorage.Dequeue(TotalAmount);
+        Assert.AreNearlyEqual(
+          Amount, ServiceInvoiceStatistics.Amount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(
+          VATAmount, ServiceInvoiceStatistics.VATAmount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        ServiceInvoiceStatistics.Subform.First();
+        Assert.AreNearlyEqual(
+          TotalAmount, ServiceInvoiceStatistics.Subform."Amount Including VAT".AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceCreditMemoStatisticsPageHandler(var ServiceCreditMemoStatistics: TestPage "Service Credit Memo Statistics")
+    var
+        Amount: Variant;
+        VATAmount: Variant;
+        TotalAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Amount);
+        LibraryVariableStorage.Dequeue(VATAmount);
+        LibraryVariableStorage.Dequeue(TotalAmount);
+        Assert.AreNearlyEqual(
+          Amount, ServiceCreditMemoStatistics.Amount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(
+          VATAmount, ServiceCreditMemoStatistics.VATAmount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        ServiceCreditMemoStatistics.Subform.First();
+        Assert.AreNearlyEqual(
+          TotalAmount, ServiceCreditMemoStatistics.Subform."Amount Including VAT".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
     end;
 }
 

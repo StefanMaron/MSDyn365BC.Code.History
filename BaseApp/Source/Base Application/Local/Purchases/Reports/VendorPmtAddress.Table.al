@@ -11,15 +11,10 @@ table 7000015 "Vendor Pmt. Address"
 {
     Caption = 'Vendor Pmt. Address';
     ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
-#if CLEAN22
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#else
-    LookupPageID = "Vendor Pmt. Address List";
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#endif
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {

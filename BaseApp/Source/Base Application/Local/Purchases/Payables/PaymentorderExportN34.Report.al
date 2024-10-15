@@ -27,7 +27,7 @@ report 7000090 "Payment order - Export N34"
             dataitem("Cartera Doc."; "Cartera Doc.")
             {
                 DataItemLink = "Bill Gr./Pmt. Order No." = field("No.");
-                DataItemTableView = sorting(Type, "Bill Gr./Pmt. Order No.", "Category Code", "Currency Code", Accepted, "Due Date") ORDER(Ascending) where(Type = const(Payable));
+                DataItemTableView = sorting(Type, "Bill Gr./Pmt. Order No.", "Category Code", "Currency Code", Accepted, "Due Date") order(ascending) where(Type = const(Payable));
 
                 trigger OnAfterGetRecord()
                 begin

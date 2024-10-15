@@ -378,12 +378,11 @@ report 7000002 "Closed Bill Group Listing"
     [Scope('OnPrem')]
     procedure GetFactoringType(): Text[30]
     begin
-        if ClosedBillGr.Factoring <> ClosedBillGr.Factoring::" " then begin
+        if ClosedBillGr.Factoring <> ClosedBillGr.Factoring::" " then
             if ClosedBillGr.Factoring = ClosedBillGr.Factoring::Risked then
                 exit(Text1100005)
             else
                 exit(Text1100006);
-        end;
     end;
 }
 

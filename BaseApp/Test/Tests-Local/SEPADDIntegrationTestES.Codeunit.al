@@ -493,11 +493,9 @@ codeunit 147312 "SEPA DD Integration Test - ES"
                 CurrentPercent := 100 - TotalPercent
             else
                 TotalPercent += 10;
-            with Installment do begin
-                Validate("% of Total", CurrentPercent);
-                Validate("Gap between Installments", '<10D>');
-                Modify();
-            end;
+            Installment.Validate("% of Total", CurrentPercent);
+            Installment.Validate("Gap between Installments", '<10D>');
+            Installment.Modify();
             NoOfInstallments -= 1;
         end;
         exit(PaymentTerms.Code);
@@ -514,52 +512,42 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
     local procedure ModifyCarteraDoc(var CarteraDoc: Record "Cartera Doc."; DocumentNo: Code[20]; NewBillGroupNo: Code[20])
     begin
-        with CarteraDoc do begin
-            SetRange(Type, Type::Receivable);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                "Bill Gr./Pmt. Order No." := NewBillGroupNo;
-                Modify();
-            until Next() = 0;
-        end;
+        CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
+        CarteraDoc.SetRange("Document No.", DocumentNo);
+        CarteraDoc.FindSet();
+        repeat
+            CarteraDoc."Bill Gr./Pmt. Order No." := NewBillGroupNo;
+            CarteraDoc.Modify();
+        until CarteraDoc.Next() = 0;
     end;
 
     local procedure ModifyBankAccount(var BankAccount: Record "Bank Account")
     begin
-        with BankAccount do begin
-            IBAN := LibraryUtility.GenerateGUID();
-            "SWIFT Code" := LibraryUtility.GenerateGUID();
-            "Creditor No." := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        BankAccount.IBAN := LibraryUtility.GenerateGUID();
+        BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
+        BankAccount."Creditor No." := LibraryUtility.GenerateGUID();
+        BankAccount.Modify();
     end;
 
     local procedure FindCarteraDoc(var CarteraDoc: Record "Cartera Doc."; DocumentNo: Code[20])
     begin
-        with CarteraDoc do begin
-            SetRange(Type, Type::Receivable);
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-        end;
+        CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
+        CarteraDoc.SetRange("Document No.", DocumentNo);
+        CarteraDoc.FindLast();
     end;
 
     local procedure FindPostedCarteraDoc(var PostedCarteraDoc: Record "Posted Cartera Doc."; DocumentNo: Code[20])
     begin
-        with PostedCarteraDoc do begin
-            SetRange(Type, Type::Receivable);
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-        end;
+        PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Receivable);
+        PostedCarteraDoc.SetRange("Document No.", DocumentNo);
+        PostedCarteraDoc.FindLast();
     end;
 
     local procedure FindClosedCarteraDoc(var ClosedCarteraDoc: Record "Closed Cartera Doc."; DocumentNo: Code[20])
     begin
-        with ClosedCarteraDoc do begin
-            SetRange(Type, Type::Receivable);
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-        end;
+        ClosedCarteraDoc.SetRange(Type, ClosedCarteraDoc.Type::Receivable);
+        ClosedCarteraDoc.SetRange("Document No.", DocumentNo);
+        ClosedCarteraDoc.FindLast();
     end;
 
     local procedure FindClearCarteraGenJnlBatch(var CarteraGenJnlBatch: Record "Gen. Journal Batch")
@@ -640,11 +628,9 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
         PrepareCustomer(CustomerPartnerType, ExpectedNumberOfDebits, Customer, SEPADirectDebitMandate);
-        with SEPADirectDebitMandate do begin
-            Validate("Type of Payment", "Type of Payment"::Recurrent);
-            Validate("Expected Number of Debits", ExpectedNumberOfDebits);
-            Modify();
-        end;
+        SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
+        SEPADirectDebitMandate.Validate("Expected Number of Debits", ExpectedNumberOfDebits);
+        SEPADirectDebitMandate.Modify();
         exit(CreatePostSalesInvoice(Customer."No.", SEPADirectDebitMandate.ID, RoundToInt));
     end;
 
@@ -693,17 +679,15 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         SalesHeader.Modify();
         LibrarySales.FindItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        with SalesLine do begin
-            if RoundToInt then
-                Validate("Unit Price", Round("Unit Price", 100, '>'))
-            else
-                Validate(
-                  "Unit Price",
-                  LibraryRandom.RandIntInRange(10, 1000) +
-                  (LibraryRandom.RandIntInRange(1, 9) / 10) +
-                  (LibraryRandom.RandIntInRange(1, 9) / 100));
-            Modify(true);
-        end;
+        if RoundToInt then
+            SalesLine.Validate("Unit Price", Round(SalesLine."Unit Price", 100, '>'))
+        else
+            SalesLine.Validate(
+              "Unit Price",
+              LibraryRandom.RandIntInRange(10, 1000) +
+              (LibraryRandom.RandIntInRange(1, 9) / 10) +
+              (LibraryRandom.RandIntInRange(1, 9) / 100));
+        SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
@@ -824,13 +808,11 @@ codeunit 147312 "SEPA DD Integration Test - ES"
     begin
         LibraryVariableStorage.Dequeue(CarteraGenJnlTemplateName);
         LibraryVariableStorage.Dequeue(CarteraGenJnlBatchName);
-        with RedrawBillsPageHandler do begin
-            NewDueDate.SetValue(WorkDate() + 1);
-            AuxJnlTemplateName.SetValue(CarteraGenJnlTemplateName);
-            AuxJnlBatchName.SetValue(CarteraGenJnlBatchName);
-            DiscCollExpenses.SetValue(LibraryVariableStorage.DequeueBoolean());
-            OK().Invoke();
-        end;
+        RedrawBillsPageHandler.NewDueDate.SetValue(WorkDate() + 1);
+        RedrawBillsPageHandler.AuxJnlTemplateName.SetValue(CarteraGenJnlTemplateName);
+        RedrawBillsPageHandler.AuxJnlBatchName.SetValue(CarteraGenJnlBatchName);
+        RedrawBillsPageHandler.DiscCollExpenses.SetValue(LibraryVariableStorage.DequeueBoolean());
+        RedrawBillsPageHandler.OK().Invoke();
     end;
 
     [ModalPageHandler]

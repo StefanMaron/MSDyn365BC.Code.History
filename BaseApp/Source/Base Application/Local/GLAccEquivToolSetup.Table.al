@@ -8,8 +8,13 @@ table 10723 "G/L Acc. Equiv. Tool Setup"
 {
     Caption = 'G/L Acc. Equiv. Tool Setup';
     ObsoleteReason = 'Obsolete feature';
+#if CLEAN28
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#else
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+#endif
     DataClassification = CustomerContent;
 
     fields
@@ -21,14 +26,18 @@ table 10723 "G/L Acc. Equiv. Tool Setup"
         field(2; "Delete Acc. Old Chart of Acc."; Code[20])
         {
             Caption = 'Delete Acc. Old Chart of Acc.';
+#if not CLEAN25
             TableRelation = "Historic G/L Account"."No.";
             ValidateTableRelation = true;
+#endif
         }
         field(3; "Delete Acc. New Chart of Acc."; Code[20])
         {
             Caption = 'Delete Acc. New Chart of Acc.';
+#if not CLEAN25
             TableRelation = "New G/L Account"."No.";
             ValidateTableRelation = true;
+#endif
         }
         field(4; "Log File Name"; Text[250])
         {

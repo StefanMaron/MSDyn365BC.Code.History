@@ -912,6 +912,7 @@ page 375 "Bank Account Statistics"
     end;
 
     var
+        BankAcc: Record "Bank Account";
         DateFilterCalc: Codeunit "DateFilter-Calc";
         BankAccDateFilter: array[4] of Text[30];
         BankAccDateName: array[4] of Text[30];
@@ -919,8 +920,9 @@ page 375 "Bank Account Statistics"
         BankAccNetChange: array[4] of Decimal;
         BankAccNetChangeLCY: array[4] of Decimal;
         i: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
-        BankAcc: Record "Bank Account";
+#pragma warning restore AA0074
         DocsForDiscRmgAmt: Decimal;
         DocsForCollRmgAmt: Decimal;
         PayableDocsRmgAmt: Decimal;

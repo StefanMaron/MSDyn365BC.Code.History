@@ -26,6 +26,8 @@ codeunit 3 "G/L Account-Indent"
         Window: Dialog;
         HidePrintDialog: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1100000: Label 'This function checks the consistency of and completes the Chart of Accounts:\\';
         Text1100001: Label '- Checks that a corresponding heading account exists for every posting account.\';
         Text1100002: Label '- Checks that all accounts comply with the Chart of Account account length requisites.\';
@@ -39,6 +41,8 @@ codeunit 3 "G/L Account-Indent"
         Text1100010: Label ' Missing group %1 - Account No. %2';
         Text1100011: Label 'The length of account %1 cannot be different than the next ones';
         Text1100012: Label 'The Chart of Accounts is correct.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Indent()
     var
@@ -56,7 +60,7 @@ codeunit 3 "G/L Account-Indent"
         GLAcc.Reset();
         LineCounter := 0;
         NoOfRecords := GLAcc.Count;
-        if NoOfRecords <> 0 then begin
+        if NoOfRecords <> 0 then
             if GLAcc.Find('-') then
                 repeat
                     Window.Update(1, GLAcc."No.");
@@ -108,7 +112,6 @@ codeunit 3 "G/L Account-Indent"
                     LineCounter := LineCounter + 1;
                     Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
                 until GLAcc.Next() = 0;
-        end;
 
         Window.Close();
         if not HidePrintDialog then

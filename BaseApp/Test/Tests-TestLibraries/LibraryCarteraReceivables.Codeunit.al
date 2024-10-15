@@ -11,9 +11,6 @@ codeunit 143020 "Library - Cartera Receivables"
         LibraryERM: Codeunit "Library - ERM";
         LibraryESLocalization: Codeunit "Library - ES Localization";
         LibrarySales: Codeunit "Library - Sales";
-#if not CLEAN22
-        LibraryUtility: Codeunit "Library - Utility";
-#endif
         LibraryRandom: Codeunit "Library - Random";
         LibraryService: Codeunit "Library - Service";
 
@@ -314,39 +311,6 @@ codeunit 143020 "Library - Cartera Receivables"
         CustLedgerEntry.FindSet();
     end;
 
-#if not CLEAN22
-    procedure GenerateCustomerPmtAddress(CustomerNo: Code[20]; var CustomerPmtAddress: Record "Customer Pmt. Address")
-    var
-        PostCode: Record "Post Code";
-    begin
-        CustomerPmtAddress.Init();
-        CustomerPmtAddress.Validate("Customer No.", CustomerNo);
-
-        LibraryERM.CreatePostCode(PostCode);
-
-        CustomerPmtAddress.Validate(
-          Code,
-          CopyStr(
-            LibraryUtility.GenerateRandomCode(CustomerPmtAddress.FieldNo(Code), DATABASE::"Customer Pmt. Address"),
-            1,
-            LibraryUtility.GetFieldLength(DATABASE::"Customer Pmt. Address", CustomerPmtAddress.FieldNo(Code))));
-
-        CustomerPmtAddress.Validate("Post Code", PostCode.Code);
-        CustomerPmtAddress.Validate(City, PostCode.City);
-
-        CustomerPmtAddress.Validate(
-          Address,
-          CopyStr(
-            LibraryUtility.GenerateRandomCode(CustomerPmtAddress.FieldNo(Address), DATABASE::"Customer Pmt. Address"),
-            1,
-            LibraryUtility.GetFieldLength(DATABASE::"Customer Pmt. Address", CustomerPmtAddress.FieldNo(Address))));
-
-        CustomerPmtAddress.Validate("Country/Region Code", PostCode."Country/Region Code");
-
-        CustomerPmtAddress.Insert(true);
-    end;
-#endif
-
     procedure GetPostedSalesInvoiceAmount(CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -455,16 +419,5 @@ codeunit 143020 "Library - Cartera Receivables"
         PaymentMethod.Validate("Bill Type", PaymentMethod."Bill Type"::" ");
         PaymentMethod.Modify(true);
     end;
-
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Not Used.', '22.0')]
-    procedure UpdateSalesInvoiceWithCustomerPmtCode(var SalesHeader: Record "Sales Header"; CustomerPmtCode: Code[10])
-    begin
-        SalesHeader.Validate("Pay-at Code", CustomerPmtCode);
-        SalesHeader.Modify(true);
-    end;
-#pragma warning restore AS0072
-#endif
 }
 

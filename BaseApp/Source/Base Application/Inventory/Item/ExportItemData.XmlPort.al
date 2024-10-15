@@ -309,9 +309,11 @@ xmlport 5801 "Export Item Data"
                 fieldelement(Item_CreatedFromNonstockItem; Item."Created From Nonstock Item")
                 {
                 }
+#if not CLEAN25
                 fieldelement(Item_ServiceItemGroup; Item."Service Item Group")
                 {
                 }
+#endif
                 fieldelement(Item_ItemTrackingCode; Item."Item Tracking Code")
                 {
                 }

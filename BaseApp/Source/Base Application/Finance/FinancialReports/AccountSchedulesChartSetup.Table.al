@@ -140,8 +140,12 @@ table 762 "Account Schedules Chart Setup"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label '%1 %2', Comment = '%1=Account Schdule Line_Description %2=Column Layout_Coulmn Header';
+#pragma warning disable AA0470
         Text002: Label 'You cannot set %1 to %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetAccScheduleName(AccSchedName: Code[10])
     begin

@@ -62,6 +62,11 @@ page 459 "Sales & Receivables Setup"
                     Caption = 'Default Item Quantity';
                     ToolTip = 'Specifies that the Quantity field is set to 1 when you fill in the Item No. field.';
                 }
+                field(DefaultGLAccountQuantity; Rec."Default G/L Account Quantity")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that Quantity is set to 1 on lines of type G/L Account.';
+                }
                 field("Create Item from Item No."; Rec."Create Item from Item No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -198,18 +203,6 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies how often the job must run that automatically updates the status of orders that are pending prepayment.';
-                }
-                field("Archive Quotes and Orders"; '')
-                {
-                    ApplicationArea = Advanced;
-                    Importance = Additional;
-                    ToolTip = 'Specifies whether to automatically archive sales quotes and sales orders when a sales quote/order is deleted.';
-                    Caption = 'Archive Quotes and Orders';
-                    Visible = false;
-                    Enabled = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The "Archive Quotes and Orders field was removed."';
-                    ObsoleteTag = '18.0';
                 }
                 field("Allow Document Deletion Before"; Rec."Allow Document Deletion Before")
                 {
@@ -431,6 +424,7 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you use job queues to post and print sales documents in the background.';
+                    Visible = false;
                 }
                 field("Job Queue Category Code"; Rec."Job Queue Category Code")
                 {

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Payables;
+namespace Microsoft.Purchases.Payables;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Team;
@@ -843,12 +843,14 @@ table 25 "Vendor Ledger Entry"
     }
 
     var
+        DocMisc: Codeunit "Document-Misc";
+#pragma warning disable AA0470
         MustHaveSameSignErr: Label 'must have the same sign as %1';
         MustNotBeLargerErr: Label 'must not be larger than %1';
-        DocMisc: Codeunit "Document-Misc";
         CannotChangePmtMethodErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
         CheckBillSituationOrderErr: Label '%1 cannot be applied because it is included in a payment order. To apply the document, remove it from the payment order and try again.', Comment = '%1 - document type and number';
         CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted payment order.', Comment = '%1 - document type and number';
+#pragma warning restore AA0470
         NetBalanceOnHoldErr: Label 'General journal line number %3 on template name %1 batch name %2 is applied. Do you want to change On Hold value anyway?', Comment = '%1 - template name, %2 - batch name, %3 - line number';
 
     procedure GetLastEntryNo(): Integer;

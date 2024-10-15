@@ -221,9 +221,9 @@ report 10746 "Not Fully Applied Cash Pmts."
         j := 1;
         while CommaPos <> 0 do begin
             CommaPos := StrPos(StringFilter, '|');
-            if CommaPos = 0 then begin
-                FilterArray[j] := StringFilter;
-            end else begin
+            if CommaPos = 0 then
+                FilterArray[j] := StringFilter
+            else begin
                 FilterArray[j] := CopyStr(StringFilter, 1, CommaPos - 1);
                 StringFilter := DelStr(StringFilter, 1, CommaPos);
             end;
@@ -236,10 +236,9 @@ report 10746 "Not Fully Applied Cash Pmts."
     var
         i: Integer;
     begin
-        for i := 1 to NoOfAccounts do begin
+        for i := 1 to NoOfAccounts do
             if GLAccountNo = FilterArray[i] then
                 exit(true);
-        end;
         exit(false);
     end;
 

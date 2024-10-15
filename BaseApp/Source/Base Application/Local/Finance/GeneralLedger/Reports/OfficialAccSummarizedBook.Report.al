@@ -131,10 +131,10 @@ report 10716 "Official Acc.Summarized Book"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if GLFilterAccType = GLFilterAccType::Heading then begin
+                    if GLFilterAccType = GLFilterAccType::Heading then
                         if StrLen("No.") <> 3 then
                             CurrReport.Skip();
-                    end;
+
                     CreditAmt := 0;
                     DebitAmt := 0;
                     Name := Text1100002;
@@ -229,10 +229,9 @@ report 10716 "Official Acc.Summarized Book"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if GLFilterAccType = GLFilterAccType::Heading then begin
+                    if GLFilterAccType = GLFilterAccType::Heading then
                         if StrLen("No.") <> 3 then
                             CurrReport.Skip();
-                    end;
 
                     CreditAmt := 0;
                     DebitAmt := 0;
@@ -493,12 +492,11 @@ report 10716 "Official Acc.Summarized Book"
                         CreditAmt := CreditAmt + GLAcc."Additional-Currency Net Change"
                     else
                         DebitAmt := DebitAmt + Abs(GLAcc."Additional-Currency Net Change");
-                end else begin
+                end else
                     if GLAcc."Net Change" > 0 then
                         CreditAmt := CreditAmt + GLAcc."Net Change"
                     else
                         DebitAmt := DebitAmt + Abs(GLAcc."Net Change");
-                end;
             until GLAcc.Next() = 0;
     end;
 
@@ -521,13 +519,11 @@ report 10716 "Official Acc.Summarized Book"
                         CreditAmt := CreditAmt + Abs(GLAcc."Additional-Currency Net Change")
                     else
                         DebitAmt := DebitAmt + GLAcc."Additional-Currency Net Change";
-                end else begin
+                end else
                     if GLAcc."Net Change" < 0 then
                         CreditAmt := CreditAmt + Abs(GLAcc."Net Change")
                     else
                         DebitAmt := DebitAmt + GLAcc."Net Change";
-                end;
-
             until GLAcc.Next() = 0;
     end;
 
@@ -567,13 +563,11 @@ report 10716 "Official Acc.Summarized Book"
                     exit(0);
                 end;
             4:
-                begin
-                    if FromDate <> ToDate then begin
-                        AccPeriod.SetRange("Starting Date", FromDate + 1, ToDate);
-                        AccPeriod.SetRange("New Fiscal Year", true);
-                        if AccPeriod.FindFirst() then
-                            Error(Text1100005);
-                    end;
+                if FromDate <> ToDate then begin
+                    AccPeriod.SetRange("Starting Date", FromDate + 1, ToDate);
+                    AccPeriod.SetRange("New Fiscal Year", true);
+                    if AccPeriod.FindFirst() then
+                        Error(Text1100005);
                 end;
             5:
                 begin

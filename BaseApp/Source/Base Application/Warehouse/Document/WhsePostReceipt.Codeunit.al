@@ -44,9 +44,13 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The source document %1 %2 is not released.';
         Text002: Label 'Number of source documents posted: %1 out of a total of %2.';
         Text003: Label 'Number of put-away activities created: %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         WhseRcptHeader: Record "Warehouse Receipt Header";
         WhseRcptLine: Record "Warehouse Receipt Line";
         TempWarehouseReceiptLine: Record "Warehouse Receipt Line" temporary;
@@ -70,7 +74,9 @@ codeunit 5760 "Whse.-Post Receipt"
         PutAwayRequired: Boolean;
         ReceivingNo: Code[20];
         ItemEntryRelationCreated: Boolean;
+#pragma warning disable AA0074
         Text004: Label 'is not within your range of allowed posting dates';
+#pragma warning restore AA0074
         SuppressCommit: Boolean;
         HideValidationDialog: Boolean;
         PreviewMode: Boolean;
@@ -143,7 +149,9 @@ codeunit 5760 "Whse.-Post Receipt"
             if not IsHandled then
                 PostSourceDocument(WhseRcptLine);
 
+            WhseRcptLine.ReadIsolation(IsolationLevel::ReadUnCommitted); // to avoid range lock with next batch
             if WhseRcptLine.FindLast() then;
+            WhseRcptLine.ReadIsolation(IsolationLevel::UpdLock);
             WhseRcptLine.SetRange("Source Type");
             WhseRcptLine.SetRange("Source Subtype");
             WhseRcptLine.SetRange("Source No.");

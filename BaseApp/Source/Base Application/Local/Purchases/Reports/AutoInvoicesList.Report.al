@@ -173,7 +173,7 @@ report 10714 "AutoInvoices List"
                     VATBuffer."VAT %" := "VAT %";
                     VATBuffer."EC %" := "EC %";
 
-                    if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
+                    if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
                         if not PrintAmountsInAddCurrency then
                             if VATBuffer.Find() then begin
                                 VarBase2 := Base;
@@ -198,8 +198,8 @@ report 10714 "AutoInvoices List"
                                 VATBuffer.Amount := "Additional-Currency Amount";
                                 VATBuffer.Insert();
                             end;
-                    end;
-                    if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
+
+                    if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
                         if not PrintAmountsInAddCurrency then begin
                             NotBaseReverse := NotBaseReverse + VarBase2;
                             NotAmountReverse := NotAmountReverse + VarAmount2;
@@ -207,7 +207,6 @@ report 10714 "AutoInvoices List"
                             NotBaseReverse := NotBaseReverse + VATBuffer.Base;
                             NotAmountReverse := NotAmountReverse + VATBuffer.Amount;
                         end;
-                    end;
                 end;
 
                 trigger OnPostDataItem()

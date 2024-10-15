@@ -132,7 +132,7 @@ report 7000080 "Post Payment Order"
 
                         SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
 
-                        if CheckCurrFact("Cartera Doc.", PmtOrd) then begin
+                        if CheckCurrFact("Cartera Doc.", PmtOrd) then
                             if BGPOPostBuffer."Gain - Loss Amount (LCY)" <> 0 then begin
                                 TempCurrencyCode := PmtOrd."Currency Code";
                                 PmtOrd."Currency Code" := '';
@@ -169,7 +169,6 @@ report 7000080 "Post Payment Order"
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                                 PmtOrd."Currency Code" := TempCurrencyCode;
                             end;
-                        end;
 
                         GroupAmount := GroupAmount + BGPOPostBuffer.Amount;
                     until BGPOPostBuffer.Next() = 0;

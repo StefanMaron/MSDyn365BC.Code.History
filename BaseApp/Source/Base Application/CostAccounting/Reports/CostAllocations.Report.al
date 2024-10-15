@@ -177,7 +177,9 @@ report 1129 "Cost Allocations"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Filter: ';
+#pragma warning restore AA0074
         GlobalPrintOnlyIfDetail: Boolean;
         AllocationsCaptionLbl: Label 'Cost Allocations';
         PageCaptionLbl: Label 'Page';

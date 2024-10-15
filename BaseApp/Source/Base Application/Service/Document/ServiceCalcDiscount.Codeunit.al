@@ -40,7 +40,9 @@ codeunit 5950 "Service-Calc. Discount"
         GLSetup: Record "General Ledger Setup";
         InvAllow: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Service Charge';
+#pragma warning restore AA0074
 
     local procedure CalculateInvoiceDiscount(var ServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServiceLine2: Record "Service Line")
     var
@@ -209,25 +211,21 @@ codeunit 5950 "Service-Calc. Discount"
                             case GLSetup."Discount Calculation" of
                                 GLSetup."Discount Calculation"::"Line Disc. + Inv. Disc. + Payment Disc.",
                                 GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. + Payment Disc.":
-                                    begin
-                                        if ServiceLine2."Line Amount" <> 0 then begin
-                                            TempServiceLine."Pmt. Discount Amount" :=
-                                              TempServiceLine."Pmt. Discount Amount" +
-                                              (ServiceLine2."Line Amount" + ServiceLine2."Line Discount Amount") *
-                                              ServHeader."Payment Discount %" / 100;
-                                            ServiceLine2."Pmt. Discount Amount" := Round(TempServiceLine."Pmt. Discount Amount", 0.01);
-                                        end;
+                                    if ServiceLine2."Line Amount" <> 0 then begin
+                                        TempServiceLine."Pmt. Discount Amount" :=
+                                            TempServiceLine."Pmt. Discount Amount" +
+                                            (ServiceLine2."Line Amount" + ServiceLine2."Line Discount Amount") *
+                                            ServHeader."Payment Discount %" / 100;
+                                        ServiceLine2."Pmt. Discount Amount" := Round(TempServiceLine."Pmt. Discount Amount", 0.01);
                                     end;
                                 GLSetup."Discount Calculation"::"Line Disc. + Inv. Disc. * Payment Disc.",
                                 GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.":
-                                    begin
-                                        if ServiceLine2."Line Amount" <> 0 then begin
-                                            TempServiceLine."Pmt. Discount Amount" :=
-                                              TempServiceLine."Pmt. Discount Amount" +
-                                              (ServiceLine2."Line Amount" - ServiceLine2."Inv. Discount Amount") *
-                                              ServHeader."Payment Discount %" / 100;
-                                            ServiceLine2."Pmt. Discount Amount" := Round(TempServiceLine."Pmt. Discount Amount", 0.01);
-                                        end;
+                                    if ServiceLine2."Line Amount" <> 0 then begin
+                                        TempServiceLine."Pmt. Discount Amount" :=
+                                            TempServiceLine."Pmt. Discount Amount" +
+                                            (ServiceLine2."Line Amount" - ServiceLine2."Inv. Discount Amount") *
+                                            ServHeader."Payment Discount %" / 100;
+                                        ServiceLine2."Pmt. Discount Amount" := Round(TempServiceLine."Pmt. Discount Amount", 0.01);
                                     end;
                             end;
                             TempServiceLine."Pmt. Discount Amount" :=

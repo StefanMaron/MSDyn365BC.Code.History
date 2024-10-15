@@ -11,7 +11,6 @@ using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.History;
-using Microsoft.Service.Document;
 using System.AI;
 using System.Environment;
 using System.Security.Encryption;
@@ -95,17 +94,6 @@ table 843 "Cash Flow Setup"
             trigger OnValidate()
             begin
                 CheckAccountType("FA Disposal CF Account No.");
-            end;
-        }
-        field(10; "Service CF Account No."; Code[20])
-        {
-            AccessByPermission = TableData "Service Header" = R;
-            Caption = 'Service CF Account No.';
-            TableRelation = "Cash Flow Account";
-
-            trigger OnValidate()
-            begin
-                CheckAccountType("Service CF Account No.");
             end;
         }
         field(11; "CF No. on Chart in Role Center"; Code[20])
@@ -296,7 +284,11 @@ table 843 "Cash Flow Setup"
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Cash Flow Forecast %1 %2 is shown in the chart on the Role Center. Do you want to show this Cash Flow Forecast instead?', Comment = 'Cash Flow <No.> <Description> is shown in the chart on the Role Center.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CheckAccountType("Code": Code[20])
     var

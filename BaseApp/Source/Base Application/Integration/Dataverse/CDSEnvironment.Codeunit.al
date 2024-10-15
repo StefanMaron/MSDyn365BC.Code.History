@@ -40,13 +40,12 @@ codeunit 7203 "CDS Environment"
         EnvironmentIdFilterTok: Label '?$filter=EnvironmentId eq ''%1''', Locked = true, Comment = '%1 = The environment id to filter on';
 
     [Scope('OnPrem')]
-    [NonDebuggable]
-    procedure SelectTenantEnvironment(var CDSConnectionSetup: Record "CDS Connection Setup"; Token: Text; GuiAllowed: Boolean): Boolean
+    procedure SelectTenantEnvironment(var CDSConnectionSetup: Record "CDS Connection Setup"; Token: SecretText; GuiAllowed: Boolean): Boolean
     var
         TempCDSEnvironment: Record "CDS Environment" temporary;
         EnvironmentCount: Integer;
     begin
-        if Token = '' then
+        if Token.IsEmpty() then
             exit(false);
 
         EnvironmentCount := GetCDSEnvironments(TempCDSEnvironment, Token, '');
@@ -76,43 +75,49 @@ codeunit 7203 "CDS Environment"
         end;
         exit(false);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by GetGlobalDiscoverabilityOnBehalfTokenAsSecretText', '25.0')]
     procedure GetGlobalDiscoverabilityOnBehalfToken(): Text
+    begin
+        exit(GetGlobalDiscoverabilityOnBehalfTokenAsSecretText().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetGlobalDiscoverabilityOnBehalfTokenAsSecretText(): SecretText
     var
         OAuth2: Codeunit OAuth2;
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         Scopes: List of [Text];
-        Token: Text;
+        Token: SecretText;
     begin
         Scopes.Add(ScopesLbl);
         OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), Scopes, Token);
-        if Token <> '' then
-            exit(Token)
-        else
-            exit('');
+        exit(Token);
     end;
 
     [Scope('OnPrem')]
     [NonDebuggable]
-    procedure GetGlobalDiscoverabilityToken(): Text
+    procedure GetGlobalDiscoverabilityToken(): SecretText
     var
         OAuth2: Codeunit OAuth2;
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         PromptInteraction: Enum "Prompt Interaction";
         Scopes: List of [Text];
         ConsumerKey: Text;
-        ConsumerSecret: Text;
+        ConsumerSecret: SecretText;
         FirstPartyAppId: Text;
         FirstPartyAppCertificate: Text;
         RedirectUrl: Text;
-        Token: Text;
+        Token: SecretText;
         Err: Text;
     begin
         Scopes.Add(ScopesLbl);
         OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), Scopes, Token);
-        if Token <> '' then
+        if not Token.IsEmpty() then
             exit(Token);
 
         Session.LogMessage('0000BRA', ReceivedEmptyOnBehalfOfTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
@@ -123,10 +128,10 @@ codeunit 7203 "CDS Environment"
         if (FirstPartyappId <> '') and (FirstPartyAppCertificate <> '') then begin
             Session.LogMessage('0000EI6', AcquiringAuthCodeTokenWithCertificateTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
             OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyappId, FirstPartyAppCertificate, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, Scopes, Token);
-            if Token = '' then
+            if Token.IsEmpty() then
                 OAuth2.AcquireTokenByAuthorizationCodeWithCertificate(FirstPartyappId, FirstPartyAppCertificate, OAuthAuthorityUrlAuthCodeTxt, RedirectUrl, Scopes, PromptInteraction::Login, Token, Err);
 
-            if Token = '' then
+            if Token.IsEmpty() then
                 Session.LogMessage('0000EI7', ReceivedEmptyAuthCodeTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
             exit(Token);
@@ -138,22 +143,21 @@ codeunit 7203 "CDS Environment"
         if ConsumerKey = '' then
             Session.LogMessage('0000BRB', MissingKeyErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
-        if ConsumerSecret = '' then
+        if ConsumerSecret.IsEmpty() then
             Session.LogMessage('0000BRC', MissingSecretErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
-        if (ConsumerKey <> '') and (ConsumerSecret <> '') then begin
+        if (ConsumerKey <> '') and (not ConsumerSecret.IsEmpty()) then begin
             OAuth2.AcquireAuthorizationCodeTokenFromCache(ConsumerKey, ConsumerSecret, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, Scopes, Token);
-            if Token = '' then
+            if Token.IsEmpty() then
                 OAuth2.AcquireTokenByAuthorizationCode(ConsumerKey, ConsumerSecret, OAuthAuthorityUrlAuthCodeTxt, RedirectUrl, Scopes, PromptInteraction::Login, Token, Err);
         end;
-        if Token = '' then
+        if Token.IsEmpty() then
             Session.LogMessage('0000C6I', ReceivedEmptyAuthCodeTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
         exit(Token);
     end;
 
-    [NonDebuggable]
-    local procedure GetCDSEnvironments(var TempCDSEnvironment: Record "CDS Environment" temporary; Token: Text; FilterTxt: Text): Integer
+    local procedure GetCDSEnvironments(var TempCDSEnvironment: Record "CDS Environment" temporary; Token: SecretText; FilterTxt: Text): Integer
     var
         EnvironmentInformation: Codeunit "Environment Information";
         TempBlob: Codeunit "Temp Blob";
@@ -174,7 +178,7 @@ codeunit 7203 "CDS Environment"
         EnvironmentCount: Integer;
     begin
         RequestMessage.GetHeaders(RequestHeaders);
-        RequestHeaders.Add('Authorization', 'Bearer ' + Token);
+        RequestHeaders.Add('Authorization', SecretStrSubstNo('Bearer %1', Token));
 
         RequestMessage.SetRequestUri(GlobalDiscoApiUrlTok + FilterTxt);
         RequestMessage.Method('GET');
@@ -265,13 +269,12 @@ codeunit 7203 "CDS Environment"
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
-    internal procedure SetLinkedDataverseEnvironmentUrl(var CDSConnectionSetup: Record "CDS Connection Setup"; Token: Text)
+    internal procedure SetLinkedDataverseEnvironmentUrl(var CDSConnectionSetup: Record "CDS Connection Setup"; Token: SecretText)
     var
         TempCDSEnvironment: Record "CDS Environment" temporary;
         EnvironmentInformation: Codeunit "Environment Information";
     begin
-        if Token = '' then
+        if Token.IsEmpty() then
             exit;
 
         if GetCDSEnvironments(TempCDSEnvironment, Token, StrSubstNo(EnvironmentIdFilterTok, EnvironmentInformation.GetLinkedPowerPlatformEnvironmentId())) = 1 then begin

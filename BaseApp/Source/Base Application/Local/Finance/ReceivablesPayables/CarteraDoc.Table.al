@@ -13,7 +13,6 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
-using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
@@ -142,21 +141,8 @@ table 7000002 "Cartera Doc."
         {
             Caption = 'Pmt. Address Code';
             ObsoleteReason = 'Address is taken from the fields Address, City, etc. of Customer/Vendor table.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
-            TableRelation = if (Type = const(Receivable)) "Customer Pmt. Address".Code where("Customer No." = field("Account No."))
-            else
-            if (Type = const(Payable)) "Vendor Pmt. Address".Code where("Vendor No." = field("Account No."));
-
-            trigger OnValidate()
-            begin
-                ResetNoPrinted();
-            end;
         }
         field(22; "Global Dimension 1 Code"; Code[20])
         {
@@ -396,16 +382,14 @@ table 7000002 "Cartera Doc."
     begin
         case Type of
             Type::Receivable:
-                begin
-                    if SalesInvoiceHeader.Get("Document No.") then begin
-                        PaymentTerms.Get(SalesInvoiceHeader."Payment Terms Code");
-                        DocumentDate := SalesInvoiceHeader."Document Date";
-                    end else
-                        if ServiceInvoiceHeader.Get("Document No.") then begin
-                            PaymentTerms.Get(ServiceInvoiceHeader."Payment Terms Code");
-                            DocumentDate := ServiceInvoiceHeader."Document Date";
-                        end;
-                end;
+                if SalesInvoiceHeader.Get("Document No.") then begin
+                    PaymentTerms.Get(SalesInvoiceHeader."Payment Terms Code");
+                    DocumentDate := SalesInvoiceHeader."Document Date";
+                end else
+                    if ServiceInvoiceHeader.Get("Document No.") then begin
+                        PaymentTerms.Get(ServiceInvoiceHeader."Payment Terms Code");
+                        DocumentDate := ServiceInvoiceHeader."Document Date";
+                    end;
             Type::Payable:
                 if PurchInvHeader.Get("Document No.") then begin
                     PaymentTerms.Get(PurchInvHeader."Payment Terms Code");

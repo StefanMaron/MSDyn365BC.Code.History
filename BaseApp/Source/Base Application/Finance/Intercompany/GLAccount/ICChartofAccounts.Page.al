@@ -53,40 +53,8 @@ page 605 "IC Chart of Accounts"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-#if not CLEAN22
-                field("Map-to G/L Acc. No."; Rec."Map-to G/L Acc. No.")
-                {
-                    ApplicationArea = Intercompany;
-                    ToolTip = 'Specifies the number of the G/L account in your chart of accounts that corresponds to this intercompany G/L account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Intercompany Chart of Accounts Mapping.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
         }
-#if not CLEAN22
-        area(factboxes)
-        {
-            systempart(Control1900383207; Links)
-            {
-                ApplicationArea = RecordLinks;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Unused link.';
-                ObsoleteTag = '22.0';
-            }
-            systempart(Control1905767507; Notes)
-            {
-                ApplicationArea = Notes;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Unused link.';
-                ObsoleteTag = '22.0';
-            }
-        }
-#endif
     }
 
     actions
@@ -97,26 +65,6 @@ page 605 "IC Chart of Accounts"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-#if not CLEAN22
-                action("Map to Acc. with Same No.")
-                {
-                    ApplicationArea = Intercompany;
-                    Caption = 'Map to Acc. with Same No.';
-                    Image = MapAccounts;
-                    ToolTip = 'Map the selected intercompany G/L accounts to G/L accounts with the same number.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Intercompany Chart of Accounts Mapping.';
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    var
-                        ICMappingChartOfAccounts: Page "IC Mapping Chart of Account";
-                    begin
-                        ICMappingChartOfAccounts.Run();
-                    end;
-                }
-#endif
                 action(OpenChartOfAccountsMapping)
                 {
                     ApplicationArea = Intercompany;
@@ -230,15 +178,6 @@ page 605 "IC Chart of Accounts"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-#if not CLEAN22
-                actionref("Map to Acc. with Same No._Promoted"; "Map to Acc. with Same No.")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Intercompany Chart of Accounts Mapping.';
-                    ObsoleteTag = '22.0';
-                }
-#endif      
                 actionref(OpenChartOfAccountsMapping_Promoted; OpenChartOfAccountsMapping)
                 {
                 }

@@ -29,7 +29,7 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryJob: Codeunit "Library - Job";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         LibraryTemplates: Codeunit "Library - Templates";
@@ -49,7 +49,6 @@
         DocumentShouldBeCopiedErr: Label 'Document should be copied';
         WrongConfirmationMsgErr: Label 'Wrong confirmation message';
         TestFieldTok: Label 'TestField';
-        VATBusPostingGroupErr: Label 'VAT Bus. Posting Group must be equal to';
         NegativeAmountErr: Label 'Amount must be negative';
         ContactShouldNotBeEditableErr: Label 'Contact should not be editable when vendor is not selected.';
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
@@ -316,7 +315,7 @@
         WarehouseEmployee.Delete();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnPurchaseInvoice()
@@ -1223,7 +1222,7 @@
         VerifyGLEntry(DocumentNo, PurchInvHeader."Amount Including VAT");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithoutPriceInclVAT()
@@ -1508,7 +1507,7 @@
         Assert.AreEqual(0, PurchaseLine."Outstanding Amt. Ex. VAT (LCY)", 'should be zero');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure UpdateUnitCostWithPurchPriceWhenChangeVendorNo()
@@ -1880,7 +1879,7 @@
 
         // [THEN] Error thrown due to different VAT Business Groups in copied line and header
         Assert.ExpectedErrorCode(TestFieldTok);
-        Assert.ExpectedError(VATBusPostingGroupErr);
+        Assert.ExpectedTestFieldError(PurchHeaderDst.FieldCaption("VAT Bus. Posting Group"), '');
     end;
 
     [Test]
@@ -3490,7 +3489,7 @@
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreatePurchInvWithPricesIncludingVAT(var PurchaseHeader: Record "Purchase Header"; PurchaseLineDiscount: Record "Purchase Line Discount"; PricesIncludingVAT: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
@@ -3551,12 +3550,9 @@
 
     local procedure CreatePurchDocWithPricesInclVAT(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendNo: Code[20]; PricesInclVAT: Boolean)
     begin
-        with PurchHeader do begin
-            LibraryPurchase.CreatePurchHeader(
-              PurchHeader, DocType, VendNo);
-            Validate("Prices Including VAT", PricesInclVAT);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, VendNo);
+        PurchHeader.Validate("Prices Including VAT", PricesInclVAT);
+        PurchHeader.Modify(true);
     end;
 
     local procedure CreateVendor(CurrencyCode: Code[10]): Code[20]
@@ -3693,17 +3689,15 @@
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchHeader do begin
-            CreatePurchDocWithPricesInclVAT(
-              PurchHeader, "Document Type"::Order, LibraryPurchase.CreateVendorNo(), PricesInclVAT);
-            LibraryPurchase.CreatePurchaseLine(
-              PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(),
-              LibraryRandom.RandIntInRange(100, 1000));
-            VATPercent := PurchLine."VAT %";
-            PurchLine.Validate("Line Discount Amount", LineDiscAmt);
-            PurchLine.Modify(true);
-            LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
-        end;
+        CreatePurchDocWithPricesInclVAT(
+          PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), PricesInclVAT);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(),
+          LibraryRandom.RandIntInRange(100, 1000));
+        VATPercent := PurchLine."VAT %";
+        PurchLine.Validate("Line Discount Amount", LineDiscAmt);
+        PurchLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
     end;
 
     local procedure CreateVATPostingSetupWithReverseChargeVAT(var VATPostingSetup: Record "VAT Posting Setup"; PurchaseHeader: Record "Purchase Header")
@@ -3980,7 +3974,7 @@
         exit(VendorInvoiceDisc.Code);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -4010,43 +4004,38 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            Assert.AreNearlyEqual(
-              AdditionalCurrencyAmount, "Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
-              StrSubstNo(
-                ValidateErr, FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, TableCaption(), "Entry No."));
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
+          StrSubstNo(
+            ValidateErr, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, GLEntry.TableCaption(), GLEntry."Entry No."));
     end;
 
     local procedure VerifyAmountOnGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount2: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            Assert.AreNearlyEqual(
-              Amount2, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
-              StrSubstNo(ValidateErr, FieldCaption(Amount), Amount2, TableCaption(), "Entry No."));
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          Amount2, GLEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
+          StrSubstNo(ValidateErr, GLEntry.FieldCaption(Amount), Amount2, GLEntry.TableCaption(), GLEntry."Entry No."));
     end;
 
     local procedure VerifyAmountOnVATEntry(DocumentNo: Code[20]; VATProdPostingGroupCode: Code[20]; Amount2: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode); // required for BE to avoid finding rounding VAT Entry
-            FindFirst();
-            Assert.AreNearlyEqual(
-              Amount2, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
-              StrSubstNo(ValidateErr, FieldCaption(Amount), Amount2, TableCaption(), "Entry No."));
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        // required for BE to avoid finding rounding VAT Entry
+        VATEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          Amount2, VATEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
+          StrSubstNo(ValidateErr, VATEntry.FieldCaption(Amount), Amount2, VATEntry.TableCaption(), VATEntry."Entry No."));
     end;
 
     local procedure VerifyAmountOnVendor(VendorNo: Code[20]; Amount: Decimal)
@@ -4067,14 +4056,12 @@
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            CalcFields("Amount (LCY)");
-            Assert.AreNearlyEqual(
-              AmountLCY, "Amount (LCY)", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
-              StrSubstNo(ValidateErr, FieldCaption("Amount (LCY)"), AmountLCY, TableCaption(), "Entry No."));
-        end;
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        Assert.AreNearlyEqual(
+          AmountLCY, VendorLedgerEntry."Amount (LCY)", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
+          StrSubstNo(ValidateErr, VendorLedgerEntry.FieldCaption("Amount (LCY)"), AmountLCY, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
     end;
 
     local procedure VerifyPurchLineAmount(DocumentNo: Code[20]; No: Code[20]; LineAmount: Decimal)
@@ -4355,14 +4342,12 @@
 
     local procedure InsertJobTaskDim(var JobTaskDim: Record "Job Task Dimension"; JobTask: Record "Job Task"; DimValue: Record "Dimension Value")
     begin
-        with JobTaskDim do begin
-            Init();
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Dimension Code", DimValue."Dimension Code");
-            Validate("Dimension Value Code", DimValue.Code);
-            Insert(true);
-        end;
+        JobTaskDim.Init();
+        JobTaskDim.Validate("Job No.", JobTask."Job No.");
+        JobTaskDim.Validate("Job Task No.", JobTask."Job Task No.");
+        JobTaskDim.Validate("Dimension Code", DimValue."Dimension Code");
+        JobTaskDim.Validate("Dimension Value Code", DimValue.Code);
+        JobTaskDim.Insert(true);
     end;
 
     local procedure CreateJobWithDimension(var Job: Record Job): Code[10]
@@ -4395,12 +4380,10 @@
     begin
         FindJobTaskDimension(JobTaskDimension, JobNo, JobTaskNo);
         repeat
-            with DimensionSetEntry do begin
-                SetRange("Dimension Set ID", PurchaseLine."Dimension Set ID");
-                SetRange("Dimension Code", JobTaskDimension."Dimension Code");
-                SetRange("Dimension Value Code", JobTaskDimension."Dimension Value Code");
-                Assert.RecordIsNotEmpty(DimensionSetEntry);
-            end;
+            DimensionSetEntry.SetRange("Dimension Set ID", PurchaseLine."Dimension Set ID");
+            DimensionSetEntry.SetRange("Dimension Code", JobTaskDimension."Dimension Code");
+            DimensionSetEntry.SetRange("Dimension Value Code", JobTaskDimension."Dimension Value Code");
+            Assert.RecordIsNotEmpty(DimensionSetEntry);
         until JobTaskDimension.Next() = 0;
 
         JobTaskDimension.SetRange("Dimension Code", LibraryERM.GetGlobalDimensionCode(1));
@@ -4631,7 +4614,7 @@
         Reply := false;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Scope('OnPrem')]
     procedure PostItemAndVerifyValueEntries(Item: Record Item; PurchaseLineDiscount: Record "Purchase Line Discount")
     var

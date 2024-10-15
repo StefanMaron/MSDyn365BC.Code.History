@@ -252,7 +252,7 @@ page 5701 "Stockkeeping Unit List"
                             Rec.CopyFilter("Global Dimension 1 Filter", Item."Global Dimension 1 Filter");
                             Rec.CopyFilter("Global Dimension 2 Filter", Item."Global Dimension 2 Filter");
                             Rec.CopyFilter("Drop Shipment Filter", Item."Drop Shipment Filter");
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Item, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -294,7 +294,7 @@ page 5701 "Stockkeeping Unit List"
                             Item.Get(Rec."Item No.");
                             Item.SetRange("Location Filter", Rec."Location Code");
                             Item.SetRange("Variant Filter", Rec."Variant Code");
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Item, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -390,7 +390,7 @@ page 5701 "Stockkeeping Unit List"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Entries';
                         Image = ItemTrackingLedger;
-                        ToolTip = 'View serial or lot numbers that are assigned to items.';
+                        ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                         trigger OnAction()
                         var
@@ -483,16 +483,6 @@ page 5701 "Stockkeeping Unit List"
             group(Category_New)
             {
                 Caption = 'New';
-
-#if not CLEAN22
-                actionref("New Item_Promoted"; "New Item")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Item)
             {

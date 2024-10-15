@@ -18,8 +18,13 @@ table 10721 "Historic G/L Account"
     Caption = 'Historic G/L Account';
     DataCaptionFields = "No.", Name;
     ObsoleteReason = 'Obsolete feature';
+#if CLEAN28
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#else
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+#endif
     DataClassification = CustomerContent;
 
     fields
@@ -147,7 +152,7 @@ table 10721 "Historic G/L Account"
             CalcFormula = sum("G/L Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                        "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                        "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -178,8 +183,10 @@ table 10721 "Historic G/L Account"
         field(34; Totaling; Text[250])
         {
             Caption = 'Totaling';
+#if not CLEAN25
             TableRelation = "Historic G/L Account";
             ValidateTableRelation = false;
+#endif
         }
         field(35; "Budget Filter"; Code[10])
         {
@@ -204,7 +211,7 @@ table 10721 "Historic G/L Account"
             CalcFormula = sum("G/L Budget Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                               Date = field(UPPERLIMIT("Date Filter")),
+                                                               Date = field(upperlimit("Date Filter")),
                                                                "Budget Name" = field("Budget Filter")));
             Caption = 'Budget at Date';
             Editable = false;
@@ -359,7 +366,7 @@ table 10721 "Historic G/L Account"
             CalcFormula = sum("G/L Entry"."Additional-Currency Amount" where("Business Unit Code" = field("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                              "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                              "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Add.-Currency Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -413,7 +420,9 @@ table 10721 "Historic G/L Account"
         {
             Caption = 'Income Stmt. Bal. Acc.';
             Editable = false;
+#if not CLEAN25
             TableRelation = "Historic G/L Account";
+#endif
         }
         field(10701; "Ignore in 347 Report"; Boolean)
         {

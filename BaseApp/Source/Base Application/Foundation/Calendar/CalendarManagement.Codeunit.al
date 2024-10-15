@@ -9,7 +9,6 @@ using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using Microsoft.Service.Setup;
 using System.Utilities;
 
 codeunit 7600 "Calendar Management"
@@ -23,7 +22,9 @@ codeunit 7600 "Calendar Management"
     var
         CurrCustomizedCalendarChange: Record "Customized Calendar Change";
         TempCustChange: Record "Customized Calendar Change" temporary;
+#pragma warning disable AA0470
         NegativeExprErr: Label 'The expression %1 cannot be negative.';
+#pragma warning restore AA0470
         SourceErr: Label 'The calendar source must be set by a source record.';
 
     procedure SetSource(SourceVariant: Variant; var NewCustomCalendarChange: Record "Customized Calendar Change")
@@ -53,8 +54,6 @@ codeunit 7600 "Calendar Management"
                 SetSourceCustomer(RecRef, CustomCalendarChange);
             Database::Vendor:
                 SetSourceVendor(RecRef, CustomCalendarChange);
-            Database::"Service Mgt. Setup":
-                SetSourceServiceMgtSetup(RecRef, CustomCalendarChange);
             Database::"Shipping Agent Services":
                 SetSourceShippingAgentServices(RecRef, CustomCalendarChange);
             Database::"Customized Calendar Entry":
@@ -111,14 +110,6 @@ codeunit 7600 "Calendar Management"
         CustomCalendarChange.SetSource(
             CustomizedCalendarEntry."Source Type", CustomizedCalendarEntry."Source Code",
             CustomizedCalendarEntry."Additional Source Code", CustomizedCalendarEntry."Base Calendar Code");
-    end;
-
-    local procedure SetSourceServiceMgtSetup(RecRef: RecordRef; var CustomCalendarChange: Record "Customized Calendar Change")
-    var
-        ServMgtSetup: Record "Service Mgt. Setup";
-    begin
-        RecRef.SetTable(ServMgtSetup);
-        CustomCalendarChange.SetSource(CustomCalendarChange."Source Type"::Service, '', '', ServMgtSetup."Base Calendar Code");
     end;
 
     local procedure SetSourceShippingAgentServices(RecRef: RecordRef; var CustomCalendarChange: Record "Customized Calendar Change")
@@ -289,12 +280,11 @@ codeunit 7600 "Calendar Management"
         AddWhereUsedBaseCalendarLocation(BaseCalendarCode);
         AddWhereUsedBaseCalendarVendor(BaseCalendarCode);
         AddWhereUsedBaseCalendarShippingAgentServices(BaseCalendarCode);
-        AddWhereUsedBaseCalendarServMgtSetup(BaseCalendarCode);
         OnCreateWhereUsedEntries(BaseCalendarCode);
         Commit();
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCreateWhereUsedEntries(BaseCalendarCode: code[10])
     begin
     end;
@@ -354,22 +344,6 @@ codeunit 7600 "Calendar Management"
                 WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(Location);
                 WhereUsedBaseCalendar.Insert();
             until Location.Next() = 0;
-    end;
-
-    local procedure AddWhereUsedBaseCalendarServMgtSetup(BaseCalendarCode: code[10])
-    var
-        ServMgtSetup: Record "Service Mgt. Setup";
-        WhereUsedBaseCalendar: Record "Where Used Base Calendar";
-    begin
-        if ServMgtSetup.Get() then
-            if ServMgtSetup."Base Calendar Code" = BaseCalendarCode then begin
-                WhereUsedBaseCalendar.Init();
-                WhereUsedBaseCalendar."Base Calendar Code" := ServMgtSetup."Base Calendar Code";
-                WhereUsedBaseCalendar."Source Type" := WhereUsedBaseCalendar."Source Type"::Service;
-                WhereUsedBaseCalendar."Source Name" := ServMgtSetup.TableCaption();
-                WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(ServMgtSetup);
-                WhereUsedBaseCalendar.Insert();
-            end;
     end;
 
     local procedure AddWhereUsedBaseCalendarShippingAgentServices(BaseCalendarCode: code[10])

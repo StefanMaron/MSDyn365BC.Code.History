@@ -492,6 +492,11 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'VAT Date';
             Editable = false;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -609,7 +614,7 @@ table 124 "Purch. Cr. Memo Hdr."
         }
         field(10706; "SII Status"; Enum "SII Document Status")
         {
-            CalcFormula = Lookup("SII Doc. Upload State".Status where("Document Source" = const("Vendor Ledger"),
+            CalcFormula = lookup("SII Doc. Upload State".Status where("Document Source" = const("Vendor Ledger"),
                                                                        "Document Type" = const("Credit Memo"),
                                                                        "Document No." = field("No.")));
             Caption = 'SII Status';
@@ -693,13 +698,8 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Pay-at Code';
             TableRelation = "Vendor Pmt. Address".Code where("Vendor No." = field("Pay-to Vendor No."));
             ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
     }
 

@@ -85,71 +85,6 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('BillGroupExportN58RequestPageHandler,SuffixesPageHandler')]
-    [Scope('OnPrem')]
-    procedure ExportN58FormatBillGroupToFile()
-    var
-        BankAccount: Record "Bank Account";
-        BillGroup: Record "Bill Group";
-        CarteraDoc: Record "Cartera Doc.";
-        Customer: Record Customer;
-        CustomerPmtAddress: Record "Customer Pmt. Address";
-        SalesHeader: Record "Sales Header";
-        FileMgt: Codeunit "File Management";
-        DocumentNo: Code[20];
-        FileName: Text[1024];
-        Suffix: Code[3];
-        Line: Text[1024];
-    begin
-        Initialize();
-
-        // Pre-Setup
-        LibraryCarteraReceivables.CreateCarteraCustomer(Customer, LocalCurrencyCode);
-        LibraryCarteraReceivables.GenerateCustomerPmtAddress(Customer."No.", CustomerPmtAddress);
-
-        LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, Customer."No.");
-        LibraryCarteraReceivables.UpdateSalesInvoiceWithCustomerPmtCode(SalesHeader, CustomerPmtAddress.Code);
-
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // Setup
-        LibraryCarteraReceivables.CreateBankAccount(BankAccount, LocalCurrencyCode);
-        LibraryCarteraReceivables.UpdateBankAccountWithFormatN58(BankAccount);
-        Suffix := LibraryCarteraReceivables.CreateSuffixForBankAccount(BankAccount."No.");
-        LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Dealing Type"::Collection);
-        LibraryCarteraReceivables.AddCarteraDocumentToBillGroup(CarteraDoc, DocumentNo, Customer."No.", BillGroup."No.");
-
-        FileName := CopyStr(FileMgt.ServerTempFileName('txt'), 1, MaxStrLen(FileName));
-
-        // Exercise
-        LibraryVariableStorage.Enqueue(Suffix);
-        LibraryBillGroupExportN58.RunBillGroupExportN58Report(BillGroup."No.", FileName);
-
-        // Verify
-        Line := LibraryTextFileValidation.ReadLine(FileName, 1);
-        ValidateN58ExportHeader(Line, Suffix, BankAccount);
-
-        Line := LibraryTextFileValidation.ReadLine(FileName, 2);
-        ValidateN58ExportBillGroup(Line, Suffix, BankAccount);
-
-        Line := LibraryTextFileValidation.ReadLine(FileName, 3);
-        ValidateN58ExportTransaction(Line, Suffix, DocumentNo, CarteraDoc."Remaining Amount", Customer);
-
-        Line := LibraryTextFileValidation.ReadLine(FileName, 4);
-        ValidateN58ExportPaymentInformation(Line, Suffix, CustomerPmtAddress);
-
-        Line := LibraryTextFileValidation.ReadLine(FileName, 5);
-        ValidateN58ExportTotal(Line, Suffix, CarteraDoc."Remaining Amount");
-
-        Line := LibraryTextFileValidation.ReadLine(FileName, 6);
-        ValidateN58ExportFooter(Line, Suffix, CarteraDoc."Remaining Amount");
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('BillGroupExportN32RequestPageHandler,SuffixesPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
@@ -589,35 +524,6 @@ codeunit 147532 "Cartera Recv. Exported Formats"
           LibraryBillGroupExportN58.ReadCarteraDocNumber(Line), IncorrectDocNoErr);
         Assert.AreEqual(AmountAsText, LibraryBillGroupExportN58.ReadCarteraDocAmount(Line), IncorrectAmountErr);
     end;
-
-#if not CLEAN22
-    local procedure ValidateN58ExportPaymentInformation(Line: Text[1024]; SuffixValue: Code[3]; CustomerPmtAddress: Record "Customer Pmt. Address")
-    var
-        CompanyInformation: Record "Company Information";
-        Suffix: Record Suffix;
-    begin
-        CompanyInformation.Get();
-
-        // Validate Payment Information
-        Assert.AreEqual('5676', LibraryBillGroupExportN58.ReadLineTag(Line), IncorrectLineTagErr);
-        Assert.AreEqual(CompanyInformation."VAT Registration No.", LibraryBillGroupExportN58.ReadCompanyVATRegNo(Line),
-          StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption("VAT Registration No.")));
-        Assert.AreEqual(SuffixValue, LibraryBillGroupExportN58.ReadBankSuffix(Line),
-          StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
-
-        Assert.AreEqual(PadStr(CustomerPmtAddress.Address, 40, ' '), LibraryBillGroupExportN58.ReadPaymentAddress(Line),
-          StrSubstNo('%1 is wrong.', CustomerPmtAddress.FieldCaption(Address)));
-
-        Assert.AreEqual(PadStr(CustomerPmtAddress.City, 35, ' '), LibraryBillGroupExportN58.ReadPaymentCity(Line),
-          StrSubstNo('%1 is wrong.', CustomerPmtAddress.FieldCaption(City)));
-
-        Assert.AreEqual(PadStr(CustomerPmtAddress."Post Code", 8, '0'), LibraryBillGroupExportN58.ReadPaymentPostCode(Line),
-          StrSubstNo('%1 is wrong.', CustomerPmtAddress.FieldCaption("Post Code")));
-
-        Assert.AreEqual(PadStr(CompanyInformation.City, 35, ' '), LibraryBillGroupExportN58.ReadCompanyInfoCity(Line),
-          StrSubstNo('%1 is wrong.', CustomerPmtAddress.FieldCaption("Post Code")));
-    end;
-#endif
 
     local procedure ValidateN58ExportTotal(Line: Text[1024]; SuffixValue: Code[3]; TotalAmount: Decimal)
     var

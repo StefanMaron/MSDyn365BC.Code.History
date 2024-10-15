@@ -2042,52 +2042,44 @@ codeunit 144072 "ERM Miscellaneous ES"
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        with PurchInvLine do begin
-            SetRange("Document No.", PostedDocNo);
-            FindSet();
-            repeat
-                Result += "Pmt. Discount Amount";
-            until Next() = 0;
-        end;
+        PurchInvLine.SetRange("Document No.", PostedDocNo);
+        PurchInvLine.FindSet();
+        repeat
+            Result += PurchInvLine."Pmt. Discount Amount";
+        until PurchInvLine.Next() = 0;
     end;
 
     local procedure CalcPurchDocPmtDiscAmt(DocumentNo: Code[20]) Result: Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                Result += "Pmt. Discount Amount";
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindSet();
+        repeat
+            Result += PurchaseLine."Pmt. Discount Amount";
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure CalcPostedSalesInvPmtDiscAmt(PostedDocNo: Code[20]) Result: Decimal
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        with SalesInvoiceLine do begin
-            SetRange("Document No.", PostedDocNo);
-            FindSet();
-            repeat
-                Result += "Pmt. Discount Amount";
-            until Next() = 0;
-        end;
+        SalesInvoiceLine.SetRange("Document No.", PostedDocNo);
+        SalesInvoiceLine.FindSet();
+        repeat
+            Result += SalesInvoiceLine."Pmt. Discount Amount";
+        until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure CalcSalesDocPmtDiscAmt(DocumentNo: Code[20]) Result: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                Result += "Pmt. Discount Amount";
-            until Next() = 0;
-        end;
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindSet();
+        repeat
+            Result += SalesLine."Pmt. Discount Amount";
+        until SalesLine.Next() = 0;
     end;
 
     local procedure CreateAndPostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; ShortcutDimensionOneCode: Code[20]; PostingDate: Date): Code[20]
@@ -2339,12 +2331,10 @@ codeunit 144072 "ERM Miscellaneous ES"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            PreferredBankAccountCode := CreateVendorBankAccountNo("No.");
-            Validate("Preferred Bank Account Code", PreferredBankAccountCode);
-            Modify(true);
-            exit("No.");
-        end;
+        PreferredBankAccountCode := CreateVendorBankAccountNo(Vendor."No.");
+        Vendor.Validate("Preferred Bank Account Code", PreferredBankAccountCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateCustomerWithPreferredBankAccount(var PreferredBankAccountCode: Code[20]): Code[20]
@@ -2352,12 +2342,10 @@ codeunit 144072 "ERM Miscellaneous ES"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            PreferredBankAccountCode := CreateCustomerBankAccountNo("No.");
-            Validate("Preferred Bank Account Code", PreferredBankAccountCode);
-            Modify(true);
-            exit("No.");
-        end;
+        PreferredBankAccountCode := CreateCustomerBankAccountNo(Customer."No.");
+        Customer.Validate("Preferred Bank Account Code", PreferredBankAccountCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateVendorBankAccountNo(VendorNo: Code[20]): Code[20]
@@ -2416,11 +2404,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Payment Method Code", PaymentMethodCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Payment Method Code", PaymentMethodCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateVendorWithPaymentMethod(PaymentMethodCode: Code[10]): Code[20]
@@ -2428,11 +2414,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Payment Method Code", PaymentMethodCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Payment Method Code", PaymentMethodCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreatePaymentMethodWithCreateBills(): Code[10]
@@ -2440,21 +2424,17 @@ codeunit 144072 "ERM Miscellaneous ES"
         PaymentMethod: Record "Payment Method";
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
-        with PaymentMethod do begin
-            Validate("Create Bills", true);
-            Modify(true);
-            exit(Code);
-        end;
+        PaymentMethod.Validate("Create Bills", true);
+        PaymentMethod.Modify(true);
+        exit(PaymentMethod.Code);
     end;
 
     local procedure CreateReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            LibraryERM.CreateVATPostingSetupWithAccounts(
-              VATPostingSetup, "VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 30));
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 30));
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreatePurchaseOrderWithGivenVATSetup(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup")
@@ -2524,11 +2504,9 @@ codeunit 144072 "ERM Miscellaneous ES"
 
     local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; ItemNo: Code[20])
     begin
-        with SalesShipmentLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-        end;
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.SetRange("No.", ItemNo);
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindServiceInvoiceHeader(CustomerNo: Code[20]): Code[20]
@@ -2731,32 +2709,30 @@ codeunit 144072 "ERM Miscellaneous ES"
 
     local procedure VerifyCountryRegionCode(SalesHeader: Record "Sales Header"; Customer: Record Customer; CustomerBillTo: Record Customer; ExpectedShipToCountryRegionCode: Code[10]; ExpectedVATCountryRegionCode: Code[10])
     begin
-        with SalesHeader do begin
-            Assert.AreEqual(
-              Customer."No.",
-              "Sell-to Customer No.",
-              StrSubstNo(FieldValueErr, FieldCaption("Sell-to Customer No.")));
-            Assert.AreEqual(
-              CustomerBillTo."No.",
-              "Bill-to Customer No.",
-              StrSubstNo(FieldValueErr, FieldCaption("Bill-to Customer No.")));
-            Assert.AreEqual(
-              Customer."Country/Region Code",
-              "Sell-to Country/Region Code",
-              StrSubstNo(FieldValueErr, FieldCaption("Sell-to Country/Region Code")));
-            Assert.AreEqual(
-              ExpectedShipToCountryRegionCode,
-              "Ship-to Country/Region Code",
-              StrSubstNo(FieldValueErr, FieldCaption("Ship-to Country/Region Code")));
-            Assert.AreEqual(
-              CustomerBillTo."Country/Region Code",
-              "Bill-to Country/Region Code",
-              StrSubstNo(FieldValueErr, FieldCaption("Bill-to Country/Region Code")));
-            Assert.AreEqual(
-              ExpectedVATCountryRegionCode,
-              "VAT Country/Region Code",
-              StrSubstNo(FieldValueErr, FieldCaption("VAT Country/Region Code")));
-        end;
+        Assert.AreEqual(
+            Customer."No.",
+            SalesHeader."Sell-to Customer No.",
+            StrSubstNo(FieldValueErr, SalesHeader.FieldCaption("Sell-to Customer No.")));
+        Assert.AreEqual(
+          CustomerBillTo."No.",
+          SalesHeader."Bill-to Customer No.",
+          StrSubstNo(FieldValueErr, SalesHeader.FieldCaption("Bill-to Customer No.")));
+        Assert.AreEqual(
+          Customer."Country/Region Code",
+          SalesHeader."Sell-to Country/Region Code",
+          StrSubstNo(FieldValueErr, SalesHeader.FieldCaption("Sell-to Country/Region Code")));
+        Assert.AreEqual(
+          ExpectedShipToCountryRegionCode,
+          SalesHeader."Ship-to Country/Region Code",
+          StrSubstNo(FieldValueErr, SalesHeader.FieldCaption("Ship-to Country/Region Code")));
+        Assert.AreEqual(
+          CustomerBillTo."Country/Region Code",
+          SalesHeader."Bill-to Country/Region Code",
+          StrSubstNo(FieldValueErr, SalesHeader.FieldCaption("Bill-to Country/Region Code")));
+        Assert.AreEqual(
+          ExpectedVATCountryRegionCode,
+          SalesHeader."VAT Country/Region Code",
+          StrSubstNo(FieldValueErr, SalesHeader.FieldCaption("VAT Country/Region Code")));
     end;
 
     local procedure VerifyCustGLUnapplication(CustomerNo: Code[20]; DocumentNo: Code[20])
@@ -2804,23 +2780,17 @@ codeunit 144072 "ERM Miscellaneous ES"
         DummyPurchInvHeader: Record "Purch. Inv. Header";
         DummyVendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            SetRange("Recipient Bank Account", ExpectedPmtBankAcc);
-        end;
-        Assert.RecordCount(GenJournalLine, 2); // prepayment and invoice
-
-        with DummyPurchInvHeader do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange("Vendor Bank Acc. Code", ExpectedDocBankAcc);
-        end;
-        Assert.RecordCount(DummyPurchInvHeader, 2); // prepayment and invoice
-
-        with DummyVendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Recipient Bank Account", ExpectedDocBankAcc);
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Recipient Bank Account", ExpectedPmtBankAcc);
+        Assert.RecordCount(GenJournalLine, 2);
+        // prepayment and invoice
+        DummyPurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        DummyPurchInvHeader.SetRange("Vendor Bank Acc. Code", ExpectedDocBankAcc);
+        Assert.RecordCount(DummyPurchInvHeader, 2);
+        // prepayment and invoice
+        DummyVendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        DummyVendorLedgerEntry.SetRange("Recipient Bank Account", ExpectedDocBankAcc);
         Assert.RecordCount(DummyVendorLedgerEntry, 2); // prepayment and invoice
     end;
 
@@ -2829,16 +2799,12 @@ codeunit 144072 "ERM Miscellaneous ES"
         DummySalesInvoiceHeader: Record "Sales Invoice Header";
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with DummySalesInvoiceHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            SetRange("Cust. Bank Acc. Code", ExpectedBankAcc);
-        end;
-        Assert.RecordCount(DummySalesInvoiceHeader, 2); // prepayment and invoice
-
-        with DummyCustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Recipient Bank Account", ExpectedBankAcc);
-        end;
+        DummySalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        DummySalesInvoiceHeader.SetRange("Cust. Bank Acc. Code", ExpectedBankAcc);
+        Assert.RecordCount(DummySalesInvoiceHeader, 2);
+        // prepayment and invoice
+        DummyCustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        DummyCustLedgerEntry.SetRange("Recipient Bank Account", ExpectedBankAcc);
         Assert.RecordCount(DummyCustLedgerEntry, 2); // prepayment and invoice
     end;
 
@@ -2846,15 +2812,13 @@ codeunit 144072 "ERM Miscellaneous ES"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            CalcFields("Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
-            Assert.AreNearlyEqual(
-              CostAmtActual, "Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
-            Assert.AreNearlyEqual(
-              CostAmtNonInvtbl, "Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
+        Assert.AreNearlyEqual(
+          CostAmtActual, ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
+        Assert.AreNearlyEqual(
+          CostAmtNonInvtbl, ItemLedgerEntry."Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
     end;
 
     local procedure CreateVATPostingSetupWithNonDeductibleVAT(var VATPostingSetup: Record "VAT Posting Setup")

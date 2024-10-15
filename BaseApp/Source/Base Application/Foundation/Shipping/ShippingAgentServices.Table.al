@@ -66,6 +66,10 @@ table 5790 "Shipping Agent Services"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The %1 cannot be negative.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

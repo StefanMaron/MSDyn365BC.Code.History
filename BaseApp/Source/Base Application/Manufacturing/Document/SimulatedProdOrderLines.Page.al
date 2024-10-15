@@ -1,7 +1,6 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
-using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
@@ -325,7 +324,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        ShowTracking();
+                        Rec.ShowOrderTracking();
                     end;
                 }
             }
@@ -346,7 +345,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByEvent());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -358,7 +357,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -370,7 +369,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -383,7 +382,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -406,7 +405,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByBOM());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -469,7 +468,7 @@ page 99000913 "Simulated Prod. Order Lines"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -513,7 +512,7 @@ page 99000913 "Simulated Prod. Order Lines"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;
@@ -533,14 +532,6 @@ page 99000913 "Simulated Prod. Order Lines"
         ProdOrderComp.SetRange("Prod. Order Line No.", Rec."Line No.");
 
         PAGE.Run(PAGE::"Prod. Order Components", ProdOrderComp);
-    end;
-
-    local procedure ShowTracking()
-    var
-        TrackingForm: Page "Order Tracking";
-    begin
-        TrackingForm.SetProdOrderLine(Rec);
-        TrackingForm.RunModal();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)

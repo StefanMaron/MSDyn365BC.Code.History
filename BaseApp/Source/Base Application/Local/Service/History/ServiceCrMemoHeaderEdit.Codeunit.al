@@ -5,6 +5,7 @@
 namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
+using Microsoft.Finance.VAT.Ledger;
 
 codeunit 10769 "Service Cr. Memo Header - Edit"
 {
@@ -65,6 +66,23 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeServiceCrMemoHeaderModify(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; FromServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"VAT Entry", 'OnIsCorrectiveCrMemoDiffPeriodOnAfterCheckSales', '', false, false)]
+    local procedure OnIsCorrectiveCrMemoDiffPeriodOnAfterCheckSales(var VATEntry: Record "VAT Entry"; StartDateFormula: DateFormula; EndDateFormula: DateFormula; var Result: Boolean)
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+    begin
+        ServiceCrMemoHeader.Get(VATEntry."Document No.");
+        if ServiceCrMemoHeader."Corrected Invoice No." = '' then
+            Result := false
+        else begin
+            ServiceInvoiceHeader.Get(ServiceCrMemoHeader."Corrected Invoice No.");
+            Result := not (ServiceInvoiceHeader."Posting Date" in
+                        [CalcDate(StartDateFormula, ServiceCrMemoHeader."Posting Date") ..
+                            CalcDate(EndDateFormula, ServiceCrMemoHeader."Posting Date")]);
+        end;
     end;
 }
 

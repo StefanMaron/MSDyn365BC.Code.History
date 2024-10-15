@@ -771,20 +771,18 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         UnpostedValue: Decimal;
         PostedValue: Decimal;
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            SalesInvoiceHeader.Get(InvoiceNo);
-            SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+        LibraryReportDataset.LoadDataSetFile();
+        SalesInvoiceHeader.Get(InvoiceNo);
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
 
-            while GetNextRow() do begin
-                if Unposted then
-                    UnpostedValue := SalesInvoiceHeader."Amount Including VAT";
-                if Posted then
-                    PostedValue := SalesInvoiceHeader."Amount Including VAT";
+        while LibraryReportDataset.GetNextRow() do begin
+            if Unposted then
+                UnpostedValue := SalesInvoiceHeader."Amount Including VAT";
+            if Posted then
+                PostedValue := SalesInvoiceHeader."Amount Including VAT";
 
-                AssertCurrentRowValueEquals('NonPostedDiscAmt', UnpostedValue);
-                AssertCurrentRowValueEquals('BankAcc__Posted_Receiv__Bills_Rmg__Amt__', PostedValue);
-            end;
+            LibraryReportDataset.AssertCurrentRowValueEquals('NonPostedDiscAmt', UnpostedValue);
+            LibraryReportDataset.AssertCurrentRowValueEquals('BankAcc__Posted_Receiv__Bills_Rmg__Amt__', PostedValue);
         end;
     end;
 

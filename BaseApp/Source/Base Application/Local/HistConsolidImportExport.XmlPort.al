@@ -5,8 +5,10 @@
 namespace Microsoft;
 
 using Microsoft.Finance.Currency;
+#if not CLEAN25
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Ledger;
+#endif
 
 xmlport 10700 "Hist. Consolid. Import/Export"
 {
@@ -95,6 +97,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
                     }
                 }
             }
+#if not CLEAN25
             textelement(historicGLAccountTable)
             {
                 MaxOccurs = Once;
@@ -180,7 +183,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
                     }
                 }
             }
-
+#endif
             trigger OnAfterAssignVariable()
             begin
                 NextGLEntryNo := 1;
@@ -237,6 +240,8 @@ xmlport 10700 "Hist. Consolid. Import/Export"
         ImpEndingDate := XMLTextToDate(endingDate);
     end;
 
+#if not CLEAN25
+    [Obsolete('The Table ''Historic G/L Account'' is obsoleted', '25.0')]
     [Scope('OnPrem')]
     procedure SetGLAccount(var TempHistoricGLAccount: Record "Historic G/L Account")
     begin
@@ -249,6 +254,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             until TempHistoricGLAccount.Next() = 0;
     end;
 
+    [Obsolete('The Table ''Historic G/L Account'' is obsoleted', '25.0')]
     [Scope('OnPrem')]
     procedure GetGLAccount(var TempHistoricGLAccount: Record "Historic G/L Account")
     begin
@@ -262,6 +268,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             until "Historic G/L Account".Next() = 0;
     end;
 
+    [Obsolete('"G/L Entry" in this file is referencing the table "Historic G/L Account", which is obsoleted', '25.0')]
     [Scope('OnPrem')]
     procedure SetGLEntry(var TempGLEntry: Record "G/L Entry")
     begin
@@ -274,6 +281,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             until TempGLEntry.Next() = 0;
     end;
 
+    [Obsolete('"G/L Entry" in this file is referencing the table "Historic G/L Account", which is obsoleted', '25.0')]
     [Scope('OnPrem')]
     procedure GetGLEntry(var TempGLEntry: Record "G/L Entry")
     begin
@@ -287,6 +295,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             until "G/L Entry".Next() = 0;
     end;
 
+    [Obsolete('"Dimension Set Entry" in this file is referencing the table "Historic G/L Account", which is obsoleted', '25.0')]
     [Scope('OnPrem')]
     procedure SetEntryDim(var DimSetEntry: Record "Dimension Set Entry")
     begin
@@ -299,6 +308,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             until DimSetEntry.Next() = 0;
     end;
 
+    [Obsolete('"Dimension Set Entry" in this file is referencing the table "Historic G/L Account", which is obsoleted', '25.0')]
     [Scope('OnPrem')]
     procedure GetEntryDim(var TempDimSetEntry: Record "Dimension Set Entry")
     begin
@@ -311,6 +321,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
                 TempDimSetEntry.Insert();
             until "Dimension Set Entry".Next() = 0;
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure SetExchRate(var TempExchRate: Record "Currency Exchange Rate")

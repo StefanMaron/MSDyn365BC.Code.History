@@ -34,8 +34,6 @@ codeunit 134200 "Document Approval - Errors"
         VendorRestrictionErr: Label 'You cannot use Vendor: %1 for this action.', Comment = '%1 = Buy-from Vendor No.';
         CustomerRestrictionErr: Label 'You cannot use Customer: %1 for this action.', Comment = '%1 = Sell to Customer No';
         ItemRestrictionErr: Label 'You cannot use Item: %1 for this action.', Comment = '%1 = Item No';
-        CustomerDoesntExistErr: Label 'The Customer does not exist. Identification fields and values: No.=''%1''', Comment = '%1 - Customer No.';
-        VendorDoesntExistErr: Label 'The Vendor does not exist. Identification fields and values: No.=''%1''', Comment = '%1 - Vendor No.';
         DelegateOnlyOpenRequestsErr: Label 'You can only delegate open approval requests.';
         ApproveOnlyOpenRequestsErr: Label 'You can only approve open approval requests.';
         RejectOnlyOpenRequestsErr: Label 'You can only reject open approval entries.';
@@ -847,7 +845,7 @@ codeunit 134200 "Document Approval - Errors"
         asserterror RecordRestrictionMgt.VendorCheckGenJournalLinePostRestrictions(GenJournalLine);
 
         // [THEN] Error is thrown "The Vendor does not exist. Identification fields and values: No.='V1'"
-        Assert.ExpectedError(StrSubstNo(VendorDoesntExistErr, GenJournalLine."Account No."));
+        Assert.ExpectedErrorCannotFind(Database::Vendor, GenJournalLine."Account No.");
     end;
 
     [Test]
@@ -871,7 +869,7 @@ codeunit 134200 "Document Approval - Errors"
         asserterror RecordRestrictionMgt.VendorCheckGenJournalLinePostRestrictions(GenJournalLine);
 
         // [THEN] Error is thrown "The Vendor does not exist. Identification fields and values: No.='V1'"
-        Assert.ExpectedError(StrSubstNo(VendorDoesntExistErr, GenJournalLine."Bal. Account No."));
+        Assert.ExpectedErrorCannotFind(Database::Vendor, GenJournalLine."Bal. Account No.");
     end;
 
     [Test]
@@ -895,7 +893,7 @@ codeunit 134200 "Document Approval - Errors"
         asserterror RecordRestrictionMgt.CustomerCheckGenJournalLinePostRestrictions(GenJournalLine);
 
         // [THEN] Error is thrown "The Customer does not exist. Identification fields and values: No.='C1'"
-        Assert.ExpectedError(StrSubstNo(CustomerDoesntExistErr, GenJournalLine."Account No."));
+        Assert.ExpectedErrorCannotFind(Database::Customer, GenJournalLine."Account No.");
     end;
 
     [Test]
@@ -919,7 +917,7 @@ codeunit 134200 "Document Approval - Errors"
         asserterror RecordRestrictionMgt.CustomerCheckGenJournalLinePostRestrictions(GenJournalLine);
 
         // [THEN] Error is thrown "The Customer does not exist. Identification fields and values: No.='C1'"
-        Assert.ExpectedError(StrSubstNo(CustomerDoesntExistErr, GenJournalLine."Bal. Account No."));
+        Assert.ExpectedErrorCannotFind(Database::Customer, GenJournalLine."Bal. Account No.");
     end;
 
     [Test]

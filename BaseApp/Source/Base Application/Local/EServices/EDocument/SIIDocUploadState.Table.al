@@ -378,7 +378,7 @@ table 10752 "SII Doc. Upload State"
     begin
         SIIDocUploadState.SetRange(Status, SIIDocUploadState.Status::"Communication Error");
 
-        if SIIDocUploadState.FindSet() then begin
+        if SIIDocUploadState.FindSet() then
             repeat
                 // We want latest first. Ideally we'd use something like 'by date desc', but since NAV does not allow us to do that,
                 // we rely on PK and that the date does not change in a weird way.
@@ -391,7 +391,6 @@ table 10752 "SII Doc. Upload State"
                 // If the latest doc is in "CommunicationError" state, we issue a retry.
                 CreateCommunicationErrorRetryRequest(SIIHistory);
             until SIIDocUploadState.Next() = 0;
-        end;
     end;
 
     local procedure CreateCommunicationErrorRetryRequest(var SIIHistory: Record "SII History")

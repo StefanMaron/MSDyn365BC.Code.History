@@ -33,7 +33,7 @@ report 7000099 "Post Bill Group"
             dataitem(Doc; "Cartera Doc.")
             {
                 DataItemLink = "Bill Gr./Pmt. Order No." = field("No.");
-                DataItemTableView = sorting(Type, "Collection Agent", "Bill Gr./Pmt. Order No.") where("Collection Agent" = CONST(Bank), Type = CONST(Receivable));
+                DataItemTableView = sorting(Type, "Collection Agent", "Bill Gr./Pmt. Order No.") where("Collection Agent" = const(Bank), Type = const(Receivable));
 
                 trigger OnAfterGetRecord()
                 var
@@ -143,7 +143,7 @@ report 7000099 "Post Bill Group"
                             BillGr."Posting Description", CustLedgEntry2, CustLedgEntry."Original Currency Factor");
                         SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
 
-                        if CheckCurrFact(Doc, BillGr) then begin
+                        if CheckCurrFact(Doc, BillGr) then
                             if TempBGPOPostBuffer."Gain - Loss Amount (LCY)" <> 0 then begin
                                 TempCurrencyCode := BillGr."Currency Code";
                                 BillGr."Currency Code" := '';
@@ -165,7 +165,6 @@ report 7000099 "Post Bill Group"
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                                 BillGr."Currency Code" := TempCurrencyCode;
                             end;
-                        end;
 
                         if BillGr."Dealing Type" <> BillGr."Dealing Type"::Collection then begin
                             BankAcc.TestField("Bank Acc. Posting Group");
@@ -373,8 +372,8 @@ report 7000099 "Post Bill Group"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Aux. Jnl. Template Name';
-                        TableRelation = "Gen. Journal Template".Name where(Type = CONST(Cartera),
-                                                                            Recurring = CONST(false));
+                        TableRelation = "Gen. Journal Template".Name where(Type = const(Cartera),
+                                                                            Recurring = const(false));
                         ToolTip = 'Specifies the name of general journal template where the payment order is posted.';
 
                         trigger OnValidate()

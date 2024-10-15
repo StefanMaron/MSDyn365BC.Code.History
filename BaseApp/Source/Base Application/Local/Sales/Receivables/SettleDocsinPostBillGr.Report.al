@@ -220,7 +220,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                 if PostedBillGr.Factoring <> PostedBillGr.Factoring::" " then
                     FactBankAccounting();
 
-                if PostedBillGr."Currency Code" <> '' then begin
+                if PostedBillGr."Currency Code" <> '' then
                     if SumLCYAmt <> 0 then begin
                         Currency.SetFilter(Code, PostedBillGr."Currency Code");
                         Currency.FindFirst();
@@ -252,7 +252,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                         OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, CustLedgEntry, CustLedgEntry2, PostedBillGr);
                         GenJnlLine.Insert();
                     end;
-                end;
+
                 PostedBillGr.Modify();
                 OnBeforePostSettlementForPostedBillGroup(GenJnlLine, PostedBillGr, PostingDate);
                 DocPost.PostSettlementForPostedBillGroup(GenJnlLine, PostingDate);
@@ -443,37 +443,35 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
     begin
         case true of
             PostedDoc."Dealing Type" = PostedDoc."Dealing Type"::Discount:
-                begin
-                    if BankAccPostBuffer.Find('-') then
-                        repeat
-                            GenJnlLineNextNo := GenJnlLineNextNo + 10000;
-                            CustLedgEntry2.Get(BankAccPostBuffer."Entry No.");
-                            Clear(GenJnlLine);
-                            GenJnlLine.Init();
-                            GenJnlLine."Line No." := GenJnlLineNextNo;
-                            GenJnlLine."Posting Date" := PostingDate;
-                            GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
-                            GenJnlLine."Document No." := PostedBillGr."No.";
-                            GenJnlLine."Reason Code" := PostedBillGr."Reason Code";
-                            BankAcc.TestField("Bank Acc. Posting Group");
-                            BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
-                            GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"Bank Account");
-                            GenJnlLine.Validate("Account No.", BankAcc."No.");
-                            GenJnlLine.Description := CopyStr(StrSubstNo(Text1100006, PostedBillGr."No."), 1, MaxStrLen(GenJnlLine.Description));
-                            GenJnlLine.Validate("Currency Code", PostedBillGr."Currency Code");
-                            // VALIDATE(Amount,GroupAmount - TotalDisctdAmt);
-                            GenJnlLine.Validate(Amount, BankAccPostBuffer.Amount);
-                            GenJnlLine."Source Code" := SourceCode;
-                            GenJnlLine."System-Created Entry" := true;
-                            GenJnlLine."Shortcut Dimension 1 Code" := BankAccPostBuffer."Global Dimension 1 Code";
-                            GenJnlLine."Shortcut Dimension 2 Code" := BankAccPostBuffer."Global Dimension 2 Code";
-                            GenJnlLine."Dimension Set ID" := BankAccPostBuffer."Dimension Set ID";
-                            OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, CustLedgEntry, CustLedgEntry2, PostedBillGr);
-                            GenJnlLine.Insert();
-                            SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-                        until BankAccPostBuffer.Next() = 0;
-                end;
-            else begin
+                if BankAccPostBuffer.Find('-') then
+                    repeat
+                        GenJnlLineNextNo := GenJnlLineNextNo + 10000;
+                        CustLedgEntry2.Get(BankAccPostBuffer."Entry No.");
+                        Clear(GenJnlLine);
+                        GenJnlLine.Init();
+                        GenJnlLine."Line No." := GenJnlLineNextNo;
+                        GenJnlLine."Posting Date" := PostingDate;
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+                        GenJnlLine."Document No." := PostedBillGr."No.";
+                        GenJnlLine."Reason Code" := PostedBillGr."Reason Code";
+                        BankAcc.TestField("Bank Acc. Posting Group");
+                        BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
+                        GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"Bank Account");
+                        GenJnlLine.Validate("Account No.", BankAcc."No.");
+                        GenJnlLine.Description := CopyStr(StrSubstNo(Text1100006, PostedBillGr."No."), 1, MaxStrLen(GenJnlLine.Description));
+                        GenJnlLine.Validate("Currency Code", PostedBillGr."Currency Code");
+                        // VALIDATE(Amount,GroupAmount - TotalDisctdAmt);
+                        GenJnlLine.Validate(Amount, BankAccPostBuffer.Amount);
+                        GenJnlLine."Source Code" := SourceCode;
+                        GenJnlLine."System-Created Entry" := true;
+                        GenJnlLine."Shortcut Dimension 1 Code" := BankAccPostBuffer."Global Dimension 1 Code";
+                        GenJnlLine."Shortcut Dimension 2 Code" := BankAccPostBuffer."Global Dimension 2 Code";
+                        GenJnlLine."Dimension Set ID" := BankAccPostBuffer."Dimension Set ID";
+                        OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, CustLedgEntry, CustLedgEntry2, PostedBillGr);
+                        GenJnlLine.Insert();
+                        SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
+                    until BankAccPostBuffer.Next() = 0;
+            else
                 if BankAccPostBuffer.Find('-') then
                     repeat
                         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
@@ -501,7 +499,6 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                         GenJnlLine.Insert();
                         SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                     until BankAccPostBuffer.Next() = 0;
-            end;
         end;
     end;
 

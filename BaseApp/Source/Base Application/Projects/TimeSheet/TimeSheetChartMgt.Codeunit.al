@@ -17,7 +17,9 @@ codeunit 952 "Time Sheet Chart Mgt."
 
     var
         TimeSheetMgt: Codeunit "Time Sheet Management";
+#pragma warning disable AA0074
         Text001: Label 'Time Sheet Resource';
+#pragma warning restore AA0074
         MeasureType: Option Open,Submitted,Rejected,Approved,Scheduled,Posted,"Not Posted",Resource,Job,Service,Absence,"Assembly Order";
 
     procedure OnOpenPage(var TimeSheetChartSetup: Record "Time Sheet Chart Setup")

@@ -356,8 +356,10 @@ page 5872 "BOM Cost Shares"
         IsParentExpr: Boolean;
         HasWarning: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'None of the items in the filter have a BOM.';
         Text001: Label 'There are no warnings.';
+#pragma warning restore AA0074
 
     protected var
         ItemFilter: Code[250];

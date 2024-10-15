@@ -8,7 +8,6 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Purchases.Payables;
-using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
@@ -122,16 +121,8 @@ table 7000004 "Closed Cartera Doc."
         {
             Caption = 'Pmt. Address Code';
             ObsoleteReason = 'Address is taken from the fields Address, City, etc. of Customer/Vendor table.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
-            TableRelation = if (Type = const(Receivable)) "Customer Pmt. Address".Code where("Customer No." = field("Account No."))
-            else
-            if (Type = const(Payable)) "Vendor Pmt. Address".Code where("Vendor No." = field("Account No."));
         }
         field(22; "Global Dimension 1 Code"; Code[20])
         {

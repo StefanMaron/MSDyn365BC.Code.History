@@ -1536,29 +1536,25 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     var
         NonPaymentPeriod: Record "Non-Payment Period";
     begin
-        with NonPaymentPeriod do begin
-            "Table Name" := TableNameOption;
-            if NonPaymentPeriodCode = '' then
-                NonPaymentPeriodCode := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Non-Payment Period");
-            Code := NonPaymentPeriodCode;
-            "From Date" := FromDate;
-            "To Date" := ToDate;
-            Insert();
-        end;
+        NonPaymentPeriod."Table Name" := TableNameOption;
+        if NonPaymentPeriodCode = '' then
+            NonPaymentPeriodCode := LibraryUtility.GenerateRandomCode(NonPaymentPeriod.FieldNo(Code), DATABASE::"Non-Payment Period");
+        NonPaymentPeriod.Code := NonPaymentPeriodCode;
+        NonPaymentPeriod."From Date" := FromDate;
+        NonPaymentPeriod."To Date" := ToDate;
+        NonPaymentPeriod.Insert();
     end;
 
     local procedure CreatePaymentDay(var PaymentDayCode: Code[20]; TableNameOption: Option; PayDay: Integer)
     var
         PaymentDay: Record "Payment Day";
     begin
-        with PaymentDay do begin
-            "Table Name" := TableNameOption;
-            if PaymentDayCode = '' then
-                PaymentDayCode := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Day");
-            Code := PaymentDayCode;
-            "Day of the month" := PayDay;
-            Insert();
-        end;
+        PaymentDay."Table Name" := TableNameOption;
+        if PaymentDayCode = '' then
+            PaymentDayCode := LibraryUtility.GenerateRandomCode(PaymentDay.FieldNo(Code), DATABASE::"Payment Day");
+        PaymentDay.Code := PaymentDayCode;
+        PaymentDay."Day of the month" := PayDay;
+        PaymentDay.Insert();
     end;
 
     local procedure CreateCustomerWithNonPaymentPeriod(var CustomerNo: Code[20]; FromDate: Date; ToDate: Date)

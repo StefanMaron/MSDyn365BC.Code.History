@@ -1976,16 +1976,14 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Vendor No.", VendorNo);
-            if IsBill then
-                SetFilter("Bill No.", '<>%1', '');
-            FindFirst();
-            Validate("Payment Method Code", PaymentMethodCode);
-            Modify(true);
-            exit("Bill No.");
-        end;
+        VendLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendLedgerEntry.SetRange("Vendor No.", VendorNo);
+        if IsBill then
+            VendLedgerEntry.SetFilter("Bill No.", '<>%1', '');
+        VendLedgerEntry.FindFirst();
+        VendLedgerEntry.Validate("Payment Method Code", PaymentMethodCode);
+        VendLedgerEntry.Modify(true);
+        exit(VendLedgerEntry."Bill No.");
     end;
 
     local procedure PostPaymentOrderFromPage(PaymentOrderNo: Code[20])
@@ -2046,26 +2044,22 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
-        with CarteraDoc do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Account No.", VendorNo);
-            SetRange("No.", BillNo);
-            FindFirst();
-            TestField("Payment Method Code", PaymentMethodCode);
-        end;
+        CarteraDoc.SetRange("Document No.", DocumentNo);
+        CarteraDoc.SetRange("Account No.", VendorNo);
+        CarteraDoc.SetRange("No.", BillNo);
+        CarteraDoc.FindFirst();
+        CarteraDoc.TestField("Payment Method Code", PaymentMethodCode);
     end;
 
     local procedure VerifyCarteraDocInvoicePaymentMethod(DocumentNo: Code[20]; VendorNo: Code[20]; PaymentMethodCode: Code[20])
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
-        with CarteraDoc do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Account No.", VendorNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst();
-            TestField("Payment Method Code", PaymentMethodCode);
-        end;
+        CarteraDoc.SetRange("Document No.", DocumentNo);
+        CarteraDoc.SetRange("Account No.", VendorNo);
+        CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
+        CarteraDoc.FindFirst();
+        CarteraDoc.TestField("Payment Method Code", PaymentMethodCode);
     end;
 
     local procedure VerifyCarteraDocumentRemovedFromPaymentOrder(BillGroupNo: Code[20])
@@ -2241,15 +2235,13 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
-            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Invoice Rounding Precision", "Amount Rounding Precision");
-            Validate("Payment Orders", true);
-            Modify(true);
-            exit(Code);
-        end;
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+        Currency.Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Invoice Rounding Precision", Currency."Amount Rounding Precision");
+        Currency.Validate("Payment Orders", true);
+        Currency.Modify(true);
+        exit(Currency.Code);
     end;
 
     local procedure CreateCurrencyWithExchRates(var CurrencyCode: Code[10]; var PostingDate: array[4] of Date; var CurrencyExchRate: array[4] of Decimal)

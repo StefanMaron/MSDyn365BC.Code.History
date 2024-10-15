@@ -386,13 +386,14 @@ codeunit 5529 "Purch. Inv. Aggregator"
         // Save ship-to address because OnInsert trigger inserted company address instead
         // Safe Due Date as it is determined based on what payment terms is set on the vendor and invoiceDate
         TempFieldBuffer.SetRange("Table ID", DATABASE::"Purch. Inv. Entity Aggregate");
-        TempFieldBuffer.SetFilter("Field ID", '%1|%2|%3|%4|%5|%6|%7',
+        TempFieldBuffer.SetFilter("Field ID", '%1|%2|%3|%4|%5|%6|%7|%8',
           PurchInvEntityAggregate.FieldNo("Ship-to Address"),
           PurchInvEntityAggregate.FieldNo("Ship-to Address 2"),
           PurchInvEntityAggregate.FieldNo("Ship-to City"),
           PurchInvEntityAggregate.FieldNo("Ship-to Country/Region Code"),
           PurchInvEntityAggregate.FieldNo("Ship-to County"),
           PurchInvEntityAggregate.FieldNo("Ship-to Post Code"),
+          PurchInvEntityAggregate.FieldNo("Ship-to Phone No."),
           PurchInvEntityAggregate.FieldNo("Due Date"));
         if TempFieldBuffer.FindSet() then begin
             TransferFieldsWithValidate(TempFieldBuffer, PurchInvEntityAggregate, TargetRecordRef);

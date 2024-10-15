@@ -488,34 +488,30 @@ codeunit 144097 "ERM Reports"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            if FindLast() then;
-            Init();
-            "Entry No." := "Entry No." + 1;
-            "Customer No." := CustomerNo;
-            "Posting Date" := PostingDate;
-            Insert();
-            exit("Entry No.");
-        end;
+        if CustLedgEntry.FindLast() then;
+        CustLedgEntry.Init();
+        CustLedgEntry."Entry No." := CustLedgEntry."Entry No." + 1;
+        CustLedgEntry."Customer No." := CustomerNo;
+        CustLedgEntry."Posting Date" := PostingDate;
+        CustLedgEntry.Insert();
+        exit(CustLedgEntry."Entry No.");
     end;
 
     local procedure CreateDtldCustLedgEntry(CustomerNo: Code[20]; InitialEntryDueDate: Date; ExcludedFromCalc: Boolean; AmountLCY: Decimal; CustLedgEntryNo: Integer)
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DtldCustLedgEntry do begin
-            if FindLast() then;
-            Init();
-            "Entry No." := "Entry No." + 1;
-            "Cust. Ledger Entry No." := CustLedgEntryNo;
-            "Customer No." := CustomerNo;
-            "Initial Entry Due Date" := InitialEntryDueDate;
-            "Posting Date" := InitialEntryDueDate;
-            "Excluded from calculation" := ExcludedFromCalc;
-            Amount := AmountLCY;
-            "Amount (LCY)" := AmountLCY;
-            Insert();
-        end;
+        if DtldCustLedgEntry.FindLast() then;
+        DtldCustLedgEntry.Init();
+        DtldCustLedgEntry."Entry No." := DtldCustLedgEntry."Entry No." + 1;
+        DtldCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntryNo;
+        DtldCustLedgEntry."Customer No." := CustomerNo;
+        DtldCustLedgEntry."Initial Entry Due Date" := InitialEntryDueDate;
+        DtldCustLedgEntry."Posting Date" := InitialEntryDueDate;
+        DtldCustLedgEntry."Excluded from calculation" := ExcludedFromCalc;
+        DtldCustLedgEntry.Amount := AmountLCY;
+        DtldCustLedgEntry."Amount (LCY)" := AmountLCY;
+        DtldCustLedgEntry.Insert();
     end;
 
     local procedure CreatePairDtldCustLedgEntry(CustomerNo: Code[20]; InitialEntryDueDate: Date) NotExcludedAmount: Decimal
@@ -606,74 +602,66 @@ codeunit 144097 "ERM Reports"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
-            "Posting Date" := PostingDate;
-            "Document Date" := DocumentDate;
-            Insert();
-            MockDetailedCustLedgerEntry(CustLedgerEntry);
-            CalcFields("Amount (LCY)");
-            exit("Amount (LCY)" + MockGLEntryWithDifferentDate("Document No.", GLEntry."Gen. Posting Type"::Sale, PostingDate, DocumentDate));
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry."Document Date" := DocumentDate;
+        CustLedgerEntry.Insert();
+        MockDetailedCustLedgerEntry(CustLedgerEntry);
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        exit(CustLedgerEntry."Amount (LCY)" + MockGLEntryWithDifferentDate(CustLedgerEntry."Document No.", GLEntry."Gen. Posting Type"::Sale, PostingDate, DocumentDate));
     end;
 
     local procedure MockVendorLedgerEntryWithDifferentDate(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PostingDate: Date; DocumentDate: Date): Decimal
     var
         GLEntry: Record "G/L Entry";
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorNo;
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
-            "Posting Date" := PostingDate;
-            "Document Date" := DocumentDate;
-            Insert();
-            MockDetailedVendLedgerEntry(VendorLedgerEntry);
-            CalcFields("Amount (LCY)");
-            exit(
-              -"Amount (LCY)" -
-              MockGLEntryWithDifferentDate("Document No.", GLEntry."Gen. Posting Type"::Purchase, PostingDate, DocumentDate));
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
+        VendorLedgerEntry."Posting Date" := PostingDate;
+        VendorLedgerEntry."Document Date" := DocumentDate;
+        VendorLedgerEntry.Insert();
+        MockDetailedVendLedgerEntry(VendorLedgerEntry);
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        exit(
+          -VendorLedgerEntry."Amount (LCY)" -
+          MockGLEntryWithDifferentDate(VendorLedgerEntry."Document No.", GLEntry."Gen. Posting Type"::Purchase, PostingDate, DocumentDate));
     end;
 
     local procedure MockDetailedCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
-            "Customer No." := CustLedgerEntry."Customer No.";
-            "Posting Date" := CustLedgerEntry."Posting Date";
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            "Ledger Entry Amount" := true;
-            Insert();
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
+        DetailedCustLedgEntry."Customer No." := CustLedgerEntry."Customer No.";
+        DetailedCustLedgEntry."Posting Date" := CustLedgerEntry."Posting Date";
+        DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::"Initial Entry";
+        DetailedCustLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+        DetailedCustLedgEntry."Ledger Entry Amount" := true;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure MockDetailedVendLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
-            "Vendor No." := VendorLedgerEntry."Vendor No.";
-            "Posting Date" := WorkDate();
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Amount (LCY)" := -LibraryRandom.RandDec(100, 2);
-            "Ledger Entry Amount" := true;
-            Insert();
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
+        DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
+        DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Initial Entry";
+        DetailedVendorLedgEntry."Amount (LCY)" := -LibraryRandom.RandDec(100, 2);
+        DetailedVendorLedgEntry."Ledger Entry Amount" := true;
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure MockGLEntryWithDifferentDate(DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type"; PostingDate: Date; DocumentDate: Date): Decimal
@@ -681,21 +669,19 @@ codeunit 144097 "ERM Reports"
         GLEntry: Record "G/L Entry";
         GLAccount: Record "G/L Account";
     begin
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "Document No." := DocumentNo;
-            "G/L Account No." := LibraryERM.CreateGLAccountNo();
-            "Posting Date" := PostingDate;
-            "Document Date" := DocumentDate;
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Gen. Posting Type" := GenPostingType;
-            Insert();
-            GLAccount.Get("G/L Account No.");
-            GLAccount."Ignore in 347 Report" := true;
-            GLAccount.Modify();
-            exit(Amount);
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."Document No." := DocumentNo;
+        GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo();
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry."Document Date" := DocumentDate;
+        GLEntry.Amount := LibraryRandom.RandDec(100, 2);
+        GLEntry."Gen. Posting Type" := GenPostingType;
+        GLEntry.Insert();
+        GLAccount.Get(GLEntry."G/L Account No.");
+        GLAccount."Ignore in 347 Report" := true;
+        GLAccount.Modify();
+        exit(GLEntry.Amount);
     end;
 
     local procedure RunAgedAccountsReceivableReport()

@@ -35,6 +35,10 @@ page 9002 "Acc. Payables Coordinator RC"
                 {
                     ApplicationArea = Suite;
                 }
+                part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
                 part(Control1905989608; "My Items")
                 {
                     ApplicationArea = Basic, Suite;
@@ -127,30 +131,44 @@ page 9002 "Acc. Payables Coordinator RC"
             separator(Action63)
             {
             }
+#if not CLEAN25
             action("Vendor &Document Nos.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Vendor &Document Nos.';
+                Caption = 'The action will be deleted.';
                 Image = "Report";
-                RunObject = Report "Vendor Document Nos.";
-                ToolTip = 'View a list of vendor ledger entries, sorted by document type and number. The report includes the document type, document number, posting date and source code of the entry, the name and number of the vendor, and so on. A warning appears when there is a gap in the number series or the documents were not posted in document-number order.';
+                RunObject = Report "Vendor - Balance to Date";
+                ToolTip = 'The action will be deleted.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The Report Vendor Document Nos. doesn''t exist anymore.';
+                ObsoleteTag = '25.0';
             }
             action("Purchase &Invoice Nos.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Purchase &Invoice Nos.';
+                Caption = 'The action will be deleted.';
                 Image = "Report";
-                RunObject = Report "Purchase Invoice Nos.";
-                ToolTip = 'View or set up the number series for purchase invoices.';
+                RunObject = Report "Purchase - Invoice";
+                ToolTip = 'The action will be deleted.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The related report doesn''t exist anymore';
+                ObsoleteTag = '25.0';
             }
             action("Purchase &Credit Memo Nos.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Purchase &Credit Memo Nos.';
+                Caption = 'The action will be deleted.';
                 Image = "Report";
-                RunObject = Report "Purchase Credit Memo Nos.";
-                ToolTip = 'View or set up the number series for purchase credit memos.';
+                RunObject = Report "Purchase - Credit Memo";
+                ToolTip = 'The action will be deleted.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The related report doesn''t exist anymore.';
+                ObsoleteTag = '25.0';
             }
+#endif         
             separator(Action1100008)
             {
             }
@@ -306,13 +324,6 @@ page 9002 "Acc. Payables Coordinator RC"
                 RunPageView = where("Template Type" = const(Cartera),
                                     Recurring = const(false));
                 ToolTip = 'Prepare to post entries for Cartera documents, which are bills and invoices for customers and vendors. There are two types of bills: receivable bills and payable bills. Receivable bills are sent to a customer to be credited after their due date arrives. Payable bills are sent to a customer from a vendor in order to receive payment when the due date arrives.';
-            }
-            separator(Action1100005)
-            {
-                IsHeader = true;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Warning AL0551: The action area Embedding can only contain actions';
-                ObsoleteTag = '16.0';
             }
         }
         area(sections)

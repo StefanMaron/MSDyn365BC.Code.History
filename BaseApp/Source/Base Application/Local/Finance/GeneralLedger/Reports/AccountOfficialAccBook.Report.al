@@ -22,7 +22,7 @@ report 10706 "Account - Official Acc. Book"
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = sorting(Number) WHERE(Number = filter(1 ..));
+            DataItemTableView = sorting(Number) where(Number = filter(1 ..));
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
@@ -109,7 +109,7 @@ report 10706 "Account - Official Acc. Book"
             }
             dataitem("G/L Account"; "G/L Account")
             {
-                DataItemTableView = sorting("No.") WHERE("Account Type" = const(Posting));
+                DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
                 column(V1; 1)
                 {
                 }
@@ -382,7 +382,7 @@ report 10706 "Account - Official Acc. Book"
             }
             dataitem(GLAccount2; "G/L Account")
             {
-                DataItemTableView = sorting("No.") WHERE("Account Type" = const(Posting));
+                DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
                 column(FORMAT_CLOSINGDATE_OpenCloseDate__; Format(ClosingDate(OpenCloseDate)))
                 {
                 }

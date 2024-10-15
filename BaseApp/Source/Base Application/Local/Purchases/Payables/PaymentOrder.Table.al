@@ -77,7 +77,7 @@ table 7000020 "Payment Order"
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup("Bank Account".Name where("No." = field("Bank Account No.")));
+            CalcFormula = lookup("Bank Account".Name where("No." = field("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -90,7 +90,7 @@ table 7000020 "Payment Order"
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Cartera Doc."."Remaining Amount" where("Bill Gr./Pmt. Order No." = field("No."),
+            CalcFormula = sum("Cartera Doc."."Remaining Amount" where("Bill Gr./Pmt. Order No." = field("No."),
                                                                        "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                        "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                                        "Category Code" = field("Category Filter"),
@@ -123,7 +123,7 @@ table 7000020 "Payment Order"
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist("BG/PO Comment Line" where("BG/PO No." = field("No."),
+            CalcFormula = exist("BG/PO Comment Line" where("BG/PO No." = field("No."),
                                                             Type = filter(Payable)));
             Caption = 'Comment';
             Editable = false;
@@ -210,7 +210,7 @@ table 7000020 "Payment Order"
         field(34; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Cartera Doc."."Remaining Amt. (LCY)" where("Bill Gr./Pmt. Order No." = field("No."),
+            CalcFormula = sum("Cartera Doc."."Remaining Amt. (LCY)" where("Bill Gr./Pmt. Order No." = field("No."),
                                                                            "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                            "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                                            "Category Code" = field("Category Filter"),

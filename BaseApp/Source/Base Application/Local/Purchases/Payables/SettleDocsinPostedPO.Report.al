@@ -156,7 +156,6 @@ report 7000082 "Settle Docs. in Posted PO"
 
                                 if NoRealVATBuffer.Find('-') then begin
                                     repeat
-                                    begin
                                         InsertGenJournalLine(
                                           GenJnlLine."Account Type"::"G/L Account",
                                           NoRealVATBuffer.Account,
@@ -167,7 +166,6 @@ report 7000082 "Settle Docs. in Posted PO"
                                           NoRealVATBuffer."Balance Account",
                                           -NoRealVATBuffer.Amount,
                                           "Dimension Set ID");
-                                    end;
                                     until NoRealVATBuffer.Next() = 0;
                                     NoRealVATBuffer.DeleteAll();
                                 end;
@@ -272,14 +270,13 @@ report 7000082 "Settle Docs. in Posted PO"
                     GLReg."From VAT Entry No." := FromVATEntryNo;
                     GLReg."To VAT Entry No." := ToVATEntryNo;
                     GLReg.Modify();
-                end else begin
+                end else
                     if ExistVATEntry then begin
                         GLReg.FindLast();
                         GLReg."From VAT Entry No." := FirstVATEntryNo;
                         GLReg."To VAT Entry No." := LastVATEntryNo;
                         GLReg.Modify();
                     end;
-                end;
 
                 IsHandled := false;
                 OnBeforeCommit(PostedDoc, PostedPmtOrd, GenJnlLine, HidePrintDialog, IsHandled);

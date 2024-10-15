@@ -146,9 +146,6 @@ codeunit 7000005 "Invoice-Split Payment"
             GenJnlLine."Currency Factor" := CurrencyFactor;
             GenJnlLine."Payment Terms Code" := SalesHeader."Payment Terms Code";
             GenJnlLine."Payment Method Code" := SalesHeader."Payment Method Code";
-#if not CLEAN22
-            GenJnlLine."Pmt. Address Code" := SalesHeader."Pay-at Code";
-#endif
             if SepaDirectDebitMandate.Get(SalesHeader."Direct Debit Mandate ID") then
                 GenJnlLine."Recipient Bank Account" := SepaDirectDebitMandate."Customer Bank Account Code"
             else
@@ -215,9 +212,6 @@ codeunit 7000005 "Invoice-Split Payment"
         GenJnlLine."Currency Factor" := CurrencyFactor;
         GenJnlLine."Payment Terms Code" := SalesHeader."Payment Terms Code";
         GenJnlLine."Payment Method Code" := SalesHeader."Payment Method Code";
-#if not CLEAN22
-        GenJnlLine."Pmt. Address Code" := SalesHeader."Pay-at Code";
-#endif
         if SepaDirectDebitMandate.Get(SalesHeader."Direct Debit Mandate ID") then
             GenJnlLine."Recipient Bank Account" := SepaDirectDebitMandate."Customer Bank Account Code"
         else
@@ -226,7 +220,7 @@ codeunit 7000005 "Invoice-Split Payment"
 
         CurrDocNo := 1;
         repeat
-            if not HideProgressWindow then
+            if GuiAllowed() and not HideProgressWindow then
                 Window.Update(6, CurrDocNo);
             GenJnlLine."Due Date" := NextDueDate;
             CheckSalesDueDate(SalesHeader, GenJnlLine."Due Date", PaymentTerms."Max. No. of Days till Due Date");
@@ -390,9 +384,6 @@ codeunit 7000005 "Invoice-Split Payment"
             GenJnlLine."Currency Factor" := CurrencyFactor;
             GenJnlLine."Payment Terms Code" := PurchHeader."Payment Terms Code";
             GenJnlLine."Payment Method Code" := PurchHeader."Payment Method Code";
-#if not CLEAN22
-            GenJnlLine."Pmt. Address Code" := PurchHeader."Pay-at Code";
-#endif
             GenJnlLine."Recipient Bank Account" := PurchHeader."Vendor Bank Acc. Code";
             GenJnlLine."Salespers./Purch. Code" := PurchHeader."Purchaser Code";
 
@@ -404,9 +395,9 @@ codeunit 7000005 "Invoice-Split Payment"
 
             OnBeforeSplitPurchInvCloseEntry(GenJnlLine, PurchHeader);
 
-            if GLSetup."Unrealized VAT" and ExistsVATNoReal then begin
-                GenJnlLine2.Copy(GenJnlLine);
-            end else
+            if GLSetup."Unrealized VAT" and ExistsVATNoReal then
+                GenJnlLine2.Copy(GenJnlLine)
+            else
                 GenJnlPostLine.Run(GenJnlLine);
         end;
         // create bills
@@ -455,15 +446,13 @@ codeunit 7000005 "Invoice-Split Payment"
         GenJnlLine."Currency Factor" := CurrencyFactor;
         GenJnlLine."Payment Terms Code" := PurchHeader."Payment Terms Code";
         GenJnlLine."Payment Method Code" := PurchHeader."Payment Method Code";
-#if not CLEAN22
-        GenJnlLine."Pmt. Address Code" := PurchHeader."Pay-at Code";
-#endif
         GenJnlLine."Recipient Bank Account" := PurchHeader."Vendor Bank Acc. Code";
         GenJnlLine."Salespers./Purch. Code" := PurchHeader."Purchaser Code";
 
         CurrDocNo := 1;
         repeat
-            Window.Update(6, CurrDocNo);
+            if GuiAllowed() then
+                Window.Update(6, CurrDocNo);
             GenJnlLine."Due Date" := NextDueDate;
             CheckPurchDueDate(PurchHeader, GenJnlLine."Due Date", PaymentTerms."Max. No. of Days till Due Date");
             if not PurchHeader."Due Date Modified" then
@@ -748,9 +737,6 @@ codeunit 7000005 "Invoice-Split Payment"
             GenJnlLine."Source Code" := SourceCode;
             GenJnlLine."Currency Factor" := CurrencyFactor;
             GenJnlLine."Payment Method Code" := ServiceHeader."Payment Method Code";
-#if not CLEAN22
-            GenJnlLine."Pmt. Address Code" := ServiceHeader."Pay-at Code";
-#endif
             GenJnlLine."Recipient Bank Account" := ServiceHeader."Cust. Bank Acc. Code";
             GenJnlLine."Salespers./Purch. Code" := ServiceHeader."Salesperson Code";
 
@@ -762,9 +748,9 @@ codeunit 7000005 "Invoice-Split Payment"
 
             OnBeforeSplitServInvCloseEntry(GenJnlLine, ServiceHeader);
 
-            if GLSetup."Unrealized VAT" and ExistsVATNoReal then begin
-                GenJnlLine2.Copy(GenJnlLine);
-            end else
+            if GLSetup."Unrealized VAT" and ExistsVATNoReal then
+                GenJnlLine2.Copy(GenJnlLine)
+            else
                 GenJnlPostLine.Run(GenJnlLine);
         end;
         // create bills
@@ -802,15 +788,13 @@ codeunit 7000005 "Invoice-Split Payment"
         GenJnlLine."Source Code" := SourceCode;
         GenJnlLine."Currency Factor" := CurrencyFactor;
         GenJnlLine."Payment Method Code" := ServiceHeader."Payment Method Code";
-#if not CLEAN22
-        GenJnlLine."Pmt. Address Code" := ServiceHeader."Pay-at Code";
-#endif
         GenJnlLine."Recipient Bank Account" := ServiceHeader."Cust. Bank Acc. Code";
         GenJnlLine."Salespers./Purch. Code" := ServiceHeader."Salesperson Code";
 
         CurrDocNo := 1;
         repeat
-            Window.Update(6, CurrDocNo);
+            if GuiAllowed() then
+                Window.Update(6, CurrDocNo);
             GenJnlLine."Due Date" := NextDueDate;
             CheckServiceDueDate(ServiceHeader, GenJnlLine."Due Date", PaymentTerms."Max. No. of Days till Due Date");
             DueDateAdjust.SalesAdjustDueDate(

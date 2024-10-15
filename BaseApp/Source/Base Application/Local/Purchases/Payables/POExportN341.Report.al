@@ -39,7 +39,7 @@ report 7000060 "PO - Export N34.1"
                 {
                     DataItemLink = "Bill Gr./Pmt. Order No." = field("No.");
                     DataItemLinkReference = "Payment Order";
-                    DataItemTableView = sorting(Type, "Bill Gr./Pmt. Order No.", "Transfer Type", "Account No.") ORDER(Ascending) where(Type = const(Payable));
+                    DataItemTableView = sorting(Type, "Bill Gr./Pmt. Order No.", "Transfer Type", "Account No.") order(ascending) where(Type = const(Payable));
                     column(CompanyAddr_1_; CompanyAddr[1])
                     {
                     }
@@ -361,12 +361,11 @@ report 7000060 "PO - Export N34.1"
                         BankAccount."Last Remittance Advice No." := Text1100001;
                     LastRemittanceAdvNo := BankAccount."Last Remittance Advice No.";
                     BankAccount.Modify();
-                end else begin
+                end else
                     if BankAccount."Last Remittance Advice No." <> '' then
                         LastRemittanceAdvNo := IncStr(BankAccount."Last Remittance Advice No.")
                     else
                         LastRemittanceAdvNo := Text1100001;
-                end;
 
                 if not CurrReport.Preview then begin
                     ElectPmtMgmt.InsertHeaderRecType1(DeliveryDate, "Posting Date",

@@ -44,7 +44,7 @@ report 10721 "Export Electronic Payments"
                 {
                     DataItemLink = "Applies-to ID" = field("Applies-to ID");
                     DataItemLinkReference = "Gen. Journal Line";
-                    DataItemTableView = sorting("Vendor No.", Open, Positive, "Due Date", "Currency Code") ORDER(Descending) where(Open = const(true));
+                    DataItemTableView = sorting("Vendor No.", Open, Positive, "Due Date", "Currency Code") order(descending) where(Open = const(true));
                     column(CompanyAddr_1_; CompanyAddr[1])
                     {
                     }
@@ -383,11 +383,10 @@ report 10721 "Export Electronic Payments"
 
                 if not CurrReport.Preview then begin
                     BankAccount.CalcFields(Balance);
-                    if not "Gen. Journal Line"."Exported to Payment File" then begin
+                    if not "Gen. Journal Line"."Exported to Payment File" then
                         if BankAccount.Balance < 0 then
                             if not Confirm(Text1100004, false, BankAccount."No.", BankAccount.Name, BankAccount.Balance) then
                                 CurrReport.Quit();
-                    end;
 
                     if CheckErrors then
                         Relat := '1'
@@ -414,12 +413,11 @@ report 10721 "Export Electronic Payments"
                         BankAccount."Last Remittance Advice No." := Text1100001;
                     LastRemittanceAdvNo := BankAccount."Last Remittance Advice No.";
                     BankAccount.Modify();
-                end else begin
+                end else
                     if BankAccount."Last Remittance Advice No." <> '' then
                         LastRemittanceAdvNo := IncStr(BankAccount."Last Remittance Advice No.")
                     else
                         LastRemittanceAdvNo := Text1100001;
-                end;
 
                 SetCurrentKey("Journal Template Name", "Journal Batch Name", "Transfer Type");
             end;

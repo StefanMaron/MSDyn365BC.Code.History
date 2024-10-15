@@ -346,7 +346,9 @@ page 1132 "Cost Bdgt. per Center Matrix"
         MATRIX_CellData: array[12] of Decimal;
         Emphasize: Boolean;
         NameIndent: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Set View As to Net Change before you edit entries.';
+#pragma warning restore AA0074
 
     procedure LoadMatrix(NewMatrixColumns: array[12] of Text[80]; var NewCostCenterMatrixRecords: array[12] of Record "Cost Center"; CurrentNoOfMatrixColumns: Integer; NewDateFilter: Text; NewBudgetFilter: Text; NewRoundingFactor: Enum "Analysis Rounding Factor")
     var

@@ -2378,14 +2378,12 @@ codeunit 147590 "Test VAT Statement"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Full VAT");
-            Validate("VAT %", 0);
-            Validate("Purchase VAT Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
-            Modify(true);
-            exit("Purchase VAT Account");
-        end;
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Full VAT");
+        VATPostingSetup.Validate("VAT %", 0);
+        VATPostingSetup.Validate("Purchase VAT Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        VATPostingSetup.Modify(true);
+        exit(VATPostingSetup."Purchase VAT Account");
     end;
 
     local procedure PadDecimalToString(Amount: Decimal; Precision: Integer; Length: Integer; PadWith: Text[1]; IgnoreIntegerPart: Boolean): Text
@@ -2481,18 +2479,16 @@ codeunit 147590 "Test VAT Statement"
     begin
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            "VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
-            "VAT Prod. Posting Group" := VATProductPostingGroup.Code;
-            "Posting Date" := WorkDate();
-            Amount := VATAmount;
-            Base := VATBase;
-            "VAT Calculation Type" := VATCalculationType;
-            Type := Type::Purchase;
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        VATEntry."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry.Amount := VATAmount;
+        VATEntry.Base := VATBase;
+        VATEntry."VAT Calculation Type" := VATCalculationType;
+        VATEntry.Type := VATEntry.Type::Purchase;
+        VATEntry.Insert();
     end;
 
     local procedure CreateVATEntryWithPostingGroups(var VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal; VATCalculationType: Enum "Tax Calculation Type")
@@ -2519,15 +2515,13 @@ codeunit 147590 "Test VAT Statement"
     local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; VATEntry: Record "VAT Entry"; AmountType: Enum "VAT Statement Line Amount Type")
     begin
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
-        with VATStatementLine do begin
-            Type := Type::"VAT Entry Totaling";
-            "Gen. Posting Type" := "Gen. Posting Type"::Purchase;
-            "VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
-            "VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
-            "Amount Type" := AmountType;
-            Print := true;
-            Modify();
-        end;
+        VATStatementLine.Type := VATStatementLine.Type::"VAT Entry Totaling";
+        VATStatementLine."Gen. Posting Type" := VATStatementLine."Gen. Posting Type"::Purchase;
+        VATStatementLine."VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
+        VATStatementLine."VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
+        VATStatementLine."Amount Type" := AmountType;
+        VATStatementLine.Print := true;
+        VATStatementLine.Modify();
     end;
 
     local procedure CreatePostPurchInvoice(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]

@@ -127,13 +127,8 @@ table 7000003 "Posted Cartera Doc."
             Caption = 'Pmt. Address Code';
             TableRelation = "Customer Pmt. Address".Code where("Customer No." = field("Account No."));
             ObsoleteReason = 'Address is taken from the fields Address, City, etc. of Customer/Vendor table.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
         field(22; "Global Dimension 1 Code"; Code[20])
         {

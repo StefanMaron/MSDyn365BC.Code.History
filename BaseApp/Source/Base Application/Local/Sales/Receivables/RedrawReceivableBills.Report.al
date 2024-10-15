@@ -139,9 +139,6 @@ report 7000096 "Redraw Receivable Bills"
                         GenJnlLine."Payment Method Code" := PostedDoc."Payment Method Code"
                     else
                         GenJnlLine."Payment Method Code" := NewPmtMethod;
-#if not CLEAN22
-                    GenJnlLine."Pmt. Address Code" := PostedDoc."Pmt. Address Code";
-#endif
                     GenJnlLine."Recipient Bank Account" := PostedDoc."Cust./Vendor Bank Acc. Code";
                 end else begin
                     ClosedDoc.Get(
@@ -150,9 +147,6 @@ report 7000096 "Redraw Receivable Bills"
                         GenJnlLine."Payment Method Code" := ClosedDoc."Payment Method Code"
                     else
                         GenJnlLine."Payment Method Code" := NewPmtMethod;
-#if not CLEAN22
-                    GenJnlLine."Pmt. Address Code" := ClosedDoc."Pmt. Address Code";
-#endif
                     GenJnlLine."Recipient Bank Account" := ClosedDoc."Cust./Vendor Bank Acc. Code";
                 end;
                 GenJnlLine."Due Date" := NewDueDate;
@@ -733,7 +727,6 @@ report 7000096 "Redraw Receivable Bills"
     begin
         if TempCVLedgEntryBuf.Find('-') then
             repeat
-            begin
                 DtldCustLedgEntry.Reset();
                 DtldCustLedgEntry.SetRange("Entry Type", EntryType::"Initial Entry");
                 DtldCustLedgEntry.SetRange("Posting Date", PostingDate);
@@ -758,7 +751,6 @@ report 7000096 "Redraw Receivable Bills"
                         DtldCustLedgEntry.Modify();
                     end;
                 end;
-            end;
             until TempCVLedgEntryBuf.Next() = 0;
     end;
 

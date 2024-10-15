@@ -253,9 +253,11 @@ report 8613 "Create Item Journal Lines"
         TemplateCode: Code[20];
         LineNo: Integer;
         JournalTemplate: Text[10];
+#pragma warning disable AA0074
         Text001: Label 'Item Journal Template name is blank.';
         Text002: Label 'Item Journal Batch name is blank.';
         Text004: Label 'Item Journal lines are successfully created.';
+#pragma warning restore AA0074
         PostingDateIsEmptyErr: Label 'The Posting Date is empty.';
         DocumentNo: Code[20];
 

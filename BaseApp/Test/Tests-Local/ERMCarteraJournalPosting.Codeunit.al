@@ -317,21 +317,22 @@ codeunit 144013 "ERM Cartera Journal Posting"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         GenJournalBatch.SetRange("Template Type", GenJournalBatch."Template Type"::Cartera);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        with GenJournalLine do begin
-            CreateGeneralJournalLine(
-              GenJournalLine, GenJournalBatch, "Document Type"::Payment, AccountType,
-              "Applies-to Doc. Type"::Invoice, AccountNo, AppliesToDocNo, FindPaymentMethod(false, true), -(Amount1 + Amount2));  // False - Create Bills, TRUE - Invoices to Cartera.
-            CreateGeneralJournalLine(
-              GenJournalLine, GenJournalBatch, "Document Type"::Bill, AccountType,
-              "Applies-to Doc. Type"::" ", AccountNo, '', FindPaymentMethod(true, false), Amount1);  // False - Create Bills, TRUE - Invoices to Cartera.
-            Validate("Bill No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-            CreateGeneralJournalLine(
-              GenJournalLine, GenJournalBatch, "Document Type"::Bill, AccountType,
-              "Applies-to Doc. Type"::" ", AccountNo, '', FindPaymentMethod(true, false), Amount2);  // Blank as Apply - to Doc. No, TRUE - Create Bills, FALSE - Invoices to Cartera.
-            Validate("Bill No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        CreateGeneralJournalLine(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, AccountType,
+            GenJournalLine."Applies-to Doc. Type"::Invoice, AccountNo, AppliesToDocNo, FindPaymentMethod(false, true), -(Amount1 + Amount2));
+        // False - Create Bills, TRUE - Invoices to Cartera.
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Bill, AccountType,
+          GenJournalLine."Applies-to Doc. Type"::" ", AccountNo, '', FindPaymentMethod(true, false), Amount1);
+        // False - Create Bills, TRUE - Invoices to Cartera.
+        GenJournalLine.Validate("Bill No.", LibraryUtility.GenerateGUID());
+        GenJournalLine.Modify(true);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Bill, AccountType,
+          GenJournalLine."Applies-to Doc. Type"::" ", AccountNo, '', FindPaymentMethod(true, false), Amount2);
+        // Blank as Apply - to Doc. No, TRUE - Create Bills, FALSE - Invoices to Cartera.
+        GenJournalLine.Validate("Bill No.", LibraryUtility.GenerateGUID());
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -431,13 +432,11 @@ codeunit 144013 "ERM Cartera Journal Posting"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            SetRange("Currency Code", CurrencyCode);
-            FindLast();
-            Validate("Exchange Rate Amount", NewRate);
-            Validate("Relational Exch. Rate Amount", 1);
-            Modify();
-        end;
+        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.FindLast();
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", NewRate);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Modify();
     end;
 
     local procedure FindPaymentMethod(CreateBills: Boolean; InvoicesToCartera: Boolean): Code[10]
@@ -496,11 +495,9 @@ codeunit 144013 "ERM Cartera Journal Posting"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Bill);
-            SetRange("Customer No.", CustomerNo);
-            Assert.AreEqual(ExpectedBillCount, Count, WrongNoOfCustLedgEntryErr);
-        end;
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Bill);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        Assert.AreEqual(ExpectedBillCount, CustLedgerEntry.Count, WrongNoOfCustLedgEntryErr);
     end;
 }
 

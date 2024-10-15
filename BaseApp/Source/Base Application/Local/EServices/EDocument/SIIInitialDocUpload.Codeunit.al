@@ -39,7 +39,7 @@ codeunit 10755 "SII Initial Doc. Upload"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
-        if CustLedgerEntry.FindSet() then begin
+        if CustLedgerEntry.FindSet() then
             repeat
                 OnHandleExistingCustomerLedgerEntriesOnBeforeCheckDocumentType(CustLedgerEntry);
                 if CustLedgerEntry."Document Type" in [CustLedgerEntry."Document Type"::"Credit Memo",
@@ -50,7 +50,6 @@ codeunit 10755 "SII Initial Doc. Upload"
                       CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."External Document No.",
                       CustLedgerEntry."Posting Date");
             until CustLedgerEntry.Next() = 0;
-        end;
     end;
 
     local procedure HandleExistingVendorLedgerEntries()
@@ -59,7 +58,7 @@ codeunit 10755 "SII Initial Doc. Upload"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
-        if VendorLedgerEntry.FindSet() then begin
+        if VendorLedgerEntry.FindSet() then
             repeat
                 OnHandleExistingVendorLedgerEntriesOnBeforeCheckDocumentType(VendorLedgerEntry);
                 if VendorLedgerEntry."Document Type" in [VendorLedgerEntry."Document Type"::"Credit Memo",
@@ -70,7 +69,6 @@ codeunit 10755 "SII Initial Doc. Upload"
                       VendorLedgerEntry."Document Type".AsInteger(), VendorLedgerEntry."Document No.", VendorLedgerEntry."External Document No.",
                       VendorLedgerEntry."Posting Date");
             until VendorLedgerEntry.Next() = 0;
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -103,7 +101,7 @@ codeunit 10755 "SII Initial Doc. Upload"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnHandleExistingVendorLedgerEntriesOnBeforeCheckDocumentType(VAR VendorLedgerEntry: Record "Vendor Ledger Entry");
+    local procedure OnHandleExistingVendorLedgerEntriesOnBeforeCheckDocumentType(var VendorLedgerEntry: Record "Vendor Ledger Entry");
     begin
     end;
 }

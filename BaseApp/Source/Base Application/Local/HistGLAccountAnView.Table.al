@@ -17,8 +17,13 @@ table 10725 "Hist. G/L Account (An. View)"
     Caption = 'Hist. G/L Account (An. View)';
     DataCaptionFields = "No.", Name;
     ObsoleteReason = 'Obsolete feature';
+#if CLEAN28
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#else
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+#endif
     DataClassification = CustomerContent;
 
     fields
@@ -27,7 +32,9 @@ table 10725 "Hist. G/L Account (An. View)"
         {
             Caption = 'No.';
             NotBlank = true;
+#if not CLEAN25
             TableRelation = "Historic G/L Account";
+#endif
         }
         field(2; Name; Text[30])
         {
@@ -129,12 +136,12 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
                                                                   "Business Unit Code" = field("Business Unit Filter"),
                                                                   "Old G/L Account No." = field("No."),
-                                                                  "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                  "Old G/L Account No." = field(filter(Totaling)),
                                                                   "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                   "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                   "Dimension 3 Value Code" = field("Dimension 3 Filter"),
                                                                   "Dimension 4 Value Code" = field("Dimension 4 Filter"),
-                                                                  "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                  "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -146,7 +153,7 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
                                                                   "Business Unit Code" = field("Business Unit Filter"),
                                                                   "Old G/L Account No." = field("No."),
-                                                                  "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                  "Old G/L Account No." = field(filter(Totaling)),
                                                                   "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                   "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                   "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -164,7 +171,7 @@ table 10725 "Hist. G/L Account (An. View)"
                                                                          "Budget Name" = field("Budget Filter"),
                                                                          "Business Unit Code" = field("Business Unit Filter"),
                                                                          "Old G/L Account No." = field("No."),
-                                                                         "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                         "Old G/L Account No." = field(filter(Totaling)),
                                                                          "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                          "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                          "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -176,8 +183,10 @@ table 10725 "Hist. G/L Account (An. View)"
         field(34; Totaling; Text[250])
         {
             Caption = 'Totaling';
+#if not CLEAN25
             TableRelation = "Historic G/L Account";
             ValidateTableRelation = false;
+#endif
         }
         field(35; "Budget Filter"; Code[10])
         {
@@ -192,7 +201,7 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry".Amount where("Analysis View Code" = field("Analysis View Filter"),
                                                                   "Business Unit Code" = field("Business Unit Filter"),
                                                                   "Old G/L Account No." = field("No."),
-                                                                  "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                  "Old G/L Account No." = field(filter(Totaling)),
                                                                   "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                   "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                   "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -210,12 +219,12 @@ table 10725 "Hist. G/L Account (An. View)"
                                                                          "Budget Name" = field("Budget Filter"),
                                                                          "Business Unit Code" = field("Business Unit Filter"),
                                                                          "Old G/L Account No." = field("No."),
-                                                                         "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                         "Old G/L Account No." = field(filter(Totaling)),
                                                                          "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                          "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                          "Dimension 3 Value Code" = field("Dimension 3 Filter"),
                                                                          "Dimension 4 Value Code" = field("Dimension 4 Filter"),
-                                                                         "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                         "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Budgeted at Date';
             FieldClass = FlowField;
         }
@@ -256,7 +265,7 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry"."Debit Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                           "Business Unit Code" = field("Business Unit Filter"),
                                                                           "Old G/L Account No." = field("No."),
-                                                                          "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                          "Old G/L Account No." = field(filter(Totaling)),
                                                                           "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                           "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                           "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -273,7 +282,7 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry"."Credit Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                            "Business Unit Code" = field("Business Unit Filter"),
                                                                            "Old G/L Account No." = field("No."),
-                                                                           "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                           "Old G/L Account No." = field(filter(Totaling)),
                                                                            "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                            "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                            "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -296,7 +305,7 @@ table 10725 "Hist. G/L Account (An. View)"
                                                                          "Budget Name" = field("Budget Filter"),
                                                                          "Business Unit Code" = field("Business Unit Filter"),
                                                                          "Old G/L Account No." = field("No."),
-                                                                         "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                         "Old G/L Account No." = field(filter(Totaling)),
                                                                          "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                          "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                          "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -314,7 +323,7 @@ table 10725 "Hist. G/L Account (An. View)"
                                                                           "Budget Name" = field("Budget Filter"),
                                                                           "Business Unit Code" = field("Business Unit Filter"),
                                                                           "Old G/L Account No." = field("No."),
-                                                                          "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                          "Old G/L Account No." = field(filter(Totaling)),
                                                                           "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                           "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                           "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -354,7 +363,7 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                "Business Unit Code" = field("Business Unit Filter"),
                                                                                "Old G/L Account No." = field("No."),
-                                                                               "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                               "Old G/L Account No." = field(filter(Totaling)),
                                                                                "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                                "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                                "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -371,12 +380,12 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                "Business Unit Code" = field("Business Unit Filter"),
                                                                                "Old G/L Account No." = field("No."),
-                                                                               "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                               "Old G/L Account No." = field(filter(Totaling)),
                                                                                "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                                "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                                "Dimension 3 Value Code" = field("Dimension 3 Filter"),
                                                                                "Dimension 4 Value Code" = field("Dimension 4 Filter"),
-                                                                               "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                               "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Add.-Currency Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -388,7 +397,7 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                "Business Unit Code" = field("Business Unit Filter"),
                                                                                "Old G/L Account No." = field("No."),
-                                                                               "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                               "Old G/L Account No." = field(filter(Totaling)),
                                                                                "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                                "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                                "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -411,7 +420,7 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Debit Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                      "Business Unit Code" = field("Business Unit Filter"),
                                                                                      "Old G/L Account No." = field("No."),
-                                                                                     "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                                     "Old G/L Account No." = field(filter(Totaling)),
                                                                                      "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                                      "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                                      "Dimension 3 Value Code" = field("Dimension 3 Filter"),
@@ -428,7 +437,7 @@ table 10725 "Hist. G/L Account (An. View)"
             CalcFormula = sum("Analysis View Entry"."Add.-Curr. Credit Amount" where("Analysis View Code" = field("Analysis View Filter"),
                                                                                       "Business Unit Code" = field("Business Unit Filter"),
                                                                                       "Old G/L Account No." = field("No."),
-                                                                                      "Old G/L Account No." = field(FILTER(Totaling)),
+                                                                                      "Old G/L Account No." = field(filter(Totaling)),
                                                                                       "Dimension 1 Value Code" = field("Dimension 1 Filter"),
                                                                                       "Dimension 2 Value Code" = field("Dimension 2 Filter"),
                                                                                       "Dimension 3 Value Code" = field("Dimension 3 Filter"),

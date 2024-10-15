@@ -20,7 +20,7 @@ page 10752 "SII History"
     ShowFilter = false;
     SourceTable = "SII History";
     SourceTableView = sorting(Id)
-                      order(Descending);
+                      order(descending);
     UsageCategory = Lists;
 
     layout

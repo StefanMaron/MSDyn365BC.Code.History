@@ -36,7 +36,7 @@ page 10751 "SII Setup"
                 field("Job Batch Submission Threshold"; Rec."Job Batch Submission Threshold")
                 {
                     ApplicationArea = All;
-                    Enabled = Rec.Enabled AND Rec."Enable Batch Submissions";
+                    Enabled = Rec.Enabled and Rec."Enable Batch Submissions";
                     ToolTip = 'Specifies the minimal number of pending history records for the batch submission.';
 
                     trigger OnValidate()

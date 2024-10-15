@@ -193,12 +193,18 @@ report 6036 "Create Contract Service Orders"
         ServOrderExist: Boolean;
         HideDialog: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 service orders were created.';
         Text001: Label '%1 service order was created.';
+#pragma warning restore AA0470
         Text002: Label 'You must fill in the ending date field.';
         Text003: Label 'The starting date is after the ending date.';
+#pragma warning disable AA0470
         Text004: Label 'The date range you have entered is a longer period than is allowed in the %1 table.';
         Text005: Label 'A service order cannot be created for contract no. %1 because customer no. %2 does not have a %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CreateOrAddToServOrder()
     var

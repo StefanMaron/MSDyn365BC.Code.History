@@ -103,14 +103,6 @@ page 43 "Sales Invoice"
                         exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = VAT;
-                    Editable = false;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
-                    Visible = false;
-                }
                 field("Registration Number"; Rec."Registration Number")
                 {
                     ApplicationArea = VAT;
@@ -433,17 +425,6 @@ page 43 "Sales Invoice"
                 group(Payment)
                 {
                     Caption = 'Payment';
-#if not CLEAN22
-                    field("Pay-at Code"; Rec."Pay-at Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies a code associated with a payment address other than the customer''s standard payment address.';
-                        Visible = false;
-                        ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-                    }
-#endif
                     field("Cust. Bank Acc. Code"; Rec."Cust. Bank Acc. Code")
                     {
                         ApplicationArea = Basic, Suite;
@@ -470,6 +451,24 @@ page 43 "Sales Invoice"
                         CurrPage.SalesLines.Page.ForceTotalsCalculation();
                         CurrPage.Update();
                     end;
+                }
+                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
+                {
+                    ApplicationArea = VAT;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the country or region code for the VAT.';
+                }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                }
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the general business posting group that the sales document is linked to. The general business posting group is used to link the sales document to the appropriate general ledger account.';
                 }
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
@@ -617,7 +616,7 @@ page 43 "Sales Invoice"
                             Editable = false;
                             ShowCaption = false;
                             Style = StandardAccent;
-                            StyleExpr = TRUE;
+                            StyleExpr = true;
 
                             trigger OnDrillDown()
                             var
@@ -630,7 +629,7 @@ page 43 "Sales Invoice"
                     field("Special Scheme Code"; Rec."Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
-                        Editable = NOT DocHasMultipleRegimeCode;
+                        Editable = not DocHasMultipleRegimeCode;
                         ToolTip = 'Specifies the Special Scheme Code.';
                     }
                     field("Invoice Type"; Rec."Invoice Type")
@@ -837,6 +836,12 @@ page 43 "Sales Invoice"
                                 end;
                             }
                         }
+                        field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Phone No.';
+                            ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                        }
                         field("Ship-to Contact"; Rec."Ship-to Contact")
                         {
                             ApplicationArea = Basic, Suite;
@@ -903,19 +908,21 @@ page 43 "Sales Invoice"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Name';
-                            Editable = BillToOptions = BillToOptions::"Another Customer";
-                            Enabled = BillToOptions = BillToOptions::"Another Customer";
+                            Editable = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
+                            Enabled = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
                             Importance = Promoted;
                             NotBlank = true;
                             ToolTip = 'Specifies the customer to whom you will send the sales invoice, when different from the customer that you are selling to.';
 
                             trigger OnValidate()
                             begin
-                                if Rec.GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
-                                    if Rec."Bill-to Customer No." <> xRec."Bill-to Customer No." then
-                                        Rec.SetRange("Bill-to Customer No.");
+                                if not ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName) then begin
+                                    if Rec.GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
+                                        if Rec."Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                                            Rec.SetRange("Bill-to Customer No.");
 
-                                CurrPage.Update();
+                                    CurrPage.Update();
+                                end;
                             end;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
@@ -1087,13 +1094,28 @@ page 43 "Sales Invoice"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Sales Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+
             }
             part(Control31; "Pending Approval FactBox")
             {
@@ -1398,7 +1420,7 @@ page 43 "Sales Invoice"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Re&lease';
-                    Enabled = IsCustomerOrContactNotEmpty;
+                    Enabled = IsCustomerOrContactNotEmpty and (Rec.Status <> Rec.Status::Released);
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
@@ -1647,37 +1669,10 @@ page 43 "Sales Invoice"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create approval flow';
                         ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                        Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
                         Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
                         CustomActionType = FlowTemplateGallery;
                         FlowTemplateCategoryName = 'd365bc_approval_salesInvoice';
                     }
-#if not CLEAN22
-                    action(CreateFlow)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Power Automate approval flow';
-                        Image = Flow;
-                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                        Visible = IsSaaS and not PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-                        ObsoleteReason = 'This action will be handled by platform as part of the CreateFlowFromTemplate customaction';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-
-                        trigger OnAction()
-                        var
-                            FlowServiceManagement: Codeunit "Flow Service Management";
-                            FlowTemplateSelector: Page "Flow Template Selector";
-                        begin
-                            // Opens page 6400 where the user can use filtered templates to create new flows.
-                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter());
-                            FlowTemplateSelector.Run();
-                        end;
-                    }
-#endif
                 }
             }
             group("P&osting")
@@ -2024,9 +2019,6 @@ page 43 "Sales Invoice"
         JobQueuesUsed := SalesSetup.JobQueueActive();
         SetExtDocNoMandatoryCondition();
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
-#if not CLEAN22
-        InitPowerAutomateTemplateVisibility();
-#endif
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -2141,6 +2133,7 @@ page 43 "Sales Invoice"
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
         IsSalesLinesEditable: Boolean;
+        ShouldSearchForCustByName: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         OperationDescription: Text[500];
@@ -2313,6 +2306,7 @@ page 43 "Sales Invoice"
 
         SalesDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(Rec.RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+        ShouldSearchForCustByName := Rec.ShouldSearchForCustomerByName(Rec."Sell-to Customer No.");
     end;
 
     procedure RunBackgroundCheck()
@@ -2359,22 +2353,6 @@ page 43 "Sales Invoice"
     begin
         DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
     end;
-
-#if not CLEAN22
-    var
-        PowerAutomateTemplatesEnabled: Boolean;
-        PowerAutomateTemplatesFeatureLbl: Label 'PowerAutomateTemplates', Locked = true;
-
-    local procedure InitPowerAutomateTemplateVisibility()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        PowerAutomateTemplatesEnabled := true;
-        if FeatureKey.Get(PowerAutomateTemplatesFeatureLbl) then
-            if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then
-                PowerAutomateTemplatesEnabled := false;
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")

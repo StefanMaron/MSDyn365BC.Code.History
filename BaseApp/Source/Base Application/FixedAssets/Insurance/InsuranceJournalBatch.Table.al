@@ -107,7 +107,11 @@ table 5634 "Insurance Journal Batch"
         InsuranceJnlTempl: Record "Insurance Journal Template";
         InsuranceJnlLine: Record "Insurance Journal Line";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'must not be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetupNewBatch()
     begin

@@ -48,12 +48,12 @@ codeunit 104102 "Upg No Taxable"
         NoTaxableEntry.SetFilter("VAT Reporting Date", '<>%1', BlankDate);
         if not NoTaxableEntry.IsEmpty() then
             exit;
-        
+
         DataTransfer.SetTables(Database::"No Taxable Entry", Database::"No Taxable Entry");
         DataTransfer.AddFieldValue(NoTaxableEntry.FieldNo("Posting Date"), NoTaxableEntry.FieldNo("VAT Reporting Date"));
         DataTransfer.UpdateAuditFields(false);
         DataTransfer.CopyFields();
-        Clear(DataTransfer);           
+        Clear(DataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateNoTaxableEntriesVATDateTag());
     end;
@@ -72,12 +72,12 @@ codeunit 104102 "Upg No Taxable"
         CustVendWarning349.SetFilter("VAT Reporting Date", '<>%1', BlankDate);
         if not CustVendWarning349.IsEmpty() then
             exit;
-        
+
         DataTransfer.SetTables(Database::"Customer/Vendor Warning 349", Database::"Customer/Vendor Warning 349");
         DataTransfer.AddFieldValue(CustVendWarning349.FieldNo("Posting Date"), CustVendWarning349.FieldNo("VAT Reporting Date"));
         DataTransfer.UpdateAuditFields(false);
         DataTransfer.CopyFields();
-        Clear(DataTransfer);           
+        Clear(DataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateCustVendWarning349VATDateTag());
     end;
@@ -96,20 +96,20 @@ codeunit 104102 "Upg No Taxable"
 
         CustLedgerEntry.SetFilter("VAT Reporting Date", '<>%1', BlankDate);
         DetailedCustLedgEntry.SetFilter("VAT Reporting Date", '<>%1', BlankDate);
-        if not CustLedgerEntry.IsEmpty() OR not DetailedCustLedgEntry.IsEmpty() then
+        if not CustLedgerEntry.IsEmpty() or not DetailedCustLedgEntry.IsEmpty() then
             exit;
-        
+
         DataTransfer.SetTables(Database::"Cust. Ledger Entry", Database::"Cust. Ledger Entry");
         DataTransfer.AddFieldValue(CustLedgerEntry.FieldNo("Posting Date"), CustLedgerEntry.FieldNo("VAT Reporting Date"));
         DataTransfer.UpdateAuditFields(false);
         DataTransfer.CopyFields();
-        Clear(DataTransfer);           
+        Clear(DataTransfer);
 
         DataTransfer.SetTables(Database::"Detailed Cust. Ledg. Entry", Database::"Detailed Cust. Ledg. Entry");
         DataTransfer.AddFieldValue(DetailedCustLedgEntry.FieldNo("Posting Date"), DetailedCustLedgEntry.FieldNo("VAT Reporting Date"));
         DataTransfer.UpdateAuditFields(false);
         DataTransfer.CopyFields();
-        Clear(DataTransfer);           
+        Clear(DataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateCustLedgerEntryVATDateTag());
     end;
@@ -128,20 +128,20 @@ codeunit 104102 "Upg No Taxable"
 
         VendLedgerEntry.SetFilter("VAT Reporting Date", '<>%1', BlankDate);
         DetailedVendorLedgEntry.SetFilter("VAT Reporting Date", '<>%1', BlankDate);
-        if not VendLedgerEntry.IsEmpty() OR not DetailedVendorLedgEntry.IsEmpty() then
+        if not VendLedgerEntry.IsEmpty() or not DetailedVendorLedgEntry.IsEmpty() then
             exit;
-        
+
         DataTransfer.SetTables(Database::"Vendor Ledger Entry", Database::"Vendor Ledger Entry");
         DataTransfer.AddFieldValue(VendLedgerEntry.FieldNo("Posting Date"), VendLedgerEntry.FieldNo("VAT Reporting Date"));
         DataTransfer.UpdateAuditFields(false);
         DataTransfer.CopyFields();
-        Clear(DataTransfer);           
+        Clear(DataTransfer);
 
         DataTransfer.SetTables(Database::"Detailed Vendor Ledg. Entry", Database::"Detailed Vendor Ledg. Entry");
         DataTransfer.AddFieldValue(DetailedVendorLedgEntry.FieldNo("Posting Date"), DetailedVendorLedgEntry.FieldNo("VAT Reporting Date"));
         DataTransfer.UpdateAuditFields(false);
         DataTransfer.CopyFields();
-        Clear(DataTransfer);           
+        Clear(DataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateVendLedgerEntryVATDateTag());
     end;

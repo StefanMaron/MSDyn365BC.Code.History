@@ -146,6 +146,8 @@ report 5806 "Item Charges - Specification"
 
     requestpage
     {
+        AboutTitle = 'About Item Charges – Specification';
+        AboutText = 'Analyse posted sales or purchase item charges to assess added costs, such as freight and physical handling. View a grouping per inventory posting group and item, with a calculated total per group.';
         SaveValues = true;
 
         layout
@@ -205,6 +207,7 @@ report 5806 "Item Charges - Specification"
         SourceType: Option Sale,Purchase;
         SourceTypePurch: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Item Charges - Overview';
         Text001: Label 'Item Charges - Specification';
         Text002: Label ' (Sales)';
@@ -213,6 +216,7 @@ report 5806 "Item Charges - Specification"
         Text005: Label 'Group Subtotal';
         Text006: Label 'Inventory Posting Group Subtotal';
         Text007: Label 'Group Total';
+#pragma warning restore AA0074
         CurrReportPageNoCaptionLbl: Label 'Page';
         ValueEntryCostAmtActlCptnLbl: Label 'Amount';
         TotalCaptionLbl: Label 'Total';

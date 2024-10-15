@@ -272,6 +272,9 @@ report 1307 "Standard Sales - Credit Memo"
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(ShipToPhoneNo; Header."Ship-to Phone No.")
+            {
+            }
             column(PaymentTermsDescription; PaymentTerms.Description)
             {
             }
@@ -347,12 +350,20 @@ report 1307 "Standard Sales - Credit Memo"
             column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber())
+#if not CLEAN25
+            column(GlobalLocationNumber; '')
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not in use anymore.';
+                ObsoleteTag = '25.0';
             }
-            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl())
+            column(GlobalLocationNumber_Lbl; '')
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not in use anymore.';
+                ObsoleteTag = '25.0';
             }
+#endif
             column(LegalEntityType; Cust.GetLegalEntityType())
             {
             }
@@ -630,6 +641,8 @@ report 1307 "Standard Sales - Credit Memo"
 
                     FormatLineValues(Line);
 
+                    if FormatDocument.HideDocumentLine(HideLinesWithZeroQuantity, Line, FieldNo(Quantity)) then
+                        CurrReport.Skip();
                     if FirstLineHasBeenOutput then
                         Clear(DummyCompanyInfo.Picture);
                     FirstLineHasBeenOutput := true;
@@ -1032,6 +1045,12 @@ report 1307 "Standard Sales - Credit Memo"
                         Caption = 'Show Shipments';
                         ToolTip = 'Specifies that shipments are shown on the document.';
                     }
+                    field(HideLinesWithZeroQuantityControl; HideLinesWithZeroQuantity)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the lines with zero quantity are printed.';
+                        Caption = 'Hide lines with zero quantity';
+                    }
                 }
             }
         }
@@ -1067,6 +1086,13 @@ report 1307 "Standard Sales - Credit Memo"
             LayoutFile = './Sales/History/StandardSalesCreditMemo.docx';
             Caption = 'Standard Sales Credit Memo (Word)';
             Summary = 'The Standard Sales Credit Memo (Word) provides a basic layout.';
+        }
+        layout("StandardSalesCreditMemoThemable.docx")
+        {
+            Type = Word;
+            LayoutFile = './Sales/History/StandardSalesCreditMemoThemable.docx';
+            Caption = 'Standard Sales Credit Memo - themable Word layout';
+            Summary = 'The Standard Sales Credit Memo (Word) provides a basic Themable layout.';
         }
         layout("StandardSalesCreditMemoEmail.docx")
         {
@@ -1164,7 +1190,9 @@ report 1307 "Standard Sales - Credit Memo"
         ECAmountLCY: Decimal;
         TotalECAmountLCY: Decimal;
         TotalECAmount: Decimal;
+#pragma warning disable AA0470
         SalesCreditMemoNoLbl: Label 'Sales - Credit Memo %1';
+#pragma warning restore AA0470
         SalespersonLbl: Label 'Sales person';
         CompanyInfoBankAccNoLbl: Label 'Account No.';
         CompanyInfoBankNameLbl: Label 'Bank';
@@ -1202,7 +1230,9 @@ report 1307 "Standard Sales - Credit Memo"
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
+#pragma warning disable AA0470
         SalesPrepCreditMemoNoLbl: Label 'Sales - Prepmt. Credit Memo %1';
+#pragma warning restore AA0470
         ExchangeRateTxt: Label 'Exchange rate: %1/%2', Comment = '%1 and %2 are both amounts.';
         AppliesToTextLbl: Label 'Applies to Document';
         NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
@@ -1250,6 +1280,7 @@ report 1307 "Standard Sales - Credit Memo"
         TotalVATBaseLCY: Decimal;
         TotalVATAmountLCY: Decimal;
         VATAmtLbl: Label 'VAT Amount';
+        HideLinesWithZeroQuantity: Boolean;
 
     local procedure InitLogInteraction()
     begin

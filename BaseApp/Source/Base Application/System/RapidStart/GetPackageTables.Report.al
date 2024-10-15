@@ -97,7 +97,9 @@ report 8616 "Get Package Tables"
         SelectedTables: Integer;
         PackageCode: Code[20];
         WithDataOnly: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'Package is not set.';
+#pragma warning restore AA0074
 
     procedure Set(NewPackageCode: Code[20])
     begin

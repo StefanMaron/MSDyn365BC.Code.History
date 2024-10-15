@@ -25,10 +25,8 @@
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        AllowCorrectionError: Label '%1 must have a value in Depreciation Book: Code=%2. It cannot be zero or empty.';
         CopyFixedAssetError: Label '%1 must be equal to %2.';
         FAAllocationError: Label 'Number of FA Allocation must be equal.';
-        GLAccountBlockError: Label '%1 must be equal to ''No''  in %2: %3=%4. Current value is ''Yes''.';
         NoSeriesError: Label 'Only the %1 field can be filled in on recurring journals.';
         FAPostingDateError: Label '%1 is not within your range of allowed posting dates in %2 %3=''%4'',%5=''%6'',%7=''%8''.';
         FADisposalError: Label 'Disposal must not be positive on %1 for Fixed Asset No. = %2 in %3 = %4.';
@@ -788,9 +786,7 @@
         asserterror FAPostingGroup.Validate("Acquisition Cost Account", GLAccountNo);
 
         // 3. Verify: Check Application throws an Error while updating Block Account.
-        Assert.AreEqual(
-          StrSubstNo(GLAccountBlockError, GLAccount.FieldName(Blocked), GLAccount.TableName, GLAccount.FieldName("No."), GLAccountNo),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -813,9 +809,7 @@
         asserterror FAPostingGroup.Validate("Accum. Depreciation Account", GLAccountNo);
 
         // 3. Verify: Check Application throws an Error while updating Block Account.
-        Assert.AreEqual(
-          StrSubstNo(GLAccountBlockError, GLAccount.FieldName(Blocked), GLAccount.TableName, GLAccount.FieldName("No."), GLAccountNo),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -838,9 +832,7 @@
         asserterror FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", GLAccountNo);
 
         // 3. Verify: Check Application throws an Error while updating Block Account.
-        Assert.AreEqual(
-          StrSubstNo(GLAccountBlockError, GLAccount.FieldName(Blocked), GLAccount.TableName, GLAccount.FieldName("No."), GLAccountNo),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -863,9 +855,7 @@
         asserterror FAPostingGroup.Validate("Accum. Depr. Acc. on Disposal", GLAccountNo);
 
         // 3. Verify: Check Application throws an Error while updating Block Account.
-        Assert.AreEqual(
-          StrSubstNo(GLAccountBlockError, GLAccount.FieldName(Blocked), GLAccount.TableName, GLAccount.FieldName("No."), GLAccountNo),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -888,9 +878,7 @@
         asserterror FAPostingGroup.Validate("Gains Acc. on Disposal", GLAccountNo);
 
         // 3. Verify: Check Application throws an Error while updating Block Account.
-        Assert.AreEqual(
-          StrSubstNo(GLAccountBlockError, GLAccount.FieldName(Blocked), GLAccount.TableName, GLAccount.FieldName("No."), GLAccountNo),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -913,9 +901,7 @@
         asserterror FAPostingGroup.Validate("Losses Acc. on Disposal", GLAccountNo);
 
         // 3. Verify: Check Application throws an Error while updating Block Account.
-        Assert.AreEqual(
-          StrSubstNo(GLAccountBlockError, GLAccount.FieldName(Blocked), GLAccount.TableName, GLAccount.FieldName("No."), GLAccountNo),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -938,9 +924,7 @@
         asserterror FAPostingGroup.Validate("Maintenance Expense Account", GLAccountNo);
 
         // 3. Verify: Check Application throws an Error while updating Block Account.
-        Assert.AreEqual(
-          StrSubstNo(GLAccountBlockError, GLAccount.FieldName(Blocked), GLAccount.TableName, GLAccount.FieldName("No."), GLAccountNo),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -963,9 +947,7 @@
         asserterror FAPostingGroup.Validate("Depreciation Expense Acc.", GLAccountNo);
 
         // 3. Verify: Check Application throws an Error while updating Block Account.
-        Assert.AreEqual(
-          StrSubstNo(GLAccountBlockError, GLAccount.FieldName(Blocked), GLAccount.TableName, GLAccount.FieldName("No."), GLAccountNo),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1679,9 +1661,7 @@
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 3.Verify: Verify the Error Mesage.
-        Assert.AreEqual(
-          StrSubstNo(AllowCorrectionError, DepreciationBook.FieldCaption("Allow Correction of Disposal"),
-            FADepreciationBook."Depreciation Book Code"), GetLastErrorText, UnknownError)
+        Assert.ExpectedTestFieldError(DepreciationBook.FieldCaption("Allow Correction of Disposal"), '');
     end;
 
     [Test]
@@ -3978,12 +3958,10 @@
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FANo);
-            SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-            FindFirst();
-            TestField("Depreciation Book Code", DepreciationBookCode)
-        end;
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
+        FALedgerEntry.FindFirst();
+        FALedgerEntry.TestField("Depreciation Book Code", DepreciationBookCode)
     end;
 
     local procedure VerifyMaintenanceEntry(GenJournalLine: Record "Gen. Journal Line")
@@ -4408,4 +4386,6 @@
         GenJournalLine.TestField("Journal Batch Name", GenJournalBatchName);
     end;
 }
+
+
 

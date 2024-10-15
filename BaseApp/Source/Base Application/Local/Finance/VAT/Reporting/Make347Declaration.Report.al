@@ -33,7 +33,7 @@ report 10707 "Make 347 Declaration"
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = const(1));
+            DataItemTableView = sorting(Number) order(ascending) where(Number = const(1));
 
             trigger OnAfterGetRecord()
             begin
@@ -435,7 +435,7 @@ report 10707 "Make 347 Declaration"
                         Caption = 'Min. Amount';
                         ShowMandatory = true;
                         ToolTip = 'Specifies the minimum amount for the operations declaration.';
-                        Visible = NOT SIICollectionsInCash;
+                        Visible = not SIICollectionsInCash;
                     }
                     field(MinAmountInCash; MinAmountCash)
                     {
@@ -463,7 +463,7 @@ report 10707 "Make 347 Declaration"
                         Caption = 'Contact Name';
                         ShowMandatory = true;
                         ToolTip = 'Specifies the name of the person making the declaration.';
-                        Visible = NOT SIICollectionsInCash;
+                        Visible = not SIICollectionsInCash;
                     }
                     field(TelephoneNumber; ContactTelephone)
                     {
@@ -472,7 +472,7 @@ report 10707 "Make 347 Declaration"
                         Numeric = true;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the phone number as 9 digits without spaces or special characters.';
-                        Visible = NOT SIICollectionsInCash;
+                        Visible = not SIICollectionsInCash;
 
                         trigger OnValidate()
                         begin
@@ -487,21 +487,21 @@ report 10707 "Make 347 Declaration"
                         Numeric = true;
                         ShowMandatory = true;
                         ToolTip = 'Specifies a number to identify the operations declaration.';
-                        Visible = NOT SIICollectionsInCash;
+                        Visible = not SIICollectionsInCash;
                     }
                     field(DeclarationMediaType; DeclarationMediaType)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Declaration Media Type';
                         ToolTip = 'Specifies the media type for the declaration. To submit the declaration electronically, select Telematic. To submit the declaration on a CD-ROM, select Physical support.';
-                        Visible = NOT SIICollectionsInCash;
+                        Visible = not SIICollectionsInCash;
                     }
                     field(ReplacementDeclaration; ReplacementDeclaration)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replacement Declaration';
                         ToolTip = 'Specifies if this is a replacement of a previously sent declaration.';
-                        Visible = NOT SIICollectionsInCash;
+                        Visible = not SIICollectionsInCash;
 
                         trigger OnValidate()
                         begin
@@ -516,7 +516,7 @@ report 10707 "Make 347 Declaration"
                         Numeric = true;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the number as 13 digits without spaces or special characters.';
-                        Visible = NOT SIICollectionsInCash;
+                        Visible = not SIICollectionsInCash;
 
                         trigger OnValidate()
                         begin
@@ -892,9 +892,9 @@ report 10707 "Make 347 Declaration"
         j := 1;
         while CommaPos <> 0 do begin
             CommaPos := StrPos(StringFilter, '|');
-            if CommaPos = 0 then begin
-                FilterArray[j] := StringFilter;
-            end else begin
+            if CommaPos = 0 then
+                FilterArray[j] := StringFilter
+            else begin
                 FilterArray[j] := CopyStr(StringFilter, 1, CommaPos - 1);
                 StringFilter := DelStr(StringFilter, 1, CommaPos);
             end;
@@ -944,23 +944,21 @@ report 10707 "Make 347 Declaration"
             if Customer."Country/Region Code" <> ESCountryCodeTxt then begin
                 CVCountryCode := CopyStr(Customer."Country/Region Code", 1, 2);
                 CountyCode := '99';
-            end else begin
+            end else
                 if PostCode.Get(Customer."Post Code", Customer.City) and (PostCode."County Code" <> '') then
                     CountyCode := PostCode."County Code"
                 else
                     CountyCode := CopyStr(PostCode347, 1, 2);
-            end;
         end else begin
             PostCode347 := PadStr(StatementNo(Vendor."Post Code"), 5, ' ');
             if Vendor."Country/Region Code" <> ESCountryCodeTxt then begin
                 CVCountryCode := CopyStr(Vendor."Country/Region Code", 1, 2);
                 CountyCode := '99';
-            end else begin
+            end else
                 if PostCode.Get(Vendor."Post Code", Vendor.City) and (PostCode."County Code" <> '') then
                     CountyCode := PostCode."County Code"
                 else
                     CountyCode := CopyStr(PostCode347, 1, 2);
-            end;
         end;
     end;
 
@@ -1092,17 +1090,15 @@ report 10707 "Make 347 Declaration"
                         repeat
                             if DtldCustLedgEntry2."Cust. Ledger Entry No." <>
                                DtldCustLedgEntry2."Applied Cust. Ledger Entry No."
-                            then begin
+                            then
                                 if CustLedgerEntry.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.") then
                                     UpdateCustomerCashBuffer(VATRegistrationNo,
                                       Date2DMY(DocumentPostingDate, 3), -DtldCustLedgEntry2."Amount (LCY)");
-                            end;
                         until DtldCustLedgEntry2.Next() = 0;
-                end else begin
+                end else
                     if CustLedgerEntry.Get(DtldCustLedgEntry."Applied Cust. Ledger Entry No.") then
                         UpdateCustomerCashBuffer(VATRegistrationNo,
                           Date2DMY(DocumentPostingDate, 3), DtldCustLedgEntry."Amount (LCY)");
-                end;
             until DtldCustLedgEntry.Next() = 0;
     end;
 
@@ -1110,10 +1106,9 @@ report 10707 "Make 347 Declaration"
     var
         i: Integer;
     begin
-        for i := 1 to NoOfAccounts do begin
+        for i := 1 to NoOfAccounts do
             if GLAccountNo = FilterArray[i] then
                 exit(true);
-        end;
         exit(false);
     end;
 
@@ -1577,7 +1572,7 @@ report 10707 "Make 347 Declaration"
         NewEncoding := NewEncoding.GetEncoding(NewEncodingCode);
         DotNetEncoding.SetEncoding(NewEncoding);
         FileContents := FileManagement.GetFileContents(FileName);
-        IF not Erase(FileName) then
+        if not Erase(FileName) then
             exit;
         OutFile.Create(FileName);
         OutFile.CreateOutStream(OutStr);

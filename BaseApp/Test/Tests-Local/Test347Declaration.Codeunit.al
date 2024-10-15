@@ -1085,16 +1085,14 @@ codeunit 147316 "Test 347 Declaration"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type"::Payment,
-              AccountType, AccountNo,
-              PmtAmount);
-            Validate("Posting Date", PostingDate);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", ApplToDocNo);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment,
+            AccountType, AccountNo,
+            PmtAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", ApplToDocNo);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         BalAccountNo := GenJournalLine."Bal. Account No.";
     end;

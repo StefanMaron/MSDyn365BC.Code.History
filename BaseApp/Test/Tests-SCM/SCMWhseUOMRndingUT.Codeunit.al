@@ -12,7 +12,7 @@ codeunit 137057 "SCM Whse. UOM Rnding. UT"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
-        QtyRoundingErr: Label 'is of lesser precision than expected';
+        QtyRoundingErr: Label 'is of lower precision than expected';
         BaseQtyRoundingErr: Label 'to be out of balance';
 
     [Test]
