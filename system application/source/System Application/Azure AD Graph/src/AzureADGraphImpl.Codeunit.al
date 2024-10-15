@@ -170,20 +170,12 @@ codeunit 9014 "Azure AD Graph Impl."
 
     [NonDebuggable]
     procedure IsMemberOfGroupWithId(GroupId: Text; GraphUserInfo: DotNet UserInfo): Boolean
-    var
-        GroupInfo: DotNet GroupInfo;
     begin
         if IsNull(GraphUserInfo) then
             exit(false);
 
-        if IsNull(GraphUserInfo.Groups()) then
-            exit(false);
-
-        foreach GroupInfo in GraphUserInfo.Groups() do
-            if not IsNull(GroupInfo.ObjectId()) then
-                if GroupInfo.ObjectId().ToUpper() = UpperCase(GroupId) then
-                    exit(true);
-        exit(false);
+        if CanQueryGraph() then
+            exit(GraphQuery.IsGroupMember(GraphUserInfo.ObjectId, GroupId));
     end;
 
     [NonDebuggable]

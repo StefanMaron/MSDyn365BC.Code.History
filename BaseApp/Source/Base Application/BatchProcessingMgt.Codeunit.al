@@ -91,6 +91,7 @@ codeunit 1380 "Batch Processing Mgt."
             FillBatchProcessingMap(RecRef);
             Commit();
 
+            CurrentKeyIndex(1);
             FindSet();
 
             if GuiAllowed() then
