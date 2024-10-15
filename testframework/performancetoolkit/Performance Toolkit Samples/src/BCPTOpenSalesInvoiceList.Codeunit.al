@@ -1,3 +1,7 @@
+namespace System.Test.Tooling;
+
+using Microsoft.Sales.Document;
+
 codeunit 149114 "BCPT Open Sales Invoice List"
 {
     // Test codeunits can only run in foreground (UI)

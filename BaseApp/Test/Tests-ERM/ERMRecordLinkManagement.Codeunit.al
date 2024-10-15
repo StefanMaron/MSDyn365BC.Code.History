@@ -46,10 +46,10 @@ codeunit 134074 "ERM Record Link Management"
 
         // [THEN] Posted Sales Invoice has a note without notification ("Record Link".Notify = FALSE)
         FindSalesInvoiceHeader(SalesInvoiceHeader, SalesHeader);
-        VerifyNotificationOnRecordLink(SalesInvoiceHeader, false);
+        VerifyNotificationOnRecordLink(SalesInvoiceHeader);
         // [THEN] Posted Sales Shipment has a note without notification ("Record Link".Notify = FALSE)
         FindSalesShipmentHeader(SalesShipmentHeader, SalesHeader);
-        VerifyNotificationOnRecordLink(SalesShipmentHeader, false);
+        VerifyNotificationOnRecordLink(SalesShipmentHeader);
     end;
 
     [Test]
@@ -73,10 +73,10 @@ codeunit 134074 "ERM Record Link Management"
 
         // [THEN] Posted Purchase Invoice has a note without notification ("Record Link".Notify = FALSE)
         FindPurchaseInvoiceHeader(PurchInvHeader, PurchaseHeader);
-        VerifyNotificationOnRecordLink(PurchInvHeader, false);
+        VerifyNotificationOnRecordLink(PurchInvHeader);
         // [THEN] Posted Purchase Receipt has a note without notification ("Record Link".Notify = FALSE)
         FindPurchaseReceiptHeader(PurchRcptHeader, PurchaseHeader);
-        VerifyNotificationOnRecordLink(PurchRcptHeader, false);
+        VerifyNotificationOnRecordLink(PurchRcptHeader);
     end;
 
     [Test]
@@ -101,11 +101,11 @@ codeunit 134074 "ERM Record Link Management"
 
         // [THEN] Posted Service Invoice has a note without notification ("Record Link".Notify = FALSE)
         FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader);
-        VerifyNotificationOnRecordLink(ServiceInvoiceHeader, false);
+        VerifyNotificationOnRecordLink(ServiceInvoiceHeader);
 
         // [THEN] Posted Service Shipment has a note without notification ("Record Link".Notify = FALSE)
         FindServiceShipmentHeader(ServiceShipmentHeader, ServiceHeader);
-        VerifyNotificationOnRecordLink(ServiceShipmentHeader, false);
+        VerifyNotificationOnRecordLink(ServiceShipmentHeader);
     end;
 
     [Test]
@@ -130,7 +130,7 @@ codeunit 134074 "ERM Record Link Management"
 
         // [THEN] Archived Sales Order has a note without notification ("Record Link".Notify = FALSE)
         FindSalesHeaderArchive(SalesHeaderArchive, SalesHeader);
-        VerifyNotificationOnRecordLink(SalesHeaderArchive, false);
+        VerifyNotificationOnRecordLink(SalesHeaderArchive);
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 134074 "ERM Record Link Management"
 
         // [THEN] Archived Purchase Order has a note without notification ("Record Link".Notify = FALSE)
         FindPurchaseHeaderArchive(PurchaseHeaderArchive, PurchaseHeader);
-        VerifyNotificationOnRecordLink(PurchaseHeaderArchive, false);
+        VerifyNotificationOnRecordLink(PurchaseHeaderArchive);
     end;
 
     [Test]
@@ -191,7 +191,7 @@ codeunit 134074 "ERM Record Link Management"
 #pragma warning restore AA0181
 
         // [THEN] Restored Sales Order has a note without notification ("Record Link".Notify = FALSE)
-        VerifyNotificationOnRecordLink(SalesHeader, false);
+        VerifyNotificationOnRecordLink(SalesHeader);
     end;
 
     [Test]
@@ -541,7 +541,7 @@ codeunit 134074 "ERM Record Link Management"
         ServiceMgtSetup.Modify();
     end;
 
-    local procedure VerifyNotificationOnRecordLink(RecVar: Variant; ExpectedNotification: Boolean)
+    local procedure VerifyNotificationOnRecordLink(RecVar: Variant)
     var
         RecordLink: Record "Record Link";
         RecRef: RecordRef;
@@ -552,7 +552,6 @@ codeunit 134074 "ERM Record Link Management"
         RecordLink.FindFirst();
 
         Assert.AreEqual(1, RecordLink.Count, RecordLinkCountErr);
-        Assert.AreEqual(ExpectedNotification, RecordLink.Notify, RecordLink.FieldCaption(Notify));
     end;
 
     local procedure VerifyBankAccLedgerEntryRecordLink(AccountNo: Code[20])

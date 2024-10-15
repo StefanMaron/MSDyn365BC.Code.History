@@ -1,3 +1,5 @@
+namespace System.Environment;
+
 table 6060 "Hybrid Deployment Setup"
 {
     Caption = 'Hybrid Deployment Setup';

@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Projects.Resources.Resource;
+using System.Security.User;
+
 page 973 "Time Sheet Card"
 {
     PageType = Document;
@@ -57,7 +66,7 @@ page 973 "Time Sheet Card"
             part(TimeSheetLines; "Time Sheet Lines Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Time Sheet No." = FIELD("No.");
+                SubPageLink = "Time Sheet No." = field("No.");
                 UpdatePropagation = Both;
             }
         }
@@ -87,8 +96,8 @@ page 973 "Time Sheet Card"
                 Caption = 'Comments';
                 Image = ViewComments;
                 RunObject = Page "Time Sheet Comment Sheet";
-                RunPageLink = "No." = FIELD("No."),
-                                  "Time Sheet Line No." = CONST(0);
+                RunPageLink = "No." = field("No."),
+                                  "Time Sheet Line No." = const(0);
                 ToolTip = 'View comments about the time sheet.';
             }
         }
@@ -245,7 +254,7 @@ page 973 "Time Sheet Card"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CurrPage.TimeSheetLines.Page.SetColumns("No.");
+        CurrPage.TimeSheetLines.Page.SetColumns(Rec."No.");
         UpdateControls();
     end;
 
@@ -274,10 +283,10 @@ page 973 "Time Sheet Card"
     begin
         if UserSetup.Get(UserId) then;
         if not UserSetup."Time Sheet Admin." then begin
-            FilterGroup(2);
-            if (GetFilter("Owner User ID") = '') and (GetFilter("Approver User ID") = '') then
-                TimeSheetMgt.FilterTimeSheets(Rec, FieldNo("Owner User ID"));
-            FilterGroup(0);
+            Rec.FilterGroup(2);
+            if (Rec.GetFilter("Owner User ID") = '') and (Rec.GetFilter("Approver User ID") = '') then
+                TimeSheetMgt.FilterTimeSheets(Rec, Rec.FieldNo("Owner User ID"));
+            Rec.FilterGroup(0);
         end;
     end;
 
@@ -401,7 +410,7 @@ page 973 "Time Sheet Card"
 
     protected procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
     begin
-        TimeSheetLine.SetRange("Time Sheet No.", "No.");
+        TimeSheetLine.SetRange("Time Sheet No.", Rec."No.");
         TimeSheetMgt.FilterAllTimeSheetLines(TimeSheetLine, ActionType);
     end;
 

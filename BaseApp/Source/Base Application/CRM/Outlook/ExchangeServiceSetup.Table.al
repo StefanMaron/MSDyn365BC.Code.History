@@ -1,3 +1,5 @@
+namespace Microsoft.CRM.Outlook;
+
 table 5324 "Exchange Service Setup"
 {
     Caption = 'Exchange Service Setup';
@@ -10,15 +12,15 @@ table 5324 "Exchange Service Setup"
         }
         field(2; "Azure AD App. ID"; Guid)
         {
-            Caption = 'Azure AD App. ID';
+            Caption = 'Microsoft Entra App. ID';
         }
         field(3; "Azure AD App. Cert. Thumbprint"; Text[40])
         {
-            Caption = 'Azure AD App. Cert. Thumbprint';
+            Caption = 'Microsoft Entra App. Cert. Thumbprint';
         }
         field(4; "Azure AD Auth. Endpoint"; Text[250])
         {
-            Caption = 'Azure AD Auth. Endpoint';
+            Caption = 'Microsoft Entra Auth. Endpoint';
         }
         field(5; "Exchange Service Endpoint"; Text[250])
         {

@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using System.Reflection;
+
 table 8452 "Advanced Intrastat Checklist"
 {
     Caption = 'Advanced Intrastat Checklist';
@@ -93,7 +101,7 @@ table 8452 "Advanced Intrastat Checklist"
     var
         FilterStringParseErr: Label 'Could not parse the filter expression. Use the lookup action, or type a string in the following format: "Type: Shipment, Quantity: <>0".';
         FilterTxt: Label '%1=FILTER(%2)', Locked = true;
-        WhereTxt: Label '%1 WHERE(%2)', Locked = true;
+        WhereTxt: Label '%1 where(%2)', Locked = true;
 
     procedure AssistEditFieldName()
     var

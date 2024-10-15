@@ -310,7 +310,7 @@ codeunit 131000 "Library - Utility"
 
         if not LineNumberFound then begin
             FieldRef := RecRef2.Field(FieldNo);
-            Error(StrSubstNo(KeyNotFoundError, FieldRef.Name, RecRef2.Name));
+            Error(KeyNotFoundError, FieldRef.Name, RecRef2.Name);
         end;
 
         if RecRef2.FindLast() then begin
@@ -385,8 +385,8 @@ codeunit 131000 "Library - Utility"
         end;
         if not ControlFound then begin
             if ObjectType = AppObjectMetadata."Object Type"::Page then
-                Error(StrSubstNo(ControlForFieldNotFoundError, FieldNo, ObjectNo));
-            Error(StrSubstNo(FieldNotFoundError, FieldNo, ObjectNo));
+                Error(ControlForFieldNotFoundError, FieldNo, ObjectNo);
+            Error(FieldNotFoundError, FieldNo, ObjectNo);
         end;
         exit('');
     end;
@@ -760,7 +760,7 @@ codeunit 131000 "Library - Utility"
 
         Field.Get(TableNo, FieldNo);
         if Field.Type <> Field.Type::Option then
-            Error(StrSubstNo(FieldOptionTypeErr, FieldRef.Name, RecRef.Name));
+            Error(FieldOptionTypeErr, FieldRef.Name, RecRef.Name);
         exit(GetMaxOptionIndex(FieldRef.OptionCaption));
     end;
 

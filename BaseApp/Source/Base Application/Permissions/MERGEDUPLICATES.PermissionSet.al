@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.CRM.Duplicates;
+
 permissionset 5783 "MERGE DUPLICATES"
 {
     Access = Public;

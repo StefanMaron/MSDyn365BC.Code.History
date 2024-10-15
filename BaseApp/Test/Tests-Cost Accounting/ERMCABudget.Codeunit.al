@@ -1556,10 +1556,10 @@ codeunit 134814 "ERM CA Budget"
         GLBudgetEntry.TestField("G/L Account No.", FindGLAccount(CostBudgetEntry."Cost Type No."));
 
         if not VerifyGLBudgetEntryDimension(GLBudgetEntry, CostCenterDimension, CostBudgetEntry."Cost Center Code") then
-            Error(StrSubstNo(GLBudgetDimensionError, CostBudgetEntry."Cost Center Code"));
+           Error(GLBudgetDimensionError, CostBudgetEntry."Cost Center Code");
 
         if not VerifyGLBudgetEntryDimension(GLBudgetEntry, CostObjectDimension, CostBudgetEntry."Cost Object Code") then
-            Error(StrSubstNo(GLBudgetDimensionError, CostBudgetEntry."Cost Object Code"));
+           Error(GLBudgetDimensionError, CostBudgetEntry."Cost Object Code");
     end;
 
     local procedure VerifyGLBudgetEntryDimension(GLBudgetEntry: Record "G/L Budget Entry"; DimensionCode: Code[20]; DimensionValueCode: Code[20]): Boolean

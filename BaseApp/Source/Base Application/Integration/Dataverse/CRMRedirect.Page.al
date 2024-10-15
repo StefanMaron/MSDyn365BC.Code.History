@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.Integration.D365Sales;
+using System;
+
 page 5329 "CRM Redirect"
 {
     Caption = 'Dataverse Redirect';
@@ -61,8 +70,8 @@ page 5329 "CRM Redirect"
         GroupHelper: DotNet Group;
         FilterText: Text;
     begin
-        FilterText := GetFilters();
-        RegexHelper := RegexHelper.Regex(StrSubstNo(FilterRegexTok, FieldCaption(Filter)));
+        FilterText := Rec.GetFilters();
+        RegexHelper := RegexHelper.Regex(StrSubstNo(FilterRegexTok, Rec.FieldCaption(Filter)));
         MatchHelper := RegexHelper.Match(FilterText);
         if not MatchHelper.Success then
             Error(InvalidFilterErr);

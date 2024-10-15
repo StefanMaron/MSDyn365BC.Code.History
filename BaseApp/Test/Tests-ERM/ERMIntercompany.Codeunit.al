@@ -983,15 +983,12 @@ codeunit 134151 "ERM Intercompany"
         ICPartnerCard: TestPage "IC Partner Card";
     begin
         // Check that an error message appears when a new IC Partner is created with a blank Code.
-
         // Setup: Create IC Partner with Blank code.
         Initialize();
         ICPartnerCard.OpenNew();
-
         // Exercise.
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         asserterror ICPartnerCard.Code.SetValue('');
-
         // Verify: Verify error message.
         Assert.ExpectedError(StrSubstNo(BlankCodeErr, ICPartnerCard.Code.Caption));
     end;
@@ -2031,14 +2028,10 @@ codeunit 134151 "ERM Intercompany"
         ICChartOfAccounts.SynchronizationSetup.Invoke();
 
         // [THEN] The IC G/L Accounts were transfer.
-        ICGLAccount.SetRange("No.", ICGLAccountHeading."No.");
-        Assert.IsTrue(ICGLAccount.FindFirst(), StrSubstNo(MissingICGLAccountEntry, ICGLAccountHeading."No."));
-        ICGLAccount.SetRange("No.", ICGLAccountBegin."No.");
-        Assert.IsTrue(ICGLAccount.FindFirst(), StrSubstNo(MissingICGLAccountEntry, ICGLAccountBegin."No."));
-        ICGLAccount.SetRange("No.", ICGLAccountPosting."No.");
-        Assert.IsTrue(ICGLAccount.FindFirst(), StrSubstNo(MissingICGLAccountEntry, ICGLAccountPosting."No."));
-        ICGLAccount.SetRange("No.", ICGLAccountEnd."No.");
-        Assert.IsTrue(ICGLAccount.FindFirst(), StrSubstNo(MissingICGLAccountEntry, ICGLAccountEnd."No."));
+        Assert.IsTrue(ICGLAccount.Get(ICGLAccountHeading."No."), StrSubstNo(MissingICGLAccountEntry, ICGLAccountHeading."No."));
+        Assert.IsTrue(ICGLAccount.Get(ICGLAccountBegin."No."), StrSubstNo(MissingICGLAccountEntry, ICGLAccountBegin."No."));
+        Assert.IsTrue(ICGLAccount.Get(ICGLAccountPosting."No."), StrSubstNo(MissingICGLAccountEntry, ICGLAccountPosting."No."));
+        Assert.IsTrue(ICGLAccount.Get(ICGLAccountEnd."No."), StrSubstNo(MissingICGLAccountEntry, ICGLAccountEnd."No."));
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
     end;
 
@@ -2126,7 +2119,8 @@ codeunit 134151 "ERM Intercompany"
         DimensionValue: Record "Dimension Value";
         ICDimension: Record "IC Dimension";
         ICDimensionValue: Record "IC Dimension Value";
-        ICDimensions: TestPage "IC Dimensions";
+        ICDimensionsSelector: TestPage "IC Dimensions Selector";
+        ERMIntercompany: Codeunit "ERM Intercompany";
         ICDimensionCode: Code[20];
         InitialICDimensionsNumber: Integer;
         FinalICDimensionsNumber: Integer;
@@ -2160,9 +2154,12 @@ codeunit 134151 "ERM Intercompany"
         // [GIVEN] Multiple Dimensions
         CreateMultipleDimensions();
 
+        // [GIVEN] Bind to the integration event to avoid Selection Filter
+        BindSubscription(ERMIntercompany);
+
         // [WHEN] Invoke the action "Copy from Dimensions"
-        ICDimensions.OpenView();
-        ICDimensions.CopyFromDimensions.Invoke();
+        ICDimensionsSelector.OpenView();
+        ICDimensionsSelector.CopyFromDimensions.Invoke();
         FinalICDimensionsNumber := ICDimension.Count();
 
         // [THEN] The are multiple IC Dimension entries, and old ones should still be present.
@@ -2943,13 +2940,24 @@ codeunit 134151 "ERM Intercompany"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
     begin
+
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"IC Mapping", 'OnAllowChangeCompanyForICAccounts', '', false, false)]
-    local procedure OnAllowChangeCompanyForICAccounts(var IsChangeCompanyAllowed: Boolean; var PartnersICAccounts: Record "IC G/L Account")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"IC Mapping", 'OnAllowChangeCompanyForTempICAccounts', '', false, false)]
+    local procedure OnAllowChangeCompanyForICAccounts(var IsChangeCompanyAllowed: Boolean; var TempPartnersICAccounts: Record "IC G/L Account" temporary)
+    var
+        PartnersICAccounts: Record "IC G/L Account";
     begin
         IsChangeCompanyAllowed := false;
+        TempPartnersICAccounts.Reset();
+        TempPartnersICAccounts.DeleteAll();
         PartnersICAccounts.FindSet();
+        repeat
+            TempPartnersICAccounts.TransferFields(PartnersICAccounts, true);
+            TempPartnersICAccounts.Insert();
+        until PartnersICAccounts.Next() = 0;
+        TempPartnersICAccounts.Reset();
+        TempPartnersICAccounts.FindSet();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::MoveEntries, 'OnBeforeCheckGLAccountEntries', '', false, false)]
@@ -2963,5 +2971,11 @@ codeunit 134151 "ERM Intercompany"
     begin
         IsHandled := true;
     end;
-}
 
+    [EventSubscriber(ObjectType::Page, Page::"IC Dimensions Selector", 'OnBeforeSelectingDimensions', '', false, false)]
+    local procedure OnBeforeSelectingDimensions(var IsHandled: Boolean; var Dimension: Record Dimension)
+    begin
+        IsHandled := true;
+        Dimension.Reset();
+    end;
+}

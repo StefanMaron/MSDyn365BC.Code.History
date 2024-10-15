@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Period;
+using Microsoft.Service.Ledger;
+using System.Utilities;
+
 page 5984 "Service Item Trend Lines"
 {
     Caption = 'Lines';
@@ -85,14 +92,14 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntriesByType(ServLedgEntry.Type::"Service Cost");
                     end;
                 }
-                field(Profit; Profit)
+                field(Profit; Rec.Profit)
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
                     Caption = 'Profit';
                     ToolTip = 'Specifies the profit (posted income minus posted cost in LCY) for the service item in the period specified in the Period Start field.';
                 }
-                field(ProfitPct; "Profit %")
+                field(ProfitPct; Rec."Profit %")
                 {
                     ApplicationArea = Service;
                     Caption = 'Profit %';
@@ -108,7 +115,7 @@ page 5984 "Service Item Trend Lines"
 
     trigger OnAfterGetRecord()
     begin
-        if DateRec.Get("Period Type", "Period Start") then;
+        if DateRec.Get(Rec."Period Type", Rec."Period Start") then;
         CalcLine();
     end;
 
@@ -132,7 +139,7 @@ page 5984 "Service Item Trend Lines"
 
     trigger OnOpenPage()
     begin
-        Reset();
+        Rec.Reset();
     end;
 
     var
@@ -157,9 +164,9 @@ page 5984 "Service Item Trend Lines"
     local procedure SetDateFilter()
     begin
         if AmountType = AmountType::"Net Change" then
-            ServItem.SetRange("Date Filter", "Period Start", "Period End")
+            ServItem.SetRange("Date Filter", Rec."Period Start", Rec."Period End")
         else
-            ServItem.SetRange("Date Filter", 0D, "Period End");
+            ServItem.SetRange("Date Filter", 0D, Rec."Period End");
     end;
 
     local procedure ShowServLedgEntries(Prepaid: Boolean)
@@ -191,17 +198,17 @@ page 5984 "Service Item Trend Lines"
     begin
         SetDateFilter();
         ServItem.CalcFields("Invoiced Amount", "Resources Used", "Parts Used", "Cost Used", "Prepaid Amount");
-        Profit := ServItem."Invoiced Amount" - ServItem."Resources Used" - ServItem."Parts Used" - ServItem."Cost Used";
+        Rec.Profit := ServItem."Invoiced Amount" - ServItem."Resources Used" - ServItem."Parts Used" - ServItem."Cost Used";
         if ServItem."Invoiced Amount" <> 0 then
-            "Profit %" := Round((Profit / ServItem."Invoiced Amount") * 100, 0.01)
+            Rec."Profit %" := Round((Rec.Profit / ServItem."Invoiced Amount") * 100, 0.01)
         else
-            "Profit %" := 0;
+            Rec."Profit %" := 0;
 
-        "Prepaid Income" := ServItem."Prepaid Amount";
-        "Posted Income" := ServItem."Invoiced Amount";
-        "Parts Used" := ServItem."Parts Used";
-        "Resources Used" := ServItem."Resources Used";
-        "Cost Used" := ServItem."Cost Used";
+        Rec."Prepaid Income" := ServItem."Prepaid Amount";
+        Rec."Posted Income" := ServItem."Invoiced Amount";
+        Rec."Parts Used" := ServItem."Parts Used";
+        Rec."Resources Used" := ServItem."Resources Used";
+        Rec."Cost Used" := ServItem."Cost Used";
 
         OnAfterCalcLine(ServItem, Rec);
     end;

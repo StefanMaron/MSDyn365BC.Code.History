@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.HumanResources.Setup;
+using Microsoft.HumanResources.Absence;
+
 permissionset 7665 "Time Sheets - Post"
 {
     Access = Public;

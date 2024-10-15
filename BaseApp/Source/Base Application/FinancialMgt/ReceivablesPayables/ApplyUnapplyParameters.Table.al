@@ -1,3 +1,10 @@
+namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Purchases.Payables;
+using Microsoft.Sales.Receivables;
+
 table 579 "Apply Unapply Parameters"
 {
     Caption = 'Apply Unapply Parameters';
@@ -45,7 +52,7 @@ table 579 "Apply Unapply Parameters"
         {
             Caption = 'Journal Batch Name';
             DataClassification = SystemMetadata;
-            TableRelation = "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Journal Template Name"));
+            TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("Journal Template Name"));
         }
         field(63; "External Document No."; Code[35])
         {

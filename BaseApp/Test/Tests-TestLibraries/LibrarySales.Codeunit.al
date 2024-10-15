@@ -785,6 +785,13 @@ codeunit 130509 "Library - Sales"
         exit(CustPostingGroup."Invoice Rounding Account");
     end;
 
+    procedure GetReturnReceiptLines(var SalesLine: Record "Sales Line")
+    var
+        SalesGetReturnReceipts: Codeunit "Sales-Get Return Receipts";
+    begin
+        SalesGetReturnReceipts.Run(SalesLine);
+    end;
+
     procedure GetShipmentLines(var SalesLine: Record "Sales Line")
     var
         SalesGetShipment: Codeunit "Sales-Get Shipment";
@@ -1338,6 +1345,6 @@ codeunit 130509 "Library - Sales"
     [IntegrationEvent(false, false)]
     local procedure OnCreateCustomerOnBeforeInsertCustomer(var Customer: Record Customer)
     begin
-    end;    
+    end;
 }
 

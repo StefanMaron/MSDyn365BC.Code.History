@@ -26,6 +26,7 @@ codeunit 139004 "Test ApplicationArea Setup"
     var
         AllProfile: Record "All Profile";
         ApplicationAreaSetup: Record "Application Area Setup";
+        UserPersonalization: Record "User Personalization";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         Cache: Dictionary of [Text, Text];
     begin
@@ -33,10 +34,10 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup.DeleteAll();
         ApplicationAreaSetup.Basic := true;
         ApplicationAreaSetup.Insert();
-        
+
         // Exersice
         ApplicationAreaMgmt.GetApplicationAreas();
-     
+
         // Verify
         LibraryApplicationArea.GetApplicationAreaCache(Cache);
         Assert.IsTrue(Cache.ContainsKey(''), 'Cache was expected to have an entry for Cross Company Application Area');
@@ -45,7 +46,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup.Init();
         ApplicationAreaSetup."Company Name" := CopyStr(CompanyName(), 1, 30);
         ApplicationAreaSetup.Basic := true;
-        
+
         // Exercise
         ApplicationAreaSetup.Insert();
 
@@ -55,14 +56,14 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // Exersice
         ApplicationAreaMgmt.GetApplicationAreas();
-     
+
         // Verify
         LibraryApplicationArea.GetApplicationAreaCache(Cache);
         Assert.IsTrue(Cache.ContainsKey('Company:' + CompanyName()), 'Cache was expected to have an entry for Company specific Application Area');
 
         // Setup
         AllProfile.FindSet();
-        repeat 
+        repeat
             AllProfile.Validate("Default Role Center", false);
             AllProfile.Modify(true)
         until AllProfile.Next() = 0;
@@ -72,6 +73,12 @@ codeunit 139004 "Test ApplicationArea Setup"
         AllProfile.Validate("Default Role Center", true);
         AllProfile.Modify(true);
 
+        if UserPersonalization.Get(UserSecurityId()) then
+            if UserPersonalization."Profile ID" <> AllProfile."Profile ID" then begin
+                UserPersonalization."Profile ID" := AllProfile."Profile ID";
+                UserPersonalization.Modify();
+            end;
+
         // Exercise
         ApplicationAreaSetup.Rename('', 'BUSINESS MANAGER', '');
 
@@ -79,9 +86,9 @@ codeunit 139004 "Test ApplicationArea Setup"
         LibraryApplicationArea.GetApplicationAreaCache(Cache);
         Assert.AreEqual(0, Cache.Count(), 'Cache Was expected to be cleared after Renaming on Application Area');
 
-         // Exersice
+        // Exersice
         ApplicationAreaMgmt.GetApplicationAreas();
-     
+
         // Verify
         LibraryApplicationArea.GetApplicationAreaCache(Cache);
         Assert.IsTrue(Cache.ContainsKey('Profile:BUSINESS MANAGER'), 'Cache was expected to have an entry for Profile specific Application Area');
@@ -99,13 +106,13 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Insert();
 
-         // Exersice
+        // Exersice
         ApplicationAreaMgmt.GetApplicationAreas();
-     
+
         // Verify
         LibraryApplicationArea.GetApplicationAreaCache(Cache);
         Assert.IsTrue(Cache.ContainsKey('User:' + UserId()), 'Cache was expected to have an entry for Profile specific Application Area');
-     
+
         // Exersice
         ApplicationAreaSetup.Basic := false;
         ApplicationAreaSetup.Modify();

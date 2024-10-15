@@ -210,7 +210,7 @@ codeunit 134321 "General Journal Batch Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure DeleteLinesAfterApprovalRequest()
     var
@@ -263,7 +263,7 @@ codeunit 134321 "General Journal Batch Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure DeleteAfterApprovalRequest()
     var

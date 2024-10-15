@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Loaner;
+
+using Microsoft.Service.Comment;
+using Microsoft.Service.Document;
+
 page 5921 "Available Loaners"
 {
     Caption = 'Available Loaners';
@@ -27,17 +32,17 @@ page 5921 "Available Loaners"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the loaner.';
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that there is a comment for this loaner.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field(Lent; Lent)
+                field(Lent; Rec.Lent)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the loaner has been lent to a customer.';
@@ -83,7 +88,7 @@ page 5921 "Available Loaners"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Loaner Card";
-                    RunPageLink = "No." = FIELD("No.");
+                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
                 }
@@ -93,8 +98,8 @@ page 5921 "Available Loaners"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST(Loaner),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const(Loaner),
+                                  "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("Loaner E&ntries")
@@ -103,9 +108,9 @@ page 5921 "Available Loaners"
                     Caption = 'Loaner E&ntries';
                     Image = Entries;
                     RunObject = Page "Loaner Entries";
-                    RunPageLink = "Loaner No." = FIELD("No.");
-                    RunPageView = SORTING("Loaner No.")
-                                  ORDER(Ascending);
+                    RunPageLink = "Loaner No." = field("No.");
+                    RunPageView = sorting("Loaner No.")
+                                  order(Ascending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of the loaner.';
                 }
@@ -130,19 +135,19 @@ page 5921 "Available Loaners"
                         ServItemLine: Record "Service Item Line";
                         ServLoanerMgt: Codeunit ServLoanerManagement;
                     begin
-                        if Lent then begin
+                        if Rec.Lent then begin
                             Clear(LoanerEntry);
                             LoanerEntry.SetCurrentKey("Document Type", "Document No.", "Loaner No.", Lent);
-                            LoanerEntry.SetRange("Document Type", "Document Type");
-                            LoanerEntry.SetRange("Document No.", "Document No.");
-                            LoanerEntry.SetRange("Loaner No.", "No.");
+                            LoanerEntry.SetRange("Document Type", Rec."Document Type");
+                            LoanerEntry.SetRange("Document No.", Rec."Document No.");
+                            LoanerEntry.SetRange("Loaner No.", Rec."No.");
                             LoanerEntry.SetRange(Lent, true);
                             if LoanerEntry.FindFirst() then begin
                                 ServItemLine.Get(LoanerEntry.GetServDocTypeFromDocType(), LoanerEntry."Document No.", LoanerEntry."Service Item Line No.");
                                 ServLoanerMgt.ReceiveLoaner(ServItemLine);
                             end;
                         end else
-                            Error(Text000, TableCaption(), "No.");
+                            Error(Text000, Rec.TableCaption(), Rec."No.");
                     end;
                 }
             }
@@ -151,8 +156,8 @@ page 5921 "Available Loaners"
 
     trigger OnOpenPage()
     begin
-        SetRange(Blocked, false);
-        SetRange(Lent, false);
+        Rec.SetRange(Blocked, false);
+        Rec.SetRange(Lent, false);
     end;
 
     var

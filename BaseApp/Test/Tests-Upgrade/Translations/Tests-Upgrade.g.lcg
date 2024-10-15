@@ -131,15 +131,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Upgrade Status - Field UpgradeTriggered - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2400256745 - NamedType 1064997700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SmartList Designer (Obsolete)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SmartList Designer Upg. Tests - NamedType SmartListDesignerDescriptionTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1809362931 - NamedType 1681599525" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Only normal fields are supported for Backup table.]]></Val>

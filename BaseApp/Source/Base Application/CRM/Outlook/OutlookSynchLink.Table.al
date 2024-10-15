@@ -1,4 +1,6 @@
-﻿table 5302 "Outlook Synch. Link"
+﻿namespace Microsoft.CRM.Outlook;
+
+table 5302 "Outlook Synch. Link"
 {
     Caption = 'Outlook Synch. Link';
     ReplicateData = false;

@@ -216,6 +216,65 @@ codeunit 134783 "Test Whse. Rcpt. Post Prev."
         GLPostingPreview.OK.Invoke;
     end;
 
+    [Test]
+    procedure PreviewWarehouseReceiptForTwoPurchaseOrders()
+    var
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseSourceFilter: Record "Warehouse Source Filter";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        WhsePostReceiptYesNo: Codeunit "Whse.-Post Receipt (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Purchase] [Warehouse Receipt] [Preview Posting]
+        // [SCENARIO 463437] Preview Warehouse Receipt posting shows the ledger entries for two purchase orders included in the receipt.
+        Initialize();
+
+        // [GIVEN] Location set up for required receipt.
+        CreateLocationWMSWithWhseEmployee(Location, false, false, false, true, false);
+
+        // [GIVEN] Purchase order "1", release.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Purchase order "2", release.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create warehouse receipt, add two purchase orders.
+        LibraryWarehouse.CreateWarehouseReceiptHeader(WarehouseReceiptHeader);
+        WarehouseReceiptHeader.Validate("Location Code", Location.Code);
+        WarehouseReceiptHeader.Modify(true);
+        LibraryWarehouse.CreateWarehouseSourceFilter(WarehouseSourceFilter, WarehouseSourceFilter.Type::Inbound);
+        WarehouseSourceFilter.Validate("Purchase Orders", true);
+        WarehouseSourceFilter.Modify(true);
+        LibraryWarehouse.GetSourceDocumentsReceipt(WarehouseReceiptHeader, WarehouseSourceFilter, Location.Code);
+        WarehouseReceiptLine.SetRange("No.", WarehouseReceiptHeader."No.");
+        WarehouseReceiptLine.FindSet();
+
+        Commit();
+
+        // [WHEN] Run posting preview for the warehouse receipt.
+        GLPostingPreview.Trap;
+        asserterror WhsePostReceiptYesNo.Preview(WarehouseReceiptLine);
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
+
+        // [THEN] Preview shows item and value entries for both purchase orders.
+        GLPostingPreview.Filter.SetFilter("Table Name", ItemLedgerEntry.TableCaption());
+        GLPostingPreview."No. of Records".AssertEquals(2);
+        GLPostingPreview.Filter.SetFilter("Table Name", ValueEntry.TableCaption());
+        GLPostingPreview."No. of Records".AssertEquals(2);
+        GLPostingPreview.OK().Invoke();
+    end;
+
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";

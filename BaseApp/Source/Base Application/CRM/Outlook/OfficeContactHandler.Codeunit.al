@@ -1,10 +1,19 @@
+﻿namespace Microsoft.CRM.Outlook;
+
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Utilities;
+using System.Environment;
+
 codeunit 1636 "Office Contact Handler"
 {
     TableNo = "Office Add-in Context";
 
     trigger OnRun()
     begin
-        if (Email <> '') or ("Contact No." <> '') then
+        if (Rec.Email <> '') or (Rec."Contact No." <> '') then
             FindAndRedirectContact(Rec)
         else
             ShowContactSelection(Rec);
@@ -15,6 +24,7 @@ codeunit 1636 "Office Contact Handler"
         MatchingContactDifferentCompanyLbl: Label 'A matching contact was found in company "%1". Would you like to switch company and show the matching contact?', Comment = '%1 = the company name of where the contact was found';
         PageOpenTxt: Label 'Open page for the selected contact.', Locked = true;
         TelemetryCategoryTxt: Label 'AL Office Contact Handler', Locked = true;
+        NoAccessCompanyTelemetryTxt: Label 'Cannot access company %1 from Outlook add-in.', Locked = true;
 
     local procedure FindAndRedirectContact(TempOfficeAddinContext: Record "Office Add-in Context" temporary)
     var
@@ -72,7 +82,7 @@ codeunit 1636 "Office Contact Handler"
     var
         OfficeMgt: Codeunit "Office Management";
     begin
-        if not OfficeMgt.ChangeCompanyWithPrompt(TempOfficeContactDetails.Company, MatchingContactDifferentCompanyLbl) then begin
+        if not OfficeMgt.ChangeCompanyWithPrompt(TempOfficeContactDetails.Company, StrSubstNo(MatchingContactDifferentCompanyLbl, TempOfficeContactDetails.Company)) then begin
             Page.Run(Page::"Office New Contact Dlg");
             exit;
         end;
@@ -83,6 +93,11 @@ codeunit 1636 "Office Contact Handler"
 
     local procedure FindContacts(TempOfficeAddinContext: Record "Office Add-in Context" temporary; var TempOfficeContactDetails: Record "Office Contact Details" temporary; var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; Company: Text[50])
     begin
+        if not Contact.ReadPermission() or not ContactBusinessRelation.ReadPermission() then begin
+            Session.LogMessage('0000KD7', StrSubstNo(NoAccessCompanyTelemetryTxt, Company), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
+            exit;
+        end;
+
         if TempOfficeAddinContext."Contact No." <> '' then
             Contact.SetRange("No.", TempOfficeAddinContext."Contact No.")
         else

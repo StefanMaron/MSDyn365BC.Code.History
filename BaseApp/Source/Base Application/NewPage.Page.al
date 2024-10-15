@@ -1,3 +1,7 @@
+namespace System.Tooling;
+
+using System;
+
 page 9625 "New Page"
 {
     Caption = 'New Page Setup';

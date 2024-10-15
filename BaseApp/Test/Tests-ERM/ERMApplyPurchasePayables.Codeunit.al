@@ -50,7 +50,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VendorApplyFCYTest()
+    procedure VendorApplyFCYTestInvAndPmtCurrencyBlank()
     var
         FCY1: Code[10];
         FCY2: Code[10];
@@ -62,11 +62,76 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         while FCY2 = FCY1 do
             FCY2 := RandomCurrency;
 
-        // Currency checks.
         TestApplication('', '', 1.0, 1, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyFCYTestPmtCurrencyBlank()
+    var
+        VendorLedgerEntries: Record "Vendor Ledger Entry";
+        FCY1: Code[10];
+        FCY2: Code[10];
+    begin
+        VendorLedgerEntries.DeleteAll(false);
+        Initialize();
+
+        FCY1 := RandomCurrency;
+        FCY2 := FCY1;
+        while FCY2 = FCY1 do
+            FCY2 := RandomCurrency;
+
         TestApplication(FCY1, '', 1.0, 1, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyFCYTestInvCurrencyBlank()
+    var
+        FCY1: Code[10];
+        FCY2: Code[10];
+    begin
+        Initialize();
+
+        FCY1 := RandomCurrency;
+        FCY2 := FCY1;
+        while FCY2 = FCY1 do
+            FCY2 := RandomCurrency;
+
         TestApplication('', FCY1, 1.0, 1, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyFCYTestSameCurrency()
+    var
+        FCY1: Code[10];
+        FCY2: Code[10];
+    begin
+        Initialize();
+
+        FCY1 := RandomCurrency;
+        FCY2 := FCY1;
+        while FCY2 = FCY1 do
+            FCY2 := RandomCurrency;
+
         TestApplication(FCY1, FCY1, 1.0, 1, 1, '<0D>', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorApplyFCYTestDifferentCurrency()
+    var
+        FCY1: Code[10];
+        FCY2: Code[10];
+    begin
+        Initialize();
+
+        FCY1 := RandomCurrency;
+        FCY2 := FCY1;
+        while FCY2 = FCY1 do
+            FCY2 := RandomCurrency;
+
         TestApplication(FCY2, FCY1, 1.0, 1, 1, '<0D>', false);
     end;
 

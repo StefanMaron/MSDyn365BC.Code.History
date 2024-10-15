@@ -940,6 +940,9 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        Location.Modify(true);
+
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
         LibraryJob.CreateJob(Job, CreateCustomer(''));
 
@@ -991,6 +994,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        Location.Modify(true);
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] A Job.
@@ -1073,6 +1078,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 100;
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        Location.Modify(true);
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] A Job.
@@ -1165,6 +1172,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 100;
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        Location.Modify(true);
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] A Job.
@@ -1236,6 +1245,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 100;
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        Location.Modify(true);
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] A Job.
@@ -1342,6 +1353,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateLocationWMS(Location1, false, false, false, false, false);
         LibraryWarehouse.CreateLocationWMS(Location2, false, false, true, false, false);
+        Location2."Job Consump. Whse. Handling" := Location2."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        Location2.Modify(true);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location1.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location2.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
@@ -1716,6 +1729,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         // [WHEN] Location is updated to require Pick and Require Shipment.
         LocationSilver.Validate("Require Shipment", true);
         LocationSilver.Validate("Require Pick", true);
+        LocationSilver.Validate("Job Consump. Whse. Handling", "Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         LocationSilver.Modify(true);
 
         // [WHEN] Job Journal Line is posted.
@@ -1993,6 +2007,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
 
         LibraryWarehouse.CreateLocationWMS(LocationWithoutWhsePick, false, false, false, false, false);
+        LocationWithoutWhsePick."Job Consump. Whse. Handling" := Enum::"Job Consump. Whse. Handling"::"No Warehouse Handling";
+        LocationWithoutWhsePick.Modify();
 
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, 1000, LibraryRandom.RandDec(10, 2));
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithoutWhsePick.Code, '', 1000, LibraryRandom.RandDec(10, 2));
@@ -2934,13 +2950,13 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
-        NoSeries.Get(LibraryJob.GetJobTestNoSeries);
+        NoSeries.Get(LibraryJob.GetJobTestNoSeries());
         NoSeries."Manual Nos." := true;
         NoSeries.Modify();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := true;
-        DummyJobsSetup."Job Nos." := LibraryJob.GetJobTestNoSeries;
+        DummyJobsSetup."Job Nos." := LibraryJob.GetJobTestNoSeries();
         DummyJobsSetup.Modify();
 
         LibrarySetupStorage.Save(Database::"Inventory Setup");
@@ -3008,7 +3024,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine.TestField("Completely Picked", CompletelyPicked);
     end;
 
-    local procedure CreateJobPlanningLineWithData(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; Type: Enum "Job Planning Line Type"; Number: Code[20]; LocationCode: Code[10]; BinCode: Code[10]; Quantity: Decimal)
+    local procedure CreateJobPlanningLineWithData(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; Type: Enum "Job Planning Line Type"; Number: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
     begin
         LibraryJob.CreateJobPlanningLine(LineType, Type, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", Number);

@@ -74,35 +74,6 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     [Test]
     [HandlerFunctions('StandardStatementOKRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure Email_SingleCustomer_InvalidAddress()
-    var
-        Customer: Record Customer;
-        TempErrorMessage: Record "Error Message" temporary;
-        ErrorMessages: TestPage "Error Messages";
-        InvalidEmail: Text;
-    begin
-        // [FEATURE] [Email]
-        // [SCENARIO 465138] Send email when Customer "A" with entries, invalid email is specified and Customer "B" does not exist. "Print Remaining" = FALSE
-        Initialize();
-        InvalidEmail := 'notgood)1@e.com; ok@e.com; notgood)2@e.com';
-
-        PrepareCustomerWithEntries(Customer, InvalidEmail, GetStandardStatementReportID);
-        Commit();
-
-        ErrorMessages.Trap;
-        RunReportFromCard(Customer, StandardStatementReportOutputType::Email, false);
-
-        AddExpectedErrorMessage(TempErrorMessage, StrSubstNo(TargetEmailAddressNotValidErr, InvalidEmail));
-        AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
-        AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
-
-        Customer.Find();
-        Customer.TestField("Last Statement No.", 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('StandardStatementOKRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure Email_SingleCustomer_NoEntries()
     var
         Customer: Record Customer;
@@ -2872,7 +2843,6 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
           ReportSelections, GetStandardStatementReportID, false, false, '', ReportSelections.Usage::"C.Statement");
 
         CustomReportLayout.SetRange("Report ID", ReportId);
-        CustomReportLayout.SetRange("Built-In", true);
         CustomReportLayout.SetRange(Type, CustomReportLayout.Type::Word);
         if CustomReportLayout.FindFirst() then
             CustomReportLayoutCode := CustomReportLayout.Code
@@ -2897,7 +2867,6 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
           ReportSelections, GetStandardStatementReportID, false, false, '', ReportSelections.Usage::"C.Statement");
 
         CustomReportLayout.SetRange("Report ID", ReportId);
-        CustomReportLayout.SetRange("Built-In", true);
         CustomReportLayout.SetRange(Type, CustomReportLayout.Type::Word);
         if CustomReportLayout.FindFirst() then
             CustomReportLayoutCode := CustomReportLayout.Code

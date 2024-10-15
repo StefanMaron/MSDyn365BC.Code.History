@@ -1827,6 +1827,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetEntry.FindFirst();
         Assert.AreEqual(PurchaseHeader."Dimension Set ID", DimensionSetEntry."Dimension Set ID", DimensionSetIDErr);
     end;
+    
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     procedure VerifyManuallyEnteredDimensionIsKeptOnChangeShipToOptionToCustomerOnPurchaseOrderWithoutLines()

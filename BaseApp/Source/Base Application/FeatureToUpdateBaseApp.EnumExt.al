@@ -1,3 +1,9 @@
+namespace System.Environment.Configuration;
+
+#if not CLEAN21
+using Microsoft.Pricing.Calculation;
+#endif
+
 enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
 {
 #if not CLEAN21
@@ -34,4 +40,8 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteTag = '22.0';
     }
 #endif
+    value(5409; EnablePlatformBasedReportSelection)
+    {
+        Implementation = "Feature Data Update" = "Feature - Report Selection";
+    }
 }

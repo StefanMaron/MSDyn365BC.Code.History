@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.Setup;
+
 page 7309 "Special Equipment"
 {
     ApplicationArea = Warehouse;
@@ -13,7 +15,7 @@ page 7309 "Special Equipment"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the special equipment.';

@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using System.Utilities;
+
 report 17 "Consolidated Trial Balance"
 {
     DefaultLayout = RDLC;
@@ -10,7 +15,7 @@ report 17 "Consolidated Trial Balance"
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "G/L Entry Type Filter";
             column(PeriodText; StrSubstNo(Text002, PeriodText))
             {
@@ -75,7 +80,7 @@ report 17 "Consolidated Trial Balance"
             }
             dataitem(BlankLineCounter; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
 
                 trigger OnPreDataItem()
                 begin
@@ -84,7 +89,7 @@ report 17 "Consolidated Trial Balance"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(No1_GLAcc; "G/L Account"."No.")
                 {
                     IncludeCaption = true;
@@ -95,7 +100,7 @@ report 17 "Consolidated Trial Balance"
             }
             dataitem("Business Unit"; "Business Unit")
             {
-                DataItemTableView = SORTING(Code) WHERE(Consolidate = CONST(true));
+                DataItemTableView = sorting(Code) where(Consolidate = const(true));
                 column(Indentation22Code_GLAcc; PadStr('', "G/L Account".Indentation * 2 + 2) + Code)
                 {
                 }
@@ -145,7 +150,7 @@ report 17 "Consolidated Trial Balance"
             }
             dataitem(ConsolidCounter; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(Indentation2Name2_GLAcc; PadStr('', "G/L Account".Indentation * 2) + "G/L Account".Name)
                 {
                 }

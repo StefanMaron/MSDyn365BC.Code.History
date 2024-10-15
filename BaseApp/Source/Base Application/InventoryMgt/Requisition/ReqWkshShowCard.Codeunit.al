@@ -1,3 +1,8 @@
+namespace Microsoft.Inventory.Requisition;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Item;
+
 codeunit 335 "Req. Wksh.-Show Card"
 {
     TableNo = "Requisition Line";
@@ -11,15 +16,15 @@ codeunit 335 "Req. Wksh.-Show Card"
         if IsHandled then
             exit;
 
-        case Type of
-            Type::"G/L Account":
+        case Rec.Type of
+            Rec.Type::"G/L Account":
                 begin
-                    GLAcc."No." := "No.";
+                    GLAcc."No." := Rec."No.";
                     PAGE.Run(PAGE::"G/L Account Card", GLAcc);
                 end;
-            Type::Item:
+            Rec.Type::Item:
                 begin
-                    Item."No." := "No.";
+                    Item."No." := Rec."No.";
                     PAGE.Run(PAGE::"Item Card", Item);
                 end;
         end;

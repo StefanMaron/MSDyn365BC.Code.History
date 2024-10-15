@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 codeunit 1332 "Template Feature Mgt."
 {
     trigger OnRun()

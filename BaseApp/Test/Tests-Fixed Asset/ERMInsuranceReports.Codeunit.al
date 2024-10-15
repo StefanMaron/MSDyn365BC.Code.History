@@ -425,7 +425,7 @@ codeunit 134980 "ERM Insurance Reports"
         FADepreciationBook.CalcFields("Acquisition Cost", Depreciation, "Book Value");
         LibraryReportDataset.SetRange('No_FixedAsset', FADepreciationBook."FA No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_FixedAsset', FADepreciationBook."FA No."));
+            Error(RowNotFoundErr, 'No_FixedAsset', FADepreciationBook."FA No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amounts1', FADepreciationBook."Acquisition Cost");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amounts2', FADepreciationBook.Depreciation);
         LibraryReportDataset.AssertCurrentRowValueEquals('Amounts3', FADepreciationBook."Book Value");
@@ -436,7 +436,7 @@ codeunit 134980 "ERM Insurance Reports"
         Insurance.CalcFields("Total Value Insured");
         LibraryReportDataset.SetRange('Insurance__No__', Insurance."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Insurance__No__', Insurance."No."));
+            Error(RowNotFoundErr, 'Insurance__No__', Insurance."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Annual_Premium_', Insurance."Annual Premium");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Policy_Coverage_', Insurance."Policy Coverage");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Total_Value_Insured_', Insurance."Total Value Insured");
@@ -484,7 +484,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('Ins__Coverage_Ledger_Entry__Posting_Date_', Format(InsCoverageLedgerEntry."Posting Date"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Ins__Coverage_Ledger_Entry__Posting_Date_', Format(InsCoverageLedgerEntry."Posting Date")));
+            Error(RowNotFoundErr, 'Ins__Coverage_Ledger_Entry__Posting_Date_', Format(InsCoverageLedgerEntry."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__No__', Insurance."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Ins__Coverage_Ledger_Entry_Amount', InsCoverageLedgerEntry.Amount);
     end;
@@ -493,7 +493,7 @@ codeunit 134980 "ERM Insurance Reports"
     begin
         LibraryReportDataset.SetRange('Insurance__No__', Insurance."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Insurance__No__', Insurance."No."));
+            Error(RowNotFoundErr, 'Insurance__No__', Insurance."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Annual_Premium_', Insurance."Annual Premium");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Policy_Coverage_', Insurance."Policy Coverage");
     end;
@@ -506,7 +506,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('Ins__Coverage_Ledger_Entry__FA_No__', FANo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Ins__Coverage_Ledger_Entry__FA_No__', FANo));
+            Error(RowNotFoundErr, 'Ins__Coverage_Ledger_Entry__FA_No__', FANo);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Ins__Coverage_Ledger_Entry__Insurance_No__', InsCoverageLedgerEntry."Insurance No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Ins__Coverage_Ledger_Entry_Amount', InsCoverageLedgerEntry.Amount);
@@ -521,7 +521,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('FANo', FANo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'FANo', FANo));
+            Error(RowNotFoundErr, 'FANo', FANo);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Ins__Coverage_Ledger_Entry__Insurance_No__', InsCoverageLedgerEntry."Insurance No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Total_Value_Insured_', InsCoverageLedgerEntry.Amount);
@@ -533,7 +533,7 @@ codeunit 134980 "ERM Insurance Reports"
         FADepreciationBook2.CalcFields("Acquisition Cost", Depreciation, "Book Value");
         LibraryReportDataset.SetRange('No_FixedAsset', FADepreciationBook2."FA No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_FixedAsset', FADepreciationBook2."FA No."));
+            Error(RowNotFoundErr, 'No_FixedAsset', FADepreciationBook2."FA No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmounts1',
           FADepreciationBook."Acquisition Cost" + FADepreciationBook2."Acquisition Cost");
         LibraryReportDataset.AssertCurrentRowValueEquals(

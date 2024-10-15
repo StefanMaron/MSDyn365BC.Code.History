@@ -1338,6 +1338,50 @@ codeunit 134326 "ERM Purchase Blanket Order"
     end;
 
     [Test]
+    procedure DoNotCheckForBlockedItemVariantWhenQtyToReceiveZero()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        BlockedItemVariant: Record "Item Variant";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Blocked]
+        // [SCENARIO] Do not check if the item variant is blocked when "Qty. to Receive" = 0.
+        Initialize();
+
+        // [GIVEN] Item "X" and Item "Y" with blocked variant exist
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+        LibraryInventory.CreateItemVariant(BlockedItemVariant, Item2."No.");
+
+        // [GIVEN] Blanket Order with line for item "X" and line for item variant for item "Y" with zero qty. to receive
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", '',
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item2."No.", LibraryRandom.RandInt(10));
+        PurchaseLine."Variant Code" := BlockedItemVariant.Code;
+        PurchaseLine.Validate("Qty. to Receive", 0);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Item Variant for item "Y" is blocked
+        BlockedItemVariant.Validate(Blocked, true);
+        BlockedItemVariant.Modify(true);
+
+        // [WHEN] Order is created from blanket order
+        Codeunit.Run(Codeunit::"Blanket Purch. Order to Order", PurchaseHeader);
+
+        // [THEN] Order is created and the line with blocked item variant and blank qty. to receive is not transfered.
+        PurchaseLine.SetRange("No.", Item."No.");
+        FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
+
+        PurchaseLine.SetRange("No.", Item2."No.");
+        PurchaseLine.SetRange("Variant Code", BlockedItemVariant.Code);
+        asserterror FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
+    end;
+
+    [Test]
     procedure VerifyUnitCostOnPurchaseLineIsNotChangedOnUpdatQtyForPurchaseOrderRelatedToBlanketOrder()
     var
         PurchaseLine: Record "Purchase Line";
@@ -1368,6 +1412,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     var
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Blanket Order");
         LibrarySetupStorage.Restore();
@@ -1375,6 +1420,9 @@ codeunit 134326 "ERM Purchase Blanket Order"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Blanket Order");
 
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         LibraryERMCountryData.CreateVATData();

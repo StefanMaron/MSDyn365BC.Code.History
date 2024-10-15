@@ -336,7 +336,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Ship, Invoice);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -674,7 +674,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibrarySetupStorage.SavePurchasesSetup();
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate")
     var
         Currency: Record Currency;

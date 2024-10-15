@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
 page 5381 "CRM Sales Order Subform"
 {
     Caption = 'Lines';
@@ -12,7 +18,7 @@ page 5381 "CRM Sales Order Subform"
             repeater(Group)
             {
                 FreezeColumn = ProductIdName;
-                field(ProductIdName; ProductIdName)
+                field(ProductIdName; Rec.ProductIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Product Id';
@@ -33,7 +39,7 @@ page 5381 "CRM Sales Order Subform"
                     Caption = 'Quantity';
                     ToolTip = 'Specifies the quantity of the item on the sales line.';
                 }
-                field(UoMIdName; UoMIdName)
+                field(UoMIdName; Rec.UoMIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Unit of Measure';
@@ -48,55 +54,55 @@ page 5381 "CRM Sales Order Subform"
                         PAGE.Run(PAGE::"CRM UnitGroup List", CRMUomschedule);
                     end;
                 }
-                field(PricePerUnit; PricePerUnit)
+                field(PricePerUnit; Rec.PricePerUnit)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Price Per Unit';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                 }
-                field(BaseAmount; BaseAmount)
+                field(BaseAmount; Rec.BaseAmount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Amount';
                     ToolTip = 'Specifies the net amount of all the lines.';
                 }
-                field(ExtendedAmount; ExtendedAmount)
+                field(ExtendedAmount; Rec.ExtendedAmount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Extended Amount';
                     ToolTip = 'Specifies the sales amount without rounding.';
                 }
-                field(VolumeDiscountAmount; VolumeDiscountAmount)
+                field(VolumeDiscountAmount; Rec.VolumeDiscountAmount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Volume Discount';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                 }
-                field(ManualDiscountAmount; ManualDiscountAmount)
+                field(ManualDiscountAmount; Rec.ManualDiscountAmount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Manual Discount';
                     ToolTip = 'Specifies that the sales order is subject to manual discount.';
                 }
-                field(Tax; Tax)
+                field(Tax; Rec.Tax)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Tax';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                 }
-                field(CreatedOn; CreatedOn)
+                field(CreatedOn; Rec.CreatedOn)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Created On';
                     ToolTip = 'Specifies when the sales order was created.';
                 }
-                field(ModifiedOn; ModifiedOn)
+                field(ModifiedOn; Rec.ModifiedOn)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Modified On';
                     ToolTip = 'Specifies when the sales order was last modified.';
                 }
-                field(SalesRepIdName; SalesRepIdName)
+                field(SalesRepIdName; Rec.SalesRepIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Sales Rep';
@@ -108,7 +114,7 @@ page 5381 "CRM Sales Order Subform"
                         PAGE.Run(PAGE::"CRM Systemuser List");
                     end;
                 }
-                field(TransactionCurrencyIdName; TransactionCurrencyIdName)
+                field(TransactionCurrencyIdName; Rec.TransactionCurrencyIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Currency';
@@ -123,45 +129,45 @@ page 5381 "CRM Sales Order Subform"
                         PAGE.Run(PAGE::"CRM TransactionCurrency List", CRMTransactioncurrency);
                     end;
                 }
-                field(ExchangeRate; ExchangeRate)
+                field(ExchangeRate; Rec.ExchangeRate)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Exchange Rate';
                     ToolTip = 'Specifies the currency exchange rate.';
                 }
-                field(QuantityShipped; QuantityShipped)
+                field(QuantityShipped; Rec.QuantityShipped)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Quantity Shipped';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                 }
-                field(QuantityBackordered; QuantityBackordered)
+                field(QuantityBackordered; Rec.QuantityBackordered)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Quantity Back Ordered';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                 }
-                field(QuantityCancelled; QuantityCancelled)
+                field(QuantityCancelled; Rec.QuantityCancelled)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Quantity Canceled';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                 }
-                field(ProductDescription; ProductDescription)
+                field(ProductDescription; Rec.ProductDescription)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Write-In Product';
                     Importance = Additional;
                     ToolTip = 'Specifies if the item is a write-in product.';
                 }
-                field(ShipTo_Name; ShipTo_Name)
+                field(ShipTo_Name; Rec.ShipTo_Name)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Name';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_Line1; ShipTo_Line1)
+                field(ShipTo_Line1; Rec.ShipTo_Line1)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Street 1';
@@ -169,7 +175,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_Line2; ShipTo_Line2)
+                field(ShipTo_Line2; Rec.ShipTo_Line2)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Street 2';
@@ -177,7 +183,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_Line3; ShipTo_Line3)
+                field(ShipTo_Line3; Rec.ShipTo_Line3)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Street 3';
@@ -185,7 +191,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_City; ShipTo_City)
+                field(ShipTo_City; Rec.ShipTo_City)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To City';
@@ -193,7 +199,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_StateOrProvince; ShipTo_StateOrProvince)
+                field(ShipTo_StateOrProvince; Rec.ShipTo_StateOrProvince)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To State/Province';
@@ -201,7 +207,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_Country; ShipTo_Country)
+                field(ShipTo_Country; Rec.ShipTo_Country)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Country/Region';
@@ -209,7 +215,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field(ShipTo_PostalCode; ShipTo_PostalCode)
+                field(ShipTo_PostalCode; Rec.ShipTo_PostalCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To ZIP/Postal Code';
@@ -217,7 +223,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(WillCall; WillCall)
+                field(WillCall; Rec.WillCall)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To';
@@ -225,14 +231,14 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_Telephone; ShipTo_Telephone)
+                field(ShipTo_Telephone; Rec.ShipTo_Telephone)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Phone';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_Fax; ShipTo_Fax)
+                field(ShipTo_Fax; Rec.ShipTo_Fax)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Fax';
@@ -240,7 +246,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection.';
                     Visible = false;
                 }
-                field(ShipTo_FreightTermsCode; ShipTo_FreightTermsCode)
+                field(ShipTo_FreightTermsCode; Rec.ShipTo_FreightTermsCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Freight Terms';
@@ -248,7 +254,7 @@ page 5381 "CRM Sales Order Subform"
                     ToolTip = 'Specifies the shipment method.';
                     Visible = false;
                 }
-                field(ShipTo_ContactName; ShipTo_ContactName)
+                field(ShipTo_ContactName; Rec.ShipTo_ContactName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Contact Name';

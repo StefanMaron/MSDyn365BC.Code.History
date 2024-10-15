@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 765 "Acc. Sched. Chart Line"
 {
     Caption = 'Acc. Sched. Chart Line';
@@ -123,7 +125,7 @@ page 765 "Acc. Sched. Chart Line"
 
     trigger OnAfterGetRecord()
     begin
-        Show := "Chart Type" <> "Chart Type"::" ";
+        Show := Rec."Chart Type" <> Rec."Chart Type"::" ";
     end;
 
     var

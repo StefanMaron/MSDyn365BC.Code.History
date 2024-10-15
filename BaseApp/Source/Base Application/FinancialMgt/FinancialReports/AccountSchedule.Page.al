@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 104 "Account Schedule"
 {
     AutoSplitKey = true;
@@ -32,7 +34,7 @@ page 104 "Account Schedule"
             }
             repeater(Control1)
             {
-                IndentationColumn = Indentation;
+                IndentationColumn = Rec.Indentation;
                 IndentationControls = Description;
                 ShowCaption = false;
                 field("Row No."; Rec."Row No.")
@@ -44,7 +46,7 @@ page 104 "Account Schedule"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = Bold;
+                    StyleExpr = Rec.Bold;
                     ToolTip = 'Specifies text that will appear on the financial report line.';
                 }
                 field("Totaling Type"; Rec."Totaling Type")
@@ -100,7 +102,7 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(1, Text));
+                        exit(Rec.LookUpDimFilter(1, Text));
                     end;
                 }
                 field("Dimension 2 Totaling"; Rec."Dimension 2 Totaling")
@@ -111,7 +113,7 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(2, Text));
+                        exit(Rec.LookUpDimFilter(2, Text));
                     end;
                 }
                 field("Dimension 3 Totaling"; Rec."Dimension 3 Totaling")
@@ -122,7 +124,7 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(3, Text));
+                        exit(Rec.LookUpDimFilter(3, Text));
                     end;
                 }
                 field("Dimension 4 Totaling"; Rec."Dimension 4 Totaling")
@@ -133,25 +135,25 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(4, Text));
+                        exit(Rec.LookUpDimFilter(4, Text));
                     end;
                 }
-                field(Show; Show)
+                field(Show; Rec.Show)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the account schedule line will be printed on the report.';
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to print the amounts in this row in bold.';
                 }
-                field(Italic; Italic)
+                field(Italic; Rec.Italic)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to print the amounts in this row in italics.';
                 }
-                field(Underline; Underline)
+                field(Underline; Rec.Underline)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to underline the amounts in this row.';
@@ -167,7 +169,7 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there will be a page break after the current account when the account schedule is printed.';
                 }
-                field(HideCurrencySymbol; "Hide Currency Symbol")
+                field(HideCurrencySymbol; Rec."Hide Currency Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to hide currency symbols when a calculated result is not a currency.';
@@ -234,7 +236,7 @@ page 104 "Account Schedule"
                     CurrPage.SetSelectionFilter(AccScheduleLine);
                     if AccScheduleLine.FindSet() then
                         repeat
-                                AccScheduleLine.Indent();
+                            AccScheduleLine.Indent();
                             AccScheduleLine.Modify();
                         until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
@@ -254,10 +256,10 @@ page 104 "Account Schedule"
                 begin
                     CurrPage.SetSelectionFilter(AccScheduleLine);
                     if AccScheduleLine.FindSet() then
-                            repeat
-                                AccScheduleLine.Outdent();
-                                AccScheduleLine.Modify();
-                            until AccScheduleLine.Next() = 0;
+                        repeat
+                            AccScheduleLine.Outdent();
+                            AccScheduleLine.Modify();
+                        until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
                 end;
             }
@@ -354,7 +356,7 @@ page 104 "Account Schedule"
                 var
                     AccScheduleName: Record "Acc. Schedule Name";
                 begin
-                    AccScheduleName.Get("Schedule Name");
+                    AccScheduleName.Get(Rec."Schedule Name");
                     AccScheduleName.Print();
                 end;
             }
@@ -420,12 +422,12 @@ page 104 "Account Schedule"
 
     trigger OnAfterGetRecord()
     begin
-       FormatLines();
+        FormatLines();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-       FormatLines();
+        FormatLines();
     end;
 
     trigger OnOpenPage()
@@ -471,7 +473,7 @@ page 104 "Account Schedule"
     procedure SetupAccSchedLine(var AccSchedLine: Record "Acc. Schedule Line")
     begin
         AccSchedLine := Rec;
-        if "Line No." = 0 then begin
+        if Rec."Line No." = 0 then begin
             AccSchedLine := xRec;
             AccSchedLine.SetRange("Schedule Name", CurrentSchedName);
             if AccSchedLine.Next() = 0 then

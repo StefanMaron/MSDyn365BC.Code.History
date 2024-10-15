@@ -11,9 +11,6 @@ codeunit 138903 "O365 Test Acc. Period Init"
         Assert: Codeunit Assert;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-#if not CLEAN20
-        TelemetryBackgroundScheduler: Codeunit "Telemetry Background Scheduler";
-#endif
         InvoiceTok: Label 'INV', Locked = true;
         IsInitialized: Boolean;
 
@@ -132,9 +129,6 @@ codeunit 138903 "O365 Test Acc. Period Init"
             exit;
 
         EnvironmentInfoTestLibrary.SetAppId(InvoiceTok);
-#if not CLEAN20
-        BindSubscription(TelemetryBackgroundScheduler);
-#endif
         BindSubscription(EnvironmentInfoTestLibrary);
 
         IsInitialized := true;

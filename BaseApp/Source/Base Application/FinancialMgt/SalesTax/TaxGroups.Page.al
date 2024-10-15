@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.SalesTax;
+
 page 467 "Tax Groups"
 {
     ApplicationArea = SalesTax;
@@ -13,7 +15,7 @@ page 467 "Tax Groups"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code you want to assign to this tax group.';
@@ -54,7 +56,7 @@ page 467 "Tax Groups"
                     Caption = 'Details';
                     Image = View;
                     RunObject = Page "Tax Details";
-                    RunPageLink = "Tax Group Code" = FIELD(Code);
+                    RunPageLink = "Tax Group Code" = field(Code);
                     ToolTip = 'View tax-detail entries. A tax-detail entry includes all of the information that is used to calculate the amount of tax to be charged.';
                 }
             }

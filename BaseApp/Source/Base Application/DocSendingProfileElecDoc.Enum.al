@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Reporting;
+
 enum 64 "Doc. Sending Profile Elec.Doc."
 {
     Extensible = true;

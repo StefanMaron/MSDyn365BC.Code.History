@@ -4977,8 +4977,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Return Order to Sales Quote
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5008,8 +5007,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Quote to Sales Quote
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5039,8 +5037,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Order to Sales Quote
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5070,8 +5067,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Blanket Order to Sales Quote
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5405,8 +5401,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Return Order to Sales Order
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.",  true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5437,7 +5432,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [WHEN] Copy Sales Archive Quote to Sales Order
         RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5468,7 +5463,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [WHEN] Copy Sales Archive Order to Sales Order
         RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5499,7 +5494,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [WHEN] Copy Sales Archive Blanket Order to Sales Order
         RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5833,8 +5828,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Return Order to Sales Blanket Order
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5864,8 +5858,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Quote to Sales Blanket Order
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5896,7 +5889,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [WHEN] Copy Sales Archive Order to Sales Blanket Order
         RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -5927,7 +5920,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [WHEN] Copy Sales Archive Blanket Order to Sales Blanket Order
         RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -6261,8 +6254,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Return Order to Sales Invoice
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -6292,8 +6284,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Quote to Sales Invoice
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -6323,8 +6314,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Order to Sales Invoice
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -6354,8 +6344,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Blanket Order to Sales Invoice
-        RunCopySalesDoc(
-          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -6846,12 +6835,24 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         RunCopySalesDocWithRequestPage(DocumentNo, NewSalesHeader, DocType, IncludeHeader, RecalculateLines, false);
     end;
 
+    local procedure RunCopySalesDoc(DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; FromDocNoOccurrence: Integer; FromDocVersionNo: Integer; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    begin
+        RunCopySalesDocWithRequestPage(DocumentNo, NewSalesHeader, DocType, FromDocNoOccurrence, FromDocVersionNo, IncludeHeader, RecalculateLines, false);
+    end;
+
     local procedure RunCopySalesDocWithRequestPage(DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; IncludeHeader: Boolean; RecalculateLines: Boolean; UseRequestPage: Boolean)
     var
         CopySalesDoc: Report "Copy Sales Document";
     begin
+        RunCopySalesDocWithRequestPage(DocumentNo, NewSalesHeader, DocType, 0, 0, IncludeHeader, RecalculateLines, UseRequestPage);
+    end;
+
+    local procedure RunCopySalesDocWithRequestPage(DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; FromDocNoOccurrence: Integer; FromDocVersionNo: Integer; IncludeHeader: Boolean; RecalculateLines: Boolean; UseRequestPage: Boolean)
+    var
+        CopySalesDoc: Report "Copy Sales Document";
+    begin
         Clear(CopySalesDoc);
-        CopySalesDoc.SetParameters(DocType, DocumentNo, IncludeHeader, RecalculateLines);
+        CopySalesDoc.SetParameters(DocType, DocumentNo, FromDocNoOccurrence, FromDocVersionNo, IncludeHeader, RecalculateLines);
         CopySalesDoc.SetSalesHeader(NewSalesHeader);
         CopySalesDoc.UseRequestPage(UseRequestPage);
         CopySalesDoc.RunModal();

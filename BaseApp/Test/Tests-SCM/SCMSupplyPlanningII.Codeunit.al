@@ -40,7 +40,7 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
         RequisitionLineMustNotExist: Label 'Requisition Line must not exist for Item %1.';
-        ItemFilter: Label '%1|%2';
+        ItemFilter: Label '%1|%2', Locked = true;
         AvailabilityWarningConfirmationMessage: Label 'You do not have enough inventory to meet the demand for items in one or more lines.';
         ItemNotPlanned: Label 'Not all items were planned. A total of 1 items were not planned.';
         NothingToCreateMessage: Label 'There is nothing to create.';

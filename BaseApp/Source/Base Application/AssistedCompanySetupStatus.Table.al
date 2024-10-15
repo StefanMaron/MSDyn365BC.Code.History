@@ -1,10 +1,20 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using System.Environment;
+
 table 1802 "Assisted Company Setup Status"
 {
     Caption = 'Assisted Company Setup Status';
     DataPerCompany = false;
     ReplicateData = false;
-    InherentEntitlements = r;
-    InherentPermissions = r;
+#pragma warning disable AS0034
+    InherentEntitlements = rX;
+    InherentPermissions = rX;
+#pragma warning restore AS0034
     Permissions = tabledata "Assisted Company Setup Status" = r;
 
     fields

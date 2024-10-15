@@ -1,7 +1,32 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Outlook;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Setup;
+using Microsoft.Utilities;
+using System;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Security.Encryption;
+using System.Threading;
+
 table 5330 "CRM Connection Setup"
 {
     Caption = 'Microsoft Dynamics 365 Connection Setup';
     Permissions = tabledata "CRM Connection Setup" = r;
+    InherentEntitlements = rX;
+    InherentPermissions = rX;
 
     fields
     {
@@ -81,9 +106,6 @@ table 5330 "CRM Connection Setup"
                         CRMIntegrationManagement.DisableUnitGroupMapping();
 
                 EnableCRMConnection();
-#if not CLEAN20
-                UpdateIsEnabledState();
-#endif
                 RefreshDataFromCRM();
                 if "Is Enabled" then begin
                     CRMIntegrationTelemetry.LogTelemetryWhenConnectionEnabled();
@@ -93,6 +115,7 @@ table 5330 "CRM Connection Setup"
                     SetUseNewestUI();
                     Session.LogMessage('0000CM8', CRMConnEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 end else begin
+                    CRMIntegrationManagement.RemoveCRMNAVConnectionUrl("Dynamics NAV URL");
                     CRMIntegrationTelemetry.LogTelemetryWhenConnectionDisabled();
                     Session.LogMessage('0000CM9', CRMConnDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 end;
@@ -100,23 +123,26 @@ table 5330 "CRM Connection Setup"
         }
         field(61; "Is User Mapping Required"; Boolean)
         {
+            ObsoleteReason = 'This functionality is not in use and not supported';
+#if not CLEAN23
             ObsoleteTag = '20.0';
             ObsoleteState = Pending;
-            ObsoleteReason = 'This functionality is not in use and not supported';
+#else
+            ObsoleteTag = '23.0';
+            ObsoleteState = Removed;
+#endif
             Caption = 'Business Central Users Must Map to Dynamics 365 Sales Users';
 
-#if not CLEAN20
-            trigger OnValidate()
-            begin
-                UpdateAllConnectionRegistrations();
-                UpdateIsEnabledState();
-            end;
-#endif
         }
         field(62; "Is User Mapped To CRM User"; Boolean)
         {
+#if not CLEAN23
             ObsoleteTag = '20.0';
             ObsoleteState = Pending;
+#else
+            ObsoleteTag = '23.0';
+            ObsoleteState = Removed;
+#endif
             ObsoleteReason = 'This functionality is not in use and not supported';
             Caption = 'Is User Mapped To CRM User';
         }
@@ -170,8 +196,13 @@ table 5330 "CRM Connection Setup"
         }
         field(68; "Is Enabled For User"; Boolean)
         {
+#if not CLEAN23
             ObsoleteTag = '20.0';
             ObsoleteState = Pending;
+#else
+            ObsoleteTag = '23.0';
+            ObsoleteState = Removed;
+#endif
             ObsoleteReason = 'Use field "Is Enabled" instead.';
             Caption = 'Is Enabled For User';
         }
@@ -186,24 +217,24 @@ table 5330 "CRM Connection Setup"
         }
         field(70; "Dynamics NAV OData URL"; Text[250])
         {
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
             ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            ObsoleteTag = '18.0';
             Caption = 'Dynamics NAV OData URL';
         }
         field(71; "Dynamics NAV OData Username"; Text[250])
         {
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
             ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            ObsoleteTag = '18.0';
             Caption = 'Dynamics NAV OData Username';
             DataClassification = EndUserIdentifiableInformation;
         }
         field(72; "Dynamics NAV OData Accesskey"; Text[250])
         {
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
             ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-            ObsoleteTag = '18.0';
             Caption = 'Dynamics NAV OData Accesskey';
         }
         field(75; "Default CRM Price List ID"; Guid)
@@ -405,9 +436,6 @@ table 5330 "CRM Connection Setup"
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         TempUserPassword: Text;
 
-#if not CLEAN20
-        CantRegisterDisabledConnectionErr: Label 'A disabled connection cannot be registered.';
-#endif
         ConnectionErr: Label 'The connection setup cannot be validated. Verify the settings and try again.\Detailed error description: %1.', Comment = '%1 Error message from the provider (.NET exception message)';
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         ConnectionSuccessMsg: Label 'The connection test was successful. The settings are valid.';
@@ -424,10 +452,6 @@ table 5330 "CRM Connection Setup"
         CertificateTok: Label '{CERTIFICATE}', Locked = true;
         ClientIdTok: Label '{CLIENTID}', Locked = true;
         UserCRMSetupTxt: Label 'User CRM Setup';
-#if not CLEAN20
-        [Obsolete('This functionality is not in use and not supported', '20.0')]
-        CannotConnectCRMErr: Label 'The system is unable to connect to %2, and the connection has been disabled. Verify the credentials of the user account %1, and then enable the connection again in the Microsoft Dynamics 365 Connection Setup window.', Comment = '%1 - email of the user, %2 = CRM product name';
-#endif
         LCYMustMatchBaseCurrencyErr: Label 'Your local currency code %1 does not match any ISO Currency Code in the Dataverse currency table. To continue, make sure that the local currency code in General Ledger Setup complies with the ISO standard and create a currency in Dataverse currency table that uses it as ISO Currency Code.', Comment = '%1 - ISO currency code';
         UserNameMustIncludeDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
         UserNameMustBeEmailErr: Label 'The user name must be a valid email address when the authentication type is set to Office 365.';
@@ -585,27 +609,6 @@ table 5330 "CRM Connection Setup"
         IsolatedStorageManagement.Delete(Format("User Password Key"), DATASCOPE::Company);
     end;
 
-#if not CLEAN20
-    [Obsolete('This functionality is not in use and not supported', '20.0')]
-    procedure UpdateAllConnectionRegistrations()
-    begin
-        UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM));
-
-        UnregisterConnection();
-        if "Is Enabled" then
-            RegisterUserConnection();
-    end;
-
-    [Obsolete('This functionality is not in use and not supported', '20.0')]
-    procedure UpdateIsEnabledState()
-    begin
-        "Is User Mapped To CRM User" := IsCurrentUserMappedToCrmSystemUser();
-        "Is Enabled For User" :=
-          "Is Enabled" and
-          ((not "Is User Mapping Required") or ("Is User Mapping Required" and "Is User Mapped To CRM User"));
-    end;
-#endif
-
     procedure RegisterConnection()
     begin
         if not HasTableConnection(TABLECONNECTIONTYPE::CRM, "Primary Key") then
@@ -628,13 +631,6 @@ table 5330 "CRM Connection Setup"
     begin
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName);
     end;
-
-#if not CLEAN20
-    local procedure ConstructConnectionStringWithCalledID(CallerID: Text): Text
-    begin
-        exit(GetConnectionStringWithCredentials() + 'CallerID=' + CallerID);
-    end;
-#endif
 
     [Scope('OnPrem')]
     [NonDebuggable]
@@ -672,56 +668,6 @@ table 5330 "CRM Connection Setup"
           CopyStr(ConnectionString, PasswordPlaceHolderPos + StrLen(MissingPasswordTok));
     end;
 
-#if not CLEAN20
-    [Obsolete('Use RegisterConnection instead.', '20.0')]
-    procedure RegisterUserConnection() ConnectionName: Text
-    var
-        SyncUser: Record User;
-        CallerID: Guid;
-    begin
-        RegisterConnection();
-        SyncUser."User Name" := CopyStr("User Name", 1, MaxStrLen(SyncUser."User Name"));
-        SyncUser."Authentication Email" := "User Name";
-        if not TryGetSystemUserId(SyncUser, CallerID) then begin
-            UnregisterConnection();
-            Validate("Is Enabled", false);
-            Validate("Is User Mapping Required", false);
-            Modify();
-            ShowError(UserCRMSetupTxt, StrSubstNo(CannotConnectCRMErr, "User Name", CRMProductName.SHORT()));
-        end else
-            ConnectionName := RegisterAuthUserConnection();
-    end;
-
-    local procedure RegisterAuthUserConnection() ConnectionName: Text
-    var
-        User: Record User;
-        CallerID: Guid;
-    begin
-        if GetUser(User) then
-            if not TryGetSystemUserId(User, CallerID) then begin
-                UnregisterConnection();
-                ShowError(UserCRMSetupTxt, StrSubstNo(CannotConnectCRMErr, User."Authentication Email"));
-            end else
-                if not IsNullGuid(CallerID) then begin
-                    UnregisterConnection();
-                    ConnectionName := RegisterConnectionWithCallerID(CallerID);
-                end;
-    end;
-
-    local procedure RegisterConnectionWithCallerID(CallerID: Text) ConnectionName: Text
-    begin
-        if "Is Enabled" then begin
-            RegisterTableConnection(TABLECONNECTIONTYPE::CRM, "Primary Key", ConstructConnectionStringWithCalledID(CallerID));
-            ConnectionName := "Primary Key";
-            if "Primary Key" = '' then begin
-                ConnectionName := GetDefaultCRMConnection("Primary Key");
-                SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName);
-            end;
-        end else
-            ShowError(UserCRMSetupTxt, CantRegisterDisabledConnectionErr);
-    end;
-#endif
-
     procedure GetIntegrationUserID() IntegrationUserID: Guid
     var
         CRMSystemuser: Record "CRM Systemuser";
@@ -748,16 +694,6 @@ table 5330 "CRM Connection Setup"
         exit(Value);
     end;
 
-#if not CLEAN20
-    local procedure GetUser(var User: Record User): Boolean
-    begin
-        if User.Get(DATABASE.UserSecurityId()) then
-            exit(true);
-        User.Reset();
-        User.SetRange("Windows Security ID", Sid());
-        exit(User.FindFirst());
-    end;
-#endif
     local procedure GetUserName() UserName: Text
     begin
         if "User Name" = '' then
@@ -926,43 +862,6 @@ table 5330 "CRM Connection Setup"
                 exit((Version.Major > 6) and not ((Version.Major = 7) and (Version.Minor = 1)));
         exit(false);
     end;
-
-#if not CLEAN20
-    [Obsolete('This functionality is not in use and not supported', '20.0')]
-    procedure IsCurrentUserMappedToCrmSystemUser(): Boolean
-    var
-        User: Record User;
-        CRMSystemUserId: Guid;
-    begin
-        if GetUser(User) then
-            if TryGetSystemUserId(User, CRMSystemUserId) then
-                exit(not IsNullGuid(CRMSystemUserId));
-    end;
-
-    [TryFunction]
-    [Obsolete('This functionality is not in use and not supported', '20.0')]
-    local procedure TryGetSystemUserId(User: Record User; var SystemUserId: Guid)
-    var
-        CRMSystemuser: Record "CRM Systemuser";
-    begin
-        // Returns FALSE if CRMSystemuser.FINDFIRST throws an exception, e.g. due to wrong credentials;
-        // Returns TRUE regardless of CRMSystemuser.FINDFIRST result,
-        // further check of ISNULLGUID(SystemUserId) is required to identify if the user exists
-        Clear(SystemUserId);
-        if "Is Enabled" then
-            if "Is User Mapping Required" then begin
-                CRMSystemuser.SetRange(IsDisabled, false);
-                case "Authentication Type" of
-                    "Authentication Type"::AD, "Authentication Type"::IFD:
-                        CRMSystemuser.SetRange(DomainName, User."User Name");
-                    "Authentication Type"::Office365, "Authentication Type"::OAuth:
-                        CRMSystemuser.SetRange(InternalEMailAddress, User."Authentication Email");
-                end;
-                if CRMSystemuser.FindFirst() then
-                    SystemUserId := CRMSystemuser.SystemUserId;
-            end;
-    end;
-#endif
 
     [NonDebuggable]
     procedure UpdateFromWizard(var SourceCRMConnectionSetup: Record "CRM Connection Setup"; PasswordText: Text)

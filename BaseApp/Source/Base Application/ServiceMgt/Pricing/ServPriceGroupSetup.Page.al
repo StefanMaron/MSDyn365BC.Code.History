@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Pricing;
+
 page 6081 "Serv. Price Group Setup"
 {
     Caption = 'Serv. Price Group Setup';
@@ -96,25 +98,24 @@ page 6081 "Serv. Price Group Setup"
         ShowColumn: Boolean;
     begin
         ShowColumn := true;
-        if GetFilter("Service Price Group Code") <> '' then
-            if ServPriceGroup.Get("Service Price Group Code") then
+        if Rec.GetFilter("Service Price Group Code") <> '' then
+            if ServPriceGroup.Get(Rec."Service Price Group Code") then
                 ShowColumn := false
             else
-                Reset();
+                Rec.Reset();
         ServicePriceGroupCodeVisible := ShowColumn;
     end;
 
     var
-        [InDataSet]
         ServicePriceGroupCodeVisible: Boolean;
 
     local procedure FormCaption(): Text[180]
     var
         ServicePriceGroup: Record "Service Price Group";
     begin
-        if GetFilter("Service Price Group Code") <> '' then
-            if ServicePriceGroup.Get("Service Price Group Code") then
-                exit(StrSubstNo('%1 %2', "Service Price Group Code", ServicePriceGroup.Description));
+        if Rec.GetFilter("Service Price Group Code") <> '' then
+            if ServicePriceGroup.Get(Rec."Service Price Group Code") then
+                exit(StrSubstNo('%1 %2', Rec."Service Price Group Code", ServicePriceGroup.Description));
     end;
 }
 

@@ -1,3 +1,9 @@
+namespace Microsoft.CRM.Outlook;
+
+using Microsoft.EServices.EDocument;
+using System;
+using System.Integration;
+
 codeunit 1633 "Office Host Provider"
 {
     SingleInstance = true;
@@ -148,31 +154,6 @@ codeunit 1633 "Office Host Provider"
                 Result := EmailHasAttachments(TempOfficeAddinContextInternal."Item ID");
             end;
     end;
-
-#if not CLEAN20
-    [Obsolete('Please use OnGetEmailAndAttachmentsForEntity which uses RecordRef instead of Vendor number.', '20.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachments', '', false, false)]
-    local procedure OnGetEmailAndAttachments(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; VendorNumber: Code[20])
-    var
-        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
-    begin
-        if not CanHandle() then
-            exit;
-
-        if not TempExchangeObjectInternal.IsEmpty() then begin
-            Clear(TempExchangeObject);
-            TempExchangeObjectInternal.ModifyAll(InitiatedAction, Action);
-            TempExchangeObjectInternal.ModifyAll(VendorNo, VendorNumber);
-            TempExchangeObject.Copy(TempExchangeObjectInternal, true)
-        end else
-            if not (OfficeHost.CallbackToken() in ['', ' ']) then
-                with ExchangeWebServicesServer do begin
-                    InitializeWithOAuthToken(OfficeHost.CallbackToken(), GetEndpoint());
-                    GetEmailAndAttachments(TempOfficeAddinContextInternal."Item ID", TempExchangeObject, Action, VendorNumber);
-                    TempExchangeObjectInternal.Copy(TempExchangeObject, true);
-                end;
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachmentsForEntity', '', false, false)]
     local procedure OnGetEmailAndAttachmentsForEntity(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments; RecRef: RecordRef)

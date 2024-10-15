@@ -241,7 +241,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Customer__No__', Customer."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_Customer', Customer."No."));
+            Error(RowNotFoundErr, 'No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY_5__Control25', InvoiceAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY_5__Control37', InvoiceAmount);
     end;
@@ -271,7 +271,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Customer', Customer."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_Customer', Customer."No."));
+            Error(RowNotFoundErr, 'No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesLCY_Customer', SalesLCY);
     end;
 
@@ -300,7 +300,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Customer', Customer."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_Customer', Customer."No."));
+            Error(RowNotFoundErr, 'No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('BalanceLCY_Customer', BalanceLCY);
     end;
 
@@ -327,7 +327,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Customer__No__', Customer."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_Customer', Customer."No."));
+            Error(RowNotFoundErr, 'No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Customer__Credit_Limit__LCY__', Customer."Credit Limit (LCY)");
     end;
 
@@ -543,7 +543,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Cust_Ledger_Entry_Posting_Date_', Format(GenJournalLine."Posting Date"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Cust_Ledger_Entry_Posting_Date_', Format(GenJournalLine."Posting Date")));
+            Error(RowNotFoundErr, 'Cust_Ledger_Entry_Posting_Date_', Format(GenJournalLine."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Cust_Ledger_Entry_Remaining_Amount_', GenJournalLine.Amount);
     end;
 
@@ -569,7 +569,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('ValueEntryBuffer__Item_No__', SalesLine."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'ValueEntryBuffer__Item_No__', SalesLine."No."));
+            Error(RowNotFoundErr, 'ValueEntryBuffer__Item_No__', SalesLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'ValueEntryBuffer__Sales_Amount__Actual___Control44', SalesLine.Amount);
 
@@ -604,7 +604,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Customer__No__', SalesHeader."Sell-to Customer No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Customer__No__', SalesHeader."Sell-to Customer No."));
+            Error(RowNotFoundErr, 'Customer__No__', SalesHeader."Sell-to Customer No.");
 
         SalesInvoiceHeader.Get(PostedDocumentNo);
         SalesInvoiceHeader.CalcFields(Amount);
@@ -633,7 +633,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Customer_Name', SalesHeader."Sell-to Customer No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Customer_Name', SalesHeader."Sell-to Customer No."));
+            Error(RowNotFoundErr, 'Customer_Name', SalesHeader."Sell-to Customer No.");
 
         // Verify: Verify that Amount Fetched from the Report is matching with Posted Sales Invoice Amount.
         SalesInvoiceHeader.Get(PostedDocumentNo);
@@ -665,7 +665,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('CustLedgerEntry__Document_No__', PostedDocumentNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'CustLedgerEntry__Document_No__', PostedDocumentNo));
+            Error(RowNotFoundErr, 'CustLedgerEntry__Document_No__', PostedDocumentNo);
 
         // Verify: Verify that Customer No. fetched from Report is matching with Posted Sales Invoice's Customer.
         SalesInvoiceHeader.Get(PostedDocumentNo);
@@ -694,7 +694,7 @@
 
         // Verify Remaining Amount in Statement Report in Overdue Entries.
         LibraryReportDataset.LoadDataSetFile;
-        VerifyOverDueEntry(GenJournalLine."Posting Date", Amount / 2);
+        VerifyOverDueEntry(GenJournalLine."Posting Date", Round(Amount / 2, 0.01, '<'));
     end;
 
     [Test]
@@ -1399,7 +1399,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocumentNo', SalesInvoiceHeader."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocumentNo', SalesInvoiceHeader."No."));
+            Error(RowNotFoundErr, 'DocumentNo', SalesInvoiceHeader."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_ShipmentLine', SalesLine.Quantity);
     end;
 
@@ -1432,7 +1432,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocumentNo', SalesCrMemoHeader."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocumentNo', SalesCrMemoHeader."No."));
+            Error(RowNotFoundErr, 'DocumentNo', SalesCrMemoHeader."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_ShipmentLine', SalesLine.Quantity);
     end;
 
@@ -3132,6 +3132,55 @@
         Assert.RecordIsEmpty(InteractionLogEntry);
     end;
 
+
+    [Test]
+    [HandlerFunctions('ReportStandardSalesShipmentRequestPageHandlerForLogInteractionExecute')]
+    [Scope('OnPrem')]
+    procedure TestReportStandardSalesShipment_DefinedInteractionTemplate_WithLogInteraction()
+    var
+        InteractionTemplateSetup: Record "Interaction Template Setup";
+        InteractionTemplate: Record "Interaction Template";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesLine: Record "Sales Line";
+        PostedDocumentNo: Code[20];
+        InteractionLogEntry: Record "Interaction Log Entry";
+        LogInteraction: Boolean;
+        ParametersXml: Text;
+    begin
+        // [FEATURE] [Sales Shipment]
+        // [SCENARIO] Test Report "Standard Sales - Shipment" with Log Interaction option enabled.
+        Initialize();
+
+        // [GIVEN] Setup "Interaction Template Setup" for "Sales Shpt. Note"
+        InteractionTemplateSetup.Get();
+        if InteractionTemplateSetup."Sales Shpt. Note" = '' then begin
+            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+            InteractionTemplateSetup.Validate("Sales Shpt. Note", InteractionTemplate."Code");
+            InteractionTemplateSetup.Modify(true);
+        end;
+
+        // [GIVEN] Sales Shipment Header
+        CreateSalesDocumentWithLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.");
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesShipmentHeader.Get(PostedDocumentNo);
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Shipment" with Log Interaction
+        LogInteraction := true;
+        LibraryVariableStorage.Enqueue(LogInteraction);
+        SalesShipmentHeader.SetRecFilter();
+        ParametersXml := Report.RunRequestPage(Report::"Standard Sales - Shipment");
+        LibraryReportDataset.RunReportAndLoad(Report::"Standard Sales - Shipment", SalesShipmentHeader, ParametersXml);
+
+        // [THEN] Verify that "Interaction Log Entry" is created. Then verify that "Interaction Log Entry" has "Interaction Template Setup"."Sales Shpt. Note" as "Interaction Template Code" value
+        InteractionLogEntry.SetRange("Document Type", Enum::"Interaction Log Entry Document Type"::"Sales Shpt. Note");
+        InteractionLogEntry.SetRange("Document No.", SalesShipmentHeader."No.");
+        InteractionLogEntry.FindFirst();
+        InteractionLogEntry.TestField("Interaction Template Code", InteractionTemplateSetup."Sales Shpt. Note");
+    end;
+
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -3952,7 +4001,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Cust__Ledger_Entry__Document_No__', DocumentNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Cust__Ledger_Entry__Document_No__', DocumentNo));
+            Error(RowNotFoundErr, 'Cust__Ledger_Entry__Document_No__', DocumentNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustAmount', OriginalAmountLCY);
     end;
 
@@ -3966,7 +4015,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocNo_CustLedgEntry', GenJournalLine."Document No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocNo_CustLedgEntry', GenJournalLine."Document No."));
+            Error(RowNotFoundErr, 'DocNo_CustLedgEntry', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('CustLedgerEntryAmtLCY', AmountLCY);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceLCY', AmountLCY);
     end;
@@ -4014,7 +4063,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Customer_No_', CustomerNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Customer_No_', CustomerNo));
+            Error(RowNotFoundErr, 'Customer_No_', CustomerNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalCustBalanceLCY', BalanceLCY);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY_3_', 0);
     end;
@@ -4228,7 +4277,7 @@
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, RowCaption, RowValue));
+            Error(RowNotFoundErr, RowCaption, RowValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_DtldCustLedgEntries', Amount);
     end;
 
@@ -4243,7 +4292,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_SalesLine', SalesLineNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_SalesLine', SalesLineNo));
+            Error(RowNotFoundErr, 'No_SalesLine', SalesLineNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesOrderAmount', LineAmount);
     end;
 
@@ -4252,7 +4301,7 @@
         Customer.CalcFields("Balance (LCY)");
         LibraryReportDataset.SetRange('Total_LCY_Caption', TotalCaptionLbl);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Total_LCY_Caption', TotalCaptionLbl));
+            Error(RowNotFoundErr, 'Total_LCY_Caption', TotalCaptionLbl);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalCustBalanceLCY', Customer."Balance (LCY)");
     end;
 
@@ -4260,7 +4309,7 @@
     begin
         LibraryReportDataset.SetRange('TotalCaption', ColumnTotalLbl);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'TotalCaption', ColumnTotalLbl));
+            Error(RowNotFoundErr, 'TotalCaption', ColumnTotalLbl);
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesOrderAmountLCY', Round(ExpectedTotalLCY, 0.01));
     end;
 
@@ -4276,7 +4325,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Cust', SalesLine."Sell-to Customer No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_Cust', SalesLine."Sell-to Customer No."));
+            Error(RowNotFoundErr, 'No_Cust', SalesLine."Sell-to Customer No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesAmtOnOrderLCY1', 0);
         if CurrencyFactor = 0 then
             CurrencyFactor := 1;
@@ -4293,7 +4342,7 @@
     begin
         LibraryReportDataset.SetRange('PostDate_CustLedgEntry2', Format(PostingDate));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'PostDate_CustLedgEntry2', Format(PostingDate)));
+            Error(RowNotFoundErr, 'PostDate_CustLedgEntry2', Format(PostingDate));
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainAmt_CustLedgEntry2', Amount);
     end;
 
@@ -4340,7 +4389,7 @@
             LoadDataSetFile;
             SetRange('No_Customer', CustomerNo);
             if not GetNextRow then
-                Error(StrSubstNo(RowNotFoundErr, 'No_Customer', CustomerNo));
+                Error(RowNotFoundErr, 'No_Customer', CustomerNo);
             AssertCurrentRowValueEquals('SalesOrderAmount', SalesLine.Amount);
             GetNextRow;
             SalesLine.Next();
@@ -4354,7 +4403,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange(XmlElementCaption, XmlValue);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, XmlElementCaption, XmlValue));
+            Error(RowNotFoundErr, XmlElementCaption, XmlValue);
         LibraryReportDataset.AssertCurrentRowValueEquals(XmlElementCaption, XmlValue);
     end;
 
@@ -4941,6 +4990,16 @@
         StandardSalesDraftInvoice.LogInteractionField.SetValue(LogInteraction);
 
         StandardSalesDraftInvoice.SaveAsPdf(Format(CreateGuid()));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReportStandardSalesShipmentRequestPageHandlerForLogInteractionExecute(var StandardSalesShipment: TestRequestPage "Standard Sales - Shipment")
+    var
+        LogInteraction: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(LogInteraction);
+        StandardSalesShipment.LogInteractionControl.SetValue(LogInteraction);
     end;
 }
 

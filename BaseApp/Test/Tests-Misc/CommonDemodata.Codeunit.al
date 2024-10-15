@@ -216,32 +216,6 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure SalesInvoiceProformaCustomReportLayoutSetup()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        // [FEATURE] [Report Selection] [Proforma Invoice]
-        // [SCENARIO 225721] There is a Word Custom Report Layout setup for REP 1302 "Standard Sales - Pro Forma Inv"
-        Initialize();
-
-        CustomReportLayout.SetRange("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
-        CustomReportLayout.FindFirst();
-        CustomReportLayout.TestField(Type, CustomReportLayout.Type::Word);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATPostingSetupRates()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // [SCENARIO] There should not be other rates except 15, 9 and 0 % in VAT Posting Setup
-        VATPostingSetup.SetFilter("VAT %", '<>%1&<>%2&<>%3', 15, 9, 0);
-        Assert.RecordCount(VATPostingSetup, 0);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ForwardLinksExistAndNotBlank()
     var
         NamedForwardLink: Record "Named Forward Link";

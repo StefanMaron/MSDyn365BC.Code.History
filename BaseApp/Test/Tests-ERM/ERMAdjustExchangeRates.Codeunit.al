@@ -1,4 +1,4 @@
-﻿#if not CLEAN20
+﻿#if not CLEAN23
 codeunit 134083 "ERM Adjust Exchange Rates"
 {
     EventSubscriberInstance = Manual;

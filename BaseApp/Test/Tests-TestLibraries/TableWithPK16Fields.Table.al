@@ -7,11 +7,11 @@ table 134399 "Table With PK 16 Fields"
         field(1; Field1; Code[20])
         {
             DataClassification = SystemMetadata;
-            TableRelation = IF (Field6 = CONST("1")) Customer
-            ELSE
-            IF (Field6 = CONST("2")) Contact
-            ELSE
-            IF (Field6 = CONST("3")) Vendor;
+            TableRelation = if (Field6 = const("1")) Customer
+            else
+            if (Field6 = const("2")) Contact
+            else
+            if (Field6 = const("3")) Vendor;
         }
         field(2; Field2; Integer)
         {

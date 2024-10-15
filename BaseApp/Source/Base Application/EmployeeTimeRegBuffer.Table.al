@@ -1,3 +1,16 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+using Microsoft.Foundation.UOM;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.TimeSheet;
+using System.Utilities;
+
 table 5510 "Employee Time Reg Buffer"
 {
     Caption = 'Employee Time Reg Buffer';
@@ -57,8 +70,6 @@ table 5510 "Employee Time Reg Buffer"
             Caption = 'Unit of Measure Code';
             DataClassification = SystemMetadata;
             TableRelation = "Unit of Measure";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(7999; "Employee Id"; Guid)
@@ -241,9 +252,9 @@ table 5510 "Employee Time Reg Buffer"
                 Calendar.FindLast();
                 LastDate := Calendar."Period Start";
             end else
-                Error(StrSubstNo(DateFilterIsInvalidErr, MaxDateFilterRange()));
+                Error(DateFilterIsInvalidErr, MaxDateFilterRange());
             if LastDate - FirstDate > MaxDateFilterRange() then
-                Error(StrSubstNo(DateFilterIsInvalidErr, MaxDateFilterRange()));
+                Error(DateFilterIsInvalidErr, MaxDateFilterRange());
             LoadRecordsFromTSDetails(DateFilter);
             exit;
         end;

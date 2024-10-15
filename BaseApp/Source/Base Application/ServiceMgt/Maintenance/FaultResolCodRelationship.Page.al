@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Maintenance;
+
+using Microsoft.Service.Document;
+using Microsoft.Service.Item;
+
 page 5930 "Fault/Resol. Cod. Relationship"
 {
     ApplicationArea = Service;
@@ -5,8 +10,8 @@ page 5930 "Fault/Resol. Cod. Relationship"
     DelayedInsert = true;
     PageType = Worksheet;
     SourceTable = "Fault/Resol. Cod. Relationship";
-    SourceTableView = SORTING("Service Item Group Code", "Fault Code", Occurrences)
-                      ORDER(Descending);
+    SourceTableView = sorting("Service Item Group Code", "Fault Code", Occurrences)
+                      order(Descending);
     UsageCategory = Administration;
 
     layout
@@ -26,9 +31,9 @@ page 5930 "Fault/Resol. Cod. Relationship"
                     trigger OnValidate()
                     begin
                         if ServItemGroupCode <> '' then
-                            SetRange("Service Item Group Code", ServItemGroupCode)
+                            Rec.SetRange("Service Item Group Code", ServItemGroupCode)
                         else
-                            SetRange("Service Item Group Code");
+                            Rec.SetRange("Service Item Group Code");
                         ServItemGroupCodeOnAfterValida();
                     end;
                 }
@@ -42,9 +47,9 @@ page 5930 "Fault/Resol. Cod. Relationship"
                     trigger OnValidate()
                     begin
                         if FaultArea <> '' then
-                            SetRange("Fault Area Code", FaultArea)
+                            Rec.SetRange("Fault Area Code", FaultArea)
                         else
-                            SetRange("Fault Area Code");
+                            Rec.SetRange("Fault Area Code");
                         FaultAreaOnAfterValidate();
                     end;
                 }
@@ -58,9 +63,9 @@ page 5930 "Fault/Resol. Cod. Relationship"
                     trigger OnValidate()
                     begin
                         if SymptomCode <> '' then
-                            SetRange("Symptom Code", SymptomCode)
+                            Rec.SetRange("Symptom Code", SymptomCode)
                         else
-                            SetRange("Symptom Code");
+                            Rec.SetRange("Symptom Code");
                         SymptomCodeOnAfterValidate();
                     end;
                 }
@@ -77,7 +82,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
                         if not FaultCodeRec.Get(FaultArea, SymptomCode, FaultCode) then;
                         if PAGE.RunModal(0, FaultCodeRec) = ACTION::LookupOK then begin
                             FaultCode := FaultCodeRec.Code;
-                            SetRange("Fault Code", FaultCode);
+                            Rec.SetRange("Fault Code", FaultCode);
                             CurrPage.Update(false);
                         end;
                     end;
@@ -86,9 +91,9 @@ page 5930 "Fault/Resol. Cod. Relationship"
                     begin
                         if FaultCode <> '' then begin
                             FaultCodeRec.Get(FaultArea, SymptomCode, FaultCode);
-                            SetRange("Fault Code", FaultCode);
+                            Rec.SetRange("Fault Code", FaultCode);
                         end else
-                            SetRange("Fault Code");
+                            Rec.SetRange("Fault Code");
                         FaultCodeOnAfterValidate();
                     end;
                 }
@@ -126,7 +131,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the relationship between the fault code and the resolution code.';
                 }
-                field(Occurrences; Occurrences)
+                field(Occurrences; Rec.Occurrences)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of times the combination of fault code, symptom code, fault area, and resolution code occurs in the posted service lines.';
@@ -178,21 +183,21 @@ page 5930 "Fault/Resol. Cod. Relationship"
         FaultCode := Fault;
         SymptomCode := Symptom;
         if Fault <> '' then
-            SetRange("Fault Code", Fault)
+            Rec.SetRange("Fault Code", Fault)
         else
-            SetRange("Fault Code");
+            Rec.SetRange("Fault Code");
         if Area <> '' then
-            SetRange("Fault Area Code", Area)
+            Rec.SetRange("Fault Area Code", Area)
         else
-            SetRange("Fault Area Code");
+            Rec.SetRange("Fault Area Code");
         if Symptom <> '' then
-            SetRange("Symptom Code", Symptom)
+            Rec.SetRange("Symptom Code", Symptom)
         else
-            SetRange("Symptom Code");
+            Rec.SetRange("Symptom Code");
         if ServItemGroup <> '' then
-            SetRange("Service Item Group Code", ServItemGroup)
+            Rec.SetRange("Service Item Group Code", ServItemGroup)
         else
-            SetRange("Service Item Group Code");
+            Rec.SetRange("Service Item Group Code");
     end;
 
     procedure SetDocument(TableID: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
@@ -209,20 +214,20 @@ page 5930 "Fault/Resol. Cod. Relationship"
             DATABASE::"Service Item Line":
                 begin
                     ServItemLine.Get(ServDocumentType, ServDocumentNo, ServLineNo);
-                    ServItemLine."Fault Area Code" := "Fault Area Code";
-                    ServItemLine."Symptom Code" := "Symptom Code";
-                    ServItemLine."Fault Code" := "Fault Code";
-                    ServItemLine."Resolution Code" := "Resolution Code";
+                    ServItemLine."Fault Area Code" := Rec."Fault Area Code";
+                    ServItemLine."Symptom Code" := Rec."Symptom Code";
+                    ServItemLine."Fault Code" := Rec."Fault Code";
+                    ServItemLine."Resolution Code" := Rec."Resolution Code";
                     OnUpdateOriginalRecordOnBeforeServItemLineModify(Rec, ServItemLine);
                     ServItemLine.Modify(true);
                 end;
             DATABASE::"Service Line":
                 begin
                     ServInvLine.Get(ServDocumentType, ServDocumentNo, ServLineNo);
-                    ServInvLine."Fault Area Code" := "Fault Area Code";
-                    ServInvLine."Symptom Code" := "Symptom Code";
-                    ServInvLine."Fault Code" := "Fault Code";
-                    ServInvLine."Resolution Code" := "Resolution Code";
+                    ServInvLine."Fault Area Code" := Rec."Fault Area Code";
+                    ServInvLine."Symptom Code" := Rec."Symptom Code";
+                    ServInvLine."Fault Code" := Rec."Fault Code";
+                    ServInvLine."Resolution Code" := Rec."Resolution Code";
                     OnUpdateOriginalRecordOnBeforeServInvLineModify(Rec, ServInvLine);
                     ServInvLine.Modify();
                 end;

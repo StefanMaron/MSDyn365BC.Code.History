@@ -1,3 +1,22 @@
+﻿namespace Microsoft.Foundation.Reporting;
+
+using Microsoft.EServices.EDocument;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Reminder;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using System.Email;
+using System.IO;
+using System.Reflection;
+using System.Utilities;
+
 codeunit 452 "Report Distribution Management"
 {
     EventSubscriberInstance = Manual;
@@ -339,21 +358,6 @@ codeunit 452 "Report Distribution Management"
         FileManagement.BLOBExport(TempBlob, ClientFileName, true);
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by SaveFileOnClient with TempBlob parameter.', '20.0')]
-    [Scope('OnPrem')]
-    procedure SaveFileOnClient(ServerFilePath: Text; ClientFileName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        FileManagement.DownloadHandler(
-          ServerFilePath,
-          '',
-          '',
-          FileManagement.GetToFilterText('', ClientFileName),
-          ClientFileName);
-    end;
-#endif
     local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; var AttachmentTempBlob: Codeunit "Temp Blob"; AttachmentFileName: Text[250]; DocumentVariant: Variant; SendTo: Enum "Doc. Sending Profile Send To"; ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; var ReceiverRecord: RecordRef)
     var
         DocumentMailing: Codeunit "Document-Mailing";
@@ -366,7 +370,7 @@ codeunit 452 "Report Distribution Management"
     begin
         DocumentType := GetFullDocumentTypeText(DocumentVariant);
 
-        if SendTo = "Doc. Sending Profile Send To"::Disk then begin
+        if SendTo = SendTo::Disk then begin
             FileManagement.BLOBExport(AttachmentTempBlob, AttachmentFileName, true);
             exit;
         end;
@@ -388,45 +392,6 @@ codeunit 452 "Report Distribution Management"
           SendEmailAddress, DocumentType, HideDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by SendAttachment with TempBlob parameter.', '20.0')]
-    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; DocumentVariant: Variant; SendTo: Enum "Doc. Sending Profile Send To"; ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; var ReceiverRecord: RecordRef)
-    var
-        DocumentMailing: Codeunit "Document-Mailing";
-        TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
-        SourceReference: RecordRef;
-        DocumentType: Text[50];
-        AttachmentStream: Instream;
-        SourceTableIDs, SourceRelationTypes : List of [Integer];
-        SourceIDs: List of [Guid];
-    begin
-        DocumentType := GetFullDocumentTypeText(DocumentVariant);
-
-        if SendTo = "Doc. Sending Profile Send To"::Disk then begin
-            SaveFileOnClient(AttachmentFilePath, AttachmentFileName);
-            exit;
-        end;
-
-        if AttachmentFilePath <> '' then begin
-            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
-            TempBlob.CreateInStream(AttachmentStream);
-        end;
-        SourceReference.GetTable(DocumentVariant);
-
-        SourceTableIDs.Add(SourceReference.Number());
-        SourceIDs.Add(SourceReference.Field(SourceReference.SystemIdNo()).Value());
-        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
-
-        SourceTableIDs.Add(ReceiverRecord.Number());
-        SourceIDs.Add(SourceReference.Field(ReceiverRecord.SystemIdNo()).Value());
-        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
-
-        DocumentMailing.EmailFile(
-          AttachmentStream, AttachmentFileName, ServerEmailBodyFilePath, PostedDocumentNo,
-          SendEmailAddress, DocumentType, HideDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
-    end;
-#endif
     [Scope('OnPrem')]
     procedure SendXmlEmailAttachment(DocumentVariant: Variant; DocumentFormat: Code[20]; ServerEmailBodyFilePath: Text[250]; SendToEmailAddress: Text[250])
     var
@@ -461,7 +426,7 @@ codeunit 452 "Report Distribution Management"
           TempBlob,
           ClientFileName,
           DocumentVariant,
-          "Doc. Sending Profile Send To"::"Electronic Document",
+          Enum::"Doc. Sending Profile Send To"::"Electronic Document",
           ServerEmailBodyFilePath, ReportUsage, ReceiverRecord);
     end;
 
@@ -497,7 +462,7 @@ codeunit 452 "Report Distribution Management"
           TempBlob,
           ClientFileName,
           DocumentVariant,
-          "Doc. Sending Profile Send To"::"Electronic Document",
+          Enum::"Doc. Sending Profile Send To"::"Electronic Document",
           ServerEmailBodyFilePath, ReportUsage, ReceiverRecord);
     end;
 
@@ -537,13 +502,13 @@ codeunit 452 "Report Distribution Management"
             exit;
 
         if DocumentSendingProfile.Disk in
-           ["Doc. Sending Profile Disk"::"Electronic Document", "Doc. Sending Profile Disk"::"PDF & Electronic Document"]
+           [DocumentSendingProfile.Disk::"Electronic Document", DocumentSendingProfile.Disk::"PDF & Electronic Document"]
         then
-            IF NOT ElectronicDocumentFormat.Get(DocumentSendingProfile."Disk Format") then
+            if not ElectronicDocumentFormat.Get(DocumentSendingProfile."Disk Format") then
                 exit;
 
-        IF DocumentSendingProfile."Electronic Document" <> "Doc. Sending Profile Elec.Doc."::No then
-            IF NOT ElectronicDocumentFormat.Get(DocumentSendingProfile."Electronic Format") then
+        if DocumentSendingProfile."Electronic Document" = DocumentSendingProfile."Electronic Document"::"Through Document Exchange Service" then
+            if not ElectronicDocumentFormat.Get(DocumentSendingProfile."Electronic Format") then
                 exit;
     end;
 
@@ -566,33 +531,6 @@ codeunit 452 "Report Distribution Management"
         end;
     end;
 
-#if not CLEAN20
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by CreateOrAppendZipFile with TempBlob parameter.', '20.0')]
-    procedure CreateOrAppendZipFile(var DataCompression: Codeunit "Data Compression"; ServerFilePath: Text[250]; ClientFileName: Text[250]; var ClientZipFileName: Text[250])
-    var
-        FileManagement: Codeunit "File Management";
-        ServerTempBlob: Codeunit "Temp Blob";
-        ServerFile: File;
-        ServerFileInStream: InStream;
-        IsGZip: Boolean;
-    begin
-        ServerFile.Open(ServerFilePath);
-        ServerFile.CreateInStream(ServerFileInStream);
-        IsGZip := DataCompression.IsGZip(ServerFileInStream);
-        if IsGZip then begin
-            DataCompression.OpenZipArchive(ServerFileInStream, true);
-            ClientZipFileName := ClientFileName;
-        end else begin
-            DataCompression.CreateZipArchive();
-            FileManagement.BLOBImportFromServerFile(ServerTempBlob, ServerFilePath);
-            ServerTempBlob.CreateInStream(ServerFileInStream);
-            DataCompression.AddEntry(ServerFileInStream, ClientFileName);
-            ClientZipFileName := CopyStr(FileManagement.GetFileNameWithoutExtension(ClientFileName) + '.zip', 1, 250);
-        end;
-        ServerFile.Close();
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunDefaultCheckSalesElectronicDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin

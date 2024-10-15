@@ -2428,6 +2428,7 @@ codeunit 137048 "SCM Warehouse II"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        WarehouseSetup: Record "Warehouse Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse II");
         LibraryVariableStorage.Clear();
@@ -2445,7 +2446,10 @@ codeunit 137048 "SCM Warehouse II"
         NoSeriesSetup();
         CreateLocationSetup;
         ItemJournalSetup;
-
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Receipt Posting Policy", WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        WarehouseSetup.Validate("Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed");
+        WarehouseSetup.Modify();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse II");
@@ -2486,7 +2490,7 @@ codeunit 137048 "SCM Warehouse II"
         LibraryWarehouse.CreateInTransitLocation(LocationIntransit);
 
         LibraryWarehouse.CreateNumberOfBins(LocationOrange.Code, '', '', LibraryRandom.RandInt(5) + 2, false);  // 2 is required as minimun number of Bin must be 2.
-        LibraryWarehouse.CreateNumberOfBins(LocationOrange2.Code, '', '', LibraryRandom.RandInt(5), false);
+        LibraryWarehouse.CreateNumberOfBins(LocationOrange2.Code, '', '', LibraryRandom.RandInt(5) + 1, false);
         LibraryWarehouse.CreateNumberOfBins(LocationOrange3.Code, '', '', LibraryRandom.RandInt(5), false);
         LibraryWarehouse.CreateNumberOfBins(LocationPink.Code, '', '', LibraryRandom.RandInt(5), false);
 

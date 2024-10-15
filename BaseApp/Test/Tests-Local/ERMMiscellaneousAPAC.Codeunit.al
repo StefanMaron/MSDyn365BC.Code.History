@@ -613,6 +613,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::"Credit Memo", 1);
     end;
 
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure InvoicePostBuffer_GetGLAccountGST()
@@ -640,6 +641,36 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         Assert.AreEqual(
           DeferralTemplate."Deferral Account", Result,
           'InvoicePostBuffer.GetGLAccountGST should return DeferralTemplate."Deferral Account"');
+    end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InvoicePostingBuffer_GetGLAccountGST()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        GLAccount: Record "G/L Account";
+        InvoicePostingBuffer: Record "Invoice Posting Buffer";
+        Result: Code[20];
+    begin
+        // [FEATURE] [UT] [GST] [Deferrals]
+        // [SCENARIO 221286] TAB55 GetGLAccountGST returns correct GL Account.
+        Initialize();
+
+        Result := InvoicePostingBuffer.GetGLAccountGST('', '');
+        Assert.AreEqual('', Result, 'InvoicePostingBuffer.GetGLAccountGST should return empty value');
+
+        LibraryERM.CreateGLAccount(GLAccount);
+        Result := InvoicePostingBuffer.GetGLAccountGST('', GLAccount."No.");
+        Assert.AreEqual(GLAccount."No.", Result, 'InvoicePostingBuffer.GetGLAccountGST should return GLAccount No.');
+
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"Straight-Line",
+          DeferralTemplate."Start Date"::"Posting Date", 1);
+        Result := InvoicePostingBuffer.GetGLAccountGST(DeferralTemplate."Deferral Code", GLAccount."No.");
+        Assert.AreEqual(
+          DeferralTemplate."Deferral Account", Result,
+          'InvoicePostingBuffer.GetGLAccountGST should return DeferralTemplate."Deferral Account"');
     end;
 
     [Test]
@@ -1041,7 +1072,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           "Amount Including VAT (ACY)",
           Round(PurchaseLine."Amount (ACY)" + PurchaseLine."VAT Base (ACY)" * PurchaseLine."VAT %" / 100));
     end;
-    
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";

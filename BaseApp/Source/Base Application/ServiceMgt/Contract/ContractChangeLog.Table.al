@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using System.Security.AccessControl;
+
 table 5967 "Contract Change Log"
 {
     Caption = 'Contract Change Log';
@@ -14,7 +18,7 @@ table 5967 "Contract Change Log"
         field(2; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
-            TableRelation = IF ("Contract Type" = CONST(Contract)) "Service Contract Header"."Contract No." WHERE("Contract Type" = FIELD("Contract Type"));
+            TableRelation = if ("Contract Type" = const(Contract)) "Service Contract Header"."Contract No." where("Contract Type" = field("Contract Type"));
         }
         field(3; "Change No."; Integer)
         {
@@ -25,8 +29,6 @@ table 5967 "Contract Change Log"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(5; "Date of Change"; Date)
         {

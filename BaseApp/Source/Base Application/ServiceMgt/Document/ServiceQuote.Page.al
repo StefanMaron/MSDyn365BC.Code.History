@@ -1,10 +1,20 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using System.Security.User;
+
 page 5964 "Service Quote"
 {
     Caption = 'Service Quote';
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Service Header";
-    SourceTableView = WHERE("Document Type" = FILTER(Quote));
+    SourceTableView = where("Document Type" = filter(Quote));
 
     layout
     {
@@ -21,7 +31,7 @@ page 5964 "Service Quote"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -48,9 +58,9 @@ page 5964 "Service Quote"
 
                     trigger OnValidate()
                     begin
-                        if GetFilter("Contact No.") = xRec."Contact No." then
-                            if "Contact No." <> xRec."Contact No." then
-                                SetRange("Contact No.");
+                        if Rec.GetFilter("Contact No.") = xRec."Contact No." then
+                            if Rec."Contact No." <> xRec."Contact No." then
+                                Rec.SetRange("Contact No.");
                     end;
                 }
                 group("Sell-to")
@@ -61,7 +71,7 @@ page 5964 "Service Quote"
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                     }
-                    field(Address; Address)
+                    field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -77,7 +87,7 @@ page 5964 "Service Quote"
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                        field(County; County)
+                        field(County; Rec.County)
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
@@ -97,7 +107,7 @@ page 5964 "Service Quote"
 
                         trigger OnValidate()
                         begin
-                            IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                            IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                         end;
                     }
                     field("Contact Name"; Rec."Contact Name")
@@ -117,7 +127,7 @@ page 5964 "Service Quote"
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the customer in this service order.';
                 }
-                field(City; City)
+                field(City; Rec.City)
                 {
                     ApplicationArea = Service;
                     QuickEntry = false;
@@ -154,7 +164,7 @@ page 5964 "Service Quote"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated time when work on the order starts, that is, when the service order status changes from Pending, to In Process.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
@@ -181,7 +191,7 @@ page 5964 "Service Quote"
                 ApplicationArea = Service;
                 Editable = IsServiceLinesEditable;
                 Enabled = IsServiceLinesEditable;
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Invoicing)
             {
@@ -258,7 +268,7 @@ page 5964 "Service Quote"
 
                         trigger OnValidate()
                         begin
-                            IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+                            IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
                         end;
                     }
                     field("Bill-to Contact"; Rec."Bill-to Contact")
@@ -412,7 +422,7 @@ page 5964 "Service Quote"
 
                         trigger OnValidate()
                         begin
-                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                            IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
@@ -543,9 +553,9 @@ page 5964 "Service Quote"
                     trigger OnAssistEdit()
                     begin
                         Clear(ChangeExchangeRate);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
@@ -582,7 +592,7 @@ page 5964 "Service Quote"
                     ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
-                field("Area"; Area)
+                field("Area"; Rec.Area)
                 {
                     ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
@@ -594,28 +604,28 @@ page 5964 "Service Quote"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                SubPageLink = "No." = field("Bill-to Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
+                SubPageLink = "No." = field("Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1907829707; "Service Hist. Sell-to FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
+                SubPageLink = "No." = field("Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1902613707; "Service Hist. Bill-to FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                SubPageLink = "No." = field("Bill-to Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
@@ -623,9 +633,9 @@ page 5964 "Service Quote"
             {
                 ApplicationArea = Service;
                 Provider = ServItemLine;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("Document No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("Document No."),
+                              "Line No." = field("Line No.");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -654,14 +664,14 @@ page 5964 "Service Quote"
                     AccessByPermission = TableData Dimension = R;
                     ApplicationArea = Dimensions;
                     Caption = '&Dimensions';
-                    Enabled = "No." <> '';
+                    Enabled = Rec."No." <> '';
                     Image = Dimensions;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -671,10 +681,10 @@ page 5964 "Service Quote"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Statistics)
@@ -687,7 +697,7 @@ page 5964 "Service Quote"
 
                     trigger OnAction()
                     begin
-                        OpenStatistics();
+                        Rec.OpenStatistics();
                     end;
                 }
                 action("Customer Card")
@@ -696,7 +706,7 @@ page 5964 "Service Quote"
                     Caption = 'Customer Card';
                     Image = Customer;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Customer No.");
+                    RunPageLink = "No." = field("Customer No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information for the customer.';
                 }
@@ -818,20 +828,20 @@ page 5964 "Service Quote"
     trigger OnDeleteRecord(): Boolean
     begin
         CurrPage.SaveRecord();
-        exit(ConfirmDeletion());
+        exit(Rec.ConfirmDeletion());
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        CheckCreditMaxBeforeInsert(false);
+        Rec.CheckCreditMaxBeforeInsert(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Document Type" := "Document Type"::Quote;
-        "Responsibility Center" := UserMgt.GetServiceFilter();
-        if "No." = '' then
-            SetCustomerFromFilter();
+        Rec."Document Type" := Rec."Document Type"::Quote;
+        Rec."Responsibility Center" := UserMgt.GetServiceFilter();
+        if Rec."No." = '' then
+            Rec.SetCustomerFromFilter();
     end;
 
     trigger OnOpenPage()
@@ -849,22 +859,21 @@ page 5964 "Service Quote"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-        [InDataSet]
         IsServiceLinesEditable: Boolean;
 
     local procedure ActivateFields()
     begin
-        IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
-        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
     end;
 
     local procedure CustomerNoOnAfterValidate()
     begin
-        if GetFilter("Customer No.") = xRec."Customer No." then
-            if "Customer No." <> xRec."Customer No." then
-                SetRange("Customer No.");
+        if Rec.GetFilter("Customer No.") = xRec."Customer No." then
+            if Rec."Customer No." <> xRec."Customer No." then
+                Rec.SetRange("Customer No.");
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
         CurrPage.Update();
     end;
@@ -886,13 +895,13 @@ page 5964 "Service Quote"
 
     local procedure OrderTimeOnAfterValidate()
     begin
-        UpdateResponseDateTime();
+        Rec.UpdateResponseDateTime();
         CurrPage.Update();
     end;
 
     local procedure OrderDateOnAfterValidate()
     begin
-        UpdateResponseDateTime();
+        Rec.UpdateResponseDateTime();
         CurrPage.Update();
     end;
 

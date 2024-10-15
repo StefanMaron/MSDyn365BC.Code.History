@@ -1,3 +1,5 @@
+namespace System.Utilities;
+
 table 9160 TempStack
 {
     Caption = 'TempStack';

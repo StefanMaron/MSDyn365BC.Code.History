@@ -17,7 +17,7 @@ codeunit 131340 "Library - Cost Accounting"
         AllocSourceID: Label 'AS%1';
         AllocValuesNotMatchingErr: Label 'Amount = %1, CostEntryAmount = %2, Percent = %3, TotalAmount = %4, AllocatedCost = %5, Percent * TotalAmount = %6.';
         GetCostTypesFromGLErr: Label 'Mapping G/L Accounts to Chart of Cost Types Causes Inconsistency.';
-        GLAccountFilterDefinition: Label '%1..%2';
+        GLAccountFilterDefinition: Label '%1..%2', Locked = true;
         IncorrectGLAccountNo: Label 'The G/L Account No. %1 is aligned to Cost Type No. %2 although G/L Account No. %3 was expected.';
         IncorrectPercentValueErr: Label 'For the Allocation Source %1, the Allocation Target %2  has its Percent field set to %3, although the expected value was %4, when values are rounded to 0.1 percision.';
         NoRecordsInFilterErr: Label 'There are no records within the filters specified for table %1. The filters are: %2.';
@@ -51,7 +51,7 @@ codeunit 131340 "Library - Cost Accounting"
                   StrSubstNo(IncorrectPercentValueErr, CostAllocationSource.ID, CostAllocationTarget."Line No.", CurrentValue, ExpectedValue));
             until CostAllocationTarget.Next() = 0;
         end else
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters));
+            Error(NoRecordsInFilterErr, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters);
     end;
 
     procedure CheckBlockedDimCombination()
@@ -425,7 +425,7 @@ codeunit 131340 "Library - Cost Accounting"
                     CostType.Validate("G/L Account Range", GLAccount."No.");
                     CostType.Modify(true);
                 end else
-                    Error(StrSubstNo(IncorrectGLAccountNo, CostType."G/L Account Range", CostType."No.", GLAccount."No."));
+                    Error(IncorrectGLAccountNo, CostType."G/L Account Range", CostType."No.", GLAccount."No.");
             end;
     end;
 
@@ -517,7 +517,7 @@ codeunit 131340 "Library - Cost Accounting"
         end;
 
         if CostAllocationSource.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters));
+            Error(NoRecordsInFilterErr, CostAllocationSource.TableCaption(), CostAllocationSource.GetFilters);
 
         CostAllocationSource.Next(LibraryRandom.RandInt(CostAllocationSource.Count));
     end;
@@ -526,7 +526,7 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         GetAllCostTypes(CostType);
         if CostType.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters));
+            Error(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters);
 
         CostType.Next(LibraryRandom.RandInt(CostType.Count));
     end;
@@ -537,7 +537,7 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         GLAccount.SetFilter("Cost Type No.", '<>%1', '');
         if GLAccount.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, GLAccount.TableCaption(), GLAccount.GetFilters));
+            Error(NoRecordsInFilterErr, GLAccount.TableCaption(), GLAccount.GetFilters);
 
         GLAccount.FindSet();
         GLAccount.Next(LibraryRandom.RandInt(GLAccount.Count));
@@ -550,7 +550,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostType.SetFilter("Cost Center Code", '<>%1', '');
         CostType.SetFilter("Cost Object Code", '%1', '');
         if CostType.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters));
+            Error(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters);
 
         CostType.Next(LibraryRandom.RandInt(CostType.Count));
     end;
@@ -562,7 +562,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostCenter.SetFilter("Net Change", '<>%1', 0);
         CostCenter.SetFilter("Balance at Date", '<>%1', 0);
         if CostCenter.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostCenter.TableCaption(), CostCenter.GetFilters));
+            Error(NoRecordsInFilterErr, CostCenter.TableCaption(), CostCenter.GetFilters);
 
         CostCenter.Next(LibraryRandom.RandInt(CostCenter.Count));
     end;
@@ -594,7 +594,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostObject.SetFilter("Net Change", '<>%1', 0);
         CostObject.SetFilter("Balance at Date", '<>%1', 0);
         if CostObject.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostObject.TableCaption(), CostObject.GetFilters));
+            Error(NoRecordsInFilterErr, CostObject.TableCaption(), CostObject.GetFilters);
 
         CostObject.Next(LibraryRandom.RandInt(CostObject.Count));
     end;
@@ -604,7 +604,7 @@ codeunit 131340 "Library - Cost Accounting"
         LibraryERM.FindGLAccount(GLAccount);
         GLAccount.SetFilter("Cost Type No.", '<>%1', '');
         if GLAccount.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, GLAccount.TableCaption(), GLAccount.GetFilters));
+            Error(NoRecordsInFilterErr, GLAccount.TableCaption(), GLAccount.GetFilters);
 
         GLAccount.Next(LibraryRandom.RandInt(GLAccount.Count));
     end;
@@ -613,7 +613,7 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         GLAccount.SetFilter("No.", GLAccountRange);
         if GLAccount.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, GLAccount.TableCaption(), GLAccount.GetFilters));
+            Error(NoRecordsInFilterErr, GLAccount.TableCaption(), GLAccount.GetFilters);
 
         GLAccount.FindSet();
     end;
@@ -630,7 +630,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostType.SetFilter(Type, Format(CostType.Type::"Cost Type"));
         CostType.SetFilter("G/L Account Range", '<>%1', '');
         if CostType.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters));
+            Error(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters);
         CostType.FindSet();
     end;
 
@@ -639,7 +639,7 @@ codeunit 131340 "Library - Cost Accounting"
         LibraryERM.FindGLAccount(GLAccount);
         GLAccount.SetFilter("Income/Balance", Format(GLAccount."Income/Balance"::"Income Statement"));
         if GLAccount.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, GLAccount.TableCaption(), GLAccount.GetFilters));
+            Error(NoRecordsInFilterErr, GLAccount.TableCaption(), GLAccount.GetFilters);
         GLAccount.FindSet();
     end;
 
@@ -658,7 +658,7 @@ codeunit 131340 "Library - Cost Accounting"
         RecordRef.FindSet();
 
         if RecordRef.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, RecordRef.Name, RecordRef.GetFilters));
+            Error(NoRecordsInFilterErr, RecordRef.Name, RecordRef.GetFilters);
 
         if RecordRef.Count <> CostAllocationTarget.Count then
             Error(

@@ -19,8 +19,8 @@ codeunit 134561 "ERM Account Schedule Charts"
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         ColumnFormulaMessage: Label 'Column formula: %1.';
-        DuplicateDescriptionError: Label 'Row Definition %1 has duplicate Description values.', Comment = '%1:Field Value;';
-        DuplicateColumnHeaderError: Label 'Column Definition %1 has duplicate Column Header values.', Comment = '%1:Field Value;';
+        DuplicateDescriptionError: Label 'Row Definition %1 has duplicate Description', Comment = '%1:Field Value;';
+        DuplicateColumnHeaderError: Label 'Column Definition %1 has duplicate Column Header', Comment = '%1:Field Value;';
 
     [Test]
     [Scope('OnPrem')]

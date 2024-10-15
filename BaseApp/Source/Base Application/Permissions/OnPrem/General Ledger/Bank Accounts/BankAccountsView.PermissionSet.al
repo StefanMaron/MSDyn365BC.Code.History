@@ -1,3 +1,11 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Statement;
+using Microsoft.Bank.Check;
+using Microsoft.Finance.Dimension;
+
 permissionset 1083 "Bank Accounts - View"
 {
     Access = Public;

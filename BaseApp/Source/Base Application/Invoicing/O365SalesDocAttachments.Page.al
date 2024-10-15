@@ -21,7 +21,7 @@ page 2120 "O365 Sales Doc. Attachments"
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Attachments';
                 ShowFilter = false;
-                SubPageLink = "Incoming Document Entry No." = FIELD("Incoming Document Entry No.");
+                SubPageLink = "Incoming Document Entry No." = field("Incoming Document Entry No.");
                 Visible = IsPhone;
             }
             part(WebIncomingDocAttachFactBox; "BC O365 Inc. Doc. Attch. List")
@@ -29,7 +29,7 @@ page 2120 "O365 Sales Doc. Attachments"
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Attachments';
                 ShowFilter = false;
-                SubPageLink = "Incoming Document Entry No." = FIELD("Incoming Document Entry No.");
+                SubPageLink = "Incoming Document Entry No." = field("Incoming Document Entry No.");
                 Visible = NOT IsPhone;
             }
         }
