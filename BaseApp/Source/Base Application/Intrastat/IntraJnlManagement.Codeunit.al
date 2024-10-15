@@ -383,6 +383,49 @@ codeunit 350 IntraJnlManagement
         exit(Round(TotalWeight, 0.001));
     end;
 
+    procedure GetCompanyVATRegNo(): Text[50]
+    var
+        CompanyInformation: Record "Company Information";
+        IntrastatSetup: Record "Intrastat Setup";
+    begin
+        CompanyInformation.Get();
+        if not IntrastatSetup.Get() then
+            exit(CompanyInformation."VAT Registration No.");
+        exit(
+          GetVATRegNo(
+            CompanyInformation."Country/Region Code", CompanyInformation."VAT Registration No.",
+            IntrastatSetup."Company VAT No. on File"));
+    end;
+
+    procedure GetVATRegNo(CountryCode: Code[10]; VATRegNo: Text[20]; VATRegNoType: Enum "Intrastat VAT No. On File"): Text[50]
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+        CountryRegion: Record "Country/Region";
+    begin
+        case VATRegNoType of
+            IntrastatSetup."Company VAT No. on File"::"VAT Reg. No.":
+                exit(VATRegNo);
+            IntrastatSetup."Company VAT No. on File"::"EU Country Code + VAT Reg. No":
+                begin
+                    CountryRegion.Get(CountryCode);
+                    if CountryRegion."EU Country/Region Code" <> '' then
+                        CountryCode := CountryRegion."EU Country/Region Code";
+                    exit(CountryCode + VATRegNo);
+                end;
+            IntrastatSetup."Company VAT No. on File"::"VAT Reg. No. Without EU Country Code":
+                begin
+                    CountryRegion.Get(CountryCode);
+                    if CountryRegion."EU Country/Region Code" <> '' then
+                        CountryCode := CountryRegion."EU Country/Region Code";
+                    if CopyStr(VATRegNo, 1, StrLen(DelChr(CountryCode, '<>'))) =
+                       DelChr(CountryCode, '<>')
+                    then
+                        exit(CopyStr(VATRegNo, StrLen(DelChr(CountryCode, '<>')) + 1, 50));
+                    exit(VATRegNo);
+                end;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundTotalWeight(var IsHandled: Boolean; var TotalWeight: Decimal)
     begin
