@@ -529,6 +529,7 @@ table 5876 "Phys. Invt. Order Line"
                         OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking(ExpPhysInvtTracking, ItemLedgEntry);
                     until ItemLedgEntry.Next() = 0;
                 ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
+                OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry(ExpPhysInvtTracking, Rec);
                 TestQtyExpected();
             end else begin
                 if PhysInvtTrackingMgt.GetTrackingNosFromWhse(Item) then begin
@@ -557,6 +558,7 @@ table 5876 "Phys. Invt. Order Line"
                             OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking(ExpPhysInvtTracking, WhseEntry);
                         until WhseEntry.Next() = 0;
                     ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
+                    OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry(ExpPhysInvtTracking, Rec);
                     TestQtyExpected();
                 end else
                     OnCalcQtyAndTrackLinesExpectedOnPhysInvtTrackingNotGet(Rec);
@@ -1239,6 +1241,16 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 }

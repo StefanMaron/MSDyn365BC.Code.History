@@ -1477,6 +1477,7 @@ page 54 "Purchase Order Subform"
             Commit();
             if not PurchLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
+            OnBeforeDeleteReservationEntries(Rec);
             PurchLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.PurchaseDocTotalsNotUpToDate();
@@ -1937,6 +1938,11 @@ page 54 "Purchase Order Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeleteReservationEntries(var PurchaseLine: Record "Purchase Line");
     begin
     end;
 }

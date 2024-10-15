@@ -1378,8 +1378,6 @@ codeunit 134456 "ERM Fixed Asset Card"
 
     [Scope('OnPrem')]
     procedure CreateFADepreciationBookEmpty(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; DepreciationBookCode: Code[10]; PostingGroupCode: Code[20])
-    var
-        FixedAsset: Record "Fixed Asset";
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook."FA Posting Group" := PostingGroupCode;
@@ -1387,10 +1385,6 @@ codeunit 134456 "ERM Fixed Asset Card"
         FADepreciationBook."Depreciation Starting Date" := 0D;
         FADepreciationBook."Depreciation Ending Date" := 0D;
         FADepreciationBook.Modify(true);
-
-        FixedAsset.Get(FANo);
-        FixedAsset."FA Posting Group" := PostingGroupCode;
-        FixedAsset.Modify();
     end;
 
     [Scope('OnPrem')]

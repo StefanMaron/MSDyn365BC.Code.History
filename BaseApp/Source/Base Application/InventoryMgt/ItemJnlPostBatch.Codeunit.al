@@ -256,6 +256,8 @@ codeunit 23 "Item Jnl.-Post Batch"
         OriginalQuantityBase: Decimal;
         IsHandled: Boolean;
     begin
+        OnBeforePostLines(ItemJnlLine, ItemRegNo, WhseRegNo);
+
         LastDocNo := '';
         LastDocNo2 := '';
         LastPostedDocNo := '';
@@ -270,10 +272,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             MakeRecurringTexts(ItemJnlLine);
             ConstructPostingNumber(ItemJnlLine);
 
-            if ItemJnlBatch."Item Tracking on Lines" then
-                ItemJnlLine.CreateItemTrackingLines(false);
-            ItemJnlLine.ClearTracking();
-            ItemJnlLine.ClearDates();
+            UpdateItemTracking(ItemJnlLine);
 
             OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit, WindowIsOpen);
 
@@ -317,7 +316,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             end;
         until ItemJnlLine.Next() = 0;
 
-        OnAfterPostLines(ItemJnlLine, ItemRegNo);
+        OnAfterPostLines(ItemJnlLine, ItemRegNo, WhseRegNo);
     end;
 
     local procedure HandleRecurringLine(var ItemJnlLine: Record "Item Journal Line")
@@ -925,6 +924,21 @@ codeunit 23 "Item Jnl.-Post Batch"
         SuppressCommit := NewSuppressCommit;
     end;
 
+    local procedure UpdateItemTracking(var ItemJournalLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateItemTracking(ItemJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemJnlBatch."Item Tracking on Lines" then
+            ItemJournalLine.CreateItemTrackingLines(false);
+        ItemJournalLine.ClearTracking();
+        ItemJournalLine.ClearDates();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckLines(var ItemJnlLine: Record "Item Journal Line")
     begin
@@ -961,7 +975,12 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostLines(var ItemJournalLine: Record "Item Journal Line"; var ItemRegNo: Integer)
+    local procedure OnBeforePostLines(var ItemJournalLine: Record "Item Journal Line"; var ItemRegNo: Integer; var WhseRegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostLines(var ItemJournalLine: Record "Item Journal Line"; var ItemRegNo: Integer; var WhseRegNo: Integer)
     begin
     end;
 
@@ -1152,6 +1171,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConstructPostingNumber(var ItemJournalLine: Record "Item Journal Line"; ItemJnlBatch: Record "Item Journal Batch"; var LastDocNo: Code[20]; var LastPostedDocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

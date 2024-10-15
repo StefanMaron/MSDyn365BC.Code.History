@@ -247,7 +247,7 @@ page 6510 "Item Tracking Lines"
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
-                        OnBeforeLotNoAssistEdit(Rec, xRec, CurrentSignFactor, MaxQuantity, UndefinedQtyArray, IsHandled);
+                        OnBeforeLotNoAssistEdit(Rec, xRec, CurrentSignFactor, MaxQuantity, UndefinedQtyArray, IsHandled, ForBinCode, Inbound, CurrentRunMode, ItemTrackingDataCollection, CurrentSourceType, SourceQuantityArray, InsertIsBlocked);
                         if IsHandled then
                             exit;
 
@@ -845,7 +845,7 @@ page 6510 "Item Tracking Lines"
         SkipWriteToDatabase: Boolean;
     begin
         SkipWriteToDatabase := false;
-        OnBeforeClosePage(Rec, SkipWriteToDatabase, CurrentRunMode, CurrentSourceType);
+        OnBeforeClosePage(Rec, SkipWriteToDatabase, CurrentRunMode, CurrentSourceType, SourceTrackingSpecification, SourceQuantityArray, TotalTrackingSpecification);
         if UpdateUndefinedQty() and not SkipWriteToDatabase then
             WriteToDatabase();
         if CurrentRunMode = CurrentRunMode::"Drop Shipment" then
@@ -1590,7 +1590,7 @@ page 6510 "Item Tracking Lines"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetWarehouseControls(Rec, IsHandled);
+        OnBeforeSetWarehouseControls(Rec, IsHandled, TrackingSpecification);
         if IsHandled then
             exit;
 
@@ -1953,18 +1953,21 @@ page 6510 "Item Tracking Lines"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRegisterChange(OldTrackingSpecification, NewTrackingSpecification, CurrentSignFactor, CurrentRunMode.AsInteger(), IsHandled, CurrentPageIsOpen);
+        OnBeforeRegisterChange(OldTrackingSpecification, NewTrackingSpecification, CurrentSignFactor, CurrentRunMode.AsInteger(), IsHandled, CurrentPageIsOpen, ChangeType, ModifySharedFields, OK);
         if IsHandled then
             exit;
 
         OK := false;
 
-        if ((CurrentSignFactor * NewTrackingSpecification."Qty. to Handle") < 0) and
-           (CurrentRunMode <> CurrentRunMode::"Drop Shipment")
-        then begin
-            NewTrackingSpecification."Expiration Date" := 0D;
-            OldTrackingSpecification."Expiration Date" := 0D;
-        end;
+        IsHandled := false;
+        OnRegisterChangeOnBeforeClearExpirationDate(OldTrackingSpecification, NewTrackingSpecification, CurrentSignFactor, CurrentRunMode, IsHandled);
+        if not IsHandled then
+            if ((CurrentSignFactor * NewTrackingSpecification."Qty. to Handle") < 0) and
+            (CurrentRunMode <> CurrentRunMode::"Drop Shipment")
+            then begin
+                NewTrackingSpecification."Expiration Date" := 0D;
+                OldTrackingSpecification."Expiration Date" := 0D;
+            end;
 
         case ChangeType of
             ChangeType::Insert:
@@ -2617,7 +2620,7 @@ page 6510 "Item Tracking Lines"
         InventorySetup: Record "Inventory Setup";
         IsHandled: Boolean;
     begin
-        OnBeforeAssignNewPackageNo(Rec, IsHandled);
+        OnBeforeAssignNewPackageNo(Rec, IsHandled, SourceTrackingSpecification);
         if IsHandled then
             exit;
 
@@ -3475,12 +3478,12 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssignNewPackageNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    local procedure OnBeforeAssignNewPackageNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; var SourceTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeClosePage(var TrackingSpecification: Record "Tracking Specification"; var SkipWriteToDatabase: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode"; CurrentSourceType: Integer)
+    local procedure OnBeforeClosePage(var TrackingSpecification: Record "Tracking Specification"; var SkipWriteToDatabase: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode"; CurrentSourceType: Integer; var SourceTrackingSpecification: Record "Tracking Specification"; var SourceQuantityArray: array[5] of Decimal; var TotalTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3490,7 +3493,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLotNoAssistEdit(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; var MaxQuantity: Decimal; UndefinedQtyArray: array[3] of Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeLotNoAssistEdit(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; var MaxQuantity: Decimal; UndefinedQtyArray: array[3] of Decimal; var IsHandled: Boolean; ForBinCode: Code[20]; Inbound: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode"; ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection"; CurrentSourceType: Integer; SourceQuantityArray: array[5] of Decimal; InsertIsBlocked: Boolean)
     begin
     end;
 
@@ -3505,7 +3508,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRegisterChange(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer; var IsHandled: Boolean; CurrentPageIsOpen: Boolean)
+    local procedure OnBeforeRegisterChange(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer; var IsHandled: Boolean; CurrentPageIsOpen: Boolean; ChangeType: Option Insert,Modify,FullDelete,PartDelete,ModifyAll; ModifySharedFields: Boolean; var ResultOK: Boolean)
     begin
     end;
 
@@ -3685,7 +3688,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetWarehouseControls(TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    local procedure OnBeforeSetWarehouseControls(TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; var NewTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3823,9 +3826,14 @@ page 6510 "Item Tracking Lines"
     local procedure OnAssignTrackingNoOnAfterCalcQtyToCreate(var TrackingSpecification: Record "Tracking Specification"; var SourceTrackingSpecification: Record "Tracking Specification"; var TotalTrackingSpecification: Record "Tracking Specification"; var QtyToCreate: Decimal; FieldID: Integer)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnSelectEntriesOnBeforeResetStatus(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterChangeOnBeforeClearExpirationDate(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; CurrentRunMode: Enum "Item Tracking Run Mode"; var IsHandled: Boolean)
     begin
     end;
 }

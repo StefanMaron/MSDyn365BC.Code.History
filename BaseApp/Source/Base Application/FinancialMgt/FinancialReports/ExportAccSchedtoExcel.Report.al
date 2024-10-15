@@ -96,15 +96,7 @@ report 29 "Export Acc. Sched. to Excel"
                 if AccSchedLine.Find('-') then begin
                     if ColumnLayout.Find('-') then begin
                         RowNo := RowNo + 1;
-                        // NAVCZ
-                        // ColumnNo := 2; // Skip the "Row No." column.
-                        ColumnNo := 1;
-                        if ExportAccLineNo then begin
-                            EnterCell(
-                              RowNo, ColumnNo, AccSchedLine.FieldCaption("Row No."), false, false, false, false, '', TempExcelBuffer."Cell Type"::Text);
-                            ColumnNo += 1;
-                        end;
-                        // NAVCZ
+                        ColumnNo := 2; // Skip the "Row No." column.                       
                         repeat
                             ColumnNo := ColumnNo + 1;
                             EnterCell(
@@ -116,26 +108,24 @@ report 29 "Export Acc. Sched. to Excel"
                         Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
                         RowNo := RowNo + 1;
                         ColumnNo := 1;
-                        if ExportAccLineNo then begin // NAVCZ
-                            EnterCell(
-                              RowNo, ColumnNo, AccSchedLine."Row No.",
-                              AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
-                              '0', TempExcelBuffer."Cell Type"::Text);
-                            ColumnNo := 2;
-                            EnterCell(
-                              RowNo, ColumnNo, AccSchedLine.Description,
-                              AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
-                              '', TempExcelBuffer."Cell Type"::Text);
-                            if ColumnLayout.Find('-') then
-                                repeat
-                                    CalcColumnValue();
-                                    ColumnNo := ColumnNo + 1;
-                                    EnterCell(
-                                      RowNo, ColumnNo, MatrixMgt.FormatAmount(ColumnValue, ColumnLayout."Rounding Factor", UseAmtsInAddCurr),
-                                      AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
-                                      '', TempExcelBuffer."Cell Type"::Number)
-                                until ColumnLayout.Next() = 0;
-                        end; // NAVCZ
+                        EnterCell(
+                          RowNo, ColumnNo, AccSchedLine."Row No.",
+                          AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
+                          '0', TempExcelBuffer."Cell Type"::Text);
+                        ColumnNo := 2;
+                        EnterCell(
+                          RowNo, ColumnNo, AccSchedLine.Description,
+                          AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
+                          '', TempExcelBuffer."Cell Type"::Text);
+                        if ColumnLayout.Find('-') then
+                            repeat
+                                CalcColumnValue();
+                                ColumnNo := ColumnNo + 1;
+                                EnterCell(
+                                  RowNo, ColumnNo, MatrixMgt.FormatAmount(ColumnValue, ColumnLayout."Rounding Factor", UseAmtsInAddCurr),
+                                  AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
+                                  '', TempExcelBuffer."Cell Type"::Number)
+                            until ColumnLayout.Next() = 0;
                     until AccSchedLine.Next() = 0;
                 end;
 
@@ -172,6 +162,7 @@ report 29 "Export Acc. Sched. to Excel"
                     field(ExportAccLineNo; ExportAccLineNo)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = false;
                         Caption = 'Export Row No.';
                         ToolTip = 'Specifies if row number has to be printed.';
                     }

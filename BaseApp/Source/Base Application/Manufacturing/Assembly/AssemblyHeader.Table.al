@@ -1003,12 +1003,17 @@
         DimMgt: Codeunit DimensionManagement;
         NewDimSetID: Integer;
         OldDimSetID: Integer;
+        IsHandled: Boolean;
     begin
         // Update all lines with changed dimensions.
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not Confirm(UpdatedimensionLineMsg) then
-            exit;
+
+        IsHandled := false;
+        OnUpdateAllLineDimOnBeforeConfirmUpdatedDimension(Rec, IsHandled);
+        if not IsHandled and GuiAllowed then
+            if not Confirm(UpdatedimensionLineMsg) then
+                exit;
 
         AssemblyOrderLine.SetRange("Document Type", "Document Type");
         AssemblyOrderLine.SetRange("Document No.", "No.");
@@ -2185,6 +2190,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunWhseSourceCreateDocument(var AssemblyHeader: Record "Assembly Header"; ShowRequestPage: Boolean; AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeConfirmUpdatedDimension(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 }

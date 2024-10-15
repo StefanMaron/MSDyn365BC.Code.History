@@ -1326,7 +1326,7 @@ table 210 "Job Journal Line"
         if not IsHandled then begin
             GLAcc.Get("No.");
             GLAcc.CheckGLAcc();
-            GLAcc.TestField("Direct Posting", true);
+            CheckDirectPosting(GLAcc);
             Description := GLAcc.Name;
             "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
             "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
@@ -1337,6 +1337,18 @@ table 210 "Job Journal Line"
         end;
 
         OnAfterAssignGLAccountValues(Rec, GLAcc);
+    end;
+
+    local procedure CheckDirectPosting(var GLAccount: Record "G/L Account")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDirectPosting(Rec, GLAccount, IsHandled);
+        if IsHandled then
+            exit;
+
+        GLAccount.TestField("Direct Posting", true);
     end;
 
     procedure CheckItemAvailable()
@@ -2452,6 +2464,11 @@ table 210 "Job Journal Line"
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateUnitCost(var JobJournalLine: Record "Job Journal Line"; UnitAmountRoundingPrecision: Decimal; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDirectPosting(JobJournalLine: Record "Job Journal Line"; var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 

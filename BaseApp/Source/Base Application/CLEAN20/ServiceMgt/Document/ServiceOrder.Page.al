@@ -1307,9 +1307,14 @@ page 5900 "Service Order"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        IsHandled: Boolean;
     begin
-        if not DocumentIsPosted then
-            exit(Rec.ConfirmCloseUnposted());
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(Rec, DocumentIsPosted, IsHandled);
+        if not IsHandled then
+            if not DocumentIsPosted then
+                exit(Rec.ConfirmCloseUnposted());
     end;
 
     var
@@ -1422,6 +1427,11 @@ page 5900 "Service Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(var ServiceHeader: Record "Service Header"; var DocumentIsPosted: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

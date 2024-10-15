@@ -150,6 +150,7 @@ page 1100 "Chart of Cost Types"
                             GLAccount.SetFilter("No.", "G/L Account Range")
                         else
                             GLAccount.SetRange("No.", '');
+                        OnCorrespondingGLAccountsActionOnAfterGLAccountSetFilter(Rec, GLAccount);    
                         if PAGE.RunModal(PAGE::"Chart of Accounts", GLAccount) = ACTION::OK then;
                     end;
                 }
@@ -334,6 +335,11 @@ page 1100 "Chart of Cost Types"
     local procedure SetIndent()
     begin
         NameIndent := Indentation;
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrespondingGLAccountsActionOnAfterGLAccountSetFilter(var CostType: Record "Cost Type"; var GLAccount: Record "G/L Account")
+    begin
     end;
 }
 

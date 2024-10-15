@@ -43,7 +43,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         GlobalPostedAsmStatValue: array[5, 5] of Decimal;
         WorkDate2: Date;
         MsgUpdateDim: Label 'Do you want to update the Dimensions on the lines?';
-        ErrorSelectDimValue: Label 'Select Dimension Value Code';
+        ErrorSelectDimValue: Label 'The Dimension Value Code must be';
         ErrorInvalidDimensions: Label 'The dimensions that are used in Order ';
         NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';

@@ -44,33 +44,34 @@ codeunit 5707 "TransferOrder-Post + Print"
                         DefaultNumber := Selection::Receipt;
                 until (TransLine.Next() = 0) or (DefaultNumber > 0);
 
-            OnRunOnBeforePrepareAndPrintReport(TransHeader, DefaultNumber, Selection);
-
-            if "Direct Transfer" then begin
-                InventorySetup.Get();
-                if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Receipt and Shipment" then begin
-                    TransferPostShipment.Run(TransHeader);
-                    TransferPostReceipt.Run(TransHeader);
-                    PrintShipment(TransHeader."Last Shipment No.");
-                    PrintReceipt(TransHeader."Last Receipt No.");
-                end else begin
-                    TransferPostTransfer.Run(TransHeader);
-                    PrintDirectTransfer(TransHeader."Last Shipment No.");
-                end;
-            end else begin
-                if DefaultNumber = 0 then
-                    DefaultNumber := Selection::Shipment;
-                Selection := StrMenu(Text000, DefaultNumber);
-                case Selection of
-                    0:
-                        exit;
-                    Selection::Shipment:
+            IsHandled := false;
+            OnRunOnBeforePrepareAndPrintReport(TransHeader, DefaultNumber, Selection, IsHandled);
+            if not IsHandled then
+                if "Direct Transfer" then begin
+                    InventorySetup.Get();
+                    if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Receipt and Shipment" then begin
                         TransferPostShipment.Run(TransHeader);
-                    Selection::Receipt:
                         TransferPostReceipt.Run(TransHeader);
+                        PrintShipment(TransHeader."Last Shipment No.");
+                        PrintReceipt(TransHeader."Last Receipt No.");
+                    end else begin
+                        TransferPostTransfer.Run(TransHeader);
+                        PrintDirectTransfer(TransHeader."Last Shipment No.");
+                    end;
+                end else begin
+                    if DefaultNumber = 0 then
+                        DefaultNumber := Selection::Shipment;
+                    Selection := StrMenu(Text000, DefaultNumber);
+                    case Selection of
+                        0:
+                            exit;
+                        Selection::Shipment:
+                            TransferPostShipment.Run(TransHeader);
+                        Selection::Receipt:
+                            TransferPostReceipt.Run(TransHeader);
+                    end;
+                    PrintReport(TransHeader, Selection);
                 end;
-                PrintReport(TransHeader, Selection);
-            end;
         end;
 
         OnAfterPost(TransHeader, Selection);
@@ -161,7 +162,7 @@ codeunit 5707 "TransferOrder-Post + Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforePrepareAndPrintReport(var TransferHeader: Record "Transfer Header"; var DefaultNumber: Integer; var Selection: Option)
+    local procedure OnRunOnBeforePrepareAndPrintReport(var TransferHeader: Record "Transfer Header"; var DefaultNumber: Integer; var Selection: Option; var IsHandled: Boolean)
     begin
     end;
 }
