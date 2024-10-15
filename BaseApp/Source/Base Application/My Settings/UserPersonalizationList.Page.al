@@ -7,7 +7,7 @@ page 9173 "User Personalization List"
     PageType = List;
     SourceTable = "User Personalization";
     SourceTableView = sorting("User ID") order(ascending);
-    HelpLink = 'https://go.microsoft.com/fwlink/?linkid=2149387'; 
+    HelpLink = 'https://go.microsoft.com/fwlink/?linkid=2149387';
     AboutTitle = 'About user settings';
     AboutText = 'User settings control the look and feel of the user interface the next time the users log in. Each user can also make their own choices in their My Settings page, unless you restrict their permissions.';
     ObsoleteState = Pending;
@@ -139,7 +139,6 @@ page 9173 "User Personalization List"
     var
         MySettings: Codeunit "My Settings";
     begin
-        MySettings.CheckPermissions(Rec);
         MySettings.HideExternalUsers(Rec);
     end;
 

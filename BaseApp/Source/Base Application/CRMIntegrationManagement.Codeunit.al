@@ -3268,8 +3268,12 @@ codeunit 5330 "CRM Integration Management"
             // Th job will restart with half a second delay
             MomentForJobToBeReady := JobQueueDispatcher.CalcNextReadyStateMoment(JobQueueEntry);
             if CurrentDateTime > MomentForJobToBeReady then
-                if DoesJobActOnTable(JobQueueEntry, TableNo) then
-                    JobQueueEntry.Restart();
+                if DoesJobActOnTable(JobQueueEntry, TableNo) then begin
+                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                    JobQueueEntry."Earliest Start Date/Time" := MomentForJobToBeReady;
+                    JobQueueEntry.Modify();
+                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", MomentForJobToBeReady) then;
+                end
         until JobQueueEntry.Next() = 0;
     end;
 
@@ -3287,7 +3291,19 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     local procedure UserCanRescheduleJob(): Boolean
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        DummyErrorMessageRegister: Record "Error Message Register";
+        DummyErrorMessage: Record "Error Message";
     begin
+        If not JobQueueEntry.ReadPermission then
+            exit(false);
+        if not JobQueueEntry.WritePermission then
+            exit(false);
+        if not DummyErrorMessageRegister.WritePermission then
+            exit(false);
+        if not DummyErrorMessage.WritePermission then
+            exit(false);
         if not TaskScheduler.CanCreateTask() then
             exit(false);
         exit(true);
@@ -3303,6 +3319,7 @@ codeunit 5330 "CRM Integration Management"
     var
         RecRef: RecordRef;
         CoupledToCRMFieldRef: FieldRef;
+        CoupledToCRMFieldNo: Integer;
         ExistingValue: Boolean;
     begin
         if CRMIntegrationRecord."Table ID" = 0 then
@@ -3316,6 +3333,12 @@ codeunit 5330 "CRM Integration Management"
 
         if not FindCoupledToCRMField(RecRef, CoupledToCRMFieldRef) then
             exit(false);
+
+        CoupledToCRMFieldNo := CoupledToCRMFieldRef.Number();
+        if not RecRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+            exit(false);
+
+        CoupledToCRMFieldRef := RecRef.Field(CoupledToCRMFieldNo);
 
         ExistingValue := CoupledToCRMFieldRef.Value;
         if ExistingValue = NewValue then

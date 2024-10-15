@@ -40,9 +40,10 @@
                         TestField("Transport Method");
                         TestField("Net Weight");
                         TestField("Total Weight");
-                        if Counterparty and (Type = Type::Shipment) then
+                        if (ExportFormat = ExportFormat::"2022") or Counterparty and (Type = Type::Shipment) then
                             TestField("Transaction Specification")
                         else
+                            if ExportFormat = ExportFormat::"2021" then
                             TestField("Transaction Type");
                     end;
 #endif
@@ -52,7 +53,7 @@
                     Country.Get("Country/Region Code");
                     Country.TestField("Intrastat Code");
 
-                    RoundedWeight := Round("Total Weight", 1);
+                    RoundedWeight := IntraJnlManagement.RoundTotalWeight("Total Weight");
 
                     if RoundedWeight = 0 then
                         case "Total Weight" >= 0 of
@@ -107,7 +108,7 @@
                     Write('0');
                     Write(PADSTR2("Entry/Exit Point", 2, '0', '<'));
                     Write('00'); // Statistical system
-                    if CounterpartyInfo and (ItemDirection = 7) then
+                    if CounterpartyInfo and (ItemDirection = 7) or (ExportFormat = ExportFormat::"2022") then
                         Write(' ')
                     else
                         Write(PADSTR2("Transaction Type", 1, '', '>')); // Transaction code
@@ -138,7 +139,10 @@
                             Write(PADSTR2("Transaction Specification", 2, ' ', '<'));
                             Write(PADSTR2(CopyStr("Partner VAT ID", 1, 17), 17, ' ', '<'));
                         end else begin
-                            Write('  ');
+                            if ExportFormat = ExportFormat::"2022" then
+                                Write(PADSTR2("Transaction Specification", 2, ' ', '<'))
+                            else
+                                Write('  ');
                             Write(PadStr('', 17, ' '));
                         end;
 
@@ -278,6 +282,7 @@
 
     requestpage
     {
+        SaveValues = true;
 
         layout
         {
@@ -285,6 +290,13 @@
             {
                 group(Options)
                 {
+                    Caption = 'Options';
+                    field(ExportFormatField; ExportFormat)
+                    {
+                        Caption = 'Export Format';
+                        ToolTip = 'Specifies the year for which to report Intrastat. This ensures that the report has the correct format for that year.';
+                        ApplicationArea = BasicEU;
+                    }
                     field(Counterparty; CounterpartyInfo)
                     {
                         ApplicationArea = BasicEU;
@@ -337,6 +349,12 @@
 #if not CLEAN19
         if IntrastatSetup.Get() then;
 #endif
+
+        if ExportFormatIsSpecified then
+            ExportFormat := SpecifiedExportFormat;
+
+        if ExportFormat = ExportFormat::"2022" then
+            CounterpartyInfo := true;
     end;
 
     var
@@ -363,6 +381,9 @@
         ZeroShipment: Boolean;
         ServerFileName: Text;
         CounterpartyInfo: Boolean;
+        ExportFormat: Enum "Intrastat Export Format";
+        SpecifiedExportFormat: Enum "Intrastat Export Format";
+        ExportFormatIsSpecified: Boolean;
 
     local procedure RegNoCBS(): Text[10]
     begin
@@ -427,6 +448,9 @@
 
     local procedure Sign(Number: Decimal; IsCorrection: Boolean): Text[1]
     begin
+        if ExportFormat = ExportFormat::"2022" then
+            exit('+');
+
         if (Number < 0) or (Number = 0) and IsCorrection then
             exit('-');
         exit('+');
@@ -443,6 +467,9 @@
         IntrastatLocalMgt: Codeunit "Intrastat Local Mgt.";
         ItemDirectionType: Option;
     begin
+        if ExportFormat = ExportFormat::"2022" then
+            exit(false);
+
         exit(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectionType));
     end;
 
@@ -450,6 +477,13 @@
     procedure InitializeRequest(NewServerFileName: Text)
     begin
         ServerFileName := NewServerFileName;
+    end;
+
+    procedure InitializeRequestWithExportFormat(NewServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
+    begin
+        ServerFileName := NewServerFileName;
+        SpecifiedExportFormat := NewExportFormat;
+        ExportFormatIsSpecified := true;
     end;
 
     [IntegrationEvent(false, false)]

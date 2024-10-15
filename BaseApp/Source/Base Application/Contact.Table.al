@@ -1296,6 +1296,7 @@
                 RMSetup.Get();
                 RMSetup.TestField("Contact Nos.");
                 NoSeriesMgt.SetSeries("No.");
+                OnAssistEditOnAfterNoSeriesMgtSetSeries(Cont, OldCont);
                 Rec := Cont;
                 exit(true);
             end;
@@ -3491,6 +3492,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidatePostCode(var Contact: Record Contact; xContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssistEditOnAfterNoSeriesMgtSetSeries(var Contact: Record Contact; OldContact: Record Contact)
     begin
     end;
 

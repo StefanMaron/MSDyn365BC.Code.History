@@ -19,6 +19,7 @@ codeunit 11000002 "CBG Journal Telebank Interface"
         IsConfirmHandled: Boolean;
         UseAdjustedAmount: Boolean;
     begin
+        OnBeforeInsertPaymentHistory(CBGStatement);
         with CBGStatement do begin
             TestField(Type, Type::"Bank/Giro");
             TestField("Account Type", "Account Type"::"Bank Account");
@@ -81,6 +82,7 @@ codeunit 11000002 "CBG Journal Telebank Interface"
         end;
         CBGStatementLine.Validate("Shortcut Dimension 1 Code", PaymentHistLine."Global Dimension 1 Code");
         CBGStatementLine.Validate("Shortcut Dimension 2 Code", PaymentHistLine."Global Dimension 2 Code");
+        OnInsertCBGStatementLineOnBeforeCBGStatementLineModify(CBGStatementLine, CBGStatement, PaymentHistLine);
         CBGStatementLine.Modify(true);
     end;
 
@@ -160,6 +162,16 @@ codeunit 11000002 "CBG Journal Telebank Interface"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement"; PaymentHistoryLine: Record "Payment History Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertPaymentHistory(CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCBGStatementLineOnBeforeCBGStatementLineModify(var CBGStatementLine: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement"; PaymentHistoryLine: Record "Payment History Line")
     begin
     end;
 }

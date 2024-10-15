@@ -204,6 +204,51 @@ codeunit 134323 "Approval History Tests"
         VerifyApprovalCommentsAreDeleted(GenJournalBatch.RecordId);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure LinksShouldCopyFromApprovalEntryToPostedApprovalEntry()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Workflow: Record Workflow;
+        ApprovalUserSetup: Record "User Setup";
+        ApprovalEntry: Record "Approval Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PostedApprovalEntry: Record "Posted Approval Entry";
+        RecordLink: Record "Record Link";
+        LinkId: Integer;
+    begin
+        // [SCENARIO 415640] Links should copy from approval entry to posted approval entry
+        Initialize;
+
+        // [GIVEN] General Journal Line, Approval Entry with Link
+        LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        CreateGeneralJournalBatchWithJournalLine(
+            GenJournalBatch, GenJournalLine, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
+
+        Commit();
+        SendApprovalRequestForLine(GenJournalLine."Journal Batch Name");
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+        LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(GenJournalLine.RecordId);
+
+        LinkId := CreateRecordLink(ApprovalEntry);
+
+        // [WHEN] Approval Entry is approved and General Journal Line posted
+        ApproveApprovalRequest(ApprovalEntry);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Posted Approval Entry has Link
+        CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
+        CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        CustLedgerEntry.FindFirst;
+        LibraryDocumentApprovals.GetPostedApprovalEntries(PostedApprovalEntry, CustLedgerEntry.RecordId);
+        PostedApprovalEntry.FindFirst();
+        RecordLink.SetRange("Record ID", PostedApprovalEntry.RecordId);
+        Assert.RecordIsNotEmpty(RecordLink);
+    end;
+
     local procedure ExecuteApprovalWorkflowForJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         Workflow: Record Workflow;
@@ -279,6 +324,25 @@ codeunit 134323 "Approval History Tests"
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, LibraryRandom.RandDecInRange(10000, 50000, 2));
+    end;
+
+    local procedure CreateRecordLink(RecVar: Variant): Integer
+    var
+        RecordLink: Record "Record Link";
+        PageManagement: Codeunit "Page Management";
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(RecVar);
+        RecordLink."Record ID" := RecRef.RecordId();
+        RecordLink.URL1 :=
+          GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PageManagement.GetPageID(RecVar), RecRef);
+        RecordLink.Type := RecordLink.Type::Note;
+        RecordLink.Notify := true;
+        RecordLink.Company := CompanyName();
+        RecordLink."User ID" := UserId();
+        RecordLink."To User ID" := UserId();
+        RecordLink.Insert();
+        exit(RecordLink."Link ID");
     end;
 
     local procedure SendApprovalRequestForLine(GenJournalBatchName: Code[20])
