@@ -80,10 +80,10 @@ Codeunit 13650 FIKManagement
             PaymentMethod.PaymentTypeValidation::"FIK 01", PaymentMethod.PaymentTypeValidation::"FIK 73":
                 ERROR(PmtReferenceErr, PaymentMethod.PaymentTypeValidation);
             ELSE begin
-                    OnEvaluateFIKCasePaymentTypeValidationElse(PaymentReference, PaymentMethod, Result, IsHandled);
-                    if not IsHandled then
-                        ERROR(FIKPmtErr);
-                end;
+                OnEvaluateFIKCasePaymentTypeValidationElse(PaymentReference, PaymentMethod, Result, IsHandled);
+                if not IsHandled then
+                    ERROR(FIKPmtErr);
+            end;
         END;
         IF NOT Result THEN
             ERROR(WrongCheckCypherErr);
@@ -99,7 +99,6 @@ Codeunit 13650 FIKManagement
         Total: Integer;
         Weight: Text;
         StringText: Text;
-
     BEGIN
         StringLen := 15;
 
@@ -117,7 +116,7 @@ Codeunit 13650 FIKManagement
         Weight := '12121212121212';
         FikManagement.CreateFIKCheckSum(StringText, Weight, Total, CheckSum);
 
-        EXIT('+71<' + StringText + FORMAT(CheckSum) + '+' + CompanyInformation.BankCreditorNo);
+        EXIT('+71<' + StringText + FORMAT(CheckSum) + '+' + CompanyInformation.BankCreditorNo + '<');
     END;
 
     procedure ImportFIKToBankAccRecLine(var BankAccRecon: Record "Bank Acc. Reconciliation"): Boolean;
