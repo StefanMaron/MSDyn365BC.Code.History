@@ -130,6 +130,7 @@ table 31103 "VAT Control Report Buffer"
             ObsoleteState = Removed;
             ObsoleteReason = 'Replaced by "Corrections for Bad Receivable"';
             DataClassification = SystemMetadata;
+            ObsoleteTag = '15.0';
         }
         field(45; "Ratio Use"; Boolean)
         {

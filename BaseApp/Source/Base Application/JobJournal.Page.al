@@ -1,4 +1,4 @@
-﻿page 201 "Job Journal"
+page 201 "Job Journal"
 {
     AdditionalSearchTerms = 'project posting';
     ApplicationArea = Jobs;
@@ -327,6 +327,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Maintenance Code"; "Maintenance Code")
                 {
@@ -335,6 +336,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Time Sheet No."; "Time Sheet No.")
                 {

@@ -1,4 +1,4 @@
-﻿page 5978 "Posted Service Invoice"
+page 5978 "Posted Service Invoice"
 {
     Caption = 'Posted Service Invoice';
     DeleteAllowed = false;
@@ -295,6 +295,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
             group(Shipping)
@@ -461,6 +462,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {

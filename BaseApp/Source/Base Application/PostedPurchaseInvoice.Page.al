@@ -1,4 +1,4 @@
-﻿page 138 "Posted Purchase Invoice"
+page 138 "Posted Purchase Invoice"
 {
     Caption = 'Posted Purchase Invoice';
     InsertAllowed = false;
@@ -324,6 +324,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {

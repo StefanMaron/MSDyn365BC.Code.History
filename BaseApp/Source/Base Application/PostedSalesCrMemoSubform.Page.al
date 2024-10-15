@@ -1,4 +1,4 @@
-﻿page 135 "Posted Sales Cr. Memo Subform"
+page 135 "Posted Sales Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -158,6 +158,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Deferral Code"; "Deferral Code")
                 {

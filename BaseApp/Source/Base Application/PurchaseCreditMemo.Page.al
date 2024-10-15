@@ -1,4 +1,4 @@
-﻿page 52 "Purchase Credit Memo"
+page 52 "Purchase Credit Memo"
 {
     Caption = 'Purchase Credit Memo';
     PageType = Document;
@@ -149,6 +149,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -686,6 +687,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -699,6 +701,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -915,7 +918,8 @@
                     Promoted = true;
                     PromotedCategory = Category9;
                     RunObject = Page "Vendor Card";
-                    RunPageLink = "No." = FIELD("Buy-from Vendor No.");
+                    RunPageLink = "No." = FIELD("Buy-from Vendor No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
                 }
@@ -1523,6 +1527,8 @@
         end;
         if ("No." <> '') and ("Buy-from Vendor No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
+
+        SetRange("Date Filter", 0D, WorkDate());
 
         ActivateFields;
     end;

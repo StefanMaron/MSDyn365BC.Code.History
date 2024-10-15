@@ -1,4 +1,4 @@
-﻿page 132 "Posted Sales Invoice"
+page 132 "Posted Sales Invoice"
 {
     Caption = 'Posted Sales Invoice';
     InsertAllowed = false;
@@ -384,6 +384,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -636,6 +637,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {

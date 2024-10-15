@@ -68,6 +68,7 @@ page 5404 "Item Units of Measure"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Intrastat Default"; "Intrastat Default")
                 {

@@ -163,6 +163,7 @@ table 290 "VAT Amount Line"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
@@ -170,6 +171,7 @@ table 290 "VAT Amount Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
@@ -177,6 +179,7 @@ table 290 "VAT Amount Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11770; "Ext. VAT Base (LCY)"; Decimal)
         {

@@ -1,4 +1,4 @@
-﻿table 5050 Contact
+table 5050 Contact
 {
     Caption = 'Contact';
     DataCaptionFields = "No.", Name;
@@ -172,6 +172,7 @@
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(91; "Post Code"; Code[20])
         {
@@ -213,7 +214,9 @@
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("E-Mail");
+                if "E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("E-Mail");
                 if ("Search E-Mail" = UpperCase(xRec."E-Mail")) or ("Search E-Mail" = '') then
                     "Search E-Mail" := "E-Mail";
             end;
@@ -798,6 +801,7 @@
             Caption = 'Registered Name';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -1087,7 +1091,7 @@
         Text021: Label 'You have to set up formal and informal salutation formulas in %1  language for the %2 contact.';
         Text022: Label 'The creation of the customer has been aborted.';
         Text033: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegCountry: Record "Registration Country/Region";
         UseVendTemplateQst: Label 'Do you want to create contact as a vendor using a vendor template?';
         CreationAbortedErr: Label 'The Creation of the Vendor has been aborted.';
@@ -2250,7 +2254,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Vendor templates will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Vendor templates will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure ChooseVendorTemplate(): Code[10]
     var
         VendTemplate: Record "Vendor Template";

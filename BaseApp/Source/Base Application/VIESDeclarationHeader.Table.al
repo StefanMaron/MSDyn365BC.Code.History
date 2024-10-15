@@ -375,6 +375,7 @@ table 31066 "VIES Declaration Header"
                 "Account No." = filter(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11700; "Natural Person First Name"; Text[30])
         {

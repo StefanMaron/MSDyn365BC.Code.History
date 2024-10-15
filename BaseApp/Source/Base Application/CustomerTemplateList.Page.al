@@ -1,4 +1,4 @@
-﻿page 5156 "Customer Template List"
+page 5156 "Customer Template List"
 {
     AdditionalSearchTerms = 'convert contact, new customer';
     ApplicationArea = RelationshipMgmt;
@@ -53,6 +53,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
         }

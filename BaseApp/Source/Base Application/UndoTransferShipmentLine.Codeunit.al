@@ -168,6 +168,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
 
             ItemJnlLine."Posting Date" := TransShptHeader."Posting Date";
             ItemJnlLine."Document Date" := TransShptHeader."Posting Date";
+            ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Transfer Shipment";
             ItemJnlLine."Document No." := TransShptHeader."No.";
             ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
             ItemJnlLine."Order No." := TransShptHeader."Transfer Order No.";

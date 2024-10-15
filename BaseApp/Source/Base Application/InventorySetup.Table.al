@@ -248,12 +248,14 @@ table 313 "Inventory Setup"
             TableRelation = "Posting Description" WHERE(Type = CONST("Post Inventory Cost"));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31042; "Automatic Maintenance Posting"; Boolean)
         {
             Caption = 'Automatic Maintenance Posting';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31071; "Use GPPG from SKU"; Boolean)
         {
@@ -282,6 +284,7 @@ table 313 "Inventory Setup"
             Caption = 'Check Item Charge Pst.Group';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31077; "Exact Cost Reversing Mandatory"; Boolean)
         {

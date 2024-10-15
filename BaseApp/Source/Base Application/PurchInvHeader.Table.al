@@ -216,10 +216,13 @@ table 122 "Purch. Inv. Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                VendLedgEntry: Record "Vendor Ledger Entry";
             begin
                 VendLedgEntry.SetCurrentKey("Document No.");
                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(VendLedgEntry, Rec);
                 PAGE.Run(0, VendLedgEntry);
             end;
         }
@@ -577,6 +580,7 @@ table 122 "Purch. Inv. Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Draft Invoice SystemId"; Guid)
         {
@@ -682,12 +686,14 @@ table 122 "Purch. Inv. Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -706,6 +712,7 @@ table 122 "Purch. Inv. Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Perf. Country Currency Factor"; Decimal)
         {
@@ -714,6 +721,7 @@ table 122 "Purch. Inv. Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -729,6 +737,7 @@ table 122 "Purch. Inv. Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -812,7 +821,6 @@ table 122 "Purch. Inv. Header"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCommentLine: Record "Purch. Comment Line";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -903,6 +911,11 @@ table 122 "Purch. Inv. Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var PurchInvHeader: Record "Purch. Inv. Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 }

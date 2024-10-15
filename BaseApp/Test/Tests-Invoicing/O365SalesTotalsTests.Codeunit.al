@@ -12,6 +12,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         InvalidMonthErr: Label 'An invalid month was specified.';
         OutsideFYErr: Label 'The date is outside of the current accounting period.';
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         APIMockEvents: Codeunit "API Mock Events";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         LibraryJobQueue: Codeunit "Library - Job Queue";
@@ -21,6 +22,8 @@ codeunit 138904 "O365 Sales Totals Tests"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Sales Totals Tests");
+
         // Ensure WORKDATE does not drift too far from the accounting period start date
         AccountingPeriod.SetRange("New Fiscal Year", true);
         if not AccountingPeriod.FindLast then begin
@@ -35,10 +38,14 @@ codeunit 138904 "O365 Sales Totals Tests"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Sales Totals Tests");
+
         APIMockEvents.SetIsAPIEnabled(true);
         BindSubscription(LibraryJobQueue);
         BindSubscription(APIMockEvents);
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Sales Totals Tests");
     end;
 
     [Test]
@@ -548,7 +555,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         Assert.AreNotEqual(
             Format(SalesHeader.GetLineInvoiceDiscountResetNotificationId),
             Format(TheNotification.ID),
-            StrSubstNo('Unexpected notification: %1',TheNotification.Message));
+            StrSubstNo('Unexpected notification: %1', TheNotification.Message));
     end;
 }
 

@@ -715,6 +715,7 @@ table 5990 "Service Shipment Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
@@ -724,6 +725,7 @@ table 5990 "Service Shipment Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -739,6 +741,7 @@ table 5990 "Service Shipment Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {

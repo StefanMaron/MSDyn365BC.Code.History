@@ -56,6 +56,7 @@ table 255 "VAT Statement Template"
             InitValue = DPHDP3;
             ObsoleteState = Pending;
             ObsoleteReason = 'The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This field will be removed and should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11761; "Allow Comments/Attachments"; Boolean)
         {

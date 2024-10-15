@@ -3,6 +3,7 @@ table 11786 "Posting Desc. Parameter"
     Caption = 'Posting Desc. Parameter';
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of posting description will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     fields
     {
@@ -84,7 +85,7 @@ table 11786 "Posting Desc. Parameter"
         FieldNotFoundErr: Label 'Field %1 is not found.';
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
     procedure SetFieldRange()
     var
         PostDescription: Record "Posting Description";

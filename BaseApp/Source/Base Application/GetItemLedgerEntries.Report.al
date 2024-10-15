@@ -273,7 +273,7 @@ report 594 "Get Item Ledger Entries"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField(Reported, false);
 
-        GetGLSetup;
+        GetGLSetup();
         if IntrastatJnlBatch."Amounts in Add. Currency" then begin
             GLSetup.TestField("Additional Reporting Currency");
             AddCurrencyFactor :=
@@ -344,8 +344,9 @@ report 594 "Get Item Ledger Entries"
         TempSalesHeader: Record "Sales Header" temporary;
         DocumentCurrencyFactor: Decimal;
         IntrastatCurrencyFactor: Decimal;
+        IsHandled: Boolean;
     begin
-        GetGLSetup;
+        GetGLSetup();
         // NAVCZ
         GetDocumentFromItemLedgEntry("Item Ledger Entry", TempSalesHeader);
         DocumentCurrencyFactor := TempSalesHeader."Currency Factor";
@@ -424,14 +425,17 @@ report 594 "Get Item Ledger Entries"
             "Source Entry Date" := "Item Ledger Entry"."Posting Date";
             // NAVCZ
 
-            OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry");
-            Insert;
+            IsHandled := false;
+            OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
+            if not IsHandled then
+                Insert();
         end;
     end;
 
     local procedure InsertJobLedgerLine()
     var
         IsCorrection: Boolean;
+        IsHandled: Boolean;
     begin
         with IntrastatJnlLine do begin
             Init;
@@ -481,8 +485,10 @@ report 594 "Get Item Ledger Entries"
             "Source Entry Date" := "Job Ledger Entry"."Posting Date";
             // NAVCZ
 
-            OnBeforeInsertJobLedgerLine(IntrastatJnlLine, "Job Ledger Entry");
-            Insert;
+            IsHandled := false;
+            OnBeforeInsertJobLedgerLine(IntrastatJnlLine, "Job Ledger Entry", IsHandled);
+            if not IsHandled then
+                Insert();
         end;
     end;
 
@@ -644,8 +650,9 @@ report 594 "Get Item Ledger Entries"
         TempSalesHeader: Record "Sales Header" temporary;
         DocumentCurrencyFactor: Decimal;
         IntrastatCurrencyFactor: Decimal;
+        IsHandled: Boolean;
     begin
-        GetGLSetup;
+        GetGLSetup();
         GetDocumentFromValueEntry("Value Entry", TempSalesHeader);
         DocumentCurrencyFactor := TempSalesHeader."Currency Factor";
         IntrastatCurrencyFactor := CalculateExchangeRateFromDocument(TempSalesHeader);
@@ -723,8 +730,10 @@ report 594 "Get Item Ledger Entries"
             "Source Entry Date" := "Item Ledger Entry"."Posting Date";
             // NAVCZ
 
-            OnBeforeInsertValueEntryLine(IntrastatJnlLine, "Item Ledger Entry");
-            Insert;
+            IsHandled := false;
+            OnBeforeInsertValueEntryLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
+            if not IsHandled then
+                Insert();
         end;
     end;
 
@@ -1314,17 +1323,17 @@ report 594 "Get Item Ledger Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertItemJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnBeforeInsertItemJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertJobLedgerLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JobLedgerEntry: Record "Job Ledger Entry")
+    local procedure OnBeforeInsertJobLedgerLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JobLedgerEntry: Record "Job Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertValueEntryLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnBeforeInsertValueEntryLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

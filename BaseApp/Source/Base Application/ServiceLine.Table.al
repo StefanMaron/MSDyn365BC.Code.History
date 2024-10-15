@@ -1695,6 +1695,7 @@ table 5902 "Service Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5750; "Whse. Outstanding Qty. (Base)"; Decimal)
         {
@@ -2220,6 +2221,7 @@ table 5902 "Service Line"
                                                 ContractServDisc.Type := ContractServDisc.Type::"Service Item Group";
                                                 ContractServDisc."No." := ServItem."Service Item Group Code";
                                                 ContractServDisc."Starting Date" := "Posting Date";
+                                                OnValidateContractNoOnBeforeContractDiscountFind(Rec, ContractServDisc, ServItem);
                                                 CODEUNIT.Run(CODEUNIT::"ContractDiscount-Find", ContractServDisc);
                                                 "Contract Disc. %" := ContractServDisc."Discount %";
                                             end;
@@ -2495,6 +2497,7 @@ table 5902 "Service Line"
             TableRelation = "Reason Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11763; "VAT Correction"; Boolean)
         {
@@ -2794,6 +2797,7 @@ table 5902 "Service Line"
     local procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         ItemCheckAvail: Codeunit "Item-Check Avail.";
+        IsHandled: Boolean;
     begin
         if "Needed by Date" = 0D then begin
             GetServHeader;
@@ -2813,8 +2817,12 @@ table 5902 "Service Line"
             exit;
         if Quantity <= 0 then
             exit;
-        if Nonstock then
-            exit;
+
+        IsHandled := false;
+        OnCheckItemAvailableOnBeforeCheckNonStock(Rec, CalledByFieldNo, IsHandled);
+        if not IsHandled then
+            if Nonstock then
+                exit;
         if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
             exit;
 
@@ -5798,12 +5806,22 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckItemAvailableOnBeforeCheckNonStock(var ServiceLine: Record "Service Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitHeaderDefaultsOnAfterAssignLocationCode(var ServiceLine: Record "Service Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnReplaceServItemOnCopyFromReplacementItem(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateContractNoOnBeforeContractDiscountFind(var ServiceLine: Record "Service Line"; var ContractServDisc: Record "Contract/Service Discount"; ServItem: Record "Service Item")
     begin
     end;
 

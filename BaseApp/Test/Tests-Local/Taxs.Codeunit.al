@@ -205,7 +205,7 @@ codeunit 144200 Taxs
 
     [Test]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure PostingSalesCrMemoWithPostponedVAT()
     var
         GLEntry: Record "G/L Entry";
@@ -258,7 +258,7 @@ codeunit 144200 Taxs
     [Test]
     [HandlerFunctions('RequestPagePostOrCorrectPostponedVATHandler,YesConfirm,MessageHandler')]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure ConfirmationVATForSalesCrMemo()
     var
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
@@ -289,7 +289,7 @@ codeunit 144200 Taxs
     [Test]
     [HandlerFunctions('RequestPagePostOrCorrectPostponedVATHandler,YesConfirm,MessageHandler')]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure StornoConfirmationVATForSalesCrMemo()
     var
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
@@ -322,7 +322,7 @@ codeunit 144200 Taxs
     [Test]
     [HandlerFunctions('RequestPagePostOrCorrectPostponedVATHandler,YesConfirm,MessageHandler')]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure CorrectionDateConfirmationVATForSalesCrMemo()
     var
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
@@ -498,7 +498,7 @@ codeunit 144200 Taxs
 
     [Test]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure VATRegistrationInMultipleCountriesSales()
     var
         Customer: Record Customer;
@@ -526,7 +526,7 @@ codeunit 144200 Taxs
 
     [Test]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure VATRegistrationInMultipleCountriesPurchase()
     var
         Vendor: Record Vendor;
@@ -617,7 +617,7 @@ codeunit 144200 Taxs
         CreatePurchaseDocument(PurchHeader, PurchLine, PurchHeader."Document Type"::Invoice, VendorNo, LineType, LineNo);
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure CreateRegistrationCountry(var RegistrationCountryRegion: Record "Registration Country/Region"; AccountType: Option; AccountNo: Code[20])
     var
         CountryRegion: Record "Country/Region";
@@ -745,7 +745,7 @@ codeunit 144200 Taxs
         VATEntry.TestField("Unrealized Amount", 0);
     end;
 
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure PostOrCorrectPostponedVAT(var SalesCrMemoHdr: Record "Sales Cr.Memo Header")
     begin
         SalesCrMemoHdr.SetRecFilter;
@@ -819,7 +819,7 @@ codeunit 144200 Taxs
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure RequestPagePostOrCorrectPostponedVATHandler(var PostOrCorrectPostponedVAT: TestRequestPage "Post or Correct Postponed VAT")
     var
         NewDate: Date;

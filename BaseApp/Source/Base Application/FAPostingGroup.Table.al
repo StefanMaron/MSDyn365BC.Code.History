@@ -454,6 +454,7 @@ table 5606 "FA Posting Group"
             Caption = 'Use Standard Disposal';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. This field is replaced by a UseStandardDisposal function. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
     }
 

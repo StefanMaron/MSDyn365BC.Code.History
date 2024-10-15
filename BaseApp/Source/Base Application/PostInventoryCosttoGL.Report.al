@@ -595,6 +595,7 @@ report 1002 "Post Inventory Cost to G/L"
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                        ObsoleteTag = '15.3';
                     }
                 }
             }

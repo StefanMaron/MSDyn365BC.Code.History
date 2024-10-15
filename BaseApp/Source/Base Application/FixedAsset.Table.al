@@ -77,13 +77,13 @@ table 5600 "Fixed Asset"
 
                 FASubclass.Get("FA Subclass Code");
                 if "FA Class Code" <> '' then begin
-                    if FASubclass."FA Class Code" in ['', "FA Class Code"] then
-                        exit;
+                    if not (FASubclass."FA Class Code" in ['', "FA Class Code"]) then
+                        Error(UnexpctedSubclassErr);
+                end else
+                    Validate("FA Class Code", FASubclass."FA Class Code");
 
-                    Error(UnexpctedSubclassErr);
-                end;
-
-                Validate("FA Class Code", FASubclass."FA Class Code");
+                if "FA Posting Group" = '' then
+                    Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             end;
         }
         field(7; "Global Dimension 1 Code"; Code[20])
@@ -211,6 +211,7 @@ table 5600 "Fixed Asset"
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(23; "Maintenance Vendor No."; Code[20])
         {
@@ -261,6 +262,7 @@ table 5600 "Fixed Asset"
             Caption = 'Full Description';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -274,6 +276,7 @@ table 5600 "Fixed Asset"
             TableRelation = "Depreciation Book";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31043; "Tax Depreciation Group Code"; Code[20])
         {
@@ -287,6 +290,7 @@ table 5600 "Fixed Asset"
             TableRelation = "SKP Code".Code;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
 
             trigger OnValidate()

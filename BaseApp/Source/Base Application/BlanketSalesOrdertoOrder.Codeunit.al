@@ -186,7 +186,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         NoSeriesLink: Record "No. Series Link";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);

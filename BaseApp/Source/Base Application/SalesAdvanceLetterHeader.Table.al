@@ -823,6 +823,7 @@ table 31000 "Sales Advance Letter Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             var
@@ -869,6 +870,7 @@ table 31000 "Sales Advance Letter Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
     }
 
@@ -982,9 +984,9 @@ table 31000 "Sales Advance Letter Header"
         CompanyInfo: Record "Company Information";
         SalesAdvanceLetterLinegre: Record "Sales Advance Letter Line";
         PostCode: Record "Post Code";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -1529,7 +1531,7 @@ table 31000 "Sales Advance Letter Header"
             until AdvanceLetterLineRelation.Next = 0;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         if "Perform. Country/Region Code" <> '' then begin

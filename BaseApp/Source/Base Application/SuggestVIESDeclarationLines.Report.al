@@ -228,7 +228,7 @@ report 31067 "Suggest VIES Declaration Lines"
     [Scope('OnPrem')]
     procedure GetTradeRoleType(EU3PartyTrade: Boolean): Integer
     begin
-        if EU3PartyTrade then
+        if EU3PartyTrade and VIESLine."EU 3-Party Intermediate Role" then
             exit(VIESLine."Trade Role Type"::"Intermediate Trade");
         exit(VIESLine."Trade Role Type"::"Direct Trade");
     end;
@@ -325,7 +325,7 @@ report 31067 "Suggest VIES Declaration Lines"
         end;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure ExchangeAmount(VATEntry: Record "VAT Entry"; AmountAdd: Decimal): Decimal
     var
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";

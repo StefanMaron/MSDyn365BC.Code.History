@@ -718,6 +718,7 @@ table 18 Customer
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(90; GLN; Code[13])
         {
@@ -830,7 +831,9 @@ table 18 Customer
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("E-Mail");
+                if "E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
         field(103; "Home Page"; Text[80])
@@ -1499,6 +1502,7 @@ table 18 Customer
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Currency Id"; Guid)
         {
@@ -1556,6 +1560,7 @@ table 18 Customer
             FieldClass = FlowField;
             ObsoleteReason = 'This field is not needed and it should not be used.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(9005; "Contact ID"; Guid)
         {
@@ -1596,6 +1601,7 @@ table 18 Customer
             Caption = 'Registered Name';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -1609,6 +1615,7 @@ table 18 Customer
             ObsoleteReason = 'Replaced by "Ship-to Code" ';
             ObsoleteState = Removed;
             TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("No."));
+            ObsoleteTag = '15.0';
         }
         field(31000; "Advances (LCY)"; Decimal)
         {
@@ -1691,6 +1698,7 @@ table 18 Customer
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
     }
 
@@ -1743,6 +1751,7 @@ table 18 Customer
         {
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this key should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         key(Key16; Blocked)
         {
@@ -1999,7 +2008,7 @@ table 18 Customer
         ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegCountry: Record "Registration Country/Region";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;

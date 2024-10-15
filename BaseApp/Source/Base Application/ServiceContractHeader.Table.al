@@ -1484,6 +1484,7 @@ table 5965 "Service Contract Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
     }
 

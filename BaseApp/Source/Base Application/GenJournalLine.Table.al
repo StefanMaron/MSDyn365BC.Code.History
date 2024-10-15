@@ -1,4 +1,4 @@
-﻿table 81 "Gen. Journal Line"
+table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
     Permissions = TableData "Sales Invoice Header" = r,
@@ -174,8 +174,8 @@
                 ValidateApplyRequirements(Rec);
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end;
 
                 if "Deferral Code" <> '' then
@@ -983,8 +983,8 @@
                 UpdateSalesPurchLCY;
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end;
 
                 if "Deferral Code" <> '' then
@@ -1784,8 +1784,8 @@
                 Validate("VAT Prod. Posting Group");
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end
             end;
         }
@@ -1826,8 +1826,8 @@
                 Validate("VAT %");
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end
             end;
         }
@@ -2294,6 +2294,7 @@
             Caption = 'Credit Card No.';
             ObsoleteReason = 'This field is not needed and it is not used anymore.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(1001; "Job Task No."; Code[20])
         {
@@ -2335,9 +2336,9 @@
                 end;
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     CopyDimensionsFromJobTaskLine;
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2366,8 +2367,8 @@
                 if JobTaskIsSet then begin
                     if "Job Planning Line No." <> 0 then
                         Validate("Job Planning Line No.");
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2387,9 +2388,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount %", "Job Line Discount %");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2402,9 +2403,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount Amount (LCY)", "Job Line Disc. Amount (LCY)");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2436,9 +2437,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Unit Price", "Job Unit Price");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2476,9 +2477,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount Amount", "Job Line Discount Amount");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2492,9 +2493,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Amount", "Job Line Amount");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2515,9 +2516,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Amount (LCY)", "Job Line Amount (LCY)");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2533,8 +2534,8 @@
             begin
                 if ("Job Currency Code" <> xRec."Job Currency Code") or ("Job Currency Code" <> '') then
                     if JobTaskIsSet then begin
-                        CreateTempJobJnlLine;
-                        UpdatePricesFromJobJnlLine;
+                        CreateTempJobJnlLine();
+                        UpdatePricesFromJobJnlLine();
                     end;
             end;
         }
@@ -2655,7 +2656,7 @@
                     TestField("Account Type", "Account Type"::"G/L Account");
 
                 DeferralUtilities.DeferralCodeOnValidate("Deferral Code", DeferralDocType::"G/L", "Journal Template Name", "Journal Batch Name",
-                  0, '', "Line No.", GetDeferralAmount, "Posting Date", Description, "Currency Code");
+                  0, '', "Line No.", GetDeferralAmount(), "Posting Date", Description, "Currency Code");
             end;
         }
         field(1701; "Deferral Line No."; Integer)
@@ -2867,6 +2868,7 @@
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Account Id"; Guid)
         {
@@ -3076,6 +3078,7 @@
             Caption = 'Postponed VAT';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11764; "VAT Delay"; Boolean)
         {
@@ -3089,6 +3092,7 @@
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -3132,6 +3136,7 @@
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -3152,6 +3157,7 @@
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -3187,6 +3193,7 @@
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11773; "VAT Amount LCY (Non Deduct.)"; Decimal)
         {
@@ -3194,6 +3201,7 @@
             Caption = 'VAT Amount LCY (Non Deduct.)';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11774; "VAT Difference (LCY)"; Decimal)
         {
@@ -3258,6 +3266,7 @@
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -3288,6 +3297,7 @@
             TableRelation = "Item Ledger Entry";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31100; "Original Document VAT Date"; Date)
         {
@@ -4254,8 +4264,8 @@
         end;
 
         if JobTaskIsSet then begin
-            CreateTempJobJnlLine;
-            UpdatePricesFromJobJnlLine;
+            CreateTempJobJnlLine();
+            UpdatePricesFromJobJnlLine();
         end;
     end;
 
@@ -5679,7 +5689,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure GetVATDeduction(): Decimal
     var
         NonDeductibleVATSetup: Record "Non Deductible VAT Setup";
@@ -5699,7 +5709,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure GetVATPostingSetupWithNonDedVAT(var VATPostingSetup2: Record "VAT Posting Setup"): Boolean
     var
         VATPostingSetup3: Record "VAT Posting Setup";
@@ -5728,7 +5738,7 @@
         exit("Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::Purchase);
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure IsAllowNonDeductibleVAT(VATPostingSetup2: Record "VAT Posting Setup"): Boolean
     begin
         // NAVCZ
@@ -6438,12 +6448,20 @@
     end;
 
     procedure GetDeferralAmount() DeferralAmount: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDeferralAmount(Rec, DeferralAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         if "VAT Base Amount" <> 0 then
             DeferralAmount := "VAT Base Amount"
         else
             DeferralAmount := Amount;
         DeferralAmount += "VAT Amount (Non Deductible)"; // NAVCZ
+
         OnAfterGetDeferralAmount(Rec, DeferralAmount);
     end;
 
@@ -6455,7 +6473,7 @@
         exit(
           DeferralUtilities.OpenLineScheduleEdit(
             "Deferral Code", GetDeferralDocType, "Journal Template Name", "Journal Batch Name", 0, '', "Line No.",
-            GetDeferralAmount, PostingDate, Description, CurrencyCode));
+            GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
     procedure GetDeferralDocType(): Integer
@@ -7983,13 +8001,18 @@
     begin
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ShowDeferralSchedule()
     begin
         if "Account Type" = "Account Type"::"Fixed Asset" then
             Error(AccTypeNotSupportedErr);
 
         ShowDeferrals("Posting Date", "Currency Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -461,6 +461,7 @@ table 79 "Company Information"
             Caption = 'Show Chart On RoleCenter';
             ObsoleteState = Pending;
             ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
+            ObsoleteTag = '15.0';
         }
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
@@ -485,6 +486,7 @@ table 79 "Company Information"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(11700; "Bank Account Format Check"; Boolean)
         {
@@ -542,6 +544,7 @@ table 79 "Company Information"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin

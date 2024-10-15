@@ -1,4 +1,4 @@
-﻿page 5900 "Service Order"
+page 5900 "Service Order"
 {
     Caption = 'Service Order';
     PageType = Document;
@@ -139,6 +139,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -713,6 +714,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -726,6 +728,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {

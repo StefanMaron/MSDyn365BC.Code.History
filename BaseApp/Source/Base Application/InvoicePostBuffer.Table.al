@@ -263,6 +263,7 @@ table 49 "Invoice Post. Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11763; Correction; Boolean)
         {
@@ -283,6 +284,7 @@ table 49 "Invoice Post. Buffer"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
@@ -291,6 +293,7 @@ table 49 "Invoice Post. Buffer"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
@@ -299,6 +302,7 @@ table 49 "Invoice Post. Buffer"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11770; "Ext. Amount"; Decimal)
         {
@@ -787,7 +791,7 @@ table 49 "Invoice Post. Buffer"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure UpdateNonDeductable(var TotalNonDeductBase: Decimal; var TotalNonDeductVAT: Decimal)
     begin
         // NAVCZ
@@ -796,7 +800,7 @@ table 49 "Invoice Post. Buffer"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure SetNonDeductable(TotalNonDeductBase: Decimal; TotalNonDeductVAT: Decimal)
     begin
         // NAVCZ

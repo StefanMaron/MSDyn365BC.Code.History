@@ -1,4 +1,4 @@
-﻿page 25 "Customer Ledger Entries"
+page 25 "Customer Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Ledger Entries';
@@ -552,6 +552,7 @@
                 Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
 
                 action("Tax Corrective Sales &Invoices")
                 {
@@ -562,6 +563,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
 
                     trigger OnAction()
                     var
@@ -579,6 +581,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
 
                     trigger OnAction()
                     var
@@ -594,6 +597,7 @@
                 Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
 
                 action("Tax Corrective Service &Invoices")
                 {
@@ -604,6 +608,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
 
                     trigger OnAction()
                     var
@@ -621,6 +626,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
 
                     trigger OnAction()
                     var

@@ -109,6 +109,7 @@ table 1200 "Bank Export/Import Setup"
             Caption = 'Default Folder Path';
             ObsoleteState = Removed;
             ObsoleteReason = 'Folder path isn''t supported to use in DownloadFromStream, UploadToStream, Download and Upload functions for web client';
+            ObsoleteTag = '15.0';
         }
         field(11706; "Default File Type"; Text[10])
         {

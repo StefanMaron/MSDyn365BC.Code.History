@@ -205,10 +205,13 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                VendLedgEntry: Record "Vendor Ledger Entry";
             begin
                 VendLedgEntry.SetCurrentKey("Document No.");
                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(VendLedgEntry, Rec);
                 PAGE.Run(0, VendLedgEntry);
             end;
         }
@@ -645,12 +648,14 @@ table 124 "Purch. Cr. Memo Hdr."
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -669,6 +674,7 @@ table 124 "Purch. Cr. Memo Hdr."
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
@@ -677,6 +683,7 @@ table 124 "Purch. Cr. Memo Hdr."
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -692,6 +699,7 @@ table 124 "Purch. Cr. Memo Hdr."
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -769,7 +777,6 @@ table 124 "Purch. Cr. Memo Hdr."
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         PurchCommentLine: Record "Purch. Comment Line";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -861,6 +868,11 @@ table 124 "Purch. Cr. Memo Hdr."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 }

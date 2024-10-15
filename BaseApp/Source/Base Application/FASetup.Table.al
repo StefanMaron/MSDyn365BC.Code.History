@@ -108,6 +108,7 @@ table 5603 "FA Setup"
             Caption = 'FA Maintenance By Maint. Code';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Maintenance Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31044; "FA Acquisition As Custom 2"; Boolean)
         {
@@ -118,6 +119,7 @@ table 5603 "FA Setup"
             Caption = 'FA Disposal By Reason Code';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021))';
+            ObsoleteTag = '15.3';
         }
     }
 

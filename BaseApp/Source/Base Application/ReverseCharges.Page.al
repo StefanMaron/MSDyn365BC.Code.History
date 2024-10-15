@@ -9,6 +9,7 @@ page 31091 "Reverse Charges"
     UsageCategory = Tasks;
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     layout
     {

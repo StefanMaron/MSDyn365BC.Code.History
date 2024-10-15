@@ -1611,7 +1611,7 @@ table 274 "Bank Acc. Reconciliation Line"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)')]
+    [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
     procedure Reconcile()
     var
         GLReconcile: Page Reconciliation;

@@ -1,4 +1,4 @@
-﻿page 16 "Chart of Accounts"
+page 16 "Chart of Accounts"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Chart of Accounts';
@@ -35,6 +35,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field(Name; Name)
                 {

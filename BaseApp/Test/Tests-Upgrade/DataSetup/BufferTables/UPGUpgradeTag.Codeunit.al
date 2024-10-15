@@ -1,4 +1,4 @@
-table 128001 "UPG - Upgrade Tag"
+table 132801 "UPG - Upgrade Tag"
 {
     DataPerCompany = false;
 

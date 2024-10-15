@@ -112,7 +112,12 @@ table 6507 "Item Entry Relation"
     procedure TransferFieldsTransShptLine(var TransShptLine: Record "Transfer Shipment Line")
     begin
         SetSource(DATABASE::"Transfer Shipment Line", 0, TransShptLine."Document No.", TransShptLine."Line No.");
-        SetOrderInfo(TransShptLine."Transfer Order No.", TransShptLine."Line No.");
+        //NAVCZ
+        if TransShptLine."Transfer Order Line No." <> 0 then
+            SetOrderInfo(TransShptLine."Transfer Order No.", TransShptLine."Transfer Order Line No.")
+        else
+            //NAVCZ
+            SetOrderInfo(TransShptLine."Transfer Order No.", TransShptLine."Line No.");
     end;
 
     procedure TransferFieldsTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line")

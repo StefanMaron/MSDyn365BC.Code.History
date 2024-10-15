@@ -27,6 +27,13 @@ page 31075 "Stat. Rep. No. Series Setup"
                     Visible = ReverseChargeNosVisible;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
+                }
+                field("VAT Control Report Nos."; "VAT Control Report Nos.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies number series of VAT control report.';
+                    Visible = VATControlReportNosVisible;
                 }
             }
         }
@@ -53,12 +60,14 @@ page 31075 "Stat. Rep. No. Series Setup"
     var
         VIESDeclarationNosVisible: Boolean;
         ReverseChargeNosVisible: Boolean;
+        VATControlReportNosVisible: Boolean;
 
     [Scope('OnPrem')]
-    procedure SetFieldsVisibility(DocType: Option "VIES Declaration","Reverse Charge")
+    procedure SetFieldsVisibility(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report")
     begin
-        VIESDeclarationNosVisible := (DocType = DocType::"VIES Declaration");
-        ReverseChargeNosVisible := (DocType = DocType::"Reverse Charge");
+        VIESDeclarationNosVisible := DocType = DocType::"VIES Declaration";
+        ReverseChargeNosVisible := DocType = DocType::"Reverse Charge";
+        VATControlReportNosVisible := DocType = DocType::"VAT Control Report";
     end;
 }
 

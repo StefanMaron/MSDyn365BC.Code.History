@@ -1,4 +1,4 @@
-﻿page 49 "Purchase Quote"
+page 49 "Purchase Quote"
 {
     Caption = 'Purchase Quote';
     PageType = Document;
@@ -161,6 +161,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -685,6 +686,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -874,7 +876,8 @@
                     Promoted = true;
                     PromotedCategory = Category9;
                     RunObject = Page "Vendor Card";
-                    RunPageLink = "No." = FIELD("Buy-from Vendor No.");
+                    RunPageLink = "No." = FIELD("Buy-from Vendor No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
                 }
@@ -1364,6 +1367,8 @@
             SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
             FilterGroup(0);
         end;
+
+        SetRange("Date Filter", 0D, WorkDate());
 
         ActivateFields;
 

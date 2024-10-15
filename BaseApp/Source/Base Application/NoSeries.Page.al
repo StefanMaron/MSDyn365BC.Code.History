@@ -138,6 +138,7 @@ page 456 "No. Series"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("No. Series Link Exists"; "No. Series Link Exists")
                 {
@@ -146,6 +147,7 @@ page 456 "No. Series"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
         }
@@ -206,6 +208,7 @@ page 456 "No. Series"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
         }
@@ -221,6 +224,7 @@ page 456 "No. Series"
                 Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
             }
         }
     }

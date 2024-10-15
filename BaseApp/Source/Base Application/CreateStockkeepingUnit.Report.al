@@ -238,6 +238,13 @@ report 5706 "Create Stockkeeping Unit"
         ReplacePreviousSKUs := NewReplacePreviousSKUs;
     end;
 
+    procedure InitializeRequest(CreatePerOption: Option Location,Variant,"Location & Variant"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean; NewOnlyIfTemplateExists: Boolean)
+    begin
+        //NAVCZ
+        InitializeRequest(CreatePerOption, NewItemInInventoryOnly, NewReplacePreviousSKUs);
+        OnlyIfTemplateExists := NewOnlyIfTemplateExists;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSKU(var Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; ItemInInventoryOnly: Boolean; var IsHandled: Boolean)
     begin

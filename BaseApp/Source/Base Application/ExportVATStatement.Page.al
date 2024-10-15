@@ -33,6 +33,7 @@ page 11774 "Export VAT Statement"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This field will be removed and should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field(StartDate; StartDate)
                 {
@@ -262,12 +263,12 @@ page 11774 "Export VAT Statement"
         MonthZeroIfQuarterErr: Label 'Month must be 0 if Quarter is filled in.';
         MonthDontEmptyIfQuarErr: Label 'Quarter must be 0 if Month is filled in.';
         MonthOrQuarterErr: Label 'Month or Quarter must be filled in.';
-        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         FileFormatErr: Label '%1 file format requires %2 to be added to Supplementary or Supplementary/Corrective VAT Statement.', Comment = '%1=Xml Format, %2=FIELDCAPTION';
         ReasonObserverReqErr: Label 'You must specify Reasons Observed On date in Supplementary or Supplementary/Corrective VAT Statement.';
         VATStatementTemplate: Record "VAT Statement Template";
         FileMgt: Codeunit "File Management";
-        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         VATStatementXML2010: XMLport "VAT Statement";
         VATStatementXML2011: XMLport "VAT Statement 2011";
         FileName: Text;

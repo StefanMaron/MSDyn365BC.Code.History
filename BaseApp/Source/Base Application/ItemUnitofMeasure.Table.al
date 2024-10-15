@@ -105,6 +105,7 @@ table 5404 "Item Unit of Measure"
             Caption = 'Indivisible Unit';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
     }
 

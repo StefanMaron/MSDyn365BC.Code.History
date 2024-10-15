@@ -422,6 +422,7 @@ table 242 "Source Code Setup"
             TableRelation = "Source Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11764; "Close Balance Sheet"; Code[10])
         {
@@ -484,6 +485,7 @@ table 242 "Source Code Setup"
             TableRelation = "Source Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31050; Credit; Code[10])
         {

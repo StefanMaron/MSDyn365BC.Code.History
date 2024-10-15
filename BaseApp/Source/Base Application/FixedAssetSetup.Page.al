@@ -66,6 +66,7 @@ page 5607 "Fixed Asset Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021))';
+                    ObsoleteTag = '15.3';
                 }
                 field("FA Acquisition As Custom 2"; "FA Acquisition As Custom 2")
                 {
@@ -79,6 +80,7 @@ page 5607 "Fixed Asset Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Maintenance Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
             group(Numbering)

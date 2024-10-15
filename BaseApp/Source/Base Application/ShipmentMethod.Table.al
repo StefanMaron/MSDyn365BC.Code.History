@@ -25,6 +25,7 @@ table 10 "Shipment Method"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(31060; "Include Item Charges (Amount)"; Boolean)
         {

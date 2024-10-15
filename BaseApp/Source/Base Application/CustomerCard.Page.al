@@ -1,4 +1,4 @@
-﻿page 21 "Customer Card"
+page 21 "Customer Card"
 {
     Caption = 'Customer Card';
     PageType = Card;
@@ -52,6 +52,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Search Name"; "Search Name")
                 {
@@ -235,6 +236,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Last Date Modified"; "Last Date Modified")
                 {
@@ -1411,6 +1413,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
             group(Documents)

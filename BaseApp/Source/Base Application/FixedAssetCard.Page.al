@@ -1,4 +1,4 @@
-﻿page 5600 "Fixed Asset Card"
+page 5600 "Fixed Asset Card"
 {
     Caption = 'Fixed Asset Card';
     PageType = Document;
@@ -38,6 +38,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field(Description; Description)
                 {
@@ -163,6 +164,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Clasification Code"; "Clasification Code")
                 {
@@ -370,6 +372,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Warranty Date"; "Warranty Date")
                 {

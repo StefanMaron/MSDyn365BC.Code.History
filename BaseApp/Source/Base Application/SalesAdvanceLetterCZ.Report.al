@@ -170,11 +170,13 @@ report 31000 "Sales - Advance Letter CZ"
             {
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
             }
             column(PerformVATRegistrationNo; RegistrationCountryRegion."VAT Registration No.")
             {
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
             }
             column(CustAddr1; CustAddr[1])
             {
@@ -344,7 +346,7 @@ report 31000 "Sales - Advance Letter CZ"
     var
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegistrationCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

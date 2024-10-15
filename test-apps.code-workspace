@@ -1,15 +1,6 @@
 {
   "folders": [
     {
-      "path": "./System Application/Test/System Application Test"
-    },
-    {
-      "path": "./System Application/Test/System Application Test Library"
-    },
-    {
-      "path": "./System Application/Test/System Application Test/Extension Management/testArtifacts"
-    },
-    {
       "path": "./HybridBaseDeployment/Test/HybridBaseDeploymentTest"
     },
     {
@@ -20,6 +11,15 @@
     },
     {
       "path": "./TestFramework/TestRunner/Test Runner"
+    },
+    {
+      "path": "./system application/test/System Application Test"
+    },
+    {
+      "path": "./system application/test/System Application Test Library"
+    },
+    {
+      "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/EssentialBusinessHeadlinesTest"

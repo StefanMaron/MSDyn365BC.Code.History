@@ -858,6 +858,7 @@ table 5992 "Service Invoice Header"
             Caption = 'Tax Corrective Document';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -875,6 +876,7 @@ table 5992 "Service Invoice Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -883,6 +885,7 @@ table 5992 "Service Invoice Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
@@ -892,6 +895,7 @@ table 5992 "Service Invoice Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -907,6 +911,7 @@ table 5992 "Service Invoice Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {

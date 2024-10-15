@@ -48,30 +48,37 @@ table 31041 "Depreciation Group"
         field(10; "Straight First Year"; Decimal)
         {
             Caption = 'Straight First Year';
+            DecimalPlaces = 0 : 15;
         }
         field(11; "Straight Next Years"; Decimal)
         {
             Caption = 'Straight Next Years';
+            DecimalPlaces = 0 : 15;
         }
         field(12; "Straight Appreciation"; Decimal)
         {
             Caption = 'Straight Appreciation';
+            DecimalPlaces = 0 : 15;
         }
         field(13; "Declining First Year"; Decimal)
         {
             Caption = 'Declining First Year';
+            DecimalPlaces = 0 : 15;
         }
         field(14; "Declining Next Years"; Decimal)
         {
             Caption = 'Declining Next Years';
+            DecimalPlaces = 0 : 15;
         }
         field(15; "Declining Appreciation"; Decimal)
         {
             Caption = 'Declining Appreciation';
+            DecimalPlaces = 0 : 15;
         }
         field(16; "Declining Depr. Increase %"; Decimal)
         {
             Caption = 'Declining Depr. Increase %';
+            DecimalPlaces = 0 : 15;
         }
         field(17; "Depreciation Group"; Text[10])
         {

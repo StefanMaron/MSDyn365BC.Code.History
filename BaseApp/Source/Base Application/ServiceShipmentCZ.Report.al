@@ -156,11 +156,13 @@ report 31090 "Service - Shipment CZ"
             {
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
             }
             column(PerformVATRegistrationNo; RegistrationCountryRegion."VAT Registration No.")
             {
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
             }
             column(DocFooterText; DocFooterText)
             {
@@ -467,7 +469,7 @@ report 31090 "Service - Shipment CZ"
     var
         DocFooter: Record "Document Footer";
         TempTrackingSpecBuf: Record "Tracking Specification" temporary;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegistrationCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

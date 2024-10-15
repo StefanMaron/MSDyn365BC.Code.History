@@ -1440,6 +1440,7 @@ table 83 "Item Journal Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5791; "Planned Delivery Date"; Date)
         {
@@ -2130,6 +2131,7 @@ table 83 "Item Journal Line"
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
+            ObsoleteTag = '15.3';
         }
         field(11791; "Source No. 3"; Code[20])
         {
@@ -2144,6 +2146,7 @@ table 83 "Item Journal Line"
             TableRelation = "Fixed Asset";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -2163,6 +2166,7 @@ table 83 "Item Journal Line"
             TableRelation = Maintenance;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -2177,6 +2181,7 @@ table 83 "Item Journal Line"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Tariff No."; Code[20])
         {
@@ -2199,6 +2204,7 @@ table 83 "Item Journal Line"
             ObsoleteReason = 'Merge to W1';
             ObsoleteState = Pending;
             TableRelation = "Shipment Method";
+            ObsoleteTag = '15.0';
         }
         field(31066; "Net Weight"; Decimal)
         {
@@ -2528,7 +2534,7 @@ table 83 "Item Journal Line"
                 PositiveFilterValue := (Signed(Quantity) < 0) or ("Value Entry Type" = "Value Entry Type"::Revaluation);
                 ItemLedgEntry.SetRange(Positive, PositiveFilterValue);
             end;
-            
+
             if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
                 ItemLedgEntry.SetCurrentKey("Item No.", Open);
                 ItemLedgEntry.SetRange(Open, true);
@@ -3853,7 +3859,14 @@ table 83 "Item Journal Line"
     end;
 
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestItemFields(Rec, ItemNo, VariantCode, LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.", ItemNo);
         TestField("Variant Code", VariantCode);
         TestField("Location Code", LocationCode);
@@ -3928,7 +3941,7 @@ table 83 "Item Journal Line"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure SetItemChargeDimensions(ItemChargeNo: Code[20]; ItemLedgShptEntryNo: Integer)
     var
         ItemCharge: Record "Item Charge";
@@ -4213,6 +4226,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeGetUnitAmount(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestItemFields(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

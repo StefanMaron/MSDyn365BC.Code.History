@@ -1,4 +1,4 @@
-﻿page 41 "Sales Quote"
+page 41 "Sales Quote"
 {
     Caption = 'Sales Quote';
     PageType = Document;
@@ -188,6 +188,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -824,6 +825,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -1043,7 +1045,8 @@
                     Promoted = true;
                     PromotedCategory = Category11;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Sell-to Customer No.");
+                    RunPageLink = "No." = FIELD("Sell-to Customer No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
                 }
@@ -1660,6 +1663,8 @@
             SetRange("Responsibility Center", UserMgt.GetSalesFilter);
             FilterGroup(0);
         end;
+
+        SetRange("Date Filter", 0D, WorkDate());
 
         ActivateFields;
 

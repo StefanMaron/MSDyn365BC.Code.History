@@ -155,9 +155,10 @@ page 6 "Finance Charge Terms"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = '&Interest Rates';
+                    Image = Percentage;
                     RunObject = Page "Multiple Interest Rates";
                     RunPageLink = "Finance Charge Code" = FIELD(Code);
-                    ToolTip = 'Specifies the percentage to use to calculate interest for this finance charge code.';
+                    ToolTip = 'Set up interest rates.';
                 }
             }
         }

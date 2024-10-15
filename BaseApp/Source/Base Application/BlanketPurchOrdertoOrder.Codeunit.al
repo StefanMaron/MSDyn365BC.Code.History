@@ -155,7 +155,7 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     local procedure CreatePurchHeader(PurchHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         NoSeriesLink: Record "No. Series Link";
     begin
         OnBeforeCreatePurchHeader(PurchHeader);

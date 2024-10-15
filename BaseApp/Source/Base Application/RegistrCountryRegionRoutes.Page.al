@@ -8,6 +8,7 @@ page 11763 "Registr. Country/Region Routes"
     UsageCategory = Tasks;
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     layout
     {

@@ -217,10 +217,13 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -601,6 +604,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Draft Cr. Memo SystemId"; Guid)
         {
@@ -689,6 +693,9 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'VAT Date';
 
             trigger OnValidate()
+            var
+                VATEntry: Record "VAT Entry";
+                GLEntry: Record "G/L Entry";
             begin
                 if not Confirm(VATDateModifyQst, false) then begin
                     "VAT Date" := xRec."VAT Date";
@@ -741,6 +748,7 @@ table 114 "Sales Cr.Memo Header"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11764; "Postponed VAT Realized"; Boolean)
         {
@@ -748,6 +756,7 @@ table 114 "Sales Cr.Memo Header"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11766; "Credit Memo Type"; Option)
         {
@@ -771,12 +780,14 @@ table 114 "Sales Cr.Memo Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -795,6 +806,7 @@ table 114 "Sales Cr.Memo Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
@@ -803,6 +815,7 @@ table 114 "Sales Cr.Memo Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -818,6 +831,7 @@ table 114 "Sales Cr.Memo Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -896,9 +910,6 @@ table 114 "Sales Cr.Memo Header"
 
     var
         SalesCommentLine: Record "Sales Comment Line";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        VATEntry: Record "VAT Entry";
-        GLEntry: Record "G/L Entry";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
@@ -1031,7 +1042,7 @@ table 114 "Sales Cr.Memo Header"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure HandlePostponedVAT(VATDate: Date; Post: Boolean)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -1190,6 +1201,11 @@ table 114 "Sales Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

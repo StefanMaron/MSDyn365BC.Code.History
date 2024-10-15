@@ -7,6 +7,7 @@ report 11765 "Non Deductible VAT Correction"
     UsageCategory = ReportsAndAnalysis;
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this report should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     dataset
     {

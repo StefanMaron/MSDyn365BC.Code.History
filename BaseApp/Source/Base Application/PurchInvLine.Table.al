@@ -591,6 +591,7 @@ table 123 "Purch. Inv. Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(6608; "Return Reason Code"; Code[10])
         {
@@ -610,6 +611,7 @@ table 123 "Purch. Inv. Line"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
@@ -618,6 +620,7 @@ table 123 "Purch. Inv. Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
@@ -626,6 +629,7 @@ table 123 "Purch. Inv. Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11770; "Ext. Amount (LCY)"; Decimal)
         {

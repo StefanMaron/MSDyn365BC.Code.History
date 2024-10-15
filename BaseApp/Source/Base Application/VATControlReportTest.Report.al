@@ -32,6 +32,7 @@ report 31101 "VAT Control Report - Test"
             {
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
             }
             column(VATControlReportHeader_VATStatementTemplateName; "VAT Statement Template Name")
             {
@@ -67,6 +68,7 @@ report 31101 "VAT Control Report - Test"
             {
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
             }
             column(VATControlReportHeader_VATStatementTemplateName_Caption; FieldCaption("VAT Statement Template Name"))
             {

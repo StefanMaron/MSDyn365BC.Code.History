@@ -1,4 +1,4 @@
-﻿page 140 "Posted Purchase Credit Memo"
+page 140 "Posted Purchase Credit Memo"
 {
     Caption = 'Posted Purchase Credit Memo';
     InsertAllowed = false;
@@ -302,6 +302,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {

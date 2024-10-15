@@ -402,6 +402,7 @@ page 8900 "Administrator Main Role Center"
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'The functionality of Industry Classification will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                        ObsoleteTag = '15.3';
                     }
                     action("Registration Country/Region Routes")
                     {
@@ -411,6 +412,7 @@ page 8900 "Administrator Main Role Center"
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                        ObsoleteTag = '15.3';
                     }
                 }
                 group("Group10")

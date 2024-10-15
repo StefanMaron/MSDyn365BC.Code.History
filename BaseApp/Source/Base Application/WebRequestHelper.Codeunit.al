@@ -124,7 +124,7 @@ codeunit 1299 "Web Request Helper"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure GetDefaultWebProxy(var WebProxy: DotNet WebProxy): Boolean
     var
         ElGovernSetup: Record "Electronically Govern. Setup";

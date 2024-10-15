@@ -825,6 +825,7 @@ table 31020 "Purch. Advance Letter Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             var
@@ -870,6 +871,7 @@ table 31020 "Purch. Advance Letter Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31100; "Original Document VAT Date"; Date)
         {
@@ -987,9 +989,9 @@ table 31020 "Purch. Advance Letter Header"
         PaymentTerms: Record "Payment Terms";
         PurchAdvanceLetterLinegre: Record "Purch. Advance Letter Line";
         PostCode: Record "Post Code";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         CompanyInfo: Record "Company Information";
         RespCenter: Record "Responsibility Center";
@@ -1590,7 +1592,7 @@ table 31020 "Purch. Advance Letter Header"
             until PurchAdvanceLetterLinegre.Next = 0;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         if "Perform. Country/Region Code" <> '' then begin

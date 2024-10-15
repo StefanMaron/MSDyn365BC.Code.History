@@ -1,4 +1,4 @@
-﻿page 43 "Sales Invoice"
+page 43 "Sales Invoice"
 {
     Caption = 'Sales Invoice';
     PageType = Document;
@@ -153,6 +153,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -443,6 +444,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -856,6 +858,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -869,6 +872,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -1129,7 +1133,8 @@
                     Promoted = true;
                     PromotedCategory = Category11;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Sell-to Customer No.");
+                    RunPageLink = "No." = FIELD("Sell-to Customer No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
                 }
@@ -1788,6 +1793,8 @@
             SetRange("Responsibility Center", UserMgt.GetSalesFilter);
             FilterGroup(0);
         end;
+
+        SetRange("Date Filter", 0D, WorkDate());
 
         ActivateFields;
 

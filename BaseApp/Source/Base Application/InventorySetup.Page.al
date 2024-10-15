@@ -97,6 +97,7 @@ page 461 "Inventory Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Post Exp. Cost Conv. as Corr."; "Post Exp. Cost Conv. as Corr.")
                 {
@@ -120,6 +121,7 @@ page 461 "Inventory Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Date Order Inventory Change"; "Date Order Inventory Change")
                 {
@@ -133,6 +135,7 @@ page 461 "Inventory Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Exact Cost Reversing Mandatory"; "Exact Cost Reversing Mandatory")
                 {

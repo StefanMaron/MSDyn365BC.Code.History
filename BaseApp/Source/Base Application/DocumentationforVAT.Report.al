@@ -563,6 +563,7 @@ report 11764 "Documentation for VAT"
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                        ObsoleteTag = '15.3';
                     }
                     field(SettlementNoFilter; SettlementNoFilter)
                     {
@@ -622,7 +623,7 @@ report 11764 "Documentation for VAT"
         Heading: Text;
         UseAmtsInAddCurr: Boolean;
         HeaderText: Text[30];
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         CountryCodeFillFiter: Code[10];
         PrintCountrySubTotal: Integer;
         CountrySubTotalAmt: array[4] of Decimal;
@@ -672,7 +673,7 @@ report 11764 "Documentation for VAT"
         exit(1);
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure CalcVATAmountNonDeductible(VATEntry: Record "VAT Entry"): Decimal
     begin
         exit(GetCoefficient(VATEntry) * Abs(VATEntry."VAT Amount (Non Deductible)"));

@@ -1,4 +1,4 @@
-﻿table 5740 "Transfer Header"
+table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -697,6 +697,7 @@
             TableRelation = "No. Series";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11797; "Shipping No. Series"; Code[20])
         {
@@ -704,6 +705,7 @@
             TableRelation = "No. Series";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11798; "Receiving No. Series"; Code[20])
         {
@@ -711,6 +713,7 @@
             TableRelation = "No. Series";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11799; "Shipping Wh. No. Series"; Code[20])
         {
@@ -718,6 +721,7 @@
             TableRelation = "No. Series";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
@@ -828,7 +832,7 @@
 
     procedure InitRecord()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         NoSeriesLink: Record "No. Series Link";
         WarehouseSetup: Record "Warehouse Setup";
     begin
@@ -1023,7 +1027,15 @@
     end;
 
     procedure ShouldDeleteOneTransferOrder(var TransLine2: Record "Transfer Line"): Boolean
+    var
+        IsHandled: Boolean;
+        ShouldDelete: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShouldDeleteOneTransferOrder(TransLine2, ShouldDelete, IsHandled);
+        if IsHandled then
+            exit(ShouldDelete);
+
         if TransLine2.Find('-') then
             repeat
                 if (TransLine2.Quantity <> TransLine2."Quantity Shipped") or
@@ -1377,6 +1389,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoSeriesCode(var TransferHeader: Record "Transfer Header"; InventorySetup: Record "Inventory Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShouldDeleteOneTransferOrder(var TransferLine: record "Transfer Line"; var ShouldDelete: Boolean; var IsHandled: Boolean)
     begin
     end;
 

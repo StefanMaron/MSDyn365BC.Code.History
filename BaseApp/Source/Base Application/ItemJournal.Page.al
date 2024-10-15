@@ -1,4 +1,4 @@
-﻿page 40 "Item Journal"
+page 40 "Item Journal"
 {
     AdditionalSearchTerms = 'increase inventory,decrease inventory,adjust inventory';
     ApplicationArea = Basic, Suite;
@@ -254,6 +254,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Maintenance Code"; "Maintenance Code")
                 {
@@ -262,6 +263,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {

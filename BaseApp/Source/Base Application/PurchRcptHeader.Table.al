@@ -212,10 +212,13 @@ table 120 "Purch. Rcpt. Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                VendLedgEntry: Record "Vendor Ledger Entry";
             begin
                 VendLedgEntry.SetCurrentKey("Document No.");
                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(VendLedgEntry, Rec);
                 PAGE.Run(0, VendLedgEntry);
             end;
         }
@@ -508,12 +511,14 @@ table 120 "Purch. Rcpt. Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -522,6 +527,7 @@ table 120 "Purch. Rcpt. Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -537,6 +543,7 @@ table 120 "Purch. Rcpt. Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -595,7 +602,6 @@ table 120 "Purch. Rcpt. Header"
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchCommentLine: Record "Purch. Comment Line";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -631,6 +637,11 @@ table 120 "Purch. Rcpt. Header"
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
             FilterGroup(0);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchRcptHeader: Record "Purch. Rcpt. Header")
+    begin
     end;
 }
 

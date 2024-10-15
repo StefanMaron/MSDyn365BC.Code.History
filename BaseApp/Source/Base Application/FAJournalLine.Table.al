@@ -325,6 +325,7 @@ table 5621 "FA Journal Line"
             TableRelation = "Item Ledger Entry";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
     }
 

@@ -6,6 +6,7 @@ report 11790 "Post or Correct Postponed VAT"
     ProcessingOnly = true;
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     dataset
     {

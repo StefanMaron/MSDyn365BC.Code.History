@@ -109,6 +109,7 @@ page 459 "Sales & Receivables Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Fin. Charge Posting Desc. Code"; "Fin. Charge Posting Desc. Code")
                 {
@@ -117,6 +118,7 @@ page 459 "Sales & Receivables Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Copy As Tax Corr. Document"; "Copy As Tax Corr. Document")
                 {
@@ -125,6 +127,7 @@ page 459 "Sales & Receivables Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Reason Code For Payment Disc."; "Reason Code For Payment Disc.")
                 {
@@ -133,6 +136,7 @@ page 459 "Sales & Receivables Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Multiple Interest Rates"; "Multiple Interest Rates")
                 {
@@ -231,6 +235,7 @@ page 459 "Sales & Receivables Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("G/L Entry as Doc. Lines (Acc.)"; "G/L Entry as Doc. Lines (Acc.)")
                 {
@@ -416,6 +421,7 @@ page 459 "Sales & Receivables Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Direct Debit Mandate Nos."; "Direct Debit Mandate Nos.")
                 {
@@ -467,6 +473,7 @@ page 459 "Sales & Receivables Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
             group(Archiving)

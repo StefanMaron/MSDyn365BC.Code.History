@@ -226,10 +226,13 @@ table 112 "Sales Invoice Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -696,6 +699,7 @@ table 112 "Sales Invoice Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Draft Invoice SystemId"; Guid)
         {
@@ -795,6 +799,7 @@ table 112 "Sales Invoice Header"
             Caption = 'Tax Corrective Document';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11770; "Reversed By Cr. Memo No."; Code[20])
         {
@@ -816,12 +821,14 @@ table 112 "Sales Invoice Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -840,6 +847,7 @@ table 112 "Sales Invoice Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
@@ -848,6 +856,7 @@ table 112 "Sales Invoice Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -863,6 +872,7 @@ table 112 "Sales Invoice Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -949,7 +959,6 @@ table 112 "Sales Invoice Header"
     var
         SalesCommentLine: Record "Sales Comment Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -1258,6 +1267,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetPaymentReferenceLbl(var PaymentReferenceLbl: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

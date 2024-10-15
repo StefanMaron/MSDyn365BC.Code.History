@@ -310,6 +310,7 @@ page 9001 "Accounting Manager Role Center"
                 Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
             }
         }
         area(embedding)

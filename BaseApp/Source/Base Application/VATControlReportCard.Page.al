@@ -14,7 +14,9 @@ page 31101 "VAT Control Report Card"
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
                     ToolTip = 'Specifies the number of VAT control report.';
+                    Visible = DocNoVisible;
 
                     trigger OnAssistEdit()
                     begin
@@ -89,6 +91,7 @@ page 31101 "VAT Control Report Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Statement Template Name"; "VAT Statement Template Name")
                 {
@@ -258,7 +261,21 @@ page 31101 "VAT Control Report Card"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        SetDocNoVisible();
+    end;
+
     var
         ReleaseVATControlReport: Codeunit "Release VAT Control Report";
+        DocNoVisible: Boolean;
+
+    local procedure SetDocNoVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report";
+    begin
+        DocNoVisible := DocumentNoVisibility.StatReportingDocumentNoIsVisible(DocType::"VAT Control Report", "No.");
+    end;
 }
 

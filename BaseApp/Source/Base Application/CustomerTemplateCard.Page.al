@@ -1,4 +1,4 @@
-﻿page 5157 "Customer Template Card"
+page 5157 "Customer Template Card"
 {
     Caption = 'Customer Template Card';
     PageType = Card;
@@ -103,6 +103,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -111,6 +112,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
         }

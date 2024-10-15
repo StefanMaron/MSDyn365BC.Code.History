@@ -6,6 +6,7 @@ table 31093 "Reverse Charge Header"
     LookupPageID = "Reverse Charges";
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     fields
     {

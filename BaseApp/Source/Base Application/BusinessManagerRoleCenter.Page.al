@@ -671,6 +671,7 @@ page 9022 "Business Manager Role Center"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 action(CashReceiptJournals)
                 {

@@ -454,6 +454,7 @@ table 111 "Sales Shipment Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5790; "Requested Delivery Date"; Date)
         {
@@ -722,19 +723,6 @@ table 111 "Sales Shipment Line"
                 if not IsHandled then
                     SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 CalcBaseQuantities(SalesLine, "Quantity (Base)" / Quantity);
-                // NAVCZ
-                SalesLine."Prepmt. Line Amount" := 0;
-                SalesLine."Prepmt. Amt. Inv." := 0;
-                SalesLine."Prepmt. Amt. Incl. VAT" := 0;
-                SalesLine."Prepayment Amount" := 0;
-                SalesLine."Prepmt. VAT Base Amt." := 0;
-                SalesLine."Prepmt Amt to Deduct" := 0;
-                SalesLine."Prepmt Amt Deducted" := 0;
-                SalesLine."Prepmt. Amount Inv. Incl. VAT" := 0;
-                SalesLine."Prepmt. VAT Amount Inv." := 0;
-                SalesLine."Adv.Letter Linked Amount" := 0;
-                // NAVCZ
-
                 OnInsertInvLineFromShptLineOnAfterCalcQuantities(SalesLine, SalesOrderLine);
 
                 SalesLine.Validate("Unit Price", SalesOrderLine."Unit Price");
@@ -972,7 +960,19 @@ table 111 "Sales Shipment Line"
         SalesLine."Special Order" := false;
         SalesLine."Appl.-to Item Entry" := 0;
         SalesLine."Appl.-from Item Entry" := 0;
-
+        // NAVCZ
+        SalesLine."Prepmt. Line Amount" := 0;
+        SalesLine."Prepmt. Amt. Inv." := 0;
+        SalesLine."Prepmt. Amt. Incl. VAT" := 0;
+        SalesLine."Prepayment Amount" := 0;
+        SalesLine."Prepmt. VAT Base Amt." := 0;
+        SalesLine."Prepmt Amt to Deduct" := 0;
+        SalesLine."Prepmt Amt Deducted" := 0;
+        SalesLine."Prepmt. Amount Inv. Incl. VAT" := 0;
+        SalesLine."Prepmt. VAT Amount Inv." := 0;
+        SalesLine."Adv.Letter Linked Amount" := 0;
+        // NAVCZ
+        
         OnAfterClearSalesLineValues(Rec, SalesLine);
     end;
 

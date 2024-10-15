@@ -7,6 +7,7 @@ page 11786 "Posting Desc. Parameters"
     SourceTable = "Posting Desc. Parameter";
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of posting description will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     layout
     {

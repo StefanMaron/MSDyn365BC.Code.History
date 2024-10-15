@@ -1,4 +1,4 @@
-﻿table 302 "Finance Charge Memo Header"
+table 302 "Finance Charge Memo Header"
 {
     Caption = 'Finance Charge Memo Header';
     DataCaptionFields = "No.", Name;
@@ -470,6 +470,7 @@
             TableRelation = "Posting Description" WHERE(Type = CONST("Finance Charge"));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -537,7 +538,7 @@
 
     trigger OnInsert()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         NoSeriesLink: Record "No. Series Link";
     begin
         SalesSetup.Get;
@@ -1048,7 +1049,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
     procedure GetPostingDescription(PostingDescCode: Code[10]; var PostingDescription: Text[100])
     var
         PostingDesc: Record "Posting Description";

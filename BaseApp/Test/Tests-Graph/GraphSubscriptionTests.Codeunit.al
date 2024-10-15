@@ -19,6 +19,7 @@ codeunit 134625 "Graph Subscription Tests"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         GraphBackgroundSyncSubscr: Codeunit "Graph Background Sync. Subscr.";
         TelemetryBackgroundScheduler: Codeunit "Telemetry Background Scheduler";
         IsInitialized: Boolean;
@@ -1031,9 +1032,11 @@ codeunit 134625 "Graph Subscription Tests"
         GraphDataSetup: Codeunit "Graph Data Setup";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
-        LibraryGraphSync.DeleteAllLogRecords;
-        LibraryGraphSync.DeleteAllContactIntegrationMappingDetails;
-        LibraryGraphSync.RegisterTestConnections;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Graph Subscription Tests");
+
+        LibraryGraphSync.DeleteAllLogRecords();
+        LibraryGraphSync.DeleteAllContactIntegrationMappingDetails();
+        LibraryGraphSync.RegisterTestConnections();
 
         InboundConnectionName := GraphConnectionSetup.GetInboundConnectionName(TableID);
         SubscriptionConnectionName := GraphConnectionSetup.GetSubscriptionConnectionName(TableID);
@@ -1044,8 +1047,10 @@ codeunit 134625 "Graph Subscription Tests"
         if IsInitialized then
             exit;
 
-        LibraryRandom.Init;
-        LibraryGraphSync.EnableGraphSync;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Graph Subscription Tests");
+
+        LibraryRandom.Init();
+        LibraryGraphSync.EnableGraphSync();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
@@ -1067,6 +1072,8 @@ codeunit 134625 "Graph Subscription Tests"
         BindSubscription(TelemetryBackgroundScheduler);
 
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Graph Subscription Tests");
     end;
 
     local procedure CreateFutureSubscriptions("Count": Integer)

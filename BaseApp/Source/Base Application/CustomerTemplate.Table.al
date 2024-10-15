@@ -136,6 +136,7 @@ table 5105 "Customer Template"
             TableRelation = "No. Series";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
         }
         field(11791; "Language Code"; Code[10])
@@ -144,6 +145,7 @@ table 5105 "Customer Template"
             TableRelation = Language;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Customer Template extension will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
     }
 
@@ -206,7 +208,7 @@ table 5105 "Customer Template"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Customer Template extension will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Customer Template extension will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure AssistEdit(): Boolean
     var
         SalesSetup: Record "Sales & Receivables Setup";

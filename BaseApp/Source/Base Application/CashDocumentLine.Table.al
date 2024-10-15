@@ -869,6 +869,7 @@ table 11731 "Cash Document Line"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -888,6 +889,7 @@ table 11731 "Cash Document Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(604; "VAT Amount (Non Deductible)"; Decimal)
         {
@@ -896,6 +898,7 @@ table 11731 "Cash Document Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31001; "Advance Letter Link Code"; Code[30])
         {
@@ -1558,7 +1561,7 @@ table 11731 "Cash Document Line"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure GetVATDeduction(): Decimal
     var
         NonDeductVATSetup: Record "Non Deductible VAT Setup";
@@ -1596,7 +1599,7 @@ table 11731 "Cash Document Line"
         end;
     end;
 
-    [Obsolete('The functionality of VAT Coefficient will be removed and this function should not be used. (Obsolete::Removed in release 01.2021')]
+    [Obsolete('The functionality of VAT Coefficient will be removed and this function should not be used. (Obsolete::Removed in release 01.2021','15.3')]
     local procedure CalcVATCoefficient(): Decimal
     begin
         GLSetup.Get;

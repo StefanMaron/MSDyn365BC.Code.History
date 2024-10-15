@@ -675,6 +675,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Credit Card No.';
             ObsoleteReason = 'This field is not needed and it is not used anymore.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(5043; "Interaction Exist"; Boolean)
         {
@@ -905,6 +906,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Tax Corrective Document';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
@@ -912,6 +914,7 @@ table 5107 "Sales Header Archive"
             TableRelation = "Posting Description" WHERE(Type = CONST("Sales Document"));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -926,6 +929,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Quote Validity';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11797; "Last Version"; Boolean)
         {
@@ -939,6 +943,7 @@ table 5107 "Sales Header Archive"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
@@ -948,6 +953,7 @@ table 5107 "Sales Header Archive"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {

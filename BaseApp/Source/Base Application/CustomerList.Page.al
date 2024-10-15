@@ -1,4 +1,4 @@
-﻿page 22 "Customer List"
+page 22 "Customer List"
 {
     ApplicationArea = Basic, Suite, Service;
     Caption = 'Customers';
@@ -30,6 +30,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field(Name; Name)
                 {
@@ -474,6 +475,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
             group(ActionGroupCRM)
@@ -1516,7 +1518,7 @@
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
-        SetFilter("Date Filter", '..%1', WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     var

@@ -193,6 +193,7 @@ page 101 "General Journal Templates"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Check Balance in G/L Journal by Correction Field will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
         }

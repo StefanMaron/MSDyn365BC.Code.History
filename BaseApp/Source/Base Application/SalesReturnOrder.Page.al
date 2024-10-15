@@ -1,4 +1,4 @@
-﻿page 6630 "Sales Return Order"
+page 6630 "Sales Return Order"
 {
     Caption = 'Sales Return Order';
     PageType = Document;
@@ -153,6 +153,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field(Correction; Correction)
                 {
@@ -174,6 +175,11 @@
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                }
+                field("Original Document VAT Date"; "Original Document VAT Date")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    ToolTip = 'Specifies the VAT date of the original document.';
                 }
                 field("Order Date"; "Order Date")
                 {
@@ -205,6 +211,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
@@ -310,7 +317,7 @@
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer s market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customer''s market type to link business transakcions to.';
                 }
                 field("Reason Code"; "Reason Code")
                 {
@@ -668,6 +675,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -681,6 +689,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {

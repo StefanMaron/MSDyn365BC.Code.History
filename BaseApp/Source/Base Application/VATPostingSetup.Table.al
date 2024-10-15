@@ -214,6 +214,7 @@ table 325 "VAT Posting Setup"
             TableRelation = "G/L Account";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -226,6 +227,7 @@ table 325 "VAT Posting Setup"
             TableRelation = "G/L Account";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -243,6 +245,7 @@ table 325 "VAT Posting Setup"
             Caption = 'Allow Non Deductible VAT';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -341,6 +344,7 @@ table 325 "VAT Posting Setup"
             Caption = 'Insolvency Proceedings (p.44)';
             ObsoleteState = Removed;
             ObsoleteReason = 'Replaced by "Corrections for Bad Receivable"';
+            ObsoleteTag = '15.0';
         }
         field(31103; "Ratio Coefficient"; Boolean)
         {

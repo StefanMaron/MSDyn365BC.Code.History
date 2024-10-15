@@ -20,6 +20,7 @@ page 345 Reconciliation
                     ToolTip = 'Specifies the type of vat control report lines';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of GL Journal reconciliation by type will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("No."; "No.")
                 {
@@ -89,7 +90,7 @@ page 345 Reconciliation
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)')]
+    [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
     procedure SetBankAccReconLine(var NewBankAccReconLn: Record "Bank Acc. Reconciliation Line")
     begin
         // NAVCZ
@@ -214,7 +215,7 @@ page 345 Reconciliation
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('This function is not used anywhere. (Removed in release 01.2021)')]
+    [Obsolete('This function is not used anywhere. (Removed in release 01.2021)','15.3')]
     procedure SwapGenJnlLine(var SrcGenJnlLine: Record "Gen. Journal Line"; var NewGenJnlLine: Record "Gen. Journal Line")
     begin
         // NAVCZ

@@ -345,6 +345,7 @@ page 279 "Source Code Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
 
                 }
                 field("Compress FA Ledger"; "Compress FA Ledger")

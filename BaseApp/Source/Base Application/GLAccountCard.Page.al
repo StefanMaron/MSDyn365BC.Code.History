@@ -1,4 +1,4 @@
-﻿page 17 "G/L Account Card"
+page 17 "G/L Account Card"
 {
     Caption = 'G/L Account Card';
     PageType = Card;
@@ -26,6 +26,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field(Name; Name)
                 {

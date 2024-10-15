@@ -253,6 +253,7 @@ table 5079 "Marketing Setup"
             InitValue = true;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
     }
 

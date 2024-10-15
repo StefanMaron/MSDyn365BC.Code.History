@@ -249,6 +249,7 @@ report 12 "VAT Statement"
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                        ObsoleteTag = '15.3';
                     }
                     field(ShowAmtInAddCurrency; UseAmtsInAddCurr)
                     {
@@ -319,7 +320,7 @@ report 12 "VAT Statement"
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         VATEntry2: Record "VAT Entry";
         VATStmtLine: Record "VAT Statement Line";
@@ -357,7 +358,7 @@ report 12 "VAT Statement"
         EndDate2: Date;
         StartDate2: Date;
         EndDateReq2: Date;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         PerfCountryCodeFilter: Code[10];
         SettlementNoFilter: Text[50];
         Amount2: Decimal;
@@ -847,7 +848,7 @@ report 12 "VAT Statement"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure ExchangeAmount(AmountAdd: Decimal): Decimal
     begin
         // NAVCZ

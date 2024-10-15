@@ -72,6 +72,7 @@ page 5919 "Service Mgt. Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Reason Code For Payment Disc."; "Reason Code For Payment Disc.")
                 {
@@ -80,6 +81,7 @@ page 5919 "Service Mgt. Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("One Service Item Line/Order"; "One Service Item Line/Order")
                 {
@@ -152,6 +154,7 @@ page 5919 "Service Mgt. Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Skip Manual Reservation"; "Skip Manual Reservation")
                 {
@@ -370,6 +373,7 @@ page 5919 "Service Mgt. Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
         }

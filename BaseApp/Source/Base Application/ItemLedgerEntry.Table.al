@@ -278,6 +278,7 @@ table 32 "Item Ledger Entry"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5800; "Completely Invoiced"; Boolean)
         {
@@ -466,6 +467,7 @@ table 32 "Item Ledger Entry"
             TableRelation = "Fixed Asset";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31044; "Maintenance Code"; Code[10])
         {
@@ -473,6 +475,7 @@ table 32 "Item Ledger Entry"
             TableRelation = Maintenance;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31045; "Maintenance Amount"; Decimal)
         {
@@ -482,6 +485,7 @@ table 32 "Item Ledger Entry"
             FieldClass = FlowField;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -490,6 +494,7 @@ table 32 "Item Ledger Entry"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Tariff No."; Code[20])
         {
@@ -511,6 +516,7 @@ table 32 "Item Ledger Entry"
             ObsoleteReason = 'Merge to W1';
             ObsoleteState = Pending;
             TableRelation = "Shipment Method";
+            ObsoleteTag = '15.0';
         }
         field(31066; "Net Weight"; Decimal)
         {

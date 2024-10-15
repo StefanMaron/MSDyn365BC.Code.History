@@ -62,7 +62,7 @@ codeunit 86 "Sales-Quote to Order"
         ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(RecordId, SalesOrderHeader."No.", SalesOrderHeader.RecordId);
 
         IsHandled := false;
-        OnBeforeDeleteSalesQuote(Rec, SalesOrderHeader, IsHandled);
+        OnBeforeDeleteSalesQuote(Rec, SalesOrderHeader, IsHandled, SalesQuoteLine);
         if not IsHandled then begin
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
             DeleteLinks;
@@ -86,7 +86,7 @@ codeunit 86 "Sales-Quote to Order"
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal)
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         NoSeriesLink: Record "No. Series Link";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
@@ -281,7 +281,7 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteSalesQuote(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteSalesQuote(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean; var SalesQuoteLine: Record "Sales Line")
     begin
     end;
 

@@ -119,6 +119,7 @@ table 31101 "VAT Control Report Line"
             Caption = 'Insolvency Proceedings (p.44)';
             ObsoleteState = Removed;
             ObsoleteReason = 'Replaced by "Corrections for Bad Receivable"';
+            ObsoleteTag = '15.0';
         }
         field(45; "Ratio Use"; Boolean)
         {

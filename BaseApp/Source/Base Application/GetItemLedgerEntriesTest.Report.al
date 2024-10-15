@@ -169,6 +169,7 @@ report 31059 "Get Item Ledger Entries - Test"
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                        ObsoleteTag = '15.3';
                     }
                 }
             }
@@ -209,7 +210,7 @@ report 31059 "Get Item Ledger Entries - Test"
         Item: Record Item;
         CompanyInfo: Record "Company Information";
         greTItem: Record Item temporary;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         gcoCountryCodeFillFiter: Code[10];
         StartDate: Date;
         EndDate: Date;

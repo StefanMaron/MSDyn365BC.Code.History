@@ -313,6 +313,7 @@ codeunit 260 "Document-Mailing"
     var
         OfficeMgt: Codeunit "Office Management";
         EmailSentSuccesfully: Boolean;
+        IsHandled: Boolean;
     begin
         with TempEmailItem do begin
             if IsAllowedToChangeSender(SenderUserID) then begin
@@ -339,7 +340,10 @@ codeunit 260 "Document-Mailing"
                 Validate("Message Type", "Message Type"::"From Email Body Template");
             end;
 
-            OnBeforeSendEmail(TempEmailItem, IsFromPostedDoc, PostedDocNo, HideDialog, ReportUsage);
+            IsHandled := false;
+            OnBeforeSendEmail(TempEmailItem, IsFromPostedDoc, PostedDocNo, HideDialog, ReportUsage, EmailSentSuccesfully, IsHandled);
+            if IsHandled then
+                exit(EmailSentSuccesfully);
 
             if OfficeMgt.AttachAvailable then
                 OfficeMgt.AttachDocument(AttachmentFilePath, AttachmentFileName, GetBodyText, Subject)
@@ -353,7 +357,7 @@ codeunit 260 "Document-Mailing"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; var IsFromPostedDoc: Boolean; var PostedDocNo: Code[20]; var HideDialog: Boolean; var ReportUsage: Integer)
+    local procedure OnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; var IsFromPostedDoc: Boolean; var PostedDocNo: Code[20]; var HideDialog: Boolean; var ReportUsage: Integer; var EmailSentSuccesfully: Boolean; var IsHandled: Boolean)
     begin
     end;
 

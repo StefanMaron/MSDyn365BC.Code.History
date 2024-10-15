@@ -80,6 +80,7 @@ page 460 "Purchases & Payables Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Copy Comments Blanket to Order"; "Copy Comments Blanket to Order")
                 {

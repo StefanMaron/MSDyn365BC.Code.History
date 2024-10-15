@@ -5,6 +5,7 @@ table 31131 "Certificate CZ"
     Permissions = TableData "Service Password" = rimd;
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by tab 1262 "Isolated Certificate"';
+    ObsoleteTag = '15.2';
 
     fields
     {

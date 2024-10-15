@@ -1,4 +1,4 @@
-codeunit 93 "Purch.-Quote to Order (Yes/No)"
+﻿codeunit 93 "Purch.-Quote to Order (Yes/No)"
 {
     TableNo = "Purchase Header";
 
@@ -19,8 +19,11 @@ codeunit 93 "Purch.-Quote to Order (Yes/No)"
         PurchQuoteToOrder.Run(Rec);
         PurchQuoteToOrder.GetPurchOrderHeader(PurchOrderHeader);
 
-        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(OpenNewOrderQst, PurchOrderHeader."No."), true) then
-            PAGE.Run(PAGE::"Purchase Order", PurchOrderHeader);
+        IsHandled := false;
+        OnAfterCreatePurchOrder(PurchOrderHeader, IsHandled);
+        if not IsHandled then
+            if ConfirmManagement.GetResponseOrDefault(StrSubstNo(OpenNewOrderQst, PurchOrderHeader."No."), true) then
+                PAGE.Run(PAGE::"Purchase Order", PurchOrderHeader);
     end;
 
     var
@@ -28,6 +31,11 @@ codeunit 93 "Purch.-Quote to Order (Yes/No)"
         PurchOrderHeader: Record "Purchase Header";
         PurchQuoteToOrder: Codeunit "Purch.-Quote to Order";
         OpenNewOrderQst: Label 'The quote has been converted to order number %1. Do you want to open the new order?', Comment = '%1 - No. of new purchase order.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePurchOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchQuoteToOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)

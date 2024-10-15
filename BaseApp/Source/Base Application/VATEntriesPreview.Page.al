@@ -73,6 +73,7 @@ page 123 "VAT Entries Preview"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Global Dimension 1 Code"; "Global Dimension 1 Code")
                 {
@@ -81,6 +82,7 @@ page 123 "VAT Entries Preview"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Global Dimension 2 Code"; "Global Dimension 2 Code")
                 {
@@ -89,6 +91,7 @@ page 123 "VAT Entries Preview"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Document Type"; "Document Type")
                 {
@@ -129,6 +132,7 @@ page 123 "VAT Entries Preview"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Base (Non Deductible)"; "VAT Base (Non Deductible)")
                 {
@@ -137,6 +141,7 @@ page 123 "VAT Entries Preview"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Amount (Non Deductible)"; "VAT Amount (Non Deductible)")
                 {
@@ -145,6 +150,7 @@ page 123 "VAT Entries Preview"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Difference"; "VAT Difference")
                 {
@@ -248,6 +254,7 @@ page 123 "VAT Entries Preview"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Internal Ref. No."; "Internal Ref. No.")
                 {

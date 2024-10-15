@@ -134,6 +134,7 @@ page 9401 "VAT Amount Lines"
                     ToolTip = 'Specifies VAT percentage for the VAT entry. This value is non-deductible.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Base (Non Deductible)"; "VAT Base (Non Deductible)")
                 {
@@ -141,6 +142,7 @@ page 9401 "VAT Amount Lines"
                     ToolTip = 'Specifies the VAT base for the VAT entry. This value is non-deductible.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Amount (Non Deductible)"; "VAT Amount (Non Deductible)")
                 {
@@ -148,6 +150,7 @@ page 9401 "VAT Amount Lines"
                     ToolTip = 'Specifies the VAT amount for the purchase VAT entry. This value is non-deductible.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Amount (LCY)"; "VAT Amount (LCY)")
                 {

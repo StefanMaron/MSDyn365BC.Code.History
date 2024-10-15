@@ -23,6 +23,7 @@ codeunit 1011 "Job Jnl.-Check Line"
         Job: Record Job;
         UserSetupManagement: Codeunit "User Setup Management";
         UserChecksMgt: Codeunit "User Setup Adv. Management";
+        IsHandled: Boolean;
     begin
         OnBeforeRunCheck(JobJnlLine);
 
@@ -59,8 +60,13 @@ codeunit 1011 "Job Jnl.-Check Line"
                     if Location."Bin Mandatory" then
                         TestField("Bin Code");
             end;
-            if "Line Type" in ["Line Type"::Billable, "Line Type"::"Both Budget and Billable"] then
-                TestField(Chargeable, true);
+
+            IsHandled := false;
+            OnBeforeTestChargeable(JobJnlLine, IsHandled);
+            if not IsHandled then
+                if "Line Type" in ["Line Type"::Billable, "Line Type"::"Both Budget and Billable"] then
+                    TestField(Chargeable, true);
+
             // NAVCZ
             GLSetup.Get;
             if GLSetup."User Checks Allowed" then
@@ -104,6 +110,8 @@ codeunit 1011 "Job Jnl.-Check Line"
             No[2] := "No.";
             TableID[3] := DATABASE::"Resource Group";
             No[3] := "Resource Group No.";
+            OnCheckDimOnAfterCreateDimTableID(JobJnlLine, TableID, No);
+
             if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then begin
                 if "Line No." <> 0 then
                     Error(
@@ -179,6 +187,16 @@ codeunit 1011 "Job Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestJobJnlLine(JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestChargeable(JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimOnAfterCreateDimTableID(JobJournalLine: Record "Job Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 }

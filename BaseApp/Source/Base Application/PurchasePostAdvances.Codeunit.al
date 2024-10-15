@@ -5608,7 +5608,7 @@ codeunit 31020 "Purchase-Post Advances"
         PreviewMode := NewPreviewMode;
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure ClearNonDeducibleVAT(var GenJournalLine: Record "Gen. Journal Line")
     begin
         GenJournalLine."VAT Base (Non Deductible)" := 0;

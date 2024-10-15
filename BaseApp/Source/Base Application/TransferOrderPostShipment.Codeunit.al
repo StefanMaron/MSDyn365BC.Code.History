@@ -477,6 +477,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TransShptLine."Gen. Bus. Post. Group Ship" := TransLine."Gen. Bus. Post. Group Ship";
         TransShptLine."Gen. Bus. Post. Group Receive" := TransLine."Gen. Bus. Post. Group Receive";
         TransShptLine."Posting Date" := TransShptHeader."Posting Date";
+        TransShptLine."Transfer Order Line No." := TransLine."Line No.";
         // NAVCZ
         if TransLine."Qty. to Ship" > 0 then begin
             OriginalQuantity := TransLine."Qty. to Ship";
@@ -705,7 +706,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransferHeader.Status := TransferHeader.Status::Released;
         end;
     end;
-    
+
     local procedure CheckTransHeaderMandatoryFields(TransHeader: Record "Transfer Header")
     begin
         StatReportingSetup.Get;

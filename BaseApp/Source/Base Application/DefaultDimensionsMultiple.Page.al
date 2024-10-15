@@ -244,7 +244,7 @@ page 542 "Default Dimensions-Multiple"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Vendor templates will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Vendor templates will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure SetMultiVendTemplate(var VendTemplate: Record "Vendor Template")
     begin
         // NAVCZ

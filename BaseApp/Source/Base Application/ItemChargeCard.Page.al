@@ -33,6 +33,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Assigment on Receive/Shipment"; "Assigment on Receive/Shipment")
                 {
@@ -41,6 +42,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Incl. in Intrastat Amount"; "Incl. in Intrastat Amount")
                 {
@@ -88,6 +90,7 @@ page 31074 "Item Charge Card"
                 Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this group should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
                 field("Sales Only"; "Sales Only")
                 {
                     ApplicationArea = ItemCharges;
@@ -95,6 +98,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Disable Sales Schipment Lines"; "Disable Sales Schipment Lines")
                 {
@@ -103,6 +107,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Disable Return Schipment Lines"; "Disable Return Schipment Lines")
                 {
@@ -111,6 +116,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
             group(Purchase)
@@ -119,6 +125,7 @@ page 31074 "Item Charge Card"
                 Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this group should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
                 field("Purchase Only"; "Purchase Only")
                 {
                     ApplicationArea = ItemCharges;
@@ -126,6 +133,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Disable Receipt Lines"; "Disable Receipt Lines")
                 {
@@ -134,6 +142,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Disable Transfer Receipt Lines"; "Disable Transfer Receipt Lines")
                 {
@@ -142,6 +151,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Disable Return Receipt Lines"; "Disable Return Receipt Lines")
                 {
@@ -150,6 +160,7 @@ page 31074 "Item Charge Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
         }

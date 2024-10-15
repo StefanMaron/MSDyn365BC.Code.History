@@ -1,4 +1,4 @@
-﻿page 6628 "Sales Return Order Arc Subform"
+page 6628 "Sales Return Order Arc Subform"
 {
     Caption = 'Lines';
     Editable = false;
@@ -293,6 +293,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Deferral Code"; "Deferral Code")
                 {

@@ -11,6 +11,7 @@ report 11768 "No. Series Mask Generator"
     UsageCategory = Tasks;
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this report should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     dataset
     {

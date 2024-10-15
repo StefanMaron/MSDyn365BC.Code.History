@@ -469,6 +469,7 @@ page 118 "General Ledger Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Round VAT Coeff."; "Round VAT Coeff.")
                 {
@@ -477,6 +478,7 @@ page 118 "General Ledger Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
             group(Advances)
@@ -533,6 +535,7 @@ page 118 "General Ledger Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Disable Cards Deleting will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Cash Payment Limit (LCY)"; "Cash Payment Limit (LCY)")
                 {

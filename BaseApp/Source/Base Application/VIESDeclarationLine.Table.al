@@ -219,7 +219,7 @@ table 31067 "VIES Declaration Line"
             "Trade Role Type"::"Property Movement":
                 exit('1');
             "Trade Role Type"::"Intermediate Trade":
-                if (not "EU Service") and "EU 3-Party Intermediate Role" then
+                if (not "EU Service") then
                     exit('2');
         end;
         if "EU Service" then

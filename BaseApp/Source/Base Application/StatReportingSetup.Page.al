@@ -302,6 +302,7 @@ page 31065 "Stat. Reporting Setup"
                 Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                ObsoleteTag = '15.3';
 
                 field("Reverse Charge Nos."; "Reverse Charge Nos.")
                 {
@@ -310,6 +311,7 @@ page 31065 "Stat. Reporting Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Reverse Charge Auth. Emp. No."; "Reverse Charge Auth. Emp. No.")
                 {
@@ -318,6 +320,7 @@ page 31065 "Stat. Reporting Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Rvrs. Chrg. Filled by Emp. No."; "Rvrs. Chrg. Filled by Emp. No.")
                 {
@@ -326,6 +329,7 @@ page 31065 "Stat. Reporting Setup"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
             }
             group("Company Official")

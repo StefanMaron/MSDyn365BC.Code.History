@@ -74,8 +74,8 @@ table 11711 "Issued Payment Order Line"
         {
             Caption = 'Applies-to Doc. Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder;
+            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
+            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(14; "Applies-to Doc. No."; Code[20])
         {

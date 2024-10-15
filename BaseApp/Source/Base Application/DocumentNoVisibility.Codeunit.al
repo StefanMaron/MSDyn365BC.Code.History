@@ -494,8 +494,16 @@ codeunit 1400 DocumentNoVisibility
         SalesAdvNoSeriesSetup: Page "Sales Adv. No. Series Setup";
         DocNoSeries: Code[20];
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo,"Advance Letter";
+        IsHandled: Boolean;
+        IsVisible: Boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        IsVisible := false;
+        OnBeforeSalesAdvanceLetterNoIsVisible(TemplateCode, DocNo, IsVisible, IsHandled);
+        if IsHandled then
+            exit(IsVisible);
+
         if DocNo <> '' then
             exit(false);
 
@@ -511,8 +519,6 @@ codeunit 1400 DocumentNoVisibility
             end;
 
             DocNoSeries := DetermineSalesAdvanceSeriesNo(TemplateCode);
-            if not NoSeries.Get(DocNoSeries) then
-                exit(true);
         end;
 
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
@@ -526,8 +532,16 @@ codeunit 1400 DocumentNoVisibility
         PurchaseAdvNoSeriesSetup: Page "Purchase Adv. No. Series Setup";
         DocNoSeries: Code[20];
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order","Advance Letter";
+        IsHandled: Boolean;
+        IsVisible: Boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        IsVisible := false;
+        OnBeforePurchaseAdvanceLetterNoIsVisible(TemplateCode, DocNo, IsVisible, IsHandled);
+        if IsHandled then
+            exit(IsVisible);
+
         if DocNo <> '' then
             exit(false);
 
@@ -543,8 +557,6 @@ codeunit 1400 DocumentNoVisibility
             end;
 
             DocNoSeries := DeterminePurchaseAdvanceSeriesNo(TemplateCode);
-            if not NoSeries.Get(DocNoSeries) then
-                exit(true);
         end;
 
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
@@ -554,30 +566,40 @@ codeunit 1400 DocumentNoVisibility
     var
         SalesAdvPaymentTemplate: Record "Sales Adv. Payment Template";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
+        NoSeriesCode: Code[20];
     begin
         // NAVCZ
         if TemplateCode <> '' then begin
             SalesAdvPaymentTemplate.Get(TemplateCode);
-            exit(SalesAdvPaymentTemplate."Advance Letter Nos.");
+            NoSeriesCode := SalesAdvPaymentTemplate."Advance Letter Nos.";
+        end else begin
+            SalesReceivablesSetup.Get();
+            NoSeriesCode := SalesReceivablesSetup."Advance Letter Nos.";
         end;
 
-        SalesReceivablesSetup.Get;
-        exit(SalesReceivablesSetup."Advance Letter Nos.");
+        CheckNumberSeries(SalesAdvanceLetterHeader, NoSeriesCode, SalesAdvanceLetterHeader.FieldNo("No."));
+        exit(NoSeriesCode);
     end;
 
     local procedure DeterminePurchaseAdvanceSeriesNo(TemplateCode: Code[10]): Code[20]
     var
         PurchaseAdvPaymentTemplate: Record "Purchase Adv. Payment Template";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+        NoSeriesCode: Code[20];
     begin
         // NAVCZ
         if TemplateCode <> '' then begin
             PurchaseAdvPaymentTemplate.Get(TemplateCode);
-            exit(PurchaseAdvPaymentTemplate."Advance Letter Nos.");
+            NoSeriesCode := PurchaseAdvPaymentTemplate."Advance Letter Nos.";
+        end else begin
+            PurchasesPayablesSetup.Get();
+            NoSeriesCode := PurchasesPayablesSetup."Advance Letter Nos.";
         end;
 
-        PurchasesPayablesSetup.Get;
-        exit(PurchasesPayablesSetup."Advance Letter Nos.");
+        CheckNumberSeries(PurchAdvanceLetterHeader, NoSeriesCode, PurchAdvanceLetterHeader.FieldNo("No."));
+        exit(NoSeriesCode);
     end;
 
     [Scope('OnPrem')]
@@ -586,8 +608,16 @@ codeunit 1400 DocumentNoVisibility
         NoSeries: Record "No. Series";
         BankNoSeriesSetup: Page "Bank No. Series Setup";
         DocNoSeries: Code[20];
+        IsHandled: Boolean;
+        IsVisible: Boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        IsVisible := false;
+        OnBeforeBankDocumentNoIsVisible(BankAccNo, DocType, DocNo, IsVisible, IsHandled);
+        if IsHandled then
+            exit(IsVisible);
+
         if DocNo <> '' then
             exit(false);
 
@@ -600,10 +630,7 @@ codeunit 1400 DocumentNoVisibility
             BankNoSeriesSetup.SetFieldsVisibility(DocType);
             BankNoSeriesSetup.SetBankAccountNo(BankAccNo);
             BankNoSeriesSetup.RunModal;
-
             DocNoSeries := DetermineBankSeriesNo(BankAccNo, DocType);
-            if not NoSeries.Get(DocNoSeries) then
-                exit(true);
         end;
 
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
@@ -612,14 +639,22 @@ codeunit 1400 DocumentNoVisibility
     local procedure DetermineBankSeriesNo(BankAccNo: Code[20]; DocType: Option "Bank Statement","Payment Order"): Code[20]
     var
         BankAccount: Record "Bank Account";
+        BankStatementHeader: Record "Bank Statement Header";
+        PaymentOrderHeader: Record "Payment Order Header";
     begin
         // NAVCZ
         BankAccount.Get(BankAccNo);
         case DocType of
             DocType::"Bank Statement":
-                exit(BankAccount."Bank Statement Nos.");
+                begin
+                    CheckNumberSeries(BankStatementHeader, BankAccount."Bank Statement Nos.", BankStatementHeader.FieldNo("No."));
+                    exit(BankAccount."Bank Statement Nos.");
+                end;
             DocType::"Payment Order":
-                exit(BankAccount."Payment Order Nos.");
+                begin
+                    CheckNumberSeries(PaymentOrderHeader, BankAccount."Payment Order Nos.", PaymentOrderHeader.FieldNo("No."));
+                    exit(BankAccount."Payment Order Nos.");
+                end;
         end;
     end;
 
@@ -628,8 +663,16 @@ codeunit 1400 DocumentNoVisibility
     var
         NoSeries: Record "No. Series";
         DocNoSeries: Code[20];
+        IsHandled: Boolean;
+        IsVisible: Boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        IsVisible := false;
+        OnBeforeCreditCardNoIsVisible(DocNo, IsVisible, IsHandled);
+        if IsHandled then
+            exit(IsVisible);
+
         if DocNo <> '' then
             exit(false);
 
@@ -637,10 +680,7 @@ codeunit 1400 DocumentNoVisibility
 
         if not NoSeries.Get(DocNoSeries) then begin
             PAGE.RunModal(PAGE::"Credits No. Series Setup");
-
             DocNoSeries := DetermineCreditSeriesNo;
-            if not NoSeries.Get(DocNoSeries) then
-                exit(true);
         end;
 
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
@@ -649,20 +689,30 @@ codeunit 1400 DocumentNoVisibility
     local procedure DetermineCreditSeriesNo(): Code[20]
     var
         CreditsSetup: Record "Credits Setup";
+        CreditHeader: Record "Credit Header";
     begin
         // NAVCZ
-        CreditsSetup.Get;
+        CreditsSetup.Get();
+        CheckNumberSeries(CreditHeader, CreditsSetup."Credit Nos.", CreditHeader.FieldNo("No."));
         exit(CreditsSetup."Credit Nos.");
     end;
 
     [Scope('OnPrem')]
-    procedure StatReportingDocumentNoIsVisible(DocType: Option "VIES Declaration","Reverse Charge"; DocNo: Code[20]): Boolean
+    procedure StatReportingDocumentNoIsVisible(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report"; DocNo: Code[20]): Boolean
     var
         NoSeries: Record "No. Series";
         StatRepNoSeriesSetup: Page "Stat. Rep. No. Series Setup";
         DocNoSeries: Code[20];
+        IsHandled: Boolean;
+        IsVisible: Boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        IsVisible := false;
+        OnBeforeStatReportingDocumentNoIsVisible(DocType, DocNo, IsVisible, IsHandled);
+        if IsHandled then
+            exit(IsVisible);
+
         if DocNo <> '' then
             exit(false);
 
@@ -671,26 +721,37 @@ codeunit 1400 DocumentNoVisibility
         if not NoSeries.Get(DocNoSeries) then begin
             StatRepNoSeriesSetup.SetFieldsVisibility(DocType);
             StatRepNoSeriesSetup.RunModal;
-
             DocNoSeries := DetermineStatReportingSeriesNo(DocType);
-            if not NoSeries.Get(DocNoSeries) then
-                exit(true);
         end;
 
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
     end;
 
-    local procedure DetermineStatReportingSeriesNo(DocType: Option "VIES Declaration","Reverse Charge"): Code[20]
+    local procedure DetermineStatReportingSeriesNo(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report"): Code[20]
     var
         StatReportingSetup: Record "Stat. Reporting Setup";
+        VIESDeclarationHeader: Record "VIES Declaration Header";
+        ReverseChargeHeader: Record "Reverse Charge Header";
+        VATControlReportHeader: Record "VAT Control Report Header";
     begin
         // NAVCZ
         StatReportingSetup.Get;
         case DocType of
             DocType::"VIES Declaration":
-                exit(StatReportingSetup."VIES Declaration Nos.");
+                begin
+                    CheckNumberSeries(VIESDeclarationHeader, StatReportingSetup."VIES Declaration Nos.", VIESDeclarationHeader.FieldNo("No."));
+                    exit(StatReportingSetup."VIES Declaration Nos.");
+                end;
             DocType::"Reverse Charge":
-                exit(StatReportingSetup."Reverse Charge Nos.");
+                begin
+                    CheckNumberSeries(ReverseChargeHeader, StatReportingSetup."Reverse Charge Nos.", ReverseChargeHeader.FieldNo("No."));
+                    exit(StatReportingSetup."Reverse Charge Nos.");
+                end;
+            DocType::"VAT Control Report":
+                begin
+                    CheckNumberSeries(VATControlReportHeader, StatReportingSetup."VAT Control Report Nos.", VATControlReportHeader.FieldNo("No."));
+                    exit(StatReportingSetup."VAT Control Report Nos.");
+                end;
         end;
     end;
 
@@ -771,6 +832,31 @@ codeunit 1400 DocumentNoVisibility
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactNoIsVisible(var IsVisible: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBankDocumentNoIsVisible(BankAccNo: Code[20]; DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreditCardNoIsVisible(DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStatReportingDocumentNoIsVisible(DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

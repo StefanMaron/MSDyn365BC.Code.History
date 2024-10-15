@@ -27,7 +27,7 @@ codeunit 31100 VATControlReportManagement
         GlobalLineNo: Integer;
         InternalDocCheckMsg: Label 'There is nothing internal document to exclusion in VAT Control Report No. %1.', Comment = '%1=VAT Control Report No.';
         AmountTxt: Label 'Amount';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         PerformCountryRegionCode: Code[10];
 
     [Scope('OnPrem')]
@@ -372,8 +372,7 @@ codeunit 31100 VATControlReportManagement
             Reset;
             if VATEntry."External Document No." <> '' then begin
                 SetRange("External Document No.", VATEntry."External Document No.");
-                if VATEntry."VAT Date" <> VATEntry."Original Document VAT Date" then
-                    SetRange("Original Document VAT Date", VATEntry."Original Document VAT Date");
+                SetRange("Original Document VAT Date", VATEntry."Original Document VAT Date");
             end else begin
                 SetCurrentKey("Document No.");
                 SetRange("Document No.", VATEntry."Document No.");
@@ -419,8 +418,7 @@ codeunit 31100 VATControlReportManagement
             "Line No." := GlobalLineNo;
             "Posting Date" := VATEntry."Posting Date";
             "VAT Date" := VATEntry."VAT Date";
-            if VATEntry."VAT Date" <> VATEntry."Original Document VAT Date" then
-                "Original Document VAT Date" := VATEntry."Original Document VAT Date";
+            "Original Document VAT Date" := VATEntry."Original Document VAT Date";
             "Bill-to/Pay-to No." := VATEntry."Bill-to/Pay-to No.";
             "VAT Registration No." := VATEntry."VAT Registration No.";
             case VATEntry.Type of
@@ -1302,7 +1300,7 @@ codeunit 31100 VATControlReportManagement
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure ExchangeAmount(var VATEntry: Record "VAT Entry")
     var
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
@@ -1358,7 +1356,7 @@ codeunit 31100 VATControlReportManagement
         end;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure PerfCurrExchangeAmount(SrcAmount: Decimal; SrcDate: Date; SrcCurrencyCode: Code[10]): Decimal
     var
         RegistrationCountryRegion: Record "Registration Country/Region";

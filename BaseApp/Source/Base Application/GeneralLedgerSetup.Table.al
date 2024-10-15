@@ -647,6 +647,7 @@ table 98 "General Ledger Setup"
             Caption = 'VAT Reg. No. Validation URL';
             ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
 
             trigger OnValidate()
             begin
@@ -700,6 +701,7 @@ table 98 "General Ledger Setup"
             TableRelation = "VAT Statement Template";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -713,6 +715,7 @@ table 98 "General Ledger Setup"
             TableRelation = "VAT Statement Name".Name WHERE("Statement Template Name" = FIELD("Statement Templ. Name Coeff."));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -728,12 +731,14 @@ table 98 "General Ledger Setup"
                                                                    "Line No." = FIELD("Statement Line No. Coeff."));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11765; "Round VAT Coeff."; Boolean)
         {
             Caption = 'Round VAT Coeff.';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11766; "VAT Coeff. Rounding Precision"; Decimal)
         {
@@ -741,6 +746,7 @@ table 98 "General Ledger Setup"
             DecimalPlaces = 2 : 4;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11768; "Allow VAT Posting From"; Date)
         {
@@ -812,6 +818,7 @@ table 98 "General Ledger Setup"
             Caption = 'Check VAT Identifier';
             ObsoleteState = Pending;
             ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11772; "Check Posting Debit/Credit"; Boolean)
         {
@@ -859,6 +866,7 @@ table 98 "General Ledger Setup"
             Caption = 'Delete Card with Entries';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Disable Cards Deleting will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Reg. No. Validation URL"; Text[250])
         {
@@ -866,6 +874,7 @@ table 98 "General Ledger Setup"
             ExtendedDatatype = URL;
             ObsoleteReason = 'This field has been replaced by Table 11757 Reg. No. Srv Config.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(31000; "Prepayment Type"; Option)
         {

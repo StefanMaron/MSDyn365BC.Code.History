@@ -175,6 +175,7 @@ table 5718 "Nonstock Item"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(14; "Last Date Modified"; Date)
         {
@@ -226,6 +227,7 @@ table 5718 "Nonstock Item"
             Caption = 'Full Description';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin

@@ -327,6 +327,7 @@ table 11736 "Posted Cash Document Line"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(603; "VAT Base (Non Deductible)"; Decimal)
         {
@@ -335,6 +336,7 @@ table 11736 "Posted Cash Document Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(604; "VAT Amount (Non Deductible)"; Decimal)
         {
@@ -343,6 +345,7 @@ table 11736 "Posted Cash Document Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31125; "EET Transaction"; Boolean)
         {

@@ -1,4 +1,4 @@
-﻿page 39 "General Journal"
+page 39 "General Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
     // // Classic mode (Show more columns action) - When IsSimplePage is set to false. This view supports showing all the traditional columns. All the lines for all
@@ -322,6 +322,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field(Quantity; Quantity)
                 {
@@ -1049,6 +1050,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action is duplicated with the action in the bank action group. (Obsolete::Remove in release 01.2021)';
+                    ObsoleteTag = '15.3';
 
                     trigger OnAction()
                     begin

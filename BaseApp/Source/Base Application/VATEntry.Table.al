@@ -426,6 +426,7 @@ table 254 "VAT Entry"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11764; "VAT Delay"; Boolean)
         {
@@ -440,6 +441,7 @@ table 254 "VAT Entry"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
@@ -447,6 +449,7 @@ table 254 "VAT Entry"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
@@ -454,6 +457,7 @@ table 254 "VAT Entry"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11768; "VAT Settlement No."; Code[15])
         {
@@ -467,6 +471,7 @@ table 254 "VAT Entry"
             TableRelation = "VAT Entry";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11771; "Global Dimension 1 Code"; Code[20])
         {
@@ -476,6 +481,7 @@ table 254 "VAT Entry"
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11772; "Global Dimension 2 Code"; Code[20])
         {
@@ -485,6 +491,7 @@ table 254 "VAT Entry"
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11773; "Dimension Set ID"; Integer)
         {
@@ -493,6 +500,7 @@ table 254 "VAT Entry"
             TableRelation = "Dimension Set Entry";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnLookup()
             begin
@@ -510,6 +518,7 @@ table 254 "VAT Entry"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -551,6 +560,7 @@ table 254 "VAT Entry"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Currency Factor"; Decimal)
         {
@@ -560,6 +570,7 @@ table 254 "VAT Entry"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31062; "Currency Code"; Code[10])
         {
@@ -568,6 +579,7 @@ table 254 "VAT Entry"
             TableRelation = Currency;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -651,12 +663,14 @@ table 254 "VAT Entry"
             SumIndexFields = Amount;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this key should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         key(Key14; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "EU 3-Party Trade", "EU 3-Party Intermediate Role", "VAT Date", "Prepayment Type", "Advance Letter No.", "Perform. Country/Region Code", "VAT Settlement No.")
         {
             SumIndexFields = "VAT Base (Non Deductible)", "VAT Amount (Non Deductible)";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this key should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         key(Key15; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Country/Region Code")
         {
@@ -878,7 +892,7 @@ table 254 "VAT Entry"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Dimension for VAT Entry will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Dimension for VAT Entry will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure ShowDimensions()
     var
         DimMgt: Codeunit DimensionManagement;

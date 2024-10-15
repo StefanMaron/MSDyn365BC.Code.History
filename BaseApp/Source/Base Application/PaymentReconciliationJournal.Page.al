@@ -1,4 +1,4 @@
-﻿page 1290 "Payment Reconciliation Journal"
+page 1290 "Payment Reconciliation Journal"
 {
     AutoSplitKey = true;
     Caption = 'Payment Reconciliation Journal';
@@ -670,6 +670,7 @@
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'The functionality of GL Journal reconciliation by type will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                        ObsoleteTag = '15.3';
 
                         trigger OnAction()
                         begin

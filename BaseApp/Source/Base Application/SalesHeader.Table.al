@@ -342,22 +342,21 @@ table 36 "Sales Header"
                           FieldCaption("Ship-to Code"));
                     SalesLine.Reset;
                 end;
-
-                if not IsCreditDocType then
-                    if "Ship-to Code" <> '' then begin
-                        if xRec."Ship-to Code" <> '' then begin
-                            GetCust("Sell-to Customer No.");
-                            if Cust."Location Code" <> '' then
-                                Validate("Location Code", Cust."Location Code");
-                            "Tax Area Code" := Cust."Tax Area Code";
-                        end;
-                        ShipToAddr.Get("Sell-to Customer No.", "Ship-to Code");
-                        CopyShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr);
-                    end else
-                        if "Sell-to Customer No." <> '' then begin
-                            GetCust("Sell-to Customer No.");
-                            CopyShipToCustomerAddressFieldsFromCustomer(Cust);
-                        end;
+                             
+                if "Ship-to Code" <> '' then begin
+                    if xRec."Ship-to Code" <> '' then begin
+                        GetCust("Sell-to Customer No.");
+                        if Cust."Location Code" <> '' then
+                            Validate("Location Code", Cust."Location Code");
+                        "Tax Area Code" := Cust."Tax Area Code";
+                    end;
+                    ShipToAddr.Get("Sell-to Customer No.", "Ship-to Code");
+                    CopyShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr);
+                end else
+                    if "Sell-to Customer No." <> '' then begin
+                        GetCust("Sell-to Customer No.");
+                        CopyShipToCustomerAddressFieldsFromCustomer(Cust);
+                    end;
 
                 GetShippingTime(FieldNo("Ship-to Code"));
 
@@ -2072,7 +2071,9 @@ table 36 "Sales Header"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("Sell-to E-Mail");
+                if "Sell-to E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
             end;
         }
         field(175; "Payment Instructions Id"; Integer)
@@ -2673,6 +2674,7 @@ table 36 "Sales Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(9000; "Assigned User ID"; Code[50])
         {
@@ -2847,12 +2849,14 @@ table 36 "Sales Header"
             Caption = 'Tax Corrective Document';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11763; "Postponed VAT"; Boolean)
         {
             Caption = 'Postponed VAT';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
@@ -2860,6 +2864,7 @@ table 36 "Sales Header"
             TableRelation = "Posting Description" WHERE(Type = CONST("Sales Document"));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -2906,12 +2911,14 @@ table 36 "Sales Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
             ObsoleteReason = 'Moved to Quote Valid Until Date';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -3016,6 +3023,7 @@ table 36 "Sales Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             var
@@ -3064,6 +3072,7 @@ table 36 "Sales Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -3087,6 +3096,7 @@ table 36 "Sales Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -3293,13 +3303,13 @@ table 36 "Sales Header"
         InvtSetup: Record "Inventory Setup";
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegistrationCountry: Record "Registration Country/Region";
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         CompanyInfo: Record "Company Information";
         Salesperson: Record "Salesperson/Purchaser";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         UserSetupMgt: Codeunit "User Setup Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -3391,7 +3401,7 @@ table 36 "Sales Header"
 
     procedure InitRecord()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         NoSeriesLink: Record "No. Series Link";
         ArchiveManagement: Codeunit ArchiveManagement;
         PostingNoSeries: Boolean;
@@ -3504,8 +3514,11 @@ table 36 "Sales Header"
             end;
         end;
 
-        if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then
-            "Shipment Date" := WorkDate;
+        IsHandled := false;
+        OnInitRecordOnBeforeAssignShipmentDate(Rec, IsHandled);
+        if not IsHandled then
+            if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then
+                "Shipment Date" := WorkDate;
 
         if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) and
            ("Posting Date" = 0D)
@@ -3844,8 +3857,12 @@ table 36 "Sales Header"
                 TempReservEntry.DeleteAll;
                 RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
                 TransferItemChargeAssgntSalesToTemp(ItemChargeAssgntSales, TempItemChargeAssgntSales);
-                SalesLine.DeleteAll(true);
-                SalesLine.Init;
+                IsHandled := false;
+                OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(Rec, SalesLine, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    SalesLine.DeleteAll(true);
+
+                SalesLine.Init();
                 SalesLine."Line No." := 0;
                 TempSalesLine.FindSet;
                 ExtendedTextAdded := false;
@@ -4670,7 +4687,12 @@ table 36 "Sales Header"
     procedure GetShippingTime(CalledByFieldNo: Integer)
     var
         ShippingAgentServices: Record "Shipping Agent Services";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetShippingTime(Rec, xRec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
         if (CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0) then
             exit;
 
@@ -4691,7 +4713,7 @@ table 36 "Sales Header"
             Contact.Get(Contact."Company No.");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetSellToCustomerFaxNo(): Text
     var
         Customer: Record Customer;
@@ -4700,7 +4722,7 @@ table 36 "Sales Header"
             exit(Customer."Fax No.");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CheckCreditMaxBeforeInsert()
     var
         SalesHeader: Record "Sales Header";
@@ -4983,7 +5005,7 @@ table 36 "Sales Header"
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetPstdDocLinesToRevere()
     var
         SalesPostedDocLines: Page "Posted Sales Document Lines";
@@ -5019,7 +5041,7 @@ table 36 "Sales Header"
             FilterGroup(0);
         end;
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     local procedure SynchronizeForReservations(var NewSalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line")
@@ -5107,7 +5129,7 @@ table 36 "Sales Header"
         exit(RunCheck);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CheckItemAvailabilityInLines()
     var
         SalesLine: Record "Sales Line";
@@ -5401,7 +5423,7 @@ table 36 "Sales Header"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
     procedure GetPostingDescription(SalesHeader: Record "Sales Header"): Text[100]
     var
         PostingDesc: Record "Posting Description";
@@ -5506,7 +5528,7 @@ table 36 "Sales Header"
         exit(false);
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         // NAVCZ
@@ -5945,7 +5967,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure OnCheckSalesPostRestrictions()
     begin
     end;
@@ -7298,6 +7320,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitInsert(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7468,6 +7495,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitRecordOnBeforeAssignShipmentDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertTempSalesLineInBufferOnBeforeTempSalesLineInsert(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
     begin
     end;
@@ -7559,6 +7591,26 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateSalesLinesOnBeforeConfirm(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; ChangedFieldName: Text[100]; HideValidationDialog: Boolean; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestStatusIsNotPendingApproval(SalesHeader: Record "Sales Header"; var NotPending: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestStatusIsNotPendingPrepayment(SalesHeader: Record "Sales Header"; var NotPending: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestStatusIsNotReleased(SalesHeader: Record "Sales Header"; var NotReleased: Boolean)
     begin
     end;
 

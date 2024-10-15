@@ -1,4 +1,4 @@
-﻿page 6631 "Sales Return Order Subform"
+page 6631 "Sales Return Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -541,6 +541,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Deferral Code"; "Deferral Code")
                 {
@@ -1295,10 +1296,10 @@
     procedure UpdateEditableOnRow()
     begin
         IsCommentLine := not HasTypeToFillMandatoryFields;
+        IsBlankNumber := IsCommentLine;
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
     end;
 

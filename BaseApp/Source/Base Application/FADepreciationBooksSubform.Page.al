@@ -187,6 +187,7 @@ page 5666 "FA Depreciation Books Subform"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021))';
+                    ObsoleteTag = '15.3';
                 }
                 field("Projected Disposal Date"; "Projected Disposal Date")
                 {

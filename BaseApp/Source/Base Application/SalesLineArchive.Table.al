@@ -759,6 +759,7 @@ table 5108 "Sales Line Archive"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5713; "Special Order"; Boolean)
         {
@@ -932,6 +933,7 @@ table 5108 "Sales Line Archive"
             TableRelation = "Reason Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31060; "Physical Transfer"; Boolean)
         {

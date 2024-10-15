@@ -671,7 +671,7 @@ report 31096 "Sales - Invoice CZ"
         CurrExchRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
         SalesInvHeader: Record "Sales Invoice Header";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

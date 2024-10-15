@@ -253,9 +253,8 @@ table 5612 "FA Depreciation Book"
             trigger OnValidate()
             begin
                 // NAVCZ
-                if "FA Posting Group" <> xRec."FA Posting Group" then
-                    if FALedgerEntriesExist then
-                        Error(FAPostingGroupCanNotBeChangedErr);
+                if FALedgerEntriesExist then
+                    Error(FAPostingGroupCanNotBeChangedErr);
                 // NAVCZ
 
                 ModifyDeprFields;
@@ -721,6 +720,7 @@ table 5612 "FA Depreciation Book"
             Caption = 'Depr. FA Appreciation From';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021))';
+            ObsoleteTag = '15.3';
         }
         field(31041; "Depreciation Interupt"; Boolean)
         {

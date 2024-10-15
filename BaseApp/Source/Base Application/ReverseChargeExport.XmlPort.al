@@ -5,6 +5,7 @@ xmlport 11763 "Reverse Charge Export"
     Encoding = UTF8;
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this xmlport should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     schema
     {

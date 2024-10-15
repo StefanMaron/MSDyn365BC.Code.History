@@ -1,4 +1,4 @@
-﻿page 27 "Vendor List"
+page 27 "Vendor List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendors';
@@ -30,6 +30,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field(Name; Name)
                 {
@@ -405,6 +406,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 action(ApprovalEntries)
                 {
@@ -1021,7 +1023,7 @@
     var
         SocialListeningSetup: Record "Social Listening Setup";
     begin
-        SetFilter("Date Filter", '..%1', WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         ResyncVisible := ReadSoftOCRMasterDataSync.IsSyncEnabled;

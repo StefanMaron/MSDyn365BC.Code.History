@@ -37,7 +37,7 @@ codeunit 144201 "Tax VAT Statements"
     [HandlerFunctions('ReportCalcAndPostVATSettlementHandler,RequestPageVATStatementHandler,YesConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure PrintingVATStatementDPHDP2()
     var
         VATStatementTemplate: Record "VAT Statement Template";
@@ -136,7 +136,7 @@ codeunit 144201 "Tax VAT Statements"
     [HandlerFunctions('ReportCalcAndPostVATSettlementHandler,PageExportVATStatementHandler,YesConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure ExportingVATStatementDPHDP2()
     var
         VATStatementTemplate: Record "VAT Statement Template";

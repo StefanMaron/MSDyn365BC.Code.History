@@ -576,6 +576,7 @@ table 125 "Purch. Cr. Memo Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(6600; "Return Shipment No."; Code[20])
         {
@@ -605,6 +606,7 @@ table 125 "Purch. Cr. Memo Line"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
@@ -613,6 +615,7 @@ table 125 "Purch. Cr. Memo Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
@@ -621,6 +624,7 @@ table 125 "Purch. Cr. Memo Line"
             Editable = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31061; "Tariff No."; Code[20])
         {

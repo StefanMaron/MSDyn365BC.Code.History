@@ -236,10 +236,13 @@ table 6660 "Return Receipt Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -608,12 +611,14 @@ table 6660 "Return Receipt Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -622,6 +627,7 @@ table 6660 "Return Receipt Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -637,6 +643,7 @@ table 6660 "Return Receipt Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
     }
 
@@ -683,7 +690,6 @@ table 6660 "Return Receipt Header"
     var
         ReturnRcptHeader: Record "Return Receipt Header";
         SalesCommentLine: Record "Sales Comment Line";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         PostCode: Record "Post Code";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -732,6 +738,11 @@ table 6660 "Return Receipt Header"
             SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
             FilterGroup(0);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
     end;
 }
 

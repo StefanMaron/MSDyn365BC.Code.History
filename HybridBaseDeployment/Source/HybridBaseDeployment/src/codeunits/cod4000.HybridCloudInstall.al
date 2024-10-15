@@ -9,22 +9,8 @@ codeunit 4000 "Hybrid Cloud Install"
     var
         HybridCueSetupManagement: Codeunit "Hybrid Cue Setup Management";
     begin
-        AddIntelligentCloudToAssistedSetup(false);
         HybridCueSetupManagement.InsertDataForReplicationSuccessRateCue();
         UpdateHybridReplicationSummaryRecords();
-        UpdateHybridReplicationAssistedSetupRecord();
-    end;
-
-    procedure AddIntelligentCloudToAssistedSetup(IsIntelligentCloudSetup: Boolean);
-    var
-        assistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
-        AssistedSetupGroup: Enum "Assisted Setup Group";
-    begin
-        NavApp.GetCurrentModuleInfo(Info);
-        assistedSetup.Add(Info.Id(), PAGE::"Hybrid Cloud Setup Wizard", DataSyncWizardPageNameTxt, AssistedSetupGroup::GettingStarted);
-        if IsIntelligentCloudSetup then
-            assistedSetup.Complete(Info.Id(), PAGE::"Hybrid Cloud Setup Wizard");
     end;
 
     // This upgrade logic is to address moving the value of the "Replication Type" field
@@ -40,6 +26,18 @@ codeunit 4000 "Hybrid Cloud Install"
                 HybridReplicationSummary."ReplicationType" := HybridReplicationSummary.ReplicationType::Normal;
                 HybridReplicationSummary.Modify();
             until HybridReplicationSummary.Next() = 0;
+    end;
+
+    procedure AddIntelligentCloudToAssistedSetup(IsIntelligentCloudSetup: Boolean);
+    var
+        assistedSetup: Codeunit "Assisted Setup";
+        Info: ModuleInfo;
+        AssistedSetupGroup: Enum "Assisted Setup Group";
+    begin
+        NavApp.GetCurrentModuleInfo(Info);
+        assistedSetup.Add(Info.Id(), PAGE::"Hybrid Cloud Setup Wizard", DataSyncWizardPageNameTxt, AssistedSetupGroup::GettingStarted);
+        if IsIntelligentCloudSetup then
+            assistedSetup.Complete(Info.Id(), PAGE::"Hybrid Cloud Setup Wizard");
     end;
 
     // This upgrade logic is to address the rebranding of "Intelligent Cloud" to "Cloud Migration"

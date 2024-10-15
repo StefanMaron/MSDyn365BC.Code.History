@@ -208,10 +208,10 @@ codeunit 2 "Company-Initialize"
         PEPPOL20_ElectronicFormatDescriptionTxt: Label 'PEPPOL 2.0 Format (Pan-European Public Procurement Online)';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
-        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         VATNDTxt: Label 'VATND';
         VATPDTxt: Label 'VATPD';
-        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         NonDeductibleVATTxt: Label 'Non deductible VAT';
         PurchaseVATDelayTxt: Label 'Purchase VAT delay';
         OPBALANCETxt: Label 'OPBALANCE';

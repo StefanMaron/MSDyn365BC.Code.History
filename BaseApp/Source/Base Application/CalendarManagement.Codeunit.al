@@ -529,10 +529,17 @@ codeunit 7600 "Calendar Management"
             Result += 1000;
     end;
 
-    procedure CalcTimeSubtract(Time: Time; Value: Integer) Result: Time
+    procedure CalcTimeSubtract(SubstractTime: Time; SubstractValue: Integer) Result: Time
+    var
+        IsHandled: Boolean;
     begin
-        Result := Time - Value;
-        if (Result <> 000000T) and (Time = 235959T) and (Value <> 0) then
+        IsHandled := false;
+        OnBeforeCalcTimeSubtract(SubstractTime, SubstractValue, Result, IsHandled);
+        if IsHandled then
+            exit;
+
+        Result := SubstractTime - SubstractValue;
+        if (Result <> 000000T) and (SubstractTime = 235959T) and (SubstractValue <> 0) then
             Result += 1000;
     end;
 
@@ -669,6 +676,11 @@ codeunit 7600 "Calendar Management"
         end;
 
         Evaluate(ReversedDateFormula, ReversedDateFormulaAsText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTimeSubtract(SubstractTime: Time; SubstractValue: Integer; var Result: Time; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

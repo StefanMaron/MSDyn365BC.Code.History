@@ -381,7 +381,7 @@ codeunit 11735 "Cash Document-Post"
             PostedCashDocLine.Modify;
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure TransferNonDedVAT(var GenJnlLine2: Record "Gen. Journal Line"; CashDocLine3: Record "Cash Document Line")
     var
         CurrExchRate: Record "Currency Exchange Rate";

@@ -315,6 +315,7 @@ table 5911 "Service Mgt. Setup"
             TableRelation = "Posting Description" WHERE(Type = CONST("Service Document"));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11766; "Default VAT Date"; Option)
         {
@@ -331,6 +332,7 @@ table 5911 "Service Mgt. Setup"
             Caption = 'Reas.Cd. on Tax Corr.Doc.Mand.';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11775; "Reason Code For Payment Disc."; Code[10])
         {
@@ -338,12 +340,14 @@ table 5911 "Service Mgt. Setup"
             TableRelation = "Reason Code".Code;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(11777; "Credit Memo Confirmation"; Boolean)
         {
             Caption = 'Credit Memo Confirmation';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             var

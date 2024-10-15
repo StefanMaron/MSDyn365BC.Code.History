@@ -6,6 +6,7 @@ page 11768 "VAT Identifier Translates"
     SourceTable = "VAT Identifier Translate";
     ObsoleteState = Pending;
     ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     layout
     {

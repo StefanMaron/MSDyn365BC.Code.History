@@ -170,6 +170,7 @@ table 5745 "Transfer Shipment Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(7300; "Transfer-from Bin Code"; Code[20])
         {
@@ -196,6 +197,10 @@ table 5745 "Transfer Shipment Line"
         {
             Caption = 'Gen. Bus. Post. Group Receive';
             TableRelation = "Gen. Business Posting Group";
+        }
+        field(31072; "Transfer Order Line No."; Integer)
+        {
+            Caption = 'Transfer Order Line No.';
         }
     }
 

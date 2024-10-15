@@ -1,4 +1,4 @@
-﻿page 42 "Sales Order"
+page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -177,6 +177,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -894,6 +895,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("Language Code"; "Language Code")
                 {
@@ -907,6 +909,7 @@
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '15.3';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -1158,7 +1161,8 @@
                     Promoted = true;
                     PromotedCategory = Category12;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Sell-to Customer No.");
+                    RunPageLink = "No." = FIELD("Sell-to Customer No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
                 }
@@ -2196,7 +2200,7 @@
                 Image = Print;
                 action("Work Order")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Work Order';
                     Ellipsis = true;
                     Image = Print;
@@ -2341,11 +2345,11 @@
             FilterGroup(0);
         end;
 
-        ActivateFields;
+        SetRange("Date Filter", 0D, WorkDate());
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        ActivateFields();
 
-        SetDocNoVisible;
+        SetDocNoVisible();
 
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         IsOfficeHost := OfficeMgt.IsAvailable;

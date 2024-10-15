@@ -3,6 +3,7 @@ codeunit 31096 "Release Reverse Charge"
     TableNo = "Reverse Charge Header";
     ObsoleteState = Pending;
     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this codeunit should not be used. (Obsolete::Removed in release 01.2021)';
+    ObsoleteTag = '15.3';
 
     trigger OnRun()
     var
@@ -33,7 +34,7 @@ codeunit 31096 "Release Reverse Charge"
         NothingToReleaseErr: Label 'There is nothing to release for declaration No. %1.', Comment = '%1 = Reverse Charge No.';
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Reverse Charge Statement will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of Reverse Charge Statement will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     procedure Reopen(var ReverseChargeHdr: Record "Reverse Charge Header")
     begin
         with ReverseChargeHdr do begin

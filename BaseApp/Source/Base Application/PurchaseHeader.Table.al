@@ -2341,6 +2341,7 @@ table 38 "Purchase Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(9000; "Assigned User ID"; Code[50])
         {
@@ -2552,6 +2553,7 @@ table 38 "Purchase Header"
             TableRelation = "Posting Description" WHERE(Type = CONST("Purchase Document"));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -2602,12 +2604,14 @@ table 38 "Purchase Header"
             ValidateTableRelation = false;
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is not needed and it should not be used.';
+            ObsoleteTag = '15.3';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -2712,6 +2716,7 @@ table 38 "Purchase Header"
                                                                                        "Account No." = FILTER(''));
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             var
@@ -2751,6 +2756,7 @@ table 38 "Purchase Header"
             MinValue = 0;
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
@@ -2774,6 +2780,7 @@ table 38 "Purchase Header"
             TableRelation = "Industry Code";
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '15.3';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -2971,9 +2978,9 @@ table 38 "Purchase Header"
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
         InvtSetup: Record "Inventory Setup";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -3053,7 +3060,7 @@ table 38 "Purchase Header"
 
     procedure InitRecord()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         NoSeriesLink: Record "No. Series Link";
         ArchiveManagement: Codeunit ArchiveManagement;
         IsHandled: Boolean;
@@ -4391,7 +4398,7 @@ table 38 "Purchase Header"
         end
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure GetPstdDocLinesToRevere()
     var
         PurchPostedDocLines: Page "Posted Purchase Document Lines";
@@ -4418,7 +4425,7 @@ table 38 "Purchase Header"
             FilterGroup(0);
         end;
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     procedure CalcInvDiscForHeader()
@@ -4449,18 +4456,20 @@ table 38 "Purchase Header"
                     Error(Text052, FieldCaption("Ship-to Address 2"), "No.", SalesHeader."No.");
                 if "Ship-to Post Code" <> SalesHeader."Ship-to Post Code" then
                     Error(Text052, FieldCaption("Ship-to Post Code"), "No.", SalesHeader."No.");
+                if "Ship-to Country/Region Code" <> SalesHeader."Ship-to Country/Region Code" then
+                    Error(Text052, FieldCaption("Ship-to Country/Region Code"), "No.", SalesHeader."No.");
+                if "Ship-to County" <> SalesHeader."Ship-to County" then
+                    Error(Text052, FieldCaption("Ship-to County"), "No.", SalesHeader."No.");
                 if "Ship-to City" <> SalesHeader."Ship-to City" then
                     Error(Text052, FieldCaption("Ship-to City"), "No.", SalesHeader."No.");
                 if "Ship-to Contact" <> SalesHeader."Ship-to Contact" then
                     Error(Text052, FieldCaption("Ship-to Contact"), "No.", SalesHeader."No.");
             end else begin
                 // no purchase line exists
-                "Ship-to Name" := SalesHeader."Ship-to Name";
-                "Ship-to Name 2" := SalesHeader."Ship-to Name 2";
-                "Ship-to Address" := SalesHeader."Ship-to Address";
-                "Ship-to Address 2" := SalesHeader."Ship-to Address 2";
-                "Ship-to Post Code" := SalesHeader."Ship-to Post Code";
-                "Ship-to City" := SalesHeader."Ship-to City";
+                SetShipToAddress(
+                    SalesHeader."Ship-to Name", SalesHeader."Ship-to Name 2", SalesHeader."Ship-to Address",
+                    SalesHeader."Ship-to Address 2", SalesHeader."Ship-to City", SalesHeader."Ship-to Post Code",
+                    SalesHeader."Ship-to County", SalesHeader."Ship-to Country/Region Code");
                 "Ship-to Contact" := SalesHeader."Ship-to Contact";
             end;
         end;
@@ -4699,7 +4708,7 @@ table 38 "Purchase Header"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
     procedure GetPostingDescription(PurchHeader: Record "Purchase Header"): Text[100]
     var
         PostingDesc: Record "Posting Description";
@@ -4727,7 +4736,7 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         // NAVCZ
@@ -4966,7 +4975,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure OnCheckPurchasePostRestrictions()
     begin
     end;
