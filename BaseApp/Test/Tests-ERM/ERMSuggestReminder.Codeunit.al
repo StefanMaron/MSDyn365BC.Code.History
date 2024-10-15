@@ -268,7 +268,7 @@ codeunit 134910 "ERM Suggest Reminder"
             SalesHeader."Sell-to Customer No.", CalcDate('<' + Format(NoOfDays) + 'D>', CalcDate(GracePeriod, SalesHeader."Due Date")));
     end;
 
-    local procedure CreatePostGeneralJnlLine(CustomerNo: Code[20]; DocType: Option; DocDate: Date; Amt: Decimal)
+    local procedure CreatePostGeneralJnlLine(CustomerNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocDate: Date; Amt: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";

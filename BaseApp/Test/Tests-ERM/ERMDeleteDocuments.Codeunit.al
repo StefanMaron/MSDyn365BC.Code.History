@@ -365,7 +365,7 @@ codeunit 134417 "ERM Delete Documents"
     procedure DeleteApprovedInvoicedPurchaseOrder()
     var
         PurchaseHeader: Record "Purchase Header";
-        DocumentType: Option;
+        DocumentType: Enum "Purchase Document Type";
     begin
         // [FEATURE] [Purchase] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invoiced Purch. Orders" deletes Approval Entries related to deleted Purchase Order
@@ -393,7 +393,7 @@ codeunit 134417 "ERM Delete Documents"
     procedure DeleteApprovedInvoicedSalesOrder()
     var
         SalesHeader: Record "Sales Header";
-        DocumentType: Option;
+        DocumentType: Enum "Sales Document Type";
     begin
         // [FEATURE] [Sales] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invoiced Sales Orders" deletes Approval Entries related to deleted Sales Order
@@ -421,7 +421,7 @@ codeunit 134417 "ERM Delete Documents"
     procedure DeleteApprovedInvoicedPurchaseBlanketOrder()
     var
         PurchaseHeader: Record "Purchase Header";
-        DocumentType: Option;
+        DocumentType: Enum "Purchase Document Type";
     begin
         // [FEATURE] [Purchase] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invd Blnkt Purch Orders" deletes Approval Entries related to deleted Purchase Blanket Order
@@ -449,7 +449,7 @@ codeunit 134417 "ERM Delete Documents"
     procedure DeleteApprovedInvoicedSalesBlanketOrder()
     var
         SalesHeader: Record "Sales Header";
-        DocumentType: Option;
+        DocumentType: Enum "Sales Document Type";
     begin
         // [FEATURE] [Sales] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invd Blnkt Sales Orders" deletes Approval Entries related to deleted Sales Blanket Order
@@ -477,7 +477,7 @@ codeunit 134417 "ERM Delete Documents"
     procedure DeleteApprovedInvoicedPurchaseReturnOrder()
     var
         PurchaseHeader: Record "Purchase Header";
-        DocumentType: Option;
+        DocumentType: Enum "Purchase Document Type";
     begin
         // [FEATURE] [Purchase] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invd Purch. Ret. Orders" deletes Approval Entries related to deleted Purchase Return Order
@@ -505,7 +505,7 @@ codeunit 134417 "ERM Delete Documents"
     procedure DeleteApprovedInvoicedSalesReturnOrder()
     var
         SalesHeader: Record "Sales Header";
-        DocumentType: Option;
+        DocumentType: Enum "Sales Document Type";
     begin
         // [FEATURE] [Sales] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invd Sales Ret. Orders" deletes Approval Entries related to deleted Sales Return Order
@@ -533,7 +533,7 @@ codeunit 134417 "ERM Delete Documents"
     procedure DeleteApprovedInvoicedServiceOrder()
     var
         ServiceHeader: Record "Service Header";
-        DocumentType: Option;
+        DocumentType: Enum "Service Document Type";
     begin
         // [FEATURE] [Services] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invoiced Service Orders" deletes Approval Entries related to deleted Service Order
@@ -1566,7 +1566,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Delete Documents");
     end;
 
-    local procedure ApprovedPurchaseDocumentScenario(DocumentType: Option; var PurchaseHeader: Record "Purchase Header")
+    local procedure ApprovedPurchaseDocumentScenario(DocumentType: Enum "Purchase Document Type"; var PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1590,7 +1590,7 @@ codeunit 134417 "ERM Delete Documents"
         MockApprovalEntry(PurchaseHeader.RecordId);
     end;
 
-    local procedure ApprovedSalesDocumentScenario(DocumentType: Option; var SalesHeader: Record "Sales Header")
+    local procedure ApprovedSalesDocumentScenario(DocumentType: Enum "Sales Document Type"; var SalesHeader: Record "Sales Header")
     begin
         // Setup
         MockSalesOrder(DocumentType, SalesHeader);
@@ -1599,7 +1599,7 @@ codeunit 134417 "ERM Delete Documents"
         MockApprovalEntry(SalesHeader.RecordId);
     end;
 
-    local procedure ApprovedServiceDocumentScenario(DocumentType: Option; var ServiceHeader: Record "Service Header")
+    local procedure ApprovedServiceDocumentScenario(DocumentType: Enum "Service Document Type"; var ServiceHeader: Record "Service Header")
     var
         ServiceLine: Record "Service Line";
     begin
@@ -1647,7 +1647,7 @@ codeunit 134417 "ERM Delete Documents"
         exit(Vendor."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -1698,7 +1698,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
     begin
@@ -1761,50 +1761,50 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure FilterPurchaseHeaders(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterPurchaseHeaders(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("No.", DocumentNo);
     end;
 
-    local procedure FilterPurchaseLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterPurchaseLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
     end;
 
-    local procedure FilterSalesHeaders(var SalesHeader: Record "Sales Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterSalesHeaders(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", DocumentNo);
     end;
 
-    local procedure FilterSalesLines(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterSalesLines(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
     end;
 
-    local procedure FilterServiceHeaders(var ServiceHeader: Record "Service Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterServiceHeaders(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     begin
         ServiceHeader.SetRange("Document Type", DocumentType);
         ServiceHeader.SetRange("No.", DocumentNo);
     end;
 
-    local procedure FilterServiceLines(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterServiceLines(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("No.", DocumentNo);
     end;
 
-    local procedure FindPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; No: Code[20])
+    local procedure FindPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     begin
         PurchaseHeaderArchive.SetRange("Document Type", DocumentType);
         PurchaseHeaderArchive.SetRange("No.", No);
         PurchaseHeaderArchive.FindFirst;
     end;
 
-    local procedure FindSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; No: Code[20])
+    local procedure FindSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; DocumentType: Enum "Sales Document Type"; No: Code[20])
     begin
         SalesHeaderArchive.SetRange("Document Type", DocumentType);
         SalesHeaderArchive.SetRange("No.", No);
@@ -1826,7 +1826,7 @@ codeunit 134417 "ERM Delete Documents"
         end;
     end;
 
-    local procedure MockSalesOrder(DocumentType: Option; var SalesHeader: Record "Sales Header")
+    local procedure MockSalesOrder(DocumentType: Enum "Sales Document Type"; var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -2042,7 +2042,7 @@ codeunit 134417 "ERM Delete Documents"
         Assert.RecordIsEmpty(ApprovalEntry)
     end;
 
-    local procedure VerifyPurchaseDocumentDeleted(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyPurchaseDocumentDeleted(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2053,7 +2053,7 @@ codeunit 134417 "ERM Delete Documents"
         Assert.RecordIsEmpty(PurchaseLine);
     end;
 
-    local procedure VerifySalesDocumentDeleted(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifySalesDocumentDeleted(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -2064,7 +2064,7 @@ codeunit 134417 "ERM Delete Documents"
         Assert.RecordIsEmpty(SalesLine);
     end;
 
-    local procedure VerifyServiceDocumentDeleted(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyServiceDocumentDeleted(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";

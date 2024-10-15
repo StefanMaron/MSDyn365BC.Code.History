@@ -164,7 +164,7 @@ codeunit 6502 "Late Binding Management"
         NewQty: Decimal;
         xQty: Decimal;
     begin
-        if SupplyReservEntry."Reservation Status" > SupplyReservEntry."Reservation Status"::Tracking then
+        if not SupplyReservEntry.IsReservationOrTracking() then
             exit; // The entry is neither reservation nor tracking and cannot be reshuffled
 
         if not SupplyReservEntry.Positive then
@@ -368,7 +368,6 @@ codeunit 6502 "Late Binding Management"
         if TempTrackingSpecification.FindSet then
             repeat
                 ItemLedgEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
-
                 if ItemLedgEntry.FindSet then
                     repeat
                         TempTrackingSpecification."Buffer Value2" += ItemLedgEntry."Remaining Quantity";
@@ -525,7 +524,17 @@ codeunit 6502 "Late Binding Management"
         until ReservEntry.Next = 0;
     end;
 
+    [Obsolete('Replaced by ReleaseForReservation(ItemNo, VariantCode, LocationCode, ItemTrackingSetup, QtyToRelease)','17.0')]
     procedure ReleaseForReservation(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; SerialNo: Code[50]; LotNo: Code[50]; QtyToRelease: Decimal) AllocationsChanged: Boolean
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        ItemTrackingSetup."Serial No." := SerialNo;
+        ItemTrackingSetup."Lot No." := LotNo;
+        exit(ReleaseForReservation(ItemNo, VariantCode, LocationCode, ItemTrackingSetup, QtyToRelease));
+    end;
+
+    procedure ReleaseForReservation(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"; QtyToRelease: Decimal) AllocationsChanged: Boolean
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
     begin
@@ -536,8 +545,7 @@ codeunit 6502 "Late Binding Management"
         TempTrackingSpecification."Item No." := ItemNo;
         TempTrackingSpecification."Variant Code" := VariantCode;
         TempTrackingSpecification."Location Code" := LocationCode;
-        TempTrackingSpecification."Serial No." := SerialNo;
-        TempTrackingSpecification."Lot No." := LotNo;
+        TempTrackingSpecification.CopyTrackingFromItemTrackingSetup(ItemTrackingSetup);
         TempTrackingSpecification."Quantity (Base)" := QtyToRelease;
         TempTrackingSpecification."Buffer Value4" := -QtyToRelease;
         TempTrackingSpecification.Insert();
@@ -545,11 +553,12 @@ codeunit 6502 "Late Binding Management"
         PrepareTempDataSet(TempTrackingSpecification, QtyToRelease);
         CalcAllocations(TempTrackingSpecification);
         AllocationsChanged := Reallocate(TempTrackingSpecification);
-        WriteToDatabase;
+        WriteToDatabase();
     end;
 
     procedure ReleaseForReservation(var CalcItemLedgEntry: Record "Item Ledger Entry"; CalcReservEntry: Record "Reservation Entry"; RemainingQtyToReserve: Decimal) AllocationsChanged: Boolean
     var
+        ItemTrackingSetup: Record "Item Tracking Setup";
         AvailableToReserve: Decimal;
     begin
         // Used when doing item tracking specific reservations on reservation form.
@@ -562,10 +571,13 @@ codeunit 6502 "Late Binding Management"
                   CalcItemLedgEntry."Remaining Quantity" - CalcItemLedgEntry."Reserved Quantity";
             until (CalcItemLedgEntry.Next = 0) or (AvailableToReserve >= RemainingQtyToReserve);
 
-        if AvailableToReserve < RemainingQtyToReserve then
-            AllocationsChanged := ReleaseForReservation(
-                CalcReservEntry."Item No.", CalcReservEntry."Variant Code", CalcReservEntry."Location Code",
-                CalcReservEntry."Serial No.", CalcReservEntry."Lot No.", RemainingQtyToReserve - AvailableToReserve);
+        if AvailableToReserve < RemainingQtyToReserve then begin
+            ItemTrackingSetup.CopyTrackingFromReservEntry(CalcReservEntry);
+            AllocationsChanged :=
+                ReleaseForReservation(
+                    CalcReservEntry."Item No.", CalcReservEntry."Variant Code", CalcReservEntry."Location Code",
+                    ItemTrackingSetup, RemainingQtyToReserve - AvailableToReserve);
+        end;
     end;
 
     procedure ReserveItemTrackingLine(TrackingSpecification: Record "Tracking Specification")

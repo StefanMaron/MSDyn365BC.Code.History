@@ -23,11 +23,11 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
 
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(FilteredTypeField; TypeAsText)
@@ -45,9 +45,9 @@ page 97 "Purchase Quote Subform"
                         if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Purchases) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("No."; "No.")
@@ -59,10 +59,10 @@ page 97 "Purchase Quote Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
 
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
 
                         CurrPage.Update();
                     end;
@@ -72,20 +72,42 @@ page 97 "Purchase Quote Subform"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp;
-                        InsertExtendedText(false);
-                        NoOnAfterValidate;
+                        CrossReferenceNoLookUp();
+                        NoOnAfterValidate();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
                     begin
-                        CrossReferenceNoOnAfterValidat;
-                        NoOnAfterValidate;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        DeltaUpdateTotals();
+                    end;
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the cross-referenced item number.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemReferenceMgt: Codeunit "Item Reference Management";
+                    begin
+                        ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
+                        NoOnAfterValidate();
+                        OnItemReferenceNoOnLookup(Rec);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        NoOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -96,7 +118,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Nonstock; Nonstock)
@@ -113,7 +135,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Description; Description)
@@ -123,8 +145,8 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
-                        NoOnAfterValidate;
+                        DeltaUpdateTotals();
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -145,7 +167,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
@@ -157,7 +179,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -177,7 +199,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Indirect Cost %"; "Indirect Cost %")
@@ -214,7 +236,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Group Code"; "Tax Group Code")
@@ -225,7 +247,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Use Tax"; "Use Tax")
@@ -244,7 +266,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Amount"; "Line Amount")
@@ -257,7 +279,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Discount Amount"; "Line Discount Amount")
@@ -268,7 +290,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Invoice Disc."; "Allow Invoice Disc.")
@@ -279,7 +301,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Item Charge Assignment"; "Allow Item Charge Assignment")
@@ -296,8 +318,8 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        CurrPage.SaveRecord();
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -309,8 +331,8 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        CurrPage.SaveRecord();
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -475,8 +497,8 @@ page 97 "Purchase Quote Subform"
 
                         trigger OnValidate()
                         begin
-                            ValidateInvoiceDiscountAmount;
-                            DocumentTotals.PurchaseDocTotalsNotUpToDate;
+                            ValidateInvoiceDiscountAmount();
+                            DocumentTotals.PurchaseDocTotalsNotUpToDate();
                         end;
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
@@ -491,8 +513,8 @@ page 97 "Purchase Quote Subform"
                         begin
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalPurchAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                            ValidateInvoiceDiscountAmount;
-                            DocumentTotals.PurchaseDocTotalsNotUpToDate;
+                            ValidateInvoiceDiscountAmount();
+                            DocumentTotals.PurchaseDocTotalsNotUpToDate();
                         end;
                     }
                 }
@@ -550,7 +572,7 @@ page 97 "Purchase Quote Subform"
 
                 trigger OnAction()
                 begin
-                    SelectMultipleItems;
+                    SelectMultipleItems();
                 end;
             }
             group("F&unctions")
@@ -568,7 +590,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ExplodeBOM;
+                        ExplodeBOM();
                     end;
                 }
                 action("Insert &Ext. Texts")
@@ -668,7 +690,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -680,7 +702,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action(ItemChargeAssignment)
@@ -694,8 +716,8 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowItemChargeAssgnt;
-                        SetItemChargeFieldsStyle;
+                        ShowItemChargeAssgnt();
+                        SetItemChargeFieldsStyle();
                     end;
                 }
                 action("Item Tracking Lines")
@@ -709,7 +731,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action(DocAttach)
@@ -732,6 +754,8 @@ page 97 "Purchase Quote Subform"
             }
             group("Page")
             {
+                Caption = 'Page';
+
                 action(EditInExcel)
                 {
                     ApplicationArea = Basic, Suite;
@@ -759,18 +783,18 @@ page 97 "Purchase Quote Subform"
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetTotalsPurchaseHeader;
-        CalculateTotals;
-        UpdateEditableOnRow;
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        GetTotalsPurchaseHeader();
+        CalculateTotals();
+        UpdateEditableOnRow();
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -783,7 +807,7 @@ page 97 "Purchase Quote Subform"
                 exit(false);
             ReservePurchLine.DeleteLine(Rec);
         end;
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -798,8 +822,8 @@ page 97 "Purchase Quote Subform"
     begin
         PurchasesPayablesSetup.Get();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
-        Currency.InitRoundingPrecision;
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        Currency.InitRoundingPrecision();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -809,11 +833,11 @@ page 97 "Purchase Quote Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType;
+        InitType();
         SetDefaultType();
 
         Clear(ShortcutDimCode);
-        UpdateTypeText;
+        UpdateTypeText();
     end;
 
     trigger OnOpenPage()
@@ -823,7 +847,8 @@ page 97 "Purchase Quote Subform"
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         SuppressTotals := CurrentClientType() = ClientType::ODataV4;
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -838,7 +863,6 @@ page 97 "Purchase Quote Subform"
         CannotUseBOMErr: Label 'You cannot use the Explode BOM function because a prepayment of the related purchase order has been invoiced.';
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
-        ShortcutDimCode: array[8] of Code[20];
         VATAmount: Decimal;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
@@ -851,6 +875,12 @@ page 97 "Purchase Quote Subform"
         UnitofMeasureCodeIsChangeable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
+        SuppressTotals: Boolean;
+		[InDataSet]
+        ItemReferenceVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -859,9 +889,6 @@ page 97 "Purchase Quote Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        SuppressTotals: Boolean;
-
-    protected var
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
 
@@ -915,7 +942,7 @@ page 97 "Purchase Quote Subform"
 
     procedure NoOnAfterValidate()
     begin
-        UpdateEditableOnRow;
+        UpdateEditableOnRow();
         InsertExtendedText(false);
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
@@ -923,11 +950,6 @@ page 97 "Purchase Quote Subform"
             CurrPage.SaveRecord;
 
         OnAfterNoOnAfterValidate(Rec, xRec);
-    end;
-
-    local procedure CrossReferenceNoOnAfterValidat()
-    begin
-        InsertExtendedText(false);
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -976,7 +998,7 @@ page 97 "Purchase Quote Subform"
             exit;
 
         if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification;
+            SendLineInvoiceDiscountResetNotification();
     end;
 
     procedure UpdateEditableOnRow()
@@ -1030,6 +1052,13 @@ page 97 "Purchase Quote Subform"
         Clear(DimMgt);
     end;
 
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+    end;
+
     local procedure SetDefaultType()
     var
         IsHandled: Boolean;
@@ -1079,6 +1108,11 @@ page 97 "Purchase Quote Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

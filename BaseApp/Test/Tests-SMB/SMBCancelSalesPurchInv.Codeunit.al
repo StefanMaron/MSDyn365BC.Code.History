@@ -83,7 +83,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         GLEntry.FindLast;
 
         // EXERCISE
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
         // VERIFY
         SalesCheckCreditMemoCreated(Cust, GLEntry);

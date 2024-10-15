@@ -59,7 +59,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         // [WHEN] Correct posted invoice
         Clear(SalesHeader);
         CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
 
         // [THEN] System created new invoice with two lines copied from posted invoice
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -138,7 +138,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
 
         Clear(SalesHeader);
         CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
 
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
 
@@ -742,6 +742,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         GeneralPostingSetup: Record "General Posting Setup";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         DocNo: Code[20];
+        No: Code[20];
         SavedDirecCostAppliedAcc: Code[20];
     begin
         // [FEATURE] [Purchase] [Finance]
@@ -750,8 +751,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
 
         // [GIVEN] Posted purchase invoice with resource
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
-        LibraryPurchase.CreatePurchaseLine(
-            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
+        No := LibraryERM.CreateGLAccountWithPurchSetup();
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", No, LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchaseLine.Modify(true);
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1274,7 +1275,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
 
         Clear(SalesHeader);
         CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
 
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
 
@@ -1356,7 +1357,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
 
         Clear(SalesHeader);
         CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
 
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
 
@@ -1601,7 +1602,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         until PurchInvLine.Next() = 0;
     end;
 
-    local procedure CreateSalesHeaderWithItemWithType(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemType: Option)
+    local procedure CreateSalesHeaderWithItemWithType(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemType: Enum "Item Type")
     var
         Item: Record Item;
     begin

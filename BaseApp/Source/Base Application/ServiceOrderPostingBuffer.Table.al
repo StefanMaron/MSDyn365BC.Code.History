@@ -10,12 +10,10 @@ table 5933 "Service Order Posting Buffer"
             Caption = 'Service Order No.';
             DataClassification = SystemMetadata;
         }
-        field(2; "Entry Type"; Option)
+        field(2; "Entry Type"; Enum "Job Journal Line Entry Type")
         {
             Caption = 'Entry Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Usage,Sale';
-            OptionMembers = Usage,Sale;
         }
         field(3; "Posting Group Type"; Option)
         {

@@ -11,6 +11,7 @@ codeunit 5432 "Automation - Import RSPackage"
         InStream: InStream;
     begin
         Validate("Import Status", "Import Status"::InProgress);
+        Clear("Import Error");
         Modify(true);
 
         TenantConfigPackageFile.Get(Code);

@@ -150,6 +150,19 @@ codeunit 396 NoSeriesManagement
         exit(DoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, NoErrorsOrWarnings));
     end;
 
+    /// <summary>
+    /// Gets the next number in a number series.
+    /// If ModifySeries is set to true, the number series is incremented when getting the next number.
+    /// NOTE: If you set ModifySeries to false you should manually increment the number series to ensure consistency.
+    /// </summary>
+    /// <param name="NoSeriesCode">The identifier of the number series.</param>
+    /// <param name="SeriesDate">The date of the number series. The default date is WorkDate.</param>
+    /// <param name="ModifySeries">
+    /// Set to true to increment the number series when getting the next number.
+    /// Set to false if you want to manually increment the number series.
+    /// </param>
+    /// <param name="NoErrorsOrWarnings">Set to true to disable errors and warnings.</param>
+    /// <returns>The next number in the number series.</returns>
     procedure DoGetNextNo(NoSeriesCode: Code[20]; SeriesDate: Date; ModifySeries: Boolean; NoErrorsOrWarnings: Boolean): Code[20]
     var
         NoSeriesLine: Record "No. Series Line";
@@ -482,7 +495,7 @@ codeunit 396 NoSeriesManagement
     local procedure OnBeforeModifyNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; var IsHandled: Boolean)
     begin
     end;
-    
+
     procedure ClearStateAndGetNextNo(NoSeriesCode: Code[20]): Code[20]
     begin
         Clear(LastNoSeriesLine);

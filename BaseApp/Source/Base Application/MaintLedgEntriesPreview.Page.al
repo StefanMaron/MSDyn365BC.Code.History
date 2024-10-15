@@ -167,7 +167,7 @@ page 5671 "Maint. Ledg. Entries Preview"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)

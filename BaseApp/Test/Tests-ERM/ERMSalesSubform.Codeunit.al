@@ -3998,7 +3998,7 @@ codeunit 134393 "ERM Sales Subform"
         exit(SalesHeader."No.");
     end;
 
-    local procedure CreateSalesHeaderWithCurrencyCode(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[10]
+    local procedure CreateSalesHeaderWithCurrencyCode(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[10]
     var
         CurrencyCode: Code[10];
     begin
@@ -4254,7 +4254,7 @@ codeunit 134393 "ERM Sales Subform"
         Assert.TextEndsWith(FieldCaption, StrSubstNo('(%1)', CurrencyCode));
     end;
 
-    local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var Item: Record Item; var CurrencyCode: Code[10]; DocumentType: Option; ExchangeRate: Decimal)
+    local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var Item: Record Item; var CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type"; ExchangeRate: Decimal)
     begin
         CurrencyCode :=
           LibraryERM.CreateCurrencyWithExchangeRate(LibraryRandom.RandDate(-10), ExchangeRate, ExchangeRate);

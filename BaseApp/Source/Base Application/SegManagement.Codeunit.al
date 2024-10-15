@@ -75,7 +75,7 @@ codeunit 5051 SegManagement
                 InteractLogEntry."Logged Segment Entry No." := LoggedSegment."Entry No.";
                 InteractLogEntry.CopyFromSegment(SegmentLine);
                 if Deliver and
-                   ((SegmentLine."Correspondence Type" <> 0) or (InteractTemplate."Correspondence Type (Default)" <> 0))
+                   ((SegmentLine."Correspondence Type".AsInteger() <> 0) or (InteractTemplate."Correspondence Type (Default)".AsInteger() <> 0))
                 then begin
                     InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::"In Progress";
                     SegmentLine.TestField("Attachment No.");
@@ -198,7 +198,7 @@ codeunit 5051 SegManagement
                 InterLogEntryCommentLine.Insert();
             until InterLogEntryCommentLineTmp.Next = 0;
 
-        if Deliver and (SegmentLine."Correspondence Type" <> 0) and (not Postponed) then begin
+        if Deliver and (SegmentLine."Correspondence Type".AsInteger() <> 0) and (not Postponed) then begin
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::"In Progress";
             TempDeliverySorter."No." := InteractLogEntry."Entry No.";
             TempDeliverySorter."Attachment No." := Attachment."No.";
@@ -262,7 +262,7 @@ codeunit 5051 SegManagement
         end;
 
         TempSegmentLine.Init();
-        TempSegmentLine."Document Type" := DocumentType;
+        TempSegmentLine."Document Type" := "Interaction Log Entry Document Type".FromInteger(DocumentType);
         TempSegmentLine."Document No." := DocumentNo;
         TempSegmentLine."Doc. No. Occurrence" := DocNoOccurrence;
         TempSegmentLine."Version No." := VersionNo;
@@ -406,10 +406,10 @@ codeunit 5051 SegManagement
         end;
     end;
 
-    local procedure FindInteractTmplSetupCaption(DocumentType: Integer) InteractTmplSetupCaption: Text[80]
+    local procedure FindInteractTmplSetupCaption(DocumentType: Enum "Interaction Log Entry Document Type") InteractTmplSetupCaption: Text[80]
     begin
         InteractionTmplSetup.Get();
-        case DocumentType of
+        case DocumentType.AsInteger() of
             1:
                 InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Quotes");
             2:
@@ -462,7 +462,7 @@ codeunit 5051 SegManagement
                 InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Service Quote");
         end;
 
-        OnAfterFindInteractTmplSetupCaption(DocumentType, InteractionTmplSetup, InteractTmplSetupCaption);
+        OnAfterFindInteractTmplSetupCaption(DocumentType.AsInteger(), InteractionTmplSetup, InteractTmplSetupCaption);
         exit(InteractTmplSetupCaption);
     end;
 

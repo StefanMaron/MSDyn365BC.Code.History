@@ -949,7 +949,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         OfficeAddinContext.SetFilter("Regular Expression Match", '=%1', RegularExpressionText);
     end;
 
-    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocNo: Code[20]; DocumentType: Option; SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocNo: Code[20]; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     var
         LibrarySales: Codeunit "Library - Sales";
     begin
@@ -964,7 +964,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 2);
     end;
 
-    local procedure CreateSalesHeaderWithDocNo(var SalesHeader: Record "Sales Header"; DocumentType: Option; DocNo: Code[20])
+    local procedure CreateSalesHeaderWithDocNo(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DocNo: Code[20])
     var
         LibrarySales: Codeunit "Library - Sales";
     begin

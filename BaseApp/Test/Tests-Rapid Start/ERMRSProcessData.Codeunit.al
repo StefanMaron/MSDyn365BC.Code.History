@@ -2092,7 +2092,7 @@ codeunit 136612 "ERM RS Process Data"
         i: Integer;
     begin
         for i := 1 to ReportQty do begin
-            CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayout.Type::Word);
+            CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayout.Type::Word.AsInteger());
             CustomReportLayout.Description := StrSubstNo('Layout %1', i);
         end;
     end;

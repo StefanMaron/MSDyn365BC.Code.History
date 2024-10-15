@@ -587,7 +587,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         exit(Customer."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VATDifference: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VATDifference: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
         LibraryPurchase.CreatePurchaseLine(
@@ -596,7 +596,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; VATDifference: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; VATDifference: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
         LibrarySales.CreateSalesLine(

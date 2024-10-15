@@ -240,7 +240,14 @@ codeunit 1380 "Batch Processing Mgt."
         end;
     end;
 
+
+    [Obsolete('Replaced by SetParameter().', '17.0')]
     procedure AddParameter(ParameterId: Integer; Value: Variant)
+    begin
+        SetParameter("Batch Posting Parameter Type".FromInteger(ParameterId), Value);
+    end;
+
+    procedure SetParameter(ParameterId: Enum "Batch Posting Parameter Type"; Value: Variant)
     var
         BatchProcessingParameter: Record "Batch Processing Parameter";
     begin
@@ -248,12 +255,18 @@ codeunit 1380 "Batch Processing Mgt."
 
         BatchProcessingParameter.Init();
         BatchProcessingParameter."Batch ID" := BatchID;
-        BatchProcessingParameter."Parameter Id" := ParameterId;
+        BatchProcessingParameter."Parameter Id" := ParameterId.AsInteger();
         BatchProcessingParameter."Parameter Value" := Format(Value);
         BatchProcessingParameter.Insert();
     end;
 
+    [Obsolete('Replaced by GetTextParameter().', '17.0')]
     procedure GetParameterText(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Text[250]): Boolean
+    begin
+        exit(GetTextParameter(RecordID, "Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue))
+    end;
+
+    procedure GetTextParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Text[250]): Boolean
     var
         BatchProcessingParameter: Record "Batch Processing Parameter";
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
@@ -262,7 +275,7 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
         BatchProcessingSessionMap.SetRange("Session ID", SessionId);
 
-        if not BatchProcessingSessionMap.FindFirst then
+        if not BatchProcessingSessionMap.FindFirst() then
             exit(false);
 
         if not BatchProcessingParameter.Get(BatchProcessingSessionMap."Batch ID", ParameterId) then
@@ -272,12 +285,18 @@ codeunit 1380 "Batch Processing Mgt."
         exit(true);
     end;
 
+    [Obsolete('Replaced by GetBooleanParameter().', '17.0')]
     procedure GetParameterBoolean(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Boolean): Boolean
+    begin
+        exit(GetBooleanParameter(RecordID, "Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue));
+    end;
+
+    procedure GetBooleanParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Boolean): Boolean
     var
         Result: Boolean;
         Value: Text[250];
     begin
-        if not GetParameterText(RecordID, ParameterId, Value) then
+        if not GetTextParameter(RecordID, ParameterId, Value) then
             exit(false);
 
         if not Evaluate(Result, Value) then
@@ -287,12 +306,18 @@ codeunit 1380 "Batch Processing Mgt."
         exit(true);
     end;
 
+    [Obsolete('Replaced by GetIntegerParameter().', '17.0')]
     procedure GetParameterInteger(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Integer): Boolean
+    begin
+        exit(GetIntegerParameter(RecordID, "Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue));
+    end;
+
+    procedure GetIntegerParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Integer): Boolean
     var
         Result: Integer;
         Value: Text[250];
     begin
-        if not GetParameterText(RecordID, ParameterId, Value) then
+        if not GetTextParameter(RecordID, ParameterId, Value) then
             exit(false);
 
         if not Evaluate(Result, Value) then
@@ -302,12 +327,18 @@ codeunit 1380 "Batch Processing Mgt."
         exit(true);
     end;
 
+    [Obsolete('Replaced by GetDateParameter().', '17.0')]
     procedure GetParameterDate(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Date): Boolean
+    begin
+        exit(GetDateParameter(RecordID, "Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue));
+    end;
+
+    procedure GetDateParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Date): Boolean
     var
         Result: Date;
         Value: Text[250];
     begin
-        if not GetParameterText(RecordID, ParameterId, Value) then
+        if not GetTextParameter(RecordID, ParameterId, Value) then
             exit(false);
 
         if not Evaluate(Result, Value) then

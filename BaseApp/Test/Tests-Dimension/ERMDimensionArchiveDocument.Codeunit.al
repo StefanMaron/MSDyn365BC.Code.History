@@ -641,14 +641,14 @@ codeunit 134481 "ERM Dimension Archive Document"
         DeletePurchaseOrderVersions.Run;
     end;
 
-    local procedure FindSalesLineArchive(var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLineArchive(var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLineArchive.SetRange("Document Type", DocumentType);
         SalesLineArchive.SetRange("Document No.", DocumentNo);
         SalesLineArchive.FindFirst;
     end;
 
-    local procedure FindPurchaseLineArchive(var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLineArchive(var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLineArchive.SetRange("Document Type", DocumentType);
         PurchaseLineArchive.SetRange("Document No.", DocumentNo);

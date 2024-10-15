@@ -168,7 +168,7 @@ report 99000788 "Prod. Order - Shortage List"
                         TempProdOrderLine.SetCurrentKey(
                           "Item No.", "Variant Code", "Location Code", Status, "Ending Date");
 
-                        TempProdOrderLine.SetRange(Status, TempProdOrderLine.Status::Planned, Status - 1);
+                        TempProdOrderLine.SetRange(Status, TempProdOrderLine.Status::Planned, Status.AsInteger() - 1);
                         TempProdOrderLine.SetRange("Item No.", "Item No.");
                         TempProdOrderLine.SetRange("Variant Code", "Variant Code");
                         TempProdOrderLine.SetRange("Location Code", "Location Code");
@@ -190,7 +190,7 @@ report 99000788 "Prod. Order - Shortage List"
                         TempProdOrderComp.SetCurrentKey(
                           "Item No.", "Variant Code", "Location Code", Status, "Due Date");
 
-                        TempProdOrderComp.SetRange(Status, TempProdOrderComp.Status::Planned, Status - 1);
+                        TempProdOrderComp.SetRange(Status, TempProdOrderComp.Status::Planned, Status.AsInteger() - 1);
                         TempProdOrderComp.SetRange("Item No.", "Item No.");
                         TempProdOrderComp.SetRange("Variant Code", "Variant Code");
                         TempProdOrderComp.SetRange("Location Code", "Location Code");

@@ -741,7 +741,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         Commit();
     end;
 
-    local procedure BeforeDiscountDateEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; Amount2: Decimal)
+    local procedure BeforeDiscountDateEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; Amount2: Decimal)
     var
         DeltaAssert: Codeunit "Delta Assert";
     begin
@@ -757,7 +757,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         VerifyGLEntry(Amount2, DocumentNo);
     end;
 
-    local procedure ToleranceDiscountEntry(DocumentType: Option; EntryType: Option; DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; Amount2: Decimal)
+    local procedure ToleranceDiscountEntry(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; Amount2: Decimal)
     begin
         // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
         ApplyAndPostCustomerEntry(DocumentType, DocumentNo);
@@ -767,7 +767,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         VerifyGLEntry(Amount2, DocumentNo);
     end;
 
-    local procedure ApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         GLRegister: Record "G/L Register";
@@ -786,7 +786,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyAndPostCustomerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -821,7 +821,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         exit(Currency.Code);
     end;
 
-    local procedure CreateAndPostDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; Amount: Decimal; Amount2: Decimal; CurrencyCode: Code[10]; CurrencyCode2: Code[10]; PostingDate: Date)
+    local procedure CreateAndPostDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal; CurrencyCode: Code[10]; CurrencyCode2: Code[10]; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -833,7 +833,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; CustomerNo: Code[20]; Amount: Decimal; PostingDate: Date; CurrencyCode: Code[10])
+    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; Amount: Decimal; PostingDate: Date; CurrencyCode: Code[10])
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,

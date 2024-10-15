@@ -75,8 +75,7 @@ page 5527 "Purchase Invoice Entity"
 
                     trigger OnValidate()
                     begin
-                        Vendor.SetRange(Id, "Vendor Id");
-                        if not Vendor.FindFirst then
+                        if not Vendor.GetBySystemId("Vendor Id") then
                             Error(CouldNotFindVendorErr);
 
                         "Buy-from Vendor No." := Vendor."No.";
@@ -97,7 +96,7 @@ page 5527 "Purchase Invoice Entity"
                         if not Vendor.Get("Buy-from Vendor No.") then
                             Error(CouldNotFindVendorErr);
 
-                        "Vendor Id" := Vendor.Id;
+                        "Vendor Id" := Vendor.SystemId;
                         RegisterFieldSet(FieldNo("Vendor Id"));
                         RegisterFieldSet(FieldNo("Buy-from Vendor No."));
                     end;
@@ -260,9 +259,6 @@ page 5527 "Purchase Invoice Entity"
     var
         PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
     begin
-        if xRec.Id <> Id then
-            Error(CannotChangeIDErr);
-
         ProcessBillingPostalAddress;
 
         PurchInvAggregator.PropagateOnModify(Rec, TempFieldBuffer);
@@ -293,7 +289,6 @@ page 5527 "Purchase Invoice Entity"
         CurrencyCodeTxt: Text;
         BillingPostalAddressJSONText: Text;
         BillingPostalAddressSet: Boolean;
-        CannotChangeIDErr: Label 'The id cannot be changed.', Locked = true;
         VendorNotProvidedErr: Label 'A vendorNumber or a vendorID must be provided.', Locked = true;
         CouldNotFindVendorErr: Label 'The vendor cannot be found.', Locked = true;
         DraftInvoiceActionErr: Label 'The action can be applied to a draft invoice only.', Locked = true;
@@ -406,8 +401,7 @@ page 5527 "Purchase Invoice Entity"
         if Posted then
             Error(DraftInvoiceActionErr);
 
-        PurchaseHeader.SetRange(Id, Id);
-        if not PurchaseHeader.FindFirst then
+        if not PurchaseHeader.GetBySystemId(Id) then
             Error(CannotFindInvoiceErr);
     end;
 

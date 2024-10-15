@@ -15,6 +15,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
@@ -469,6 +470,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Prepayments Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.DisableWarningOnCloseUnpostedDoc;

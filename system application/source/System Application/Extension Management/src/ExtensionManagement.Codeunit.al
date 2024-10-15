@@ -106,9 +106,19 @@ codeunit 2504 "Extension Management"
     /// Retrieves a list of all the Deployment Status Entries
     /// </summary>
     /// <param name="NavAppTenantOperation">Gets the list of all the Deployment Status Entries.</param>
+    [Obsolete('Required parameter is not accessible for Cloud development', '17.0')]
     procedure GetAllExtensionDeploymentStatusEntries(var NavAppTenantOperation: Record "NAV App Tenant Operation")
     begin
         ExtensionOperationImpl.GetAllExtensionDeploymentStatusEntries(NavAppTenantOperation);
+    end;
+
+    /// <summary>
+    /// Retrieves a list of all the Deployment Status Entries
+    /// </summary>
+    /// <param name="TempExtensionDeploymentStatus">Gets the list of all the Deployment Status Entries in a temporary record.</param>
+    procedure GetAllExtensionDeploymentStatusEntries(var TempExtensionDeploymentStatus: Record "Extension Deployment Status" temporary)
+    begin
+        ExtensionOperationImpl.GetAllExtensionDeploymentStatusEntries(TempExtensionDeploymentStatus);
     end;
 
     /// <summary>
@@ -191,6 +201,17 @@ codeunit 2504 "Extension Management"
         ExtensionOperationImpl.GetExtensionLogo(AppId, Logo);
     end;
 
+    /// <summary>
+    /// Uploads an extension to current version, next minor or next major, using a File Stream and based on the Locale Identifier.
+    /// This method is only applicable in SaaS environment.
+    /// </summary>
+    /// <param name="FileStream">The File Stream containing the extension to be uploaded.</param>
+    /// <param name="lcid">The Locale Identifier.</param>
+    /// <param name="DeployTo">The version that the extension will be deployed to.</param>
+    procedure UploadExtensionToVersion(FileStream: InStream; lcid: Integer; DeployTo: Enum "Extension Deploy To")
+    begin
+        ExtensionOperationImpl.DeployAndUploadExtension(FileStream, lcid, DeployTo);
+    end;
 
     /// <summary>
     /// Returns a link to appsource market page

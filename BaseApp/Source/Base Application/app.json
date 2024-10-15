@@ -3,7 +3,7 @@
     "name":  "Base Application",
     "publisher":  "Microsoft",
     "description":  "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://docs.microsoft.com/en-us/dynamics365/business-central/across-business-functionality",
-    "version":  "16.5.15897.15953",
+    "version":  "17.0.16993.0",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -14,7 +14,7 @@
                              "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "16.5.0.0"
+                             "version":  "17.0.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -24,17 +24,22 @@
                                    "publisher":  "Microsoft"
                                },
                                {
-                                   "id":  "8c9fc75f-dc51-40de-a6fa-55e7bbe0c0c2",
-                                   "name":  "Tests-What\u0027s New Notifier Test",
-                                   "publisher":  "Microsoft"
-                               },
-                               {
                                    "id":  "7fe10be7-575f-4cce-957b-bcd0df8f9bd7",
                                    "name":  "Tests-Rapid Start",
                                    "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "4564dd2f-e8b2-41ff-9905-9d7a950475a5",
+                                   "name":  "Tests-Misc",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "8c9fc75f-dc51-40de-a6fa-55e7bbe0c0c2",
+                                   "name":  "Tests-What\u0027s New Notifier Test",
+                                   "publisher":  "Microsoft"
                                }
                            ],
-    "platform":  "16.0.0.0",
+    "platform":  "17.0.0.0",
     "target":  "OnPrem",
     "showMyCode":  true,
     "brief":  "Base Application (W1)"

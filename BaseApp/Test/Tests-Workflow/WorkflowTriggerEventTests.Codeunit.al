@@ -1,4 +1,4 @@
-codeunit 134309 "Workflow Trigger/Event Tests"
+﻿codeunit 134309 "Workflow Trigger/Event Tests"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Approval Entry" = i;
@@ -132,7 +132,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
         PurchaseHeader.Modify();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-          WorkflowSetup.BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type", PurchaseHeader.Status::Open), WorkflowStep);
+          WorkflowSetup.BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type".AsInteger(), PurchaseHeader.Status::Open.AsInteger()), WorkflowStep);
 
         // Excercise
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
@@ -220,7 +220,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         SalesHeader.Status := SalesHeader.Status::Released;
         SalesHeader.Modify();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-          WorkflowSetup.BuildSalesHeaderTypeConditions(SalesHeader."Document Type", SalesHeader.Status::Open), WorkflowStep);
+          WorkflowSetup.BuildSalesHeaderTypeConditions(SalesHeader."Document Type".AsInteger(), SalesHeader.Status::Open.AsInteger()), WorkflowStep);
 
         // Excercise
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
@@ -696,6 +696,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         SalesHeader: Record "Sales Header";
         WorkflowStep: Record "Workflow Step";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        NotificationId: Guid;
     begin
         // [SCENARIO] OnCustomerCreditLimitExceeded event is picked up and executed for the right event trigger.
         // [GIVEN] Workflow with one event step, OnCustomerCreditLimitExceeded.
@@ -708,7 +709,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode, '', WorkflowStep);
 
         // Excercise
-        SalesHeader.OnCustomerCreditLimitExceeded;
+        SalesHeader.OnCustomerCreditLimitExceeded(NotificationID);
 
         // Verify
         VerifyArchivedWorkflowStepInstanceIsCompleted(WorkflowStep);
@@ -1516,7 +1517,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         Assert.AreEqual(0, WorkflowStepInstanceArchive.Count, WorkflowStepInstanceArchive.GetFilters);
     end;
 
-    local procedure CreatePurchDocWithLine(var PurchHeader: Record "Purchase Header"; DocType: Option)
+    local procedure CreatePurchDocWithLine(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         Item: Record Item;
         PurchLine: Record "Purchase Line";
@@ -1531,7 +1532,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         PurchLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         Item: Record Item;

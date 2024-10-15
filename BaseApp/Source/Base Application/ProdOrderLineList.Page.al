@@ -274,7 +274,7 @@ page 5406 "Prod. Order Line List"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

@@ -1541,9 +1541,9 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         if IsIntrastatRegion then begin
-          CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
-          CountryRegion.Validate("Intrastat Code", CountryRegion.Code);
-          CountryRegion.Modify(true);
+            CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
+            CountryRegion.Validate("Intrastat Code", CountryRegion.Code);
+            CountryRegion.Modify(true);
         end;
     end;
 
@@ -1615,7 +1615,7 @@ codeunit 134150 "ERM Intrastat Journal"
         UpdateSalesItemChargeQtyToAssign(SalesLine);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; PostingDate: Date; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date; VendorNo: Code[20])
     begin
         // Create Purchase Order With Random Quantity and Direct Unit Cost.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
@@ -1625,7 +1625,7 @@ codeunit 134150 "ERM Intrastat Journal"
         end;
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         // Take Random Values for Purchase Line.
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));
@@ -1662,7 +1662,7 @@ codeunit 134150 "ERM Intrastat Journal"
             PurchaseLine, PurchaseHeader."Document Type"::Order, PostingDate, CreateItem, 1));
     end;
 
-    local procedure CreateAndPostPurchaseDocumentMultiLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PostingDate: Date; ItemNo: Code[20]; NoOfLines: Integer): Code[20]
+    local procedure CreateAndPostPurchaseDocumentMultiLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date; ItemNo: Code[20]; NoOfLines: Integer): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         i: Integer;
@@ -1700,7 +1700,7 @@ codeunit 134150 "ERM Intrastat Journal"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocumentMultiLine(var SalesLine: Record "Sales Line"; DocumentType: Option; PostingDate: Date; ItemNo: Code[20]; NoOfSalesLines: Integer): Code[20]
+    local procedure CreateAndPostSalesDocumentMultiLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; PostingDate: Date; ItemNo: Code[20]; NoOfSalesLines: Integer): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1715,7 +1715,7 @@ codeunit 134150 "ERM Intrastat Journal"
     var
         TransferHeader: Record "Transfer Header";
     begin
-        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation,'');
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, '');
         TransferHeader.Validate("Direct Transfer", true);
         TransferHeader.Modify(true);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
@@ -1771,7 +1771,7 @@ codeunit 134150 "ERM Intrastat Journal"
         VerifyIntrastatLine(DocumentNo, ItemNo, IntrastatJnlLineType, GetCountryRegionCode, Quantity);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; PostingDate: Date; DocumentType: Option; Type: Option; No: Code[20]; NoOfLines: Integer)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; PostingDate: Date; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; No: Code[20]; NoOfLines: Integer)
     var
         SalesHeader: Record "Sales Header";
         i: Integer;
@@ -1792,7 +1792,7 @@ codeunit 134150 "ERM Intrastat Journal"
         SalesShipmentHeader."Shipping Agent Code" := CreateShippingAgent(ShippingInternetAddress);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Option)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Enum "Sales Document Type")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -1854,7 +1854,7 @@ codeunit 134150 "ERM Intrastat Journal"
         GetItemLedgerEntries.Run;
     end;
 
-    local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; PostingDate: Date; ItemNo: Code[20]; Quantity: Decimal; ILEEntryType: Option)
+    local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; PostingDate: Date; ItemNo: Code[20]; Quantity: Decimal; ILEEntryType: Enum "Item Ledger Entry Type")
     var
         ItemLedgerEntryNo: Integer;
     begin
@@ -1869,7 +1869,7 @@ codeunit 134150 "ERM Intrastat Journal"
         ItemLedgerEntry.Insert();
     end;
 
-    local procedure CreateValueEntry(var ValueEntry: Record "Value Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Option; PostingDate: Date)
+    local procedure CreateValueEntry(var ValueEntry: Record "Value Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Enum "Item Ledger Document Type"; PostingDate: Date)
     var
         ValueEntryNo: Integer;
     begin
@@ -2095,7 +2095,7 @@ codeunit 134150 "ERM Intrastat Journal"
             IntrastatJnlLine.FieldCaption("Country/Region Code"), CountryRegionCode, IntrastatJnlLine.TableCaption));
     end;
 
-    local procedure VerifyItemLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; CountryRegionCode: Code[10]; Quantity: Decimal)
+    local procedure VerifyItemLedgerEntry(DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; CountryRegionCode: Code[10]; Quantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

@@ -288,7 +288,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, LibraryUTUtility.GetNewCode);
 
         // Exercise & verify: Invokes ShowDimensions on Table Phys. Inventory Order Line. Verify Dimension Set Entries Page Open. Added Page Handler EditDimensionSetEntriesPageHandler.
-        PhysInvtOrderLine.ShowDimensions;
+        PhysInvtOrderLine.ShowDimensions();
     end;
 
     [Test]

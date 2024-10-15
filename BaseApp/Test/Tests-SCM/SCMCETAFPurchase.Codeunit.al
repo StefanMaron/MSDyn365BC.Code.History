@@ -112,7 +112,7 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchaseWithCharge(Item."Costing Method"::LIFO, true);
     end;
 
-    local procedure PurchaseWithCharge(CostingMethod: Option; MakeSKU: Boolean)
+    local procedure PurchaseWithCharge(CostingMethod: Enum "Costing Method"; MakeSKU: Boolean)
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -192,7 +192,7 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchaseLotTrackingOverridesCostingMethod(Item."Costing Method"::LIFO, true);
     end;
 
-    local procedure PurchaseLotTrackingOverridesCostingMethod(CostingMethod: Option; MakeSKU: Boolean)
+    local procedure PurchaseLotTrackingOverridesCostingMethod(CostingMethod: Enum "Costing Method"; MakeSKU: Boolean)
     var
         ItemTrackingCode: Record "Item Tracking Code";
         Item: Record Item;
@@ -328,7 +328,7 @@ codeunit 137601 "SCM CETAF Purchase"
         ReversePurchasePosting(Item."Costing Method"::Standard, true, true);
     end;
 
-    local procedure ReversePurchasePosting(CostingMethod: Option; MakeSKU: Boolean; InvoicePartialReceipt: Boolean)
+    local procedure ReversePurchasePosting(CostingMethod: Enum "Costing Method"; MakeSKU: Boolean; InvoicePartialReceipt: Boolean)
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -526,7 +526,7 @@ codeunit 137601 "SCM CETAF Purchase"
         ReversePurchasePostingWithApplication(Item."Costing Method"::Standard, false, true, true);
     end;
 
-    local procedure ReversePurchasePostingWithApplication(CostingMethod: Option; MakeSKU: Boolean; InvoicePurchase: Boolean; InvoicePurchReturn: Boolean)
+    local procedure ReversePurchasePostingWithApplication(CostingMethod: Enum "Costing Method"; MakeSKU: Boolean; InvoicePurchase: Boolean; InvoicePurchReturn: Boolean)
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -603,7 +603,7 @@ codeunit 137601 "SCM CETAF Purchase"
         ReversePurchaseCharge(Item."Costing Method"::Average, false, false);
     end;
 
-    local procedure ReversePurchaseCharge(CostingMethod: Option; MakeSKU: Boolean; InvoicePartialReceipt: Boolean)
+    local procedure ReversePurchaseCharge(CostingMethod: Enum "Costing Method"; MakeSKU: Boolean; InvoicePartialReceipt: Boolean)
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -675,7 +675,7 @@ codeunit 137601 "SCM CETAF Purchase"
         ReversePurchaseOnlyInvoice(Item."Costing Method"::Average, false);
     end;
 
-    local procedure ReversePurchaseOnlyInvoice(CostingMethod: Option; MakeSKU: Boolean)
+    local procedure ReversePurchaseOnlyInvoice(CostingMethod: Enum "Costing Method"; MakeSKU: Boolean)
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -863,7 +863,7 @@ codeunit 137601 "SCM CETAF Purchase"
         InvoiceChargeForPurchase(Item."Costing Method"::LIFO, true, true);
     end;
 
-    local procedure InvoiceChargeForPurchase(CostingMethod: Option; MakeSKU: Boolean; PartialPosting: Boolean)
+    local procedure InvoiceChargeForPurchase(CostingMethod: Enum "Costing Method"; MakeSKU: Boolean; PartialPosting: Boolean)
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";

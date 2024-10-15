@@ -22,12 +22,10 @@ table 416 "Handled IC Outbox Trans."
             OptionCaption = 'Journal,Sales Document,Purchase Document';
             OptionMembers = Journal,"Sales Document","Purchase Document";
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "IC Transaction Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Refund,Order,Return Order';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo",Refund,"Order","Return Order";
         }
         field(6; "Document No."; Code[20])
         {

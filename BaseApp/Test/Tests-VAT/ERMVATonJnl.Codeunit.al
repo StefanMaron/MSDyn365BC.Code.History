@@ -732,7 +732,7 @@ codeunit 134044 "ERM VAT on Jnl"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateBatchAndGenJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AllowVATDifference: Boolean)
+    local procedure CreateBatchAndGenJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AllowVATDifference: Boolean)
     begin
         CreateJournalTemplateBatch(GenJournalBatch);
         AllowVATDifferenceInTemplate(GenJournalBatch."Journal Template Name", AllowVATDifference);
@@ -763,7 +763,7 @@ codeunit 134044 "ERM VAT on Jnl"
         exit(GenJournalBatch.Name);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         // Taking Random value greater than 100 for Amount to avoid negative amount in General Journal Line.
         LibraryERM.CreateGeneralJnlLine(
@@ -846,7 +846,7 @@ codeunit 134044 "ERM VAT on Jnl"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -864,7 +864,7 @@ codeunit 134044 "ERM VAT on Jnl"
         exit(Amount);
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);

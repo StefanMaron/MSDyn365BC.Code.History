@@ -93,7 +93,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         QuoteId := CreateSalesQuoteWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
-        QuoteLineJSON := CreateQuoteLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        QuoteLineJSON := CreateQuoteLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         Commit();
 
         // [WHEN] we POST the JSON to the web service
@@ -221,13 +221,13 @@ codeunit 135529 "Sales Quote Line E2E Test"
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
-        QuoteLineJSON := CreateQuoteLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        QuoteLineJSON := CreateQuoteLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
             QuoteServiceLinesNameTxt);
@@ -263,7 +263,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
-        QuoteLineJSON := CreateQuoteLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        QuoteLineJSON := CreateQuoteLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
@@ -274,10 +274,10 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.PatchToWebService(TargetURL, QuoteLineJSON, ResponseText);
 
         // [THEN] discount is applied
@@ -325,10 +325,10 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower discount is applied
@@ -368,10 +368,10 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower discount is applied
@@ -394,14 +394,14 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [GIVEN] A quote for customer with discount amount
         Initialize;
         SetupAmountDiscountTest(SalesHeader, Item, DiscountAmount);
-        QuoteLineJSON := CreateQuoteLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        QuoteLineJSON := CreateQuoteLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
             QuoteServiceLinesNameTxt);
@@ -429,7 +429,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [GIVEN] A quote for customer with discount amt
         Initialize;
         SetupAmountDiscountTest(SalesHeader, Item, DiscountAmount);
-        QuoteLineJSON := CreateQuoteLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        QuoteLineJSON := CreateQuoteLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
         SalesQuantity := 0;
         QuoteLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
@@ -440,10 +440,10 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.PatchToWebService(TargetURL, QuoteLineJSON, ResponseText);
 
         // [THEN] discount is kept
@@ -475,10 +475,10 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower discount is applied
@@ -509,7 +509,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
             QuoteServiceLinesNameTxt);
@@ -551,7 +551,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Quote Entity",
             QuoteServiceNameTxt,
             QuoteServiceLinesNameTxt);
@@ -607,7 +607,6 @@ codeunit 135529 "Sales Quote Line E2E Test"
         FindFirstSalesLine(SalesHeader, SalesLine);
         Assert.AreEqual(SalesLine.Type::"G/L Account", SalesLine.Type, 'Type was not changed');
         Assert.AreEqual('', SalesLine."No.", 'No should be blank');
-
         JSONManagement.InitializeObject(ResponseText);
         JSONManagement.GetJSONObject(JsonObject);
         VerifyIdsAreBlank(JsonObject);
@@ -745,7 +744,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         LibraryInventory.CreateItem(Item);
         LibrarySmallBusiness.CreateSalesQuoteHeaderWithLines(SalesHeader, Customer, Item, 2, 1);
         Commit();
-        exit(SalesHeader.Id);
+        exit(SalesHeader.SystemId);
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; LineNumber: Integer; QuoteNumber: Text): Boolean

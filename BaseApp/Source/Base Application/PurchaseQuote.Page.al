@@ -54,6 +54,12 @@ page 49 "Purchase Quote"
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
                         CurrPage.Update;
                     end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if LookupBuyfromVendorName() then
+                            CurrPage.Update();
+                    end;
                 }
                 group("Buy-from")
                 {
@@ -122,6 +128,33 @@ page 49 "Purchase Quote"
                         Caption = 'Contact No.';
                         Importance = Additional;
                         ToolTip = 'Specifies the number of contact person of the vendor who delivered the items.';
+                    }
+                    field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
                     }
                 }
                 field("Buy-from Contact"; "Buy-from Contact")
@@ -597,6 +630,33 @@ page 49 "Purchase Quote"
                             Enabled = (PayToOptions = PayToOptions::"Custom Address") OR ("Buy-from Vendor No." <> "Pay-to Vendor No.");
                             ToolTip = 'Specifies the contact person at the vendor that you received the invoice from.';
                         }
+                        field(PayToContactPhoneNo; PayToContact."Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                        }
+                        field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Mobile Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                        }
+                        field(PayToContactEmail; PayToContact."E-Mail")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Email';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = Email;
+                            ToolTip = 'Specifies the email address of the vendor contact person.';
+                        }
                     }
                 }
             }
@@ -791,7 +851,8 @@ page 49 "Purchase Quote"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
+                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action(DocAttach)
@@ -1220,6 +1281,8 @@ page 49 "Purchase Quote"
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingAndPayToOption;
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1259,6 +1322,8 @@ page 49 "Purchase Quote"
     end;
 
     var
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";

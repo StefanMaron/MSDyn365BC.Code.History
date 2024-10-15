@@ -4,7 +4,7 @@ codeunit 9650 "Edit MS Word Report Layout"
 
     trigger OnRun()
     begin
-        EditReportLayout(Rec);
+        EditWordReportLayout(Rec);
     end;
 
     var
@@ -13,7 +13,7 @@ codeunit 9650 "Edit MS Word Report Layout"
         WaitMsg: Label 'Please wait while the report layout opens in Word.\After the report layout opens in Word, make changes to the layout,\and then close the Word document to continue.';
         Window: Dialog;
 
-    local procedure EditReportLayout(var CustomReportLayout: Record "Custom Report Layout")
+    local procedure EditWordReportLayout(var CustomReportLayout: Record "Custom Report Layout")
     var
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";

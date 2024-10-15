@@ -52,7 +52,7 @@ page 7351 "Movement Worksheet"
 
                 trigger OnValidate()
                 begin
-                    CurrentSortingMethodOnAfterVal;
+                    CurrentSortingMethodOnAfterValidate();
                 end;
             }
             repeater(Control1)
@@ -66,7 +66,7 @@ page 7351 "Movement Worksheet"
                     trigger OnValidate()
                     begin
                         GetItem("Item No.", ItemDescription);
-                        ItemNoOnAfterValidate;
+                        ItemNoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -112,7 +112,7 @@ page 7351 "Movement Worksheet"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Qty. (Base)"; "Qty. (Base)")
@@ -245,7 +245,7 @@ page 7351 "Movement Worksheet"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -458,19 +458,19 @@ page 7351 "Movement Worksheet"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "Sorting Sequence No." := GetSortSeqNo(CurrentSortingMethod);
+        "Sorting Sequence No." := GetSortSeqNo("Whse. Activity Sorting Method".FromInteger(CurrentSortingMethod));
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        "Sorting Sequence No." := GetSortSeqNo(CurrentSortingMethod);
+        "Sorting Sequence No." := GetSortSeqNo("Whse. Activity Sorting Method".FromInteger(CurrentSortingMethod));
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         SetUpNewLine(
           CurrentWkshTemplateName, CurrentWkshName,
-          CurrentLocationCode, CurrentSortingMethod, xRec."Line No.");
+          CurrentLocationCode, "Whse. Activity Sorting Method".FromInteger(CurrentSortingMethod), xRec."Line No.");
     end;
 
     trigger OnOpenPage()
@@ -501,46 +501,46 @@ page 7351 "Movement Worksheet"
         Text001: Label 'There is nothing to handle.';
         OpenedFromBatch: Boolean;
 
-    local procedure ItemNoOnAfterValidate()
+    protected procedure ItemNoOnAfterValidate()
     begin
         if CurrentSortingMethod = CurrentSortingMethod::Item then
             CurrPage.Update;
     end;
 
-    local procedure ToBinCodeOnAfterValidate()
+    protected procedure ToBinCodeOnAfterValidate()
     begin
         if CurrentSortingMethod = CurrentSortingMethod::"Shelf/Bin No." then
             CurrPage.Update;
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QtytoHandleOnAfterValidate()
+    protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure DueDateOnAfterValidate()
+    protected procedure DueDateOnAfterValidate()
     begin
         if CurrentSortingMethod = CurrentSortingMethod::"Due Date" then
             CurrPage.Update;
     end;
 
-    local procedure CurrentWkshNameOnAfterValidate()
+    protected procedure CurrentWkshNameOnAfterValidate()
     begin
         CurrPage.SaveRecord;
         SetWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;
 
-    local procedure CurrentSortingMethodOnAfterVal()
+    protected procedure CurrentSortingMethodOnAfterValidate()
     begin
         SortWhseWkshLines(
-          CurrentWkshTemplateName, CurrentWkshName,
-          CurrentLocationCode, CurrentSortingMethod);
+          CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode,
+          "Whse. Activity Sorting Method".FromInteger(CurrentSortingMethod));
         CurrPage.Update(false);
         SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Sorting Sequence No.");
     end;

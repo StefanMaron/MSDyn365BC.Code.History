@@ -29,7 +29,7 @@ codeunit 3028 DotNet_UriBuilder
     /// <summary>
     /// This procedure is a wrapper for the DotNet getter function for the UriBuilder.Uri property.
     /// </summary>
-    /// <param name=DotNet_Uri>The combined Uri that has been built in the builder (wrapped in an instance of the DotNet_Uri codeunit)</param>
+    /// <param name="DotNet_Uri">The combined Uri that has been built in the builder (wrapped in an instance of the DotNet_Uri codeunit)</param>
     procedure GetUri(var DotNet_Uri: Codeunit DotNet_Uri)
     begin
         DotNet_Uri.SetUri(DotNetUriBuilder.Uri);

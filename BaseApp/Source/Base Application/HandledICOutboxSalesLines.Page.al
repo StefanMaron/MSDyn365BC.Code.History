@@ -105,7 +105,7 @@ page 641 "Handled IC Outbox Sales Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

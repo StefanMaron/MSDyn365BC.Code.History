@@ -580,7 +580,7 @@ codeunit 134924 "ERM Cues"
         exit(ResponsibilityCenter.Code);
     end;
 
-    local procedure CreatePurchDocument(DocType: Option; PassedStatus: Option; PassedReceive: Boolean; CompletelyReceived: Boolean; PassedInvoice: Boolean)
+    local procedure CreatePurchDocument(DocType: Enum "Purchase Document Type"; PassedStatus: Enum "Purchase Document Status"; PassedReceive: Boolean; CompletelyReceived: Boolean; PassedInvoice: Boolean)
     var
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
@@ -607,7 +607,7 @@ codeunit 134924 "ERM Cues"
         end;
     end;
 
-    local procedure CreateServDocument(DocType: Option; PassedStatus: Option)
+    local procedure CreateServDocument(DocType: Enum "Service Document Type"; PassedStatus: Enum "Service Document Status")
     var
         ServHeader: Record "Service Header";
     begin
@@ -682,7 +682,7 @@ codeunit 134924 "ERM Cues"
         MockSalesLine(SalesHeader[2], SalesLine, WorkDate + LibraryRandom.RandInt(10), Qty, Qty - LibraryRandom.RandInt(5));
     end;
 
-    local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; NewStatus: Option)
+    local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; NewStatus: Enum "Sales Document Status")
     begin
         with SalesHeader do begin
             Init;

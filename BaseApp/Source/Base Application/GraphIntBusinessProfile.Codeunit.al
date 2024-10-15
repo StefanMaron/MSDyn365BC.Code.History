@@ -1,5 +1,8 @@
 codeunit 5442 "Graph Int - Business Profile"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

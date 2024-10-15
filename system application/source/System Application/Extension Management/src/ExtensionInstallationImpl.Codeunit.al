@@ -28,6 +28,7 @@ codeunit 2500 "Extension Installation Impl"
         ClearExtensionSchemaQst: Label 'Enabling Delete Extension Data will delete the tables that contain data for the %1 extension on uninstall. This action cannot be undone. Do you want to continue?', Comment = '%1=name of app';
         ClearExtensionSchemaMsg: Label 'You have selected to delete extension data for the %1 extension. Continuing uninstall will delete the tables that contain data for the %1 extension. This action cannot be undone. Do you want to continue?', Comment = '%1=name of app';
         NotSufficientPermissionErr: Label 'You do not have sufficient permissions to manage extensions. Please contact your administrator.';
+        InstallationBestPracticesUrlLbl: Label 'https://go.microsoft.com/fwlink/?linkid=2138922', comment = 'link to the best practices and tips about the installing and publishing a new extension.', Locked = true;
 
     procedure IsInstalledByPackageId(PackageID: Guid): Boolean
     var
@@ -289,6 +290,11 @@ codeunit 2500 "Extension Installation Impl"
 
         exit(StrSubstNo(FullVersionStringTxt, PublishedApplication."Version Major",
             PublishedApplication."Version Minor", PublishedApplication."Version Build", PublishedApplication."Version Revision"));
+    end;
+
+    procedure GetInstallationBestPracticesURL(): Text;
+    begin
+        exit(InstallationBestPracticesUrlLbl);
     end;
 
     procedure RunExtensionInstallation(PublishedApplication: Record "Published Application"): Boolean

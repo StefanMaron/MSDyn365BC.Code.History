@@ -326,13 +326,13 @@ codeunit 138043 "O365 Standard Document Reports"
         LibraryLowerPermissions.SetO365Full;
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true)); // Post as Ship and Invoice.
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option) ItemNo: Code[20]
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type") ItemNo: Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -349,7 +349,7 @@ codeunit 138043 "O365 Standard Document Reports"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option) ItemNo: Code[20]
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type") ItemNo: Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -368,7 +368,7 @@ codeunit 138043 "O365 Standard Document Reports"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesHeaderWithWorkDescription(var SalesHeader: Record "Sales Header"; DocumentType: Option; WorkDescription: Text)
+    local procedure CreateSalesHeaderWithWorkDescription(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; WorkDescription: Text)
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         SalesHeader.SetWorkDescription(WorkDescription);

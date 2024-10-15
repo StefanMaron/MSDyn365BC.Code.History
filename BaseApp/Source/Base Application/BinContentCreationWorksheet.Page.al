@@ -105,7 +105,7 @@ page 7371 "Bin Content Creation Worksheet"
 
                     trigger OnValidate()
                     begin
-                        VariantCodeOnAfterValidate;
+                        VariantCodeOnAfterValidate();
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")

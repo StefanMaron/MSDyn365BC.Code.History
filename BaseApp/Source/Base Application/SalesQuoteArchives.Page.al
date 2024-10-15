@@ -231,7 +231,7 @@ page 9348 "Sales Quote Archives"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

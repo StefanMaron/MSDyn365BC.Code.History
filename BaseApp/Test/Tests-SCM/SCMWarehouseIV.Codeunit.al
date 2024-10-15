@@ -1769,7 +1769,7 @@ codeunit 137407 "SCM Warehouse IV"
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
         EnqueueTrackingLotAndQty(ItemTrackingMode::AssignLotAndQty, LotNo, Qty);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         ModifyReservationEntryWarrantyDate(Item."No.", WarrantyStartDate);
 
         // [WHEN] Post Sales Order
@@ -2011,7 +2011,7 @@ codeunit 137407 "SCM Warehouse IV"
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
             CreateAndUpdatePurchaseLine(
               PurchaseLine, PurchaseHeader, LibraryRandom.RandInt(5), Item."No.", Bin."Location Code", Bin.Code);  // Integer Value required.
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
             PurchaseOrderNo[Counter] := PurchaseHeader."No.";
             PurchaseReceiptNo[Counter] := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         end;
@@ -2052,7 +2052,7 @@ codeunit 137407 "SCM Warehouse IV"
         SalesLine.Validate("Bin Code", BinCode);
         SalesLine.Modify(true);
         if IsTracking then begin
-            SalesLine.OpenItemTrackingLines;
+            SalesLine.OpenItemTrackingLines();
             UpdateReservationEntry(SalesLine."No.", ExpirationDate);
         end;
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -2302,7 +2302,7 @@ codeunit 137407 "SCM Warehouse IV"
 
     local procedure CreatePurchaseTrackingLine(var PurchaseLine: Record "Purchase Line"; ExpirationDate: Date)
     begin
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         UpdateReservationEntry(PurchaseLine."No.", ExpirationDate);
     end;
 
@@ -2362,7 +2362,7 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name",
           WarehouseJournalBatch.Name, Location.Code, Bin."Zone Code", Bin.Code, EntryType, Item."No.", LibraryRandom.RandDec(100, 2));  // Use random Quantity.
-        WarehouseJournalLine.OpenItemTrackingLines;
+        WarehouseJournalLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateWhseLocations(var LocationCode: array[2] of Code[10])
@@ -2445,7 +2445,7 @@ codeunit 137407 "SCM Warehouse IV"
         Zone.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
@@ -2587,7 +2587,7 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
-    local procedure ReopenPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure ReopenPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseHeader.Get(DocumentType, DocumentNo);
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
@@ -2962,7 +2962,7 @@ codeunit 137407 "SCM Warehouse IV"
         TransferLine.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyValueEntry(DocumentNo: Code[20]; DocumentType: Option; ItemNo: Code[20])
+    local procedure VerifyValueEntry(DocumentNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     var
         ValueEntry: Record "Value Entry";
     begin

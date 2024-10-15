@@ -1,6 +1,6 @@
 page 1309 "O365 Getting Started"
 {
-    Caption = 'Trial Experience';
+    Caption = 'Hi!';
     PageType = NavigatePage;
     SourceTable = "O365 Getting Started";
 

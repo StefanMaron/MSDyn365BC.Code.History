@@ -4322,25 +4322,25 @@ codeunit 134341 "UT Page Actions & Controls"
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeader);
     end;
 
-    local procedure PostPurchaseDocumentWithLotTracking(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure PostPurchaseDocumentWithLotTracking(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithTracking, LibraryRandom.RandDecInRange(100, 200, 2));
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure PostSalesDocumentWithLotTracking(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure PostSalesDocumentWithLotTracking(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithTracking, LibraryRandom.RandDecInRange(100, 200, 2));
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 

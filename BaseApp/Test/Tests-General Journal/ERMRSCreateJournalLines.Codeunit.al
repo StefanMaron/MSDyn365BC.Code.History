@@ -1467,7 +1467,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         // Using the random Amount because value is not important.
         LibraryERM.CreateGeneralJnlLine(
@@ -1512,7 +1512,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20])
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
     var
         LibraryInventory: Codeunit "Library - Inventory";
     begin
@@ -1651,26 +1651,26 @@ codeunit 136602 "ERM RS Create Journal Lines"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure RunCreateGLAccountJournalLines(var GLAccount: Record "G/L Account"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentTypes: Option; PostingDate: Date; TemplateCode: Code[10])
+    local procedure RunCreateGLAccountJournalLines(var GLAccount: Record "G/L Account"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date; TemplateCode: Code[10])
     var
         CreateGLAccJournalLines: Report "Create G/L Acc. Journal Lines";
     begin
         Clear(CreateGLAccJournalLines);
         CreateGLAccJournalLines.SetTableView(GLAccount);
         CreateGLAccJournalLines.InitializeRequest(
-          DocumentTypes, PostingDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
+          DocumentType.AsInteger(), PostingDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateGLAccJournalLines.UseRequestPage(false);
         Commit();  // Commit is required for Create Lines.
         CreateGLAccJournalLines.Run;
     end;
 
-    local procedure RunCreateCustomerJournalLines(var Customer: Record Customer; GenJournalBatch: Record "Gen. Journal Batch"; DocumentTypes: Option; PostingDate: Date; TemplateCode: Code[10])
+    local procedure RunCreateCustomerJournalLines(var Customer: Record Customer; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date; TemplateCode: Code[10])
     var
         CreateCustomerJournalLines: Report "Create Customer Journal Lines";
     begin
         Clear(CreateCustomerJournalLines);
         CreateCustomerJournalLines.SetTableView(Customer);
-        CreateCustomerJournalLines.InitializeRequest(DocumentTypes, PostingDate, WorkDate);
+        CreateCustomerJournalLines.InitializeRequest(DocumentType.AsInteger(), PostingDate, WorkDate);
         CreateCustomerJournalLines.InitializeRequestTemplate(
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateCustomerJournalLines.UseRequestPage(false);
@@ -1678,13 +1678,13 @@ codeunit 136602 "ERM RS Create Journal Lines"
         CreateCustomerJournalLines.Run;
     end;
 
-    local procedure RunCreateVendorJournalLines(var Vendor: Record Vendor; GenJournalBatch: Record "Gen. Journal Batch"; DocumentTypes: Option; PostingDate: Date; TemplateCode: Code[10])
+    local procedure RunCreateVendorJournalLines(var Vendor: Record Vendor; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date; TemplateCode: Code[10])
     var
         CreateVendorJournalLines: Report "Create Vendor Journal Lines";
     begin
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.SetTableView(Vendor);
-        CreateVendorJournalLines.InitializeRequest(DocumentTypes, PostingDate, WorkDate);
+        CreateVendorJournalLines.InitializeRequest(DocumentType.AsInteger(), PostingDate, WorkDate);
         CreateVendorJournalLines.InitializeRequestTemplate(
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateVendorJournalLines.UseRequestPage(false);
@@ -1692,13 +1692,13 @@ codeunit 136602 "ERM RS Create Journal Lines"
         CreateVendorJournalLines.Run;
     end;
 
-    local procedure RunCreateItemJournalLines(var Item: Record Item; ItemJournalBatch: Record "Item Journal Batch"; EntryTypes: Option; PostingDate: Date; TemplateCode: Code[10])
+    local procedure RunCreateItemJournalLines(var Item: Record Item; ItemJournalBatch: Record "Item Journal Batch"; EntryTypes: Enum "Item Ledger Entry Type"; PostingDate: Date; TemplateCode: Code[10])
     var
         CreateItemJournalLines: Report "Create Item Journal Lines";
     begin
         Clear(CreateItemJournalLines);
         CreateItemJournalLines.SetTableView(Item);
-        CreateItemJournalLines.InitializeRequest(EntryTypes, PostingDate, WorkDate);
+        CreateItemJournalLines.InitializeRequest(EntryTypes.AsInteger(), PostingDate, WorkDate);
         CreateItemJournalLines.InitializeRequestTemplate(
           ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, TemplateCode);
         CreateItemJournalLines.UseRequestPage(false);
@@ -1789,7 +1789,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         DimensionSetEntry.TestField("Dimension Value Code", DefaultDimension."Dimension Value Code");
     end;
 
-    local procedure VerifyDocumentTypeInLine(GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option)
+    local procedure VerifyDocumentTypeInLine(GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

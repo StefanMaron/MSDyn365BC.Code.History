@@ -5,6 +5,15 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3785033245 - NamedType 2498788199" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A URL is required.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Connection Setup Test - NamedType URLNeededErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3785033245 - NamedType 1525273634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A URL, user name and password are required.]]></Val>
@@ -131,13 +140,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Connection String - NamedType IsNotFoundOnThePageErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3289059696 - NamedType 1871589414" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3289059696 - NamedType 591348700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must specify the URL of your CDS environment.]]></Val>
+      <Val><![CDATA[To sign in the administrator user you must specify an environment.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType CDSEnvironmentURLEmptyErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType NoEnvironmentSelectedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3289059696 - NamedType 417448882" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -196,11 +205,20 @@
   </Item>
   <Item ItemId=";Codeunit 3289059696 - NamedType 1090853174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The application is set up to support secure connections (HTTPS) to the CDS environment only. You cannot use HTTP.]]></Val>
+      <Val><![CDATA[The application is set up to support secure connections (HTTPS) to the Common Data Service environment only. You cannot use HTTP.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType MustUseHttpsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3289059696 - NamedType 3220810991" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must register an Azure Active Directory application that will be used to connect to the Common Data Service environment and specify the application id, secret and redirect URL in the Common Data Service Connection Setup page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.]D;]A;(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType MissingClientIdOrSecretOnPremErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3339774646 - NamedType 428686196" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -223,7 +241,7 @@
   </Item>
   <Item ItemId=";Codeunit 3339774646 - NamedType 2732383653" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A URL, user name and password are required.]]></Val>
+      <Val><![CDATA[A URL is required.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -664,7 +682,7 @@
   </Item>
   <Item ItemId=";Codeunit 120317554 - NamedType 1254437472" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Salesperson Code %1 must be coupled to a record in Dynamics 365 Sales.]]></Val>
+      <Val><![CDATA[Salesperson Code %1 must be coupled to a record in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -709,7 +727,7 @@
   </Item>
   <Item ItemId=";Codeunit 1239683370 - NamedType 2318685411" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The CRM Transactioncurrency does not exist.]]></Val>
+      <Val><![CDATA[The CDS Transactioncurrency does not exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1010,7 +1028,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - CRM product name,%2 - document type (order or quote), %3 - document number]D;]A;(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType MissingWriteInProductNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - CDS service name,%2 - document type (order or quote), %3 - document number]D;]A;(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType MissingWriteInProductNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 775477311 - NamedType 1525273634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1222,7 +1240,7 @@
   </Item>
   <Item ItemId=";Codeunit 780258669 - NamedType 3434938107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot update the CRM Product record because both the Item record and the CRM Product record have been changed.]]></Val>
+      <Val><![CDATA[Cannot update a record]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1292,9 +1310,18 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Synch. Skipped Records - NamedType SyncMultipleRestoredMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1002680501 - NamedType 1990874205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[3 records have been restored for synchronization.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Synch. Skipped Records - NamedType SyncRestoredAllMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1002680501 - NamedType 4268495123" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Salesperson Code %1 must be coupled to a record in Dynamics 365 Sales.]]></Val>
+      <Val><![CDATA[Salesperson Code %1 must be coupled to a record in Common Data Service.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

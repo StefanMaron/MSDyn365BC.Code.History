@@ -848,7 +848,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchLine.Modify(true);
     end;
 
-    local procedure CreatePurchDocumentForFixedAsset(var PurchHeader: Record "Purchase Header"; DocumentType: Option; Amount: Decimal)
+    local procedure CreatePurchDocumentForFixedAsset(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; Amount: Decimal)
     var
         PurchLine: Record "Purchase Line";
         FixedAsset: Record "Fixed Asset";
@@ -926,21 +926,21 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         ApprovalEntry.ModifyAll("Approver ID", UserSetup."User ID", true);
     end;
 
-    local procedure VerifyPurchaseDocumentStatus(var PurchaseHeader: Record "Purchase Header"; Status: Option)
+    local procedure VerifyPurchaseDocumentStatus(var PurchaseHeader: Record "Purchase Header"; Status: Enum "Purchase Document Status")
     begin
         PurchaseHeader.SetRecFilter;
         PurchaseHeader.FindFirst;
         PurchaseHeader.TestField(Status, Status);
     end;
 
-    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; SenderId: Code[50]; ApproverId: Code[50]; Status: Option)
+    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; SenderId: Code[50]; ApproverId: Code[50]; Status: Enum "Approval Status")
     begin
         ApprovalEntry.TestField("Sender ID", SenderId);
         ApprovalEntry.TestField("Approver ID", ApproverId);
         ApprovalEntry.TestField(Status, Status);
     end;
 
-    local procedure VerifyApprovalRequests(PurchaseHeader: Record "Purchase Header"; ExpectedNumberOfApprovalEntries: Integer; SenderUserID: Code[50]; ApproverUserID1: Code[50]; ApproverUserID2: Code[50]; ApproverUserID3: Code[50]; Status1: Option; Status2: Option; Status3: Option)
+    local procedure VerifyApprovalRequests(PurchaseHeader: Record "Purchase Header"; ExpectedNumberOfApprovalEntries: Integer; SenderUserID: Code[50]; ApproverUserID1: Code[50]; ApproverUserID2: Code[50]; ApproverUserID3: Code[50]; Status1: Enum "Approval Status"; Status2: Enum "Approval Status"; Status3: Enum "Approval Status")
     var
         ApprovalEntry: Record "Approval Entry";
     begin

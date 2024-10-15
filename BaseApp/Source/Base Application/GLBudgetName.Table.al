@@ -85,12 +85,15 @@ table 95 "G/L Budget Name"
         GLBudgetEntry: Record "G/L Budget Entry";
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
     begin
-        GLBudgetEntry.SetCurrentKey("Budget Name");
-        GLBudgetEntry.SetRange("Budget Name", Name);
-        GLBudgetEntry.DeleteAll(true);
+        TestField(Blocked, false);
 
         AnalysisViewBudgetEntry.SetRange("Budget Name", Name);
-        AnalysisViewBudgetEntry.DeleteAll(true);
+        AnalysisViewBudgetEntry.DeleteAll();
+
+        GLBudgetEntry.SetCurrentKey("Budget Name");
+        GLBudgetEntry.SetRange("Budget Name", Name);
+        GLBudgetEntry.DeleteAll();
+
     end;
 
     trigger OnModify()

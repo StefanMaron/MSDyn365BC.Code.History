@@ -1224,7 +1224,7 @@ codeunit 136112 "Working On Service Orders"
 
         // [THEN] "SQ-TXT" is still exists.
         VerifyServiceCommentLineExists(
-          ServiceCommentLine."Table Name"::"Service Header", ServiceHeader."Document Type"::Quote, ServiceHeader."No.", CommentText);
+          ServiceCommentLine."Table Name"::"Service Header", ServiceHeader."Document Type"::Quote.AsInteger(), ServiceHeader."No.", CommentText);
     end;
 
     [Test]
@@ -1348,7 +1348,7 @@ codeunit 136112 "Working On Service Orders"
         LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, '', LibraryRandom.RandInt(10));
         LibraryService.CreateServiceCommentLine(
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
-          ServiceHeader."Document Type", ServiceHeader."No.", ServiceCommentLine.Type::General, 0);
+          ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", ServiceCommentLine.Type::General, 0);
         ServiceCommentLine.Comment := CommentText;
         ServiceCommentLine.Modify();
     end;
@@ -1665,7 +1665,7 @@ codeunit 136112 "Working On Service Orders"
         exit(false);
     end;
 
-    local procedure CreateTwoServiceCommentLinesForDocs(DocumentType: Option; TargetDocumentType: Option; var DocumentNo: Code[20]; var CommentTxt: Text[80])
+    local procedure CreateTwoServiceCommentLinesForDocs(DocumentType: Enum "Service Document Type"; TargetDocumentType: Enum "Service Document Type"; var DocumentNo: Code[20]; var CommentTxt: Text[80])
     begin
         DocumentNo := LibraryUtility.GenerateGUID;
         CommentTxt := LibraryUtility.GenerateGUID;
@@ -1673,7 +1673,7 @@ codeunit 136112 "Working On Service Orders"
         MockServiceHeaderWithCommentLine(TargetDocumentType, DocumentNo, CommentTxt);
     end;
 
-    local procedure MockServiceHeaderWithCommentLine(DocumentType: Option; DocumentNo: Code[20]; CommentText: Text[80])
+    local procedure MockServiceHeaderWithCommentLine(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; CommentText: Text[80])
     var
         ServiceHeader: Record "Service Header";
         ServiceCommentLine: Record "Service Comment Line";
@@ -1684,7 +1684,7 @@ codeunit 136112 "Working On Service Orders"
 
         LibraryService.CreateServiceCommentLine(
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
-          DocumentType, DocumentNo, ServiceCommentLine.Type::General, 0);
+          DocumentType.AsInteger(), DocumentNo, ServiceCommentLine.Type::General, 0);
         ServiceCommentLine.Comment := CommentText;
         ServiceCommentLine.Modify();
     end;
@@ -1857,14 +1857,14 @@ codeunit 136112 "Working On Service Orders"
         until ServiceItemLine.Next = 0;
     end;
 
-    local procedure UpdateStatusOnServiceHeader(var ServiceHeader: Record "Service Header"; Status: Option)
+    local procedure UpdateStatusOnServiceHeader(var ServiceHeader: Record "Service Header"; Status: Enum "Service Document Status")
     begin
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
         ServiceHeader.Validate(Status, Status);
         ServiceHeader.Modify(true);
     end;
 
-    local procedure UpdateStandardServiceLine(var StandardServiceLine: Record "Standard Service Line"; Type: Option; No: Code[20])
+    local procedure UpdateStandardServiceLine(var StandardServiceLine: Record "Standard Service Line"; Type: Enum "Service Line Type"; No: Code[20])
     begin
         StandardServiceLine.Validate(Type, Type);
         StandardServiceLine.Validate("No.", No);

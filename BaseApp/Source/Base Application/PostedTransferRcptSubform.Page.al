@@ -146,7 +146,7 @@ page 5746 "Posted Transfer Rcpt. Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -171,7 +171,7 @@ page 5746 "Posted Transfer Rcpt. Subform"
         SetDimensionsVisibility;
     end;
 
-    var
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

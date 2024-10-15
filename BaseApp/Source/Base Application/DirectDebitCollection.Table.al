@@ -33,7 +33,7 @@ table 1207 "Direct Debit Collection"
         }
         field(6; "No. of Transfers"; Integer)
         {
-            CalcFormula = Count ("Direct Debit Collection Entry" WHERE("Direct Debit Collection No." = FIELD("No.")));
+            CalcFormula = Count("Direct Debit Collection Entry" WHERE("Direct Debit Collection No." = FIELD("No.")));
             Caption = 'No. of Transfers';
             FieldClass = FlowField;
         }
@@ -44,7 +44,7 @@ table 1207 "Direct Debit Collection"
         }
         field(8; "To Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("To Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("To Bank Account No.")));
             Caption = 'To Bank Account Name';
             FieldClass = FlowField;
         }
@@ -52,12 +52,10 @@ table 1207 "Direct Debit Collection"
         {
             Caption = 'Message ID';
         }
-        field(10; "Partner Type"; Option)
+        field(10; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
             Editable = false;
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
         }
     }
 
@@ -76,20 +74,26 @@ table 1207 "Direct Debit Collection"
     var
         CloseQst: Label 'If you close the collection, you will not be able to register the payments from the collection. Do you want to close the collection anyway?';
 
+    [Obsolete('Replaced by CreateRecord().', '17.0')]
     procedure CreateNew(NewIdentifier: Code[20]; NewBankAccountNo: Code[20]; PartnerType: Option)
     begin
-        Reset;
+        CreateRecord(NewIdentifier, NewBankAccountNo, PartnerType);
+    end;
+
+    procedure CreateRecord(NewIdentifier: Code[20]; NewBankAccountNo: Code[20]; PartnerType: Enum "Partner Type")
+    begin
+        Reset();
         LockTable();
-        if FindLast then;
-        Init;
+        if FindLast() then;
+        Init();
         "No." += 1;
         Identifier := NewIdentifier;
         "Message ID" := Identifier;
-        "Created Date-Time" := CurrentDateTime;
-        "Created by User" := UserId;
+        "Created Date-Time" := CurrentDateTime();
+        "Created by User" := UserId();
         "To Bank Account No." := NewBankAccountNo;
         "Partner Type" := PartnerType;
-        Insert;
+        Insert();
     end;
 
     procedure CloseCollection()

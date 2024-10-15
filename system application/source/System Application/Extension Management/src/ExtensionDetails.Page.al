@@ -290,6 +290,26 @@ page 2501 "Extension Details"
                     }
                 }
             }
+            group(Links)
+            {
+                Caption = 'Application operation best practices links';
+                ShowCaption = false;
+                Visible = true;
+                field(BestPractices; 'Read more about the best practices for installing and publishing extensions')
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    Editable = false;
+                    ToolTip = 'Read more about the best practices for installing and publishing extensions.';
+
+                    trigger OnDrillDown()
+                    var
+                        ExtensionInstallationImpl: Codeunit "Extension Installation Impl";
+                    begin
+                        Hyperlink(ExtensionInstallationImpl.GetInstallationBestPracticesURL());
+                    end;
+                }
+            }
         }
     }
 

@@ -58,7 +58,7 @@ codeunit 136603 "ERM RS Package Operations"
         MissingLineErr: Label 'Line %1 does not exist in preview page.';
         ExistingLineErr: Label 'Line %1 must not exist in preview page.';
         PackageCodeMustMatchErr: Label 'The package code in all sheets of the Excel file must match the selected package code, %1. Modify the package code in the Excel file or import this file from the Configuration Packages page to create a new package.', Comment = '%1 - package code';
-        IntegrationRecordErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
+        ImportNotAllowedErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
 
 
     [Test]
@@ -302,7 +302,12 @@ codeunit 136603 "ERM RS Package Operations"
         IntegrationRecord.DeleteAll();
         IntegrationRecord.Reset();
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Integration Record");
-        Assert.RecordIsNotEmpty(IntegrationRecord);
+        if IntegrationRecord.IsEmpty() then begin
+            IntegrationRecord."Integration ID" := CreateGuid();
+            IntegrationRecord."Table ID" := Database::Customer;
+            IntegrationRecord.Insert(true);
+        end;
+
         IntegrationRecordCount := IntegrationRecord.Count();
         ExportImportXML(ConfigPackage.Code);
 
@@ -317,8 +322,86 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.RecordIsEmpty(IntegrationRecord);
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageError.SetRange("Table ID", DATABASE::"Integration Record");
-        ConfigPackageError.SetRange("Error Text", StrSubstNo(IntegrationRecordErr, IntegrationRecord.TableCaption));
+        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationRecord.TableCaption));
         Assert.RecordCount(ConfigPackageError, IntegrationRecordCount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotApplyPackageWithIntegrationTableMapping()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackageManagement: Codeunit "Config. Package Management";
+        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
+        IntegrationTableMappingRecordCount: Integer;
+    begin
+        // [FEATURE] [XML]
+        // [SCENARIO] A package can be created, exported and imported with integration table mappings, but not applied.
+        Initialize;
+        InitializeCRM();
+
+        // [GIVEN] Integration table mappings
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, Database::"Integration Table Mapping");
+        Assert.RecordIsNotEmpty(IntegrationTableMapping);
+        IntegrationTableMappingRecordCount := IntegrationTableMapping.Count();
+        ExportImportXML(ConfigPackage.Code);
+
+        Assert.IsTrue(ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Integration Table Mapping"), NoDataAfterImportErr);
+        IntegrationTableMapping.DeleteAll();
+        Assert.RecordIsEmpty(IntegrationTableMapping);
+
+        // [WHEN] Attempting to apply the package
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] No integration table mapping records are imported and an error message is logged for each record in the package.
+        Assert.RecordIsEmpty(IntegrationTableMapping);
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        ConfigPackageError.SetRange("Table ID", DATABASE::"Integration Table Mapping");
+        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationTableMapping.TableCaption));
+        Assert.RecordCount(ConfigPackageError, IntegrationTableMappingRecordCount);
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotApplyPackageWithIntegrationFieldMapping()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackageManagement: Codeunit "Config. Package Management";
+        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
+        IntegrationFieldMappingRecordCount: Integer;
+    begin
+        // [FEATURE] [XML]
+        // [SCENARIO] A package can be created, exported and imported with integration field mappings, but not applied.
+        Initialize;
+        InitializeCRM();
+
+        // [GIVEN] Integration field mappings
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, Database::"Integration Field Mapping");
+        Assert.RecordIsNotEmpty(IntegrationFieldMapping);
+        IntegrationFieldMappingRecordCount := IntegrationFieldMapping.Count();
+        ExportImportXML(ConfigPackage.Code);
+
+        Assert.IsTrue(ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Integration Field Mapping"), NoDataAfterImportErr);
+        IntegrationFieldMapping.DeleteAll();
+        Assert.RecordIsEmpty(IntegrationFieldMapping);
+
+        // [WHEN] Attempting to apply the package
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] No integration field mapping records are imported and an error message is loggee for each record in the package.
+        Assert.RecordIsEmpty(IntegrationFieldMapping);
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        ConfigPackageError.SetRange("Table ID", DATABASE::"Integration Field Mapping");
+        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationFieldMapping.TableCaption));
+        Assert.RecordCount(ConfigPackageError, IntegrationFieldMappingRecordCount);
     end;
 
     [Test]
@@ -2469,7 +2552,7 @@ codeunit 136603 "ERM RS Package Operations"
         end;
     end;
 
-    local procedure VerifyGenJnlLineAmount(DocumentType: Integer; DocumentNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGenJnlLineAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -3313,7 +3396,7 @@ codeunit 136603 "ERM RS Package Operations"
         end;
     end;
 
-    local procedure InsertOptionAndEnumRs(PK: Integer; OptionInt: Integer; EnumInt: Integer)
+    local procedure InsertOptionAndEnumRs(PK: Integer; OptionInt: Integer; EnumInt: Enum EnumRs)
     var
         OptionAndEnumRS: Record OptionAndEnumRS;
     begin
@@ -3403,6 +3486,35 @@ codeunit 136603 "ERM RS Package Operations"
             TmpConfigMediaBuffer.TransferFields(ConfigMediaBuffer, true);
             TmpConfigMediaBuffer.Insert();
         until ConfigMediaBuffer.Next = 0;
+    end;
+
+    local procedure InitializeCRM()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+    begin
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+
+        CRMConnectionSetup.DeleteAll();
+        UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, '');
+        LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
+
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Team;
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.Modify();
+        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+
+        CRMConnectionSetup.Get('');
+        CRMConnectionSetup.RegisterConnection();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 8618, 'OnImportExcelFile', '', false, false)]

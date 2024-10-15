@@ -108,17 +108,35 @@ page 9053 "WMS Ship & Receive Activities"
                     DrillDownPageID = "Warehouse Picks";
                     ToolTip = 'Specifies the number of picks that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
+                field("Unassigned Picks"; "Unassigned Picks")
+                {
+                    ApplicationArea = Warehouse;
+                    DrillDownPageID = "Warehouse Picks";
+                    ToolTip = 'Specifies the number of unassigned picks that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
+                }
                 field("Put-aways - All"; "Put-aways - All")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Put-aways";
                     ToolTip = 'Specifies the number of put-always that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
+                field("Unassigned Put-aways"; "Unassigned Put-aways")
+                {
+                    ApplicationArea = Warehouse;
+                    DrillDownPageID = "Warehouse Put-aways";
+                    ToolTip = 'Specifies the number of unassigned put-always that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
+                }
                 field("Movements - All"; "Movements - All")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Movements";
                     ToolTip = 'Specifies the number of movements that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
+                }
+                field("Unassigned Movements"; "Unassigned Movements")
+                {
+                    ApplicationArea = Warehouse;
+                    DrillDownPageID = "Warehouse Movements";
+                    ToolTip = 'Specifies the number of unassigned movements that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
                 field("Registered Picks - Today"; "Registered Picks - Today")
                 {
@@ -155,12 +173,21 @@ page 9053 "WMS Ship & Receive Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with User Tasks Activities part';
+                ObsoleteTag = '17.0';
+
                 field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
                     Image = Checklist;
                     ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with User Tasks Activities part';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -188,7 +215,7 @@ page 9053 "WMS Ship & Receive Activities"
 
         SetRange("Date Filter", 0D, WorkDate);
         SetRange("Date Filter2", WorkDate, WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
 
         LocationCode := GetEmployeeLocation(UserId);
         SetFilter("Location Filter", LocationCode);

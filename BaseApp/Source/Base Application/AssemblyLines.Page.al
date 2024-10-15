@@ -186,7 +186,7 @@ page 903 "Assembly Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

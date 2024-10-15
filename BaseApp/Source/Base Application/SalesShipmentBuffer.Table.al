@@ -108,12 +108,12 @@ table 7190 "Sales Shipment Buffer"
                   -SalesCrMemoLine."Quantity (Base)",
                   SalesCrMemoLine."Qty. per Unit of Measure");
             SalesCrMemoLine.Type::"G/L Account", SalesCrMemoLine.Type::Resource,
-          SalesCrMemoLine.Type::"Charge (Item)", SalesCrMemoLine.Type::"Fixed Asset":
+            SalesCrMemoLine.Type::"Charge (Item)", SalesCrMemoLine.Type::"Fixed Asset":
                 GenerateBufferFromReceipt(SalesCrMemoLine, SalesCrMemoHeader);
         end;
     end;
 
-    local procedure GenerateBufferFromValueEntry(ValueEntryDocType: Option; DocNo: Code[20]; DocLineNo: Integer; LineType: Option; ItemNo: Code[20]; PostingDate: Date; QtyBase: Decimal; QtyPerUOM: Decimal)
+    local procedure GenerateBufferFromValueEntry(ValueEntryDocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; DocLineNo: Integer; LineType: Enum "Sales Line Type"; ItemNo: Code[20]; PostingDate: Date; QtyBase: Decimal; QtyPerUOM: Decimal)
     var
         ValueEntry: Record "Value Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -271,7 +271,7 @@ table 7190 "Sales Shipment Buffer"
             until (ReturnReceiptLine.Next = 0) or (TotalQuantity = 0);
     end;
 
-    local procedure AddBufferEntry(QtyOnShipment: Decimal; PostingDate: Date; ShipmentNo: Code[20]; DocLineNo: Integer; LineType: Option; ItemNo: Code[20])
+    local procedure AddBufferEntry(QtyOnShipment: Decimal; PostingDate: Date; ShipmentNo: Code[20]; DocLineNo: Integer; LineType: Enum "Sales Line Type"; ItemNo: Code[20])
     begin
         SetRange("Document No.", ShipmentNo);
         SetRange("Line No.", DocLineNo);

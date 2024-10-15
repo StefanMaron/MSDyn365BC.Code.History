@@ -369,15 +369,6 @@ dotnet
         }
     }
 
-    assembly("Microsoft.Dynamics.Nav.Client.DynamicsOnlineConnect")
-    {
-
-        type("Microsoft.Dynamics.Nav.Client.DynamicsOnlineConnect.IDynamicsOnlineConnectControlDefinition"; "Microsoft.Dynamics.Nav.Client.DynamicsOnlineConnect")
-        {
-            IsControlAddin = true;
-        }
-    }
-
     assembly("Microsoft.Dynamics.Nav.Client.PageReady")
     {
 
@@ -1186,6 +1177,10 @@ dotnet
         }
 
         type("System.Collections.Hashtable"; "Hashtable")
+        {
+        }
+
+        type("System.String[]"; "StringArray")
         {
         }
 
@@ -2241,6 +2236,14 @@ dotnet
         }
 
         type("MimeKit.ContentType"; "MimeContentType")
+        {
+        }
+
+        type("MimeKit.MimePart"; "MimePart")
+        {
+        }
+
+        type("MimeKit.ContentObject"; "MimeContentObject")
         {
         }
     }

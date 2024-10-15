@@ -2918,7 +2918,7 @@ codeunit 134299 "Test Partner Integration Event"
           GenJournalLine."Account Type"::"Fixed Asset", FixedAsset."No.", LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemJnlLineEntryType: Option)
+    local procedure CreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemJnlLineEntryType: Enum "Item Ledger Entry Type")
     var
         ItemNo: Code[20];
     begin
@@ -2926,7 +2926,7 @@ codeunit 134299 "Test Partner Integration Event"
         CreateItemJnlLineWithItemNo(ItemJournalLine, ItemJnlLineEntryType, ItemNo, LibraryRandom.RandDecInRange(11, 100, 2));
     end;
 
-    local procedure CreateItemJnlLineWithItemNo(var ItemJournalLine: Record "Item Journal Line"; ItemJnlLineEntryType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateItemJnlLineWithItemNo(var ItemJournalLine: Record "Item Journal Line"; ItemJnlLineEntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -2979,7 +2979,7 @@ codeunit 134299 "Test Partner Integration Event"
         CreateSalesHeaderAndLine(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
     end;
 
-    local procedure CreateSalesHeaderAndLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesHeaderAndLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandDec(100, 2));
@@ -3013,7 +3013,7 @@ codeunit 134299 "Test Partner Integration Event"
         CreatePurchaseHeaderAndLine(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
     end;
 
-    local procedure CreatePurchaseHeaderAndLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseHeaderAndLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandDec(100, 2));

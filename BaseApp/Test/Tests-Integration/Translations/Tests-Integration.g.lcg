@@ -113,15 +113,6 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit API Routes E2E - NamedType ApiRoutesTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3122263953 - NamedType 2315963461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The available Azure Machine Learning processing time is less than or equal to zero.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AI Usage Tst - NamedType ProcessingTimeLessThanZeroErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2563049213 - NamedType 2864708005" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SENDINV]]></Val>
@@ -641,7 +632,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Locked]D;]A;(LookupHint=Codeunit Image Analysis Setup Test - NamedType MockSecretTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Image Analysis Setup Test - NamedType MockSecretTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2953935133 - NamedType 2352626280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

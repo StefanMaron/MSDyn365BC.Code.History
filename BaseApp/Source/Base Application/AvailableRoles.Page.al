@@ -8,7 +8,7 @@ page 9178 "Available Roles"
     DeleteAllowed = false;
     PageType = List;
     SourceTable = "All Profile";
-    SourceTableView = where(Enabled = const(true));
+    SourceTableView = where(Enabled = const(true), "Description" = filter(<> 'Navigation menu only.'));
 
     layout
     {

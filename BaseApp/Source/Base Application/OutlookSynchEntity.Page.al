@@ -28,7 +28,7 @@ page 5300 "Outlook Synch. Entity"
 
                     trigger OnValidate()
                     begin
-                        TableNoOnAfterValidate;
+                        TableNoOnAfterValidate();
                     end;
                 }
                 field("Table Caption"; "Table Caption")

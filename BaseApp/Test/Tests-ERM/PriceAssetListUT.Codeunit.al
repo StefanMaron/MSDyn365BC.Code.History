@@ -84,6 +84,37 @@ codeunit 134122 "Price Asset List UT"
     end;
 
     [Test]
+    procedure T003_AddAssetItemWithDeletedItemDiscount()
+    var
+        Item: Record Item;
+        ItemDiscountGroup: Record "Item Discount Group";
+        TempPriceAsset: Record "Price Asset" temporary;
+        PriceAssetList: Codeunit "Price Asset List";
+        AssetType: Enum "Price Asset Type";
+        Level: Integer;
+    begin
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
+        Item."Item Disc. Group" := ItemDiscountGroup.Code;
+        Item.Modify();
+        // [GIVEN] "Item Disc. Group" 'D' is deleted
+        ItemDiscountGroup.Delete();
+        // [WHEN] Add "Item" 'I', where "Item Disc. Group" is 'D', at level 7
+        Level := LibraryRandom.RandInt(10);
+        PriceAssetList.SetLevel(Level);
+        PriceAssetList.Add(AssetType::Item, Item."No.");
+        // [THEN] GetList returns one record
+        PriceAssetList.GetList(TempPriceAsset);
+        Assert.RecordCount(TempPriceAsset, 1);
+        // [THEN] Item 'I', where Level is 7
+        TempPriceAsset.FindLast();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Item);
+        TempPriceAsset.TestField("Asset No.", Item."No.");
+        TempPriceAsset.TestField(Level, Level);
+    end;
+
+    [Test]
     procedure T010_AddAssetResourceWithResourceGroup()
     var
         Resource: Record Resource;

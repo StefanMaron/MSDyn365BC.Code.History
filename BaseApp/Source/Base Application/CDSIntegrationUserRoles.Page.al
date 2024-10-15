@@ -64,11 +64,12 @@ page 7205 "CDS Integration User Roles"
         CDSConnectionSetup.Get();
         CDSIntegrationImpl.CheckConnectionRequiredFields(CDSConnectionSetup, false);
 
+        IntegrationUserId := CDSIntegrationImpl.GetIntegrationUserId(CDSConnectionSetup);
+
         TempConnectionName := CDSIntegrationImpl.GetTempConnectionName();
         CDSIntegrationImpl.RegisterConnection(CDSConnectionSetup, TempConnectionName);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
 
-        IntegrationUserId := CDSIntegrationImpl.GetIntegrationUserId(CDSConnectionSetup);
         if not IsNullGuid(IntegrationUserId) then begin
             CRMSystemuserroles.SetRange(SystemUserId, IntegrationUserId);
             if CRMSystemuserroles.FindSet() then

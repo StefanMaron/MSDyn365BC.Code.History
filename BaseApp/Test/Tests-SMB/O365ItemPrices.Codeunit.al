@@ -657,11 +657,11 @@ codeunit 138019 "O365 Item Prices"
 
             ValidateFieldsForLineType_vs_Type(
               "Line Type"::"Sales Line Discount",
-              Type::"Item Disc. Group");
+              Type::"Item Disc. Group".AsInteger());
 
             ValidateFieldsForLineType_vs_Type(
               "Line Type"::"Sales Price",
-              Type::Item);
+              Type::Item.AsInteger());
 
             Init;
             "Loaded Item No." := 'LIN';
@@ -714,7 +714,7 @@ codeunit 138019 "O365 Item Prices"
         end;
     end;
 
-    local procedure ValidateFieldsForType_vs_LineType(NewType: Integer; NewLineType: Integer)
+    local procedure ValidateFieldsForType_vs_LineType(NewType: Enum "Sales Line Discount Type"; NewLineType: Integer)
     var
         SalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff";
     begin
@@ -842,7 +842,7 @@ codeunit 138019 "O365 Item Prices"
         SalesPrice.ModifyAll("Price Includes VAT", Item."Price Includes VAT");
 
         ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
+        ItemCard.Filter.SetFilter("No.", Item."No.");
 
         // Validation part
         ItemCard."Price Includes VAT".Value := Format(Item."Price Includes VAT");
@@ -866,7 +866,7 @@ codeunit 138019 "O365 Item Prices"
         SalesPrice.ModifyAll("Price Includes VAT", not Item."Price Includes VAT");
 
         ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
+        ItemCard.Filter.SetFilter("No.", Item."No.");
 
         // Validation part
         ItemCard."Price Includes VAT".Value := Format(not Item."Price Includes VAT");
@@ -890,7 +890,7 @@ codeunit 138019 "O365 Item Prices"
         SalesPrice.ModifyAll("Price Includes VAT", not Item."Price Includes VAT");
 
         ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
+        ItemCard.Filter.SetFilter("No.", Item."No.");
 
         // Validation part
         ItemCard."Price Includes VAT".Value := Format(not Item."Price Includes VAT");
@@ -912,7 +912,7 @@ codeunit 138019 "O365 Item Prices"
         CreateSalesPrices(Item."No.");
 
         ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
+        ItemCard.Filter.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
         ItemCard.PricesDiscountsOverview.Invoke;
@@ -956,7 +956,7 @@ codeunit 138019 "O365 Item Prices"
         CreateSalesPrices(Item."No.");
 
         ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
+        ItemCard.Filter.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
         ItemCard.SpecialPricesAndDiscountsTxt.DrillDown;
@@ -976,7 +976,7 @@ codeunit 138019 "O365 Item Prices"
         CreateItem(Item);
 
         ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
+        ItemCard.Filter.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(1); // choose to create a new special price
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
@@ -997,7 +997,7 @@ codeunit 138019 "O365 Item Prices"
         CreateItem(Item);
 
         ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
+        ItemCard.Filter.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(2); // choose to create a new special discount
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
@@ -1303,7 +1303,7 @@ codeunit 138019 "O365 Item Prices"
         end;
     end;
 
-    local procedure CreateSalesLineDiscountLine(LineCode: Code[20]; LineType: Integer; InThePast: Boolean)
+    local procedure CreateSalesLineDiscountLine(LineCode: Code[20]; LineType: Enum "Sales Line Discount Type"; InThePast: Boolean)
     var
         SalesLineDiscount: Record "Sales Line Discount";
         i: Integer;
@@ -1391,7 +1391,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price");
     end;
 
-    local procedure SetFiltersForBufferAndGetFreshSLDiscounts(var SalesLineDiscount: Record "Sales Line Discount"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; SalesLineDiscountType: Integer; SalesLineDiscountCode: Code[20])
+    local procedure SetFiltersForBufferAndGetFreshSLDiscounts(var SalesLineDiscount: Record "Sales Line Discount"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; SalesLineDiscountType: Enum "Sales Line Discount Type"; SalesLineDiscountCode: Code[20])
     begin
         SetBufferOnlyToSLDiscounts(TempSalesPriceAndLineDiscBuff, false);
 
@@ -1406,7 +1406,7 @@ codeunit 138019 "O365 Item Prices"
         TempSalesPriceAndLineDiscBuff.FindSet;
     end;
 
-    local procedure GetSLDiscounts(var SalesLineDiscount: Record "Sales Line Discount"; SalesLineDiscountType: Integer; SalesLineDiscountCode: Code[20])
+    local procedure GetSLDiscounts(var SalesLineDiscount: Record "Sales Line Discount"; SalesLineDiscountType: Enum "Sales Line Discount Type"; SalesLineDiscountCode: Code[20])
     begin
         with SalesLineDiscount do begin
             Reset;
@@ -1447,7 +1447,7 @@ codeunit 138019 "O365 Item Prices"
         end;
     end;
 
-    local procedure DuplicateLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Integer)
+    local procedure DuplicateLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Enum "Sales Line Discount Type")
     begin
         with TempSalesPriceAndLineDiscBuff do begin
             SetRange(Type, LineDiscType);
@@ -1473,7 +1473,7 @@ codeunit 138019 "O365 Item Prices"
         end;
     end;
 
-    local procedure UpdateLinesInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Integer)
+    local procedure UpdateLinesInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Enum "Sales Line Discount Type")
     var
         i: Integer;
     begin

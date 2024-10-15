@@ -1,4 +1,4 @@
-﻿codeunit 398 "Sales Tax Calculate"
+codeunit 398 "Sales Tax Calculate"
 {
 
     trigger OnRun()

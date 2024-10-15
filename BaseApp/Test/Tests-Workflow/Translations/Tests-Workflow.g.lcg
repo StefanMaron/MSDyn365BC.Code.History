@@ -2291,6 +2291,15 @@
       <Cmt Name="Dev"><![CDATA[Created By User1]D;]A;(LookupHint=Codeunit Workflow Notification Test - NamedType CreatedByUserTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3961072956 - NamedType 2363954731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed to send email]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Notification Test - NamedType FailedToSendEmailEmailErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3961072956 - NamedType 3495513796" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A call to MailKit.Net.Smtp.SmtpClient.Connect failed]]></Val>
@@ -2298,6 +2307,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Notification Test - NamedType IgnoringFailureSendingEmailErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3961072956 - NamedType 3158795812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sending an email should succeed when using test email connector.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Notification Test - NamedType TestConnectorEmailSendErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 917367647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

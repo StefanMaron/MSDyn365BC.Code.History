@@ -1553,13 +1553,13 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM TestMultipleGenJnlLines");
     end;
 
-    local procedure CreateAndUpdateGLAccount(var GLAccount: Record "G/L Account"; GenPostingType: Option)
+    local procedure CreateAndUpdateGLAccount(var GLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type")
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         UpdateGLAccount(GLAccount, GenPostingType);
     end;
 
-    local procedure CreateBatchAndUpdateTemplate(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateBatchAndUpdateTemplate(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -1569,7 +1569,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreateGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         // Create General Journal Line.
         LibraryERM.CreateGeneralJnlLine(
@@ -1691,7 +1691,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLinesForManualCheck(var GenJnlLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateGeneralJournalLinesForManualCheck(var GenJnlLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; LineAmount: Decimal)
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -1835,7 +1835,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         Clear(CreateCustomerJournalLines);
         CreateCustomerJournalLines.UseRequestPage(false);
         CreateCustomerJournalLines.SetTableView(Customer);
-        CreateCustomerJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice, WorkDate, WorkDate);
+        CreateCustomerJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, WorkDate);
         CreateCustomerJournalLines.InitializeRequestTemplate(JournalTemplate, BatchName, TemplateCode);
         CreateCustomerJournalLines.SetDefaultDocumentNo(DocumentNo);
         CreateCustomerJournalLines.Run;
@@ -1850,7 +1850,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.UseRequestPage(false);
         CreateVendorJournalLines.SetTableView(Vendor);
-        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice, WorkDate, WorkDate);
+        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, WorkDate);
         CreateVendorJournalLines.InitializeRequestTemplate(JournalTemplate, BatchName, TemplateCode);
         CreateVendorJournalLines.SetDefaultDocumentNo(DocumentNo);
         CreateVendorJournalLines.Run;
@@ -1866,7 +1866,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateGLAccJournalLines.UseRequestPage(false);
         CreateGLAccJournalLines.SetTableView(GLAccount);
         CreateGLAccJournalLines.InitializeRequest(
-          GenJournalLine."Document Type"::Invoice, WorkDate, JournalTemplate, BatchName, TemplateCode);
+            GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, JournalTemplate, BatchName, TemplateCode);
         CreateGLAccJournalLines.SetDefaultDocumentNo(DocumentNo);
         CreateGLAccJournalLines.Run;
     end;
@@ -1879,7 +1879,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         Commit();
         CreateItemJournalLines.UseRequestPage(false);
         CreateItemJournalLines.SetTableView(Item);
-        CreateItemJournalLines.InitializeRequest(ItemJournalLine."Document Type"::"Sales Invoice", WorkDate, WorkDate);
+        CreateItemJournalLines.InitializeRequest(ItemJournalLine."Document Type"::"Sales Invoice".AsInteger(), WorkDate, WorkDate);
         CreateItemJournalLines.InitializeRequestTemplate(JournalTemplate, BatchName, TemplateCode);
         CreateItemJournalLines.SetDefaultDocumentNo(DocumentNo);
         CreateItemJournalLines.Run;
@@ -1989,7 +1989,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure UpdateGLAccount(var GLAccount: Record "G/L Account"; GenPostingType: Option)
+    local procedure UpdateGLAccount(var GLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -2071,7 +2071,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GLEntry.FindFirst;
     end;
 
-    local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; CustomerNo: Code[20])
+    local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2095,7 +2095,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         Assert.RecordCount(GLEntry, LineCount);
     end;
 
-    local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; VendorNo: Code[20])
+    local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

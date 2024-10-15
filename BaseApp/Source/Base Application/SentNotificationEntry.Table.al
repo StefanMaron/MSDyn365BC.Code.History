@@ -12,11 +12,9 @@ table 1514 "Sent Notification Entry"
         {
             Caption = 'ID';
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Notification Entry Type")
         {
             Caption = 'Type';
-            OptionCaption = 'New Record,Approval,Overdue';
-            OptionMembers = "New Record",Approval,Overdue;
         }
         field(4; "Recipient User ID"; Code[50])
         {
@@ -56,11 +54,9 @@ table 1514 "Sent Notification Entry"
         {
             Caption = 'Notification Content';
         }
-        field(13; "Notification Method"; Option)
+        field(13; "Notification Method"; Enum "Notification Method Type")
         {
             Caption = 'Notification Method';
-            OptionCaption = 'Email,Note';
-            OptionMembers = Email,Note;
         }
         field(14; "Aggregated with Entry"; Integer)
         {
@@ -97,7 +93,7 @@ table 1514 "Sent Notification Entry"
         ID := GetLastEntryNo() + 1;
         "Notification Content".CreateOutStream(OutStream);
         OutStream.WriteText(NotificationContent);
-        "Notification Method" := NotificationMethod;
+        "Notification Method" := "Notification Method Type".FromInteger(NotificationMethod);
         "Sent Date-Time" := CurrentDateTime;
         Insert(true);
     end;

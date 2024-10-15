@@ -753,7 +753,7 @@ codeunit 134451 "ERM Fixed Assets"
         VerifyAmountInFALedgerEntry(FANo, FALedgerEntry."FA Posting Type"::"Salvage Value", Amount);
     end;
 
-    local procedure CreateFixedAssetWithoutIntegration(FAJnlLineFAPostingType: Option; AmountSign: Integer; var FAJournalLine: Record "FA Journal Line") Amount: Decimal
+    local procedure CreateFixedAssetWithoutIntegration(FAJnlLineFAPostingType: Enum "FA Journal Line FA Posting Type"; AmountSign: Integer; var FAJournalLine: Record "FA Journal Line") Amount: Decimal
     var
         DepreciationBook: Record "Depreciation Book";
         FAJournalBatch: Record "FA Journal Batch";
@@ -2380,15 +2380,15 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Normal]
-    local procedure FADepreciationBookSetMethod(var FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group"; FAPostingMethod: Option)
+    local procedure FADepreciationBookSetMethod(var FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group"; FADepreciationMethod: Enum "FA Depreciation Method")
     begin
-        FADepreciationBook.Validate("Depreciation Method", FAPostingMethod);
+        FADepreciationBook.Validate("Depreciation Method", FADepreciationMethod);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
         FADepreciationBook.Modify(true);
     end;
 
-    local procedure SellFixedAsset(var SalesHeader: Record "Sales Header"; DocumentType: Option; FANo: Code[20]; DepreciationBookCode: Code[10])
+    local procedure SellFixedAsset(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; FANo: Code[20]; DepreciationBookCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2544,7 +2544,7 @@ codeunit 134451 "ERM Fixed Assets"
           FANo, DepreciationBookCode, -LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FAPostingType: Option; FANo: Code[20]; DepreciationBookCode: Code[10]; Amount: Decimal)
+    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FAPostingType: Enum "FA Journal Line FA Posting Type"; FANo: Code[20]; DepreciationBookCode: Code[10]; Amount: Decimal)
     begin
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::" ");
@@ -2821,7 +2821,7 @@ codeunit 134451 "ERM Fixed Assets"
         end;
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20]; GenPostingType: Option; GLAccountNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type"; GLAccountNo: Code[20])
     begin
         with GLEntry do begin
             SetRange("Document Type", DocumentType);
@@ -2832,12 +2832,12 @@ codeunit 134451 "ERM Fixed Assets"
         end;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20]; FilterType: Option)
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type")
     begin
         with VATEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            SetRange(Type, FilterType);
+            SetRange(Type, GenPostingType);
             FindFirst;
         end;
     end;
@@ -3017,7 +3017,7 @@ codeunit 134451 "ERM Fixed Assets"
         FALedgerEntry.TestField("Depreciation Book Code", DepreciationBookCode)
     end;
 
-    local procedure VerifySalesFALedgerEntry(DocumentNo: Code[20]; FANo: Code[20]; FAPostingType: Option; ExpectedAmount: Decimal; Debit: Decimal; Credit: Decimal)
+    local procedure VerifySalesFALedgerEntry(DocumentNo: Code[20]; FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; ExpectedAmount: Decimal; Debit: Decimal; Credit: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
@@ -3041,7 +3041,7 @@ codeunit 134451 "ERM Fixed Assets"
         FALedgerEntry.TestField("Depreciation Book Code", DepreciationBookCode)
     end;
 
-    local procedure VerifyAmountInFALedgerEntry(FANo: Code[20]; FALedgerEntryFAPostingType: Option; Amount: Decimal)
+    local procedure VerifyAmountInFALedgerEntry(FANo: Code[20]; FALedgerEntryFAPostingType: Enum "FA Ledger Entry FA Posting Type"; Amount: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
