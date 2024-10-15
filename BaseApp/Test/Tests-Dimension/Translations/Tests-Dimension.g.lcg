@@ -581,6 +581,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Journals - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 147274020 - NamedType 2982674781" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A setting for one or more global or shortcut dimensions is incorrect.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Journals - NamedType DimConsistencyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 147274020 - NamedType 502268969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimensions FactBox contains incorrect dimension set.]]></Val>

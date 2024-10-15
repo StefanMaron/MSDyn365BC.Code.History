@@ -588,6 +588,8 @@ codeunit 144210 "FatturaPA Document Type"
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvHeader, SalesHeader);
 
         // [THEN] Corrective credit memo has "Fattura Document Type" = "TD04"
+        // TFS ID 403084: Corrective credit memo does not have "TD04" code
+        SalesHeader.Find();
         SalesHeader.TestField("Fattura Document Type", FatturaDocHelper.GetCrMemoCode());
     end;
 

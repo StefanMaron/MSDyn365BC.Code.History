@@ -22,8 +22,8 @@ codeunit 139451 "O365 Item Permission Test"
         RecordRefWithAllRelations: RecordRef;
     begin
         // [GIVEN] A user with O365 Basic and Item Edit permissions
-        Initialize;
-        LibraryLowerPermissions.SetItemEdit;
+        Initialize();
+        LibraryLowerPermissions.SetItemEdit();
         ExcludedTables := ExcludedTables.List;
         InsertTablesExcludedFromItemCreate(ExcludedTables);
 
@@ -32,7 +32,7 @@ codeunit 139451 "O365 Item Permission Test"
         LibraryPermissionsVerify.VerifyWritePermissionTrue(RecordRef);
 
         // [THEN] The user can read from the record and related tables
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         RecordRefWithAllRelations.Open(DATABASE::Item);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
@@ -47,8 +47,8 @@ codeunit 139451 "O365 Item Permission Test"
         RecordRefWithAllRelations: RecordRef;
     begin
         // [GIVEN] An Item with related records and a user with O365 Basic and Item View
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         RecordRefWithAllRelations.Open(DATABASE::Item);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
         ExcludedTables := ExcludedTables.List;
@@ -71,14 +71,14 @@ codeunit 139451 "O365 Item Permission Test"
     begin
         // [FEATURE] [Transfer Shipment]
         // [SCENARIO 308913] Open "Posted Transfer Shpt. - Update" from "Posted Transfer Shipment" card with "D365 INV DOC, POST".
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user with "D365 INV DOC, POST" permission set.
-        LibraryLowerPermissions.SetO365INVSetup;
+        LibraryLowerPermissions.SetO365INVPost();
 
         // [WHEN] Open "Posted Transfer Shpt. - Update" page from "Posted Transfer Shipment" card.
-        PostedTransferShipment.OpenView;
-        PostedTransferShipment."Update Document".Invoke;
+        PostedTransferShipment.OpenView();
+        PostedTransferShipment."Update Document".Invoke();
 
         // [THEN] "Posted Transfer Shpt. - Update" opens.
     end;
@@ -92,14 +92,14 @@ codeunit 139451 "O365 Item Permission Test"
     begin
         // [FEATURE] [Transfer Shipment]
         // [SCENARIO 308913] Open "Posted Transfer Shpt. - Update" from "Posted Transfer Shipments" list with "D365 INV DOC, POST".
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user with "D365 INV DOC, POST" permission set.
-        LibraryLowerPermissions.SetO365INVSetup;
+        LibraryLowerPermissions.SetO365INVPost();
 
         // [WHEN] Open "Posted Transfer Shpt. - Update" page from "Posted Transfer Shipments" list.
-        PostedTransferShipments.OpenView;
-        PostedTransferShipments."Update Document".Invoke;
+        PostedTransferShipments.OpenView();
+        PostedTransferShipments."Update Document".Invoke();
 
         // [THEN] "Posted Transfer Shpt. - Update" opens.
     end;
@@ -154,7 +154,7 @@ codeunit 139451 "O365 Item Permission Test"
     [Scope('OnPrem')]
     procedure PostedServiceShptUpdateOKModalPageHandler(var PostedTransferShptUpdate: TestPage "Posted Transfer Shpt. - Update")
     begin
-        PostedTransferShptUpdate.OK.Invoke;
+        PostedTransferShptUpdate.OK.Invoke();
     end;
 }
 

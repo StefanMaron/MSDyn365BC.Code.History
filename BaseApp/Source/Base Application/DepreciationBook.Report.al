@@ -604,7 +604,7 @@ report 12119 "Depreciation Book"
                     BookValueAtEndingDate := BookValueAtEndingDate + TotalEndingAmounts[i];
                     BookValueAtStartingDate := BookValueAtStartingDate + StartAmounts[i];
                 end;
-                BookValueAtEndingDate := BookValueAtEndingDate + ReclassAmount[4];
+                BookValueAtEndingDate := BookValueAtEndingDate + ReclassAmount[4] - ReclassAmount[5];
 
                 if (PrintDetails and PrintTotalSubclass) or (PrintDetails and PrintTotalInventoryYear) then
                     for k := 1 to 14 do
@@ -922,7 +922,7 @@ report 12119 "Depreciation Book"
             BookValueAtEndingDate := BookValueAtEndingDate + TotalEndingAmounts[i];
             BookValueAtStartingDate := BookValueAtStartingDate + GroupStartAmounts[i];
         end;
-        BookValueAtEndingDate := BookValueAtEndingDate + ReclassAmount[4];
+        BookValueAtEndingDate := BookValueAtEndingDate + ReclassAmount[4] - ReclassAmount[5];
     end;
 
     local procedure CreateTotals()
@@ -1086,7 +1086,7 @@ report 12119 "Depreciation Book"
             Period2, StartingDate, EndingDate,
             DeprBookCode, BeforeAmount, EndingAmount, true, true);
 
-        if GetPeriodDisposal and IsReclassifiedFA(FANo, DeprBookCode, true) then
+        if GetPeriodDisposal and IsReclassifiedFA(FANo, DeprBookCode, false) then
             ReclassAmount[3] := -(ReclassAmount[1] + ReclassAmount[2])
         else
             ReclassAmount[3] := 0;

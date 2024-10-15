@@ -761,51 +761,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Detailed Entry With Global Dim - Field Parent Entry No. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 2644802819 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dtld. Entry With Global Dim 2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Dtld. Entry With Global Dim 2 - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 2644802819 - Field 883711285 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Entry No.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Dtld. Entry With Global Dim 2 - Field Entry No. - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 2644802819 - Field 780288434 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Initial Entry Global Dim. 1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Dtld. Entry With Global Dim 2 - Field Initial Entry Global Dim. 1 - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 2644802819 - Field 3162165879 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Initial Entry Global Dim. 2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Dtld. Entry With Global Dim 2 - Field Initial Entry Global Dim. 2 - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 2644802819 - Field 1068272785 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Parent Entry No.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Dtld. Entry With Global Dim 2 - Field Parent Entry No. - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Table 3565295228 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Enabled Test Codeunit]]></Val>
@@ -4836,24 +4791,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType XSALESDOCPOSTTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 516414979 - NamedType 4175139666" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[S&R-Q/O/I/R/C, POST]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType XSalesQOIRCPostTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 516414979 - NamedType 679080322" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[S&R-Q/O/I/R/C]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType XSalesQOIRCTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 516414979 - NamedType 3465953097" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -62,7 +62,7 @@ codeunit 144143 "ERM FA Deprciation"
         CreateAndPostPurchaseInvoiceWithMultipleLines(FADepreciationBook);
         EnqueueValuesInRequestPageHandler(
           FADepreciationBook[1]."Depreciation Book Code", FADepreciationBook[1]."FA No.", CalcDate('<CY>', WorkDate), '');  // Enqueue values in CalculateDepreciationRequestPageHandler.
-        PostGenJournalLineAfterCalculateDepreciation;
+        PostGenJournalLineAfterCalculateDepreciation(true);
 
         // Exercise.
         RunDepreciationBookReport(
@@ -192,7 +192,7 @@ codeunit 144143 "ERM FA Deprciation"
         EnqueueValuesInRequestPageHandler(
           FADepreciationBook[1]."Depreciation Book Code",
           FADepreciationBook[1]."FA No.", CalcDate('<CY>', WorkDate), '');  // Enqueue values in CalculateDepreciationRequestPageHandler.
-        PostGenJournalLineAfterCalculateDepreciation;
+        PostGenJournalLineAfterCalculateDepreciation(true);
 
         // Create and Reclassify FA Reclass Journal and Post FA Reclass Journal.
         ReclassifyAndPostFAReclassJournal(
@@ -298,7 +298,8 @@ codeunit 144143 "ERM FA Deprciation"
         CreateAndPostGenJournalLine(
           FADepreciationBook, GenJournalLine."FA Posting Type"::"Acquisition Cost", LibraryRandom.RandDec(1000, 2), WorkDate);
         CreateSalesHeader(SalesHeader);
-        CreateSalesLine(SalesHeader, SalesLine, FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code");
+        CreateSalesLine(
+          SalesHeader, SalesLine, FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", LibraryRandom.RandDec(10, 2));
 
         // Exercise: Post Sales Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -458,7 +459,7 @@ codeunit 144143 "ERM FA Deprciation"
           FADepreciationBookNormal, GenJournalLine."FA Posting Type"::"Acquisition Cost", LibraryRandom.RandDec(1000, 2), WorkDate);
         EnqueueValuesInRequestPageHandler(
           FADepreciationBook[1]."Depreciation Book Code", FADepreciationBookNormal."FA No.", CalcDate('<CY>', WorkDate), '');
-        PostGenJournalLineAfterCalculateDepreciation;
+        PostGenJournalLineAfterCalculateDepreciation(true);
 
         // [WHEN] Run "Depreciation Book" report for "FA1" and fixed asset "N"
         Commit();
@@ -761,6 +762,85 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryReportDataset.AssertElementWithValueExists('BasicDepreciationPerc', DepreciationPercent);
     end;
 
+    [Test]
+    [HandlerFunctions('CalculateDepreciationRequestPageHandler,DepreciationCalcConfirmHandler,MessageHandler,DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeprBookReportForFAAfterReclassificationAndDepreciationAndSalesInvoicePosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        FADepreciationBook: array[2] of Record "FA Depreciation Book";
+        GenJournalLine: Record "Gen. Journal Line";
+        FALedgerEntry: Record "FA Ledger Entry";
+        DepreciationTableCode: Code[10];
+        DepreciationBookCode: Code[10];
+        FAPostingGroupCode: Code[20];
+        FAStartingDate: Date;
+        DisposalDate: Date;
+        AcquireAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [FA Disposal] [Reclassification] [Depreciation Book]
+        // [SCENARIO 391326] "Depreciation Book" report shows "Book Value" = 0 and "Amount at" = 0 for fully disposed reclassified Fixed Asset as of date of disposal
+        Initialize();
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
+        CreateFAPostingGroup(FAPostingGroupCode);
+
+        FAStartingDate := CalcDate('<-CY>', WorkDate);
+        DisposalDate := CalcDate('<CY>', WorkDate);
+        AcquireAmount := LibraryRandom.RandDecInRange(500, 600, 2);
+
+        // [GIVEN] Fixed Asset "FA1" acquired with amount 1000
+        // [GIVEN] Depreciation calculated and posted for "FA1" from Jan 1st till Dec 31st / 2023.
+        // [GIVEN] "FA1" reclassified to "FA2" with amount 500 and depreciation at Dec 31st / 2023
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[1], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+        CreateAndPostGenJournalLine(
+          FADepreciationBook[1], GenJournalLine."FA Posting Type"::"Acquisition Cost", Round(AcquireAmount / 2), FAStartingDate);
+        Commit();
+        EnqueueValuesInRequestPageHandler(
+          FADepreciationBook[1]."Depreciation Book Code", FADepreciationBook[1]."FA No.", DisposalDate, '');
+        PostGenJournalLineAfterCalculateDepreciation(false);
+
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[2], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+
+        ReclassifyAndPostFAReclassJournal(
+          CreateFAReclassJournalLine(FADepreciationBook, LibraryRandom.RandDecInRange(100, 200, 2), DisposalDate),
+          DepreciationBookCode);
+
+        // [GIVEN] Sales invoice posted for "FA2" with amount 500 at Dec 31st / 2023.
+        CreateSalesHeader(SalesHeader);
+        SalesHeader.Validate("Posting Date", DisposalDate);
+        SalesHeader.Validate("Document Date", DisposalDate);
+        SalesHeader.Validate("Operation Occurred Date", DisposalDate);
+        SalesHeader.Modify(true);
+
+        CreateSalesLine(SalesHeader, SalesLine, FADepreciationBook[2]."FA No.", DepreciationBookCode, Round(AcquireAmount / 2));
+
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        Commit();
+
+        // [WHEN] Run report "Depreciation Book" for "FA2" at with ending date Dec 31st / 2023
+        RunDepreciationBookReport(DepreciationBookCode, FADepreciationBook[2]."FA No.", '', true, FAStartingDate);
+
+        // [THEN] Report output shows: 'Disposal In Period' shows shows fully disposed amount
+        // [THEN] - 'Disposal in Period' shows shows fully disposed amount
+        // [THEN] - 'Amount At' (disposal date) shows 0
+        // [THEN] - Total 'Book Value' shows 0
+        // [THEN] - Class and SubClass 'Book Value' show 0
+        FindFALedgerEntry(
+          FALedgerEntry, FADepreciationBook[2]."FA No.", DepreciationBookCode,
+          FALedgerEntry."Document Type"::Invoice, FALedgerEntry."FA Posting Category"::Disposal);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('TotalClass_3_', FALedgerEntry.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalClass_4_', 0);
+        VerifyValuesOnDepreciationBookReport(
+          false, 'TotalSubclass_14_', 'TotalClass_14_', 'TotalInventoryYear_14_', 'BookValueAtEndingDate', 0, 0, 0, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -774,7 +854,7 @@ codeunit 144143 "ERM FA Deprciation"
         EnqueueValuesInRequestPageHandler(
           FADepreciationBook[1]."Depreciation Book Code",
           FADepreciationBook[1]."FA No.", CalcDate('<CY>', WorkDate), '');  // Enqueue values in CalculateDepreciationRequestPageHandler.
-        PostGenJournalLineAfterCalculateDepreciation;
+        PostGenJournalLineAfterCalculateDepreciation(true);
 
         // Create and Reclassify FA Reclass Journal and Post FA Reclass Journal.
         ReclassifyAndPostFAReclassJournal(
@@ -825,7 +905,7 @@ codeunit 144143 "ERM FA Deprciation"
           FADepreciationBook[1], GenJournalLine."FA Posting Type"::"Acquisition Cost", LibraryRandom.RandDec(1000, 2), WorkDate);
         EnqueueValuesInRequestPageHandler(
           FADepreciationBook[1]."Depreciation Book Code", FADepreciationBook[1]."FA No.", CalcDate('<CY>', WorkDate), '');
-        PostGenJournalLineAfterCalculateDepreciation;
+        PostGenJournalLineAfterCalculateDepreciation(true);
         ReclassifyAndPostFAReclassJournal(
           CreateFAReclassJournalLine(
             FADepreciationBook, LibraryRandom.RandDec(100, 2), CalcDate('<1Y>', WorkDate)),
@@ -900,7 +980,7 @@ codeunit 144143 "ERM FA Deprciation"
         FixedAsset.Modify(true);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset, DepreciationBookCode, DepreciationTableCode, CalcDate('<-CY>', WorkDate));
         FADepreciationBook.Validate("Depreciation Method", FADepreciationBook."Depreciation Method"::"Straight-Line");
-        FADepreciationBook.Validate("No. of Depreciation Years", LibraryRandom.RandIntInRange(3, 5));
+        FADepreciationBook.Validate("No. of Depreciation Years", LibraryRandom.RandIntInRange(5, 10));
         FADepreciationBook.Modify(true);
     end;
 
@@ -983,11 +1063,11 @@ codeunit 144143 "ERM FA Deprciation"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; FANo: Code[20]; DepreciationBookCode: Code[10])
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; LineAmount: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Fixed Asset", FANo, LibraryRandom.RandDec(10, 2));  // Using the Random Number Generator for Quantity.
         SalesLine.Validate("Depreciation Book Code", DepreciationBookCode);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));  // Using the Random Number Generator for Unit Price.
+        SalesLine.Validate("Unit Price", LineAmount);
         SalesLine.Modify(true);
     end;
 
@@ -1101,25 +1181,10 @@ codeunit 144143 "ERM FA Deprciation"
         SalesLine: Record "Sales Line";
     begin
         CreateSalesHeader(SalesHeader);
-        CreateSalesLine(SalesHeader, SalesLine, FANo, DepreciationBookCode);
+        CreateSalesLine(SalesHeader, SalesLine, FANo, DepreciationBookCode, LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Depr. until FA Posting Date", DeprUntilFAPostingDate);
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
-    end;
-
-    local procedure PostDepreciation()
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        FindGenJournalBatch(GenJournalBatch);
-        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.FindFirst;
-        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Purchase);
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure PostFAReclassJournal()
@@ -1134,10 +1199,24 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostGenJournalLineAfterCalculateDepreciation()
+    local procedure PostGenJournalLineAfterCalculateDepreciation(UpdateGenPostingType: Boolean)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
     begin
         REPORT.Run(REPORT::"Calculate Depreciation");
-        PostDepreciation;
+
+        FindGenJournalBatch(GenJournalBatch);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.FindFirst;
+        if UpdateGenPostingType then begin
+            GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Purchase);
+            GenJournalLine.Modify(true);
+        end;
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure ReclassifyAndPostFAReclassJournal(CurrentJnlBatchName: Code[10]; DepreciationBookCode: Code[10]): Text

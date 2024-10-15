@@ -126,6 +126,7 @@ report 99001015 "Calculate Subcontracts"
         ProdOrderLine: Record "Prod. Order Line";
         GLSetup: Record "General Ledger Setup";
         PurchLine: Record "Purchase Line";
+        Item: Record Item;
         CostCalcMgt: Codeunit "Cost Calculation Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
@@ -200,6 +201,7 @@ report 99001015 "Calculate Subcontracts"
             "WIP Item" := "Prod. Order Routing Line"."WIP Item";
             Validate("Vendor No.", "Work Center"."Subcontractor No.");
             Description := "Prod. Order Routing Line".Description;
+            SetVendorItemNo();
             OnAfterTransferProdOrderRoutingLine(ReqLine, "Prod. Order Routing Line");
 
             // If purchase order already exist we will change this if possible
@@ -261,6 +263,25 @@ report 99001015 "Calculate Subcontracts"
             SetRange("Operation No.", "Prod. Order Routing Line"."Operation No.");
             DeleteAll(true);
         end;
+    end;
+
+    local procedure SetVendorItemNo()
+    var
+        ItemVendor: Record "Item Vendor";
+    begin
+        if ReqLine."No." = '' then
+            exit;
+
+        if Item."No." <> ReqLine."No." then begin
+            Item.SetLoadFields("No.");
+            Item.Get(ReqLine."No.");
+        end;
+
+        ItemVendor.Init();
+        ItemVendor."Vendor No." := ReqLine."Vendor No.";
+        ItemVendor."Variant Code" := ReqLine."Variant Code";
+        Item.FindItemVend(ItemVendor, ReqLine."Location Code");
+        ReqLine.Validate("Vendor Item No.", ItemVendor."Vendor Item No.");
     end;
 
     [IntegrationEvent(false, false)]

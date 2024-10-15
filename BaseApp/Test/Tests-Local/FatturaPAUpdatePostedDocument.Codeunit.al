@@ -2,6 +2,8 @@ codeunit 144212 "FatturaPA Update Posted Doc."
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    Permissions = tabledata "Sales Cr.Memo Header" = i,
+                  tabledata "Sales Invoice Header" = i;
 
     trigger OnRun()
     begin

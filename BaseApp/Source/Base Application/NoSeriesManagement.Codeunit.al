@@ -77,9 +77,9 @@ codeunit 396 NoSeriesManagement
                   NoSeries.FieldCaption("Default Nos."), NoSeries.TableCaption, NoSeries.Code);
             if OldNoSeriesCode <> '' then begin
                 NoSeriesCode := DefaultNoSeriesCode;
-                FilterSeries;
+                FilterSeries();
                 NoSeries.Code := OldNoSeriesCode;
-                if not NoSeries.Find then
+                if not NoSeries.Find() then
                     NoSeries.Get(DefaultNoSeriesCode);
             end;
             NewNo := GetNextNo(NoSeries.Code, NewDate, true);

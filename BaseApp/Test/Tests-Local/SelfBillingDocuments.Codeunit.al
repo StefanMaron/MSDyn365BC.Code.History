@@ -1,6 +1,7 @@
 codeunit 144206 "Self-Billing Documents"
 {
     Subtype = Test;
+    Permissions = tabledata "VAT Entry" = m;
 
     trigger OnRun()
     begin

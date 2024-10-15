@@ -445,7 +445,7 @@
         end;
     end;
 
-    local procedure InsertTransShptHeader(var TransShptHeader: Record "Transfer Shipment Header"; TransHeader: Record "Transfer Header"; NoSeries: Code[20])
+    local procedure InsertTransShptHeader(var TransShptHeader: Record "Transfer Shipment Header"; var TransHeader: Record "Transfer Header"; NoSeries: Code[20])
     var
         TransportReasonCode: Record "Transport Reason Code";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -933,7 +933,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
+    local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; var TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
     begin
     end;
 

@@ -1593,6 +1593,9 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         // [GIVEN] "Vendor Aging" page is opened with "Date Filter" starting on "15.01.21", "Amount Type" set to "Period Balance".
         Vendor.SetRange("Date Filter", WorkDate, WorkDate + 30);
+        Vendor.CalcFields("Balance (LCY)");
+        Vendor.TestField("Balance (LCY)", -(Amount[1] + Amount[2] + Amount[3]));
+
         VendorAging.Trap();
         PAGE.Run(PAGE::"Vendor Aging", Vendor);
         VendorAging.AmountType.SetValue(AmountType::"Period Balance");
@@ -1607,7 +1610,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         // [THEN] Field3 Caption = "17.01.21", Value = "15".
         for i := 1 to 3 do begin
             Assert.AreEqual(Format(WorkDate() + i - 1), LibraryVariableStorage.DequeueText(), '');
-            Assert.AreEqual(Amount[i], LibraryVariableStorage.DequeueDecimal(), '');
+            Assert.AreEqual(Amount[i], -LibraryVariableStorage.DequeueDecimal(), '');
         end;
 
         LibraryVariableStorage.AssertEmpty();
@@ -1638,6 +1641,9 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         // [GIVEN] "Customer Aging" page is opened with "Date Filter" starting on "15.01.21", "Amount Type" set to "Period Balance".
         Customer.SetRange("Date Filter", WorkDate(), WorkDate() + 30);
+        Customer.CalcFields("Balance (LCY)");
+        Customer.TestField("Balance (LCY)", Amount[1] + Amount[2] + Amount[3]);
+
         CustomerAging.Trap();
         PAGE.Run(PAGE::"Customer Aging", Customer);
         CustomerAging.AmountType.SetValue(AmountType::"Period Balance");

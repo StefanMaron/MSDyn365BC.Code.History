@@ -82,7 +82,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreateInvoiceWithOneLineThroughTestPageNoDiscount(SalesInvoice);
@@ -98,7 +98,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreateInvoiceWithOneLineThroughTestPageDiscountTypePCT(SalesInvoice);
@@ -114,7 +114,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreateInvoiceWithOneLineThroughTestPageDiscountTypeAMT(SalesInvoice);
@@ -133,7 +133,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         InvoiceDiscountAmount: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateInvoiceWithOneLineThroughTestPageDiscountTypePCT(SalesInvoice);
         InvoiceDiscountAmount := LibraryRandom.RandDecInDecimalRange(1, SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal / 2, 1);
         SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
@@ -163,7 +163,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         InvoiceDiscountAmount: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithOneLineThroughTestPageDiscountTypeAMT(SalesInvoice);
         InvoiceDiscountAmount := SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal;
@@ -183,7 +183,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithOneLineThroughTestPageNoDiscount(SalesInvoice);
 
@@ -203,7 +203,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithOneLineThroughTestPageDiscountTypePCT(SalesInvoice);
 
@@ -224,7 +224,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithOneLineThroughTestPageDiscountTypePCT(SalesInvoice);
 
@@ -250,7 +250,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithOneLineThroughTestPageDiscountTypeAMT(SalesInvoice);
 
@@ -277,7 +277,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithLinesThroughCodeNoDiscount(SalesHeader);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
@@ -306,7 +306,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithLinesThroughCodeDiscountPct(SalesHeader, SalesLine);
 
@@ -327,7 +327,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithLinesThroughCodeDiscountAmt(SalesHeader, SalesLine);
         SalesInvoiceEntityAggregate.Get(SalesHeader."No.", false);
@@ -348,7 +348,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithLinesThroughCodeNoDiscount(SalesHeader);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
@@ -370,7 +370,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithLinesThroughCodeDiscountPct(SalesHeader, SalesLine);
 
@@ -389,7 +389,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithLinesThroughCodeDiscountAmt(SalesHeader, SalesLine);
 
@@ -413,7 +413,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         NewCustDiscPct: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -444,7 +444,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         NewCustDiscPct: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -474,7 +474,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
         CreateCustomer(NewCustomer);
 
@@ -504,7 +504,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         NewCustomerDiscPct: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -535,7 +535,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         NewCustomerDiscPct: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, Customer, InvoiceDiscountAmount);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -561,7 +561,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreatePostedInvoiceDiscountTypeAmt(SalesInvoiceHeader);
@@ -580,7 +580,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
 
         // Execute
@@ -609,7 +609,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         TempGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
 
         TempGUID := CreateGuid;
@@ -638,7 +638,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreatePostedInvoiceDiscountTypePct(SalesInvoiceHeader);
@@ -655,7 +655,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateInvoiceWithLinesThroughCodeNoDiscount(SalesHeader);
 
@@ -674,7 +674,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreatePostedInvoiceDiscountTypeAmt(SalesInvoiceHeader);
 
         // Execute
@@ -692,7 +692,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         NewCode: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreatePostedInvoiceNoDiscount(SalesInvoiceHeader);
 
         // Execute
@@ -714,7 +714,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         AggregateField: Record "Field";
     begin
         // Setup
-        Initialize;
+        Initialize();
         GetFieldsThatMustMatchWithSalesHeader(TempCommonField);
         GetInvoiceAggregateSpecificFields(TempInvoiceAggregateSpecificField);
         SetFieldFilters(AggregateField, DATABASE::"Sales Invoice Entity Aggregate");
@@ -748,7 +748,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         AggregateLineRecordRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         GetFieldsThatMustMatchWithSalesLine(TempCommonField);
         GetInvoiceAggregateLineSpecificFields(TempInvoiceAggregateLineSpecificField);
 
@@ -778,7 +778,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Quote);
         SalesQuote.OpenEdit;
@@ -809,7 +809,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         NewSalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreateAndCancelPostedInvoice(SalesInvoiceHeader, NewSalesCrMemoHeader);
@@ -828,7 +828,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateAndCancelPostedInvoice(SalesInvoiceHeader, NewSalesCrMemoHeader);
 
         // Execute
@@ -854,7 +854,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         UnpaidSalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateAndMarkPostedInvoiceAsPaid(SalesInvoiceHeader);
         CreatePostedInvoiceNoDiscount(UnpaidSalesInvoiceHeader);
 
@@ -880,7 +880,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         NewSalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateAndCancelPostedInvoice(CancelledSalesInvoiceHeader, NewSalesCrMemoHeader);
         CancelledDocument.Get(DATABASE::"Sales Invoice Header", CancelledSalesInvoiceHeader."No.");
 
@@ -902,7 +902,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
         SetAllowManualDisc;
 
@@ -929,7 +929,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ExpectedGuid: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeader(SalesHeader, ExpectedGuid, SalesHeader."Document Type"::Invoice);
         CreatePostedInvoiceNoDiscount(SalesInvoiceHeader);
@@ -956,7 +956,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         UpdateSalesInvoiceAggregate(SalesInvoiceEntityAggregate, TempFieldBuffer);
 
@@ -983,7 +983,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateInvoiceWithLinesThroughCodeNoDiscount(SalesHeader);
         SalesInvoiceEntityAggregate.Get(SalesHeader."No.", false);
         UpdateSalesInvoiceAggregate(SalesInvoiceEntityAggregate, TempFieldBuffer);
@@ -1011,7 +1011,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ExpectedGuid: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeader(SalesHeader, ExpectedGuid, SalesHeader."Document Type"::Invoice);
         SalesInvoiceEntityAggregate.Get(SalesHeader."No.", false);
@@ -1033,7 +1033,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreatePostedInvoiceNoDiscount(SalesInvoiceHeader);
         LibrarySales.SetAllowDocumentDeletionBeforeDate(SalesInvoiceHeader."Posting Date" + 1);
@@ -1057,7 +1057,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
         UpdateSalesInvoiceLineAggregate(TempSalesInvoiceLineAggregate, TempFieldBuffer);
@@ -1080,7 +1080,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
@@ -1109,7 +1109,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
         SalesInvoiceAggregator.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.SystemId);
@@ -1138,7 +1138,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
         SalesInvoiceAggregator.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.SystemId);
@@ -1166,7 +1166,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [FEATURE] [Batch Posting] [Background Posting] [UT]
         // [SCENARIO 328249] Ids stays the same (not updated) when modify sales header with "Job Queue Status" = "Posting" or "Scheduled for Posting" (batch posting emulation).
         // System skips "Sales Header" OnModify subscribers while batch posting ("Job Queue Status" updated to "Scheduled for Posting" or "Posting")
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency
         LibraryERM.CreateCurrency(Currency);
@@ -1199,7 +1199,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [FEATURE] [Batch Posting] [Background Posting] [UT]
         // [SCENARIO 328249] Ids stays the same (not updated) when modify sales header with "Job Queue Status" = "Posting" or "Scheduled for Posting" (batch posting emulation).
         // System skips "Sales Header" OnModify subscribers while batch posting ("Job Queue Status" updated to "Scheduled for Posting" or "Posting")
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency
         LibraryERM.CreateCurrency(Currency);
@@ -1232,7 +1232,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [FEATURE] [Batch Posting] [Background Posting] [UT]
         // [SCENARIO 328249] Ids stays the same (not updated) when modify sales header with "Job Queue Status" = "Posting" or "Scheduled for Posting" (batch posting emulation).
         // System skips "Sales Header" OnModify subscribers while batch posting ("Job Queue Status" updated to "Scheduled for Posting" or "Posting")
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency
         LibraryERM.CreateCurrency(Currency);
@@ -1266,7 +1266,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [FEATURE] [Batch Posting] [Background Posting] [UT]
         // [SCENARIO 328249] Ids stays the same (not updated) when modify purchase header with "Job Queue Status" = "Posting" or "Scheduled for Posting" (batch posting emulation).
         // System skips "Purchase Header" OnModify subscribers while batch posting ("Job Queue Status" updated to "Scheduled for Posting" or "Posting")
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency
         LibraryERM.CreateCurrency(Currency);
@@ -1300,7 +1300,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
     begin
         // [FEATURE] [Permissions]
         // [SCENARIO 325667] Sales Line without type is added when user has limited permissions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Standard text.
         LibrarySales.CreateStandardText(StandardText);
@@ -1310,7 +1310,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         // [GIVEN] Permisson to create sales invoices.
-        LibraryLowerPermissions.SetSellReturn;
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         // [WHEN] Add Sales Line with standard text, but whithout type.
         SalesLine.Init();
@@ -1334,7 +1334,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         PostingSetupManagement: Codeunit PostingSetupManagement;
     begin
         // [SCENARIO 325667] Notification is shown when Sales Line is added and G/L Account is missing in posting group.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled notification about missing G/L account.
         MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
@@ -1350,7 +1350,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Assert.ExpectedMessage(CogsAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
         // [THEN] Notification "Sales VAT Account is missing in VAT Posting Setup." is sent.
         Assert.ExpectedMessage(SalesVatAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; minAmount: Decimal)

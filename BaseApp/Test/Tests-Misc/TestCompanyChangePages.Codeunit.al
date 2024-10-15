@@ -17,7 +17,7 @@ codeunit 132908 TestCompanyChangePages
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CompanySetUpInProgressMsg: Label 'Company %1 was just created, and we are still setting it up for you.', Comment = '%1 - a company name';
         LibraryPermissions: Codeunit "Library - Permissions";
-        SetupStatus: Option " ",Completed,"In Progress",Error;
+        SetupStatus: Enum "Company Setup Status";
         NoConfigPackDefinedMsg: Label 'No configuration package file is defined within the specified filter';
         GlobalSessionID: Integer;
         GlobalTaskID: Guid;
@@ -138,7 +138,7 @@ codeunit 132908 TestCompanyChangePages
         LibraryVariableStorage.Enqueue(Company.Name); // for PickCompanyModalHandler
         MySettings.Company.AssistEdit; // handled by PickCompanyModalHandler
         // [GIVEN] page Allowed Companies , where "Setup Status" is 'In Progress' for 'B', and 'No' for 'A'
-        Assert.AreEqual(SetupStatus::"In Progress", LibraryVariableStorage.DequeueInteger, 'SetupStatus for company B');
+        Assert.AreEqual(SetupStatus::"In Progress".AsInteger(), LibraryVariableStorage.DequeueInteger(), 'SetupStatus for company B');
 
         // [WHEN] Pick company 'B'
         // handled by PickCompanyModalHandler

@@ -294,7 +294,7 @@
                 VATPercentage := "VAT %";
         end else
             if FullCount > 1 then begin
-                TempVATAmountLine.Copy(Rec, true);
+                CopyFromRec(TempVATAmountLine);
                 TempVATAmountLine.FindFirst;
                 if TempVATAmountLine."VAT %" <> 0 then begin
                     TempVATAmountLine.SetRange("VAT %", TempVATAmountLine."VAT %");
@@ -701,6 +701,21 @@
                 "Nondeductible Amount" := "VAT Amount" * (100 - "Deductible %") / 100;
                 Modify;
             until Next() = 0;
+    end;
+
+    local procedure CopyFromRec(var TempVATAmountLine: Record "VAT Amount Line" temporary)
+    var
+        VATAmountLineCopy: Record "VAT Amount Line";
+    begin
+        if not IsTemporary() then begin
+            VATAmountLineCopy.Copy(Rec);
+            if VATAmountLineCopy.FindSet() then
+                repeat
+                    TempVATAmountLine := VATAmountLineCopy;
+                    TempVATAmountLine.Insert();
+                until VATAmountLineCopy.Next() = 0;
+        end else
+            TempVATAmountLine.Copy(Rec, true);
     end;
 
     procedure CopyFromPurchInvLine(PurchInvLine: Record "Purch. Inv. Line")

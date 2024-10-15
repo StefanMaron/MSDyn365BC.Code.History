@@ -16,7 +16,7 @@ codeunit 3003 DotNet_DateTime
         DotNetDateTime := DotNetDateTime.DateTime(Year, Month, Day, Hour, Minute, Second, DotNet_DateTimeKind);
     end;
 
-    procedure TryParse(DateTimeText: Text; DotNet_CultureInfo: Codeunit DotNet_CultureInfo; DotNet_DateTimeStyles: Codeunit DotNet_DateTimeStyles): Boolean
+    procedure TryParse(DateTimeText: Text; DotNet_CultureInfo: Codeunit DotNet_CultureInfo; DotNet_DateTimeStyles: Codeunit DotNet_DateTimeStyles) Result: Boolean
     var
         DotNetCultureInfo: DotNet CultureInfo;
         DotNetDateTimeStyles: DotNet DateTimeStyles;
@@ -24,10 +24,17 @@ codeunit 3003 DotNet_DateTime
         DateTime(0);
         DotNet_CultureInfo.GetCultureInfo(DotNetCultureInfo);
         DotNet_DateTimeStyles.GetDateTimeStyles(DotNetDateTimeStyles);
-        exit(DotNetDateTime.TryParse(DateTimeText, DotNetCultureInfo, DotNetDateTimeStyles, DotNetDateTime))
+        if not TryParse_Impl(Result, DateTimeText, DotNetCultureInfo, DotNetDateTimeStyles) then
+            Result := false;
     end;
 
-    procedure TryParseExact(DateTimeText: Text; Format: Text; DotNet_CultureInfo: Codeunit DotNet_CultureInfo; DotNet_DateTimeStyles: Codeunit DotNet_DateTimeStyles): Boolean
+    [TryFunction]
+    local procedure TryParse_Impl(var Result: Boolean; DateTimeText: Text; var DotNetCultureInfo: DotNet CultureInfo; var DotNetDateTimeStyles: DotNet DateTimeStyles)
+    begin
+        Result := DotNetDateTime.TryParse(DateTimeText, DotNetCultureInfo, DotNetDateTimeStyles, DotNetDateTime);
+    end;
+
+    procedure TryParseExact(DateTimeText: Text; Format: Text; DotNet_CultureInfo: Codeunit DotNet_CultureInfo; DotNet_DateTimeStyles: Codeunit DotNet_DateTimeStyles) Result: Boolean
     var
         DotNetCultureInfo: DotNet CultureInfo;
         DotNetDateTimeStyles: DotNet DateTimeStyles;
@@ -35,7 +42,14 @@ codeunit 3003 DotNet_DateTime
         DateTime(0);
         DotNet_CultureInfo.GetCultureInfo(DotNetCultureInfo);
         DotNet_DateTimeStyles.GetDateTimeStyles(DotNetDateTimeStyles);
-        exit(DotNetDateTime.TryParseExact(DateTimeText, Format, DotNetCultureInfo, DotNetDateTimeStyles, DotNetDateTime))
+        if not TryParseExact_Impl(Result, DateTimeText, Format, DotNetCultureInfo, DotNetDateTimeStyles) then
+            Result := false;
+    end;
+
+    [TryFunction]
+    local procedure TryParseExact_Impl(var Result: Boolean; DateTimeText: Text; Format: Text; var DotNetCultureInfo: DotNet CultureInfo; var DotNetDateTimeStyles: DotNet DateTimeStyles)
+    begin
+        Result := DotNetDateTime.TryParseExact(DateTimeText, Format, DotNetCultureInfo, DotNetDateTimeStyles, DotNetDateTime);
     end;
 
     procedure "DateTime"(IntegerDateTime: Integer)

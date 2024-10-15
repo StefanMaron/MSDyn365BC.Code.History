@@ -4848,6 +4848,73 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlBatchJson := JSONManagement.WriteObjectToString;
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure GenJnlLinesRenumberUnfilteredEntries()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalLine: Array[4] of Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        DocNos: array[3] of Code[20];
+        NoSeriesCode: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Renumber Document]
+        // [SCENARIO 402266] Unfiltered Document Nos should be correctly renumbered
+        Initialize();
+
+        // [GIVEN] Setup GL Account and No. Series 
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+
+        LibraryErm.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.VALIDATE("No. Series", NoSeriesCode);
+        GenJournalBatch.Modify();
+
+        // [GIVEN] Gen. Journal Line "1" with Document No. = "1" and Amount = 100
+        CreateGenJournalLineGL(
+            GenJournalLine[1], GenJournalBatch.Name, GenJournalTemplate.Name,
+            GenJournalLine[1]."Account Type"::"G/L Account", GLAccount."No.",
+            100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+
+        // [GIVEN] Gen. Journal Line "2" with Document No. = "2" and Amount = 200
+        CreateGenJournalLineGL(
+            GenJournalLine[2], GenJournalBatch.Name, GenJournalTemplate.Name,
+            GenJournalLine[2]."Account Type"::"G/L Account", GLAccount."No.",
+            200, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+
+        // [GIVEN] Gen. Journal Line "3" with Document No. = "3" and Amount = 100
+        CreateGenJournalLineGL(
+            GenJournalLine[3], GenJournalBatch.Name, GenJournalTemplate.Name,
+            GenJournalLine[3]."Account Type"::"G/L Account", GLAccount."No.",
+            100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+
+        For i := 1 to ArrayLen(DocNos) do
+            DocNos[i] := GenJournalLine[i]."Document No.";
+
+        // [GIVEN] Gen. Journal Lines filtered by Batch/Template and Amount = 100   
+        GenJournalLine[4].SetFilter("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine[4].SetFilter("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine[4].SetFilter(Amount, FORMAT(100));
+        GenJournalLine[4].FindLast();
+
+        // [WHEN] Run "Renumber Document No" for Gen. Journal Line "3"
+        Commit();
+        GenJournalLine[4].RenumberDocumentNo();
+        For i := 1 to ArrayLen(DocNos) do
+            GenJournalLine[i].Find();
+
+        // [THEN] Gen. Journal Line "1" Document No. = "1", Gen. Journal Line "2" Document No. = "3", Gen. Journal Line "3" Document No. = "2"
+        GenJournalLine[1].TestField("Document No.", DocNos[1]);
+        GenJournalLine[2].TestField("Document No.", DocNos[3]);
+        GenJournalLine[3].TestField("Document No.", DocNos[2]);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -4953,6 +5020,16 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
         GenJournalLine."Applies-to Doc. No." := AppliesToDocNo;
         GenJournalLine.Modify
+    end;
+
+    local procedure CreateGenJournalLineGL(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; Type: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJnlTemplateName, GenJnlBatchName,
+            GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account", AccountNo, Amount);
+        GenJournalLine.Validate("Document No.", DocNo);
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateMultiLineGenJnlDoc(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; AccNo2: Code[20])

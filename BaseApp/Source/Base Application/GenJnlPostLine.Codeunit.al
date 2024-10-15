@@ -1094,6 +1094,7 @@
             end;
             CustPostingGr.Get("Posting Group");
             ReceivablesAccount := GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr);
+	        OnPostCustOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
 
             // Check the document no.
             if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
@@ -1274,6 +1275,7 @@
             end;
             GetVendorPostingGroup(GenJnlLine, VendPostingGr);
             PayablesAccount := GetVendorPayablesAccount(GenJnlLine, VendPostingGr);
+            OnPostVendOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
 
             // Check the document no.
             if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
@@ -8606,6 +8608,16 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterStartPosting(GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostCustOnAfterAssignCurrencyFactors(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostVendOnAfterAssignCurrencyFactors(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }
