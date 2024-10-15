@@ -22,6 +22,9 @@ codeunit 10768 "Service Invoice Header - Edit"
         ServiceInvoiceHeader."Succeeded Company Name" := "Succeeded Company Name";
         ServiceInvoiceHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
         ServiceInvoiceHeader."Issued By Third Party" := "Issued By Third Party";
+        ServiceInvoiceHeader.SetSIIFirstSummaryDocNo(GetSIIFirstSummaryDocNo());  
+        ServiceInvoiceHeader.SetSIILastSummaryDocNo(GetSIILastSummaryDocNo());
+
         OnRunOnBeforeServiceInvoiceHeaderModify(ServiceInvoiceHeader, Rec);
         ServiceInvoiceHeader.TestField("No.", "No.");
         ServiceInvoiceHeader.Modify();
@@ -55,6 +58,8 @@ codeunit 10768 "Service Invoice Header - Edit"
         SIIDocUploadState."Succeeded Company Name" := ServiceInvoiceHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := ServiceInvoiceHeader."Succeeded VAT Registration No.";
         SIIDocUploadState."Issued By Third Party" := ServiceInvoiceHeader."Issued By Third Party";
+        SIIDocUploadState."First Summary Doc. No." := CopyStr(ServiceInvoiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
+        SIIDocUploadState."Last Summary Doc. No." := CopyStr(ServiceInvoiceHeader.GetSIILastSummaryDocNo(), 1, 35);
         SIIDocUploadState.Modify();
     end;
 

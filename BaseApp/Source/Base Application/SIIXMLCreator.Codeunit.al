@@ -1,4 +1,4 @@
-﻿codeunit 10750 "SII XML Creator"
+codeunit 10750 "SII XML Creator"
 {
 
     trigger OnRun()
@@ -449,9 +449,15 @@
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
         if IsSalesInvoice(InvoiceType, SIIDocUploadState) then begin
             InitializeSalesXmlBody(XMLNode, CustLedgerEntry."Posting Date");
-
-            XMLDOMManagement.AddElementWithPrefix(
-              XMLNode, 'NumSerieFacturaEmisor', Format(CustLedgerEntry."Document No."), 'sii', SiiTxt, TempXMLNode);
+            if SIIDocUploadState."First Summary Doc. No." = '' then
+                XMLDOMManagement.AddElementWithPrefix(
+                  XMLNode, 'NumSerieFacturaEmisor', FORMAT(CustLedgerEntry."Document No."), 'sii', SiiTxt, TempXMLNode)
+            else begin
+                XMLDOMManagement.AddElementWithPrefix(
+                  XMLNode, 'NumSerieFacturaEmisor', SIIDocUploadState."First Summary Doc. No.", 'sii', SiiTxt, TempXMLNode);
+                XMLDOMManagement.AddElementWithPrefix(
+                  XMLNode, 'NumSerieFacturaEmisorResumenFin', SIIDocUploadState."Last Summary Doc. No.", 'sii', SiiTxt, TempXMLNode);
+            end;
             XMLDOMManagement.AddElementWithPrefix(
               XMLNode, 'FechaExpedicionFacturaEmisor', GetSalesExpeditionDate(CustLedgerEntry), 'sii', SiiTxt, TempXMLNode);
             XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
@@ -2395,10 +2401,7 @@
                 end;
             SIIDocUploadState."Document Type"::"Credit Memo":
                 begin
-                    IsInvoice :=
-                      SIIDocUploadState."Sales Cr. Memo Type" in [SIIDocUploadState."Sales Cr. Memo Type"::"F1 Invoice",
-                                                                  SIIDocUploadState."Sales Cr. Memo Type"::"F2 Simplified Invoice",
-                                                                  SIIDocUploadState."Sales Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices"];
+                    IsInvoice := CrMemoTypeIsInvType(SIIDocUploadState."Sales Cr. Memo Type");
                     if IsInvoice then
                         InvoiceType := CopyStr(Format(SIIDocUploadState."Sales Cr. Memo Type"), 1, 2);
                 end;
@@ -2415,6 +2418,17 @@
                       SIIDocUploadState."Sales Invoice Type"::"F2 Simplified Invoice",
                       SIIDocUploadState."Sales Invoice Type"::"F3 Invoice issued to replace simplified invoices",
                       SIIDocUploadState."Sales Invoice Type"::"F4 Invoice summary entry"]);
+    end;
+
+    local procedure CrMemoTypeIsInvType(CrMemoType: Option): Boolean
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        EXIT(
+          CrMemoType IN [SIIDocUploadState."Sales Cr. Memo Type"::"F1 Invoice",
+                         SIIDocUploadState."Sales Cr. Memo Type"::"F2 Simplified Invoice",
+                         SIIDocUploadState."Sales Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices",
+                         SIIDocUploadState."Sales Cr. Memo Type"::"F4 Invoice summary entry"]);
     end;
 
     local procedure InsertNoTaxableNode(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; EUService: Boolean; DomesticCustomer: Boolean; NodeName: Text; NonTaxableAmount: Decimal)

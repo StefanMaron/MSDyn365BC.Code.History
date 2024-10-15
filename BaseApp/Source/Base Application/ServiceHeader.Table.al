@@ -1,4 +1,4 @@
-﻿table 5900 "Service Header"
+table 5900 "Service Header"
 {
     Caption = 'Service Header';
     DataCaptionFields = "No.", Name, Description;
@@ -2424,14 +2424,8 @@
 
             trigger OnValidate()
             begin
-                case "Invoice Type" of
-                    "Invoice Type"::"F3 Invoice issued to replace simplified invoices",
-                    "Invoice Type"::"F4 Invoice summary entry":
-                        begin
-                            Message(SIIInvoiceTypeNotSupportedMsg, "Invoice Type");
-                            Error('');
-                        end;
-                end;
+                SetSIIFirstSummaryDocNo('');
+                SetSIILastSummaryDocNo('');
             end;
         }
         field(10708; "Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
@@ -2440,15 +2434,8 @@
 
             trigger OnValidate()
             begin
-                case "Cr. Memo Type" of
-                    "Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)",
-                    "Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)",
-                    "Cr. Memo Type"::"R4 Corrected Invoice (Other)":
-                        begin
-                            Message(SIIInvoiceTypeNotSupportedMsg, "Cr. Memo Type");
-                            Error('');
-                        end;
-                end;
+                SetSIIFirstSummaryDocNo('');
+                SetSIILastSummaryDocNo('');
             end;
         }
         field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
@@ -2497,6 +2484,14 @@
         field(10725; "Issued By Third Party"; Boolean)
         {
             Caption = 'Issued By Third Party';
+        }
+        field(10726; "SII First Summary Doc. No."; Blob)
+        {
+            Caption = 'First Summary Doc. No.';
+        }
+        field(10727; "SII Last Summary Doc. No."; Blob)
+        {
+            Caption = 'Last Summary Doc. No.';
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
@@ -2788,7 +2783,6 @@
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
         MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
-        SIIInvoiceTypeNotSupportedMsg: Label '%1 is not supported. Please contact your partner to add support.', Comment = '%1 = Invoice Type, e.g. R1 Corrected Invoice';
         FullServiceTypesTxt: Label 'Service Quote,Service Order,Service Invoice,Service Credit Memo';
 
     procedure AssistEdit(OldServHeader: Record "Service Header"): Boolean
@@ -2864,6 +2858,58 @@
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
             end;
         end;
+    end;
+
+    procedure GetSIIFirstSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure GetSIILastSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        if SIISummaryDocNoText <> '' then
+            if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
+                TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry")
+            else
+                TestField("Cr. Memo Type", "Cr. Memo Type"::"F4 Invoice summary entry");
+
+        Clear("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        if SIISummaryDocNoText <> '' then
+            if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
+                TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry")
+            else
+                TestField("Cr. Memo Type", "Cr. Memo Type"::"F4 Invoice summary entry");
+
+        Clear("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)

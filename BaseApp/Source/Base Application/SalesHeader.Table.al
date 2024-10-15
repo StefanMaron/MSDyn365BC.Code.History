@@ -1,4 +1,4 @@
-﻿table 36 "Sales Header"
+table 36 "Sales Header"
 {
     Caption = 'Sales Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
@@ -496,7 +496,7 @@
                 OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(Rec, Confirmed, NeedUpdateCurrencyFactor);
                 if NeedUpdateCurrencyFactor then begin
                     UpdateCurrencyFactor;
-                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not GetCalledFromWhseDoc() then
                         ConfirmCurrencyFactorUpdate();
                 end;
 
@@ -2879,10 +2879,20 @@
         field(10707; "Invoice Type"; Enum "SII Sales Invoice Type")
         {
             Caption = 'Invoice Type';
+            trigger OnValidate()
+            begin
+                SetSIIFirstSummaryDocNo('');
+                SetSIILastSummaryDocNo('');
+            end;
         }
         field(10708; "Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
         {
             Caption = 'Cr. Memo Type';
+            trigger OnValidate()
+            begin
+                SetSIIFirstSummaryDocNo('');
+                SetSIILastSummaryDocNo('');
+            end;
         }
         field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
         {
@@ -2928,6 +2938,14 @@
         field(10725; "Issued By Third Party"; Boolean)
         {
             Caption = 'Issued By Third Party';
+        }
+        field(10726; "SII First Summary Doc. No."; Blob)
+        {
+            Caption = 'First Summary Doc. No.';
+        }
+        field(10727; "SII Last Summary Doc. No."; Blob)
+        {
+            Caption = 'Last Summary Doc. No.';
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
@@ -3218,6 +3236,59 @@
 
         OnInitInsertOnBeforeInitRecord(Rec, xRec);
         InitRecord;
+    end;
+
+    procedure GetSIIFirstSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure GetSIILastSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        if SIISummaryDocNoText <> '' then
+            if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
+                TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry")
+            else
+                TestField("Cr. Memo Type", "Cr. Memo Type"::"F4 Invoice summary entry");
+
+        Clear("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        if SIISummaryDocNoText <> '' then
+            if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
+                TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry")
+            else
+                TestField("Cr. Memo Type", "Cr. Memo Type"::"F4 Invoice summary entry");
+
+
+        Clear("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
     procedure InitRecord()
@@ -7252,6 +7323,11 @@
     procedure GetStatusCheckSuspended(): Boolean
     begin
         exit(StatusCheckSuspended);
+    end;
+
+    procedure GetCalledFromWhseDoc(): Boolean
+    begin
+        exit(CalledFromWhseDoc);
     end;
 
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)

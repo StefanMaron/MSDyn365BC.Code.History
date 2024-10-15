@@ -1,4 +1,4 @@
-﻿table 81 "Gen. Journal Line"
+table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
     Permissions = TableData "Sales Invoice Header" = r,
@@ -2995,6 +2995,14 @@
         {
             Caption = 'Issued By Third Party';
         }
+        field(10726; "SII First Summary Doc. No."; Blob)
+        {
+            Caption = 'First Summary Doc. No.';
+        }
+        field(10727; "SII Last Summary Doc. No."; Blob)
+        {
+            Caption = 'Last Summary Doc. No.';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -3251,6 +3259,46 @@
         exit(
           ("Account No." = '') and (Amount = 0) and
           (("Bal. Account No." = '') or not "System-Created Entry"));
+    end;
+
+    procedure GetSIIFirstSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure GetSIILastSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        Clear("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        Clear("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
     local procedure BlankJobNo(CurrentFieldNo: Integer)
@@ -6068,6 +6116,9 @@
         "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
         "Issued By Third Party" := SalesHeader."Issued By Third Party";
 
+        SetSIIFirstSummaryDocNo(SalesHeader.GetSIIFirstSummaryDocNo());
+        SetSIILastSummaryDocNo(SalesHeader.GetSIILastSummaryDocNo());
+
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
 
@@ -6164,6 +6215,10 @@
         "Succeeded Company Name" := ServiceHeader."Succeeded Company Name";
         "Succeeded VAT Registration No." := ServiceHeader."Succeeded VAT Registration No.";
         "Issued By Third Party" := ServiceHeader."Issued By Third Party";
+
+        SetSIIFirstSummaryDocNo(ServiceHeader.GetSIIFirstSummaryDocNo());
+        SetSIILastSummaryDocNo(ServiceHeader.GetSIILastSummaryDocNo());
+
         "Do Not Send To SII" := ServiceHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);

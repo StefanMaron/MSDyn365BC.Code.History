@@ -1,4 +1,4 @@
-﻿codeunit 80 "Sales-Post"
+codeunit 80 "Sales-Post"
 {
     Permissions = TableData "Sales Line" = imd,
                   TableData "Purchase Header" = m,
@@ -5534,6 +5534,9 @@
             "Succeeded VAT Registration No." := SalesHeader."Succeeded VAT Registration No.";
             "ID Type" := SalesHeader."ID Type";
             "Issued By Third Party" := SalesHeader."Issued By Third Party";
+            SetSIIFirstSummaryDocNo(SalesHeader.GetSIIFirstSummaryDocNo());
+            SetSIILastSummaryDocNo(SalesHeader.GetSIILastSummaryDocNo());
+
             "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
 
             OnBeforePostCustomerEntry(GenJnlLine, SalesHeader, TotalSalesLine2, TotalSalesLineLCY2, SuppressCommit, PreviewMode, GenJnlPostLine);
@@ -6622,6 +6625,8 @@
             SalesInvHeader."Source Code" := SrcCode;
             SalesInvHeader."User ID" := UserId;
             SalesInvHeader."No. Printed" := 0;
+            SalesInvHeader.SetSIIFirstSummaryDocNo(GetSIIFirstSummaryDocNo());
+            SalesInvHeader.SetSIILastSummaryDocNo(GetSIILastSummaryDocNo());
 
             if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
                 SalesInvHeader."Draft Invoice SystemId" := SalesHeader.SystemId;
@@ -6679,6 +6684,9 @@
             SalesCrMemoHeader."User ID" := UserId;
             SalesCrMemoHeader."No. Printed" := 0;
             SalesCrMemoHeader."Draft Cr. Memo SystemId" := SalesCrMemoHeader.SystemId;
+            SalesCrMemoHeader.SetSIIFirstSummaryDocNo(GetSIIFirstSummaryDocNo());
+            SalesCrMemoHeader.SetSIILastSummaryDocNo(GetSIILastSummaryDocNo());
+
             SalesCrMemoHeaderInsert(SalesCrMemoHeader, SalesHeader);
 
             ApprovalsMgmt.PostApprovalEntries(RecordId, SalesCrMemoHeader.RecordId, SalesCrMemoHeader."No.");

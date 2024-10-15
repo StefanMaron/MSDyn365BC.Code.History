@@ -663,10 +663,20 @@ table 114 "Sales Cr.Memo Header"
         field(10707; "Invoice Type"; Enum "SII Sales Invoice Type")
         {
             Caption = 'Invoice Type';
+            trigger OnValidate()
+            begin
+                SetSIIFirstSummaryDocNo('');
+                SetSIILastSummaryDocNo('');
+            end;
         }
         field(10708; "Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
         {
             Caption = 'Cr. Memo Type';
+            trigger OnValidate()
+            begin
+                SetSIIFirstSummaryDocNo('');
+                SetSIILastSummaryDocNo('');
+            end;
         }
         field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
         {
@@ -713,6 +723,14 @@ table 114 "Sales Cr.Memo Header"
         field(10725; "Issued By Third Party"; Boolean)
         {
             Caption = 'Issued By Third Party';
+        }
+        field(10726; "SII First Summary Doc. No."; Blob)
+        {
+            Caption = 'First Summary Doc. No.';
+        }
+        field(10727; "SII Last Summary Doc. No."; Blob)
+        {
+            Caption = 'Last Summary Doc. No.';
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
@@ -797,6 +815,52 @@ table 114 "Sales Cr.Memo Header"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
+
+    procedure GetSIIFirstSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure GetSIILastSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        if SIISummaryDocNoText <> '' then
+            TestField("Cr. Memo Type", "Cr. Memo Type"::"F4 Invoice summary entry");
+
+        Clear("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        if SIISummaryDocNoText <> '' then
+            TestField("Cr. Memo Type", "Cr. Memo Type"::"F4 Invoice summary entry");
+
+        Clear("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
+    end;
 
     procedure SendRecords()
     var

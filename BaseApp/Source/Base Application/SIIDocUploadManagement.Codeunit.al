@@ -514,21 +514,28 @@ codeunit 10752 "SII Doc. Upload Management"
 
     local procedure ProcessResponseDocNo(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; var TempXMLBuffer: Record "XML Buffer" temporary; ParentEntryNo: Integer)
     var
-        DocumentNo: Code[35];
+        DocumentNo: Text[35];
+        LastDocumentNo: Text[35];
         Found: Boolean;
     begin
         // Use TempXMLBuffer[2] to point the same temporary buffer and not to break TempXMLBuffer[1] cursor position
         DocumentNo := XMLParseDocumentNo(TempXMLBuffer, ParentEntryNo);
-        if DocumentNo <> '' then begin
-            if SIIDocUploadState."Document Source" = SIIDocUploadState."Document Source"::"Vendor Ledger" then
-                SIIDocUploadState.SetRange("External Document No.", DocumentNo)
-            else
-                if SIIDocUploadState."Document Source" = SIIDocUploadState."Document Source"::"Customer Ledger" then
-                    SIIDocUploadState.SetRange("Document No.", DocumentNo);
-            Found := SIIDocUploadState.FindFirst;
-            if (not Found) and
-               (SIIDocUploadState."Document Source" in [SIIDocUploadState."Document Source"::"Customer Ledger",
-                                                        SIIDocUploadState."Document Source"::"Vendor Ledger"])
+        LastDocumentNo := XMLParseLastDocumentNo(TempXMLBuffer, ParentEntryNo);
+        IF DocumentNo <> '' THEN BEGIN
+            IF LastDocumentNo = '' THEN BEGIN
+                IF SIIDocUploadState."Document Source" = SIIDocUploadState."Document Source"::"Vendor Ledger" THEN
+                    SIIDocUploadState.SETRANGE("External Document No.", DocumentNo)
+                ELSE
+                    SIIDocUploadState.SETRANGE("Document No.", DocumentNo);
+            END ELSE BEGIN
+                SIIDocUploadState.SETRANGE("First Summary Doc. No.", DocumentNo);
+                SIIDocUploadState.SETRANGE("Last Summary Doc. No.", LastDocumentNo);
+            END;
+            Found := SIIDocUploadState.FindFirst();
+            IF (NOT Found) AND
+               (SIIDocUploadState."Document Source" IN [SIIDocUploadState."Document Source"::"Customer Ledger",
+                                                        SIIDocUploadState."Document Source"::"Vendor Ledger"]) AND
+                                                       (LastDocumentNo = '')
             then begin
                 SIIDocUploadState.SetRange("External Document No.");
                 SIIDocUploadState.SetRange("Document No.");
@@ -561,7 +568,7 @@ codeunit 10752 "SII Doc. Upload Management"
         end;
     end;
 
-    local procedure XMLParseDocumentNo(var XMLBuffer: Record "XML Buffer"; ParentEntryNo: Integer): Code[35]
+    local procedure XMLParseDocumentNo(var XMLBuffer: Record "XML Buffer"; ParentEntryNo: Integer): Text[35]
     begin
         with XMLBuffer do begin
             SetRange("Parent Entry No.", ParentEntryNo);
@@ -575,6 +582,20 @@ codeunit 10752 "SII Doc. Upload Management"
         end;
     end;
 
+ local procedure XMLParseLastDocumentNo(var XMLBuffer: Record "XML Buffer"; ParentEntryNo: Integer): Text[35]
+    begin
+        WITH XMLBuffer DO BEGIN
+            SetRange("Parent Entry No.", ParentEntryNo);
+            SetRange(Name, 'IDFactura');
+            IF FindFirst() THEN BEGIN
+                SetRange("Parent Entry No.", "Entry No.");
+                SetRange(Name, 'NumSerieFacturaEmisorResumenFin');
+                IF FindFirst() THEN
+                    EXIT(COPYSTR(Value, 1, 35));
+            END;
+        END;
+    end;
+    
     local procedure XMLParseDocumentResponse(var XMLBuffer: Record "XML Buffer"; var SIIHistory: Record "SII History"; ParentEntryNo: Integer)
     begin
         XMLBuffer.SetRange("Parent Entry No.", ParentEntryNo);
