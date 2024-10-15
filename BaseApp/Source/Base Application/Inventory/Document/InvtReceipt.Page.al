@@ -158,6 +158,7 @@ page 6561 "Invt. Receipt"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department.';
 
                     trigger OnAction()

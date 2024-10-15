@@ -190,6 +190,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
                 if ExchRateAdjmtParameters."Adjust Bank Accounts" then begin
                     BankAccount.SetCurrentKey("Bank Acc. Posting Group");
+                    BankAccount.SetView(ExchRateAdjmtParameters."Bank Account Filter");
                     BankAccount.SetRange("Currency Code", Currency.Code);
                     BankAccount.SetRange("Date Filter", ExchRateAdjmtParameters."Start Date", ExchRateAdjmtParameters."End Date");
                     OnAdjustCurrencyOnAfterSetBankAccountFiltersInLoop(BankAccount);

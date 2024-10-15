@@ -140,6 +140,7 @@ page 5875 "Physical Inventory Order"
                     ApplicationArea = Warehouse;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as a project or department, that are assigned to the physical inventory order for financial analysis.';
 
                     trigger OnAction()

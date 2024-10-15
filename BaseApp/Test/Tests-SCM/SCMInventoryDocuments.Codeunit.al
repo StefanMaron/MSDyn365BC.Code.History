@@ -34,6 +34,7 @@ codeunit 137140 "SCM Inventory Documents"
         UnitCostErr: Label 'Unit Cost are not equal';
         DimensionErr: Label 'Expected dimension should be %1.', Comment = '%1=Value';
         SourceCodeErr: Label 'Source Code should not be blank in %1.', Comment = '%1=TableCaption()';
+        DimensionValueErr: Label 'Dimension Value must match with %1', Comment = '%1= Dimension Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -1630,6 +1631,58 @@ codeunit 137140 "SCM Inventory Documents"
         VerifySourceCodeNotBlankInValueEntry(InvtDocumentHeader, SourceCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DimensionAddedIntoTrackingItem()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ReservationEntry: Record "Reservation Entry";
+        ItemNo: Code[20];
+        InvtDocType: Enum "Invt. Doc. Document Type";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 497363]  Post the Inventory Document Receipt with Item has Item tracking Code and modify Dimension after updating the Tracking
+        Initialize();
+
+        // [GIVEN] Create Item Tracking Code
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+
+        // [GIVEN]  Create Item with Item Tracking Code
+        ItemNo := CreateItemWithItemTrackingCode(ItemTrackingCode.Code);
+
+        // [GIVEN] Create Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Invt. Document Receipt
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocType::Receipt, Location.Code);
+
+        // [GIVEN] Let the quantity to be assign
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Invt. Document Line
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, ItemNo, LibraryRandom.RandDec(100, 2), Qty);
+
+        // [GIVEN] Define Item Tracking on Invt Document Line
+        LibraryItemTracking.CreateItemReceiptItemTracking(ReservationEntry, InvtDocumentLine, '', '', '', Qty);
+
+        // [GIVEN] Create Dimension Value of Global Dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+
+        // [THEN] Assign the Dimension Value to Invt. Document Line
+        InvtDocumentLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        InvtDocumentLine.Modify(true);
+
+        // [THEN] Post the Invt. Document Receipt
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [VERIFY] Posted Invt. Document Line has Dimesnion Value same as defined.
+        VerifyInvtDocumentLineWithDimensionValue(DimensionValue.Code, InvtDocumentHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1905,6 +1958,27 @@ codeunit 137140 "SCM Inventory Documents"
         ValueEntry.SetRange("Document No.", InvtReceiptHeader."No.");
         ValueEntry.FindFirst();
         Assert.AreEqual(SourceCode.Code, ValueEntry."Source Code", StrSubstNo(SourceCodeErr, ValueEntry.TableCaption()));
+    end;
+
+    local procedure CreateItemWithItemTrackingCode(ItemTrackingCode: Code[10]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure VerifyInvtDocumentLineWithDimensionValue(DimensionValueCode: Code[20]; InvtDocumentHeader: Record "Invt. Document Header")
+    var
+        InvtReceiptLine: Record "Invt. Receipt Line";
+    begin
+        InvtReceiptLine.SetRange("Receipt No.", InvtDocumentHeader."No.");
+        InvtReceiptLine.FindFirst();
+        Assert.AreEqual(DimensionValueCode, InvtReceiptLine."Shortcut Dimension 1 Code", DimensionValueErr);
     end;
 
     [ModalPageHandler]

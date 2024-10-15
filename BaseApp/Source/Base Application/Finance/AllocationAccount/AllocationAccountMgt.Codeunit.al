@@ -30,6 +30,8 @@ codeunit 2675 "Allocation Account Mgt."
         ShareDistributions: Dictionary of [Guid, Decimal];
         AmountDistributions: Dictionary of [Guid, Decimal];
     begin
+        OnBeforeGenerateVariableAllocationLines(AllocationAccount, AllocationLine, ExistingDimensionSetId);
+
         VariableAllocationMgt.CalculateAmountDistributions(AllocationAccount, AmountToDistribute, AmountDistributions, ShareDistributions, PostingDate, CurrencyCode);
 
         AllocAccountDistribution.ReadIsolation := IsolationLevel::ReadCommitted;
@@ -56,6 +58,8 @@ codeunit 2675 "Allocation Account Mgt."
             AllocationLine.Insert();
             OnGenerateVariableAllocationLinesOnAfterInsertAllocationLine(AllocationLine, AllocAccountDistribution);
         until AllocAccountDistribution.Next() = 0;
+
+        OnAfterGenerateVariableAllocationLines(AllocationAccount, AllocationLine, ExistingDimensionSetId);
     end;
 
     internal procedure GenerateFixedAllocationLines(var AllocationAccount: Record "Allocation Account"; var AllocationLine: Record "Allocation Line"; AmountToDistribute: Decimal; ExistingDimensionSetId: Integer; CurrencyCode: Code[10])
@@ -183,6 +187,16 @@ codeunit 2675 "Allocation Account Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGenerateVariableAllocationLinesOnAfterInsertAllocationLine(var AllocationLine: Record "Allocation Line"; var AllocAccountDistibution: Record "Alloc. Account Distribution")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateVariableAllocationLines(var AllocationAccount: Record "Allocation Account"; var AllocationLine: Record "Allocation Line"; var ExistingDimensionSetId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGenerateVariableAllocationLines(var AllocationAccount: Record "Allocation Account"; var AllocationLine: Record "Allocation Line"; var ExistingDimensionSetId: Integer)
     begin
     end;
 }

@@ -176,6 +176,7 @@ codeunit 4810 IntrastatReportManagement
                                 CountryCode := SalesCrMemoHeader."Bill-to Country/Region Code";
                         end;
             end;
+        OnAfterGetIntrastatBaseCountryCodeFromFAEntry(FALedgerEntry, IntrastatReportSetup, CountryCode);
     end;
 
     procedure GetOriginalCurrency(FALedgerEntry: Record "FA Ledger Entry") CurrencyCode: Code[10]
@@ -1149,6 +1150,11 @@ codeunit 4810 IntrastatReportManagement
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCreateDefaultDataExchangeDef(var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetIntrastatBaseCountryCodeFromFAEntry(var FALedgerEntry: Record "FA Ledger Entry"; var IntrastatReportSetup: Record "Intrastat Report Setup"; var CountryCode: Code[10]);
     begin
     end;
 }

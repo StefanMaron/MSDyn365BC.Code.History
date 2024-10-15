@@ -1499,15 +1499,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Vendor Approval - NamedType BogusUserIdTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 93122047 - NamedType 715301035" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The %1 you are trying to act on is not in a pending state.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = the table caption for "Workflow Webhook Entry"]D;]A;(LookupHint=Codeunit WFWH Vendor Approval - NamedType EntryIsNotPendingErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 93122047 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
@@ -1515,15 +1506,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Vendor Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 93122047 - NamedType 3982566232" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[User %1 does not have the permission necessary to act on the item. Make sure the user is set as approver or substitute in page Approval User Setup, or check the "Workflows" section of the documentation.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = a NAV user ID]D;]A;(LookupHint=Codeunit WFWH Vendor Approval - NamedType UserNotApproverErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4232719484 - NamedType 530146157" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

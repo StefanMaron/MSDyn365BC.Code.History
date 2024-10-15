@@ -6,6 +6,7 @@ codeunit 122 "Calc. Running GL. Acc. Balance"
 
     var
         GLEntry2: Record "G/L Entry";
+        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
         DayTotals: Dictionary of [Date, Decimal];
         DayTotalsACY: Dictionary of [Date, Decimal];
         EntryValues: Dictionary of [Integer, Decimal];
@@ -35,6 +36,8 @@ codeunit 122 "Calc. Running GL. Acc. Balance"
         DateTotal: Decimal;
         DateTotalACY: Decimal;
     begin
+        if ClientTypeManagement.GetCurrentClientType() in [ClientType::OData, ClientType::ODataV4] then
+            exit;
         if (PrevAccNo <> '') and (PrevAccNo <> GLEntry."G/L Account No.") then begin
             Clear(DayTotals);
             Clear(DayTotalsACY);
