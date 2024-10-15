@@ -48,7 +48,7 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
 
         with IssuedFinChargeMemoHeader do begin
             SetFilter("Pre-Assigned No.", FinChMemoHeaderNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -63,7 +63,7 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
         with FinChMemoHeader do begin
             Init;
             Validate("Customer No.", Customer."No.");
-            FinanceChargeTerms.FindFirst;
+            FinanceChargeTerms.FindFirst();
             Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
             "Post Interest" := true;
             "Post Additional Fee" := true;

@@ -96,11 +96,7 @@ report 15000063 "Remittance - Import (BBS)"
 
     trigger OnPreReport()
     begin
-#if not CLEAN17
-        ServerTempFile := CopyStr(FileMgt.UploadFileToServer(CurrentFilename), 1, 1024);
-#else
         ServerTempFile := CopyStr(FileMgt.UploadFile(ChooseFileTitleMsg, ''), 1, 1024);
-#endif
         // Create work file.
         // No changes are made directly to the OriginalFilename, since it is renamed
         // at the end (the file can't be renamed while it's open).
@@ -170,9 +166,7 @@ report 15000063 "Remittance - Import (BBS)"
         Text15000015: Label '%1\The Remittance Status cannot be %2 for waiting journal line with Reference %3.';
         DateNow: Date;
         TimeNow: Time;
-#if CLEAN17
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
-#endif
 
     local procedure Recordtype10()
     begin
@@ -286,7 +280,7 @@ report 15000063 "Remittance - Import (BBS)"
         // Create import of PaymOrder.
         // Find ID. Find Next:
         PaymOrder.LockTable();
-        if PaymOrder.FindLast then
+        if PaymOrder.FindLast() then
             NextPaymOrderID := PaymOrder.ID + 1
         else
             NextPaymOrderID := 1;
@@ -404,7 +398,7 @@ report 15000063 "Remittance - Import (BBS)"
         CHeckGenJnlLine := GenJnlLine;
         CHeckGenJnlLine.SetRange("Journal Template Name", CHeckGenJnlLine."Journal Template Name");
         CHeckGenJnlLine.SetRange("Journal Batch Name", CHeckGenJnlLine."Journal Batch Name");
-        if CHeckGenJnlLine.FindLast then
+        if CHeckGenJnlLine.FindLast() then
             JournalNextLineNo := CHeckGenJnlLine."Line No." + 10000
         else
             JournalNextLineNo := 10000;

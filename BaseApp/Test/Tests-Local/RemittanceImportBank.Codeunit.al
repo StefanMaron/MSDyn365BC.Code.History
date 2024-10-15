@@ -40,7 +40,7 @@ codeunit 144133 "Remittance - Import Bank"
         OldDate: Date;
     begin
         // [FEATURE] [Domestic Account]
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -63,9 +63,6 @@ codeunit 144133 "Remittance - Import Bank"
           BatchName, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount);
         VerifyWaitingJournalStatusIsSent;
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -88,7 +85,7 @@ codeunit 144133 "Remittance - Import Bank"
         OldDate: Date;
     begin
         // [FEATURE] [Foreign Account]
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupForeignRemittancePayment(
@@ -119,9 +116,6 @@ codeunit 144133 "Remittance - Import Bank"
           RemittanceAccount, Amount, Commission, Rounding);
 
         VerifyWaitingJournalStatusIsSent;
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -143,7 +137,7 @@ codeunit 144133 "Remittance - Import Bank"
         OldDate: Date;
     begin
         // [FEATURE] [Domestic Account]
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -172,9 +166,6 @@ codeunit 144133 "Remittance - Import Bank"
           ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount);
         VerifyWaitingJournalStatusIsSent;
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -194,7 +185,7 @@ codeunit 144133 "Remittance - Import Bank"
         OldDate: Date;
     begin
         // [FEATURE] [Domestic Account]
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -214,9 +205,6 @@ codeunit 144133 "Remittance - Import Bank"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -237,7 +225,7 @@ codeunit 144133 "Remittance - Import Bank"
     begin
         // [FEATURE] [Domestic Account]
         OldDate := UpdateWorkdate(Today);
-        Initialize;
+        Initialize();
 
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::"Other bank",
@@ -256,9 +244,6 @@ codeunit 144133 "Remittance - Import Bank"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -278,7 +263,7 @@ codeunit 144133 "Remittance - Import Bank"
         OldDate: Date;
     begin
         // [FEATURE] [Domestic Account]
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -298,9 +283,6 @@ codeunit 144133 "Remittance - Import Bank"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -315,7 +297,7 @@ codeunit 144133 "Remittance - Import Bank"
     begin
         // [FEATURE] [Dimensions]
         // [SCENARIO 257147] The Dimensions should be copied to Gen. Journal Line from Waiting Journal Line after importing return file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return File with record with dimensions
         GenerateBankRemittanceEntriesWithDimensions(RemittanceAccount, BatchName, DimSetID);
@@ -332,10 +314,10 @@ codeunit 144133 "Remittance - Import Bank"
         WaitingJournal: Record "Waiting Journal";
         ReturnFileSetup: Record "Return File Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         WaitingJournal.DeleteAll();
         ReturnFileSetup.DeleteAll();
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateLocalData();
 
         if IsInitialized then
             exit;
@@ -353,7 +335,7 @@ codeunit 144133 "Remittance - Import Bank"
     begin
         Clear(WaitingJournal);
         Assert.AreEqual(1, WaitingJournal.Count, 'Wrong number of lines found in waiting journal');
-        WaitingJournal.FindFirst;
+        WaitingJournal.FindFirst();
     end;
 
     local procedure ClearAllGenJournalLines(GenJournalBatch: Record "Gen. Journal Batch")
@@ -399,9 +381,6 @@ codeunit 144133 "Remittance - Import Bank"
         BankPaymentFile: File;
         BankPaymentOutputStream: OutStream;
         ServerFileName: Text;
-#if not CLEAN17
-        ClientFileName: Text;
-#endif
     begin
         GetWaitingJournal(WaitingJournal);
 
@@ -417,12 +396,6 @@ codeunit 144133 "Remittance - Import Bank"
             WriteBankRecord(GenerateBankRemittanceBatchEndRecord, BankPaymentOutputStream);
 
         BankPaymentFile.Close;
-#if not CLEAN17
-        ClientFileName := FileMgt.ClientTempFileName('txt');
-        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
-        FileMgt.DeleteServerFile(ServerFileName);
-        exit(ClientFileName);
-#endif
     end;
 
     [Normal]
@@ -432,9 +405,6 @@ codeunit 144133 "Remittance - Import Bank"
         BankPaymentFile: File;
         BankPaymentOutputStream: OutStream;
         ServeFileName: Text;
-#if not CLEAN17
-        ClientFileName: Text;
-#endif
     begin
         GetWaitingJournal(WaitingJournal);
 
@@ -463,12 +433,6 @@ codeunit 144133 "Remittance - Import Bank"
             WriteBankRecord(GenerateBankRemittanceBatchEndRecord, BankPaymentOutputStream);
 
         BankPaymentFile.Close;
-#if not CLEAN17
-        ClientFileName := FileMgt.ClientTempFileName('txt');
-        FileMgt.DownloadToFile(ServeFileName, ClientFileName);
-        FileMgt.DeleteServerFile(ServeFileName);
-        exit(ClientFileName);
-#endif
     end;
 
     [Normal]
@@ -640,10 +604,6 @@ codeunit 144133 "Remittance - Import Bank"
             GenJournalLine,
             BatchName);
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath); // Not needed
-#endif
-
         // Generate the Bank Payment file
         // Suprisingly report is ignoring amount from the file
         // We are also summing the values but there is no check on the sum
@@ -799,7 +759,7 @@ codeunit 144133 "Remittance - Import Bank"
     begin
         GenJournalLine.SetFilter("Remittance Account Code", RemittanceAccount.Code);
         GenJournalLine.SetFilter("Remittance Agreement Code", RemittanceAccount."Remittance Agreement Code");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Dimension Set ID", DimSetID);
     end;
 

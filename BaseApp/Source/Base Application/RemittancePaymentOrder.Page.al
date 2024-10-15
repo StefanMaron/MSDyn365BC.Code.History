@@ -91,7 +91,7 @@ page 15000002 "Remittance Payment Order"
                     begin
                         RemPaymOrder.SetRange(ID, ID);
                         RemPaymOrderStatus.SetTableView(RemPaymOrder);
-                        RemPaymOrderStatus.Run;
+                        RemPaymOrderStatus.Run();
                     end;
                 }
                 group(Export)
@@ -132,7 +132,7 @@ page 15000002 "Remittance Payment Order"
                         trigger OnAction()
                         begin
                             ResetRemPaymOrder.SetPaymOrder(Rec);
-                            ResetRemPaymOrder.Run;
+                            ResetRemPaymOrder.Run();
                             Clear(ResetRemPaymOrder);
                         end;
                     }
@@ -148,7 +148,7 @@ page 15000002 "Remittance Payment Order"
                             ExportManual: Report "Rem. paym. order - man. export";
                         begin
                             ExportManual.SetPaymOrder(Rec);
-                            ExportManual.Run;
+                            ExportManual.Run();
                         end;
                     }
                     action(Data)
@@ -201,7 +201,7 @@ page 15000002 "Remittance Payment Order"
                         trigger OnAction()
                         begin
                             PaymentOrderSettlStatus.SetPaymOrder(Rec);
-                            PaymentOrderSettlStatus.Run;
+                            PaymentOrderSettlStatus.Run();
                         end;
                     }
                 }

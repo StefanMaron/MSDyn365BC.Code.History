@@ -15,6 +15,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -33,7 +34,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     begin
         // [SCENARIO 228341] Issue reminder after posted sales invoice and post customer payment
         // Covers documents TC_ID= 122638 AND 137017.
-        Initialize;
+        Initialize();
         CurrentDate := WorkDate;
 
         // [GIVEN] Customer with "Country/Region Code" = "X"
@@ -69,7 +70,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
 
         // Create Sales Invoice, Reminder and Issue it, Post General Journal Lines, Apply and unapply them and
         // Take backup for Current Workdate.
-        Initialize;
+        Initialize();
         CurrentDate := WorkDate;
         CreateInvoiceReminder(GenJournalLine);
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", GenJournalLine.Amount);
@@ -95,7 +96,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         // Check that Program allows Issuing the selected Reminder Header No.using Reminder No. Filter Field on Issue Reminder Report.
 
         // Setup: Create and Post Sales Orders and Create Remainder.
-        Initialize;
+        Initialize();
         ReminderHeaderNo := CreateReminderForPostedSalesOrder;
         ReminderHeaderNo2 := CreateReminderForPostedSalesOrder;
 
@@ -119,7 +120,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 213636] Page Reminder should contain factbox "Customer Ledger Entry" for Reminder Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with Reminder Line
         CurrentDate := WorkDate;
@@ -151,14 +152,14 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 213636] Page Issued Reminder should contain factbox "Customer Ledger Entry" for Reminder Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with Reminder Line
         CurrentDate := WorkDate;
         CreateReminderWithReminderLine(ReminderLine);
         IssueReminder(ReminderLine."Document No.");
         IssuedReminderLine.SetRange("Document No.", ReminderLine."Document No.");
-        IssuedReminderLine.FindFirst;
+        IssuedReminderLine.FindFirst();
 
         // [WHEN] Open reminder page
         IssuedReminder.Trap;
@@ -179,15 +180,21 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reminder Apply Unapply");
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if isInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reminder Apply Unapply");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplNameMandatory(false);
+
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         isInitialized := true;
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminder Apply Unapply");
     end;
 
@@ -248,7 +255,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         ReminderTerms: Record "Reminder Terms";
         CountryRegion: Record "Country/Region";
     begin
-        ReminderTerms.FindFirst;
+        ReminderTerms.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -283,7 +290,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     var
         ReminderTerms: Record "Reminder Terms";
     begin
-        ReminderTerms.FindFirst;
+        ReminderTerms.FindFirst();
         ReminderTerms.Validate("Post Interest", BooleanValue);
         ReminderTerms.Validate("Post Additional Fee", BooleanValue);
         ReminderTerms.Modify(true);
@@ -295,7 +302,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         ReminderLevel: Record "Reminder Level";
     begin
         ReminderLevel.SetRange("Reminder Terms Code", ReminderTermsCode);
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
         ReminderLevel.Validate("Calculate Interest", CalculateInterest);
         ReminderLevel.Modify(true);
     end;
@@ -311,14 +318,14 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     begin
         Customer.Get(CustomerNo);
         ReminderLevel.SetRange("Reminder Terms Code", Customer."Reminder Terms Code");
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
 
         // Set Workdate according to Reminder Level with Grace Period and Add 1 day.
         WorkDate := CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", WorkDate));
         ReminderHeader.Init();
         ReminderHeader.Insert(true);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         ReminderMake.Set(Customer, CustLedgerEntry, ReminderHeader, false, false, CustLedgEntryLineFeeOn);
         ReminderMake.Code;
     end;
@@ -341,7 +348,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         CreateReminder(PostedSalesDocumentNo, SalesHeader."Sell-to Customer No.");
         ReminderLine.SetRange("Document Type", ReminderLine."Document Type"::Invoice);
         ReminderLine.SetRange("Document No.", PostedSalesDocumentNo);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
     end;
 
     local procedure FindIssuedReminderNo(CustomerNo: Code[20]): Code[20]
@@ -350,7 +357,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     begin
         with IssuedReminderHeader do begin
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -373,7 +380,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     begin
         ReminderLine.SetRange("Document Type", ReminderLine."Document Type"::Invoice);
         ReminderLine.SetRange("Document No.", DocumentNo);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
         ReminderHeader.SetRange("No.", ReminderLine."Reminder No.");
         RunIssueReminder(ReminderHeader);
         exit(ReminderLine."Reminder No.");
@@ -388,7 +395,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         SalesInvoiceHeader.Get(OrderNo);
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
         ReminderLevel.SetRange("Reminder Terms Code", Customer."Reminder Terms Code");
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
         SalesInvoiceHeader.CalcFields(Amount);
         exit(SalesInvoiceHeader.Amount + ReminderLevel."Additional Fee (LCY)");
     end;
@@ -399,7 +406,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
@@ -409,7 +416,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     begin
         IssueReminders.SetTableView(ReminderHeader);
         IssueReminders.UseRequestPage(false);
-        IssueReminders.Run;
+        IssueReminders.Run();
     end;
 
     local procedure VerifyUnappliedDtldLedgEntry(CustomerNo: Code[20]; DocumentNo: Code[20])
@@ -435,7 +442,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(GenJournalLine.Amount, CustLedgerEntry."Remaining Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(RemainingAmountError, CustLedgerEntry."Remaining Amount", GenJournalLine.Amount));
@@ -448,7 +455,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         with VATEntry do begin
             SetRange("Document Type", "Document Type"::Reminder);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             TestField("Country/Region Code", ExpectedCountryRegionCode);
         end;
     end;

@@ -52,7 +52,7 @@ table 15000301 "Recurring Post"
     trigger OnInsert()
     begin
         if "Serial No." = 0 then
-            if RecurringPost.FindLast then
+            if RecurringPost.FindLast() then
                 "Serial No." := RecurringPost."Serial No." + 1
             else
                 "Serial No." := 1;

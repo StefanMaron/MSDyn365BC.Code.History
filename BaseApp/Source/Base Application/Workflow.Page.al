@@ -176,7 +176,7 @@ page 1501 Workflow
                     WorkflowStepInstances: Page "Workflow Step Instances";
                 begin
                     WorkflowStepInstances.SetWorkflow(Rec);
-                    WorkflowStepInstances.RunModal;
+                    WorkflowStepInstances.RunModal();
                 end;
             }
             action(ArchivedWorkflowStepInstances)
@@ -196,7 +196,7 @@ page 1501 Workflow
                     ArchivedWFStepInstances: Page "Archived WF Step Instances";
                 begin
                     ArchivedWFStepInstances.SetWorkflowCode(Code);
-                    ArchivedWFStepInstances.RunModal;
+                    ArchivedWFStepInstances.RunModal();
                 end;
             }
         }
@@ -253,7 +253,7 @@ page 1501 Workflow
         // Load webhook subscription link when page opens
         WorkflowWebhookSubscription.SetRange(Enabled, true);
         WorkflowWebhookSubscription.SetRange("WF Definition Id", Code);
-        HasWebhookClientLink := WorkflowWebhookSubscription.FindFirst;
+        HasWebhookClientLink := WorkflowWebhookSubscription.FindFirst();
     end;
 
     var

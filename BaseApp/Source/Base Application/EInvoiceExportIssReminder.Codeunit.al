@@ -13,7 +13,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
     begin
         // Pre-Check
         IssuedReminderLine.SetRange("Reminder No.", "No.");
-        if not IssuedReminderLine.FindSet then
+        if not IssuedReminderLine.FindSet() then
             exit;
 
         CODEUNIT.Run(CODEUNIT::"E-Invoice Check Iss. Reminder", Rec);
@@ -107,7 +107,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
         IssuedReminderLine.SetRange("Reminder No.", TempEInvoiceExportHeader."No.");
-        if IssuedReminderLine.FindSet then begin
+        if IssuedReminderLine.FindSet() then begin
             TempEInvoiceExportHeader."Sales Line Found" := true;
             repeat
                 if IsRoundingLine(IssuedReminderLine, TempEInvoiceExportHeader."Bill-to Customer No.") then
@@ -127,7 +127,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
     begin
         with IssuedReminderLine do begin
             Id := 0;
-            if TempEInvoiceExportLine.FindLast then
+            if TempEInvoiceExportLine.FindLast() then
                 Id := TempEInvoiceExportLine.ID + 1;
             TempEInvoiceExportLine.Init();
             TempEInvoiceExportLine.ID := Id;
@@ -156,7 +156,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
         if IssuedReminderLine.Type = IssuedReminderLine.Type::"G/L Account" then begin
             Customer.Get(CustomerNo);
             CustomerPostingGroup.SetFilter(Code, Customer."Customer Posting Group");
-            if CustomerPostingGroup.FindFirst then
+            if CustomerPostingGroup.FindFirst() then
                 if IssuedReminderLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
                     exit(true);
         end;

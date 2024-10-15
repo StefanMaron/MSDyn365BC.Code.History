@@ -188,6 +188,7 @@ page 9305 "Sales Order List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
+                    StyleExpr = StatusStyleTxt;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -476,7 +477,9 @@ page 9305 "Sales Order List"
                     Image = ShipmentLines;
                     RunObject = Page "Whse. Shipment Lines";
                     RunPageLink = "Source Type" = CONST(37),
+#pragma warning disable
                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                   "Source No." = FIELD("No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse shipments for the document, in advanced warehouse configurations.';
@@ -534,9 +537,10 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualRelease(SalesHeader);
                     end;
                 }
                 action(Reopen)
@@ -551,9 +555,10 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualReopen(SalesHeader);
                     end;
                 }
             }
@@ -573,7 +578,7 @@ page 9305 "Sales Order List"
                         SalesOrderPlanningForm: Page "Sales Order Planning";
                     begin
                         SalesOrderPlanningForm.SetSalesOrder("No.");
-                        SalesOrderPlanningForm.RunModal;
+                        SalesOrderPlanningForm.RunModal();
                     end;
                 }
                 action("Order &Promising")
@@ -950,40 +955,15 @@ page 9305 "Sales Order List"
         CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection("No.", false, PowerBIVisible);
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
-    var
-        NextRecNotFound: Boolean;
+    trigger OnAfterGetRecord()
     begin
-        if not Find(Which) then
-            exit(false);
-
-        if ShowHeader then
-            exit(true);
-
-        repeat
-            NextRecNotFound := Next <= 0;
-            if ShowHeader then
-                exit(true);
-        until NextRecNotFound;
-
-        exit(false);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnInit()
     begin
         PowerBIVisible := false;
         CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
-    end;
-
-    trigger OnNextRecord(Steps: Integer): Integer
-    var
-        NewStepCount: Integer;
-    begin
-        repeat
-            NewStepCount := Next(Steps);
-        until (NewStepCount = 0) or ShowHeader;
-
-        exit(NewStepCount);
     end;
 
     trigger OnOpenPage()
@@ -1001,21 +981,24 @@ page 9305 "Sales Order List"
         IsOfficeAddin := OfficeMgt.IsAvailable;
 
         CopySellToCustomerFilter;
+        if OnlyShowHeadersWithVat then
+            SetFilterOnPositiveVatPostingGroups();
     end;
 
     var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         DocPrint: Codeunit "Document-Print";
         ReportPrint: Codeunit "Test Report-Print";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction","Sales Order Picking List";
         [InDataSet]
         JobQueueActive: Boolean;
+        OnlyShowHeadersWithVat: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CRMIntegrationEnabled: Boolean;
         IsOfficeAddin: Boolean;
         CanCancelApprovalForRecord: Boolean;
-        SkipLinesWithoutVAT: Boolean;
         PowerBIVisible: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
         ReadyToPostQst: Label 'The number of orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
@@ -1043,8 +1026,7 @@ page 9305 "Sales Order List"
     var
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
 
@@ -1053,17 +1035,25 @@ page 9305 "Sales Order List"
 
     procedure SkipShowingLinesWithoutVAT()
     begin
-        SkipLinesWithoutVAT := true;
+        OnlyShowHeadersWithVat := true;
     end;
 
-    local procedure ShowHeader(): Boolean
+    local procedure SetFilterOnPositiveVatPostingGroups()
     var
-        CashFlowManagement: Codeunit "Cash Flow Management";
+        VatPostingSetup: Record "VAT Posting Setup";
+        VatBusPostingCodeFilter: Text;
     begin
-        if not SkipLinesWithoutVAT then
-            exit(true);
-
-        exit(CashFlowManagement.GetTaxAmountFromSalesOrder(Rec) <> 0);
+        VatPostingSetup.SetFilter("VAT %", '>0');
+        VatPostingSetup.SetLoadFields("VAT Bus. Posting Group");
+        if not VatPostingSetup.FindSet() then
+            exit;
+        repeat
+            if StrPos(VatBusPostingCodeFilter, VatPostingSetup."VAT Bus. Posting Group") < 1 then begin
+                if VatBusPostingCodeFilter <> '' then
+                    VatBusPostingCodeFilter += '|';
+                VatBusPostingCodeFilter += VatPostingSetup."VAT Bus. Posting Group";
+            end;
+        until VatPostingSetup.Next() = 0;
+        Rec.SetFilter("VAT Bus. Posting Group", VatBusPostingCodeFilter);
     end;
 }
-

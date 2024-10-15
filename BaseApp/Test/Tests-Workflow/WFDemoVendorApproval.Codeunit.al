@@ -42,7 +42,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [THEN] The Approval flow gets started.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
 
@@ -67,7 +67,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [THEN] The Approval flow is canceled.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
 
@@ -98,7 +98,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [THEN] The approval entries are renamed to point to the same record.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
 
@@ -138,7 +138,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [THEN] The Vendor approval requests are canceled and then the Vendor is deleted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
         VendorCard.OK.Invoke;
@@ -172,7 +172,7 @@ codeunit 134211 "WF Demo Vendor Approval"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Vendor approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Vendor card is opened.
         LibraryPurchase.CreateVendor(Vendor);
@@ -250,7 +250,7 @@ codeunit 134211 "WF Demo Vendor Approval"
     begin
         // [SCENARIO 4] Approval action availability.
         // [GIVEN] Vendor approval disabled.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [WHEN] Vendor card is opened.
         LibraryPurchase.CreateVendor(Vendor);
@@ -321,7 +321,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [GIVEN] A Vendor Approval.
         // [WHEN] The user approves a request for Vendor approval.
         // [THEN] The Vendor gets approved.
-        Initialize;
+        Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
         VendorCard.Close;
@@ -352,7 +352,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [GIVEN] A Vendor Approval.
         // [WHEN] The user rejects a request for Vendor approval.
         // [THEN] The Vendor gets rejected.
-        Initialize;
+        Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
         VendorCard.Close;
@@ -385,7 +385,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [GIVEN] A Vendor Approval.
         // [WHEN] The user delegates a request for Vendor approval.
         // [THEN] The Vendor gets assigned to the substitute.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -428,7 +428,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         i: Integer;
     begin
         // [SCENARIO 230496] A notification can be send after vendor approval
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Vendor Approval Workflow "W".
         LibraryWorkflow.CopyWorkflow(Workflow, WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.VendorWorkflowCode));
@@ -523,9 +523,9 @@ codeunit 134211 "WF Demo Vendor Approval"
         UserSetup: Record "User Setup";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         if IsInitialized then
@@ -545,7 +545,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         PreviousWorkflowStep.SetRange("Workflow Code", WorkflowCode);
         PreviousWorkflowStep.SetRange(Type, PreviousWorkflowStep.Type::Response);
         PreviousWorkflowStep.SetRange("Function Name", WorkflowResponseHandling.SendApprovalRequestForApprovalCode);
-        PreviousWorkflowStep.FindFirst;
+        PreviousWorkflowStep.FindFirst();
 
         with WorkflowStep do begin
             Validate("Workflow Code", WorkflowCode);

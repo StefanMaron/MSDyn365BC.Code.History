@@ -36,7 +36,7 @@ codeunit 144001 "VAT Tools Test"
     procedure PostingInClosedVATPeriodAfterCalcAndPostVATSettlementIsNotAllowed()
     begin
         // [FEATURE] [Settled VAT Period]
-        Initialize;
+        Initialize();
 
         // Verify that Settled VAT Periods are updated when the VAT is settled through Calc. and Post VAT Settlement report
         CreateAndPostSalesInvoice(WorkDate);
@@ -56,7 +56,7 @@ codeunit 144001 "VAT Tools Test"
         PaymentNo: Code[20];
     begin
         // [FEATURE] [Settled VAT Period] [Application Always Allowed] [General Ledger Setup]
-        Initialize;
+        Initialize();
 
         // Verify error on posting application (apply invoice with payment) in a closed VAT period with Application always Allowed = false
         SetApplicationAlwaysAllowedInGLSetup(false);
@@ -75,7 +75,7 @@ codeunit 144001 "VAT Tools Test"
         UserSetupCreated: Boolean;
     begin
         // [FEATURE] [Settled VAT Period] [Application Always Allowed] [User Setup]
-        Initialize;
+        Initialize();
 
         // Verify posting application (apply invoice with payment) in a closed VAT period with Application always Allowed = true in the User Setup, thus overriding GL setting
         UserSetupCreated := SetUserSetupApplicationAlwaysAllowed(true);
@@ -100,7 +100,7 @@ codeunit 144001 "VAT Tools Test"
         PaymentNo: Code[20];
     begin
         // [FEATURE] [Settled VAT Period] [Application Always Allowed] [General Ledger Setup]
-        Initialize;
+        Initialize();
 
         // Verify posting application (apply invoice with payment) in a closed VAT period with Application always Allowed = true
         SetApplicationAlwaysAllowedInGLSetup(true);
@@ -121,7 +121,7 @@ codeunit 144001 "VAT Tools Test"
         InvoiceNo: Code[20];
     begin
         // [FEATURE] [Settled VAT Period]
-        Initialize;
+        Initialize();
 
         // post invoice and payment
         OneYearAhead := CalcDate('<1Y>', WorkDate);
@@ -146,7 +146,7 @@ codeunit 144001 "VAT Tools Test"
     begin
         // [FEATURE] [Settled VAT Period] [Trade Settlement] [Sales]
         // [SCENARIO] Validate the content of the "Trade Settlement" report when there is no tax in the invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice and payment
         InvoiceNo := CreateAndPostSalesInvoice(WorkDate);
@@ -179,7 +179,7 @@ codeunit 144001 "VAT Tools Test"
         // Load the current VAT entry
         VATEntry.Init();
         VATEntry.SetFilter("Document No.", InvoiceNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         // [THEN] Validate the values: BaseWithoutVAT, TotalSale that are generated in the report OnAfterGetRecord
         LibraryReportDataset.GetNextRow;
@@ -208,7 +208,7 @@ codeunit 144001 "VAT Tools Test"
     begin
         // [FEATURE] [Settled VAT Period] [Trade Settlement] [Sales]
         // [SCENARIO] Validate the content of the "Trade Settlement" report when there is tax in the invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice and payment
         InvoiceNo := CreateAndPostSalesInvoiceWithVAT(WorkDate);
@@ -241,7 +241,7 @@ codeunit 144001 "VAT Tools Test"
         // Load the current VAT entry
         VATEntry.Init();
         VATEntry.SetFilter("Document No.", InvoiceNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         // [THEN] Validate the values: BaseWithVAT, TotalSale, SalesTaxHigh that are generated in the report OnAfterGetRecord
         LibraryReportDataset.GetNextRow;
@@ -270,7 +270,7 @@ codeunit 144001 "VAT Tools Test"
     begin
         // [FEATURE] [Settled VAT Period] [Trade Settlement] [Purchase]
         // [SCENARIO] Validate the content of the "Trade Settlement" report when there is tax in the purchase invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted invoice and payment
         InvoiceNo := CreateAndPostPurchaseInvoiceWithVAT(WorkDate);
@@ -303,7 +303,7 @@ codeunit 144001 "VAT Tools Test"
         // Load the current VAT entry
         VATEntry.Init();
         VATEntry.SetFilter("Document No.", InvoiceNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         // [THEN] Validate the values: BaseWithVAT, PurchaseTaxHigh that are generated in the report OnAfterGetRecord
         LibraryReportDataset.GetNextRow;
@@ -333,7 +333,7 @@ codeunit 144001 "VAT Tools Test"
     begin
         // [FEATURE] [Settled VAT Period]
         // [SCENARIO] posting is allowed if Settled VAT period has "Closed" set to false
-        Initialize;
+        Initialize();
 
         CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate);
 
@@ -359,7 +359,7 @@ codeunit 144001 "VAT Tools Test"
         SecondDate: Date;
     begin
         // [FEATURE] [Settled VAT Period]
-        Initialize;
+        Initialize();
 
         // In NO VAT periods are defined as 2 month periods
         // If we use end of the month minus one and two days
@@ -386,14 +386,14 @@ codeunit 144001 "VAT Tools Test"
         PeriodNo: Integer;
     begin
         // [FEATURE] [Settled VAT Period] [UI]
-        Initialize;
+        Initialize();
 
         InvoiceNo := CreateAndPostSalesInvoice(WorkDate);
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
         CustLedgerEntry.CalcFields(Amount);
         PaymentNo := CreateAndPostGenJnlLine(CustLedgerEntry."Customer No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry.Amount);
 
-        SettledVATPeriods.OpenNew;
+        SettledVATPeriods.OpenNew();
         SettledVATPeriods.Year.SetValue(Date2DMY(WorkDate, 3));
 
         // In norway PeriodNo are based on 2 month periods
@@ -447,7 +447,7 @@ codeunit 144001 "VAT Tools Test"
     begin
         // [FEATURE] [Settled VAT Period] [Close Income Statement] [Application Always Allowed]
         // [SCENARIO 210143] Posting of Close Income Statement is restricted when 'Application always Allowed' is No on both G/L Setup and User Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] 'Application always Allowed' is No on G/L Setup and No on User Setup
         // [GIVEN] Close Income Statement Journal Lines for closed Settled VAT period
@@ -475,11 +475,11 @@ codeunit 144001 "VAT Tools Test"
     begin
         // [FEATURE] [Settled VAT Period] [Close Income Statement] [Application Always Allowed]
         // [SCENARIO 210143] Posting of Close Income Statement is allowed when 'Application always Allowed' is Yes on G/L Setup and No on User Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] 'Application always Allowed' is Yes on G/L Setup and No on User Setup
         // [GIVEN] Close Income Statement Journal Lines for closed Settled VAT period
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         PostingDate := LibraryRandom.RandDate(10);
         PrepareSettledVATPeriodWithApplicationAlwaysAllowed(PostingDate, true, false);
         CreateCloseIncomeStatementGenJnlLines(GenJournalLine, DocumentNo, PostingDate);
@@ -503,11 +503,11 @@ codeunit 144001 "VAT Tools Test"
     begin
         // [FEATURE] [Settled VAT Period] [Close Income Statement] [Application Always Allowed]
         // [SCENARIO 210143] Posting of Close Income Statement is allowed when 'Application always Allowed' is No on G/L Setup and Yes on User Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] 'Application always Allowed' is No on G/L Setup and Yes on User Setup
         // [GIVEN] Close Income Statement Journal Lines for closed Settled VAT period
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         PostingDate := LibraryRandom.RandDate(10);
         PrepareSettledVATPeriodWithApplicationAlwaysAllowed(PostingDate, false, true);
         CreateCloseIncomeStatementGenJnlLines(GenJournalLine, DocumentNo, PostingDate);
@@ -634,8 +634,8 @@ codeunit 144001 "VAT Tools Test"
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         DeleteSettledVATPeriods;
 
         LibraryRandom.SetSeed(1);
@@ -756,7 +756,7 @@ codeunit 144001 "VAT Tools Test"
           StartingDate, EndingDate, PostingDate, LibraryUtility.GenerateGUID, GLAccount."No.", false, Post);
         CalcPostVATSettlement.SetInitialized(false);
         Commit();
-        CalcPostVATSettlement.Run;
+        CalcPostVATSettlement.Run();
     end;
 
     local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; GenPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")
@@ -764,7 +764,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryPurch.CreatePurchHeader(
           PurchHeader, PurchHeader."Document Type"::Invoice, CreateVendor(GenPostingSetup."Gen. Bus. Posting Group"));
 
-        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
         PurchHeader.Modify();
 
         CreatePurchLine(PurchLine, PurchHeader, GenPostingSetup."Gen. Prod. Posting Group", VATPostingSetup, 3, 23.12);
@@ -896,7 +896,7 @@ codeunit 144001 "VAT Tools Test"
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
     end;
 
     local procedure FindItem(var Item: Record Item)
@@ -916,7 +916,7 @@ codeunit 144001 "VAT Tools Test"
     begin
         VendLedgerEntry.SetRange("Document Type", DocumentType);
         VendLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendLedgerEntry.FindLast;
+        VendLedgerEntry.FindLast();
     end;
 
     [Normal]
@@ -1036,7 +1036,7 @@ codeunit 144001 "VAT Tools Test"
         // Validate that settled VAT periods is updated
         SettledVATPeriod.SetRange(Year, Date2DMY(PeriodDate, 3));
         Assert.AreEqual(1, SettledVATPeriod.Count, 'Expected exactly one Settled VAT Period');
-        SettledVATPeriod.FindFirst;
+        SettledVATPeriod.FindFirst();
     end;
 
     local procedure PrepareSettledVATPeriodWithApplicationAlwaysAllowed(PostingDate: Date; AllowedOnGL: Boolean; AllowedOnUser: Boolean)
@@ -1138,7 +1138,7 @@ codeunit 144001 "VAT Tools Test"
         SelectionOption := LibraryVariableStorage.DequeueInteger();
         // SettlementPeriod
         VATPeriod.Reset();
-        VATPeriod.FindFirst;
+        VATPeriod.FindFirst();
         TradeSettlement.SettlementPeriod.SetValue(VATPeriod."Period No.");
         // SettlementYear
         ExpectedYear := Date2DMY(WorkDate, 3);

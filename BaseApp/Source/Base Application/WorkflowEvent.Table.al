@@ -144,7 +144,7 @@ table 1520 "Workflow Event"
         WorkflowEvent: Record "Workflow Event";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
-        if WorkflowEvent.FindSet then
+        if WorkflowEvent.FindSet() then
             repeat
                 WorkflowEventHandling.AddEventPredecessor("Function Name", WorkflowEvent."Function Name");
             until WorkflowEvent.Next() = 0;

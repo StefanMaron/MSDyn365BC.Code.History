@@ -20,7 +20,7 @@ codeunit 144200 "Recurring Orders Tests"
     begin
         if Initialized then
             exit;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         Initialized := true;
@@ -35,7 +35,7 @@ codeunit 144200 "Recurring Orders Tests"
         NewDocType: Option;
     begin
         // [FEATURE] [Recurring Group]
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
         Commit();
@@ -69,7 +69,7 @@ codeunit 144200 "Recurring Orders Tests"
         ProcessingDate: Date;
         OriginalDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
 
@@ -111,7 +111,7 @@ codeunit 144200 "Recurring Orders Tests"
         ProcessingDate: Date;
         OriginalDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
 
@@ -153,7 +153,7 @@ codeunit 144200 "Recurring Orders Tests"
         ProcessingDate: Date;
         OriginalDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
 
@@ -197,7 +197,7 @@ codeunit 144200 "Recurring Orders Tests"
         ProcessingDate: Date;
         OriginalDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
         for PeriodIndex := -1 to 1 do begin
@@ -242,7 +242,7 @@ codeunit 144200 "Recurring Orders Tests"
         ProcessingDate: Date;
         OriginalDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
 
@@ -291,7 +291,7 @@ codeunit 144200 "Recurring Orders Tests"
         ProcessingDate: Date;
         OriginalDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
 
@@ -342,7 +342,7 @@ codeunit 144200 "Recurring Orders Tests"
         ProcessingDate: Date;
         OriginalDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
 
@@ -410,7 +410,7 @@ codeunit 144200 "Recurring Orders Tests"
         OriginalDate: Date;
         PriceListLine: Record "Price List Line";
     begin
-        Initialize;
+        Initialize();
         LibraryPriceCalculation.EnableExtendedPriceCalculation();
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
 
@@ -482,7 +482,7 @@ codeunit 144200 "Recurring Orders Tests"
         ProcessingDate: Date;
         OriginalDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateRecurringSetup(RecurringGroup);
 
@@ -565,7 +565,7 @@ codeunit 144200 "Recurring Orders Tests"
         with SalesOrderHeader do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Sell-to Customer No.", BlanketSalesHeader."Sell-to Customer No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -576,7 +576,7 @@ codeunit 144200 "Recurring Orders Tests"
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Item);
             SetFilter("No.", '<>%1', '');
-            FindFirst;
+            FindFirst();
         end;
     end;
 

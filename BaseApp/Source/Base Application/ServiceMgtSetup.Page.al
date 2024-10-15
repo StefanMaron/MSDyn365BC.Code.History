@@ -1,4 +1,4 @@
-page 5919 "Service Mgt. Setup"
+﻿page 5919 "Service Mgt. Setup"
 {
     ApplicationArea = Service;
     Caption = 'Service Management Setup';
@@ -135,6 +135,13 @@ page 5919 "Service Mgt. Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
                 }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Advanced;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
+                }
+#if not CLEAN20
                 field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
                 {
                     ApplicationArea = Advanced;
@@ -142,7 +149,11 @@ page 5919 "Service Mgt. Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of service invoices.';
                     Visible = false;
+                    ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
             }
             group("Mandatory Fields")
             {
@@ -340,6 +351,32 @@ page 5919 "Service Mgt. Setup"
                     ToolTip = 'Specifies the number series code that will be used to assign a document number to the journal lines.';
                 }
             }
+            group("Journal Templates")
+            {
+                Caption = 'Journal Templates';
+                Visible = JnlTemplateNameVisible;
+
+                field("Serv. Inv. Template Name"; Rec."Serv. Inv. Template Name")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the name of the journal template to use for posting service invoices.';
+                }
+                field("Serv. Cr. Memo Templ. Name"; Rec."Serv. Cr. Memo Templ. Name")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies which general journal template to use for service credit memos.';
+                }
+                field("Serv. Contr. Inv. Templ. Name"; Rec."Serv. Contr. Inv. Templ. Name")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the name of the journal template to use for posting service contract invoices.';
+                }
+                field("Serv. Contr. Cr.M. Templ. Name"; Rec."Serv. Contr. Cr.M. Templ. Name")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the name of the journal template to use for posting service contract credit memos.';
+                }
+            }
             group("E-Invoice")
             {
                 Caption = 'E-Invoice';
@@ -381,15 +418,21 @@ page 5919 "Service Mgt. Setup"
     }
 
     trigger OnOpenPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         Reset;
         if not Get then begin
             Init;
             Insert;
         end;
+
+        GeneralLedgerSetup.Get();
+        JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
     end;
 
     var
         CalendarMgmt: Codeunit "Calendar Management";
+        JnlTemplateNameVisible: Boolean;
 }
 

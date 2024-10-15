@@ -49,17 +49,6 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the cross-reference number related to the item.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -231,7 +220,7 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -323,12 +312,12 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
         TempPurchRcptLine.Reset();
         TempPurchRcptLine.CopyFilters(Rec);
         TempPurchRcptLine.SetRange("Document No.", "Document No.");
-        if not TempPurchRcptLine.FindFirst then begin
+        if not TempPurchRcptLine.FindFirst() then begin
             RemainingQty2 := RemainingQty;
             RevUnitCostLCY2 := RevUnitCostLCY;
             PurchRcptLine2.CopyFilters(Rec);
             PurchRcptLine2.SetRange("Document No.", "Document No.");
-            if not PurchRcptLine2.FindSet then
+            if not PurchRcptLine2.FindSet() then
                 exit(false);
             repeat
                 ShowRec := IsShowRec(PurchRcptLine2);

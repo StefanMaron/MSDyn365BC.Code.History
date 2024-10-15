@@ -23,7 +23,7 @@ report 15000004 "Delete rem. payment order"
                     WaitingJournalLine.SetFilter(
                       "Remittance Status", '%1|%2', WaitingJournalLine."Remittance Status"::Sent,
                       WaitingJournalLine."Remittance Status"::Approved);
-                    if WaitingJournalLine.FindFirst then
+                    if WaitingJournalLine.FindFirst() then
                         WaitingJournalLine.FieldError("Remittance Status");
                 end;
 
@@ -38,7 +38,7 @@ report 15000004 "Delete rem. payment order"
                     Error(Text002, EndDate);
 
                 SetRange(Date, StartDate, EndDate);
-                if FindFirst then begin
+                if FindFirst() then begin
                     if not Confirm(Text003, false, Count) then
                         Error('');
                 end else
@@ -84,11 +84,11 @@ report 15000004 "Delete rem. payment order"
         trigger OnOpenPage()
         begin
             AccountingPeriod.SetRange(Closed, true);
-            if not AccountingPeriod.FindFirst then
+            if not AccountingPeriod.FindFirst() then
                 Error(Text007);
             FirstDate := AccountingPeriod."Starting Date";
             // Find the first open period, following the last closed period
-            AccountingPeriod.FindLast;
+            AccountingPeriod.FindLast();
             AccountingPeriod.SetRange(Closed);
             LastDate := AccountingPeriod."Starting Date";
             if AccountingPeriod.Next > 0 then

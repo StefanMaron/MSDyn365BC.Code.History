@@ -2969,7 +2969,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Default price calculation is 'V16'
         OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Create Service Credit Memo - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
-        Initialize;
+        Initialize();
         CreateServiceDocumentWithResource(
             ServiceHeader, ServiceLine, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         ServiceLine.TestField("Price Calculation Method", ServiceLine."Price Calculation Method"::"Lowest Price");
@@ -3004,7 +3004,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Default price calculation is 'V16'
         OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Create Service Order - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
-        Initialize;
+        Initialize();
         CreateServiceOrderWithResource(ServiceHeader, ServiceLine, LibrarySales.CreateCustomerNo);
         ServiceLine.TestField("Price Calculation Method", ServiceLine."Price Calculation Method"::"Lowest Price");
 
@@ -3940,7 +3940,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Clear(ResPriceList);
         Resource.SetRange("No.", Resource."No.");
         ResPriceList.SetTableView(Resource);
-        ResPriceList.Run;
+        ResPriceList.Run();
 
         // [THEN] Verify values on "Res. Price List" Report.
         VerifyResPriceList(PriceListLine, Resource."Unit Price");
@@ -4550,26 +4550,26 @@ codeunit 134159 "Test Price Calculation - V16"
         ReturnShipmentHeader: Record "Return Shipment Header";
     begin
         ReturnShipmentHeader.SetRange("Return Order No.", OrderNo);
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
         exit(ReturnShipmentHeader."No.");
     end;
 
     local procedure FindServiceCreditMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     local procedure FindServiceInvoiceFromOrder(var ServiceInvoiceHeader: Record "Service Invoice Header"; OrderNo: Code[20])
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure FindServiceShipmentHeader(var ServiceShipmentHeader: Record "Service Shipment Header"; OrderNo: Code[20])
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
     end;
 
     local procedure FindShipmentHeaderNo(OrderNo: Code[20]): Code[20]
@@ -4577,7 +4577,7 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.SetRange("Order No.", OrderNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         exit(SalesShipmentHeader."No.");
     end;
 
@@ -4647,7 +4647,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Resource.SetRange("No.", No);
         ResPriceList.SetTableView(Resource);
         ResPriceList.InitializeRequest(WorkDate(), "Job Price Source Type"::"All Jobs", '', CurrencyCode);
-        ResPriceList.Run;
+        ResPriceList.Run();
     end;
 
     local procedure UpdateVATBusPostingGroupOnCustomer(CustomerNo: Code[20]; VATBusPostingGroup: Code[20])

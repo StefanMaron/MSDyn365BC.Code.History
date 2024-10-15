@@ -27,7 +27,7 @@ codeunit 139313 "Test Sana Interface calls"
         Bool: Boolean;
     begin
         // Prepare
-        Initialize;
+        Initialize();
         Code10 := CopyStr(Format(LibraryUtility.GenerateRandomText(10)), 1, MaxStrLen(Code10));
         Code20 := CopyStr(Format(LibraryUtility.GenerateRandomText(20)), 1, MaxStrLen(Code20));
         Bool := true;
@@ -54,7 +54,7 @@ codeunit 139313 "Test Sana Interface calls"
         Dec: Decimal;
     begin
         // Prepare
-        Initialize;
+        Initialize();
         Text30 := CopyStr(Format(LibraryUtility.GenerateRandomText(30)), 1, MaxStrLen(Text30));
         // Verify
         SalesPost.SumSalesLinesTemp(SalesHeader, SalesLine, QtyType, SalesLine, SalesLine, Dec, Text30, Dec, Dec, Dec)
@@ -69,7 +69,7 @@ codeunit 139313 "Test Sana Interface calls"
         Bool: Boolean;
     begin
         // Prepare
-        Initialize;
+        Initialize();
         SalesHeader.Init();
         Bool := false;
         // Verify
@@ -88,7 +88,7 @@ codeunit 139313 "Test Sana Interface calls"
         Text30: Text[30];
     begin
         // Prepare
-        Initialize;
+        Initialize();
         Text30 := CopyStr(Format(LibraryUtility.GenerateRandomText(30)), 1, MaxStrLen(Text30));
         SalesHeader.Init();
         // Verify
@@ -107,7 +107,7 @@ codeunit 139313 "Test Sana Interface calls"
         Bool: Boolean;
     begin
         // Prepare
-        Initialize;
+        Initialize();
         Text50 := CopyStr(Format(LibraryUtility.GenerateRandomText(50)), 1, MaxStrLen(Text50));
         SalesLine.Init();
 
@@ -125,7 +125,7 @@ codeunit 139313 "Test Sana Interface calls"
         SalesQuoteToOrder: Codeunit "Sales-Quote to Order";
     begin
         // Prepare
-        Initialize;
+        Initialize();
         SalesHeader.Init();
         // Verify
         SalesQuoteToOrder.SetHideValidationDialog(true);
@@ -142,7 +142,7 @@ codeunit 139313 "Test Sana Interface calls"
         Bool: Boolean;
     begin
         // Prepare
-        Initialize;
+        Initialize();
         I := 0;
         // Verify
         ChangeLogManagement.GetDatabaseTableTriggerSetup(I, Bool, Bool, Bool, Bool);
@@ -159,7 +159,7 @@ codeunit 139313 "Test Sana Interface calls"
         Text: Text;
     begin
         // Verify
-        Initialize;
+        Initialize();
         Text := CustomerList.GetSelectionFilter;
         Text := ItemList.GetSelectionFilter;
         Text := CustomerPriceGroups.GetSelectionFilter;
@@ -180,7 +180,7 @@ codeunit 139313 "Test Sana Interface calls"
         QtyType: Option General,Invoicing,Shipping;
     begin
         // Verify
-        Initialize;
+        Initialize();
         SalesCrMemoLine.CalcVATAmountLines(SalesCrMemoHeader, VATAmountLine);
         SalesInvoiceLine.CalcVATAmountLines(SalesInvoiceHeader, VATAmountLine);
         SalesLine.CalcVATAmountLines(QtyType, SalesHeader, SalesLine, VATAmountLine);
@@ -195,7 +195,7 @@ codeunit 139313 "Test Sana Interface calls"
         code10: Code[10];
     begin
         // Prepare
-        Initialize;
+        Initialize();
         code10 := CopyStr(Format(LibraryUtility.GenerateRandomText(10)), 1, MaxStrLen(code10));
         // Verify
         asserterror Dec := CurrencyExchangeRate.ExchangeRate(WorkDate, code10);
@@ -212,7 +212,7 @@ codeunit 139313 "Test Sana Interface calls"
         QtyType: Option General,Invoicing,Shipping;
     begin
         // Prepare
-        Initialize;
+        Initialize();
         SalesHeader.Init();
         // Verify
         SalesLine.SetSalesHeader(SalesHeader);
@@ -229,7 +229,7 @@ codeunit 139313 "Test Sana Interface calls"
         Dec: Decimal;
     begin
         // Prepare
-        Initialize;
+        Initialize();
         Code10 := CopyStr(Format(LibraryUtility.GenerateRandomText(10)), 1, MaxStrLen(Code10));
         Bool := true;
         // Verify
@@ -245,7 +245,7 @@ codeunit 139313 "Test Sana Interface calls"
         Currency: Record Currency;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Verify
         Currency.InitRoundingPrecision;
@@ -255,7 +255,7 @@ codeunit 139313 "Test Sana Interface calls"
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 }
 

@@ -38,10 +38,10 @@ codeunit 134590 "Mandatory Fields Tests"
         ItemCard: TestPage "Item Card";
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
         DeleteAllTemplates;
 
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         Assert.IsTrue(ItemCard.Description.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(ItemCard."Base Unit of Measure".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(ItemCard."Gen. Prod. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -57,10 +57,10 @@ codeunit 134590 "Mandatory Fields Tests"
         CustomerCard: TestPage "Customer Card";
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
         DeleteAllTemplates;
 
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         Assert.IsTrue(CustomerCard.Name.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CustomerCard."Gen. Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(CustomerCard."VAT Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -80,10 +80,10 @@ codeunit 134590 "Mandatory Fields Tests"
         VendorCard: TestPage "Vendor Card";
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
         DeleteAllTemplates;
 
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         Assert.IsTrue(VendorCard.Name.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(VendorCard."Gen. Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(VendorCard."VAT Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -103,8 +103,8 @@ codeunit 134590 "Mandatory Fields Tests"
         Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
-        LibrarySales.DisableWarningOnCloseUnreleasedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
+        LibrarySales.DisableWarningOnCloseUnreleasedDoc();
         LibrarySales.CreateCustomer(Customer);
         VerifyMandatoryFieldsOnSalesInvoice(Customer, false);
         VerifyMandatoryFieldsOnSalesOrder(Customer, false);
@@ -127,7 +127,7 @@ codeunit 134590 "Mandatory Fields Tests"
         // [FEATURE] [Purchase]
         LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        Initialize;
+        Initialize();
         LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
         LibraryPurchase.DisableWarningOnCloseUnreleasedDoc;
         LibraryPurchase.CreateVendor(Vendor);
@@ -146,13 +146,13 @@ codeunit 134590 "Mandatory Fields Tests"
         Reminder: TestPage Reminder;
     begin
         // [FEATURE] [Sales] [Reminder]
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
-        Reminder.OpenNew;
+        Reminder.OpenNew();
         Assert.IsTrue(Reminder."Customer No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(Reminder."Reminder Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Reminder."Customer No.".SetValue(Customer."No.");
-        ReminderTerms.FindFirst;
+        ReminderTerms.FindFirst();
         Reminder."Reminder Terms Code".SetValue(ReminderTerms.Code);
         Reminder.ReminderLines.New;
         Assert.IsTrue(Reminder.ReminderLines.Type.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -180,13 +180,13 @@ codeunit 134590 "Mandatory Fields Tests"
         FinanceChargeMemo: TestPage "Finance Charge Memo";
     begin
         // [FEATURE] [Sales] [Finance Charge Memo]
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
-        FinanceChargeMemo.OpenNew;
+        FinanceChargeMemo.OpenNew();
         Assert.IsTrue(FinanceChargeMemo."Customer No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(FinanceChargeMemo."Fin. Charge Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         FinanceChargeMemo."Customer No.".SetValue(Customer."No.");
-        FinanceChargeTerms.FindFirst;
+        FinanceChargeTerms.FindFirst();
         FinanceChargeMemo."Fin. Charge Terms Code".SetValue(FinanceChargeTerms.Code);
         FinanceChargeMemo.FinChrgMemoLines.New;
         Assert.IsTrue(FinanceChargeMemo.FinChrgMemoLines.Type.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -211,7 +211,7 @@ codeunit 134590 "Mandatory Fields Tests"
         CompanyInformation: TestPage "Company Information";
     begin
         // [FEATURE] [Company Information]
-        Initialize;
+        Initialize();
         CompanyInformation.OpenEdit;
         Assert.IsTrue(CompanyInformation.Name.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation.Address.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -244,7 +244,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SetExternalDocNoMandatory(true);
         SetEInvoiceFlag(Customer, EInvoiceCustomer);
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
@@ -268,7 +268,7 @@ codeunit 134590 "Mandatory Fields Tests"
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsFalse(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesInvoice.Close;
     end;
@@ -280,7 +280,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SetExternalDocNoMandatory(true);
         SetEInvoiceFlag(Customer, EInvoiceCustomer);
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
@@ -304,7 +304,7 @@ codeunit 134590 "Mandatory Fields Tests"
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder.Close;
     end;
@@ -315,7 +315,7 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         SetEInvoiceFlag(Customer, EInvoiceCustomer);
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         Assert.IsTrue(SalesReturnOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesReturnOrder."Sell-to Customer Name".SetValue(Customer."No.");
         Assert.AreEqual(SalesReturnOrder."External Document No.".ShowMandatory, EInvoiceCustomer, UnexpectedShowMandatoryValueTxt);
@@ -339,7 +339,7 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesLine: Record "Sales Line";
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         Assert.IsTrue(SalesQuote."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         SalesQuote.SalesLines.New;
@@ -366,7 +366,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SetExternalDocNoMandatory(true);
         SetEInvoiceFlag(Customer, EInvoiceCustomer);
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.AreEqual(true, SalesCreditMemo."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer."No.");
         SalesCreditMemo.SalesLines.New;
@@ -387,7 +387,7 @@ codeunit 134590 "Mandatory Fields Tests"
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.IsFalse(SalesCreditMemo."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesCreditMemo.Close;
     end;
@@ -398,7 +398,7 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         SetVendorInvoiceNoMandatory(true);
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         Assert.IsTrue(PurchaseInvoice."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseInvoice."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
@@ -420,7 +420,7 @@ codeunit 134590 "Mandatory Fields Tests"
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetVendorInvoiceNoMandatory(false);
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         Assert.IsFalse(PurchaseInvoice."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice.Close;
     end;
@@ -431,7 +431,7 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         SetVendorInvoiceNoMandatory(true);
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         Assert.IsTrue(PurchaseOrder."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseOrder."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
@@ -453,7 +453,7 @@ codeunit 134590 "Mandatory Fields Tests"
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetVendorInvoiceNoMandatory(false);
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         Assert.IsFalse(PurchaseOrder."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseOrder.Close;
     end;
@@ -464,7 +464,7 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         SetVendorInvoiceNoMandatory(true);
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         Assert.IsTrue(PurchaseCreditMemo."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseCreditMemo."Vendor Cr. Memo No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
@@ -490,7 +490,7 @@ codeunit 134590 "Mandatory Fields Tests"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.FindFirst;
+        PurchasesPayablesSetup.FindFirst();
         PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := VendorInvoiceNoMandatory;
         PurchasesPayablesSetup.Modify();
     end;
@@ -499,7 +499,7 @@ codeunit 134590 "Mandatory Fields Tests"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.FindFirst;
+        SalesReceivablesSetup.FindFirst();
         SalesReceivablesSetup."Ext. Doc. No. Mandatory" := ExternalDocNoMandatory;
         SalesReceivablesSetup.Modify();
     end;

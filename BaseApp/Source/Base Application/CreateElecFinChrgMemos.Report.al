@@ -45,19 +45,19 @@ report 10643 "Create Elec. Fin. Chrg. Memos"
                 IssuedFinChargeMemoHeader.Copy("Issued Fin. Charge Memo Header");
                 IssuedFinChargeMemoHeader.FilterGroup(6);
                 IssuedFinChargeMemoHeader.SetRange("E-Invoice", true);
-                if not IssuedFinChargeMemoHeader.FindFirst then
+                if not IssuedFinChargeMemoHeader.FindFirst() then
                     Error(Text003);
 
                 // All electronic finance charges?
                 IssuedFinChargeMemoHeader.SetRange("E-Invoice", false);
-                if IssuedFinChargeMemoHeader.FindFirst then
+                if IssuedFinChargeMemoHeader.FindFirst() then
                     if not Confirm(Text000, true) then
                         CurrReport.Quit;
                 IssuedFinChargeMemoHeader.SetRange("E-Invoice");
 
                 // Some already sent?
                 IssuedFinChargeMemoHeader.SetRange("E-Invoice Created", true);
-                if IssuedFinChargeMemoHeader.FindFirst then
+                if IssuedFinChargeMemoHeader.FindFirst() then
                     if not Confirm(Text001, true) then
                         CurrReport.Quit;
 

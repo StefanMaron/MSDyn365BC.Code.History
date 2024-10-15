@@ -42,7 +42,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [SCENARIO 20882] An error "There is nothing to post" when Service Order is Posted as Ship with "Qty. to Ship" as 0.
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item and "Qty. to Ship" as 0.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
         UpdateQtyToShipZero(ServiceLine);
@@ -92,7 +92,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -120,7 +120,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [SCENARIO 20882] "Quantity Shipped" is updated as "Qty. to Ship" for shipping Resource, Cost partly and validating the Quantity.
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartialQtyToShip(ServiceLine);
@@ -172,7 +172,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -201,7 +201,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [SCENARIO 20882] "Quantity Shipped" is updated as "Qty. to Ship" for shipping Resources and Costs fully with the Ship option.
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line, Update Quantity on Service Line.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdateQuantity(ServiceLine);
@@ -253,7 +253,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -281,7 +281,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and
         // [GIVEN] "Auto cost Posting" and "Expected Cost Posting" are set to False).
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdateQuantity(ServiceLine);
@@ -332,7 +332,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -362,7 +362,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [SCENARIO 20882] "Quantity Shipped" is updated correctly after Ship of Service Order in two parts having Resource and Cost.
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartialQtyToShip(ServiceLine);
@@ -417,7 +417,7 @@ codeunit 136107 "Service Posting - Shipment"
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item.
 
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -446,7 +446,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [SCENARIO 20882] Shipping Resources and Costs with Ship option after posting partially with Ship and Invoice option.
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         SetupCostPostingInventory(true, false);
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
@@ -501,7 +501,7 @@ codeunit 136107 "Service Posting - Shipment"
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item. Post the Service Order
         // partially as Ship . Post the Service Order partially as Invoice.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -537,7 +537,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
         // Post the Service Order partially as Ship . Post the Service Order partially as Invoice.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartialQtyToShip(ServiceLine);
@@ -596,7 +596,7 @@ codeunit 136107 "Service Posting - Shipment"
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item. Post the Service Order
         // partially as Ship and Invoice.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -630,7 +630,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
         // Post the Service Order partially as Ship and Invoice.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartQtyToShipAndInvoice(ServiceLine);
@@ -687,7 +687,7 @@ codeunit 136107 "Service Posting - Shipment"
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item. Post the Service Order
         // partially as Ship and Consume.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -720,7 +720,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource.
         // Post the Service Order partially as Ship and Consume.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForResource(ServiceLine, ServiceHeader);
         UpdatePartQtyToShipAndConume(ServiceLine);
@@ -769,7 +769,7 @@ codeunit 136107 "Service Posting - Shipment"
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item. Post the Service Order
         // partially as Ship. Undo Shipment.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         CreateServiceItemLine(ServiceHeader);
@@ -818,7 +818,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource, Cost and G/L Account.
         // [GIVEN] Post the Service Order partially as Ship. Undo Shipment.
-        Initialize;
+        Initialize();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         CreateServiceLineForGLAccount(ServiceLine, ServiceHeader);
         UpdatePartialQtyToShip(ServiceLine);
@@ -880,7 +880,7 @@ codeunit 136107 "Service Posting - Shipment"
         // 1. Setup: Setup Automatic Cost Posting as TRUE and Expected Cost Posting to G/L as TRUE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item. Post the Service Order
         // partially as Ship. Undo Shipment.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -917,7 +917,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource, Cost and G/L Account.
         // [GIVEN] Post the Service Order partially as Ship. Undo Shipment.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         CreateServiceLineForGLAccount(ServiceLine, ServiceHeader);
@@ -980,7 +980,7 @@ codeunit 136107 "Service Posting - Shipment"
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item. Post the Service Order
         // fully as Ship. Undo Shipment.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -1017,7 +1017,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource, Cost and G/L Account.
         // [GIVEN] Post the Service Order fully as Ship. Undo Shipment.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         CreateServiceLineForGLAccount(ServiceLine, ServiceHeader);
@@ -1079,7 +1079,7 @@ codeunit 136107 "Service Posting - Shipment"
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item. Post the Service Order
         // partially as Ship and Consume. Undo Consumption.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -1117,7 +1117,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [GIVEN] Setup Automatic Cost Posting as TRUE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource.
         // [GIVEN] Post the Service Order partially as Ship and Consume. Undo consumption.
-        Initialize;
+        Initialize();
         SetupCostPostingInventory(true, false);
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForResource(ServiceLine, ServiceHeader);
@@ -1149,7 +1149,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [SCENARIO 172912] Service Shipment Line after Posting Service Order Partially as Ship with Item.
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
         UpdatePartialQtyToShip(ServiceLine);
@@ -1175,7 +1175,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Item.
         // [GIVEN] Post the Service Order partially as Ship.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
         UpdatePartialQtyToShip(ServiceLine);
@@ -1211,7 +1211,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create New Location, Create New Bin, Create New Item, Create Item Journal Line, Post Item Journal.
         // Create Service Order.
-        Initialize;
+        Initialize();
         CreateLocationWithBinMandatory(Location);
         LibraryWarehouse.CreateBin(
           Bin,
@@ -1260,7 +1260,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create New Location, Create New Bin, Create New Item, Create Item Journal Line, Post Item Journal.
         // [GIVEN] Create Service Order, Post Service Order with Ship & Consume.
-        Initialize;
+        Initialize();
         CreateLocationWithBinMandatory(Location);
         LibraryWarehouse.CreateBin(
           Bin,
@@ -1304,7 +1304,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [SCENARIO 305893] Quantity copied to Warranty Ledger Entry when Service Order Posted with Ship and Consume.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and Post Service Order with Ship And Consume.
         Quantity := CreateAndPostServiceOrderWithWarranty(ServiceHeader);
@@ -1325,7 +1325,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [SCENARIO 305893] the Quantity is updated on Warranty Ledger Entry after UndoConsumption.
 
         // [GIVEN] Create and Post Service Order with Ship And Consume.
-        Initialize;
+        Initialize();
         Quantity := CreateAndPostServiceOrderWithWarranty(ServiceHeader);
 
         // [WHEN] Undo Consumption.
@@ -1345,7 +1345,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // [SCENARIO 379210] Invoice Post Buffer table must be temporary when posting service documents
 
-        Initialize;
+        Initialize();
         BindSubscription(ServicePostingShipment);
 
         // [GIVEN] Service order with one line
@@ -1375,7 +1375,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // [FEATURE] [Bin Content] [Undo Consumption]
         // [SCENARIO 379933] Undo Consumption works for mulitiline Serice Order with Bin content
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create New Location with Bin mandatory
         CreateLocationWithBinMandatory(Location);
@@ -1410,7 +1410,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // [FEATURE] [Warehouse]
         // [SCENARIO 380057] Warehouse Shipment is created for Service Order with Green location, item and zero "Qty. to Consume"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with item on Green location ("Require Shipment" = TRUE), "Qty. to Consume" = 0
         CreateServiceOrderWithGreenLocationAndQtyToConsume(ServiceHeader, 0);
@@ -1437,7 +1437,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // [FEATURE] [Warehouse]
         // [SCENARIO 380057] Warehouse Shipment is not created for Service Order with Green location, item and "Qty. to Consume"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with item on Green location ("Require Shipment" = TRUE), "Qty. to Consume" <> 0
         CreateServiceOrderWithGreenLocationAndQtyToConsume(ServiceHeader, LibraryRandom.RandInt(10));
@@ -1467,7 +1467,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // [FEATURE] [Undo Shipment] [Service Shipment]
         // [SCENARIO 211697] Undoing shipment should create item ledger entries and resource ledger entries with the same posting date as on the original service shipment line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with posting date = WORKDATE.
         CreateServiceOrder(ServiceHeader);
@@ -1612,16 +1612,16 @@ codeunit 136107 "Service Posting - Shipment"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Posting - Shipment");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Posting - Shipment");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Shipment");
@@ -2087,7 +2087,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         BinContent.SetRange("Location Code", ServiceLine."Location Code");
         BinContent.SetRange("Bin Code", ServiceLine."Bin Code");
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.TestField("Item No.", ServiceLine."No.");
         BinContent.CalcFields(Quantity);
         BinContent.TestField(Quantity, Quantity);
@@ -2099,11 +2099,11 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         repeat
             ServiceInvoiceLine.SetRange("Service Item No.", TempServiceLine."Service Item No.");
-            ServiceInvoiceLine.FindFirst;
+            ServiceInvoiceLine.FindFirst();
             ServiceInvoiceLine.TestField("No.", TempServiceLine."No.");
             ServiceInvoiceLine.TestField(Quantity, TempServiceLine."Qty. to Invoice");
         until TempServiceLine.Next = 0;
@@ -2132,7 +2132,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceShipmentLine.SetRange("Order No.", TempServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
-            ServiceShipmentLine.FindFirst;
+            ServiceShipmentLine.FindFirst();
             ServiceShipmentLine.TestField("Quantity Invoiced", TempServiceLine."Qty. to Invoice");
         until TempServiceLine.Next = 0;
     end;
@@ -2161,7 +2161,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceShipmentLine.SetRange("Order No.", TempServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
-            ServiceShipmentLine.FindLast;  // Find the Shipment Line for the second shipment.
+            ServiceShipmentLine.FindLast();  // Find the Shipment Line for the second shipment.
             ServiceShipmentLine.TestField("Qty. Shipped Not Invoiced", TempServiceLine."Qty. to Ship");
             ServiceShipmentLine.TestField(Quantity, TempServiceLine."Qty. to Ship");
         until TempServiceLine.Next = 0;
@@ -2179,7 +2179,7 @@ codeunit 136107 "Service Posting - Shipment"
         ItemLedgerEntry.SetRange("Order No.", TempServiceLine."Document No.");
         repeat
             ItemLedgerEntry.SetRange("Document Line No.", TempServiceLine."Line No.");
-            ItemLedgerEntry.FindLast;  // Find the Item Ledger Entry for the second shipment.
+            ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second shipment.
             ItemLedgerEntry.TestField(Quantity, -TempServiceLine."Qty. to Ship (Base)");
         until TempServiceLine.Next = 0;
     end;
@@ -2204,12 +2204,12 @@ codeunit 136107 "Service Posting - Shipment"
         // the relevant Service Line.
         TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceShipmentHeader.FindLast;  // Find the second shipment.
+        ServiceShipmentHeader.FindLast();  // Find the second shipment.
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
         ValueEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
         repeat
             ValueEntry.SetRange("Document Line No.", TempServiceLine."Line No.");
-            ValueEntry.FindFirst;
+            ValueEntry.FindFirst();
             ValueEntry.TestField("Valued Quantity", -TempServiceLine."Qty. to Ship (Base)");
         until TempServiceLine.Next = 0;
     end;
@@ -2223,12 +2223,12 @@ codeunit 136107 "Service Posting - Shipment"
         // and Bill-to Customer No.
         TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceShipmentHeader.FindLast;  // Find the second shipment.
+        ServiceShipmentHeader.FindLast();  // Find the second shipment.
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
         repeat
             ServiceLedgerEntry.SetRange("Document Line No.", TempServiceLine."Line No.");
-            ServiceLedgerEntry.FindFirst;
+            ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField("No.", TempServiceLine."No.");
             ServiceLedgerEntry.TestField("Posting Date", TempServiceLine."Posting Date");
             ServiceLedgerEntry.TestField("Bill-to Customer No.", TempServiceLine."Bill-to Customer No.");
@@ -2240,7 +2240,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceShipmentLine.FindLast;
+        ServiceShipmentLine.FindLast();
         ServiceShipmentLine.TestField("Location Code", ServiceLine."Location Code");
         ServiceShipmentLine.TestField("Bin Code", ServiceLine."Bin Code");
         ServiceShipmentLine.TestField(Quantity, -ServiceLine."Qty. to Consume");
@@ -2253,7 +2253,7 @@ codeunit 136107 "Service Posting - Shipment"
         WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"Serv. Order");
         WarehouseEntry.SetRange("Source No.", ServiceLine."Document No.");
         WarehouseEntry.SetRange("Entry Type", EntryType);
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         WarehouseEntry.TestField("Location Code", ServiceLine."Location Code");
         WarehouseEntry.TestField("Bin Code", ServiceLine."Bin Code");
         WarehouseEntry.TestField("Item No.", ServiceLine."No.");
@@ -2279,7 +2279,7 @@ codeunit 136107 "Service Posting - Shipment"
         ItemLedgerEntry.SetRange(Correction, false);
         repeat
             ItemLedgerEntry.SetRange("Order Line No.", TempServiceLineBeforePosting."Line No.");
-            ItemLedgerEntry.FindLast;  // Find the Item Ledger Entry for the second action.
+            ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second action.
             Assert.AreNearlyEqual(
               ItemLedgerEntry.Quantity, -TempServiceLineBeforePosting."Qty. to Consume", Tolerance,
               'Quantity and Quantity Consumed are nearly equal');
@@ -2287,7 +2287,7 @@ codeunit 136107 "Service Posting - Shipment"
               ItemLedgerEntry."Invoiced Quantity", -TempServiceLineBeforePosting."Qty. to Consume", Tolerance,
               'Quantity Consumed and Invoiced Quantity are nearly equal');
             RelatedItemLedgerEntry.SetRange("Applies-to Entry", ItemLedgerEntry."Applies-to Entry");
-            RelatedItemLedgerEntry.FindFirst;
+            RelatedItemLedgerEntry.FindFirst();
             ItemLedgerEntry.TestField("Cost Amount (Actual)", -RelatedItemLedgerEntry."Cost Amount (Actual)");
             ItemLedgerEntry.TestField("Sales Amount (Actual)", 0);
             VerifyValueEntryAfterUndoConsumption(ItemLedgerEntry);
@@ -2301,7 +2301,7 @@ codeunit 136107 "Service Posting - Shipment"
         // Verify that the value ofthe field Valued Quantity of the Value Entry is equal to the value of the field Qty. to Ship of
         // the relevant Service Line.
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-        ValueEntry.FindLast;
+        ValueEntry.FindLast();
         ValueEntry.TestField("Valued Quantity", ItemLedgerEntry.Quantity);
         ValueEntry.TestField("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
         ItemLedgerEntry.TestField("Cost Amount (Actual)", ItemLedgerEntry."Cost Amount (Actual)");
@@ -2315,7 +2315,7 @@ codeunit 136107 "Service Posting - Shipment"
         WarrantyLedgerEntry.SetRange("Customer No.", CustomerNo);
         WarrantyLedgerEntry.SetRange(Quantity, Quantity);
         WarrantyLedgerEntry.SetRange(Open, false);
-        WarrantyLedgerEntry.FindFirst;
+        WarrantyLedgerEntry.FindFirst();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Invoice Post. Buffer", 'OnAfterInsertEvent', '', false, false)]
@@ -2347,7 +2347,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceShipmentLine.SetRange("Order No.", ServiceOrderNo);
         ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ItemLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
         ItemLedgerEntry.FindSet();
         repeat
@@ -2362,7 +2362,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceShipmentLine.SetRange("Order No.", ServiceOrderNo);
         ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Resource);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ResLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
         ResLedgerEntry.FindSet();
         repeat

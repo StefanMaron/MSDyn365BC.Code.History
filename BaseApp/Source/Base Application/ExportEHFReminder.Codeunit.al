@@ -85,39 +85,34 @@ codeunit 10630 "Export EHF Reminder"
 
     local procedure SendElectronically(var RecordExportBuffer: Record "Record Export Buffer")
     var
-        FileManagement: Codeunit "File Management";
         EntryTempBlob: Codeunit "Temp Blob";
+        TempBlob: Codeunit "Temp Blob";
         DataCompression: Codeunit "Data Compression";
         ReportDistributionManagement: Codeunit "Report Distribution Management";
-        ZipFile: File;
         EntryFileInStream: InStream;
         ZipFileOutStream: OutStream;
-        ServFile: Text;
         ClientFile: Text;
     begin
         if not RecordExportBuffer.FindSet() then
             exit;
 
         if RecordExportBuffer.Count() > 1 then begin
-            ServFile := FileManagement.ServerTempFileName('zip');
-            ZipFile.Create(ServFile);
-            ZipFile.CreateOutStream(ZipFileOutStream);
+            TempBlob.CreateOutStream(ZipFileOutStream);
             DataCompression.CreateZipArchive();
             ClientFile := RecordExportBuffer.ZipFileName;
             repeat
-                FileManagement.BLOBImportFromServerFile(EntryTempBlob, RecordExportBuffer.ServerFilePath);
+                RecordExportBuffer.GetFileContent(EntryTempBlob);
                 EntryTempBlob.CreateInStream(EntryFileInStream);
                 DataCompression.AddEntry(EntryFileInStream, RecordExportBuffer.ClientFileName);
             until RecordExportBuffer.Next() = 0;
             DataCompression.SaveZipArchive(ZipFileOutStream);
             DataCompression.CloseZipArchive();
-            ZipFile.Close();
         end else begin
-            ServFile := RecordExportBuffer.ServerFilePath;
+            RecordExportBuffer.GetFileContent(TempBlob);
             ClientFile := RecordExportBuffer.ClientFileName;
         end;
 
-        ReportDistributionManagement.SaveFileOnClient(ServFile, ClientFile);
+        ReportDistributionManagement.SaveFileOnClient(TempBlob, ClientFile);
     end;
 }
 

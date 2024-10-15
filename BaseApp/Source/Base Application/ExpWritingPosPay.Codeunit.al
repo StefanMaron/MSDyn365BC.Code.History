@@ -27,7 +27,7 @@ codeunit 1708 "Exp. Writing Pos. Pay"
         Filename2 := CopyStr(Filename, 1, 250);
 
         DataExchDetail.SetRange("Entry No.", DataExchEntryCodeDetail);
-        if DataExchDetail.FindFirst then begin
+        if DataExchDetail.FindFirst() then begin
             DataExchDetail."File Name" := Filename2;
             ExportFile.CreateInStream(InStream);
             DataExchDetail."File Content".CreateOutStream(OutStream);
@@ -38,7 +38,7 @@ codeunit 1708 "Exp. Writing Pos. Pay"
 
         // Need to clear out the File Name and blob (File Content) for the footer record(s)
         DataExchFooter.SetRange("Entry No.", DataExchEntryCodeFooter);
-        if DataExchFooter.FindFirst then begin
+        if DataExchFooter.FindFirst() then begin
             ArrayLength := ArrayLen(DataExchEntryCodeFooterArray);
             RecordCount := 1;
             while (DataExchEntryCodeFooterArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin

@@ -206,7 +206,7 @@ report 15000060 "Remittance - export (BBS)"
                 LineRec.Reset();
                 LineRec.SetRange("Payment Order No.", RemittancePaymentOrder.ID);
                 RemPmtOrderExport.SetTableView(LineRec);
-                RemPmtOrderExport.RunModal;
+                RemPmtOrderExport.RunModal();
             end;
         }
     }
@@ -249,11 +249,7 @@ report 15000060 "Remittance - export (BBS)"
 
                         trigger OnAssistEdit()
                         begin
-#if not CLEAN17
-                            CurrentFilename := FileMgt.SaveFileDialog(Text014, CurrentFilename, Text015);
-#else
                             CurrentFilename := '';
-#endif
                         end;
                     }
                 }
@@ -300,9 +296,6 @@ report 15000060 "Remittance - export (BBS)"
         Vendor: Record Vendor;
         GenLedgSetup: Record "General Ledger Setup";
         RemTools: Codeunit "Remittance Tools";
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-#endif
         BBSOwnRefNo: Integer;
         SpecificationCounter: Integer;
         SpecificationLineNo: Integer;
@@ -324,10 +317,6 @@ report 15000060 "Remittance - export (BBS)"
         CurrentRemark: Text[50];
         CurrentFilename: Text[250];
         RemAgreementCode: Code[10];
-#if not CLEAN17
-        Text014: Label 'Remittance - export (BBS)';
-        Text015: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
-#endif
 
     [Scope('OnPrem')]
     procedure CreatePaymOrderHead()
@@ -337,7 +326,7 @@ report 15000060 "Remittance - export (BBS)"
         // Create PaymOrder for import.
         // Select ID. Find next:
         RemittancePaymentOrder.LockTable();
-        if RemittancePaymentOrder.FindLast then
+        if RemittancePaymentOrder.FindLast() then
             NextID := RemittancePaymentOrder.ID + 1
         else
             NextID := 1;
@@ -776,7 +765,7 @@ report 15000060 "Remittance - export (BBS)"
     begin
         WaitingJournal.LockTable();  // Serial no. depends on the existing Waiting journal.
         WaitingJournal.Init();
-        if WaitingJournal.FindLast then
+        if WaitingJournal.FindLast() then
             exit(WaitingJournal.Reference + 1);
 
         exit(1);

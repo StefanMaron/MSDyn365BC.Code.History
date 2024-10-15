@@ -163,7 +163,7 @@ codeunit 1802 "Data Migration Notifier"
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
         if not IsNullGuid(CheckCustVendNotificationIdEnabled(DATABASE::Customer)) then
-            if Customer.FindSet then
+            if Customer.FindSet() then
                 repeat
                     if not ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, Customer."No.") then begin
                         OnCustomerListGetCurrRec(Customer);
@@ -178,7 +178,7 @@ codeunit 1802 "Data Migration Notifier"
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
         if not IsNullGuid(CheckCustVendNotificationIdEnabled(DATABASE::Vendor)) then
-            if Vendor.FindSet then
+            if Vendor.FindSet() then
                 repeat
                     if not ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.") then begin
                         OnVendorListGetCurrRec(Vendor);

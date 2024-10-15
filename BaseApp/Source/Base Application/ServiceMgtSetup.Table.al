@@ -289,6 +289,42 @@ table 5911 "Service Mgt. Setup"
             Caption = 'Service Credit Memo Nos.';
             TableRelation = "No. Series";
         }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+
+#if not CLEAN20
+            trigger OnValidate()
+            var
+                EnvironmentInformation: Codeunit "Environment Information";
+            begin
+                if "Allow Multiple Posting Groups" then
+                    if EnvironmentInformation.IsProduction() then
+                        error(MultiplePostingGroupsNotAllowedErr);
+            end;
+#endif
+        }
+        field(200; "Serv. Inv. Template Name"; Code[10])
+        {
+            Caption = 'Serv. Invoice Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(201; "Serv. Contr. Inv. Templ. Name"; Code[10])
+        {
+            Caption = 'Serv. Contract Invoice Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(202; "Serv. Contr. Cr.M. Templ. Name"; Code[10])
+        {
+            Caption = 'Serv. Contract Cr. Memo Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(203; "Serv. Cr. Memo Templ. Name"; Code[10])
+        {
+            Caption = 'Serv. Cr. Memo Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
         field(210; "Copy Line Descr. to G/L Entry"; Boolean)
         {
             Caption = 'Copy Line Descr. to G/L Entry';
@@ -297,6 +333,13 @@ table 5911 "Service Mgt. Setup"
         field(810; "Invoice Posting Setup"; Enum "Service Invoice Posting")
         {
             Caption = 'Invoice Posting Setup';
+            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
 
             trigger OnValidate()
             var
@@ -313,6 +356,7 @@ table 5911 "Service Mgt. Setup"
                     InvoicePostingInterface.Check(Database::"Service Header");
                 end;
             end;
+#endif
         }
         field(950; "Copy Time Sheet to Order"; Boolean)
         {
@@ -352,11 +396,23 @@ table 5911 "Service Mgt. Setup"
     }
 
     var
+#if not CLEAN20
         InvoicePostingNotAllowedErr: Label 'Use of alternative invoice posting interfaces in production environment is currently not allowed.';
+        MultiplePostingGroupsNotAllowedErr: Label 'Use of multiple posting groups in production environment is currently not allowed.';
+#endif        
+        RecordHasBeenRead: Boolean;
 
     trigger OnInsert()
     begin
         TestField("Primary Key", '');
+    end;
+
+    procedure GetRecordOnce()
+    begin
+        if RecordHasBeenRead then
+            exit;
+        Get();
+        RecordHasBeenRead := true;
     end;
 }
 

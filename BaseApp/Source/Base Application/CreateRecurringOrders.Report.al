@@ -65,7 +65,7 @@ report 15000300 "Create Recurring Orders"
                     then begin
                         "Sales Header".MarkedOnly(true);
                         OrderOverview.SetTableView("Sales Header");
-                        OrderOverview.RunModal;
+                        OrderOverview.RunModal();
                     end;
             end;
 

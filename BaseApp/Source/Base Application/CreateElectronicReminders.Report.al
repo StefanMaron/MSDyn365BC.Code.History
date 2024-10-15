@@ -45,19 +45,19 @@ report 10642 "Create Electronic Reminders"
                 IssuedReminderHeader.Copy("Issued Reminder Header");
                 IssuedReminderHeader.FilterGroup(6);
                 IssuedReminderHeader.SetRange("E-Invoice", true);
-                if not IssuedReminderHeader.FindFirst then
+                if not IssuedReminderHeader.FindFirst() then
                     Error(Text003);
 
                 // All electronic reminders?
                 IssuedReminderHeader.SetRange("E-Invoice", false);
-                if IssuedReminderHeader.FindFirst then
+                if IssuedReminderHeader.FindFirst() then
                     if not Confirm(Text000, true) then
                         CurrReport.Quit;
                 IssuedReminderHeader.SetRange("E-Invoice");
 
                 // Some already sent?
                 IssuedReminderHeader.SetRange("E-Invoice Created", true);
-                if IssuedReminderHeader.FindFirst then
+                if IssuedReminderHeader.FindFirst() then
                     if not Confirm(Text001, true) then
                         CurrReport.Quit;
 

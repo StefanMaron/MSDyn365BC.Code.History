@@ -56,7 +56,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] The user deletes the line.
         // [THEN] Approval request is canceled and the approval entries are deleted.
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -108,7 +108,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] The user renames the line.
         // [THEN] Approval entries are changed to point to the new record.
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -163,7 +163,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Select batch on the STRMENU dialog
         // [THEN] Empty page pops up
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -197,7 +197,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Select batch on the STRMENU dialog
         // [THEN] Page displays the journal batch approval entries
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -235,7 +235,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Approvers in the chain click the Approve action
         // [THEN] Approval entry is approved
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateApprovalChainEnabledWorkflow(Workflow);
@@ -268,7 +268,7 @@ codeunit 134322 "General Journal Line Approval"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         // Exercise
-        ApprovalEntry.FindLast;
+        ApprovalEntry.FindLast();
         Approve(ApprovalEntry);
 
         // Verify
@@ -294,7 +294,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Chain of approvers click the Approve action
         // [THEN] Approval entry is approved
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateApprovalChainEnabledWorkflow(Workflow);
@@ -327,7 +327,7 @@ codeunit 134322 "General Journal Line Approval"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         // Exercise
-        ApprovalEntry.FindLast;
+        ApprovalEntry.FindLast();
         Approve(ApprovalEntry);
 
         // Verify
@@ -352,7 +352,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Requestor clicks Send for Approval
         // [THEN] Approval entries are created for the chain of approvers
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateApprovalChainEnabledWorkflow(Workflow);
@@ -391,7 +391,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Requestor clicks Send for Approval
         // [THEN] Approval entries are created for the chain of approvers
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateApprovalChainEnabledWorkflow(Workflow);
@@ -430,7 +430,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Requestor clicks Send for Approval
         // [THEN] Approval entries are created for the chain of approvers
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateApprovalChainEnabledWorkflow(Workflow);
@@ -469,7 +469,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Requestor clicks Send for Approval
         // [THEN] Approval entries are created for the chain of approvers
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateApprovalChainEnabledWorkflow(Workflow);
@@ -509,7 +509,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Requestor clicks Send for Approval
         // [THEN] Approval entries are created for the chain of approvers
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateApprovalChainEnabledWorkflow(Workflow);
@@ -550,7 +550,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Requestor clicks Send for Approval
         // [THEN] Approval entries are created for the chain of approvers
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateApprovalChainEnabledWorkflow(Workflow);
@@ -587,7 +587,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] The user sends an approval request from the journal line.
         // [THEN] The general journal line cannot be posted.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -620,7 +620,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] The temporary genral journal line is inserted.
         // [THEN] There is no restriction added.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -653,7 +653,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] The user cancels the approval.
         // [THEN] The general journal line is still restricted and cannot be posted.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -691,7 +691,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] The user approves the line.
         // [THEN] The general journal line can be posted.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -733,7 +733,7 @@ codeunit 134322 "General Journal Line Approval"
         // [THEN] New journal line is restricted
         // [THEN] New journal line cannot be posted
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalWorkflow(Workflow);
@@ -775,7 +775,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Post journal lines
         // [THEN] Journal batch is posted
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalWorkflow(Workflow);
@@ -815,7 +815,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] New journal line is marked as a System-Created Entry
         // [THEN] New journal line is not restricted
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalWorkflow(Workflow);
@@ -855,7 +855,7 @@ codeunit 134322 "General Journal Line Approval"
         // [THEN] New journal line is not restricted
         // [THEN] New journal line can be exported
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -902,7 +902,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] New journal line is marked as a System-Created Entry
         // [THEN] New journal line is restricted
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(LineWorkflow);
@@ -942,7 +942,7 @@ codeunit 134322 "General Journal Line Approval"
         // [THEN] New journal line is restricted
         // [THEN] Check cannot be printed
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -983,7 +983,7 @@ codeunit 134322 "General Journal Line Approval"
         // [THEN] New journal line is not restricted
         // [THEN] Check can be printed
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalWorkflow(Workflow);
@@ -1026,7 +1026,7 @@ codeunit 134322 "General Journal Line Approval"
         // [THEN] New journal line is not restricted
         // [THEN] Check can be printed
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -1072,7 +1072,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Check ledger entry is created
         // [THEN] Check ledger entry cannot be inserted
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePmtJnlBatchWithOneInvoiceLineForAccTypeCustomer(GenJournalBatch, GenJournalLine);
@@ -1105,7 +1105,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Check ledger entry is changed
         // [THEN] Check ledger entry cannot be modified
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePmtJnlBatchWithOneInvoiceLineForAccTypeCustomer(GenJournalBatch, GenJournalLine);
@@ -1140,7 +1140,7 @@ codeunit 134322 "General Journal Line Approval"
         // [THEN] New journal line is restricted
         // [THEN] Check cannot be printed
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalWorkflow(Workflow);
@@ -1185,7 +1185,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Journal line check is printed
         // [THEN] Journal line can be posted with no further approval needed
 
-        Initialize;
+        Initialize();
 
         // Setup: Approvals workflow
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -1208,7 +1208,7 @@ codeunit 134322 "General Journal Line Approval"
 
         UpdateApprovalEntryWithCurrUser(ApprovalEntry, GenJournalLine.RecordId);
 
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         Approve(ApprovalEntry);
 
         // Exercise: Print the check.
@@ -1224,7 +1224,7 @@ codeunit 134322 "General Journal Line Approval"
 
         // Verify
         GLRegister.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GLRegister.FindLast;
+        GLRegister.FindLast();
     end;
 
     [Test]
@@ -1243,7 +1243,7 @@ codeunit 134322 "General Journal Line Approval"
         // [WHEN] Click the Send Approval Request action on line
         // [THEN] Line workflow status factbox becomes visible.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -1280,7 +1280,7 @@ codeunit 134322 "General Journal Line Approval"
     begin
         // [SCENARIO 209184] Line workflow status factbox becomes not visible when the approval is cancelled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal batch with one or more journal lines
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -1312,7 +1312,7 @@ codeunit 134322 "General Journal Line Approval"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 235046] Payment Journal Line created as result of Check Print is not restricted record when General Journal Batch Approval Workflow is enabled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Batch Approval Workflow is enabled for direct approvers.
         // [GIVEN] Approval User Setup with direct approvers.
@@ -1352,7 +1352,7 @@ codeunit 134322 "General Journal Line Approval"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 235046] Payment Journal Batch Line created with Check Printed posted while no Approval Workflows enabled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
         CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(
@@ -1382,7 +1382,7 @@ codeunit 134322 "General Journal Line Approval"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 235046] Payment Journal Batch Line created with Check Printed with "One Check Per Vendor" option posted while no Approval Workflows enabled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
         CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(
@@ -1412,7 +1412,7 @@ codeunit 134322 "General Journal Line Approval"
         RestrictedRecord: Record "Restricted Record";
     begin
         // [SCENARIO 235046] Payment Journal Batch must be approved before print the check.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Batch Approval Workflow is enabled for direct approvers.
         // [GIVEN] Approval User Setup with direct approvers.
@@ -1452,7 +1452,7 @@ codeunit 134322 "General Journal Line Approval"
         GenJournalLine: array[2] of Record "Gen. Journal Line";
     begin
         // [SCENARIO 235046] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Check with "One Check Per Vendor" option from Payment Journal.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
         // [GIVEN] Approval User Setup with direct approvers.
@@ -1488,7 +1488,7 @@ codeunit 134322 "General Journal Line Approval"
         GenJournalLine: array[2] of Record "Gen. Journal Line";
     begin
         // [SCENARIO 235046] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Check without "One Check Per Vendor" option from Payment Journal.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
         // [GIVEN] Approval User Setup with direct approvers.
@@ -1523,8 +1523,8 @@ codeunit 134322 "General Journal Line Approval"
         ApprovalEntry: Record "Approval Entry";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
 
         Workflow.ModifyAll(Enabled, false, true);
         UserSetup.DeleteAll();
@@ -1536,7 +1536,7 @@ codeunit 134322 "General Journal Line Approval"
 
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
     end;
 
     local procedure CreateDirectApprovalWorkflow(var Workflow: Record Workflow)
@@ -1890,7 +1890,7 @@ codeunit 134322 "General Journal Line Approval"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindLast;
+        GenJournalLine.FindLast();
         GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::"Bank Account");
         GenJournalLine.TestField("Account No.", BalAccountNo);
     end;

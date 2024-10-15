@@ -48,7 +48,7 @@ codeunit 759 "Job Chart Mgt"
         with MyJob do begin
             SetRange("User ID", UserId);
             SetRange("Exclude from Business Chart", false);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Job.Get("Job No.") then begin
                         TempRangeJob := Job;
@@ -88,7 +88,7 @@ codeunit 759 "Job Chart Mgt"
     local procedure InitializeBusinessChart(var BusChartBuf: Record "Business Chart Buffer")
     begin
         with BusChartBuf do
-            Initialize;
+            Initialize();
     end;
 
     local procedure AddMeasures(var BusChartBuf: Record "Business Chart Buffer"; ChartType: Enum "Business Chart Type"; JobChartType: Enum "Job Chart Type")
@@ -133,7 +133,7 @@ codeunit 759 "Job Chart Mgt"
         BudgetPrice: Decimal;
     begin
         with RangeJob do
-            if FindSet then
+            if FindSet() then
                 repeat
                     case JobChartType of
                         JobChartType::Profitability:

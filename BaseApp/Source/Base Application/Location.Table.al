@@ -610,7 +610,7 @@ table 14 Location
 
     fieldgroups
     {
-        fieldgroup(Dropdown; "Code", Name)
+        fieldgroup(DropDown; "Code", Name)
         {
         }
     }
@@ -621,6 +621,7 @@ table 14 Location
         WhseEmployee: Record "Warehouse Employee";
         WorkCenter: Record "Work Center";
         StockkeepingUnit: Record "Stockkeeping Unit";
+        DimensionManagement: Codeunit DimensionManagement;
     begin
         StockkeepingUnit.SetRange("Location Code", Code);
         if not StockkeepingUnit.IsEmpty() then
@@ -645,11 +646,15 @@ table 14 Location
             until WorkCenter.Next() = 0;
 
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Location, Code);
+        DimensionManagement.DeleteDefaultDim(Database::Location, Rec.Code);
     end;
 
     trigger OnRename()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
     begin
         CalendarManagement.RenameCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Location, Code, xRec.Code);
+        DimensionManagement.RenameDefaultDim(Database::Location, xRec.Code, Rec.Code);
     end;
 
     var
@@ -708,6 +713,12 @@ table 14 Location
             exit(Location."Require Put-away");
         WhseSetup.Get();
         exit(WhseSetup."Require Put-away");
+    end;
+
+    procedure BinMandatory(LocationCode: Code[10]): Boolean
+    begin
+        if Location.Get(LocationCode) then
+            exit(Location."Bin Mandatory");
     end;
 
     procedure GetLocationSetup(LocationCode: Code[10]; var Location2: Record Location): Boolean
@@ -796,7 +807,7 @@ table 14 Location
         WarehouseEntry.SetCurrentKey("Bin Code", "Location Code", "Item No.");
         WarehouseEntry.SetRange("Bin Code", BinCode);
         WarehouseEntry.SetRange("Location Code", Code);
-        if WarehouseEntry.FindFirst then
+        if WarehouseEntry.FindFirst() then
             repeat
                 WarehouseEntry.SetRange("Item No.", WarehouseEntry."Item No.");
 
@@ -810,7 +821,7 @@ table 14 Location
                     Error(Text006, CaptionOfField, Bin.TableCaption, BinCode);
                 end;
 
-                WarehouseEntry.FindLast;
+                WarehouseEntry.FindLast();
                 WarehouseEntry.SetRange("Item No.");
             until WarehouseEntry.Next() = 0;
     end;
@@ -854,7 +865,7 @@ table 14 Location
         OnLineMapMgt: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnLineMapMgt.MakeSelection(DATABASE::Location, GetPosition)
         else
             Message(Text012);
@@ -891,7 +902,7 @@ table 14 Location
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
     begin
         TransferLine.SetRange("Transfer-to Code", Code);
-        if TransferLine.FindSet then
+        if TransferLine.FindSet() then
             repeat
                 if TransferLine."Quantity Received" <> TransferLine."Quantity Shipped" then begin
                     TransferHeader.Get(TransferLine."Document No.");
@@ -899,7 +910,7 @@ table 14 Location
                     WhseTransferRelease.CreateInboundWhseRequest(WarehouseRequest, TransferHeader);
 
                     TransferLine.SetRange("Document No.", TransferLine."Document No.");
-                    TransferLine.FindLast;
+                    TransferLine.FindLast();
                     TransferLine.SetRange("Document No.");
                 end;
             until TransferLine.Next() = 0;
@@ -917,7 +928,7 @@ table 14 Location
             if ExcludeInTransitLocations then
                 Location.SetRange("Use As In-Transit", false);
 
-            if Location.FindSet then
+            if Location.FindSet() then
                 repeat
                     Init;
                     Copy(Location);
@@ -925,7 +936,7 @@ table 14 Location
                 until Location.Next() = 0;
         end;
 
-        FindFirst;
+        FindFirst();
     end;
 
     [IntegrationEvent(false, false)]

@@ -11,8 +11,9 @@ codeunit 15000000 "Reset Remittance Payment Order"
             CurrentRemPaymOrder.FieldError(Type);
 
         // Ask the user if he wan'ts to reset:
-        if not Confirm(Text000 + Text001 + Text002 + Text003 + Text004 + Text005, false, CurrentRemPaymOrder.ID) then
-            Error('');
+		if not HideDialog then
+            if not Confirm(Text000 + Text001 + Text002 + Text003 + Text004 + Text005, false, CurrentRemPaymOrder.ID) then
+                Error('');
 
         // PaymOrder is marked as reseted:
         CurrentRemPaymOrder.Canceled := true;
@@ -39,8 +40,9 @@ codeunit 15000000 "Reset Remittance Payment Order"
         Text007: Label 'Cancel waiting journal reference %1?';
         CurrentRemPaymOrder: Record "Remittance Payment Order";
         RemTools: Codeunit "Remittance Tools";
+		HideDialog: Boolean;
 
-    local procedure ResetWaitingJournalLine(WaitingJournal: Record "Waiting Journal")
+    procedure ResetWaitingJournalLine(WaitingJournal: Record "Waiting Journal")
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -77,6 +79,11 @@ codeunit 15000000 "Reset Remittance Payment Order"
     begin
         //Specify current PaymOrder:
         CurrentRemPaymOrder := RemPaymOrder;
+    end;
+
+    procedure SetHideDialog(NewHideDialog: Boolean)
+    begin
+        HideDialog := NewHideDialog;
     end;
 }
 

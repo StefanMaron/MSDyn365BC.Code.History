@@ -29,7 +29,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
     begin
         // [FEATURE] [Customer - Collection List]
         // Setup
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         NumberOfReminderLines := LibraryRandom.RandIntInRange(2, 4); // Make sure it is greater than 1
@@ -49,7 +49,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
     begin
         // [FEATURE] [Customer - Collection List]
         // Setup
-        Initialize;
+        Initialize();
 
         // Create two posted sales orders for the given customer
         LibrarySales.CreateCustomer(Customer);
@@ -72,7 +72,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         NumberOfEntries: Integer;
     begin
         // [FEATURE] [Customer - Open Entries]
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -116,7 +116,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         NumberOfLedgerEntries: Integer;
     begin
         // [FEATURE] [Vendor - Open Entries]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post purchase order for vendor 'A', where "No." is 'A1', "External Document No." is 'E1'
         LibraryPurchase.CreateVendor(Vendor);
@@ -161,7 +161,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         NumberOfLedgerEntries: Integer;
     begin
         // [FEATURE] [Vendor - Open Entries] [External Document No.]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post purchase order for vendor 'A', where "No." is 'A1', "External Document No." is 'E1'
         LibraryPurchase.CreateVendor(Vendor);
@@ -200,14 +200,14 @@ codeunit 144182 "ERM NO Reports 3 Test"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
 
         // Lazy Setup.
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -315,7 +315,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         until (ReminderLine.Next = 0);
 
         ReminderIssue.Set(ReminderHeader, false, WorkDate);
-        ReminderIssue.Run;
+        ReminderIssue.Run();
         ReminderIssue.GetIssuedReminder(IssuedReminderHeader);
 
         // Excercise

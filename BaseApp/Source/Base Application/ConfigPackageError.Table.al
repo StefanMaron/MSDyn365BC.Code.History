@@ -102,7 +102,7 @@ table 8617 "Config. Package Error"
         ConfigPackageField.SetRange("Primary Key", true);
         i := 1;
         Clear(MatrixColumnCaptions);
-        if ConfigPackageField.FindSet then
+        if ConfigPackageField.FindSet() then
             repeat
                 MatrixColumnCaptions[i] := ConfigPackageField."Field Name";
                 i := i + 1;
@@ -121,7 +121,7 @@ table 8617 "Config. Package Error"
         ConfigPackageRecords.SetErrorFieldNo("Field ID");
         ConfigPackageRecords.Load(
           MatrixColumnCaptions, ConfigPackageTable."Table Caption", "Package Code", "Table ID", ConfigPackageField.Dimension);
-        ConfigPackageRecords.RunModal;
+        ConfigPackageRecords.RunModal();
     end;
 }
 

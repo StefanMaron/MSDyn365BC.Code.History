@@ -78,7 +78,7 @@ table 1205 "Credit Transfer Register"
     begin
         Reset;
         LockTable();
-        if FindLast then;
+        if FindLast() then;
         Init;
         "No." += 1;
         Identifier := NewIdentifier;

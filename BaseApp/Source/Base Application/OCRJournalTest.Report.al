@@ -179,7 +179,7 @@ report 15000100 "OCR Journal - Test"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry.FindSet then
+                                if not DimSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -899,7 +899,7 @@ report 15000100 "OCR Journal - Test"
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-                if not GenJnlAlloc.FindFirst then
+                if not GenJnlAlloc.FindFirst() then
                     AddError(Text061);
             end;
 
@@ -908,12 +908,12 @@ report 15000100 "OCR Journal - Test"
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
             GenJnlAlloc.SetFilter(Amount, '<>0');
-            if GenJnlAlloc.FindFirst then
+            if GenJnlAlloc.FindFirst() then
                 if not GenJnlTemplate.Recurring then
                     AddError(Text021)
                 else begin
                     GenJnlAlloc.SetRange("Account No.", '');
-                    if GenJnlAlloc.FindFirst then
+                    if GenJnlAlloc.FindFirst() then
                         AddError(
                           StrSubstNo(
                             Text022,
@@ -931,7 +931,7 @@ report 15000100 "OCR Journal - Test"
                 Month := Date2DMY("Posting Date", 2);
                 MonthText := Format("Posting Date", 0, Text023);
                 AccountingPeriod.SetRange("Starting Date", 0D, "Posting Date");
-                if not AccountingPeriod.FindLast then
+                if not AccountingPeriod.FindLast() then
                     AccountingPeriod.Name := '';
                 "Document No." :=
                   DelChr(
@@ -1199,7 +1199,7 @@ report 15000100 "OCR Journal - Test"
                         OldCustLedgEntry.SetCurrentKey("Document Type", "Document No.", "Customer No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldCustLedgEntry.FindFirst then
+                        if OldCustLedgEntry.FindFirst() then
                             AddError(StrSubstNo(Text039, "Document Type", "Document No."));
                     end;
 
@@ -1249,7 +1249,7 @@ report 15000100 "OCR Journal - Test"
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
                         OldVendLedgEntry.SetRange("Vendor No.", "Account No.");
-                        if OldVendLedgEntry.FindFirst then
+                        if OldVendLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 Text040,
@@ -1267,7 +1267,7 @@ report 15000100 "OCR Journal - Test"
                             OldVendLedgEntry.SetRange("Document Type", "Document Type");
                             OldVendLedgEntry.SetRange("External Document No.", "External Document No.");
                             OldVendLedgEntry.SetRange("Vendor No.", "Account No.");
-                            if OldVendLedgEntry.FindFirst then
+                            if OldVendLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     Text040,

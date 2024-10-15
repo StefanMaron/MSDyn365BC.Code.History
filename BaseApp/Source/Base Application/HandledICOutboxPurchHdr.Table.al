@@ -172,7 +172,7 @@ table 432 "Handled IC Outbox Purch. Hdr"
         HndlICOutboxPurchLine.SetRange("IC Partner Code", "IC Partner Code");
         HndlICOutboxPurchLine.SetRange("IC Transaction No.", "IC Transaction No.");
         HndlICOutboxPurchLine.SetRange("Transaction Source", "Transaction Source");
-        if HndlICOutboxPurchLine.FindFirst then
+        if HndlICOutboxPurchLine.FindFirst() then
             HndlICOutboxPurchLine.DeleteAll(true);
         DimMgt.DeleteICDocDim(
           DATABASE::"Handled IC Outbox Purch. Hdr", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);

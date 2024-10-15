@@ -1031,7 +1031,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
 
         CountryRegion.SetRange(Name, CountryOrRegion);
         if CountryRegion.Count = 1 then begin
-            CountryRegion.FindFirst;
+            CountryRegion.FindFirst();
             exit(CountryRegion.Code);
         end;
 
@@ -1060,7 +1060,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         RlshpMgtCommentLine.SetRange("Table Name", RlshpMgtCommentLine."Table Name"::Contact);
         RlshpMgtCommentLine.SetRange("No.", Contact."No.");
-        if RlshpMgtCommentLine.FindSet then
+        if RlshpMgtCommentLine.FindSet() then
             repeat
                 if (CommentString <> '') or (RlshpMgtCommentLine.Comment = '') then
                     CommentString += TypeHelper.CRLFSeparator;

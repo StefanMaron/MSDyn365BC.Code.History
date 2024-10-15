@@ -12,19 +12,19 @@ page 9067 "Resource Manager Activities"
             cuegroup(Allocation)
             {
                 Caption = 'Allocation';
-                field("Available Resources"; "Available Resources")
+                field("Available Resources"; Rec."Available Resources")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Resource List";
                     ToolTip = 'Specifies the number of available resources that are displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Jobs w/o Resource"; "Jobs w/o Resource")
+                field("Jobs w/o Resource"; Rec."Jobs w/o Resource")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job List";
                     ToolTip = 'Specifies the number of jobs without an assigned resource that are displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Unassigned Resource Groups"; "Unassigned Resource Groups")
+                field("Unassigned Resource Groups"; Rec."Unassigned Resource Groups")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Resource Groups";
@@ -49,33 +49,6 @@ page 9067 "Resource Manager Activities"
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
         }
     }
 
@@ -85,17 +58,14 @@ page 9067 "Resource Manager Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRange("Date Filter", WorkDate, WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetRange("Date Filter", WorkDate(), WorkDate());
+        Rec.SetRange("User ID Filter", UserId());
     end;
-
-    var
-        UserTaskManagement: Codeunit "User Task Management";
 }
 

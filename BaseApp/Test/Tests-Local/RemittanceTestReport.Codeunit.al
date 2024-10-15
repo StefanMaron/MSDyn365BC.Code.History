@@ -46,7 +46,7 @@ codeunit 144130 "Remittance - Test Report"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [Domestic Account] [BANK]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank", RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine);
 
@@ -69,7 +69,7 @@ codeunit 144130 "Remittance - Test Report"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // [FEATURE] [Foreign Account] [BANK]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank", RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, false);
 
@@ -95,7 +95,7 @@ codeunit 144130 "Remittance - Test Report"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [Foreign Account] [BANK]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank", RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, false);
 
@@ -115,7 +115,7 @@ codeunit 144130 "Remittance - Test Report"
         GenJournalLine2: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupDomesticRemittancePayment(
           PaymentSystem, RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine);
 
@@ -151,7 +151,7 @@ codeunit 144130 "Remittance - Test Report"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [Domestic Account] [BBS]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::BBS, RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine);
 
@@ -175,7 +175,7 @@ codeunit 144130 "Remittance - Test Report"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // [FEATURE] [Domestic Account] [Bank]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank", RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine);
 
@@ -261,7 +261,7 @@ codeunit 144130 "Remittance - Test Report"
         AmountTxt: Text;
     begin
         // [FEATURE] [Foreign Account] [Bank]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank", RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, false);
 
@@ -357,7 +357,7 @@ codeunit 144130 "Remittance - Test Report"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // [FEATURE] [Domestic Account] [Bank]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::Postbanken, RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine);
 
@@ -409,7 +409,7 @@ codeunit 144130 "Remittance - Test Report"
         MaxDate: Date;
     begin
         // [FEATURE] [Domestic Account] [BBS]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::BBS, RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine);
 
@@ -443,7 +443,7 @@ codeunit 144130 "Remittance - Test Report"
         MaxDate: Date;
     begin
         // [FEATURE] [Domestic Account] [Bank]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::Postbanken, RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine);
 
@@ -477,7 +477,7 @@ codeunit 144130 "Remittance - Test Report"
         MinDate: Date;
     begin
         // [FEATURE] [Domestic Account] [Bank]
-        Initialize;
+        Initialize();
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::Postbanken, RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine);
 
@@ -500,7 +500,7 @@ codeunit 144130 "Remittance - Test Report"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
 
         if isInitialized then

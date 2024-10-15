@@ -185,7 +185,7 @@ page 5086 "Campaign Card"
                     RunPageView = SORTING("Campaign No.");
                     ToolTip = 'View opportunities for the campaign.';
                 }
-#if not CLEAN17
+#if not CLEAN19
                 action("Sales &Prices")
                 {
                     ApplicationArea = RelationshipMgmt;

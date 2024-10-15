@@ -57,7 +57,7 @@ table 256 "VAT Statement Line"
                 if "Account Totaling" <> '' then begin
                     GLAcc.SetFilter("No.", "Account Totaling");
                     GLAcc.SetFilter("Account Type", '<> 0');
-                    if GLAcc.FindFirst then
+                    if GLAcc.FindFirst() then
                         GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
                 end;
             end;

@@ -44,7 +44,7 @@ codeunit 144103 "E-Invoice Sales"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceSalesInvoice;
 
@@ -61,7 +61,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice] [BBAN]
         // [SCENARIO 1.4.27] Bank Account, BBAN
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information is set up without IBAN
         // [GIVEN] Company information is set up with BBAN
@@ -90,7 +90,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice] [IBAN]
         // [SCENARIO 1.4.27] Bank Account, IBAN
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information is set up with IBAN
         // [GIVEN] Company information is set up without BBAN
@@ -120,7 +120,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice] [BBAN] [IBAN]
         // [SCENARIO 1.4.27] Bank Account, both IBAN and BBAN
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information is set up with both IBAN and BBAN
         BankAccountNo := '99-99-888';
@@ -154,7 +154,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         // Validate the child nodes of 'Delivery', on the Invoice Lines
-        Initialize;
+        Initialize();
 
         SalesInvoiceHeaderId := EInvoiceSalesHelper.CreateSalesInvoice;
         XMLFileName := ExecEInvoice(SalesInvoiceHeaderId);
@@ -174,7 +174,7 @@ codeunit 144103 "E-Invoice Sales"
         SalesNo: Code[20];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
@@ -202,7 +202,7 @@ codeunit 144103 "E-Invoice Sales"
         SalesNo: Code[20];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
@@ -225,7 +225,7 @@ codeunit 144103 "E-Invoice Sales"
     procedure EInvoiceSalesInvEndpointID()
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
         EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceSalesInvoice);
     end;
 
@@ -239,7 +239,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.10] Fixed value attributes added to sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted sales invoice
         SalesNo := EInvoiceSalesHelper.CreateSalesInvoice;
@@ -266,7 +266,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.10] Fixed value attributes added to sales invoice with invoiced quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted sales invoice
         SalesNo := EInvoiceSalesHelper.CreateSalesInvoice;
@@ -287,7 +287,7 @@ codeunit 144103 "E-Invoice Sales"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
         asserterror EInvoiceSalesHelper.CreateSalesInvoiceNoUNECECode;
         Assert.ExpectedError(
           StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption));
@@ -301,7 +301,7 @@ codeunit 144103 "E-Invoice Sales"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceSalesInvoice;
 
@@ -318,7 +318,7 @@ codeunit 144103 "E-Invoice Sales"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceSalesCrMemo;
 
@@ -341,7 +341,7 @@ codeunit 144103 "E-Invoice Sales"
         // [SCENARIO] AccountingSupplierParty, AccountingCustomerParty and Delivery (on the header) contain the updated UBL 2.1 xml
         // [SCENARIO] namely the AddressType used in PostalAddress and Delivery Address is changed, as well as the Customer Contact
         // [SCENARIO] additionally a node has been removed: AccountingSupplierParty/Party/Person (as well as AccountingCustomerParty/Party/Person)
-        Initialize;
+        Initialize();
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
@@ -367,7 +367,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice] [FCY]
         // [SCENARIO 1.4.10] Foreign currency exchange rate information is added to the Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sales invoice to export in a foreign currency with Tax Exchange Rate = X
         SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesDocInForeignCurrency(SalesHeader."Document Type"::Invoice);
@@ -385,7 +385,7 @@ codeunit 144103 "E-Invoice Sales"
     procedure SalesInvoiceWithAllVATGroups()
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         SalesInvoiceWithNoOfVATGroups(5);
     end;
@@ -414,7 +414,7 @@ codeunit 144103 "E-Invoice Sales"
     procedure SalesInvoiceWithOneVATGroup()
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         SalesInvoiceWithNoOfVATGroups(1);
     end;
@@ -430,7 +430,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice] [Reverse Charge]
         // [SCENARIO 1.4.8] VAT category Z is added to the sales Invoice with reversed VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sales Invoice to export with VAT % = 0 and Reverse Charge
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
@@ -457,7 +457,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.8] VAT category Z is added to the sales Invoice outside tax area
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sales Invoice to export with VAT % = 0 and Outside tax area
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
@@ -479,7 +479,7 @@ codeunit 144103 "E-Invoice Sales"
     procedure SalesInvoiceWithTwoVATGroups()
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         SalesInvoiceWithNoOfVATGroups(2);
     end;
@@ -496,7 +496,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.28] Customer without VAT Reg. No. in Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice to export to a customer with no VAT Reg. No.
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
@@ -526,7 +526,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.28] EndPointID contains customer VAT Reg No. in Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice to export where bill-to customer has "VAT  Reg. No." = X
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
@@ -553,7 +553,7 @@ codeunit 144103 "E-Invoice Sales"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         SalesNo := EInvoiceSalesHelper.CreateSalesInvoice;
         XmlFileName := ExecEInvoice(SalesNo);
@@ -576,7 +576,7 @@ codeunit 144103 "E-Invoice Sales"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceSalesCrMemo;
 
@@ -593,7 +593,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO] Validate the child nodes of 'Delivery', on the CreditNote Lines
-        Initialize;
+        Initialize();
 
         SalesCrMemoHeaderId := EInvoiceSalesHelper.CreateSalesCrMemo;
         XMLFileName := ExecECrMemo(SalesCrMemoHeaderId);
@@ -607,7 +607,7 @@ codeunit 144103 "E-Invoice Sales"
     procedure EInvoiceSalesCrMemoEndpointID()
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
         EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceSalesCrMemo);
     end;
 
@@ -622,7 +622,7 @@ codeunit 144103 "E-Invoice Sales"
         SalesNo: Code[20];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
 
@@ -649,7 +649,7 @@ codeunit 144103 "E-Invoice Sales"
         SalesNo: Code[20];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
@@ -676,7 +676,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.10] Fixed value attributes added to sales credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted sales invoice
         SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo;
@@ -701,7 +701,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.10] Fixed value attributes added to Sales Credut Memo with credited quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted sales invoice
         SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo;
@@ -722,7 +722,7 @@ codeunit 144103 "E-Invoice Sales"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
         asserterror EInvoiceSalesHelper.CreateSalesCrMemoNoUNECECode;
         Assert.ExpectedError(
           StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption));
@@ -742,7 +742,7 @@ codeunit 144103 "E-Invoice Sales"
         // [SCENARIO] AccountingSupplierParty, AccountingCustomerParty and Delivery (on the header) contain the updated UBL 2.1 xml
         // [SCENARIO] namely the AddressType used in PostalAddress and Delivery Address is changed, as well as the Customer Contact
         // [SCENARIO] additionally a node has been removed: AccountingSupplierParty/Party/Person (as well as AccountingCustomerParty/Party/Person)
-        Initialize;
+        Initialize();
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
@@ -768,7 +768,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.10] Foreign currency exchange rate information is added to the sales credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sales credit memo to export in a foreign currency with Tax Exchange Rate = X
         SalesCrMemoNo := EInvoiceSalesHelper.CreateSalesDocInForeignCurrency(SalesHeader."Document Type"::"Credit Memo");
@@ -786,7 +786,7 @@ codeunit 144103 "E-Invoice Sales"
     procedure SalesCrMemoWithOneVATGroup()
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         SalesCrMemoWithNoOfVATGroups(1);
     end;
@@ -797,7 +797,7 @@ codeunit 144103 "E-Invoice Sales"
     procedure SalesCrMemoWithTwoVATGroups()
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         SalesCrMemoWithNoOfVATGroups(2);
     end;
@@ -808,7 +808,7 @@ codeunit 144103 "E-Invoice Sales"
     procedure SalesCrMemoWithAllVATGroups()
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         SalesCrMemoWithNoOfVATGroups(5);
     end;
@@ -824,7 +824,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo] [Reverse Charge]
         // [SCENARIO 1.4.8] VAT category Z is added to the sales Credit Memo with reversed VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sales Credit Memo to export with VAT % = 0 and Reverse Charge
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
@@ -851,7 +851,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.8] VAT category Z is added to the sales Credit Memo outside tax area
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sales Credit Memo to export with VAT % = 0 and Outside tax area
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
@@ -897,7 +897,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.28] Customer without VAT Reg. No. in Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Credit Memo to export to a customer with no VAT Reg. No.
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
@@ -927,7 +927,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.28] EndPointID contains customer VAT Reg No. in Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice to export where bill-to customer has "VAT  Reg. No." = X
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
@@ -954,7 +954,7 @@ codeunit 144103 "E-Invoice Sales"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         SalesNo := EInvoiceSalesHelper.CreateSalesCrMemo;
         XmlFileName := ExecECrMemo(SalesNo);
@@ -1026,7 +1026,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [VAT Registration No.]
         // [SCENARIO] Export "VAT Registration No." to <CompanyID> tag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information "VAT Registration No."  = "GB123456789"
         // [GIVEN] Customer "VAT Registration No."  = "012345678"
@@ -1066,7 +1066,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 376010] Export Sales Invoice without "Your Reference"
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted sales invoice where "Your Reference" is blank
         SalesInvoiceNo := EInvoiceSalesHelper.CreateSalesInvoice;
@@ -1091,7 +1091,7 @@ codeunit 144103 "E-Invoice Sales"
         // [FEATURE] [Invoice] [UT]
         // [SCENARIO 375592] The value of the field "Account Code" should be transfered from "Sales Invoice Header" to field "Payment ID" in "E-Invoice Export Header" by TRANSFERFIELDS
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Account Code" in "Sales Invoice Header" = "X" (the value with maximum length for this field)
         SalesInvHeader.Init();
         SalesInvHeader."Account Code" :=
@@ -1136,7 +1136,7 @@ codeunit 144103 "E-Invoice Sales"
         // [FEATURE] [Invoice] [Rounding] [UT]
         // [SCENARIO 376699] E-Invoice document for Sales Invoice should be valid in case of Inv. Rounding Precision to the whole number
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inv. Rounding Precision to the whole number
         LibraryERM.SetInvRoundingPrecisionLCY(1.0);
@@ -1146,7 +1146,7 @@ codeunit 144103 "E-Invoice Sales"
 
         GLEntry.SetRange("Document No.", SalesInvoiceNo);
         GLEntry.SetFilter(Amount, '>%1', 0);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // [WHEN] Export sales invoice
         NOXMLReadHelper.Initialize(ExecEInvoice(SalesInvoiceNo));
@@ -1257,7 +1257,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [KID]
         // [SCENARIO 377047] Verify exported XML "PaymentID" node value in case of "KID Setup"::"Document No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Receivables Setup: "KID Setup" = "Document No.", "Document No. length" = 20
         EInvoiceHelper.KIDSetup(SalesReceivablesSetup."KID Setup"::"Document No.", 20, 0);
@@ -1287,7 +1287,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Discount] [Line Discount]
         // [SCENARIO 259032] Electronic Invoice exports "LineExtensionAmount" xml tag value including invoice/line discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with Amount = 700, including "Inv. Discount Amount" = 100, "Line Discount Amount" = 200
         SalesInvoiceNo := CreatePostSalesInvoiceWithDiscount(SalesLine, LibraryRandom.RandDecInRange(1000, 2000, 2), 1);
@@ -1321,7 +1321,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Discount] [Line Discount]
         // [SCENARIO 300762] Electronic Invoice exports "AllowanceCharge" tag value with Discount Amount per each VAT Prod. Posting Group
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with Line 1 of Amount = 700, including "Inv. Discount Amount" = 100, "Line Discount Amount" = 200
         // [GIVEN] Posted sales invoice with Line 2 of Amount = 500, including "Inv. Discount Amount" = 30, "Line Discount Amount" = 70
@@ -1362,7 +1362,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 300603] Electronic Invoice exports 'unitCode' EA for line of type G/L Account with blank Unit of Measure code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice where G/L Account line with blank Unit of Measure code
         DocumentNo := CreatePostSalesDocumentWithGLAccount(SalesHeader."Document Type"::Invoice);
@@ -1387,7 +1387,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 300603] Electronic Credit Memo exports 'unitCode' EA for line of type G/L Account with blank Unit of Measure code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales credit memo where G/L Account line with blank Unit of Measure code
         DocumentNo := CreatePostSalesDocumentWithGLAccount(SalesHeader."Document Type"::"Credit Memo");
@@ -1413,7 +1413,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         // [FEATURE] [Discount] [Line Discount] [Rounding]
         // [SCENARIO 308547] Electronic Invoice exports Unit Price and Quantity with all decimal places
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with Amount = 700, including "Inv. Discount Amount" = 100, "Line Discount Amount" = 200
         // [GIVEN] Unit Price = 1000.98765 and Quantity = 1.23456
@@ -1444,7 +1444,7 @@ codeunit 144103 "E-Invoice Sales"
         XmlFileName: Text[1024];
     begin
         // [SCENARIO 308770] Item line name is not truncated when export posted sales invoice as e-invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with an item.
         CreateAndPostSalesInvoice(Item, PostedSalesInvoiceNo);
@@ -1462,13 +1462,13 @@ codeunit 144103 "E-Invoice Sales"
         SalesHeader: Record "Sales Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         InitGlobalVATRates;
         ConfigureVATPostingSetup;
         SetCompanySwiftCode;
@@ -1484,7 +1484,7 @@ codeunit 144103 "E-Invoice Sales"
         EInvoiceExportHeader: Record "E-Invoice Export Header";
         DocumentTools: Codeunit DocumentTools;
     begin
-        Initialize;
+        Initialize();
         EInvoiceHelper.KIDSetup(KIDSetup, 10, 10);
 
         EInvoiceExportHeader."No." := GetEInvoiceNo(DigitDocNo);
@@ -1512,7 +1512,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         EInvoiceHelper.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        SalesHeader.Validate("Your Reference", LibraryUtility.GenerateGUID);
+        SalesHeader.Validate("Your Reference", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
         LibraryInventory.CreateItem(Item);
         Item.Validate(Description, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Item.Description), 1));

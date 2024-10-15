@@ -79,28 +79,7 @@ codeunit 10628 "E-Invoice Export Common"
         ZipOutStream: OutStream;
         ToFile: Text;
     begin
-        TempEInvoiceTransferFile.FindSet;
-#if not CLEAN17
-        if not FileManagement.IsLocalFileSystemAccessible then begin
-            DataCompression.CreateZipArchive;
-            repeat
-                FileManagement.BLOBImportFromServerFile(TempBlob, TempEInvoiceTransferFile."Server Temp File Name");
-                TempBlob.CreateInStream(ServerTempFileInStream);
-                DataCompression.AddEntry(ServerTempFileInStream, TempEInvoiceTransferFile."Local File Name");
-            until TempEInvoiceTransferFile.Next = 0;
-            ZipTempBlob.CreateOutStream(ZipOutStream);
-            DataCompression.SaveZipArchive(ZipOutStream);
-            DataCompression.CloseZipArchive();
-            ZipTempBlob.CreateInStream(ZipInStream);
-            ToFile := StrSubstNo('%1.zip', EInvoiceDocumentsTxt);
-            DownloadFromStream(ZipInStream, '', '', '', ToFile);
-        end else
-            repeat
-                FileManagement.DownloadToFile(
-                  TempEInvoiceTransferFile."Server Temp File Name",
-                  StrSubstNo('%1\%2', TempEInvoiceTransferFile."Local Path", TempEInvoiceTransferFile."Local File Name"));
-            until TempEInvoiceTransferFile.Next = 0;
-#else
+        TempEInvoiceTransferFile.FindSet();
         DataCompression.CreateZipArchive;
         repeat
             FileManagement.BLOBImportFromServerFile(TempBlob, TempEInvoiceTransferFile."Server Temp File Name");
@@ -113,7 +92,6 @@ codeunit 10628 "E-Invoice Export Common"
         ZipTempBlob.CreateInStream(ZipInStream);
         ToFile := StrSubstNo('%1.zip', EInvoiceDocumentsTxt);
         DownloadFromStream(ZipInStream, '', '', '', ToFile);
-#endif
     end;
 
     [Scope('OnPrem')]
@@ -329,12 +307,12 @@ codeunit 10628 "E-Invoice Export Common"
         VATProdPostingGroup: Code[20];
         DiscountAmount: Decimal;
     begin
-        if VATProductPostingGroup.FindSet then
+        if VATProductPostingGroup.FindSet() then
             repeat
                 TempEInvoiceExportLine.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
                 if not TempEInvoiceExportLine.IsEmpty() then begin
                     VATPercentage := 0.0;
-                    if TempEInvoiceExportLine.FindFirst then begin
+                    if TempEInvoiceExportLine.FindFirst() then begin
                         VATPercentage := TempEInvoiceExportLine."VAT %";
                         VATCalculationType := TempEInvoiceExportLine."VAT Calculation Type";
                         VATProdPostingGroup := TempEInvoiceExportLine."VAT Prod. Posting Group";
@@ -919,7 +897,7 @@ codeunit 10628 "E-Invoice Export Common"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
     begin
         FillVATAmountLines(TempVATAmountLine);
-        if TempVATAmountLine.FindSet then
+        if TempVATAmountLine.FindSet() then
             repeat
                 WriteTaxSubTotal(TempVATAmountLine);
             until TempVATAmountLine.Next() = 0;
@@ -944,7 +922,7 @@ codeunit 10628 "E-Invoice Export Common"
     begin
         TempEInvoiceExportLine.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         with TempEInvoiceExportLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not TempVATAmountLine.Get("VAT Identifier", "VAT Calculation Type", '', false, false) then begin
                         TempVATAmountLine.Init();
@@ -1060,7 +1038,7 @@ codeunit 10628 "E-Invoice Export Common"
         TempEInvoiceExportLine.Reset();
         TempEInvoiceExportLine.SetRange("VAT Identifier", TempVATAmountLine."VAT Identifier");
         TempEInvoiceExportLine.SetRange("VAT Calculation Type", TempVATAmountLine."VAT Calculation Type");
-        TempEInvoiceExportLine.FindFirst;
+        TempEInvoiceExportLine.FindFirst();
 
         // Header->TaxTotal->TaxSubtotal
         AddGroupNode(XMLCurrNode, 'TaxSubtotal', AggregateCompSpaceNameTxt, CACTxt);
@@ -1102,7 +1080,7 @@ codeunit 10628 "E-Invoice Export Common"
         // Header->TaxTotal->TaxSubtotal->TaxCategory->TaxExemptionReason
         if TaxCategoryID in ['K', 'Z', 'E'] then begin
             VATProductPostingGroup.SetRange(Code, TempEInvoiceExportLine."VAT Prod. Posting Group");
-            if VATProductPostingGroup.FindFirst then
+            if VATProductPostingGroup.FindFirst() then
                 AddNotEmptyNode(XMLCurrNode, 'TaxExemptionReason', VATProductPostingGroup.Description, BasicCompSpaceNameTxt, CBCTxt);
         end;
 

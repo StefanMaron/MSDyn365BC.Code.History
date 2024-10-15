@@ -574,20 +574,10 @@ report 10618 "Trade Settlement 2017"
                             Enabled = ExportXML;
                             ToolTip = 'Specifies XML file that information in the report is exported to.';
 
-#if not CLEAN17
-                            trigger OnAssistEdit()
-                            var
-                                FileManagement: Codeunit "File Management";
-                            begin
-                                ClientFileName :=
-                                    FileManagement.SaveFileDialog(XMLOpenFileDialogCaptionLbl, ClientFileName, FileManagement.GetToFilterText('', '.XML'));
-                            end;
-#else
                             trigger OnAssistEdit()
                             begin
                                 ClientFileName := XMLFileNameLbl;
                             end;
-#endif
                         }
 
                     }
@@ -726,9 +716,6 @@ report 10618 "Trade Settlement 2017"
         [InDataSet]
         ExportXML: Boolean;
         ClientFileName: Text;
-#if not CLEAN17
-        XMLOpenFileDialogCaptionLbl: Label 'Trade Settlement 2017 XML File Name';
-#endif
         HighLbl: Label ' High';
         MediumLbl: Label ' Medium';
         LowLbl: Label ' Low';
@@ -812,11 +799,7 @@ report 10618 "Trade Settlement 2017"
         TradeSettlement2017.SetDestination(OutStream);
         TradeSettlement2017.Export;
         ExportFile.Close;
-#if not CLEAN17
-        FileManagement.DownloadToFile(ServerFileName, FileManagement.CreateFileNameWithExtension(ClientFileName, '.xml'));
-#else
         FileManagement.DownloadHandler(ServerFileName, '', '', '', FileManagement.CreateFileNameWithExtension(ClientFileName, '.xml'));
-#endif
     end;
 
     local procedure CalculateVATBaseAndAmount(var Base: Decimal; var Amount: Decimal)
@@ -839,7 +822,7 @@ report 10618 "Trade Settlement 2017"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        if VATPostingSetup.FindSet then
+        if VATPostingSetup.FindSet() then
             repeat
                 TempVATPostingSetup.Init();
                 TempVATPostingSetup := VATPostingSetup;

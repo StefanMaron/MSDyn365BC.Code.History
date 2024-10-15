@@ -27,7 +27,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
         OCRSetup: Record "OCR Setup";
     begin
         // [SCENARIO 263861] OCR Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] OCR Setup with "Divergence Account No." = "G"
         OCRSetup.Get();
@@ -53,7 +53,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
         OCRSetupPage: TestPage "OCR Setup";
     begin
         // [SCENARIO 263861] OCR Setup page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] OCR Setup with "Divergence Account No." = "G"
         OCRSetup.Get();
@@ -76,7 +76,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
         RemittanceAccount: Record "Remittance Account";
     begin
         // [SCENARIO 263861] Remittance Account should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Remittance Account with "Round off/Divergence Acc. No." = "G"
         CreateRemittanceAccount(RemittanceAccount);
@@ -100,7 +100,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
         RemittanceAccountOverview: TestPage "Remittance Account Overview";
     begin
         // [SCENARIO 263861] Remittance Account Overview page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Remittance Account Code = "RA" with "Round off/Divergence Acc. No." = "G"
         CreateRemittanceAccount(RemittanceAccount);
@@ -115,7 +115,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
@@ -127,7 +127,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
         with RemittanceAccount do begin
             Init;
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Remittance Account");
-            "Round off/Divergence Acc. No." := LibraryERM.CreateGLAccountNo;
+            "Round off/Divergence Acc. No." := LibraryERM.CreateGLAccountNo();
             Insert;
         end;
     end;

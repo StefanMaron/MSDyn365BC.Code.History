@@ -8,7 +8,6 @@
 /// </summary>
 codeunit 9058 "Plan Upgrade Tag"
 {
-
     Access = Public;
 
     trigger OnRun()
@@ -21,6 +20,7 @@ codeunit 9058 "Plan Upgrade Tag"
         PerDatabaseUpgradeTags.Add(GetAddDeviceISVEmbUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRenamePlansUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRenameTeamMemberPlanUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetPlanfigurationsUpgradeTag());
     end;
 
     /// <summary>
@@ -38,7 +38,7 @@ codeunit 9058 "Plan Upgrade Tag"
     /// <returns>The rename plans upgrade tag.</returns>
     internal procedure GetRenamePlansUpgradeTag(): Code[250]
     begin
-        exit('MS-329421-RenamePlans-20211028'); // Renamed tag - MS-329421-RenamePlans-20191009 to run upgrade again.
+        exit('MS-329421-RenamePlans-20211028');
     end;
 
     /// <summary>
@@ -66,6 +66,11 @@ codeunit 9058 "Plan Upgrade Tag"
     internal procedure GetPremiumPartnerSandboxUpgradeTag(): Code[250]
     begin
         exit('MS-426983-AddPremiumPartnerSandbox-20220218');
+    end;
+
+    internal procedure GetPlanfigurationsUpgradeTag(): Code[250]
+    begin
+        exit('MS-430587-AddPlanConfigurations-20220321');
     end;
 }
 

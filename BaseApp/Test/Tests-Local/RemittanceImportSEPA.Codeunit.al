@@ -49,7 +49,7 @@ codeunit 144136 "Remittance - Import SEPA"
         // [SCENARIO] Run the remittance suggestion and export as a file. Check the waiting journal is created.
 
         // [GIVEN] Foreign remittance invoice
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupForeignRemittancePayment(
@@ -71,7 +71,7 @@ codeunit 144136 "Remittance - Import SEPA"
         RemittancePaymentOrder.Reset();
         Assert.AreEqual(
           NbRemittancePaymentOrders + 1, RemittancePaymentOrder.Count, 'Remittance Payment order count should have increased by 1.');
-        RemittancePaymentOrder.FindLast;
+        RemittancePaymentOrder.FindLast();
 
         // [THEN] SEPA Payment Inf ID is created from "External Document No." of the invoice (TFS 230901)
         Assert.IsTrue(WaitingJournal."SEPA Msg. ID" <> '', 'SEPA MSG ID is empty.');
@@ -113,7 +113,7 @@ codeunit 144136 "Remittance - Import SEPA"
         NbRemittancePaymentOrders: Integer;
     begin
         // [SCENARIO 197492] Export pain file, import a return file built to match it, and check the data was updated accordingly
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         RemittancePaymentOrderSent.Reset();
@@ -133,7 +133,7 @@ codeunit 144136 "Remittance - Import SEPA"
         // [GIVEN] Intermediary checks to be sure everything is created correctly
         GetWaitingJournal(WaitingJournal);
 
-        RemittancePaymentOrderSent.FindLast;
+        RemittancePaymentOrderSent.FindLast();
         Assert.AreEqual(
           WaitingJournal."Remittance Status"::Sent, WaitingJournal."Remittance Status", 'Waiting journal status is not Sent');
         Assert.AreEqual(
@@ -158,15 +158,12 @@ codeunit 144136 "Remittance - Import SEPA"
         Assert.AreEqual(
           RemittancePaymentOrderSent.ID, WaitingJournal."Payment Order ID - Sent",
           'Reference to payment order Sent has been changed in the waiting journal.');
-        RemittancePaymentOrderApproved.FindLast;
+        RemittancePaymentOrderApproved.FindLast();
         Assert.AreEqual(
           RemittancePaymentOrderApproved.ID, WaitingJournal."Payment Order ID - Approved",
           'Reference to payment order Approved is incorrect in waiting journal.');
 
         // [WHEN] Import the file from the bank (settlement of the payment)
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         FilePath := GeneratePain002File('ACSC');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
         NbRemittancePaymentOrders := RemittancePaymentOrderSent.Count();
@@ -174,7 +171,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
         // [THEN] Waiting journal is updated: "Remittance Status" = "Settled"
         GetWaitingJournal(WaitingJournal);
-        RemittancePaymentOrderSettled.FindLast;
+        RemittancePaymentOrderSettled.FindLast();
         Assert.AreEqual(
           NbRemittancePaymentOrders + 1, RemittancePaymentOrderSent.Count, 'Remittance Payment order count should have increased by 1.');
         Assert.AreEqual(
@@ -230,7 +227,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
         // [GIVEN] Foreign remittance invoice
         OldDate := UpdateWorkdate(Today);
-        Initialize;
+        Initialize();
         RemittancePaymentOrderSent.Reset();
 
         LibraryRemittance.SetupForeignRemittancePayment(
@@ -246,7 +243,7 @@ codeunit 144136 "Remittance - Import SEPA"
         // intermediary checks to be sure everything is created correctly
         GetWaitingJournal(WaitingJournal);
 
-        RemittancePaymentOrderSent.FindLast;
+        RemittancePaymentOrderSent.FindLast();
         Assert.AreEqual(
           RemittancePaymentOrderSent.ID, WaitingJournal."Payment Order ID - Sent",
           'Reference to payment order is incorrect in waiting journal.');
@@ -264,7 +261,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
         // [THEN] waiting journal, payment journal are updated
         GetWaitingJournal(WaitingJournal);
-        RemittancePaymentOrderSettled.FindLast;
+        RemittancePaymentOrderSettled.FindLast();
         Assert.AreEqual(
           NbRemittancePaymentOrders + 1, RemittancePaymentOrderSent.Count, 'Remittance Payment order count should have increased by 1.');
         Assert.AreEqual(
@@ -309,7 +306,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [SCENARIO] import a pain002 file and check it is imported in the specified journal
         // [GIVEN] Foreign remittance invoice
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupForeignRemittancePayment(
@@ -334,9 +331,6 @@ codeunit 144136 "Remittance - Import SEPA"
         FilePath := GeneratePain002File('ACCP');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
         ImportRemittancePaymentOrderFile(BatchName, ConfirmToImportTheLines, FilePath, 1, 0, 0);
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
 
         FilePath := GeneratePain002File('ACSC');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
@@ -369,7 +363,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [SCENARIO] import data from a pain002 file but select no at the end. Check no data is imported after all.
         // [GIVEN] Foreign remittance invoice
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupForeignRemittancePayment(
@@ -387,9 +381,6 @@ codeunit 144136 "Remittance - Import SEPA"
         FilePath := GeneratePain002File('ACCP');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
         ImportRemittancePaymentOrderFile(BatchName, ConfirmToImportTheLines, FilePath, 1, 0, 0);
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
 
         FilePath := GeneratePain002File('ACSC');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
@@ -421,7 +412,7 @@ codeunit 144136 "Remittance - Import SEPA"
         // [SCENARIO] import data but with the Control Batch checkbox enabled. Check no data is imported.
         // [GIVEN] Foreign remittance invoice
         OldDate := UpdateWorkdate(Today);
-        Initialize;
+        Initialize();
 
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"Other bank",
@@ -464,7 +455,7 @@ codeunit 144136 "Remittance - Import SEPA"
         OldDate: Date;
     begin
         // [SCENARIO 233366] When Stan performs import data to Payment Journal from Return File with Control Batch checkbox checked, return data is not imported.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Foreign remittance invoice
         OldDate := UpdateWorkdate(WorkDate);
@@ -510,7 +501,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 231460] There is an error factbox on a payment journal page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal with two lines:
         // [GIVEN] First line has two export processing errors "ERR1-1", "ERR1-2"
@@ -561,7 +552,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [FEATURE] [Waiting Journal] [Dimension]
         // [SCENARIO 233377] "Gen. Journal Line"."Dimension Set ID" is copying from "Waiting Journal" in "Import SEPA Common"."UpdateWaitingJournal"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Waiting Journal" with "Dimension Set ID" = 17
         MockWaitingJournal(WaitingJournal, GenJournalLine);
@@ -584,7 +575,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [FEATURE] [UT] [Waiting Journal] [Gen. Journal Line]
         // [SCENARIO 266335] Amounts, Currency Code and Factor in Gen. Journal Line are equal to Amounts, Currency Code and Factor in Waiting Journal after UpdateWaitingJournal is invoked in codeunit "Import SEPA Common"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Waiting Journal with "Currency Code" = "EUR", "Currency Factor" = 3.141593, Amount = 100.0 and "Amount (LCY)" = 31.83
         MockWaitingJournal(WaitingJournal, GenJournalLine);
@@ -615,7 +606,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 308307] COD 10635 "Import SEPA Common".ConfirmImportExchRateDialog() in case of positive confirm
-        Initialize;
+        Initialize();
         EnqueueConfirmImportWithDiffExchRate(true);
 
         Assert.IsTrue(ImportSEPACommon.ConfirmImportExchRateDialog, '');
@@ -632,7 +623,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 308307] COD 10635 "Import SEPA Common".ConfirmImportExchRateDialog() in case of negative confirm
-        Initialize;
+        Initialize();
         EnqueueConfirmImportWithDiffExchRate(false);
 
         asserterror ImportSEPACommon.ConfirmImportExchRateDialog;
@@ -1100,7 +1091,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [SCENARIO 341733] Stan can import the rejected pain.002 file with both status reason and additional information
 
-        Initialize;
+        Initialize();
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"Other bank",
@@ -1113,8 +1104,8 @@ codeunit 144136 "Remittance - Import SEPA"
         ClearAllGenJournalLines(GenJournalBatch);
 
         // [GIVEN] Rejected Pain.002 file with the reason code "X" and additional information text "Y"
-        ReasonText := LibraryUtility.GenerateGUID;
-        AdditionalInfo := LibraryUtility.GenerateGUID;
+        ReasonText := LibraryUtility.GenerateGUID();
+        AdditionalInfo := LibraryUtility.GenerateGUID();
         AddToNameValueBuffer(TempNameValueBuffer, '        <StsRsnInf>');
         AddToNameValueBuffer(TempNameValueBuffer, '          <Rsn>');
         AddToNameValueBuffer(TempNameValueBuffer, StrSubstNo('            <Cd>%1</Cd>', ReasonText));
@@ -1156,7 +1147,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [SCENARIO 341733] Stan can import the rejected pain.002 file with no status reason in the element <StsRsnInf>\<Rsn>\<Cd>
 
-        Initialize;
+        Initialize();
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"Other bank",
@@ -1169,7 +1160,7 @@ codeunit 144136 "Remittance - Import SEPA"
         ClearAllGenJournalLines(GenJournalBatch);
 
         // [GIVEN] Rejected Pain.002 file with the additional information text "Y" and without the reason of failure
-        AdditionalInfo := LibraryUtility.GenerateGUID;
+        AdditionalInfo := LibraryUtility.GenerateGUID();
         AddToNameValueBuffer(TempNameValueBuffer, '        <StsRsnInf>');
         AddToNameValueBuffer(TempNameValueBuffer, StrSubstNo('          <AddtlInf>%1</AddtlInf>', AdditionalInfo));
         AddToNameValueBuffer(TempNameValueBuffer, '        </StsRsnInf>');
@@ -1206,7 +1197,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         // [SCENARIO 341733] Stan can import the rejected pain.002 file with no status information
 
-        Initialize;
+        Initialize();
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"Other bank",
@@ -1242,14 +1233,14 @@ codeunit 144136 "Remittance - Import SEPA"
         Vendor: Record Vendor;
         ReturnError: Record "Return Error";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         WaitingJournal.DeleteAll();
         ReturnFileSetup.DeleteAll();
         VendorBankAccount.DeleteAll();
         Vendor.DeleteAll();
         ReturnError.DeleteAll;
 
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateLocalData();
         LibrarySetupStorage.Restore();
 
         if IsInitialized then
@@ -1264,7 +1255,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure PrepareDiffExchRateDetectionScenario(var LCYCode: Code[10]; var CurrencyCode: Code[10]; var Amount: Decimal; var AmountLCY: Decimal; var CurrencyFactor: Decimal)
     begin
-        Initialize;
+        Initialize();
         LCYCode := LibraryUtility.GenerateGUID();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -1353,7 +1344,7 @@ codeunit 144136 "Remittance - Import SEPA"
               GenJournalLine, "Journal Template Name", "Journal Batch Name", "Document Type"::Payment, "Account Type"::Vendor, '', 0);
         for i := 1 to ArrayLen(ErrorText) do begin
             ErrorText[i] := LibraryUtility.GenerateGUID();
-            PaymentJnlExportErrorText.CreateNew(GenJournalLine, ErrorText[i], LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+            PaymentJnlExportErrorText.CreateNew(GenJournalLine, ErrorText[i], LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         end;
     end;
 
@@ -1408,9 +1399,6 @@ codeunit 144136 "Remittance - Import SEPA"
         WaitingJournal: Record "Waiting Journal";
         XMLBuffer: Record "XML Buffer";
         ServerFileName: Text;
-#if not CLEAN17
-        ClientFileName: Text;
-#endif
     begin
         GetWaitingJournal(WaitingJournal);
         XMLBuffer.Reset();
@@ -1428,13 +1416,6 @@ codeunit 144136 "Remittance - Import SEPA"
         XMLBuffer.FindFirst();
         ServerFileName := FileMgt.ServerTempFileName('xml');
         XMLBuffer.Save(ServerFileName);
-
-#if not CLEAN17
-        ClientFileName := FileMgt.ClientTempFileName('xml');
-        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
-        FileMgt.DeleteServerFile(ServerFileName);
-        exit(ClientFileName);
-#endif
     end;
 
     local procedure GenerateCAMT054File(): Text
@@ -1447,12 +1428,6 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure GetClientFileFromServerFile(ServerFileName: Text) ClientFileName: Text
     begin
-#if not CLEAN17
-        ClientFileName := FileMgt.ClientTempFileName('xml');
-        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
-        FileMgt.DeleteServerFile(ServerFileName);
-        exit(ClientFileName);
-#endif
     end;
 
     local procedure UpdateXmlFileBasedOnNames(var XMLBuffer: Record "XML Buffer"; NameToSearch: Text[250]; ValueToUse: Text[250])
@@ -1532,7 +1507,7 @@ codeunit 144136 "Remittance - Import SEPA"
         WaitingJournal."Remittance Status" := WaitingJournal."Remittance Status"::Sent;
         WaitingJournal."Journal Template Name" := GenJournalBatch."Journal Template Name";
         WaitingJournal."Journal Batch Name" := GenJournalBatch.Name;
-        WaitingJournal."Account No." := LibraryPurchase.CreateVendorNo;
+        WaitingJournal."Account No." := LibraryPurchase.CreateVendorNo();
         WaitingJournal."SEPA Msg. ID" := LibraryUtility.GenerateGUID();
         WaitingJournal."SEPA Instr. ID" := LibraryUtility.GenerateGUID();
         WaitingJournal."SEPA End To End ID" := LibraryUtility.GenerateGUID();
@@ -2176,7 +2151,7 @@ codeunit 144136 "Remittance - Import SEPA"
         ReturnError: Record "Return Error";
     begin
         ReturnError.SetRange("Waiting Journal Reference", WaitingJournalReference);
-        ReturnError.FindFirst;
+        ReturnError.FindFirst();
         ReturnError.TestField("Message Text", ExpectedMessageText);
     end;
 
@@ -2238,9 +2213,6 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure Cleanup(FilePath: Text; OldDate: Date)
     begin
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 }

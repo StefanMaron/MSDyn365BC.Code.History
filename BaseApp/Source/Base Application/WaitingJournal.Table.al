@@ -34,12 +34,7 @@ table 15000004 "Waiting Journal"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Account No."));
             end;
         }
         field(5; "Posting Date"; Date)
@@ -84,12 +79,7 @@ table 15000004 "Waiting Journal"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
             end;
         }
         field(12; "Currency Code"; Code[10])
@@ -200,12 +190,7 @@ table 15000004 "Waiting Journal"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Salespers./Purch. Code"));
             end;
         }
         field(29; "Source Code"; Code[10])
@@ -256,12 +241,7 @@ table 15000004 "Waiting Journal"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Job No."));
             end;
         }
         field(43; Quantity; Decimal)
@@ -642,12 +622,7 @@ table 15000004 "Waiting Journal"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Campaign, "Campaign No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                CreateDimFromDefaultDim(FieldNo("Campaign No."));
             end;
         }
         field(5400; "Prod. Order No."; Code[20])
@@ -1013,6 +988,8 @@ table 15000004 "Waiting Journal"
         GenJnlLine.Modify();
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         TableID: array[10] of Integer;
@@ -1033,6 +1010,16 @@ table 15000004 "Waiting Journal"
         "Dimension Set ID" :=
           DimMgt.GetDefaultDimID(
             TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetDefaultDimID(
+            DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1084,6 +1071,30 @@ table 15000004 "Waiting Journal"
         GenJournalLine.Description := '';
         TransferFields(GenJournalLine);
         WriteDescription(TempDescription);
+    end;
+
+    procedure CreateDimFromDefaultDim(FromFieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FromFieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FromFieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.", FromFieldNo = Fieldno("Account No."));
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.", FromFieldNo = Fieldno("Bal. Account No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, "Job No.", FromFieldNo = FieldNo("Job No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", "Salespers./Purch. Code", FromFieldNo = FieldNo("Salespers./Purch. Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, "Campaign No.", FromFieldNo = FieldNo("Campaign No."));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var WaitingJournal: Record "Waiting Journal"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 }
 

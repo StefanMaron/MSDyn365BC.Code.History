@@ -157,7 +157,7 @@ report 99000791 "Production Order Statistics"
                 ProdOrderLine.SetRange(Status, Status);
                 ProdOrderLine.SetRange("Prod. Order No.", "No.");
                 ProdOrderLine.SetRange("Planning Level Code", 0);
-                if ProdOrderLine.FindSet then
+                if ProdOrderLine.FindSet() then
                     repeat
                         CostCalcMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
                         CostCalcMgt.CalcProdOrderLineStdCost(

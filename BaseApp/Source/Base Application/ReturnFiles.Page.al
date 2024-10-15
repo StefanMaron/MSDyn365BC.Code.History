@@ -24,11 +24,7 @@ page 15000008 "Return Files"
 
                     trigger OnAssistEdit()
                     begin
-#if not CLEAN17
-                        ComDlgFilename := CopyStr(FileMgt.OpenFileDialog(CopyStr(FieldCaption("File Name"), 1, 50), "File Name", ''), 1, 250);
-#else
                         ComDlgFilename := CopyStr(FileMgt.UploadFile(CopyStr(FieldCaption("File Name"), 1, 50), "File Name"), 1, 250);
-#endif
 
                         if ComDlgFilename <> '' then begin
                             Validate("File Name", ComDlgFilename);

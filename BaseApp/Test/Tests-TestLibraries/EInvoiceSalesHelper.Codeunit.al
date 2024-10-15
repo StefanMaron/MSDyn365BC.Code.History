@@ -18,7 +18,7 @@ codeunit 143000 "E-Invoice Sales Helper"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 UnitOfMeasure.Get(SalesLine."Unit of Measure");
                 if UnitOfMeasure."International Standard Code" <> ''
@@ -209,7 +209,7 @@ codeunit 143000 "E-Invoice Sales Helper"
         Invoice := true;
         LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice);
 
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         exit(CustLedgEntry."Document No.");
     end;
 

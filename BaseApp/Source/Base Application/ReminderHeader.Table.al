@@ -1,4 +1,4 @@
-table 295 "Reminder Header"
+﻿table 295 "Reminder Header"
 {
     Caption = 'Reminder Header';
     DataCaptionFields = "No.", Name;
@@ -32,11 +32,11 @@ table 295 "Reminder Header"
                 if CurrFieldNo = FieldNo("Customer No.") then
                     if Undo then begin
                         "Customer No." := xRec."Customer No.";
-                        CreateDim(DATABASE::Customer, "Customer No.");
+                        CreateDimFromDefaultDim();
                         exit;
                     end;
                 if "Customer No." = '' then begin
-                    CreateDim(DATABASE::Customer, "Customer No.");
+                    CreateDimFromDefaultDim();
                     exit;
                 end;
                 Cust.Get("Customer No.");
@@ -75,7 +75,7 @@ table 295 "Reminder Header"
                 OnValidateCustomerNoOnAfterAssignCustomerValues(Rec, Cust);
                 Validate("Reminder Terms Code");
 
-                CreateDim(DATABASE::Customer, "Customer No.");
+                CreateDimFromDefaultDim();
             end;
         }
         field(3; Name; Text[100])
@@ -166,6 +166,7 @@ table 295 "Reminder Header"
                         "Currency Code" := xRec."Currency Code";
                         exit;
                     end;
+                SetCompanyBankAccount();
             end;
         }
         field(13; Contact; Text[100])
@@ -436,6 +437,11 @@ table 295 "Reminder Header"
         {
             Caption = 'Post Add. Fee per Line';
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -633,6 +639,14 @@ table 295 "Reminder Header"
         OnAfterGetIssuingNoSeriesCode(Rec, IssuingNos);
     end;
 
+    local procedure SetCompanyBankAccount()
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        Validate("Company Bank Account Code", BankAccount.GetDefaultBankAccountNoForCurrency("Currency Code"));
+        OnAfterSetCompanyBankAccount(Rec, xRec);
+    end;
+
     procedure Undo(): Boolean
     begin
         ReminderLine.SetRange("Reminder No.", "No.");
@@ -660,7 +674,7 @@ table 295 "Reminder Header"
         CurrencyForReminderLevel.Init();
         ReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
         ReminderLevel.SetRange("No.", 1, "Reminder Level");
-        if ReminderLevel.FindLast then begin
+        if ReminderLevel.FindLast() then begin
             CalcFields("Remaining Amount");
             AdditionalFee := ReminderLevel.GetAdditionalFee("Remaining Amount", "Currency Code", false, "Posting Date");
             OnInsertLinesOnAfterCalcAdditionalFee(Rec, ReminderLevel, AdditionalFee);
@@ -699,8 +713,10 @@ table 295 "Reminder Header"
                       CurrencyForReminderLevel.FieldNo("Additional Fee")), 1, 100);
                 ReminderLine.Validate(Amount, AdditionalFee);
                 ReminderLine."Line Type" := ReminderLine."Line Type"::"Additional Fee";
+#if not CLEAN20                
                 OnBeforeInsertReminderTextLine(ReminderLine, ReminderText, ReminderHeader);
                 OnBeforeInsertReminderLine(ReminderLine);
+#endif
                 OnInsertLinesOnBeforeReminderLineInsert(Rec, ReminderLine);
                 ReminderLine.Insert();
                 if TransferExtendedText.ReminderCheckIfAnyExtText(ReminderLine, false) then
@@ -742,7 +758,7 @@ table 295 "Reminder Header"
         OnAfterUpdateLines(Rec);
     end;
 
-    local procedure InsertBeginTexts(ReminderHeader: Record "Reminder Header")
+    local procedure InsertBeginTexts(var ReminderHeader: Record "Reminder Header")
     var
         IsHandled: Boolean;
     begin
@@ -753,7 +769,7 @@ table 295 "Reminder Header"
 
         ReminderLevel.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
         ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level");
-        if ReminderLevel.FindLast then begin
+        if ReminderLevel.FindLast() then begin
             ReminderText.Reset();
             ReminderText.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
             ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
@@ -774,7 +790,7 @@ table 295 "Reminder Header"
         end;
     end;
 
-    local procedure InsertEndTexts(ReminderHeader: Record "Reminder Header")
+    local procedure InsertEndTexts(var ReminderHeader: Record "Reminder Header")
     var
         ReminderLine2: Record "Reminder Line";
         IsHandled: Boolean;
@@ -786,7 +802,7 @@ table 295 "Reminder Header"
 
         ReminderLevel.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
         ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level");
-        if ReminderLevel.FindLast then begin
+        if ReminderLevel.FindLast() then begin
             ReminderText.SetRange(
               "Reminder Terms Code", ReminderHeader."Reminder Terms Code");
             ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
@@ -800,7 +816,7 @@ table 295 "Reminder Header"
               ReminderLine."Line Type"::"Reminder Line",
               ReminderLine."Line Type"::"Additional Fee",
               ReminderLine."Line Type"::Rounding);
-            if ReminderLine.FindLast then
+            if ReminderLine.FindLast() then
                 NextLineNo := ReminderLine."Line No."
             else
                 NextLineNo := 0;
@@ -820,12 +836,12 @@ table 295 "Reminder Header"
         end;
     end;
 
-    local procedure InsertTextLines(ReminderHeader: Record "Reminder Header")
+    local procedure InsertTextLines(var ReminderHeader: Record "Reminder Header")
     begin
         InsertTextLines(ReminderHeader, ReminderText, NextLineNo, LineSpacing);
     end;
 
-    procedure InsertTextLines(ReminderHeader: Record "Reminder Header"; var ReminderText: Record "Reminder Text"; var NextLineNo: Integer; LineSpacing: Integer)
+    procedure InsertTextLines(var ReminderHeader: Record "Reminder Header"; var ReminderText: Record "Reminder Text"; var NextLineNo: Integer; LineSpacing: Integer)
     var
         CompanyInfo: Record "Company Information";
         AutoFormatType: Enum "Auto Format";
@@ -873,8 +889,10 @@ table 295 "Reminder Header"
                     ReminderLine."Line Type" := ReminderLine."Line Type"::"Beginning Text"
                 else
                     ReminderLine."Line Type" := ReminderLine."Line Type"::"Ending Text";
+#if not CLEAN20
                 OnBeforeInsertReminderTextLine(ReminderLine, ReminderText, ReminderHeader);
                 OnBeforeInsertReminderLine(ReminderLine);
+#endif
                 OnInsertTextLinesOnBeforeReminderLineInsert(ReminderLine, ReminderText, ReminderHeader);
                 ReminderLine.Insert();
             until ReminderText.Next() = 0;
@@ -889,7 +907,9 @@ table 295 "Reminder Header"
         ReminderLine.Init();
         ReminderLine."Line No." := NextLineNo;
         ReminderLine."Line Type" := LineType;
+#if not CLEAN20
         OnBeforeInsertReminderLine(ReminderLine);
+#endif
         OnInsertBlankLineOnBeforeReminderLineInsert(ReminderLine);
         ReminderLine.Insert();
     end;
@@ -901,7 +921,7 @@ table 295 "Reminder Header"
     begin
         with ReminderHeader do begin
             Copy(Rec);
-            FindFirst;
+            FindFirst();
             SetRecFilter;
             ReportSelection.PrintForCust(ReportSelection.Usage::"Rem.Test", ReminderHeader, FieldNo("Customer No."));
         end;
@@ -921,6 +941,8 @@ table 295 "Reminder Header"
         exit(true);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -945,6 +967,35 @@ table 295 "Reminder Header"
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Reminder, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+#if not CLEAN20
+        RunEventOnBeforeCreateDim(DefaultDimSource, IsHandled);
+#endif
+        OnBeforeCreateDimProcedure(Rec, CurrFieldNo, DefaultDimSource, IsHandled);
+        if not IsHandled then begin
+            SourceCodeSetup.Get();
+#if not CLEAN20
+            RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+            "Shortcut Dimension 1 Code" := '';
+            "Shortcut Dimension 2 Code" := '';
+            "Dimension Set ID" :=
+              DimMgt.GetRecDefaultDimID(
+                Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Reminder, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        end;
+#if not CLEAN20
+        RunEventOnAfterCreateDim(DefaultDimSource);
+#endif
+        OnAfterCreateDimProcedure(Rec, CurrFieldNo, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -980,7 +1031,7 @@ table 295 "Reminder Header"
                 Currency."Amount Rounding Precision"));
     end;
 
-    local procedure ReminderRounding(ReminderHeader: Record "Reminder Header")
+    local procedure ReminderRounding(var ReminderHeader: Record "Reminder Header")
     var
         ReminderRoundingAmount: Decimal;
         Handled: Boolean;
@@ -1029,12 +1080,12 @@ table 295 "Reminder Header"
         ReminderLine.Reset();
         ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::Rounding);
-        if ReminderLine.FindFirst then
+        if ReminderLine.FindFirst() then
             ReminderLine.Delete(true);
 
         ReminderLine.SetRange("Line Type");
         ReminderLine.SetFilter(Type, '<>%1', ReminderLine.Type::" ");
-        if ReminderLine.FindLast then begin
+        if ReminderLine.FindLast() then begin
             OldLineNo := ReminderLine."Line No.";
             ReminderLine.SetRange(Type);
             if ReminderLine.Next <> 0 then
@@ -1073,7 +1124,7 @@ table 295 "Reminder Header"
         ReminderLine: Record "Reminder Line";
     begin
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        if ReminderLine.FindLast then
+        if ReminderLine.FindLast() then
             exit(ReminderLine."Line No." + 10000);
         exit(10000);
     end;
@@ -1098,7 +1149,7 @@ table 295 "Reminder Header"
                 ReminderLine.Reset();
                 ReminderLine.SetRange("Reminder No.", "No.");
                 ReminderLine.SetFilter(Type, '>%1', ReminderLine.Type::" ");
-                if ReminderLine.FindSet then
+                if ReminderLine.FindSet() then
                     repeat
                         ReminderLine.Validate("Account Code", "Account Code");
                         ReminderLine.Modify(true);
@@ -1165,13 +1216,96 @@ table 295 "Reminder Header"
         end;
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Customer, Rec."Customer No.");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure RunEventOnBeforeCreateDim(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        Type1: Integer;
+        No1: Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Reminder Header") then
+            exit;
+
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Reminder Header", DefaultDimSource, TableID, No);
+        Type1 := TableID[1];
+        No1 := No[1];
+        OnBeforeCreateDim(Rec, CurrFieldNo, TableID, No, Type1, No1, SourceCodeSetup, IsHandled);
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Reminder Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Reminder Header") then
+            exit;
+
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Reminder Header", DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Reminder Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDim(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Reminder Header") then
+            exit;
+
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Reminder Header", DefaultDimSource, TableID, No);
+        OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Reminder Header", DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Replaced by OnAfterInitDefaultDimensionSources()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ReminderHeader: Record "Reminder Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ReminderHeader: Record "Reminder Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterCreateDimProcedure()', '20.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var ReminderHeader: Record "Reminder Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimProcedure(var ReminderHeader: Record "Reminder Header"; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimProcedure(var ReminderHeader: Record "Reminder Header"; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
@@ -1196,6 +1330,11 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCompanyBankAccount(var ReminderHeader: Record "Reminder Header"; xReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ReminderHeader: Record "Reminder Header"; var xReminderHeader: Record "Reminder Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -1210,10 +1349,13 @@ table 295 "Reminder Header"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnBeforeCreateDimProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var ReminderHeader: Record "Reminder Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; Type1: Integer; No1: Code[20]; SourceCodeSetup: Record "Source Code Setup"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoSeriesCode(var ReminderHeader: Record "Reminder Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
@@ -1225,6 +1367,7 @@ table 295 "Reminder Header"
     begin
     end;
 
+#if not CLEAN20
     [Obsolete('Replaced with OnInsertLinesOnBeforeReminderLineInsert', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertReminderLine(var ReminderLine: Record "Reminder Line")
@@ -1236,6 +1379,7 @@ table 295 "Reminder Header"
     local procedure OnBeforeInsertReminderTextLine(var ReminderLine: Record "Reminder Line"; var ReminderText: Record "Reminder Text"; var ReminderHeader: Record "Reminder Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertLinesOnBeforeReminderLineInsert(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")

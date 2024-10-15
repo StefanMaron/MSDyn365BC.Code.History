@@ -6,6 +6,7 @@ codeunit 1630 "Office Management"
         OfficeAddinTelemetryCategoryTxt: Label 'AL Office Add-in', Locked = true;
         UploadSuccessMsg: Label 'Sent %1 document(s) to the OCR service successfully.', Comment = '%1=number of documents';
         UploadIncomingDocumentSuccessMsg: Label 'Sent %1 document(s) to the Incoming Documents successfully.', Comment = '%1=number of documents';
+        UploadAttachmentSuccessMsg: Label 'Attached %1 document(s) successfully.', Comment = '%1=number of documents';
         AddinInitializedTelemetryTxt: Label 'Office add-in initialized%1  Host name: %2%1  Host Type: %3%1  Mode: %4%1  Command: %5', Locked = true;
         ClientExtensionTelemetryTxt: Label 'Invoking client-side extension: %1', Locked = true;
         HandlerCodeunitTelemetryTxt: Label 'Office add-in handler codeunit: %1', Locked = true;
@@ -180,6 +181,11 @@ codeunit 1630 "Office Management"
         Message(StrSubstNo(UploadIncomingDocumentSuccessMsg, UploadedDocumentCount));
     end;
 
+    procedure DisplayAttachmentUploadSuccessMessage(UploadedDocumentCount: Integer)
+    begin
+        Message(StrSubstNo(UploadAttachmentSuccessMsg, UploadedDocumentCount));
+    end;
+
     procedure DisplaySuccessMessage(var ExchangeObject: Record "Exchange Object")
     begin
         case ExchangeObject.InitiatedAction of
@@ -188,6 +194,9 @@ codeunit 1630 "Office Management"
 
             ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments:
                 DisplayIncomingDocumentUploadSuccessMessage(ExchangeObject.Count);
+
+            ExchangeObject.InitiatedAction::InitiateSendToAttachments:
+                DisplayAttachmentUploadSuccessMessage(ExchangeObject.Count);
         end
     end;
 
@@ -243,13 +252,24 @@ codeunit 1630 "Office Management"
             exit(OfficeHostManagement.EmailHasAttachments());
     end;
 
+    local procedure GetRecRefFromVendorNo(VendorNumber: Code[20]): RecordRef
+    var
+        Vendor: Record Vendor;
+        RecRef: RecordRef;
+    begin
+        Vendor.Validate("No.", VendorNumber);
+        Vendor.Get(VendorNumber);
+        RecRef.Get(Vendor.RecordId());
+        exit(RecRef);
+    end;
+
     procedure InitiateSendToOCR(VendorNumber: Code[20])
     var
         TempExchangeObject: Record "Exchange Object" temporary;
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
         OfficeHostManagement.GetEmailAndAttachments(TempExchangeObject,
-          TempExchangeObject.InitiatedAction::InitiateSendToOCR, VendorNumber);
+          TempExchangeObject.InitiatedAction::InitiateSendToOCR, GetRecRefFromVendorNo(VendorNumber));
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
         TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
@@ -268,9 +288,8 @@ codeunit 1630 "Office Management"
         OfficeOCRIncomingDocuments: Page "Office OCR Incoming Documents";
     begin
         OfficeHostManagement.GetEmailAndAttachments(TempExchangeObject,
-          TempExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, VendorNumber);
+          TempExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNumber));
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
-        TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
         if not TempExchangeObject.IsEmpty() then begin
             IncomingDocumentAttachment.Init();
@@ -290,12 +309,24 @@ codeunit 1630 "Office Management"
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
         OfficeHostManagement.GetEmailAndAttachments(TempExchangeObject,
-          TempExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, VendorNumber);
+          TempExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, GetRecRefFromVendorNo(VendorNumber));
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
-        TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
         if not TempExchangeObject.IsEmpty() then
             Page.Run(Page::"Office OCR Incoming Documents", TempExchangeObject);
+    end;
+
+    procedure InitiateSendToAttachments(RecRef: RecordRef)
+    var
+        TempExchangeObject: Record "Exchange Object" temporary;
+        OfficeHostManagement: Codeunit "Office Host Management";
+    begin
+        OfficeHostManagement.GetEmailAndAttachments(TempExchangeObject,
+          TempExchangeObject.InitiatedAction::InitiateSendToAttachments, RecRef);
+        TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
+        TempExchangeObject.SetRange(IsInline, false);
+        if not TempExchangeObject.IsEmpty() then
+            Page.RunModal(Page::"Office Attachments", TempExchangeObject);
     end;
 
     procedure InitiateSendApprovalRequest(VendorNumber: Code[20])
@@ -304,7 +335,7 @@ codeunit 1630 "Office Management"
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
         OfficeHostManagement.GetEmailAndAttachments(TempExchangeObject,
-          TempExchangeObject.InitiatedAction::InitiateSendToWorkFlow, VendorNumber);
+          TempExchangeObject.InitiatedAction::InitiateSendToWorkFlow, GetRecRefFromVendorNo(VendorNumber));
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
         TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
@@ -372,6 +403,7 @@ codeunit 1630 "Office Management"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         PurchaseHeader: Record "Purchase Header";
         ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
+        RecRef: RecordRef;
         InStream: InStream;
         OutStream: OutStream;
     begin
@@ -394,17 +426,40 @@ codeunit 1630 "Office Management"
             end;
 
             IncomingDocument.SetRange("Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
-            if IncomingDocument.FindFirst() then begin
-                Vendor.SetRange("No.", TempExchangeObject.VendorNo);
-                if Vendor.FindFirst() then begin
-                    IncomingDocument.Validate("Vendor Name", Vendor.Name);
-                    IncomingDocument.Validate("Vendor No.", Vendor."No.");
-                    IncomingDocument.Modify();
-                    exit(true);
+            if TempExchangeObject.RecId.TableNo = DATABASE::Vendor then begin
+                RecRef.Get(TempExchangeObject.RecId);
+                RecRef.SetTable(Vendor);
+                if IncomingDocument.FindFirst() then begin
+                    Vendor.SetRange("No.", Vendor."No.");
+                    if Vendor.FindFirst() then begin
+                        IncomingDocument.Validate("Vendor Name", Vendor.Name);
+                        IncomingDocument.Validate("Vendor No.", Vendor."No.");
+                        IncomingDocument.Modify();
+                        exit(true);
+                    end;
                 end;
             end;
+
             exit(false);
         end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SendToAttachments(var TempExchangeObject: Record "Exchange Object" temporary): Boolean
+    var
+        DocumentAttachment: Record "Document Attachment";
+        RecRef: RecordRef;
+        InStream: InStream;
+    begin
+        if TempExchangeObject.Type = TempExchangeObject.Type::Attachment then begin
+            TempExchangeObject.CalcFields(Content);
+            TempExchangeObject.Content.CreateInStream(InStream);
+            DocumentAttachment.Init();
+            RecRef.Get(TempExchangeObject.RecId);
+            DocumentAttachment.SaveAttachmentFromStream(InStream, RecRef, TempExchangeObject.Name);
+            exit(true);
+        end;
+        exit(false);
     end;
 
     procedure SendToOCR(var IncomingDocument: Record "Incoming Document")

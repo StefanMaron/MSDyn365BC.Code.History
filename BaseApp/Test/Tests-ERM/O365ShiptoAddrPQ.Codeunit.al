@@ -36,14 +36,14 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO] Ship-To is initialized to "Default (Company Address)" on a Purchase Quote in new mode
         // [WHEN] Annie opens a new Purchase Quote card
         // [THEN] Ship-To option is set to Default(Company Address)
-        Initialize;
+        Initialize();
 
         // Setup - Update address in Company Information
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.UpdateCompanyAddress;
 
         // Exercise - Open a New Purchase Quote
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         PurchaseQuote."Buy-from Vendor No.".SetValue(Vendor."No.");
 
         // Verify - ShipToOptions is set to default
@@ -72,7 +72,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO] Ship-To address fields is in sync with Location address fields when ShipToOption is set to a location
         // [WHEN] Annie selects ShipToOption as Location and selects a Location on a Purchase Quote
         // [THEN] Ship-To address fields are updated
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote with default ship to option
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -107,7 +107,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO] Ship-to address fields are editable when the ShipToOption is Custom Address on Purchase Quote
         // [WHEN] Annie creates a Purchase Quote and sets the ShipToOption as Custom Address
         // [THEN] The Ship-to address fields on the Purchase Quote page is editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -133,7 +133,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO] Ship-to address fields are not editable when the ShipToOption is Location on Purchase Quote
         // [WHEN] Annie creates a Purchase Quote and sets the ShipToOption as Location
         // [THEN] The Ship-to address fields on the Purchase Quote page is not editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -161,7 +161,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO] Ship-to address fields are not editable when the ShipToOption is Default on Purchase Quote
         // [WHEN] Annie creates a Purchase Quote and sets the ShipToOption as default
         // [THEN] The Ship-to address fields on the Purchase Quote page is not editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -185,7 +185,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO] ShipToOption = "Default (Company Address)" when opening an existing Purchase Quote with default company shipping address
         // [WHEN] Annie opens a Purchase Quote where the shipping address is set to default
         // [THEN] The Purchase Quote page has the ShipToOption set to "Default (Company Address)"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote with Company address as the shipping address
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -210,7 +210,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO] ShipToOption = "Location" when opening an existing Purchase Quote with location shipping address
         // [WHEN] Annie opens a Purchase Quote where a Location is set as the shipping address
         // [THEN] The Purchase Quote page has the ShipToOption set to "Location"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote with shipping address as a Location
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -235,11 +235,11 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO] ShipToOption  = "Custom Address" when opening an existing Purchase Quote with custom shipping address
         // [WHEN] Annie opens a Purchase Quote where a custom shipping address is set
         // [THEN] The Purchase Quote page has the ShipToOption set to "Custom Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote with Custom shipping address
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
-        PurchaseHeader.Validate("Ship-to Name", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Ship-to Name", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Quote
@@ -262,7 +262,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [THEN] The Purchase Quote page has the Location Code field hidden
         // [WHEN] Annie opens a Purchase Quote where the ShipToOption is set to Location
         // [THEN] Location Code field is visible
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -301,7 +301,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [THEN] The ShipToOptions on Purchase Quote page does not have Location as an option
         // [WHEN] Annie opens a Purchase Quote in company where Location app area is enabled
         // [THEN] The ShipToOptions on Purchase Quote page has Location as an option
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Quote with Custom shipping address
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -340,7 +340,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
     begin
         // [SCENARIO 255272] ShipToOption = "Default (Company Address)" when create a new Purchase Quote from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Quote Nos Series "Manual Nos." = FALSE (forces DocNoVisible = FALSE)
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // [GIVEN] Purchase Quote Nos Series "Manual Nos." = FALSE
@@ -370,7 +370,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
     begin
         // [SCENARIO 255272] ShipToOption = "Location" when create a new Purchase Quote from a Vendor card
         // [SCENARIO 255272] in case of Location and Purchase Quote Nos Series "Manual Nos." = FALSE (forces DocNoVisible = FALSE)
-        Initialize;
+        Initialize();
         CreateLocation(Location);
 
         // [GIVEN] Purchase Quote Nos Series "Manual Nos." = FALSE
@@ -402,7 +402,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
     begin
         // [SCENARIO 255272] ShipToOption = "Default (Company Address)" when create a new Purchase Quote from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Quote Nos Series "Manual Nos." = TRUE (forces DocNoVisible = TRUE)
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // [GIVEN] Purchase Quote Nos Series "Manual Nos." = TRUE
@@ -432,7 +432,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
     begin
         // [SCENARIO 255272] ShipToOption = "Location" when create a new Purchase Quote from a Vendor card
         // [SCENARIO 255272] in case of Location and Purchase Quote Nos Series "Manual Nos." = TRUE (forces DocNoVisible = TRUE)
-        Initialize;
+        Initialize();
         CreateLocation(Location);
 
         // [GIVEN] Purchase Quote Nos Series "Manual Nos." = TRUE
@@ -458,14 +458,14 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Ship-to Addr. P.Q");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         DocumentNoVisibility.ClearState();
 
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.Q");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -485,7 +485,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
     local procedure CreateLocation(var Location: Record Location)
     begin
         LibraryWarehouse.CreateLocation(Location);
-        Location.Validate(Name, LibraryUtility.GenerateGUID);
+        Location.Validate(Name, LibraryUtility.GenerateGUID());
         Location.Modify(true);
     end;
 

@@ -28,7 +28,7 @@ codeunit 144180 "ERM NO Reports Test"
         SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [Sales] [Sales Order Picking List]
-        Initialize;
+        Initialize();
 
         UpdateSalesSetup(false);
         UpdateGeneralLedgerSetup(true);
@@ -49,7 +49,7 @@ codeunit 144180 "ERM NO Reports Test"
         SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [Sales] [Sales Order Picking List]
-        Initialize;
+        Initialize();
 
         UpdateSalesSetup(false);
         UpdateGeneralLedgerSetup(true);
@@ -77,7 +77,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [Purchase] [Vendor - Balance]
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -106,7 +106,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [Purchase] [Vendor - Balance]
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise.
@@ -130,7 +130,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [Purchase] [Vendor - Balance]
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise.
@@ -150,7 +150,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [Vendor - Address List]
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate(Address, 'SomeAddressText');
         Vendor.Modify(true);
@@ -176,7 +176,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [Vendor - Address List]
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise.
@@ -199,7 +199,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [Customer - Address List]
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate(Address, 'SomeAddressText');
         Customer.Modify(true);
@@ -227,7 +227,7 @@ codeunit 144180 "ERM NO Reports Test"
         CustomerOrVendor: Text;
     begin
         // [FEATURE] [G/L Register Customer/Vendor]
-        Initialize;
+        Initialize();
 
         // Create  customer with VAT posting group
         UpdateSalesSetup(false);
@@ -238,7 +238,7 @@ codeunit 144180 "ERM NO Reports Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Find G/L Register number
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Run GLRegister for this entry number
         RunGLRegisterReport(GLRegister);
@@ -268,7 +268,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [UT] [Sales] [Sales Order Picking List]
         // [SCENARIO 308897] Usage options for Report Selections and Custom Report Selection are in sync for Sales Order Picking List
-        Initialize;
+        Initialize();
 
         CreateSalesDocumentWithOneItem(SalesHeader, SalesHeader."Document Type"::Order);
         asserterror DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Sales Order Picking List");
@@ -284,7 +284,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [UT] [Sales] [Sales Order Picking List]
         // [SCENARIO 308897] Usage options for Page "Report Selection - Sales" allows to add for Sales Order Picking List report
-        Initialize;
+        Initialize();
 
         ReportSelectionSales.OpenEdit;
         ReportSelectionSales.ReportUsage.SetValue(ReportUsage::"S.Sales Order Picking List");
@@ -303,7 +303,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [UT] [Trial Balance/Previous Period]
         // [SCENARIO 313367] Running "Trial Balance/Previous Period" for G/L Acounts with both "Income Statement" and "Balance Sheet" leads to IncomeHidden and BalanceHidden being set to FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts with "Income/Balance" set to "Income Statement" / "Balance Sheet".
         CreateGLAccountWithIncomeOrBalanceAndNewPage(GLAccount[1], GLAccount[1]."Income/Balance"::"Income Statement", false);
@@ -330,7 +330,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [UT] [Trial Balance/Previous Period]
         // [SCENARIO 313367] Running "Trial Balance/Previous Period" for G/L Acounts only with "Income Statement" leads to IncomeHidden and BalanceHidden being set to FALSE/TRUE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts with "Income/Balance" set to "Income Statement".
         CreateGLAccountWithIncomeOrBalanceAndNewPage(GLAccount, GLAccount."Income/Balance"::"Income Statement", false);
@@ -356,7 +356,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [UT] [Trial Balance/Previous Period]
         // [SCENARIO 313367] Running "Trial Balance/Previous Period" for G/L Acounts only with "Balance Sheet" leads to IncomeHidden and BalanceHidden being set to TRUE/FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts with "Income/Balance" set to "Balance Sheet".
         CreateGLAccountWithIncomeOrBalanceAndNewPage(GLAccount, GLAccount."Income/Balance"::"Balance Sheet", false);
@@ -382,7 +382,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [UT] [Trial Balance/Previous Period]
         // [SCENARIO 313367] Running "Trial Balance/Previous Period" for G/L Acounts with both "Income Statement" and "Balance Sheet" and "New Page" set to FALSE leads to IncomePageNo and BalancePageNo equal only to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts with "Income/Balance" set to "Income Statement" / "Balance Sheet" and "New Page" set to FALSE.
         CreateGLAccountWithIncomeOrBalanceAndNewPage(GLAccount[1], GLAccount[1]."Income/Balance"::"Income Statement", false);
@@ -414,7 +414,7 @@ codeunit 144180 "ERM NO Reports Test"
     begin
         // [FEATURE] [UT] [Trial Balance/Previous Period]
         // [SCENARIO 313367] Running "Trial Balance/Previous Period" for G/L Acounts with both "Income Statement" and "Balance Sheet" and "New Page" set to TRUE leads to IncomePageNo and BalancePageNo equal to 0 and 1.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts with "Income/Balance" set to "Income Statement" / "Balance Sheet" and "New Page" set to TRUE and FALSE.
         CreateGLAccountWithIncomeOrBalanceAndNewPage(GLAccount[1], GLAccount[1]."Income/Balance"::"Income Statement", true);
@@ -441,13 +441,13 @@ codeunit 144180 "ERM NO Reports Test"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -598,7 +598,7 @@ codeunit 144180 "ERM NO Reports Test"
         SalesOrderPickingList.SetTableView(SalesHeader);
         Commit();
         LibraryVariableStorage.Enqueue(ShowInternalInformation);
-        SalesOrderPickingList.Run;
+        SalesOrderPickingList.Run();
     end;
 
     local procedure RunVendorBalance(No: Code[20]; ShowOnlyIfNetChange: Boolean; ShowOnlyGroups: Boolean)
@@ -612,7 +612,7 @@ codeunit 144180 "ERM NO Reports Test"
         Commit();
         LibraryVariableStorage.Enqueue(ShowOnlyIfNetChange);
         LibraryVariableStorage.Enqueue(ShowOnlyGroups);
-        VendorBalance.Run;
+        VendorBalance.Run();
     end;
 
     local procedure RunVendorAddressList(No: Code[20])
@@ -627,7 +627,7 @@ codeunit 144180 "ERM NO Reports Test"
         end;
 
         Commit();
-        VendorAddressList.Run;
+        VendorAddressList.Run();
     end;
 
     local procedure RunCustomerAddressList(No: Code[20])
@@ -642,7 +642,7 @@ codeunit 144180 "ERM NO Reports Test"
         end;
 
         Commit();
-        CustomerAddressList.Run;
+        CustomerAddressList.Run();
     end;
 
     local procedure RunGLRegisterReport(var GLRegister: Record "G/L Register")
@@ -654,7 +654,7 @@ codeunit 144180 "ERM NO Reports Test"
         GLRegisterCustomerVendor.SetTableView(GLRegister);
 
         Commit();
-        GLRegisterCustomerVendor.Run;
+        GLRegisterCustomerVendor.Run();
     end;
 
     [RequestPageHandler]

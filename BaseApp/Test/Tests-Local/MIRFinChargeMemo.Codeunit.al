@@ -46,12 +46,12 @@ codeunit 144183 "MIR Fin. Charge Memo"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO 377597] Total sum should be correct in report Finance Charge Memo when parameter "Show MIR Detail" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issued Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Issued Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateIssuedFinanceChargeMemo(FinChargeMemoNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Finance Charge Memo" with "Show MIR Detail" = TRUE
         RunFinChargeMemoReport(FinChargeMemoNo, true);
@@ -71,12 +71,12 @@ codeunit 144183 "MIR Fin. Charge Memo"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO 377597] Total sum should be correct in report Finance Charge Memo when parameter "Show MIR Detail" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issued Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Issued Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateIssuedFinanceChargeMemo(FinChargeMemoNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Finance Charge Memo" with "Show MIR Detail" = FALSE
         RunFinChargeMemoReport(FinChargeMemoNo, false);
@@ -87,7 +87,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportDataset);
         Clear(LibraryReportValidation);
     end;
@@ -151,7 +151,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
         AmountLineDummy: array[5] of Decimal;
         AmountMIRLineDummy: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateIssuedFinanceChargeMemo(FinChargeMemoNo, LibraryRandom.RandIntInRange(2, 5), AmountLineDummy, AmountMIRLineDummy);
         RunFinChargeMemoReport(FinChargeMemoNo, ShowMIRDetail);

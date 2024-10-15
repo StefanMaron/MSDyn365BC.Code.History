@@ -50,8 +50,8 @@ codeunit 137038 "SCM Transfers"
         ItemNo: array[4] of Code[20];
     begin
         // Setup  : Update Sales Setup. Create Transfer setup
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
         CreateTransferSetup(SalesHeader, ItemNo, true);
 
         // Execute : Create Planning Worksheet and Calculate Net Change Plan.
@@ -80,8 +80,8 @@ codeunit 137038 "SCM Transfers"
         ItemNo: array[4] of Code[20];
     begin
         // Setup  : Update Sales Setup. Create Transfer setup.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
         CreateTransferSetup(SalesHeader, ItemNo, true);
 
         // Create and Update Purchase Order for ItemNo2 with LocationCode4.
@@ -116,7 +116,7 @@ codeunit 137038 "SCM Transfers"
         TransferOrderNo: Code[20];
     begin
         // SCENARIO: Create a transfer order with a big quantity decrease the quantity and check the notification is recalled.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(true);
         CreateTransferSetup(SalesHeader, ItemNo, true);
         TransferOrderNo := CreateTransferOrder(
@@ -133,7 +133,7 @@ codeunit 137038 "SCM Transfers"
         Assert.AreEqual(NbNotifs - 1, TempNotificationContext.Count, 'Unexpected number of notifications after decreasing the Quantity.');
 
         LibrarySales.SetStockoutWarning(false);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure EditTransferOrderQuantity(TransferOrderNo: Code[20]; TransferQuantity: Integer)
@@ -167,8 +167,8 @@ codeunit 137038 "SCM Transfers"
         ItemNo: array[4] of Code[20];
     begin
         // Setup  : Update Sales Setup. Create Transfer setup.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
         CreateTransferSetup(SalesHeader, ItemNo, true);
 
         // Create and Post Item Journal Line with Entry Type as Positive Adjustment.
@@ -209,8 +209,8 @@ codeunit 137038 "SCM Transfers"
         ItemNo: array[4] of Code[20];
     begin
         // Setup  : Update Sales Setup. Create Transfer setup.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
         CreateTransferSetup(SalesHeader, ItemNo, false);
 
         // Create Transfer Order.
@@ -282,7 +282,7 @@ codeunit 137038 "SCM Transfers"
         // [SCENARIO] Can Change "Transfer-to Code" for Transfer Order if it contains description line.
 
         // [GIVEN] Transfer Order with description line.
-        Initialize;
+        Initialize();
         CreateUpdateLocations;
         CreateTransferRoutes;
 
@@ -311,7 +311,7 @@ codeunit 137038 "SCM Transfers"
         // [SCENARIO] Field "Appl.-to Item Entry" is available for Transfer Order Lines.
 
         // [GIVEN] Item "I" available on Location "A", stock is positively adjusted by ILE no. "N"
-        Initialize;
+        Initialize();
         CreateUpdateLocations;
 
         LibraryInventory.CreateItem(Item);
@@ -352,7 +352,7 @@ codeunit 137038 "SCM Transfers"
         // [SCENARIO] Average cost Item is not adjusted when used transfer order with fixed application.
 
         // [GIVEN] Item "I" available on Location "A", stock is positively adjusted by 2 ILE: "1" of cost "X" and "2" of cost "Y"
-        Initialize;
+        Initialize();
         CreateUpdateLocations;
 
         LibraryInventory.CreateItem(Item);
@@ -483,7 +483,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378688] TransferLine."Item No." can be changed after posting error ("Post" action)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer order with two lines: item "A", item "B" (items are not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
@@ -494,7 +494,7 @@ codeunit 137038 "SCM Transfers"
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(ItemIsNotOnInventoryErr, TransferLine[1]."Item No."));
         // [GIVEN] Enter a new "Item No." into first transfer line: item "C"
-        NewItemNo := LibraryInventory.CreateItemNo;
+        NewItemNo := LibraryInventory.CreateItemNo();
         TransferOrder.TransferLines."Item No.".SetValue(NewItemNo);
 
         // [WHEN] Move to the second transfer line
@@ -517,7 +517,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378688] TransferLine."Item No." can be changed after posting error ("Post And Print" action)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer order with two lines: item "A", item "B" (items are not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
@@ -528,7 +528,7 @@ codeunit 137038 "SCM Transfers"
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(ItemIsNotOnInventoryErr, TransferLine[1]."Item No."));
         // [GIVEN] Enter a new "Item No." into first transfer line: item "C"
-        NewItem1No := LibraryInventory.CreateItemNo;
+        NewItem1No := LibraryInventory.CreateItemNo();
         TransferOrder.TransferLines."Item No.".SetValue(NewItem1No);
 
         // [WHEN] Move to the second transfer line
@@ -550,7 +550,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378688] Second "Post" of transfer order gets the same error as the first one: "Item X is not in inventory."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer order with a new item "X" (not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
@@ -580,7 +580,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378688] Second "Post And Print" of transfer order gets the same error as the first one: "Item X is not in inventory."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer order with a new item "X" (not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
@@ -610,7 +610,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378688] Second "Post" of transfer order (from Transfer List page) gets the same error as the first one: "Item X is not in inventory."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer order with a new item "X" (not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
@@ -640,7 +640,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378688] Second "Post And Print" of transfer order (from Transfer List page) gets the same error as the first one: "Item X is not in inventory."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer order with a new item "X" (not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
@@ -670,7 +670,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer] [Dimension] [Partial Posting]
         // [SCENARIO 378707] Shortcut Dimension 1 Code on Transfer Line is updated after the change of dimension value is confirmed on Transfer Header.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -701,7 +701,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer] [Dimension] [Partial Posting]
         // [SCENARIO 378707] Shortcut Dimension 1 Code on Transfer Line is not updated if the change of dimension value is not confirmed on Transfer Header.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -733,7 +733,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer] [Dimension] [Partial Posting]
         // [SCENARIO 378707] Shortcut Dimension 1 Code on Transfer Line is updated after the change of dimension value is confirmed on Transfer Order page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -769,7 +769,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer] [Dimension] [Partial Posting]
         // [SCENARIO 378707] Shortcut Dimension 1 Code on Transfer Line is not updated if the change of dimension value is not confirmed on Transfer Order page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -804,7 +804,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer] [Dimension] [Partial Posting]
         // [SCENARIO 378707] Shortcut Dimension 1 Code on Transfer Line is updated after the change of dimension value is confirmed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -833,7 +833,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer] [Dimension] [Partial Posting]
         // [SCENARIO 378707] Shortcut Dimension 1 Code on Transfer Line is not updated if the change of dimension value is not confirmed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -862,7 +862,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer] [Dimension] [Partial Posting]
         // [SCENARIO 378707] Shortcut Dimension 1 Code on Transfer Line is updated after the change of dimension value is confirmed on Transfer Order subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -895,7 +895,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Transfer] [Dimension] [Partial Posting]
         // [SCENARIO 378707] Shortcut Dimension 1 Code on Transfer Line is not updated if the change of dimension value is not confirmed on Transfer Order subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -926,7 +926,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request] [Warehouse Receipt]
         // [SCENARIO 381426] Warehouse Request is created for shipped not received Transfer Order when "Require Receipt" is set on destination Location. The status of the Whse. Request matches the status of the Transfer Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with inventory on Location "L1".
         // [GIVEN] Two partially shipped not received Transfer Orders "T1", "T2" from "L1" to Location "L2".
@@ -960,7 +960,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request] [Inventory Put-away]
         // [SCENARIO 381426] Warehouse Request is created for shipped not received Transfer Order when "Require Put-away" is set on destination Location. The status of the Whse. Request matches the status of the Transfer Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with inventory on Location "L1".
         // [GIVEN] Two partially shipped not received Transfer Orders "T1", "T2" from "L1" to Location "L2".
@@ -994,7 +994,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request]
         // [SCENARIO 381426] No Warehouse Request is created for not shipped Transfer Order when "Require Receipt" is set on destination Location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with inventory on Location "L1".
         // [GIVEN] Not shipped Transfer Order "T" from "L1" to Location "L2".
@@ -1021,7 +1021,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request]
         // [SCENARIO 381426] Transfer Order can be received with no warehouse handling when "Require Receipt" is turned on and then off on destination Location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with inventory on Location "L1".
         // [GIVEN] Partly shipped Transfer Order "T" from "L1" to Location "L2".
@@ -1054,8 +1054,8 @@ codeunit 137038 "SCM Transfers"
         ShipmentDateOnLine: Date;
     begin
         // [SCENARIO 380067] Shipment Date on Transfer Order subpage is updated after Shipment Date on the header page is updated directly.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Transfer Order with a new line on the subpage.
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
@@ -1077,8 +1077,8 @@ codeunit 137038 "SCM Transfers"
         ShippingTime: DateFormula;
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated through new Shipping Time.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Transfer Order with a new line on the subpage.
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
@@ -1098,8 +1098,8 @@ codeunit 137038 "SCM Transfers"
         TransferOrder: TestPage "Transfer Order";
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated directly.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Transfer Order with a new line on the subpage.
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
@@ -1119,8 +1119,8 @@ codeunit 137038 "SCM Transfers"
         OutboundWhseHandlingTime: DateFormula;
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated through new Outbound Whse. Handling Time.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Transfer Order with a new line on the subpage.
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
@@ -1141,8 +1141,8 @@ codeunit 137038 "SCM Transfers"
         InboundWhseHandlingTime: DateFormula;
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated through new Inbound Whse. Handling Time.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Transfer Order with a new line on the subpage.
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
@@ -1164,8 +1164,8 @@ codeunit 137038 "SCM Transfers"
         ShippingAgentServiceCode: Code[10];
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated through new Shipping Agent Code.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Shipping Agent with Shipping Agent Service.
         CreateShippingAgentCodeAndService(ShippingAgentCode, ShippingAgentServiceCode);
@@ -1189,8 +1189,8 @@ codeunit 137038 "SCM Transfers"
         ShippingAgentServiceCode: Code[10];
     begin
         // [SCENARIO 380067] Receipt Date on Transfer Order subpage is updated after Receipt Date on the header page is updated through new Shipping Agent Service Code.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Shipping Agent with Shipping Agent Service.
         CreateShippingAgentCodeAndService(ShippingAgentCode, ShippingAgentServiceCode);
@@ -1215,7 +1215,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request] [UT]
         // [SCENARIO 381426] Existed inbound warehouse request is updated when CreateInboundWhseRequest function in Codeunit 5773 is called.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order "T".
         MockTransferOrder(TransferHeader);
@@ -1232,7 +1232,7 @@ codeunit 137038 "SCM Transfers"
         with WarehouseRequest do begin
             FilterWhseRequest(
               WarehouseRequest, Type::Inbound, TransferHeader."Transfer-to Code", 1, TransferHeader."No.");
-            FindFirst;
+            FindFirst();
             VerifyWhseRequest(
               WarehouseRequest, TransferHeader, SourceDocument::"Inb. Transfer", TransferHeader."Completely Received",
               "Shipment Date", TransferHeader."Receipt Date");
@@ -1249,7 +1249,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request] [UT]
         // [SCENARIO 381426] New inbound warehouse request is not created when CreateInboundWhseRequest function in Codeunit 5773 is called from Transfer Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order "T".
         MockTransferOrder(TransferHeader);
@@ -1278,7 +1278,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request] [UT]
         // [SCENARIO 381426] New inbound warehouse request is created when CreateInboundWhseRequest function in Codeunit 5773 is called indirectly if inbound request does not exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order "T".
         MockTransferOrder(TransferHeader);
@@ -1296,7 +1296,7 @@ codeunit 137038 "SCM Transfers"
         with WarehouseRequest do begin
             FilterWhseRequest(
               WarehouseRequest, Type::Inbound, TransferHeader."Transfer-to Code", 1, TransferHeader."No.");
-            FindFirst;
+            FindFirst();
             VerifyWhseRequest(
               WarehouseRequest, TransferHeader, SourceDocument::"Inb. Transfer", TransferHeader."Completely Received",
               0D, TransferHeader."Receipt Date");
@@ -1313,7 +1313,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request] [UT]
         // [SCENARIO 381426] Existed outbound warehouse request is updated when CreateOutboundWhseRequest function in Codeunit 5773 is called.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order "T".
         MockTransferOrder(TransferHeader);
@@ -1330,7 +1330,7 @@ codeunit 137038 "SCM Transfers"
         with WarehouseRequest do begin
             FilterWhseRequest(
               WarehouseRequest, Type::Outbound, TransferHeader."Transfer-from Code", 0, TransferHeader."No.");
-            FindFirst;
+            FindFirst();
             VerifyWhseRequest(
               WarehouseRequest, TransferHeader, SourceDocument::"Outb. Transfer", TransferHeader."Completely Shipped",
               "Shipment Date", "Expected Receipt Date");
@@ -1347,7 +1347,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Request] [UT]
         // [SCENARIO 381426] New outbound warehouse request is created when CreateOutboundWhseRequest function in Codeunit 5773 is called if outbound request does not exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order "T".
         MockTransferOrder(TransferHeader);
@@ -1363,7 +1363,7 @@ codeunit 137038 "SCM Transfers"
         with WarehouseRequest do begin
             FilterWhseRequest(
               WarehouseRequest, Type::Outbound, TransferHeader."Transfer-from Code", 0, TransferHeader."No.");
-            FindFirst;
+            FindFirst();
             VerifyWhseRequest(
               WarehouseRequest, TransferHeader, SourceDocument::"Outb. Transfer", TransferHeader."Completely Shipped",
               "Shipment Date", 0D);
@@ -1387,7 +1387,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Warehouse Receipt]
         // [SCENARIO 235005] New warehouse receipt for transfer order includes only additional quantity shipped after existing warehouse receipts were created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L1" and "L2". "L2" is set up for required receipt.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationFrom);
@@ -1429,7 +1429,7 @@ codeunit 137038 "SCM Transfers"
         // [THEN] Quantity on the warehouse receipt "R2" is equal to 5 "BOX" (6 "BOX" in transit + 2 "BOX" received - 3 "BOX" outstanding in "R1").
         // [THEN] "Qty. (Base)" = 25 "PC" (5 "PC" in each "BOX").
         FilterWhseReceiptLine(WarehouseReceiptLine, DATABASE::"Transfer Line", TransferHeader."No.");
-        WarehouseReceiptLine.FindLast;
+        WarehouseReceiptLine.FindLast();
         WarehouseReceiptLine.TestField(Quantity, 5);
         WarehouseReceiptLine.TestField("Qty. (Base)", 5 * QtyInUOM);
 
@@ -1448,7 +1448,7 @@ codeunit 137038 "SCM Transfers"
         TransferOrder: TestPage "Transfer Order";
     begin
         // [SCENARIO] Transfer fields are disabled on Transfer Order page when the document is partially shipped.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with partly shipped line
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -1473,7 +1473,7 @@ codeunit 137038 "SCM Transfers"
         TransferOrder: TestPage "Transfer Order";
     begin
         // [SCENARIO] Transfer fields are editable on Transfer Order page with no shipped lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with new transfer line initialized
         // [WHEN] Transfer Order is opened
@@ -1506,7 +1506,7 @@ codeunit 137038 "SCM Transfers"
         // [FEATURE] [Transfer Order] [Transfer Shipment] [Shipping Agent Service]
         // [SCENARIO 267371] Empty value of Shipping Agent Service Code must be transferred from Warehouse Shipment to Transfer Order when Warehouse Shipment is being posted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create LocationFrom, LocationTo and LocationInTransit. LocationFrom is set up for Whse Shipment
         LibraryWarehouse.CreateLocationWMS(LocationFrom, false, false, false, false, true);
@@ -1569,11 +1569,11 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 291763] The program does not suggest changing Item No. on transfer line when there are several items with the same description.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two items "I1", "I2" with the same Description and "Description 2".
-        Desc := LibraryUtility.GenerateGUID;
-        Desc2 := LibraryUtility.GenerateGUID;
+        Desc := LibraryUtility.GenerateGUID();
+        Desc2 := LibraryUtility.GenerateGUID();
         for i := 1 to ArrayLen(Item) do begin
             LibraryInventory.CreateItem(Item[i]);
             Item[i].Description := Desc;
@@ -1599,7 +1599,7 @@ codeunit 137038 "SCM Transfers"
         // [THEN] The selected item no. is saved.
         // [THEN] Description and "Description 2" are updated on the transfer line.
         TransferLine.SetRange("Document No.", TransferHeader."No.");
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField("Item No.", Item[2]."No.");
         TransferLine.TestField(Description, Desc);
         TransferLine.TestField("Description 2", Desc2);
@@ -1622,7 +1622,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 278834] Function "Get Receipt Lines" creates transfer lines from selected purchase receipt lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] New location "LOC1"
         for i := 1 to 2 do
@@ -1651,7 +1651,7 @@ codeunit 137038 "SCM Transfers"
         // [WHEN] Receipt line with item "ITEM1" selected
         // [THEN] Transfer line created with item "ITEM1" and quantity "X"
         TransferLine.SetRange("Document No.", TransferHeader."No.");
-        TransferLine.FindLast;
+        TransferLine.FindLast();
         TransferLine.TestField("Item No.", PurchRcptLine."No.");
         TransferLine.TestField(Quantity, PurchRcptLine.Quantity);
     end;
@@ -1666,7 +1666,7 @@ codeunit 137038 "SCM Transfers"
         Item: Record Item;
     begin
         // [SCENARIO 315589] Transfer Order is posted in case Transfer From Location Code contains special characters, that are used in filters (=<>.@&()"|).
-        Initialize;
+        Initialize();
 
         // [GIVEN] Locations "L1" and "L2". "L1" Code field contains special characters, that are used in filters.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
@@ -1697,7 +1697,7 @@ codeunit 137038 "SCM Transfers"
         VariantCode: Code[10];
     begin
         // [SCENARIO 315589] Transfer Order is posted in case Variant Code of an Item contains special characters, that are used in filters (=<>.@&()"|).
-        Initialize;
+        Initialize();
 
         // [GIVEN] Locations "L1" and "L2".
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
@@ -1733,7 +1733,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [Direct Transfer] [Item Application]
         // [SCENARIO 321891] Intermediate item entry with blank location is not applied to existing negative item entries while posting direct transfer.
-        Initialize;
+        Initialize();
         QtyOnStock := LibraryRandom.RandIntInRange(100, 200);
         QtyTransferred := LibraryRandom.RandInt(10);
 
@@ -1767,7 +1767,7 @@ codeunit 137038 "SCM Transfers"
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
         ItemLedgerEntry.SetRange("Location Code", '');
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Remaining Quantity", -QtyOnStock);
     end;
 
@@ -1790,7 +1790,7 @@ codeunit 137038 "SCM Transfers"
         // [FEATURE] [Get Receipt Lines] [Unit of Measure Code] [Item Variant]
         // [SCENARIO 328925] "Get Receipt Lines" function copies correct Unit Of Measure Code from the Receipt to Transfer Order Line
         // [SCENARIO 328925] "Get Receipt Lines" function copies correct Variant Code from the Receipt to Transfer Order Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM1" with Unit of Measure Code "UOM1" and Item Variant "ITEM1V1"
         LibraryInventory.CreateItem(Item);
@@ -1809,7 +1809,7 @@ codeunit 137038 "SCM Transfers"
         PurchaseLine.Modify(true);
         PurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         PurchRcptLine.SetRange("Document No.", PurchaseReceiptNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         // [GIVEN] Create transfer order from location "LOC1" to "LOC2"
         LibraryWarehouse.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
@@ -1822,7 +1822,7 @@ codeunit 137038 "SCM Transfers"
         // [THEN] Transfer line created with item "ITEM1", Unit Of Measure Code = "UOM1", Variant Code = "ITEM1V1"
         TransferLine.SetRange("Document No.", TransferHeader."No.");
         TransferLine.SetRange("Item No.", PurchRcptLine."No.");
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
         TransferLine.TestField("Unit of Measure", PurchRcptLine."Unit of Measure");
         TransferLine.TestField("Variant Code", ItemVariant.Code);
@@ -1840,7 +1840,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [UT] [Transfer Receipt] [Item Charge] [Purchase]
         // [SCENARIO 335337] Transfer Receipt Lines with blank Item No. and zero Quantity can't be assigned to Item Charges
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Receipt "TR1"
         TransferReceiptHeader.Init();
@@ -1885,7 +1885,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [UI] [Transfer Order] 
         // [SCENARIO 335337] "Quantity Shipped" DrillDown filters lines by "Line No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Partly shipped Transfer Order "T" from "L1" to Location "L2".
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -1909,7 +1909,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [UI] [Transfer Order] 
         // [SCENARIO 335337] "Quantity Received" DrillDown filters lines by "Line No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Partly Received Transfer Order "T" from "L1" to Location "L2".
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
@@ -1938,7 +1938,7 @@ codeunit 137038 "SCM Transfers"
     begin
         // [FEATURE] [UI] [Transfer Order] 
         // [SCENARIO 335337] "Quantity Shipped" DrillDown opens proper line when tranfer order shipped line by line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order "T" from "L1" to Location "L2".
         CreateTransferOrderHeader(TransferHeader);
@@ -2649,16 +2649,16 @@ codeunit 137038 "SCM Transfers"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Transfers");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Transfers");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateInventoryPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -2673,7 +2673,7 @@ codeunit 137038 "SCM Transfers"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
         CreateTransferRouteSetup(LocationCode);
         MockReqTransferOrderLines(RequisitionLine, LocationCode);
         RunRequisitionCarryOutReport(RequisitionLine, Combine);
@@ -2868,7 +2868,7 @@ codeunit 137038 "SCM Transfers"
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::Planning);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         ClearReqWkshBatch(RequisitionWkshName);
 
         RequisitionLine.Init();
@@ -2914,7 +2914,7 @@ codeunit 137038 "SCM Transfers"
 
         WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Transfer Line");
         WarehouseShipmentLine.SetRange("Source No.", TransferHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.Validate("Qty. to Ship", QtyToShip);
         WarehouseShipmentLine.Modify(true);
 
@@ -2930,7 +2930,7 @@ codeunit 137038 "SCM Transfers"
         LibraryWarehouse.CreateWhseReceiptFromTO(TransferHeader);
 
         FilterWhseReceiptLine(WarehouseReceiptLine, DATABASE::"Transfer Line", TransferHeader."No.");
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WarehouseReceiptLine.Validate("Qty. to Receive", QtyToReceive);
         WarehouseReceiptLine.Modify(true);
 
@@ -2956,7 +2956,7 @@ codeunit 137038 "SCM Transfers"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchRcptHeader.FindLast;
+        PurchRcptHeader.FindLast();
         exit(PurchRcptHeader."No.");
     end;
 
@@ -3215,12 +3215,12 @@ codeunit 137038 "SCM Transfers"
         with TransferHeader do begin
             Init;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Transfer Header");
-            "Transfer-from Code" := LibraryUtility.GenerateGUID;
-            "Transfer-to Code" := LibraryUtility.GenerateGUID;
+            "Transfer-from Code" := LibraryUtility.GenerateGUID();
+            "Transfer-to Code" := LibraryUtility.GenerateGUID();
             Status := Status::Open;
-            "External Document No." := LibraryUtility.GenerateGUID;
-            "Shipment Method Code" := LibraryUtility.GenerateGUID;
-            "Shipping Agent Code" := LibraryUtility.GenerateGUID;
+            "External Document No." := LibraryUtility.GenerateGUID();
+            "Shipment Method Code" := LibraryUtility.GenerateGUID();
+            "Shipping Agent Code" := LibraryUtility.GenerateGUID();
             "Shipping Advice" := "Shipping Advice"::Complete;
             "Shipment Date" := LibraryRandom.RandDate(10);
             "Receipt Date" := LibraryRandom.RandDateFromInRange(WorkDate, 11, 20);
@@ -3296,8 +3296,8 @@ codeunit 137038 "SCM Transfers"
         CalculatePlanPlanWksh.SetTableView(Item);
         CalculatePlanPlanWksh.InitializeRequest(StartDate, CalcDate('<30D>', StartDate), false);
         CalculatePlanPlanWksh.UseRequestPage(false);
-        CalculatePlanPlanWksh.RunModal;
-        if not RequisitionLine.FindFirst then
+        CalculatePlanPlanWksh.RunModal();
+        if not RequisitionLine.FindFirst() then
             RequisitionLine.SetUpNewLine(RequisitionLine);
     end;
 
@@ -3314,7 +3314,7 @@ codeunit 137038 "SCM Transfers"
         UpdatePlanningWorkSheet(RequisitionLine, ItemNo);
 
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::"Req.");
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         CarryOutActionMsgPlan.SetReqWkshLine(RequisitionLine);
         CarryOutActionMsgPlan.InitializeRequest2(
           NewProdOrderChoice::Planned,
@@ -3325,7 +3325,7 @@ codeunit 137038 "SCM Transfers"
           RequisitionWkshName.Name);
         CarryOutActionMsgPlan.SetTableView(RequisitionLine);
         CarryOutActionMsgPlan.UseRequestPage(false);
-        CarryOutActionMsgPlan.Run;
+        CarryOutActionMsgPlan.Run();
     end;
 
     local procedure FindRandomReceiptLine(PurchRcptNo: Code[20]; var PurchRcptLine: Record "Purch. Rcpt. Line")
@@ -3433,7 +3433,7 @@ codeunit 137038 "SCM Transfers"
     begin
         StockkeepingUnit.SetRange("Location Code", LocationCode);
         StockkeepingUnit.SetRange("Item No.", ItemNo);
-        StockkeepingUnit.FindFirst;
+        StockkeepingUnit.FindFirst();
     end;
 
     local procedure RequisitionCarryOutActMessage(ItemNo: array[4] of Code[20])
@@ -3460,7 +3460,7 @@ codeunit 137038 "SCM Transfers"
         LibraryVariableStorage.Enqueue(CombineTransfers);
         CarryOutActionMsgPlan.SetReqWkshLine(RequisitionLine);
         CarryOutActionMsgPlan.UseRequestPage(true);
-        CarryOutActionMsgPlan.RunModal;
+        CarryOutActionMsgPlan.RunModal();
     end;
 
     local procedure ClearReqWkshBatch(RequisitionWkshName: Record "Requisition Wksh. Name")
@@ -3488,7 +3488,7 @@ codeunit 137038 "SCM Transfers"
     begin
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
-            FindLast;
+            FindLast();
             exit("Entry No.");
         end;
     end;
@@ -3499,7 +3499,7 @@ codeunit 137038 "SCM Transfers"
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::Planning);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
 
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("No.", ItemNo[1], ItemNo[4]);
@@ -3511,7 +3511,7 @@ codeunit 137038 "SCM Transfers"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure VerifyReqLineActMessageCancel(ItemNo: Code[20])
@@ -3520,7 +3520,7 @@ codeunit 137038 "SCM Transfers"
     begin
         RequisitionLine.SetRange("Action Message", RequisitionLine."Action Message"::Cancel);
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure VerifyTransferOrderCount(LocationFromCode: Code[10]; LocationToCode: Code[10]; ExpectedCount: Integer)
@@ -3550,9 +3550,9 @@ codeunit 137038 "SCM Transfers"
     begin
         with ItemApplicationEntry do begin
             SetRange("Item Ledger Entry No.", FindLastILENo(ItemNo));
-            FindLast;
+            FindLast();
             SetRange("Item Ledger Entry No.", "Outbound Item Entry No.");
-            FindLast;
+            FindLast();
             TestField("Inbound Item Entry No.", AppliedToEntryNo);
             TestField("Cost Application", true);
         end;
@@ -3580,7 +3580,7 @@ codeunit 137038 "SCM Transfers"
     begin
         DimMgt.GetDimensionSet(TempDimensionSetEntry, DimSetID);
         TempDimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
-        TempDimensionSetEntry.FindFirst;
+        TempDimensionSetEntry.FindFirst();
         TempDimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
     end;
 
@@ -3717,7 +3717,7 @@ codeunit 137038 "SCM Transfers"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         PurchRcptLine.SetRange("No.", LibraryVariableStorage.DequeueText);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         PostedPurchaseReceiptLines.SetRecord(PurchRcptLine);
 
         Response := ACTION::LookupOK;

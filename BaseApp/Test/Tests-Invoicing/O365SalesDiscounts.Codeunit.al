@@ -273,7 +273,7 @@ codeunit 138920 "O365 Sales Discounts"
     end;
 
     [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend,SalesInvoiceDiscountAmountOK_MPH,O365EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,SalesInvoiceDiscountAmountOK_MPH,O365EmailDialogModalPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure InvoiceDiscountInPostedInvoicePage()
     var
@@ -287,7 +287,6 @@ codeunit 138920 "O365 Sales Discounts"
     begin
         // [SCENARIO 203621] Posted invoice page displays invoice discount
         Initialize();
-        ClearSMTPMailSetup;
 
         // [GIVEN] Create customer XXX
         CreateCustomer(Customer, false);
@@ -296,9 +295,9 @@ codeunit 138920 "O365 Sales Discounts"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create invoice for customer XXX with item YYY
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         CreateInvoiceSalesLine(SalesLine, Item.Description);
@@ -350,7 +349,7 @@ codeunit 138920 "O365 Sales Discounts"
     end;
 
     [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend,O365EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,ConfirmHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,O365EmailDialogModalPageHandler,MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure LineDiscountInPostedInvoicePage()
     var
@@ -365,7 +364,6 @@ codeunit 138920 "O365 Sales Discounts"
     begin
         // [SCENARIO 203621] Posted invoice page displays line discount
         Initialize();
-        ClearSMTPMailSetup;
 
         // [GIVEN] Create customer XXX
         CreateCustomer(Customer, false);
@@ -374,9 +372,9 @@ codeunit 138920 "O365 Sales Discounts"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create invoice for customer XXX with item YYY
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         O365SalesInvoiceLineCard.OpenEdit;
         O365SalesInvoiceLineCard.GotoRecord(SalesLine);
@@ -477,7 +475,7 @@ codeunit 138920 "O365 Sales Discounts"
     end;
 
     [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend,SalesInvoiceDiscountAmountOK_MPH,O365EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,SalesInvoiceDiscountAmountOK_MPH,O365EmailDialogModalPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure SubtotalAmountInPostInvoicePage()
     var
@@ -493,7 +491,6 @@ codeunit 138920 "O365 Sales Discounts"
     begin
         // [SCENARIO 208536] Posted invoice page displays subtotal amount
         Initialize();
-        ClearSMTPMailSetup;
 
         // [GIVEN] Create customer XXX
         CreateCustomer(Customer, false);
@@ -502,10 +499,10 @@ codeunit 138920 "O365 Sales Discounts"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create invoice for customer XXX with item YYY
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         CreateInvoiceSalesLine(SalesLine, Item.Description);
@@ -611,13 +608,6 @@ codeunit 138920 "O365 Sales Discounts"
         end;
     end;
 
-    local procedure ClearSMTPMailSetup()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        SMTPMailSetup.DeleteAll();
-    end;
-
     local procedure CreateCustomer(var Customer: Record Customer; PricesIncludingVAT: Boolean)
     begin
         LibrarySales.CreateCustomer(Customer);
@@ -650,10 +640,10 @@ codeunit 138920 "O365 Sales Discounts"
         SalesLine: Record "Sales Line";
     begin
         LibraryInventory.CreateItem(Item);
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
 
         O365SalesInvoice."Sell-to Customer Name".Value(Customer.Name);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         CreateInvoiceSalesLine(SalesLine, Item.Description);
@@ -670,10 +660,10 @@ codeunit 138920 "O365 Sales Discounts"
         SalesLine: Record "Sales Line";
     begin
         LibraryInventory.CreateItem(Item);
-        O365SalesQuote.OpenNew;
+        O365SalesQuote.OpenNew();
         O365SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         CreateInvoiceSalesLine(SalesLine, Item.Description);
@@ -722,14 +712,14 @@ codeunit 138920 "O365 Sales Discounts"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", InvoiceNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindQuoteFirstSalesLine(QuoteNo: Code[20]; var SalesLine: Record "Sales Line")
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
         SalesLine.SetRange("Document No.", QuoteNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure MockInvoicePageRefreshOnActivate(var O365SalesInvoice: TestPage "O365 Sales Invoice")
@@ -737,7 +727,7 @@ codeunit 138920 "O365 Sales Discounts"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         O365SalesInvoice.GotoRecord(SalesHeader);
     end;
 
@@ -759,7 +749,7 @@ codeunit 138920 "O365 Sales Discounts"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         exit(SalesHeader."No.");
     end;
 
@@ -844,21 +834,6 @@ codeunit 138920 "O365 Sales Discounts"
     begin
         O365SalesEmailDialog.SendToText.Value('test@microsoft.com');
         O365SalesEmailDialog.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure BCEmailSetupPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
-    var
-        EmailProvider: Option "Office 365",Other;
-    begin
-        with BCO365EmailSetupWizard.EmailSettingsWizardPage do begin
-            "Email Provider".SetValue(EmailProvider::"Office 365");
-            FromAccount.SetValue('test@microsoft.com');
-            Password.SetValue('pass');
-        end;
-
-        BCO365EmailSetupWizard.OK.Invoke;
     end;
 
     [MessageHandler]

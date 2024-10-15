@@ -4,10 +4,16 @@
       "path": "./recommendedapps/test/Recommended Apps Tests"
     },
     {
+      "path": "./PlanConfiguration/Test/_Exclude_PlanConfiguration_ Tests"
+    },
+    {
       "path": "./AMCBanking365Fundamentals/Test/AMC Banking 365 Fundamentals Test Automations"
     },
     {
       "path": "./ImageAnalysis/Test/Image Analyzer Tests"
+    },
+    {
+      "path": "./BankDeposits/Test/_Exclude_Bank Deposits Tests"
     },
     {
       "path": "./DataArchive/test/Data Archive Tests"
@@ -130,9 +136,6 @@
       "path": "./BaseApp/Test/Tests-SMB"
     },
     {
-      "path": "./BaseApp/Test/Tests-SMTP"
-    },
-    {
       "path": "./BaseApp/Test/Tests-TestLibraries"
     },
     {
@@ -157,10 +160,10 @@
       "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
     },
     {
-      "path": "./CompanyHub/Test/Company Hub Tests"
+      "path": "./NorwegianSAFT/Test/Standard Audit File - Tax Localization for Norway Tests"
     },
     {
-      "path": "./NorwegianSAFT/Test/Standard Audit File - Tax Localization for Norway Tests"
+      "path": "./EmailLogging/Test/_Exclude_Email Logging Using Graph API Tests"
     },
     {
       "path": "./ImportNOPayroll/Test/Payroll Data Import Definition (NO) Tests"
@@ -173,6 +176,12 @@
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
+    },
+    {
+      "path": "./Email - SMTP API/Test Library/Email - SMTP API Test Library"
+    },
+    {
+      "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
     },
     {
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"

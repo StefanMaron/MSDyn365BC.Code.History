@@ -41,19 +41,19 @@ report 10645 "Create Elec. Service Cr. Memos"
                 ServCrMemoHeader.Copy("Service Cr.Memo Header");
                 ServCrMemoHeader.FilterGroup(6);
                 ServCrMemoHeader.SetRange("E-Invoice", true);
-                if not ServCrMemoHeader.FindFirst then
+                if not ServCrMemoHeader.FindFirst() then
                     Error(Text003);
 
                 // All electronic service credit memos?
                 ServCrMemoHeader.SetRange("E-Invoice", false);
-                if ServCrMemoHeader.FindFirst then
+                if ServCrMemoHeader.FindFirst() then
                     if not Confirm(Text000, true) then
                         CurrReport.Quit;
                 ServCrMemoHeader.SetRange("E-Invoice");
 
                 // Some already sent?
                 ServCrMemoHeader.SetRange("E-Invoice Created", true);
-                if ServCrMemoHeader.FindFirst then
+                if ServCrMemoHeader.FindFirst() then
                     if not Confirm(Text001) then
                         CurrReport.Quit;
 

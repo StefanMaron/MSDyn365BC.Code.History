@@ -12,6 +12,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -21,6 +22,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPatterns: Codeunit "Library - Patterns";
         isInitialized: Boolean;
@@ -48,7 +50,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Lot No. on Item Tracking Appendix Report for Sales Quote.
 
         // [GIVEN] Create and post Purchase Order, create Sales Quote.
-        Initialize;
+        Initialize();
         SalesDocumentForItemTrackingAppendixReport(SalesLine."Document Type"::Quote, DocType::"Sales Quote");
     end;
 
@@ -63,7 +65,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Lot No. on Item Tracking Appendix Report for Sales Order.
 
         // [GIVEN] Create and post Purchase Order, create Sales Order.
-        Initialize;
+        Initialize();
         SalesDocumentForItemTrackingAppendixReport(SalesLine."Document Type"::Order, DocType::"Sales Order");
     end;
 
@@ -78,7 +80,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Lot No. on Item Tracking Appendix Report for Sales Invoice.
 
         // [GIVEN] Create and post Purchase Order, create Sales Invoice.
-        Initialize;
+        Initialize();
         SalesDocumentForItemTrackingAppendixReport(SalesLine."Document Type"::Invoice, DocType::"Sales Invoice");
     end;
 
@@ -112,7 +114,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Lot No. on Item Tracking Appendix Report for Posted Sales Shipment.
 
         // [GIVEN] Create and post Purchase Order, create and post Sales Order.
-        Initialize;
+        Initialize();
         LotNo := PostPurchaseOrderAndCreateSalesDoc(SalesLine, SalesLine."Document Type"::Order, TrackingOption::SelectEntries);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -137,7 +139,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Lot No. on Item Tracking Appendix Report for Sales Credit Memo.
 
         // [GIVEN] Create and post Purchase Order, create Sales Credit Memo.
-        Initialize;
+        Initialize();
         PostPurchaseOrderAndCreateSalesDoc(SalesLine, SalesLine."Document Type"::"Credit Memo", TrackingOption::AssignLotNo);
         LibraryVariableStorage.Dequeue(LotNo);
         EnqueueValuesForItemTrackingAppendixReport(DocType::"Sales Credit Memo", SalesLine."Document No.", SalesLine."No.");
@@ -163,7 +165,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Lot No. on Item Tracking Appendix Report for Sales Return Order.
 
         // [GIVEN] Create and post Purchase Order, create and post Sales Order, Create Sales Return Order using copy document.
-        Initialize;
+        Initialize();
         LotNo := PostPurchaseOrderAndCreateSalesDoc(SalesLine, SalesLine."Document Type"::Order, TrackingOption::SelectEntries);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -190,7 +192,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Serial No. and Lot No. on Item Tracking Appendix Report for Purchase Quote.
 
         // [GIVEN] Create Purchase Quote with Item Tracking.
-        Initialize;
+        Initialize();
         PurchDocumentForItemTrackingAppendixReport(PurchaseLine."Document Type"::Quote, DocType::"Purch. Quote");
     end;
 
@@ -205,7 +207,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Serial No. and Lot No. on Item Tracking Appendix Report for Purchase Order.
 
         // [GIVEN] Create Purchase Order with Item Tracking.
-        Initialize;
+        Initialize();
         PurchDocumentForItemTrackingAppendixReport(PurchaseLine."Document Type"::Order, DocType::"Purch. Order");
     end;
 
@@ -220,7 +222,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Serial No. and Lot No. on Item Tracking Appendix Report for Purchase Invoice.
 
         // [GIVEN] Create Purchase Invoice with Item Tracking.
-        Initialize;
+        Initialize();
         PurchDocumentForItemTrackingAppendixReport(PurchaseLine."Document Type"::Invoice, DocType::"Purch. Invoice");
     end;
 
@@ -254,7 +256,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Serial No. and Lot No. on Item Tracking Appendix Report for Purchase Credit Memo.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking, create Purchase Credit Memo using copy document.
-        Initialize;
+        Initialize();
         PurchDocumentUsingCopyDocument(PurchaseHeader."Document Type"::"Credit Memo", DocType::"Purch. Credit Memo");
     end;
 
@@ -269,7 +271,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Serial No. and Lot No. on Item Tracking Appendix Report for Purchase Return Order.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking, create Purchase return Order using copy document.
-        Initialize;
+        Initialize();
         PurchDocumentUsingCopyDocument(PurchaseHeader."Document Type"::"Return Order", DocType::"Purch. Return Order");
     end;
 
@@ -324,14 +326,14 @@ codeunit 137352 "SCM Inventory Reports - V"
         PeriodLength2: DateFormula;
     begin
         // [GIVEN] Clear Item Expiration Quantity Report. COMMIT to clear pending write transaction.
-        Initialize;
+        Initialize();
         Commit();
         Evaluate(PeriodLength2, PeriodLength);
         EnqueueValuesForItemExpirationQuantityReport(EndingDate, PeriodLength2);
         Clear(ItemExpirationQuantity);
 
         // Exercise.
-        asserterror ItemExpirationQuantity.Run;
+        asserterror ItemExpirationQuantity.Run();
 
         // Verify
         Assert.ExpectedError(ExpectedError);
@@ -347,7 +349,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Item Expiration Quantity Report with same Location.
 
         // [GIVEN] Create Location, create and post Purchase Order with Item Tracking.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         ItemExpirationQuantityReportWithExpirDate(Location.Code, Location.Code)
     end;
@@ -363,7 +365,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Item Expiration Quantity Report with multiple Locations.
 
         // [GIVEN] Create Locations, create and post Purchase Order with Item Tracking.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location2);
         ItemExpirationQuantityReportWithExpirDate(Location.Code, Location2.Code);
@@ -380,7 +382,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Sales Shipment Report, print with Show Correction Lines.
 
         // [GIVEN] Create Sales Order, Post and undo Shipment.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Order, LibraryInventory.CreateItemNo);
         UndoSalesShipment(SalesLine);
         FindShipmentLine(SalesShipmentLine, SalesLine."No.");
@@ -404,7 +406,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Sales Return Receipt Report, print with Show Correction Lines.
 
         // [GIVEN] Create Sales Return Order, Post and undo Return Receipt.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", LibraryInventory.CreateItemNo);
         UndoReturnReceipt(SalesLine);
         FindReturnReceiptLine(ReturnReceiptLine, SalesLine);
@@ -426,7 +428,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // [SCENARIO] physical Inventory List Report for lot and serial item tracking with ShowTracking as false and ShowQuantity as true.
-        Initialize;
+        Initialize();
         PhysInvListReport(PurchaseLine, '', '', true, false);  // Booleans value are respective to ShowQuantity and ShowTracking.
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::Purchase);
 
@@ -445,7 +447,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // [SCENARIO] physical Inventory List Report for lot and serial item tracking with ShowTracking as false and ShowQuantity as true.
-        Initialize;
+        Initialize();
         PhysInvListReport(PurchaseLine, '', '', false, true);  // Booleans value are respective to ShowQuantity and ShowTracking.
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::Purchase);
 
@@ -465,7 +467,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         Bin: Record Bin;
     begin
         // [SCENARIO] physical Inventory List Report for Location and Bin with ShowTracking and ShowQuantity as False.
-        Initialize;
+        Initialize();
         CreateLocationWithBin(Bin, true);
         PhysInvListReport(PurchaseLine, Bin."Location Code", Bin.Code, false, false);  // Booleans value are respective to ShowQuantity and ShowTracking.
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::Purchase);
@@ -489,7 +491,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         Bin: Record Bin;
     begin
         // [SCENARIO] physical Inventory List Report for Location and Bin with ShowTracking as true.
-        Initialize;
+        Initialize();
         CreateLocationWithBin(Bin, true);
         PhysInvListReport(PurchaseLine, Bin."Location Code", Bin.Code, false, true);  // Booleans value are respective to ShowQuantity and ShowTracking.
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::Purchase);
@@ -527,7 +529,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LotNo: array[2] of Code[50];
     begin
         // [SCENARIO] physical Inventory List Report for different Location.
-        Initialize;
+        Initialize();
         PhysInvListRptWithDiffLoc(PurchaseLine, PurchaseLine2, SerialNo, LotNo, true, true);  // Booleans value are respective to ShowQuantity and ShowTracking.
 
         // Verify.
@@ -547,7 +549,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LotNo: array[2] of Code[20];
     begin
         // [SCENARIO] physical Inventory List Report for different Location with ShowQuantity as False.
-        Initialize;
+        Initialize();
         PhysInvListRptWithDiffLoc(PurchaseLine, PurchaseLine2, SerialNo, LotNo, false, true);  // Booleans value are respective to ShowQuantity and ShowTracking.
 
         // Verify.
@@ -593,7 +595,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] physical Inventory List Report with item Not on inventory.
 
         // [GIVEN] Create Item with Tracking Code, create and post Purchase Order and sales order with Tracking Lines. Run Calculate Inventory on Phys. Inventory Journal and check Item not on inventory.
-        Initialize;
+        Initialize();
         LotNo := PostPurchaseOrderAndCreateSalesDoc(SalesLine, SalesLine."Document Type"::Order, TrackingOption::SelectEntries);
         PostSalesOrder(SalesLine);
         RunCalculateInventoryReport(ItemJournalBatch, SalesLine."No.", true, false);  // True for Item not on inventory.
@@ -621,7 +623,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LotNo: Code[50];
     begin
         // [SCENARIO] Whse. Phys. Inventory List report when "Show Serial/Lot No" option is checked, if warehouse tracking is defined for a specific Item Tracking Code.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptWithPurchaseOrder(PurchaseLine, SerialNo, LotNo);
         RegisterWarehouseActivity(WarehouseActivityLine, PurchaseLine."Document No.");
 
@@ -654,7 +656,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Inventory Customer Sales Report after running Adjust Cost Item Entries.
 
         // [GIVEN] Create and post Sales Order, create and post Purchase Order and  Adjust Cost Item Entries.
-        Initialize;
+        Initialize();
         SetupForSalesReport(SalesLine);
 
         // [WHEN] Run Inventory Customer Sales Report.
@@ -676,7 +678,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Item Sales Report after running Adjust Cost Item Entries.
 
         // [GIVEN] Create and post Sales Order, create and post Purchase Order and  Adjust Cost Item Entries.
-        Initialize;
+        Initialize();
         SetupForSalesReport(SalesLine);
 
         // [WHEN] Run Item Sales Report.
@@ -702,7 +704,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Inventory Valuation Report after running Post Inventory To G/L batch job.
 
         // [GIVEN] Create Item, create and post Purchase Order, create Sales Order, run Adjust Cost Item Entries and Post Inventory To G/L batch job.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         CreateAndPostPurchaseOrder(ItemNo, false);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
@@ -731,7 +733,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Revaluation Posting Report After Posting Revaluation Journal With Location Mandatory.
 
         // [GIVEN] Create Item, create and post Purchase Order,Create Revaluation Journal.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostPurchaseOrder(Item."No.", true);
         UpdateInventorySetup(true);
@@ -743,7 +745,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [THEN] Verify Quantity and Inventory Value Revaluated on Revaluation Posting Test Report.
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         VerifyRevaluationPostingTestReport(ItemJournalLine);
 
         // TearDown: TearDown Inventory Setup.
@@ -763,7 +765,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO] Document No and Cost per Unit in Inventory Cost variance Report After Posting Purchase Order With Item Charge Assignment.
 
         // [GIVEN] Create Purchase Order with Item Charge.
-        Initialize;
+        Initialize();
         CreateAndModifyItem(Item, Item."Costing Method"::Standard);
         CreatePurchDocWithItemChargeAssign(PurchaseHeader, Item."No.");
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -773,7 +775,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [THEN] Verify Run Inventory Cost Variance Report.
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         VerifyInventoryCostVarianceReport(ItemLedgerEntry, Item."Standard Cost", DocumentNo);
     end;
 
@@ -789,7 +791,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [FEATURE] [Physical Inventory] [Calculate Inventory]
         // [SCENARIO 371783] "Calculate Inventory" Report sets "Qty. (Calculated)" to zero for Items without Transactions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I1" with quantity on inventory = "Q1"
         LibraryInventory.CreateItem(Item[1]);
@@ -808,7 +810,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [THEN] Three Lines are created: "L1" with Qty = "Q1", "L2" with Qty = 0, "L3" with Qty = 0
         for i := 1 to 3 do begin
             ItemJournalLine.SetRange("Item No.", Item[i]."No.");
-            ItemJournalLine.FindFirst;
+            ItemJournalLine.FindFirst();
             ItemJournalLine.TestField("Qty. (Calculated)", Qty[i]);
         end;
     end;
@@ -885,7 +887,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
         // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
         // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
-        Initialize;
+        Initialize();
         ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
 
         // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WORKDATE
@@ -913,7 +915,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
         // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
         // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
-        Initialize;
+        Initialize();
         ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
 
         // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WORKDATE + 1
@@ -940,7 +942,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
         // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
         // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
-        Initialize;
+        Initialize();
         ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
 
         // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WORKDATE to WORKDATE + 1
@@ -967,7 +969,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
         // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
         // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
-        Initialize;
+        Initialize();
         ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
 
         // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WORKDATE + 1 to WORKDATE + 2
@@ -993,7 +995,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
         // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
         // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
-        Initialize;
+        Initialize();
         ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
 
         // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WORKDATE + 2
@@ -1021,7 +1023,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
         // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
         // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
-        Initialize;
+        Initialize();
         ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
 
         // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WORKDATE to WORKDATE + 2
@@ -1046,7 +1048,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO 380354] When a sales order is partially invoiced on different dates, report "Customer/Item Sales" includes only the amount invoiced on given date
 
         // [GIVEN] Item "I" purchased. Cost amount is "C"
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostPurchaseOrder(Item."No.", true);
 
@@ -1087,7 +1089,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO 380354] When Bill-to Customer in a sales order is different from Sell-to Customer, Report "Customer/Item Sales" shows Bill-to Customer
 
         // [GIVEN] Item "I" purchased. Cost amount is "C"
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostPurchaseOrder(Item."No.", true);
 
@@ -1130,7 +1132,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [SCENARIO 380354] Several invoices for the same customer and item should be rolled up in one entry in "Customer/Item Sales" report
 
         // [GIVEN] Item "I" purchased.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         PostItemJournalLine(
           Item."No.", LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandInt(1000), ItemJournalLine."Entry Type"::"Positive Adjmt.");
@@ -1165,7 +1167,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [FEATURE] [Customer/Item Sales] [Item Charge]
         // [SCENARIO 232388] When you post two sales item entries with item charges assigned to each, "Customer/Item Sales" report shows the full sales amount of these entries, including charges.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" is in inventory.
         ItemNo := CreateItem;
@@ -1181,7 +1183,7 @@ codeunit 137352 "SCM Inventory Reports - V"
             // [GIVEN] Item Charge is assigned to each shipment. The amount of each invoice = "C1" and "C2" respectively.
             SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
             SalesShipmentLine.SetRange("No.", ItemNo);
-            SalesShipmentLine.FindLast;
+            SalesShipmentLine.FindLast();
             PostSalesItemChargeAssignedToShipment(CustomerNo, WorkDate, SalesShipmentLine);
         end;
 
@@ -1209,7 +1211,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [FEATURE] [Customer/Item Sales] [Item Charge]
         // [SCENARIO 234508] Item charges assigned to item entries for different customers, are calculated separately for each customer in "Customer/Item Sales" report.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" is in inventory.
         ItemNo := CreateItem;
@@ -1238,7 +1240,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryReportDataset.Reset();
         for i := 1 to ArrayLen(CustomerNo) do begin
             ItemLedgerEntry.SetRange("Source No.", CustomerNo[i]);
-            ItemLedgerEntry.FindFirst;
+            ItemLedgerEntry.FindFirst();
             ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
 
             LibraryReportDataset.SetRange('Customer__No__', CustomerNo[i]);
@@ -1265,7 +1267,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [FEATURE] [Customer/Item Sales] [Item Charge]
         // [SCENARIO 234508] When a sale item entry contains more than one direct cost value entries, the value entry representing item charge is considered only once for the item entry in "Customer/Item Sales" report.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "X" pcs of item "I" are in stock.
         ItemNo := CreateItem;
@@ -1317,7 +1319,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [FEATURE] [Customer/Item Sales] [Adjust Cost Item Entries]
         // [SCENARIO 235162] Cost adjustment to sales item entry is included into the period when initial cost was posted in "Customer/Item Sales" report, although the cost adjustment is posted on a later date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I".
         // [GIVEN] Post a purchase order for "I" with receive and invoice option on WORKDATE. Cost amount = "C1".
@@ -1362,7 +1364,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [FEATURE] [Calculate Inventory] [UT]
         // [SCENARIO 227249] Parameter "Include items with no transactions" in Calculate Inventory Report is reset to FALSE when "Items not in inventory" setting is FALSE.
-        Initialize;
+        Initialize();
 
         // [WHEN] Set "Include items with no transactions" = TRUE and "Items not in inventory" = FALSE in Calculate Inventory report and open the request page.
         RunCalculateInventoryReportRequestPage(false, true);
@@ -1381,7 +1383,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [FEATURE] [Calculate Inventory] [UT]
         // [SCENARIO 227249] Parameter "Include items with no transactions" in Calculate Inventory Report can be TRUE when "Items not in inventory" setting is TRUE.
-        Initialize;
+        Initialize();
 
         // [WHEN] Set "Include items with no transactions" = TRUE and "Items not in inventory" = TRUE in Calculate Inventory report and open the request page.
         RunCalculateInventoryReportRequestPage(true, true);
@@ -1407,7 +1409,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [FEATURE] [Physical Inventory] [Calculate Inventory]
         // [SCENARIO 296470] "Calculate Inventory" Report sets "Qty. (Calculated)" to zero for Items without Transactions
-        Initialize;
+        Initialize();
         Location.DeleteAll();
 
         // [GIVEN] Item "I1" with quantity on inventory = "Q1"
@@ -1428,10 +1430,10 @@ codeunit 137352 "SCM Inventory Reports - V"
         ItemJournalLine.SetRange("Item No.", ItemNo);
         Assert.AreEqual(2, ItemJournalLine.Count, '');
         ItemJournalLine.SetRange("Location Code", Bin[1]."Location Code");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Qty. (Calculated)", Qty);
         ItemJournalLine.SetRange("Location Code", Bin[2]."Location Code");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Qty. (Calculated)", 0);
     end;
 
@@ -1498,7 +1500,8 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - V");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
@@ -1508,13 +1511,18 @@ codeunit 137352 "SCM Inventory Reports - V"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - V");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         isInitialized := true;
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - V");
     end;
 
@@ -1802,28 +1810,28 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; ItemNo: Code[20])
     begin
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line")
     begin
         ReturnReceiptLine.SetRange("Return Order No.", SalesLine."Document No.");
         ReturnReceiptLine.SetRange("No.", SalesLine."No.");
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type")
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindPutAwayLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20])
@@ -1831,20 +1839,20 @@ codeunit 137352 "SCM Inventory Reports - V"
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; No: Code[20])
     begin
         SalesShipmentLine.SetRange("No.", No);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure ItemExpirationQuantityReportWithExpirDate(LocationCode: Code[10]; LocationCode2: Code[10])
@@ -2040,7 +2048,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         CalculateInventory.InitializeRequest(WorkDate, LibraryUtility.GenerateGUID, ItemsNotInInvt, ItemsWithNoTrans);
         CalculateInventory.UseRequestPage(true);
         Commit();
-        CalculateInventory.Run;
+        CalculateInventory.Run();
     end;
 
     local procedure RunInventoryCustomerSalesReport(No: Code[20])
@@ -2061,7 +2069,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         EnqueueValuesForItemExpirationQuantityReport(EndDate, PeriodLength);
         Clear(ItemExpirationQuantity);
         ItemExpirationQuantity.SetTableView(Item);
-        ItemExpirationQuantity.Run;
+        ItemExpirationQuantity.Run();
     end;
 
     local procedure RunInventoryValuationReport(No: Code[20])
@@ -2092,7 +2100,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         Commit();  // Commit required before running this Report.
         Clear(PhysInventoryList);
         PhysInventoryList.SetTableView(ItemJournalBatch);
-        PhysInventoryList.Run;
+        PhysInventoryList.Run();
     end;
 
     local procedure RunItemTrackingAppendixReport()
@@ -2101,7 +2109,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         Clear(ItemTrackingAppendix);
         ItemTrackingAppendix.UseRequestPage(true);
-        ItemTrackingAppendix.Run;
+        ItemTrackingAppendix.Run();
     end;
 
     local procedure RunRevaluationPostingTestReport(ItemNo: Code[20])
@@ -2141,7 +2149,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         Commit();  // Commit required due to use of RUN.
         Clear(SalesReturnReceipt);
         SalesReturnReceipt.SetTableView(ReturnReceiptHeader);
-        SalesReturnReceipt.Run;
+        SalesReturnReceipt.Run();
     end;
 
     local procedure SaveSalesShipment(No: Code[20])

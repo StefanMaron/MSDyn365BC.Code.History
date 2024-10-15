@@ -177,6 +177,12 @@ page 434 Reminder
                         Clear(ChangeExchangeRate);
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field(GLN; GLN)
                 {
                     ApplicationArea = Basic, Suite;

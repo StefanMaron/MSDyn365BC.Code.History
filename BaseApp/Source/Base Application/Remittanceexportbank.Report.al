@@ -53,10 +53,10 @@ report 15000050 "Remittance - export (Bank)"
                 GenJournalLineRec.SetRange("Journal Batch Name", CurrentGenJournalLine."Journal Batch Name");
                 GenJournalLineRec.SetRange("Remittance Agreement Code", RemAgreementCode); // Only one contract at the time is processed.
 
-                if not GenJournalLineRec.FindFirst then
+                if not GenJournalLineRec.FindFirst() then
                     Error(Text001);
 
-                GenJournalLineRec.FindFirst;
+                GenJournalLineRec.FindFirst();
 
                 CreatePaymOrderHead;
 
@@ -68,7 +68,7 @@ report 15000050 "Remittance - export (Bank)"
                 //    remaining journal lines is selected and used now. (starts over at 1.)
                 // 5. Stop when all the lines are processed.
 
-                GenJournalLineRec.FindFirst;  // Start with the first one, with new key
+                GenJournalLineRec.FindFirst();  // Start with the first one, with new key
                 StoreGenJournalLine.Init();
                 UndefinedValue := -1;
                 StoreGenJournalLine."Remittance Type" := UndefinedValue;
@@ -104,7 +104,7 @@ report 15000050 "Remittance - export (Bank)"
                             UnstructuredPaym := false;
                         GenJournalLineRec.SetRange("Structured Payment", GenJournalLineRec."Structured Payment");
 
-                        GenJournalLineRec.FindFirst;  // Start with first one among selected ones.
+                        GenJournalLineRec.FindFirst();  // Start with first one among selected ones.
 
                         // Init data related to the current account/agreement.
                         // All journal lines selected by now are related to the same account
@@ -239,7 +239,7 @@ report 15000050 "Remittance - export (Bank)"
                         GenJournalLineRec.SetRange("External Document No.");
                         GenJournalLineRec.SetRange("Recipient Ref. 1");
                         GenJournalLineRec.SetRange("Structured Payment");
-                        Done := not GenJournalLineRec.FindFirst;  // More journal lines?
+                        Done := not GenJournalLineRec.FindFirst();  // More journal lines?
                         NextSelection := true;  // All selected lines are processed. Select next transaction.
                     end else begin  // Not all invoices are processed.
                         Done := false;  // Don't stop. Continue with the next one from the selection.
@@ -259,7 +259,7 @@ report 15000050 "Remittance - export (Bank)"
                 PaymentOrderData.Reset();
                 PaymentOrderData.SetRange("Payment Order No.", RemittancePaymentOrder.ID);
                 RemPmtOrderExport.SetTableView(PaymentOrderData);
-                RemPmtOrderExport.RunModal;
+                RemPmtOrderExport.RunModal();
             end;
         }
     }
@@ -324,11 +324,7 @@ report 15000050 "Remittance - export (Bank)"
 
                         trigger OnAssistEdit()
                         begin
-#if not CLEAN17
-                            CurrentFilename := FileMgt.SaveFileDialog(Text015, CurrentFilename, Text016);
-#else
                             CurrentFilename := '';
-#endif
                         end;
                     }
                 }
@@ -375,9 +371,6 @@ report 15000050 "Remittance - export (Bank)"
         PurchSetup: Record "Purchases & Payables Setup";
         RemTools: Codeunit "Remittance Tools";
         ApplicationSystemConstants: Codeunit "Application System Constants";
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-#endif
         DateNow: Date;
         TimeNow: Time;
         ProductionDate: Text[4];
@@ -404,10 +397,6 @@ report 15000050 "Remittance - export (Bank)"
         Text012: Label 'Recipient address, city, and post code should be filled in. Do you want to continue?';
         Text013: Label 'Export is cancelled.';
         Text014: Label 'Line %1 is not 80 chars long.\%2';
-#if not CLEAN17
-        Text015: Label 'Remittance - export (bank)';
-        Text016: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
-#endif
         SkipSpecification: Boolean;
         SkipPaymentTypeCodeAbroad: Boolean;
 
@@ -419,7 +408,7 @@ report 15000050 "Remittance - export (Bank)"
         // Create a PaymOrder for import.
         // Select ID. Find next:
         RemittancePaymentOrder.LockTable();
-        if RemittancePaymentOrder.FindLast then
+        if RemittancePaymentOrder.FindLast() then
             NextID := RemittancePaymentOrder.ID + 1
         else
             NextID := 1;
@@ -580,7 +569,7 @@ report 15000050 "Remittance - export (Bank)"
         InvoiceEntry.SetRange("Document Type", GenJournalLineRec."Applies-to Doc. Type");
         InvoiceEntry.SetRange("Document No.", GenJournalLineRec."Applies-to Doc. No.");
         InvoiceEntry.SetRange("Vendor No.", GenJournalLineRec."Account No.");
-        InvoiceEntry.FindFirst;
+        InvoiceEntry.FindFirst();
         if InvoiceEntry.Count <> 1 then // In case the same document no. was used several times.
             Error(Text010, InvoiceEntry.Count);
         if InvoiceEntry."Currency Code" = '' then
@@ -1264,7 +1253,7 @@ report 15000050 "Remittance - export (Bank)"
         // Own reference, sent to bank:
         WaitingJournal2.LockTable();
         WaitingJournal2.Init();
-        if WaitingJournal2.FindLast then
+        if WaitingJournal2.FindLast() then
             WaitingJournal.Reference := WaitingJournal2.Reference + 1
         else
             WaitingJournal.Reference := 1;

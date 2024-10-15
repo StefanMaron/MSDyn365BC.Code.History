@@ -169,7 +169,6 @@ page 5855 "Posted Purchase Document Lines"
     end;
 
     var
-        ToPurchHeader: Record "Purchase Header";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         OldMenuType: Integer;
         CurrentMenuType: Integer;
@@ -187,9 +186,12 @@ page 5855 "Posted Purchase Document Lines"
         PostedReturnShptsVisible: Boolean;
         [InDataSet]
         PostedCrMemosVisible: Boolean;
+        CurrentMenuTypeOpt: Option x0,x1,x2,x3;
+
+    protected var
+        ToPurchHeader: Record "Purchase Header";
         [InDataSet]
         ShowRevLineEnable: Boolean;
-        CurrentMenuTypeOpt: Option x0,x1,x2,x3;
 
     [Scope('OnPrem')]
     procedure CopyLineToDoc()

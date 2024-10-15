@@ -82,7 +82,7 @@ codeunit 1798 "Data Migration Mgt."
     var
         DataMigrationError: Record "Data Migration Error";
     begin
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             if DataMigrationStatus."Source Staging Table ID" > 0 then
                 StagingTableEntityMigration(DataMigrationStatus, BaseAppMigrationCodeunitToRun, Retry)
             else begin
@@ -97,7 +97,7 @@ codeunit 1798 "Data Migration Mgt."
                         DataMigrationStatusFacade.IncrementMigratedRecordCount(
                           DataMigrationStatus."Migration Type", DataMigrationStatus."Destination Table ID", DataMigrationStatus."Total Number");
                     DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::"In Progress");
-                    if DataMigrationStatus.FindSet then
+                    if DataMigrationStatus.FindSet() then
                         DataMigrationStatusFacade.UpdateLineStatus(
                           DataMigrationStatus."Migration Type", DataMigrationStatus."Destination Table ID", DataMigrationStatus.Status::Completed);
                 end else begin
@@ -121,7 +121,7 @@ codeunit 1798 "Data Migration Mgt."
         "Count": Integer;
     begin
         StagingTableRecRef.Open(DataMigrationStatus."Source Staging Table ID");
-        if StagingTableRecRef.FindSet then begin
+        if StagingTableRecRef.FindSet() then begin
             DataMigrationStatusFacade.UpdateLineStatus(DataMigrationStatus."Migration Type",
               DataMigrationStatus."Destination Table ID", DummyDataMigrationStatus.Status::"In Progress");
             repeat
@@ -253,7 +253,7 @@ codeunit 1798 "Data Migration Mgt."
             DATABASE::"G/L Account",
             DATABASE::Vendor));
         DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::Pending);
-        if DataMigrationStatus.FindSet then
+        if DataMigrationStatus.FindSet() then
             repeat
                 HandleEntityMigration(DataMigrationStatus, DataMigrationStatus."Migration Codeunit To Run", Retry);
             until DataMigrationStatus.Next() = 0;
@@ -268,7 +268,7 @@ codeunit 1798 "Data Migration Mgt."
     begin
         DataMigrationStatus.SetFilter(
           Status, StrSubstNo('%1|%2', DataMigrationStatus.Status::"In Progress", DataMigrationStatus.Status::Pending));
-        if DataMigrationStatus.FindSet then
+        if DataMigrationStatus.FindSet() then
             repeat
                 DataMigrationStatus.Status := DataMigrationStatus.Status::Stopped;
                 DataMigrationStatus.Modify(true);
@@ -308,19 +308,19 @@ codeunit 1798 "Data Migration Mgt."
         MigrationDurationAsInt: BigInteger;
     begin
         DataMigrationStatus.SetRange("Destination Table ID", DATABASE::"G/L Account");
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             TotalNumberOfRecords += DataMigrationStatus."Total Number";
 
         DataMigrationStatus.SetRange("Destination Table ID", DATABASE::Item);
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             TotalNumberOfRecords += DataMigrationStatus."Total Number";
 
         DataMigrationStatus.SetRange("Destination Table ID", DATABASE::Vendor);
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             TotalNumberOfRecords += DataMigrationStatus."Total Number";
 
         DataMigrationStatus.SetRange("Destination Table ID", DATABASE::Customer);
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             TotalNumberOfRecords += DataMigrationStatus."Total Number";
 
         MigrationDurationAsInt := CurrentDateTime - StartTime;
@@ -357,7 +357,7 @@ codeunit 1798 "Data Migration Mgt."
         DataMigrationStatus.SetRange("Migration Type", MigrationType);
         if not Retry then begin
             DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::Pending);
-            if DataMigrationStatus.FindSet then
+            if DataMigrationStatus.FindSet() then
                 repeat
                     DataMigrationError.SetRange("Migration Type", MigrationType);
                     DataMigrationError.SetRange("Destination Table ID", DataMigrationStatus."Destination Table ID");
@@ -370,7 +370,7 @@ codeunit 1798 "Data Migration Mgt."
 
         if Retry then
             JobParameters := RetryTxt;
-        DataMigrationStatus.FindFirst;
+        DataMigrationStatus.FindFirst();
         if StartNewSession then
             // run the migration in a background session
             JobQueueEntry.ScheduleJobQueueEntryWithParameters(CODEUNIT::"Data Migration Mgt.",
@@ -400,7 +400,7 @@ codeunit 1798 "Data Migration Mgt."
           JobQueueEntry.Status::"In Process",
           JobQueueEntry.Status::"On Hold",
           JobQueueEntry.Status::Ready);
-        if (Status = MigrationStatus::Pending) and not JobQueueEntry.FindFirst then
+        if (Status = MigrationStatus::Pending) and not JobQueueEntry.FindFirst() then
             exit;
 
         if (Status in [MigrationStatus::"Completed with errors",
@@ -408,7 +408,7 @@ codeunit 1798 "Data Migration Mgt."
                        MigrationStatus::Pending]) and not Retry
         then begin
             if Confirm(StrSubstNo(DataMigrationNotCompletedQst, DataMigrationOverview.Caption)) then
-                DataMigrationOverview.Run;
+                DataMigrationOverview.Run();
             Error('');
         end;
     end;
@@ -421,23 +421,23 @@ codeunit 1798 "Data Migration Mgt."
             exit(MigrationStatus::"Not Started");
 
         DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::"In Progress");
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             exit(MigrationStatus::"In Progress");
 
         DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::Stopped);
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             exit(MigrationStatus::Stopped);
 
         DataMigrationStatus.SetFilter(Status, '=%1', DataMigrationStatus.Status::Failed);
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             exit(MigrationStatus::Failed);
 
         DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::"Completed with Errors");
-        if DataMigrationStatus.FindFirst then
+        if DataMigrationStatus.FindFirst() then
             exit(MigrationStatus::"Completed with errors");
 
         DataMigrationStatus.SetFilter(Status, '<>%1', DataMigrationStatus.Status::Completed);
-        if not DataMigrationStatus.FindFirst then
+        if not DataMigrationStatus.FindFirst() then
             exit(MigrationStatus::Completed);
 
         exit(MigrationStatus::Pending);
@@ -573,7 +573,7 @@ codeunit 1798 "Data Migration Mgt."
         DataMigrationStatus.SetFilter(
           Status, '%1|%2', DataMigrationStatus.Status::Completed, DataMigrationStatus.Status::"Completed with Errors");
 
-        if not DataMigrationStatus.FindSet then
+        if not DataMigrationStatus.FindSet() then
             exit(false);
         repeat
             if DestTableHasAnyTransactions(DataMigrationStatus, DummyCode) then
@@ -653,7 +653,7 @@ codeunit 1798 "Data Migration Mgt."
         MyNotifications: Record "My Notifications";
     begin
         MyNotifications.SetRange("Notification Id", GetGlobalNotificationId);
-        if MyNotifications.FindSet then
+        if MyNotifications.FindSet() then
             repeat
                 MyNotifications.Enabled := true;
                 MyNotifications.Modify(true);
@@ -684,11 +684,11 @@ codeunit 1798 "Data Migration Mgt."
             exit;
         JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process");
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Data Migration Mgt.");
-        if JobQueueEntry.FindFirst then
+        if JobQueueEntry.FindFirst() then
             exit;
 
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
-        if JobQueueEntry.FindFirst then begin
+        if JobQueueEntry.FindFirst() then begin
             DataMigrationStatus.Validate(Status, DataMigrationStatus.Status::Failed);
             DataMigrationStatus.Modify(true);
         end;

@@ -23,7 +23,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Invoice with Random Amount, Block Customer with Ship and Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::Invoice, Customer.Blocked::Ship, LibraryRandom.RandDec(50, 2));
     end;
@@ -37,7 +37,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Payment with Random Amount, Block Customer with Invoice and Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::Payment, Customer.Blocked::Invoice, -LibraryRandom.RandDec(50, 2));
     end;
@@ -51,7 +51,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Payment with Random Amount, Block Customer with Ship and Reverse posted entries.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::Payment, Customer.Blocked::Ship, -LibraryRandom.RandDec(50, 2));
     end;
@@ -65,7 +65,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Credit Memo with Random Amount, Block Customer with Invoice and Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::"Credit Memo", Customer.Blocked::Invoice, -LibraryRandom.RandDec(50, 2));
     end;
@@ -79,7 +79,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Credit Memo with Random Amount, Block Customer with Ship and Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::"Credit Memo", Customer.Blocked::Ship, -LibraryRandom.RandDec(50, 2));
     end;
@@ -93,7 +93,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Fin. Charge Memo with Random Amount, Block Customer with Invoice, Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::"Finance Charge Memo", Customer.Blocked::Invoice, LibraryRandom.RandDec(50, 2));
     end;
@@ -107,7 +107,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Fin. Charge Memo with Random Amount, Block Customer with Ship, Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::"Finance Charge Memo", Customer.Blocked::Ship, LibraryRandom.RandDec(50, 2));
     end;
@@ -121,7 +121,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Reminder with Random Amount, Block Customer with Invoice and Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::Reminder, Customer.Blocked::Invoice, LibraryRandom.RandDec(50, 2));
     end;
@@ -135,7 +135,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Reminder with Random Amount, Block Customer with Ship and Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::Reminder, Customer.Blocked::Ship, LibraryRandom.RandDec(50, 2));
     end;
@@ -149,7 +149,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Refund with Random Amount, Block Customer with Invoice and Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::Refund, Customer.Blocked::Invoice, LibraryRandom.RandDec(50, 2));
     end;
@@ -163,7 +163,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Customer after Posting Refund with Random Amount, Block Customer with Ship and Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedCustomerDocument(
           GenJournalLine."Document Type"::Refund, Customer.Blocked::Ship, LibraryRandom.RandDec(50, 2));
     end;
@@ -181,7 +181,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         BlockCustomerByOption(Customer, BlockedType);
 
         // Exercise: Reverse the posted Transaction and clear Customer Blocked field after Reversing Entries.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
         BlockCustomerByOption(Customer, Customer.Blocked::" ");
@@ -200,7 +200,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Blocked Customer");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();

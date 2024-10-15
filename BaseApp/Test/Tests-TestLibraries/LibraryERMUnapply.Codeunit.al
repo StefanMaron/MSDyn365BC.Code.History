@@ -37,7 +37,7 @@ codeunit 131301 "Library - ERM Unapply"
         DetailedCustLedgEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.SetRange(Unapplied, false);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         with DetailedCustLedgEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";
@@ -74,7 +74,7 @@ codeunit 131301 "Library - ERM Unapply"
         DetailedVendorLedgEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
         DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
         DetailedVendorLedgEntry.SetRange(Unapplied, false);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         with DetailedVendorLedgEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";
@@ -111,7 +111,7 @@ codeunit 131301 "Library - ERM Unapply"
         DetailedEmployeeLedgerEntry.SetRange("Document No.", EmployeeLedgerEntry."Document No.");
         DetailedEmployeeLedgerEntry.SetRange("Employee Ledger Entry No.", EmployeeLedgerEntry."Entry No.");
         DetailedEmployeeLedgerEntry.SetRange(Unapplied, false);
-        DetailedEmployeeLedgerEntry.FindFirst;
+        DetailedEmployeeLedgerEntry.FindFirst();
         with DetailedEmployeeLedgerEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";

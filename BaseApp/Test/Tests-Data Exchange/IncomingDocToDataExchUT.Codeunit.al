@@ -263,10 +263,10 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     var
         IncomingDocument: Record "Incoming Document";
         GeneralJournal: TestPage "General Journal";
-        InvalidChoice: Integer;
+        InvalidChoice: Enum "Incoming Related Document Type";
     begin
-        Initialize;
-        InvalidChoice := 10000;
+        Initialize();
+        InvalidChoice := "Incoming Related Document Type".FromInteger(10000);
 
         // Setup: configure data exchange setup and create incoming document
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
@@ -318,7 +318,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         CompanyInformation: Record "Company Information";
         XmlPath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::Invoice,
@@ -332,7 +332,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLINVOICE');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
@@ -373,7 +373,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         InStream: InStream;
         XmlPath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, CreateSalesDocument(SalesHeader."Document Type"::Invoice, true));
@@ -429,7 +429,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         IncomingDocumentCard: TestPage "Incoming Document";
         XmlPath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::Invoice,
@@ -443,7 +443,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLINVOICE');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
@@ -501,7 +501,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         IncomingDocumentCard: TestPage "Incoming Document";
         XmlPath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         CreateServiceInvoiceAndPost(ServiceInvoiceHeader, InvoiceCurrencyIsLCY);
@@ -513,7 +513,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLINVOICE');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
@@ -585,7 +585,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         ExpectedErrorMessage: Text;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::Invoice,
@@ -625,7 +625,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLINVOICE');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
@@ -676,7 +676,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         XmlPath: Text;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::Invoice,
@@ -720,7 +720,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLINVOICE');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
@@ -751,7 +751,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Assert General Journal Line
         GenJournalLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if not GenJournalLine.FindFirst then
+        if not GenJournalLine.FindFirst() then
             Error(CannotFindGenJnlLineErr);
 
         Assert.AreEqual(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type", '');
@@ -801,7 +801,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         IncomingDocumentCard: TestPage "Incoming Document";
         XmlPath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo",
@@ -816,7 +816,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLCREDITMEMO');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
@@ -875,7 +875,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         IncomingDocumentCard: TestPage "Incoming Document";
         XmlPath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         CreateServiceCreditMemoAndPost(ServiceCrMemoHeader, InvoiceCurrencyIsLCY);
@@ -887,7 +887,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLCREDITMEMO');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
@@ -957,7 +957,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         XmlPath: Text;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo",
@@ -1001,7 +1001,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLCREDITMEMO');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
@@ -1027,7 +1027,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Assert Purchase Invoice Header
         GenJournalLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if not GenJournalLine.FindFirst then
+        if not GenJournalLine.FindFirst() then
             Error(CannotFindGenJnlLineErr);
 
         Assert.AreEqual(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type", '');
@@ -1058,7 +1058,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         IncomingDocuments: TestPage "Incoming Documents";
         XmlPath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, CreateSalesDocument(SalesHeader."Document Type"::Invoice, true));
@@ -1072,14 +1072,14 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         DataExchDef.Get('PEPPOLINVOICE');
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
-        if not DataExchangeType.FindFirst then begin
+        if not DataExchangeType.FindFirst() then begin
             DataExchangeType.Code := 'PEPPOL';
             DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
             DataExchangeType.Insert();
         end;
 
         CompanyInformation.Get();
-        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID;
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify(true);
 
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
@@ -1114,12 +1114,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Init: Create test data exchange definition
         CreateDataExchDefSalesInvoiceWithNoNamespaces(DataExchDef);
         DataExchangeType.DeleteAll();
-        DataExchangeType.Code := LibraryUtility.GenerateGUID;
+        DataExchangeType.Code := LibraryUtility.GenerateGUID();
         DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
         DataExchangeType.Insert();
 
         // Init: Create incoming document, but don't attach any file
-        if IncomingDocument.FindLast then;
+        if IncomingDocument.FindLast() then;
         IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument."Data Exchange Type" := DataExchangeType.Code;
@@ -1163,12 +1163,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Init: Create test data exchange definition
         CreateDataExchDefSalesInvoiceWithNamespaces(DataExchDef);
         DataExchangeType.DeleteAll();
-        DataExchangeType.Code := LibraryUtility.GenerateGUID;
+        DataExchangeType.Code := LibraryUtility.GenerateGUID();
         DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
         DataExchangeType.Insert();
 
         // Init: Create incoming document, but don't fill in any Data Exchange Definition Code
-        if IncomingDocument.FindLast then;
+        if IncomingDocument.FindLast() then;
         IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument."Data Exchange Type" := DataExchangeType.Code;
@@ -1212,12 +1212,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Init: Create test data exchange definition
         CreateDataExchDefSalesInvoiceWithNamespaces(DataExchDef);
         DataExchangeType.DeleteAll();
-        DataExchangeType.Code := LibraryUtility.GenerateGUID;
+        DataExchangeType.Code := LibraryUtility.GenerateGUID();
         DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
         DataExchangeType.Insert();
 
         // Init: Create incoming document, but don't fill in any Data Exchange Definition Code
-        if IncomingDocument.FindLast then;
+        if IncomingDocument.FindLast() then;
         IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument."Data Exchange Type" := DataExchangeType.Code;
@@ -1261,12 +1261,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Init: Create test data exchange definition
         CreateDataExchDefSalesInvoiceAndLinesWithNoNamespaces(DataExchDef);
         DataExchangeType.DeleteAll();
-        DataExchangeType.Code := LibraryUtility.GenerateGUID;
+        DataExchangeType.Code := LibraryUtility.GenerateGUID();
         DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
         DataExchangeType.Insert();
 
         // Init: Create incoming document
-        if IncomingDocument.FindLast then;
+        if IncomingDocument.FindLast() then;
         IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument."Data Exchange Type" := DataExchangeType.Code;
@@ -1311,15 +1311,15 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Init: Create test data exchange definition
         CreateDataExchDefSalesInvoiceWithNoNamespaces(DataExchDef);
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         CreateDataExchMapping(DataExchLineDef);
         DataExchangeType.DeleteAll();
-        DataExchangeType.Code := LibraryUtility.GenerateGUID;
+        DataExchangeType.Code := LibraryUtility.GenerateGUID();
         DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
         DataExchangeType.Insert();
 
         // Init: Create incoming document
-        if IncomingDocument.FindLast then;
+        if IncomingDocument.FindLast() then;
         IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument."Data Exchange Type" := DataExchangeType.Code;
@@ -1348,17 +1348,17 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         IncomingDocuments: TestPage "Incoming Documents";
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
-        Initialize;
+        Initialize();
 
         // Init: Create test data exchange definition
         CreateDataExchDefSalesInvoiceWithNoNamespaces(DataExchDef);
         DataExchangeType.DeleteAll();
-        DataExchangeType.Code := LibraryUtility.GenerateGUID;
+        DataExchangeType.Code := LibraryUtility.GenerateGUID();
         DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
         DataExchangeType.Insert();
 
         // Init: Create incoming document, but don't attach any file
-        if IncomingDocument.FindLast then;
+        if IncomingDocument.FindLast() then;
         IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument."Data Exchange Type" := DataExchangeType.Code;
@@ -1735,7 +1735,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Item No
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         CreateDataExchangeColumnValuePair(TempExpectedDataExchField, DataExch, 12,
           SalesInvoiceLine."No.", PEPPOLSalesLineCodeTxt);
     end;
@@ -1753,7 +1753,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Add us as a vendor (our company is the buy-from vendor)
         Vendor.SetRange(GLN, CompanyInformation.GLN);
-        if not Vendor.FindFirst then begin
+        if not Vendor.FindFirst() then begin
             LibraryPurchase.CreateVendor(Vendor);
             Vendor.GLN := CompanyInformation.GLN;
             Vendor.Modify();
@@ -1767,7 +1767,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Get lines
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if not SalesInvoiceLine.FindSet then
+        if not SalesInvoiceLine.FindSet() then
             exit(Vendor."No.");
 
         repeat
@@ -1796,7 +1796,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Add us as a vendor (our company is the buy-from vendor)
         Vendor.SetRange(GLN, CompanyInformation.GLN);
-        if not Vendor.FindFirst then begin
+        if not Vendor.FindFirst() then begin
             LibraryPurchase.CreateVendor(Vendor);
             Vendor.GLN := CompanyInformation.GLN;
             Vendor.Modify();
@@ -1810,7 +1810,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Get lines
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        if not ServiceInvoiceLine.FindSet then
+        if not ServiceInvoiceLine.FindSet() then
             exit(Vendor."No.");
 
         repeat
@@ -1839,7 +1839,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Add us as a vendor (our company is the buy-from vendor)
         Vendor.SetRange(GLN, CompanyInformation.GLN);
-        if not Vendor.FindFirst then begin
+        if not Vendor.FindFirst() then begin
             LibraryPurchase.CreateVendor(Vendor);
             Vendor.GLN := CompanyInformation.GLN;
             Vendor.Modify();
@@ -1853,7 +1853,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Get lines
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        if not SalesCrMemoLine.FindSet then
+        if not SalesCrMemoLine.FindSet() then
             exit(Vendor."No.");
 
         repeat
@@ -1883,7 +1883,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Add us as a vendor (our company is the buy-from vendor)
         Vendor.SetRange(GLN, CompanyInformation.GLN);
-        if not Vendor.FindFirst then begin
+        if not Vendor.FindFirst() then begin
             LibraryPurchase.CreateVendor(Vendor);
             Vendor.GLN := CompanyInformation.GLN;
             Vendor.Modify();
@@ -1897,7 +1897,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         // Get lines
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        if not ServiceCrMemoLine.FindSet then
+        if not ServiceCrMemoLine.FindSet() then
             exit(Vendor."No.");
 
         repeat
@@ -2044,7 +2044,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true); // Ship, Consume, Invoice
 
         ServiceInvoiceHeader.SetRange("Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure CreateServiceCreditMemoAndPost(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; InvoiceCurrencyIsLCY: Boolean)
@@ -2056,7 +2056,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true); // Ship, Consume, Invoice
 
         ServiceCrMemoHeader.SetRange("Customer No.", Customer."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; var Customer: Record Customer; InvoiceCurrencyIsLCY: Boolean)
@@ -2107,18 +2107,30 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         VATPostingSetup.ModifyAll("Tax Category", 'AA');
     end;
 
-    local procedure ExportPEPPOLInvoice(VariantRec: Variant): Text
+    local procedure ExportPEPPOLInvoice(VariantRec: Variant) FileName: Text
     var
         ExpSalesInvPEPPOLBIS30: Codeunit "Exp. Sales Inv. PEPPOL BIS3.0";
+        FileManagement: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
     begin
-        exit(ExpSalesInvPEPPOLBIS30.GenerateXMLFile(VariantRec));
+        TempBlob.CreateOutStream(OutStr);
+        ExpSalesInvPEPPOLBIS30.GenerateXMLFile(VariantRec, OutStr);
+        FileName := FileManagement.ServerTempFileName('xml');
+        FileManagement.BLOBExportToServerFile(TempBlob, FileName);
     end;
 
-    local procedure ExportPEPPOLCreditMemo(VariantRec: Variant): Text
+    local procedure ExportPEPPOLCreditMemo(VariantRec: Variant) FileName: Text
     var
         ExpSalesCrMPEPPOLBIS30: Codeunit "Exp. Sales CrM. PEPPOL BIS3.0";
+        FileManagement: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
     begin
-        exit(ExpSalesCrMPEPPOLBIS30.GenerateXMLFile(VariantRec));
+        TempBlob.CreateOutStream(OutStr);
+        ExpSalesCrMPEPPOLBIS30.GenerateXMLFile(VariantRec, OutStr);
+        FileName := FileManagement.ServerTempFileName('xml');
+        FileManagement.BLOBExportToServerFile(TempBlob, FileName);
     end;
 
     local procedure WriteInvoiceFileWithNestingAndWithNoNamespaces(OutStream: OutStream; Encoding: Text)
@@ -2407,7 +2419,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     local procedure AssertInvoiceHeaderValues(IncomingDocument: Record "Incoming Document"; var PurchaseHeader: Record "Purchase Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; InvoiceCurrencyIsLCY: Boolean)
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if not PurchaseHeader.FindFirst then
+        if not PurchaseHeader.FindFirst() then
             Error(CannotFindPurchaseHeaderErr);
 
         Assert.AreEqual(PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type", '');
@@ -2431,11 +2443,11 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        if not PurchaseLine.FindSet then
+        if not PurchaseLine.FindSet() then
             Error(CannotFindPurchaseLineErr);
 
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if not SalesInvoiceLine.FindSet then
+        if not SalesInvoiceLine.FindSet() then
             Error(CannotFindSalesLineErr);
 
         repeat
@@ -2453,7 +2465,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if not PurchaseHeader.FindFirst then
+        if not PurchaseHeader.FindFirst() then
             Error(CannotFindPurchaseHeaderErr);
 
         Assert.AreEqual(PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type", '');
@@ -2477,11 +2489,11 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        if not PurchaseLine.FindSet then
+        if not PurchaseLine.FindSet() then
             Error(CannotFindPurchaseLineErr);
 
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        if not ServiceInvoiceLine.FindSet then
+        if not ServiceInvoiceLine.FindSet() then
             Error(CannotFindServiceLineErr);
 
         repeat
@@ -2497,7 +2509,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     local procedure AssertCrMemoHeaderValues(IncomingDocument: Record "Incoming Document"; var PurchaseHeader: Record "Purchase Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; InvoiceCurrencyIsLCY: Boolean)
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if not PurchaseHeader.FindFirst then
+        if not PurchaseHeader.FindFirst() then
             Error(CannotFindPurchaseHeaderErr);
 
         Assert.AreEqual(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Document Type", '');
@@ -2519,7 +2531,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if not PurchaseHeader.FindFirst then
+        if not PurchaseHeader.FindFirst() then
             Error(CannotFindPurchaseHeaderErr);
 
         Assert.AreEqual(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Document Type", '');
@@ -2543,11 +2555,11 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        if not PurchaseLine.FindSet then
+        if not PurchaseLine.FindSet() then
             Error(CannotFindPurchaseLineErr);
 
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        if not SalesCrMemoLine.FindSet then
+        if not SalesCrMemoLine.FindSet() then
             Error(CannotFindSalesLineErr);
 
         repeat
@@ -2567,11 +2579,11 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        if not PurchaseLine.FindSet then
+        if not PurchaseLine.FindSet() then
             Error(CannotFindPurchaseLineErr);
 
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        if not ServiceCrMemoLine.FindSet then
+        if not ServiceCrMemoLine.FindSet() then
             Error(CannotFindSalesLineErr);
 
         repeat
@@ -2621,8 +2633,8 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     var
         LineNo: Integer;
     begin
-        ExpectedDataExchField.FindFirst;
-        ActualDataExchField.FindFirst;
+        ExpectedDataExchField.FindFirst();
+        ActualDataExchField.FindFirst();
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedDataExchField, ActualDataExchField, StrSubstNo(TableErrorMsg, Msg, LineNo));
@@ -2632,8 +2644,8 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
     local procedure AssertSpecifiedDataInTable(var ExpectedDataExchField: Record "Data Exch. Field"; var ActualDataExchField: Record "Data Exch. Field")
     begin
-        ExpectedDataExchField.FindFirst;
-        ActualDataExchField.FindFirst;
+        ExpectedDataExchField.FindFirst();
+        ActualDataExchField.FindFirst();
 
         repeat
             ActualDataExchField.SetRange("Column No.", ExpectedDataExchField."Column No.");
@@ -2757,7 +2769,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         PurchasesPayablesSetup.Get();
         GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));

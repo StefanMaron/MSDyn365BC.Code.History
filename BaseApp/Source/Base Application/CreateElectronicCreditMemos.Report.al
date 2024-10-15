@@ -46,19 +46,19 @@ report 10641 "Create Electronic Credit Memos"
                 SalesCrMemoHeader.Copy("Sales Cr.Memo Header");
                 SalesCrMemoHeader.FilterGroup(6);
                 SalesCrMemoHeader.SetRange("E-Invoice", true);
-                if not SalesCrMemoHeader.FindFirst then
+                if not SalesCrMemoHeader.FindFirst() then
                     Error(Text003);
 
                 // All electronic credit memos?
                 SalesCrMemoHeader.SetRange("E-Invoice", false);
-                if SalesCrMemoHeader.FindFirst then
+                if SalesCrMemoHeader.FindFirst() then
                     if not Confirm(Text000, true) then
                         CurrReport.Quit;
                 SalesCrMemoHeader.SetRange("E-Invoice");
 
                 // Some already sent?
                 SalesCrMemoHeader.SetRange("E-Invoice Created", true);
-                if SalesCrMemoHeader.FindFirst then
+                if SalesCrMemoHeader.FindFirst() then
                     if not Confirm(Text001, true) then
                         CurrReport.Quit;
 

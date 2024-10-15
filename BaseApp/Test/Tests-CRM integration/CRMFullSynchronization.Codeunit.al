@@ -28,7 +28,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Processing Order] [Status]
         // [SCENARIO] "SALESPEOPLE","CURRENCY","UNIT OF MEASURE" mapping records (Wave1) have blank Dependency filter
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
 
         // [GIVEN] 'SALESPEOPLE' has "Dependency Filter" = 'CURRENCY', "Job Queue Entry Status" = ' '
@@ -59,7 +59,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
     begin
         // [FEATURE] [Processing Order]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
 
         // [WHEN] Generate CRM Full Synch Review Lines
@@ -165,7 +165,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Status]
         // [SCENARIO] "SALESPEOPLE" line in Status 'Ready' should not be updated
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'SALESPEOPLE' has "Dependency Filter" = 'CURRENCY', "Job Queue Entry Status" = 'Ready'
         CRMFullSynchReviewLine.Init();
@@ -197,7 +197,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
     begin
         // [FEATURE] [Integration Synch. Job]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'CURRENCY' line, where "Job Queue Entry Status" is ' '
         CRMFullSynchReviewLine.Init();
@@ -225,7 +225,7 @@ codeunit 139187 "CRM Full Synchronization"
         JobQueueEntryID: Guid;
     begin
         // [FEATURE] [Integration Synch. Job]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] New currency 'X' and Customer 'A'
         Currency.DeleteAll();
@@ -281,7 +281,7 @@ codeunit 139187 "CRM Full Synchronization"
         JobQueueEntryID: Guid;
     begin
         // [FEATURE] [Integration Synch. Job]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         BlankTableConfigTemplateCodes('CUSTOMER'); // to avoid cross country issues with currencies
 
@@ -335,7 +335,7 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
         // [FEATURE] [Integration Synch. Job]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 2 New Customers, where "Salesperson Code" is not coupled
         Customer.DeleteAll();
@@ -374,7 +374,7 @@ codeunit 139187 "CRM Full Synchronization"
         JobQueueEntryID: Guid;
     begin
         // [FEATURE] [Integration Synch. Job]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 2 New Customers: "A" and
         Customer[1].DeleteAll();
@@ -461,7 +461,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         // [FEATURE] [UT] [Integration Synch. Job]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'SALESPEOPLE' mapping includes filters and is set to process coupled recs only
         IntegrationTableMapping.Get('SALESPEOPLE');
@@ -502,7 +502,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Integration Synch. Job]
         // [SCENARIO] Original CRM Job Queue Entry gets 'On Hold' while the full synch. job is being executed
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         LibraryCRMIntegration.CreateContact(Contact);
 
@@ -540,10 +540,10 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReview: TestPage "CRM Full Synch. Review";
     begin
         // [FEATURE] [UI] [Suite]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] Application Area is 'Suite'
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Open "CRM Connection Setup" page
         CRMConnectionSetupPage.OpenEdit;
         // [WHEN] Run action "Full Sync."
@@ -574,7 +574,7 @@ codeunit 139187 "CRM Full Synchronization"
         LastMapName: Code[20];
     begin
         // [FEATURE] [UI]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] There are 12 CRM Itegration table mappings
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
@@ -628,7 +628,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [UI]
         // [GIVEN] "CRM Full Synch Review Line" table is empty.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] There are 12 CRM Itegration table mappings
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
@@ -639,7 +639,7 @@ codeunit 139187 "CRM Full Synchronization"
         Assert.TableIsNotEmpty(DATABASE::"CRM Full Synch. Review Line");
         MapCount := CRMFullSynchReviewLine.Count();
         // [GIVEN] Removed one of "CRM Full Synch Review Line"
-        CRMFullSynchReviewLine.FindFirst;
+        CRMFullSynchReviewLine.FindFirst();
         CRMFullSynchReviewLine.Delete();
 
         // [WHEN] Open "CRM Full Synch Review" again
@@ -729,7 +729,7 @@ codeunit 139187 "CRM Full Synchronization"
         Counter: Integer;
     begin
         // [FEATURE] [UI] [Status]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] Open "CRM Full Synch Review"
         CRMFullSynchReviewPage.OpenEdit;
@@ -759,7 +759,7 @@ codeunit 139187 "CRM Full Synchronization"
         Counter: Integer;
     begin
         // [FEATURE] [Status] [UT]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'SALESPEOPLE' and 'UNIT OF MEASURE' are 'In Process', 'CURRENCY' is 'Finished'
         CRMFullSynchReviewLine.Generate;
@@ -790,7 +790,7 @@ codeunit 139187 "CRM Full Synchronization"
         OnHold: Integer;
     begin
         // [FEATURE] [Status] [UT]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'SALESPEOPLE' and 'CURRENCY' are 'Finished', 'UNIT OF MEASURE' is 'In Process'
         CRMFullSynchReviewLine.Generate;
@@ -834,7 +834,7 @@ codeunit 139187 "CRM Full Synchronization"
         OnHold: Integer;
     begin
         // [FEATURE] [Status] [UT]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'UNIT OF MEASURE','CURRENCY','ITEM-PRODUCT','CUSTPRCGRP-PRICE' are 'Finished'
         CRMFullSynchReviewLine.Generate;
@@ -881,7 +881,7 @@ codeunit 139187 "CRM Full Synchronization"
         AllCounter: Integer;
     begin
         // [FEATURE] [UI] [Status]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] Open "CRM Full Synch Review"
         CRMFullSynchReviewPage.OpenEdit;
@@ -907,10 +907,10 @@ codeunit 139187 "CRM Full Synchronization"
         JobQueueEntryID: Guid;
     begin
         // [FEATURE] [Status] [UI]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] Application Area is 'Suite'
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Job Queue Entries: "A", "B", "C"
         JobQueueEntryID := MockJobQueueLogEntries(2);
 
@@ -940,10 +940,10 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationSynchJobID: Guid;
     begin
         // [FEATURE] [Status] [UI]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] Application Area is 'Suite'
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Three Integration Synch. Jobs: "A", "B", "C"
         IntegrationSynchJobID := MockIntegrationSynchJobs(2);
 
@@ -973,10 +973,10 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationSynchJobID: Guid;
     begin
         // [FEATURE] [Status] [UI]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] Application Area is 'Suite'
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Three Integration Synch. Jobs: "A", "B", "C"
         IntegrationSynchJobID := MockIntegrationSynchJobs(2);
 
@@ -1005,9 +1005,9 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Session] [UI]
         // [SCENARIO] Action Start is disabled if any "In Process" line has an active session
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] 'CUSTOMER' line is "In Process" and "Session ID" points to an active session
         CRMFullSynchReviewLine[1].Name := 'CUSTOMER';
         CRMFullSynchReviewLine[1]."Session ID" := SessionId;
@@ -1043,9 +1043,9 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Session] [UI]
         // [SCENARIO] Action Start is enabled if no "In Process" lines have an active session
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] 'CUSTOMER' line is "In Process", but "Session ID" points to an inactive session
         CRMFullSynchReviewLine[1].Name := 'CUSTOMER';
         CRMFullSynchReviewLine[1]."Session ID" := -11;
@@ -1088,7 +1088,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Status] [UI]
         // [SCENARIO] Action Start is disabled if no lines in initial <blank> status
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] All lines are in different states, but no one, where "Status" = <blank>
         CRMFullSynchReviewLine.Generate;
@@ -1116,7 +1116,7 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Integration Table Mapping]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] New Customer "A", where "Modified On" = 'X'
         Customer.DeleteAll();
@@ -1179,7 +1179,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.CreateCRMOrganization;
-        CRMOrganization.FindFirst;
+        CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CRMConnectionSetup.Modify();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -1299,7 +1299,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         Assert.IsTrue(FindFullSyncIntTableMapping(Name, IntegrationTableMapping), 'Full synch. mapping is not found.');
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         exit(JobQueueEntry.ID);
     end;
 

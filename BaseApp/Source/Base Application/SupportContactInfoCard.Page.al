@@ -1,11 +1,13 @@
+#if not CLEAN20
 page 9165 "Support Contact Info Card"
 {
-    ApplicationArea = All;
     Caption = 'Support Contact Information';
     DataCaptionExpression = '';
     PageType = StandardDialog;
     Permissions = TableData "Support Contact Information" = rimd;
-    UsageCategory = Administration;
+    ObsoleteReason = 'The support contact information is an administrative task, and has been moved to the Admin center.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -137,4 +139,4 @@ page 9165 "Support Contact Info Card"
         SupportContactInformation.Modify(true);
     end;
 }
-
+#endif

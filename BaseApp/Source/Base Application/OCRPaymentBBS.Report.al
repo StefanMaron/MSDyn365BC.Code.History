@@ -25,11 +25,7 @@ report 15000064 "OCR Payment - BBS"
 
                         trigger OnAssistEdit()
                         begin
-#if not CLEAN17
-                            FileName := FileMgt.OpenFileDialog(Text10613, FileName, Text10614);
-#else
                             FileName := FileMgt.UploadFile(Text10613, FileName);
-#endif
                             if FileName <> '' then
                                 OCRPaymentFileName := FileMgt.GetFileName(FileName);
                         end;
@@ -77,24 +73,13 @@ report 15000064 "OCR Payment - BBS"
             Message(Text10619, MessageText, NumberOfWarnings)
         else
             Message(MessageText);
-#if not CLEAN17
-        if OCRSetup."Delete Return File" then
-            CreateFilename;
-#endif
     end;
 
     trigger OnPreReport()
     begin
         if FileName = '' then
             Error(Text10632);
-#if not CLEAN17
-        if not FileMgt.IsLocalFileSystemAccessible then
-            ServerTempFile := FileName
-        else
-            ServerTempFile := FileMgt.UploadFileSilent(FileName);
-#else
         ServerTempFile := FileName;
-#endif
 
         if ((OCRSetup."Journal Template Name" <> '') or (OCRSetup."Journal Name" <> '')) and
            ((OCRSetup."Journal Template Name" <> JournalSelection."Journal Template Name") or
@@ -107,7 +92,7 @@ report 15000064 "OCR Payment - BBS"
 
         GenJnlLine.SetRange("Journal Template Name", JournalSelection."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", JournalSelection."Journal Batch Name");
-        if GenJnlLine.FindLast then begin
+        if GenJnlLine.FindLast() then begin
             if not Confirm(Text10617, false) then
                 Error('');
             NextLineNo := GenJnlLine."Line No." + 10000;
@@ -171,10 +156,6 @@ report 15000064 "OCR Payment - BBS"
         KID: Text[30];
         TransTypeText: Text[30];
         ServerTempFile: Text[1024];
-#if not CLEAN17
-        file1: Text[250];
-        file2: Text[250];
-#endif
         OCRPaymentFileName: Text;
         OCRAmount: Decimal;
         BalEntrySum: Decimal;
@@ -200,9 +181,6 @@ report 15000064 "OCR Payment - BBS"
         Text10611: Label 'Divergence, OCR-Payment (%1 %2)', Comment = 'Parameter 1 - document type, 2 - document number.';
         Text10612: Label 'OCR-Payment. Paymentref. %1';
         Text10613: Label 'Import from OCR Payment File.';
-#if not CLEAN17
-        Text10614: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
-#endif
         Text10616: Label 'OCR payments can only be imported into journal Journal Template Name %1, Journal Name %2.';
         Text10617: Label 'Journal already contains lines.\Import?';
         Text10618: Label '%1 payments are imported.';
@@ -272,7 +250,7 @@ report 15000064 "OCR Payment - BBS"
                         CustEntry.SetRange("Document Type", CustEntry."Document Type"::"Finance Charge Memo");
                 end;
                 CustEntry.SetRange("Document No.", ApplyToDocumentNo);
-                if not CustEntry.FindFirst then begin
+                if not CustEntry.FindFirst() then begin
                     SetWarning(6); // Document No. does not exist
                                    // Create a temporary CustEntry and the info used in following:
                     CustEntry."Customer No." := '';
@@ -487,28 +465,6 @@ report 15000064 "OCR Payment - BBS"
             Text := CopyStr(Text, 1, MaxStrLen(GenJnlLine."Warning text") - 3) + '...';
         GenJnlLine.Validate("Warning text", Text);
     end;
-
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('ClientFileExists will always return false.', '17.4')]
-    procedure CreateFilename()
-    begin
-        if FileMgt.ClientFileExists(FileName) then begin
-            if (FileName[StrLen(FileName)] = '~') or
-               (FileName[StrLen(FileName) - 1] = '~')
-            then
-                exit;
-
-            file1 := CopyStr(FileName, 1, StrLen(FileName) - 1) + '~';
-            file2 := CopyStr(FileName, 1, StrLen(FileName) - 2) + '~~';
-            if FileMgt.ClientFileExists(file2) then
-                FileMgt.DeleteClientFile(file2);
-            if FileMgt.ClientFileExists(file1) then
-                FileMgt.MoveFile(file1, file2);
-            FileMgt.MoveFile(FileName, file1);
-        end;
-    end;
-#endif
 
     local procedure ParseBbsDate(var BbsDate: Date; OCRDateString: Text[6])
     var

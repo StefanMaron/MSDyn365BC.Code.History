@@ -197,7 +197,7 @@ page 7117 "Sales Analysis Report"
                             ExportAnalysisRepToExcel: Report "Export Analysis Rep. to Excel";
                         begin
                             ExportAnalysisRepToExcel.SetOptions(Rec, CurrentColumnTemplate, CurrentLineTemplate);
-                            ExportAnalysisRepToExcel.Run;
+                            ExportAnalysisRepToExcel.Run();
                         end;
                     }
                     action("Update Existing Document")
@@ -213,7 +213,7 @@ page 7117 "Sales Analysis Report"
                         begin
                             ExportAnalysisRepToExcel.SetOptions(Rec, CurrentColumnTemplate, CurrentLineTemplate);
                             ExportAnalysisRepToExcel.SetUpdateExistingWorksheet(true);
-                            ExportAnalysisRepToExcel.Run;
+                            ExportAnalysisRepToExcel.Run();
                         end;
                     }
                 }
@@ -276,7 +276,7 @@ page 7117 "Sales Analysis Report"
                     Clear(SalesAnalysisMatrix);
                     SalesAnalysisMatrix.Load(AnalysisColumn, MatrixColumnCaptions, FirstLineNo, LastLineNo);
                     SalesAnalysisMatrix.SetTableView(AnalysisLine);
-                    SalesAnalysisMatrix.RunModal;
+                    SalesAnalysisMatrix.Run();
                 end;
             }
             action("Previous Set")
@@ -528,7 +528,7 @@ page 7117 "Sales Analysis Report"
         AnalysisColumn2.SetFilter(Show, '<>%1', AnalysisColumn2.Show::Never);
         i := 1;
 
-        if AnalysisColumn2.FindSet then
+        if AnalysisColumn2.FindSet() then
             repeat
                 MatrixColumnCaptions[i] := AnalysisColumn2."Column Header";
                 i := i + 1;

@@ -109,7 +109,7 @@ report 10630 "VAT Reconciliation"
                 VATEntry.Reset();
                 VATEntry.SetRange("Transaction No.", "Transaction No.");
                 VATEntry.SetRange(Amount, "VAT Amount");
-                if VATEntry.FindFirst then begin
+                if VATEntry.FindFirst() then begin
                     if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
                         BaseAmountRevCharges := VATEntry.Base;
                         SalesVATRevCharges := VATEntry.Amount;
@@ -126,7 +126,7 @@ report 10630 "VAT Reconciliation"
                     VATEntry.SetRange("Transaction No.", "Transaction No.");
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                    if VATEntry.FindSet then begin
+                    if VATEntry.FindSet() then begin
                         repeat
                             if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
                                 BaseAmountRevCharges += VATEntry.Base;

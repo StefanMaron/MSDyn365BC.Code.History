@@ -1,4 +1,4 @@
-report 193 "Issue Finance Charge Memos"
+﻿report 193 "Issue Finance Charge Memos"
 {
     Caption = 'Issue Finance Charge Memos';
     ProcessingOnly = true;
@@ -33,8 +33,9 @@ report 193 "Issue Finance Charge Memos"
                 RecordNo := RecordNo + 1;
                 Clear(FinChrgMemoIssue);
                 FinChrgMemoIssue.Set("Finance Charge Memo Header", ReplacePostingDate, PostingDateReq);
+                FinChrgMemoIssue.SetGenJnlBatch(GenJnlBatch);
                 if NoOfRecords = 1 then begin
-                    FinChrgMemoIssue.Run;
+                    FinChrgMemoIssue.Run();
                     Mark := false;
                 end else begin
                     NewDateTime := CurrentDateTime;
@@ -47,7 +48,7 @@ report 193 "Issue Finance Charge Memos"
                         OldDateTime := CurrentDateTime;
                     end;
                     Commit();
-                    Mark := not FinChrgMemoIssue.Run;
+                    Mark := not FinChrgMemoIssue.Run();
                 end;
 
                 if (PrintDoc <> PrintDoc::" ") and not Mark then begin
@@ -65,7 +66,7 @@ report 193 "Issue Finance Charge Memos"
                 Window.Close;
                 Commit();
                 if PrintDoc <> PrintDoc::" " then
-                    if TempIssuedFinChrgMemoHeader.FindSet then
+                    if TempIssuedFinChrgMemoHeader.FindSet() then
                         repeat
                             IssuedFinChrgMemoHeader := TempIssuedFinChrgMemoHeader;
                             IsHandled := false;
@@ -76,7 +77,7 @@ report 193 "Issue Finance Charge Memos"
                             end;
                         until TempIssuedFinChrgMemoHeader.Next() = 0;
                 MarkedOnly := true;
-                if FindFirst then
+                if FindFirst() then
                     if ConfirmManagement.GetResponse(ShowNotIssuedQst, true) then
                         PAGE.RunModal(0, "Finance Charge Memo Header");
             end;
@@ -133,6 +134,42 @@ report 193 "Issue Finance Charge Memos"
                         Caption = 'Hide Email Dialog';
                         ToolTip = 'Specifies if you want to hide email dialog.';
                     }
+                    field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Template Name';
+                        TableRelation = "Gen. Journal Template";
+                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnValidate()
+                        begin
+                            GenJnlLineReq."Journal Batch Name" := '';
+                        end;
+                    }
+                    field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Batch Name';
+                        Lookup = true;
+                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
+                        begin
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            end;
+                        end;
+                    }
                 }
             }
         }
@@ -140,6 +177,18 @@ report 193 "Issue Finance Charge Memos"
         actions
         {
         }
+
+        trigger OnOpenPage()
+        begin
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                IsJournalTemplNameVisible := true;
+                SalesSetup.Get();
+                SalesSetup.TestField("Fin. Charge Jnl. Template Name");
+                SalesSetup.TestField("Fin. Charge Jnl. Batch Name");
+                GenJnlBatch.Get(SalesSetup."Fin. Charge Jnl. Template Name", SalesSetup."Fin. Charge Jnl. Batch Name");
+            end;
+        end;
     }
 
     labels
@@ -151,10 +200,14 @@ report 193 "Issue Finance Charge Memos"
         IssuingFinanceChargeMsg: Label 'Issuing finance charge memo...';
         IssuingFinanceChargesMsg: Label 'Issuing finance charge memos @1@@@@@@@@@@@@@';
         ShowNotIssuedQst: Label 'It was not possible to issue some of the selected finance charge memos.\Do you want to see these finance charge memos?';
+        GenJnlLineReq: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GLSetup: Record "General Ledger Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
         TempIssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header" temporary;
         FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
-        ConfirmManagement: Codeunit "Confirm Management";	
+        ConfirmManagement: Codeunit "Confirm Management";
         PEPPOLValidation: Codeunit "PEPPOL Validation";
         Window: Dialog;
         NoOfRecords: Integer;
@@ -167,6 +220,8 @@ report 193 "Issue Finance Charge Memos"
         ReplacePostingDate: Boolean;
         PrintDoc: Option " ",Print,Email;
         HideDialog: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
         ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the finance charge memo when it is posted according to invoice rounding setup.\Do you want to continue?';
 
     [IntegrationEvent(false, false)]

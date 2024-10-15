@@ -35,7 +35,7 @@ codeunit 134113 "ERM Test Employee Expense"
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
         EmployeePostingGroup.Init();
-        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID());
         EmployeePostingGroup.Validate("Payables Account", ExpenseAccNo);
         EmployeePostingGroup.Insert(true);
         exit(EmployeePostingGroup.Code);
@@ -45,7 +45,7 @@ codeunit 134113 "ERM Test Employee Expense"
     var
         Employee: Record Employee;
     begin
-        Employee.Validate("No.", LibraryUtility.GenerateGUID);
+        Employee.Validate("No.", LibraryUtility.GenerateGUID());
         Employee.Validate("First Name", LibraryUtility.GenerateRandomAlphabeticText(10, 0));
         Employee.Validate("Last Name", LibraryUtility.GenerateRandomAlphabeticText(10, 0));
         Employee.Validate("Employee Posting Group", EmployeePostingGroupCode);
@@ -90,10 +90,10 @@ codeunit 134113 "ERM Test Employee Expense"
         Employee: Record Employee;
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An employee
-        Employee.FindFirst;
+        Employee.FindFirst();
 
         // [WHEN] The user assigns account No on General journal to this employee
         CreateGeneralJournalLine(GenJournalLine, 1, '', Employee."No.", LibraryRandom.RandDecInRange(1, 100, 2));
@@ -109,10 +109,10 @@ codeunit 134113 "ERM Test Employee Expense"
         Employee: Record Employee;
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An employee with long name more than 50 character
-        Employee.FindFirst;
+        Employee.FindFirst();
         Employee.Validate("First Name", LibraryUtility.GenerateRandomAlphabeticText(30, 0));
         Employee.Validate("Middle Name", LibraryUtility.GenerateRandomAlphabeticText(30, 0));
         Employee.Validate("Last Name", LibraryUtility.GenerateRandomAlphabeticText(30, 0));
@@ -132,10 +132,10 @@ codeunit 134113 "ERM Test Employee Expense"
         Employee: Record Employee;
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An employee
-        Employee.FindFirst;
+        Employee.FindFirst();
 
         // [WHEN] The user assigns account type to employee , and sets bal account type to vendor
         CreateGeneralJournalLine(GenJournalLine, 1, '', Employee."No.", LibraryRandom.RandDecInRange(1, 100, 2));
@@ -154,9 +154,9 @@ codeunit 134113 "ERM Test Employee Expense"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] An employee
-        Employee.FindFirst;
+        Employee.FindFirst();
 
         // [WHEN] The user assigns account type to G/L account and leaves account No to empty and sets Bal account No to Employee No
         SelectGenJournalBatch(GenJournalBatch);
@@ -180,11 +180,11 @@ codeunit 134113 "ERM Test Employee Expense"
         ExpenseAccNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An employee and expense balance sheet G/L account
         ExpenseAccNo := CreateBalanceSheetAccount;
-        Employee.FindFirst;
+        Employee.FindFirst();
         Amount := LibraryRandom.RandDecInRange(1, 100, 2);
 
         // [WHEN] The user assigns account No on General journal to this employee and balance to the expense account and post
@@ -193,7 +193,7 @@ codeunit 134113 "ERM Test Employee Expense"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         GLEntry.SetRange("G/L Account No.", ExpenseAccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreEqual(1, GLEntry.Count, 'Error Multiple G/L entries were created when posting Gen. Journal Line');
         Assert.AreEqual(
           DummyGenJournalLine."Bal. Account Type"::Employee, GLEntry."Bal. Account Type",
@@ -201,7 +201,7 @@ codeunit 134113 "ERM Test Employee Expense"
         Assert.AreEqual(Employee."No.", GLEntry."Bal. Account No.", 'Error Bal. Account No. is not set to employee No.');
 
         EmployeeLedgerEntry.SetRange("Employee No.", Employee."No.");
-        EmployeeLedgerEntry.FindFirst;
+        EmployeeLedgerEntry.FindFirst();
         EmployeeLedgerEntry.CalcFields("Amount (LCY)");
         Assert.AreEqual(
           1, EmployeeLedgerEntry.Count, 'Error Multiple employee ledger entries were created when posting Gen. Journal Line');
@@ -229,11 +229,11 @@ codeunit 134113 "ERM Test Employee Expense"
         SecondAmount: Decimal;
         BalancingAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] An employee and expense balance sheet G/L account
         ExpenseAccNo := CreateBalanceSheetAccount;
-        Employee.FindFirst;
+        Employee.FindFirst();
         FirstAmount := LibraryRandom.RandDecInRange(1, 100, 2);
         SecondAmount := LibraryRandom.RandDecInRange(1, 100, 2);
         BalancingAmount := -(FirstAmount + SecondAmount);
@@ -262,12 +262,12 @@ codeunit 134113 "ERM Test Employee Expense"
         EmployeePostingGroup.Get(Employee."Employee Posting Group");
 
         EmployeeGLEntry.SetRange("G/L Account No.", EmployeePostingGroup.GetPayablesAccount);
-        EmployeeGLEntry.FindFirst;
+        EmployeeGLEntry.FindFirst();
         Assert.AreEqual(1, EmployeeGLEntry.Count, 'Error Multiple Employee G/L entries were created when posting Gen. Journal Line');
         Assert.AreEqual(BalancingAmount, EmployeeGLEntry.Amount, 'Error amount incorrect on Employee GL Entry');
 
         EmployeeLedgerEntry.SetRange("Employee No.", Employee."No.");
-        EmployeeLedgerEntry.FindFirst;
+        EmployeeLedgerEntry.FindFirst();
         EmployeeLedgerEntry.CalcFields("Amount (LCY)");
         Assert.AreEqual(
           1, EmployeeLedgerEntry.Count, 'Error Multiple employee ledger entries were created when posting Gen. Journal Line');

@@ -334,6 +334,13 @@ page 5935 "Service Credit Memo"
                         ShortcutDimension2CodeOnAfterV;
                     end;
                 }
+                field("Customer Posting Group"; Rec."Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Service;
@@ -366,6 +373,12 @@ page 5935 "Service Credit Memo"
                         end;
                         Clear(ChangeExchangeRate);
                     end;
+                }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("Due Date"; "Due Date")
                 {
@@ -519,6 +532,14 @@ page 5935 "Service Credit Memo"
         }
         area(factboxes)
         {
+            part(ServiceDocCheckFactbox; "Service Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = ServiceDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -690,7 +711,7 @@ page 5935 "Service Credit Memo"
                     begin
                         Clear(GetPrepaidTransactions);
                         GetPrepaidTransactions.Initialize(Rec);
-                        GetPrepaidTransactions.RunModal;
+                        GetPrepaidTransactions.RunModal();
                         CurrPage.Update(false);
                     end;
                 }
@@ -832,6 +853,8 @@ page 5935 "Service Credit Memo"
     begin
         SellToContact.GetOrClear("Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnOpenPage()
@@ -841,6 +864,7 @@ page 5935 "Service Credit Memo"
             DocumentIsPosted := (not Get("Document Type", "No."));
 
         ActivateFields;
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -852,10 +876,12 @@ page 5935 "Service Credit Memo"
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        ServiceMgtSetup: Record "Service Mgt. Setup";
         GetPrepaidTransactions: Report "Get Prepaid Contract Entries";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
         ServLogMgt: Codeunit ServLogManagement;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocumentIsPosted: Boolean;
@@ -863,12 +889,34 @@ page 5935 "Service Credit Memo"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
+        ServiceDocCheckFactboxVisible: Boolean;
 
     local procedure ActivateFields()
     begin
         IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+
+        SetPostingGroupEditable();
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.ServiceDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            ActivateFields();
+    end;
+
+    local procedure SetPostingGroupEditable()
+    begin
+        ServiceMgtSetup.GetRecordOnce();
+        IsPostingGroupEditable := ServiceMgtSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure ApproveCalcInvDisc()
@@ -926,11 +974,16 @@ page 5935 "Service Credit Memo"
     begin
         ServiceCrMemoHeader.SetCurrentKey("Pre-Assigned No.");
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if ServiceCrMemoHeader.FindFirst then
+        if ServiceCrMemoHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedServiceCrMemoQst, ServiceCrMemoHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Service Credit Memo", ServiceCrMemoHeader);
+                InstructionMgt.ShowPostedDocument(ServiceCrMemoHeader, Page::"Service Credit Memo");
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var ServiceHeader: Record "Service Header")
+    begin
     end;
 }
 

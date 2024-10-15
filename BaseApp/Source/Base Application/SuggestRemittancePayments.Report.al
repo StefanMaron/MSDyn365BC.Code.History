@@ -55,7 +55,7 @@ report 15000001 "Suggest Remittance Payments"
                 GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
                 GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-                if GenJnlLine.FindLast then begin
+                if GenJnlLine.FindLast() then begin
                     LastLineNo := GenJnlLine."Line No.";
                     GenJnlLine.Init();
                 end;
@@ -224,7 +224,6 @@ report 15000001 "Suggest Remittance Payments"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         PayableVendLedgEntry: Record "Payable Vendor Ledger Entry" temporary;
         TempPaymentBuffer: Record "Payment Buffer" temporary;
         OldTempPaymentBuffer: Record "Payment Buffer" temporary;
@@ -259,6 +258,9 @@ report 15000001 "Suggest Remittance Payments"
         Text15000001: Label 'Payment';
         Text15000002: Label '%1 of %2 %3 (%4)', Comment = 'Parameter 1 - Refund or Payment, 2 - document type, 3 and 4 - document numbers.';
         ReplacePostingDateWithDueDate: Boolean;
+
+    protected var
+        VendLedgEntry: Record "Vendor Ledger Entry";
 
     [Scope('OnPrem')]
     procedure SetGenJnlLine(NewGenJnlLine: Record "Gen. Journal Line")
@@ -420,7 +422,7 @@ report 15000001 "Suggest Remittance Payments"
                     GenJnlLine3.SetRange("Account No.", VendLedgEntry."Vendor No.");
                     GenJnlLine3.SetRange("Applies-to Doc. Type", VendLedgEntry."Document Type");
                     GenJnlLine3.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
-                    if GenJnlLine3.FindFirst then
+                    if GenJnlLine3.FindFirst() then
                         GenJnlLine3.FieldError(
                           "Applies-to Doc. No.",
                           StrSubstNo(
@@ -551,7 +553,7 @@ report 15000001 "Suggest Remittance Payments"
                         until TmpPayableVendLedgEntry.Next() = 0;
 
                     TmpPayableVendLedgEntry2.SetFilter("Currency Code", '<>%1', BankAcc."Currency Code");
-                    SeveralCurrencies := SeveralCurrencies or TmpPayableVendLedgEntry2.FindFirst;
+                    SeveralCurrencies := SeveralCurrencies or TmpPayableVendLedgEntry2.FindFirst();
 
                     if SeveralCurrencies then
                         MessageText := StrSubstNo(Text019, BankAcc."Currency Code")
@@ -601,12 +603,7 @@ report 15000001 "Suggest Remittance Payments"
     begin
         with GenJnlLine do begin
             DimSetID := "Dimension Set ID";
-            CreateDim(
-              DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-              DATABASE::Job, "Job No.",
-              DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-              DATABASE::Campaign, "Campaign No.");
+            CreateDimFromDefaultDim(FieldNo("Account No."));
             if DimSetID <> "Dimension Set ID" then begin
                 DimSetIDArr[1] := "Dimension Set ID";
                 DimSetIDArr[2] := DimSetID;

@@ -29,9 +29,7 @@ codeunit 10636 "Import Pain002"
         Pain002NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.002.001.03';
         AccountCurrency: Code[3];
         LatestCurrencyCode: Code[3];
-#if CLEAN17
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
-#endif
 
     [Scope('OnPrem')]
     procedure ImportAndHandlePain002File(GenJournalLine: Record "Gen. Journal Line"; FileName: Text[250]; Note: Text[50])
@@ -58,11 +56,7 @@ codeunit 10636 "Import Pain002"
         LatestDate := 20030201D; // dummy init for precal
         LatestVend := '';
 
-#if not CLEAN17
-        OpenPain002Document(FileName);
-#else
         OpenPain002Document();
-#endif
 
         // used as a reference in waiting journals
         ImportSEPACommon.CreatePaymOrder(Note, RemittancePaymentOrder);
@@ -91,7 +85,7 @@ codeunit 10636 "Import Pain002"
             // update all transactions that match the filter
             WaitingJournal.Reset();
             WaitingJournal.SetFilter("SEPA Msg. ID", OriginalMsgId);
-            if not WaitingJournal.FindFirst then
+            if not WaitingJournal.FindFirst() then
                 Error(WaitingJournal.GetWaitingJournalNotFoundForRemittanceImport);
             ImportSEPACommon.UpdateWaitingJournal(
               WaitingJournal, MapReceivedStatusToFinalStatus(TransactionStatus), TransactionCauseCode, TransactionCauseInfo,
@@ -147,7 +141,7 @@ codeunit 10636 "Import Pain002"
             TransactionStatus := ImportSEPACommon.FindFirstNodeTxt(XmlNodePayment, XmlNamespaceManagerPain002, './n:PmtInfSts', true);
             GetStatusInfo(XmlNodePayment, TransactionCauseCode, TransactionCauseInfo);
             // update all transactions that match the filter
-            if not WaitingJournal.FindFirst then
+            if not WaitingJournal.FindFirst() then
                 Error(WaitingJournal.GetWaitingJournalNotFoundForRemittanceImport);
             ImportSEPACommon.UpdateWaitingJournal(
               WaitingJournal, MapReceivedStatusToFinalStatus(TransactionStatus), TransactionCauseCode, TransactionCauseInfo,
@@ -171,7 +165,7 @@ codeunit 10636 "Import Pain002"
           XmlNodeTransaction, OriginalEndToEndId, TransactionStatus, TransactionCauseCode, TransactionCauseInfo);
 
         WaitingJournal.SetFilter("SEPA End To End ID", OriginalEndToEndId);
-        if not WaitingJournal.FindFirst then
+        if not WaitingJournal.FindFirst() then
             Error(WaitingJournal.GetWaitingJournalNotFoundForRemittanceImport);
         ImportSEPACommon.UpdateWaitingJournal(
           WaitingJournal, MapReceivedStatusToFinalStatus(TransactionStatus), TransactionCauseCode, TransactionCauseInfo,
@@ -183,22 +177,13 @@ codeunit 10636 "Import Pain002"
     end;
 
 
-#if not CLEAN17
-    local procedure OpenPain002Document(FilePath: Text)
-#else
     local procedure OpenPain002Document()
-#endif
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
         FileManagement: Codeunit "File Management";
         ServerFile: Text;
     begin
-#if not CLEAN17
-        ServerFile := FilePath;
-        ServerFile := FileManagement.UploadFileToServer(FilePath);
-#else
         ServerFile := FileManagement.UploadFile(ChooseFileTitleMsg, '');
-#endif
 
         XMLDOMManagement.LoadXMLDocumentFromFile(ServerFile, XmlDocumentPain002);
         XMLDOMManagement.AddNamespaces(XmlNamespaceManagerPain002, XmlDocumentPain002);

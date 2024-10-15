@@ -130,7 +130,7 @@ codeunit 5323 "Exchange Add-in Setup"
         TempOfficeAdminCredentials.Insert();
 
         User.SetRange("User Name", UserId);
-        if User.FindFirst then begin
+        if User.FindFirst() then begin
             Session.LogMessage('0000BXF', UserFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
             TempOfficeAdminCredentials.Email := User."Authentication Email";
             TempOfficeAdminCredentials.Modify();
@@ -223,7 +223,7 @@ codeunit 5323 "Exchange Add-in Setup"
             RecipientEmail := EmailAddress
         end else begin
             User.SetRange("User Name", UserId);
-            if User.FindFirst then begin
+            if User.FindFirst() then begin
                 Session.LogMessage('0000BXM', ToUserEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                 RecipientEmail := User."Authentication Email";
             end;

@@ -545,7 +545,7 @@ codeunit 134334 "ERM Vendor Statistics"
         Initialize();
 
         // [GIVEN] Vendor
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [WHEN] Open "Vendor Statistics"
         VendorList.OpenView;
@@ -744,7 +744,7 @@ codeunit 134334 "ERM Vendor Statistics"
         Key.SetFilter(
           Key,
           'Vendor No.,Currency Code,Initial Entry Global Dim. 1,Initial Entry Global Dim. 2,Initial Entry Due Date,*');
-        Key.FindFirst;
+        Key.FindFirst();
         Key.TestField(MaintainSIFTIndex, true);
     end;
 
@@ -820,10 +820,10 @@ codeunit 134334 "ERM Vendor Statistics"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Vendor Statistics");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Vendor Statistics");
@@ -952,7 +952,7 @@ codeunit 134334 "ERM Vendor Statistics"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         exit(PurchInvHeader."No.");
     end;
 
@@ -1023,7 +1023,7 @@ codeunit 134334 "ERM Vendor Statistics"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Posting Date", PostingDate);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         LibraryERM.ReverseTransaction(VendorLedgerEntry."Transaction No.");
     end;
 

@@ -668,7 +668,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 168591] Domestic customers (with high/med/low/no vat), abroad customer with no vat
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [GIVEN] Five customers: four domestic customers with different VAT Rates (Normal, Medium, Low, NoVAT), one abroad customer
         CustomerNo[1] := CreateCustomer(VATPostingSetup[1], VATPostingSetup[1]."VAT Settlement Rate"::Normal, BoxNo::"3");
@@ -715,7 +715,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 168591] Abroad vendors with high/med/no VAT (import of goods)
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [GIVEN] Three abroad vendors with high/med/no VAT
         VendorNo[1] := CreateVendor(VATPostingSetup[1], VATPostingSetup[1]."VAT Settlement Rate"::Normal, BoxNo::"9");
@@ -756,7 +756,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     begin
         // [FEATURE] [Purchase] [Reverse Charge VAT]
         // [SCENARIO 168591] Abroad and domestic vendors with high VAT and Reverse Charge VAT
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [GIVEN] Two vendors: abroad and domestic with with "VAT Settlement Rate" = Normal, "VAT %" = 25, "VAT Calculation Type" = "Reverse Charge VAT"
         VendorNo[1] :=
@@ -796,7 +796,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 168591] Domestic vendors with high/med/low vat
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [GIVEN] Three domestic vendors with high/med/low VAT
         VendorNo[1] := CreateVendor(VATPostingSetup[1], VATPostingSetup[1]."VAT Settlement Rate"::Normal, BoxNo::"14");
@@ -837,7 +837,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 168591] Abroad vendors with high/med VAT (deduction of import)
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [GIVEN] Two abroad vendors with high/med VAT
         VendorNo[1] := CreateVendor(VATPostingSetup[1], VATPostingSetup[1]."VAT Settlement Rate"::Normal, BoxNo::"17");
@@ -875,7 +875,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 168591] Abroad vendors with high/med/no VAT (import of goods, deduction of import)
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [GIVEN] Three abroad vendors with high/med/no VAT (import of goods)
         VendorNo[1] := CreateVendor(VATPostingSetup[1], VATPostingSetup[1]."VAT Settlement Rate"::Normal, BoxNo::"9");
@@ -925,7 +925,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 168591] Abroad/domestic vendors with high/med/low/no normal VAT, abroad/domestic vendors with high VAT and Reverse Charge VAT
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [GIVEN] Three abroad vendors with high/med/no VAT (import of goods)
         VendorNo[1] := CreateVendor(VATPostingSetup[1], VATPostingSetup[1]."VAT Settlement Rate"::Normal, BoxNo::"9");
@@ -1000,7 +1000,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     begin
         // [FEATURE] [Sales] [Purchase]
         // [SCENARIO 168591] Domestic customers/vendors with high/med/low vat
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [GIVEN] Three domestic customers and vendors with high/med/low VAT
         CustomerNo[1] := CreateCustomer(VATPostingSetup[1], VATPostingSetup[1]."VAT Settlement Rate"::Normal, BoxNo::"3");
@@ -1052,7 +1052,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [SCENARIO 235227] Standard Trade Settlement part is printed when report is running in empty VAT period.
 
         // [GIVEN] Take period where no VAT Entries
-        VATEntry.FindLast;
+        VATEntry.FindLast();
 
         // [WHEN] Run REP 10618 "Trade Settlement - 2017" in empty period
         RunTradeSettlement2017ReportCombine(VATEntry."Entry No." + 1);

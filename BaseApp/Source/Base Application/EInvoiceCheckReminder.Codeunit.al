@@ -66,7 +66,7 @@ codeunit 10614 "E-Invoice Check Reminder"
         with ReminderLine do begin
             Reset;
             SetRange("Reminder No.", ReminderHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Description = '' then
                         if (Type <> Type::" ") and ("No." <> '') then

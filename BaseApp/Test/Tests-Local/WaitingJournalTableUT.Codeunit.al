@@ -111,7 +111,7 @@ codeunit 144123 "WaitingJournalTable UT"
         asserterror WaitingJournal.Validate("Shortcut Dimension 2 Code", 'SomeNonExistingCode');
         Assert.AreEqual('DB:NothingInsideFilter', GetLastErrorCode, 'Expected OnValidate to fail when dimension value does not exist');
 
-        GLSetup.FindFirst;
+        GLSetup.FindFirst();
 
         LibraryDimension.FindDimensionValue(DimensionValue, GLSetup."Shortcut Dimension 1 Code");
         WaitingJournal.Init();
@@ -240,11 +240,11 @@ codeunit 144123 "WaitingJournalTable UT"
         WaitingJournal.Init();
         WaitingJournal.LookupShortcutDimCode(1, ShortcutDimCode);
 
-        GLSetup.FindFirst;
+        GLSetup.FindFirst();
         DimensionValue.SetFilter("Dimension Code", '=%1', GLSetup."Shortcut Dimension 1 Code");
         DimensionValue.SetFilter(Blocked, '=%1', false);
         DimensionValue.SetFilter(Code, ShortcutDimCode);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
     end;
 
     [Test]

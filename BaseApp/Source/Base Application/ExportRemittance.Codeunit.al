@@ -17,10 +17,10 @@ codeunit 15000031 "Export Remittance"
         RemAgreement.Get("Remittance Agreement Code");
         if RemAgreement."Payment System" = RemAgreement."Payment System"::BBS then begin
             ExportBBS.SetJournalLine(Rec);
-            ExportBBS.RunModal;
+            ExportBBS.RunModal();
         end else begin
             ExportTelepay.SetJournalLine(Rec);
-            ExportTelepay.RunModal;
+            ExportTelepay.RunModal();
         end;
     end;
 

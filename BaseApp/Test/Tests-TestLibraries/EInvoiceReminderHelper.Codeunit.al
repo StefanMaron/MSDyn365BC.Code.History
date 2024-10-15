@@ -48,7 +48,7 @@ codeunit 143017 "E-Invoice Reminder Helper"
 
         with IssuedReminderHeader do begin
             SetFilter("Pre-Assigned No.", ReminderHeaderNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -64,7 +64,7 @@ codeunit 143017 "E-Invoice Reminder Helper"
         with ReminderHeader do begin
             Init;
             Validate("Customer No.", Customer."No.");
-            ReminderTerms.FindFirst;
+            ReminderTerms.FindFirst();
             Validate("Reminder Terms Code", ReminderTerms.Code);
             "Post Interest" := true;
             "Post Additional Fee" := true;

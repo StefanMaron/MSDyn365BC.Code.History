@@ -73,7 +73,7 @@ table 5883 "Phys. Invt. Comment Line"
         PhysInvtCommentLine.SetRange("Document Type", "Document Type");
         PhysInvtCommentLine.SetRange("Order No.", "Order No.");
         PhysInvtCommentLine.SetRange("Recording No.", "Recording No.");
-        if not PhysInvtCommentLine.FindFirst then
+        if not PhysInvtCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, PhysInvtCommentLine);

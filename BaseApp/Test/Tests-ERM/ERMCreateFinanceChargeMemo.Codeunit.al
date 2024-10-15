@@ -35,7 +35,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
         // Create and Issue Finance Charge Memo with Currency.
         // Setup.
-        Initialize;
+        Initialize();
         FinanceChargeMemo(CreateCurrencyAndUpdateExcRate);
     end;
 
@@ -45,7 +45,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
         // Create and Issue Finance Charge Memo without Currency.
         // Setup.
-        Initialize;
+        Initialize();
         FinanceChargeMemo('');
     end;
 
@@ -66,7 +66,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
         // Exercise: Calculate Finance Charge Memo Remaining Amount and Issue Finance Charge Memo.
         FinanceChargeMemoHeader.SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
-        FinanceChargeMemoHeader.FindFirst;
+        FinanceChargeMemoHeader.FindFirst();
         FinanceChargeMemoAmount :=
           SalesLineAmount * (FinanceChargeMemoHeader."Document Date" - FinanceChargeMemoHeader."Posting Date") /
           FinanceChargeTerms."Interest Period (Days)" * FinanceChargeTerms."Interest Rate" / 100;
@@ -87,7 +87,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // Create Finance Charge Memo using suggest finance charge memo document.
 
         // 1. Setup: Create Customer and Sales Invoice.
-        Initialize;
+        Initialize();
         Customer.Get(CreateCustomer);
         MIRHelperFunctions.CreateAndPostSalesInvoiceBySalesJournal(Customer."No.");
         CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate);
@@ -96,7 +96,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         CreateFinanceChargeMemos.SetTableView(Customer);
         CreateFinanceChargeMemos.InitializeRequest(CreationDate, CreationDate);
         CreateFinanceChargeMemos.UseRequestPage(false);
-        CreateFinanceChargeMemos.Run;
+        CreateFinanceChargeMemos.Run();
 
         // 3. Verify: Check Finance Charge Memo Document.
         VerifyFinanceChargeMemoDocument(Customer."No.");
@@ -112,7 +112,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // Create Finance Charge Memo using suggest finance charge memo line.
 
         // 1. Setup: Create Customer and Sales Invoice.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         MIRHelperFunctions.CreateAndPostSalesInvoiceBySalesJournal(CustomerNo);
 
@@ -135,7 +135,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // Verify that no error exists on opening Statistics Page after creating Finance Charge Memo without Customer No.
 
         // Setup: Create Finance Charge Memo Header.
-        Initialize;
+        Initialize();
         FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader."No." :=
           LibraryUtility.GenerateRandomCode(
@@ -196,7 +196,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // Create Finance Charge Memo using 'Suggest Finance Charge Memos' when invoices with different currencies exist.
 
         // 1. Setup: Create Customer and Sales Invoice.
-        Initialize;
+        Initialize();
         DueDateMonths := LibraryRandom.RandInt(5);
         Customer.Get(CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(DueDateMonths)));
         CreateAndPostSalesInvoiceWithCustomerAtDate(SalesHeader, '', Customer."No.", WorkDate);
@@ -229,7 +229,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // Another issued Finance Charge Memos should not be printed.
 
         // 1. Setup: Create and issue Finance Charge Memo, then setup allowed posting dates.
-        Initialize;
+        Initialize();
         Customer.Get(CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(1)));
         LibraryVariableStorage.Enqueue(PrintDocRef::Print);
         LibraryVariableStorage.Enqueue(false);
@@ -257,42 +257,26 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     end;
 
     [Test]
-    [HandlerFunctions('IssueFinanceChargeMemosHandler,EMailDialogPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIssueFinChargeMemoEmailSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        IssueFinChargeMemoEmail();
-    end;
-
-    [Test]
     [HandlerFunctions('IssueFinanceChargeMemosHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestIssueFinChargeMemoEmail()
     var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
     begin
         LibraryLowerPermissions.SetO365Full();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         IssueFinChargeMemoEmail();
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
     end;
 
     procedure IssueFinChargeMemoEmail()
     var
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         Customer: Record Customer;
-        EmailFeature: Codeunit "Email Feature";
         LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         // [FEATURE] [EMail]
         // [SCENARIO 376445] Issue Finance Charge Memo with Print = E-Mail and Hide Email-Dialog = No should show 'E-Mail Dialog' page
-        Initialize;
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount();
+        Initialize();
+        LibraryWorkflow.SetUpEmailAccount();
 
         // [GIVEN] Customer "A" with Finance Charge Memo
         Customer.Get(CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(1)));
@@ -438,21 +422,22 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Create Finance Charge Memo");
-        BindActiveDirectoryMockEvents;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        BindActiveDirectoryMockEvents();
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Create Finance Charge Memo");
 
         SetGLSetupInvoiceRounding();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplNameMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
-
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Create Finance Charge Memo");
     end;
 
@@ -467,7 +452,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
         with FinanceChargeTerms do begin
             SetFilter("Due Date Calculation", '<>''''');
-            FindFirst;
+            FindFirst();
             ClearFinanceChargeInterestRate(Code);
             exit(Code);
         end;
@@ -559,7 +544,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         CreateFinanceChargeMemos.SetTableView(Customer);
         CreateFinanceChargeMemos.InitializeRequest(WorkDate, DocumentDate);
         CreateFinanceChargeMemos.UseRequestPage(false);
-        CreateFinanceChargeMemos.Run;
+        CreateFinanceChargeMemos.Run();
     end;
 
     local procedure CreateFinChargeMemoAtDate(Customer: Record Customer; PostingDate: Date): Code[20]
@@ -615,7 +600,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
         Clear(IssueFinanceChargeMemos);
         IssueFinanceChargeMemos.UseRequestPage(true);
-        IssueFinanceChargeMemos.Run;
+        IssueFinanceChargeMemos.Run();
     end;
 
     local procedure CreateItem(): Code[20]
@@ -680,7 +665,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         FinanceChargeMemoHeader.SetRange("No.", FinanceChargeMemoHeader."No.");
         SuggestFinChargeMemoLines.SetTableView(FinanceChargeMemoHeader);
         SuggestFinChargeMemoLines.UseRequestPage(false);
-        SuggestFinChargeMemoLines.Run;
+        SuggestFinChargeMemoLines.Run();
     end;
 
     [ReportHandler]
@@ -758,9 +743,9 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
         IssuedFinChargeMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        IssuedFinChargeMemoHeader.FindFirst;
+        IssuedFinChargeMemoHeader.FindFirst();
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoHeader."No.");
-        IssuedFinChargeMemoLine.FindFirst;
+        IssuedFinChargeMemoLine.FindFirst();
 
         Assert.AreNearlyEqual(
           CalcFinanceChargeMemoAmount, IssuedFinChargeMemoLine.Amount, LibraryERM.GetAmountRoundingPrecision,
@@ -773,10 +758,10 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
     begin
         FinanceChargeMemoHeader.SetRange("Customer No.", CustomerNo);
-        FinanceChargeMemoHeader.FindFirst;
+        FinanceChargeMemoHeader.FindFirst();
 
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeader."No.");
-        FinanceChargeMemoLine.FindFirst;
+        FinanceChargeMemoLine.FindFirst();
     end;
 
     local procedure VerifyNumberOfFinChargeMemos(CustomerNo: Code[20]; ExpectedNumber: Integer)
@@ -792,13 +777,6 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     procedure FinChargeMemoReportTestRequestPageHandler(var FinChargeMemoTest: TestRequestPage "Finance Charge Memo - Test")
     begin
         FinChargeMemoTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure EMailDialogPageHandler(var EMailDialog: TestPage "Email Dialog")
-    begin
-        EMailDialog.Cancel.Invoke;
     end;
 
     [ModalPageHandler]

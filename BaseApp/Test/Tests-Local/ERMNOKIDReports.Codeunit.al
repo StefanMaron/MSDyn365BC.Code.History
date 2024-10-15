@@ -33,7 +33,7 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 332472] 'Standard Sales - Invoice' report printing without Kunde ID
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup has settings in KID Setup
         ResetSalesSetupKID;
@@ -63,7 +63,7 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         // [FEATURE] [Finance Charge Memo]
         // [SCENARIO 332472] Finance Charge Memo printing without Kunde ID
-        Initialize;
+        Initialize();
         ResetSalesSetupKID;
 
         // [GIVEN] Issued Finance Charge Memo for a Customer
@@ -90,7 +90,7 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         // [FEATURE] [Reminder]
         // [SCENARIO 332472] Reminder report printing without Kunde ID
-        Initialize;
+        Initialize();
         ResetSalesSetupKID;
 
         // [GIVEN] Issued Reminder
@@ -119,7 +119,7 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         // [FEATURE] [Finance Charge Memo]
         // [SCENARIO 332472] Finance Charge Memo printing with Kunde ID
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup has settings in KID Setup
         UpdateSalesSetupKID;
@@ -148,7 +148,7 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         // [FEATURE] [Reminder]
         // [SCENARIO 332472] Reminder report printing with Kunde ID
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup has settings in KID Setup
         UpdateSalesSetupKID;
@@ -178,7 +178,7 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 332472] 'Standard Sales - Invoice' report printing with Kunde ID
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup has settings in KID Setup
         UpdateSalesSetupKID;
@@ -203,13 +203,13 @@ codeunit 144181 "ERM NO KID Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         Clear(LibraryVariableStorage);
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.SaveSalesSetup;
         IsInitialized := true;
     end;
@@ -247,7 +247,7 @@ codeunit 144181 "ERM NO KID Reports"
         ReminderLevel: Record "Reminder Level";
     begin
         ReminderLevel.SetFilter("Additional Fee (LCY)", '<>%1', 0);
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", ReminderLevel."Reminder Terms Code");
         Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms);
@@ -316,14 +316,14 @@ codeunit 144181 "ERM NO KID Reports"
     begin
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         IssuedFinChargeMemoLine.SetRange(Type, Type);
-        IssuedFinChargeMemoLine.FindFirst;
+        IssuedFinChargeMemoLine.FindFirst();
         exit(IssuedFinChargeMemoLine.Amount);
     end;
 
     local procedure FindReminderLevel(var ReminderLevel: Record "Reminder Level"; ReminderTermsCode: Code[10])
     begin
         ReminderLevel.SetRange("Reminder Terms Code", ReminderTermsCode);
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
     end;
 
     local procedure GetKundeID(DocumentType: Integer; DocumentNo: Code[20]; CustomerNo: Code[20]) KundeID: Text[25]
@@ -349,7 +349,7 @@ codeunit 144181 "ERM NO KID Reports"
         FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
     begin
         FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, FinanceChargeMemoHeader."Document Date");
-        FinChrgMemoIssue.Run;
+        FinChrgMemoIssue.Run();
     end;
 
     local procedure IssueReminder(ReminderHeader: Record "Reminder Header")
@@ -357,7 +357,7 @@ codeunit 144181 "ERM NO KID Reports"
         ReminderIssue: Codeunit "Reminder-Issue";
     begin
         ReminderIssue.Set(ReminderHeader, false, ReminderHeader."Document Date");
-        ReminderIssue.Run;
+        ReminderIssue.Run();
     end;
 
     local procedure IssueReminderAndGetIssuedNo(ReminderNo: Code[20]) IssuedReminderNo: Code[20]
@@ -377,7 +377,7 @@ codeunit 144181 "ERM NO KID Reports"
         FinanceChargeMemoHeader.SetRange("No.", FinanceChargeMemoHeader."No.");
         SuggestFinChargeMemoLines.SetTableView(FinanceChargeMemoHeader);
         SuggestFinChargeMemoLines.UseRequestPage(false);
-        SuggestFinChargeMemoLines.Run;
+        SuggestFinChargeMemoLines.Run();
     end;
 
     local procedure ResetSalesSetupKID()
@@ -439,7 +439,7 @@ codeunit 144181 "ERM NO KID Reports"
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
         IssuedReminderLine.SetRange("Reminder No.", No);
-        IssuedReminderLine.FindFirst;
+        IssuedReminderLine.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('KundeIDCaption', KundeIDCaption);
         LibraryReportDataset.AssertElementWithValueExists('KundeID', KundeID);

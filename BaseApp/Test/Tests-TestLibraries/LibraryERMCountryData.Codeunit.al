@@ -268,7 +268,7 @@ codeunit 131305 "Library - ERM Country Data"
         SalesGenPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
         SalesGenPostingSetup.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
         SalesGenPostingSetup.SetRange("Purch. Account", '');
-        if SalesGenPostingSetup.FindFirst then begin
+        if SalesGenPostingSetup.FindFirst() then begin
             PurchGeneralPostingSetup.SetFilter("Purch. Account", '<>%1', '');
             PurchGeneralPostingSetup.SetFilter("Purch. Credit Memo Account", '<>%1', '');
             PurchGeneralPostingSetup.SetFilter("Purch. Line Disc. Account", '<>%1', '');
@@ -406,7 +406,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 

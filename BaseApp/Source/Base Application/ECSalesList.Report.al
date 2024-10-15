@@ -202,7 +202,7 @@ report 130 "EC Sales List"
                     VATEntry.SetCurrentKey(
                       Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
                     VATEntry.CopyFilters("VAT Entry");
-                    if VATEntry.FindSet then;
+                    if VATEntry.FindSet() then;
                 end;
             }
 

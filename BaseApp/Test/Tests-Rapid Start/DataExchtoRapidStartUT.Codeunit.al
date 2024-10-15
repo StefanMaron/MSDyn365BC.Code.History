@@ -66,7 +66,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] Importing single table
         // [THEN] it is properly imported into RapidStart
-        Initialize;
+        Initialize();
         CreateCurrencyExchangeSetup(DataExchLineDef, ConfigPackage, DataExchDef);
         NumberOfRecords := 10;
         CreateCurrencyExchangeTestData(DataExch, DataExchLineDef, NumberOfRecords, CurrentNodeID, LineNo);
@@ -98,7 +98,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] Importing multiple records that have parent child relationship setup
         // [THEN] They are properly imported into RapidStart
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -140,7 +140,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] Importing multiple records with and without parent/child relationship setup
         // [THEN] They are properly imported into RapidStart
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
         CreateCurrencyExchangeSetup(CurrencyExchangeRateDataExchLineDef, ConfigPackage, DataExchDef);
 
@@ -189,7 +189,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] Importing multiple records that have parent child relationship setup but there is no child definitions
         // [THEN] They are properly imported into RapidStart
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 0;
@@ -233,7 +233,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] Importing multiple records and parent has the only record definition and no other data
         // [THEN] They are properly imported into RapidStart
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -283,7 +283,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] Importing multiple records and child records have only the record definition and no other data
         // [THEN] They are properly imported into RapidStart
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -333,7 +333,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] Importing multiple records where parent and child have only record definition
         // [THEN] They are properly imported into RapidStart
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -380,7 +380,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] Importing data into RapidStart
         // [THEN] It is possible to import multiple times
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
         CreateCurrencyExchangeSetup(CurrencyExchangeRateDataExchLineDef, ConfigPackage, DataExchDef);
 
@@ -433,7 +433,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] There are no records to import but the definion is present
         // [THEN] No records are imported
-        Initialize;
+        Initialize();
         DataExch.Init();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
 
@@ -457,7 +457,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     begin
         // [WHEN] There is no definition but the codeunit is run
         // [THEN] No records are imported
-        Initialize;
+        Initialize();
         DataExch.Init();
         ConfigPackage.Init();
 
@@ -485,7 +485,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         CurrentNodeID: Integer;
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -804,7 +804,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
             TempReferenceDataExchField.Insert();
         until TempDataExchField.Next = 0;
 
-        TempReferenceDataExchField.FindFirst;
+        TempReferenceDataExchField.FindFirst();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchLineDef.FindSet();
@@ -825,7 +825,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
             DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
             DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
             DataExchFieldMapping.SetRange("Column No.", DataExchField."Column No.");
-            DataExchFieldMapping.FindFirst;
+            DataExchFieldMapping.FindFirst();
 
             ConfigPackageData.SetRange("Package Code", ConfigPackage.Code);
             ConfigPackageData.SetRange("Table ID", DataExchFieldMapping."Target Table ID");

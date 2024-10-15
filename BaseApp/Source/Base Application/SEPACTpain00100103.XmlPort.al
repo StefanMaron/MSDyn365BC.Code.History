@@ -446,7 +446,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 RemittanceText1 := '';
                                 RemittanceText2 := '';
                                 TempPaymentExportRemittanceText.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
-                                if TempPaymentExportRemittanceText.FindSet then begin
+                                if TempPaymentExportRemittanceText.FindSet() then begin
                                     RemittanceText1 := TempPaymentExportRemittanceText.Text;
                                     if TempPaymentExportRemittanceText.Next() = 0 then
                                         exit;
@@ -498,7 +498,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
         PaymentGroupNo: Integer;
     begin
         GenJournalLine.Copy("Gen. Journal Line");
-        if GenJournalLine.FindFirst then
+        if GenJournalLine.FindFirst() then
             IsNorgeExport := DocumentTools.IsNorgeSEPACT(GenJournalLine);
         SEPACTFillExportBuffer.FillExportBuffer("Gen. Journal Line", PaymentExportData);
         PaymentExportData.GetRemittanceTexts(TempPaymentExportRemittanceText);
@@ -513,7 +513,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           "Sender Bank BIC", "Transfer Date", "SEPA Batch Booking",
           "SEPA Charge Bearer Text", Urgent);
 
-        if not PaymentExportData.FindSet then
+        if not PaymentExportData.FindSet() then
             Error(NoDataToExportErr);
 
         InitPmtGroup(PaymentGroupNo);
@@ -528,7 +528,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
             WaitingJournal.SetFilter("SEPA Payment Inf ID", PaymentExportData."Payment Information ID");
             WaitingJournal.SetFilter("SEPA End To End ID", PaymentExportData."End-to-End ID");
             WaitingJournal.SetFilter("SEPA Instr. ID", PaymentExportData."Document No.");
-            if WaitingJournal.FindFirst then
+            if WaitingJournal.FindFirst() then
                 WaitingJournal.ModifyAll("SEPA Payment Inf ID", PaymentExportDataGroup."Payment Information ID", true);
 
             PaymentExportDataGroup."Line No." += 1;

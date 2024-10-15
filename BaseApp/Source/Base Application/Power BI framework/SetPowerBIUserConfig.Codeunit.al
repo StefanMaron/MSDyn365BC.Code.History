@@ -1,10 +1,5 @@
 codeunit 6305 "Set Power BI User Config"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
 

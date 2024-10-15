@@ -55,7 +55,7 @@ codeunit 144134 "Remittance - Pages"
         ReturnFileName := LibraryRemittance.GetTempFileName;
 
         // Execute
-        RemittanceAgreementCard.OpenNew;
+        RemittanceAgreementCard.OpenNew();
         RemittanceAgreementCard.Code.Value := Code;
         RemittanceAgreementCard.Description.Value := Description;
         RemittanceAgreementCard."Payment System".Value := Format(RemittanceAgreement."Payment System"::"DnB Telebank");
@@ -96,7 +96,7 @@ codeunit 144134 "Remittance - Pages"
 
         ReturnFileSetup.SetFilter("Agreement Code", Code);
         Assert.AreEqual(1, ReturnFileSetup.Count, 'Return File Setup Count doesn''t match');
-        ReturnFileSetup.FindFirst;
+        ReturnFileSetup.FindFirst();
         Assert.AreEqual(ReturnFileName, ReturnFileSetup."Return File Name", 'ReturnFileName');
 
         LibraryVariableStorage.AssertEmpty;
@@ -132,7 +132,7 @@ codeunit 144134 "Remittance - Pages"
         LibraryERM.FindGLAccount(GLAccount);
 
         // Execute
-        RemittanceAccountCard.OpenNew;
+        RemittanceAccountCard.OpenNew();
         RemittanceAccountCard.Code.Value := RemittanceAccount.Code;
         RemittanceAccountCard."Remittance Agreement Code".Value := RemittanceAgreement.Code;
         RemittanceAccountCard.Type.SetValue(RemittanceAccount.Type::Domestic);
@@ -208,7 +208,7 @@ codeunit 144134 "Remittance - Pages"
         LibraryERM.FindGLAccount(GLAccount);
 
         // Execute
-        RemittanceAccountCard.OpenNew;
+        RemittanceAccountCard.OpenNew();
         RemittanceAccountCard.Code.Value := RemittanceAccount.Code;
         RemittanceAccountCard."Remittance Agreement Code".Value := RemittanceAgreement.Code;
         RemittanceAccountCard.Type.SetValue(RemittanceAccount.Type::Foreign);
@@ -265,7 +265,7 @@ codeunit 144134 "Remittance - Pages"
         VendorTempl.DeleteAll(true);
 
         // Execute
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.Value := 'Dom Vend1 REM';
         LibraryVariableStorage.Enqueue('BERGEN');
         VendorCard."Post Code".Value := '5003';
@@ -328,7 +328,7 @@ codeunit 144134 "Remittance - Pages"
         VendorTempl.DeleteAll(true);
 
         // Execute
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.Value := 'For Vend2 REM';
         VendorCard."Post Code".Value := '3771 MR';
         VendorCard.City.Value := 'Barneveld';
@@ -420,7 +420,7 @@ codeunit 144134 "Remittance - Pages"
 
         // [THEN] Vendor Ledger Entry is created with "Payment Type Code Abroad" = "X"
         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Payment Type Code Abroad", Vendor."Payment Type Code Abroad");
         VendorLedgerEntry.TestField("Specification (Norges Bank)", Vendor."Specification (Norges Bank)");
     end;
@@ -431,7 +431,7 @@ codeunit 144134 "Remittance - Pages"
     begin
         GenJournalTemplate.SetRange(Recurring, false);
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         exit(GenJournalTemplate.Name);
     end;
 
@@ -440,7 +440,7 @@ codeunit 144134 "Remittance - Pages"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalBatch.SetRange("Journal Template Name", TemplateName);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
         exit(GenJournalBatch.Name);
     end;
 

@@ -108,11 +108,7 @@ report 15000062 "Remittance - Import (Bank)"
 
     trigger OnPreReport()
     begin
-#if not CLEAN17
-        ServerTempFile := CopyStr(FileMgt.UploadFileToServer(CurrentFileName), 1, 1024);
-#else
         ServerTempFile := CopyStr(FileMgt.UploadFile(ChooseFileTitleMsg, ''), 1, 1024);
-#endif
         // Create work file.
         // No changes are made directly to the OriginalFilename, since it is renamed
         // at the end (the file can't be renamed while it's open).
@@ -205,9 +201,7 @@ report 15000062 "Remittance - Import (Bank)"
         Text15000026: Label 'must be specified';
         Text15000027: Label '%1\The Remittance Status must not be %2 for waiting journal line with Reference %3.';
         Text15000028: Label 'cannot be settled when payment is rejected';
-#if CLEAN17
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
-#endif
 
     local procedure ReadBETFOR00()
     begin
@@ -479,7 +473,7 @@ report 15000062 "Remittance - Import (Bank)"
         // Create import PaymOrder.
         // Select ID. Find the next one:
         PaymOrder.LockTable();
-        if PaymOrder.FindLast then
+        if PaymOrder.FindLast() then
             NextPaymOrderId := PaymOrder.ID + 1
         else
             NextPaymOrderId := 1;
@@ -670,7 +664,7 @@ report 15000062 "Remittance - Import (Bank)"
         CheckGenJnlLine := GenJournalLine;
         CheckGenJnlLine.SetRange("Journal Template Name", CheckGenJnlLine."Journal Template Name");
         CheckGenJnlLine.SetRange("Journal Batch Name", CheckGenJnlLine."Journal Batch Name");
-        if CheckGenJnlLine.FindLast then
+        if CheckGenJnlLine.FindLast() then
             JournalNextLineNo := CheckGenJnlLine."Line No." + 10000
         else
             JournalNextLineNo := 10000;

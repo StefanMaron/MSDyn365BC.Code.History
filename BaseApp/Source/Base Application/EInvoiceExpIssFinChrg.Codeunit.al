@@ -13,7 +13,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
     begin
         // Pre-Check
         IssuedFinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
-        if not IssuedFinChrgMemoLine.FindSet then
+        if not IssuedFinChrgMemoLine.FindSet() then
             exit;
 
         CODEUNIT.Run(CODEUNIT::"E-Invoice Check Iss. Fin.Chrg.", Rec);
@@ -108,7 +108,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", TempEInvoiceExportHeader."No.");
-        if IssuedFinChargeMemoLine.FindSet then begin
+        if IssuedFinChargeMemoLine.FindSet() then begin
             TempEInvoiceExportHeader."Sales Line Found" := true;
             repeat
                 if IsRoundingLine(IssuedFinChargeMemoLine, TempEInvoiceExportHeader."Bill-to Customer No.") then
@@ -128,7 +128,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
     begin
         with IssuedFinChrgMemoLine do begin
             Id := 0;
-            if TempEInvoiceExportLine.FindLast then
+            if TempEInvoiceExportLine.FindLast() then
                 Id := TempEInvoiceExportLine.ID + 1;
             TempEInvoiceExportLine.Init();
             TempEInvoiceExportLine.ID := Id;
@@ -157,7 +157,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
         if IssuedFinChargeMemoLine.Type = IssuedFinChargeMemoLine.Type::"G/L Account" then begin
             Customer.Get(CustomerNo);
             CustomerPostingGroup.SetFilter(Code, Customer."Customer Posting Group");
-            if CustomerPostingGroup.FindFirst then
+            if CustomerPostingGroup.FindFirst() then
                 if IssuedFinChargeMemoLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
                     exit(true);
         end;

@@ -20,7 +20,7 @@ report 15000000 "Rem. paym. order - man. export"
                 CurrentPaymOrder.TestField(Type, CurrentPaymOrder.Type::Export);
                 RemPmtOrderExport.SetPmtOrder(CurrentPaymOrder);
                 RemPmtOrderExport.SetFilename(CurrentFilename);
-                RemPmtOrderExport.RunModal;
+                RemPmtOrderExport.RunModal();
             end;
         }
     }
@@ -46,11 +46,7 @@ report 15000000 "Rem. paym. order - man. export"
                         var
                             FileMgt: Codeunit "File Management";
                         begin
-#if not CLEAN17
-                            CurrentFilename := FileMgt.OpenFileDialog(Text15000000, CurrentFilename, Text15000001);
-#else
                             CurrentFilename := FileMgt.UploadFile(Text15000000, CurrentFilename);
-#endif
                             if CurrentFilename <> '' then
                                 Filename := FileMgt.GetFileName(CurrentFilename);
                         end;
@@ -81,9 +77,6 @@ report 15000000 "Rem. paym. order - man. export"
         CurrentFilename: Text[250];
         EmptyFileNameErr: Label 'You must enter a file name.';
         Text15000000: Label 'Export Remittance File.';
-#if not CLEAN17
-        Text15000001: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
-#endif
         Filename: Text;
 
     [Scope('OnPrem')]

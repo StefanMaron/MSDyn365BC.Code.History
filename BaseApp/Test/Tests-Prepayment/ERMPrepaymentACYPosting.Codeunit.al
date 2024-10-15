@@ -33,7 +33,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         SalesHeader: Record "Sales Header";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
@@ -66,7 +66,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PurchaseHeader: Record "Purchase Header";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
@@ -102,7 +102,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.SetInvoiceRounding(true);
 
@@ -128,7 +128,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetInvoiceRounding(true);
         LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
@@ -154,7 +154,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
@@ -182,7 +182,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
@@ -252,15 +252,15 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Prepayment ACY Posting");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Prepayment ACY Posting");
 
         LibraryPurchase.SetInvoiceRounding(false);
         LibrarySales.SetInvoiceRounding(false);
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -418,7 +418,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         exit(PurchInvHeader."No.");
     end;
 
@@ -427,7 +427,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         exit(SalesInvoiceHeader."No.");
     end;
 
@@ -493,8 +493,8 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
-        VATPostingSetup."Sales VAT Account" := LibraryERM.CreateGLAccountNo;
-        VATPostingSetup."Purchase VAT Account" := LibraryERM.CreateGLAccountNo;
+        VATPostingSetup."Sales VAT Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
         VATPostingSetup.Insert(true);
 
         InvRoudingGLAccount.Get(InvRoundingAccountNo);

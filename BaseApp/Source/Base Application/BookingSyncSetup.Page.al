@@ -243,14 +243,6 @@ page 6702 "Booking Sync. Setup"
         }
     }
 
-    trigger OnInit()
-    var
-        MarketingSetup: Record "Marketing Setup";
-    begin
-        if MarketingSetup.Get then
-            GraphSyncEnabled := MarketingSetup."Sync with Microsoft Graph";
-    end;
-
     trigger OnOpenPage()
     var
         EnvironmentInfo: Codeunit "Environment Information";
@@ -304,7 +296,7 @@ page 6702 "Booking Sync. Setup"
         User: Record User;
     begin
         User.SetRange("User Name", UserId);
-        if User.FindFirst then
+        if User.FindFirst() then
             ExchangeAccountUserName := User."Authentication Email";
     end;
 
@@ -313,4 +305,3 @@ page 6702 "Booking Sync. Setup"
         NewCustTemplateCodeVisible := not GraphSyncEnabled;
     end;
 }
-

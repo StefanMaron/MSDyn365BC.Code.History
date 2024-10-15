@@ -15,7 +15,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         SalesInvoiceLine.SetRange("Document No.", "No.");
         SalesInvoiceLine.SetFilter(Type, '>%1', 0);
         SalesInvoiceLine.SetFilter("No.", '<>%1', ' ');
-        if not SalesInvoiceLine.FindSet then
+        if not SalesInvoiceLine.FindSet() then
             exit;
 
         // Pre-processing data verifications
@@ -129,7 +129,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", TempEInvoiceExportHeader."No.");
-        if SalesInvoiceLine.FindSet then begin
+        if SalesInvoiceLine.FindSet() then begin
             TempEInvoiceExportHeader."Sales Line Found" := true;
             repeat
                 if IsRoundingLine(SalesInvoiceLine) then
@@ -151,7 +151,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         Id: Integer;
     begin
         Id := 0;
-        if TempEInvoiceExportLine.FindLast then
+        if TempEInvoiceExportLine.FindLast() then
             Id := TempEInvoiceExportLine.ID + 1;
 
         TempEInvoiceExportLine.Init();
@@ -199,7 +199,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         if SalesInvoiceLine.Type = SalesInvoiceLine.Type::"G/L Account" then begin
             Customer.Get(SalesInvoiceLine."Bill-to Customer No.");
             CustomerPostingGroup.SetFilter(Code, Customer."Customer Posting Group");
-            if CustomerPostingGroup.FindFirst then
+            if CustomerPostingGroup.FindFirst() then
                 if SalesInvoiceLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
                     exit(true);
         end;

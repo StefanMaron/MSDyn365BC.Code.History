@@ -13,7 +13,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
         SalesCrMemoLine.SetRange("Document No.", "No.");
         SalesCrMemoLine.SetFilter(Type, '>%1', 0);
         SalesCrMemoLine.SetFilter("No.", '<>%1', ' ');
-        if not SalesCrMemoLine.FindSet then
+        if not SalesCrMemoLine.FindSet() then
             exit;
 
         CODEUNIT.Run(CODEUNIT::"E-Invoice Check Sales Cr. Memo", Rec);
@@ -127,7 +127,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoLine.SetRange("Document No.", EInvoiceExportHeader."No.");
-        if SalesCrMemoLine.FindSet then begin
+        if SalesCrMemoLine.FindSet() then begin
             EInvoiceExportHeader."Sales Line Found" := true;
             repeat
                 if IsRoundingLine(SalesCrMemoLine) then
@@ -148,7 +148,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
         SalesCommentLine: Record "Sales Comment Line";
         Id: Integer;
     begin
-        if TempEInvoiceExportLine.FindLast then
+        if TempEInvoiceExportLine.FindLast() then
             Id := TempEInvoiceExportLine.ID + 1;
 
         TempEInvoiceExportLine.Init();
@@ -170,7 +170,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
         if SalesCrMemoLine.Type = SalesCrMemoLine.Type::"G/L Account" then begin
             Customer.Get(SalesCrMemoLine."Bill-to Customer No.");
             CustomerPostingGroup.SetFilter(Code, Customer."Customer Posting Group");
-            if CustomerPostingGroup.FindFirst then
+            if CustomerPostingGroup.FindFirst() then
                 if SalesCrMemoLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
                     exit(true);
         end;

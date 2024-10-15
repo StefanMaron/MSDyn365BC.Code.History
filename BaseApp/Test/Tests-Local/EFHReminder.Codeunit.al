@@ -26,7 +26,7 @@ codeunit 144005 "EHF Reminder"
         IssuedReminderHeader: Record "Issued Reminder Header";
     begin
         // [SCENARIO 361936] Issue reminder when Your Reference is not filled in and E-Invoice is set to Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with "Your Reference" := '' and E-Invoice = Yes
         EInvoiceReminderHelper.CreateReminderDoc(ReminderHeader);
@@ -47,7 +47,7 @@ codeunit 144005 "EHF Reminder"
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
     begin
         // [SCENARIO 361936] Issue finance charge memo when Your Reference is not filled in and E-Invoice is set to Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo with "Your Reference" := '' and E-Invoice = Yes
         EInvoiceFinChMemoHelper.CreateFinChMemoDoc(FinanceChargeMemoHeader);
@@ -68,7 +68,7 @@ codeunit 144005 "EHF Reminder"
         IssuedReminderHeader: Record "Issued Reminder Header";
     begin
         // [SCENARIO 336613] Issued reminder is created when Your Reference is not filled in and E-Invoice is set to No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with "Your Reference" := '' and E-Invoice = No
         EInvoiceReminderHelper.CreateReminderDoc(ReminderHeader);
@@ -89,7 +89,7 @@ codeunit 144005 "EHF Reminder"
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
     begin
         // [SCENARIO 336613] Issued finance charge memo is created when Your Reference is not filled in and E-Invoice is set to No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo with "Your Reference" := '' and E-Invoice = No
         EInvoiceFinChMemoHelper.CreateFinChMemoDoc(FinanceChargeMemoHeader);
@@ -113,7 +113,7 @@ codeunit 144005 "EHF Reminder"
         i: Integer;
     begin
         // [SCENARIO 336613] Electronic document for issued reminder general information
-        Initialize;
+        Initialize();
 
         // [GIVEN] KID Setup is set to "Document Type+Document No." in Sales Setup
         UpdateSalesSetupKID();
@@ -158,7 +158,7 @@ codeunit 144005 "EHF Reminder"
         i: Integer;
     begin
         // [SCENARIO 336613] Electronic document for issued finance charge memo general information
-        Initialize;
+        Initialize();
 
         // [GIVEN] KID Setup is set to "Document Type+Document No." in Sales Setup
         UpdateSalesSetupKID();
@@ -200,7 +200,7 @@ codeunit 144005 "EHF Reminder"
         FileName: Text;
     begin
         // [SCENARIO 361936] Electronic document for issued reminder with blank Your Reference
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issued Reminder with blank 'Your Reference'
         IssuedReminderHeader.Get(EInvoiceReminderHelper.CreateReminder);
@@ -223,7 +223,7 @@ codeunit 144005 "EHF Reminder"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
     end;

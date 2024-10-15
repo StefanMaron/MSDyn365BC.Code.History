@@ -137,7 +137,7 @@ page 9044 "Shop Super. basic Activities"
                         UserTaskList: Page "User Task List";
                     begin
                         UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
+                        UserTaskList.Run();
                     end;
                 }
             }

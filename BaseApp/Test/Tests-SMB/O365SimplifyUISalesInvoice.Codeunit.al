@@ -1,4 +1,4 @@
-codeunit 138000 "O365 Simplify UI Sales Invoice"
+﻿codeunit 138000 "O365 Simplify UI Sales Invoice"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -24,6 +24,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         SelectCustErr: Label 'You must select an existing customer.';
         CannotBeZeroEmptyErr: Label 'It cannot be zero or empty.';
@@ -49,7 +50,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -81,7 +82,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoiceList: TestPage "Sales Invoice List";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -113,7 +114,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         PurchaseInvoice: TestPage "Purchase Invoice";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -146,7 +147,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         PurchaseInvoices: TestPage "Purchase Invoices";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -176,7 +177,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
     begin
         // This will test that report runs. Other existing tests are checking the content
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -184,7 +185,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
         SalesQuote.SalesLines.New;
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
@@ -208,7 +209,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuotes: TestPage "Sales Quotes";
     begin
         // This will test that report runs. Other existing tests are checking the content
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -216,7 +217,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
         SalesQuote.SalesLines.New;
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
@@ -242,9 +243,9 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if CurrencyExchangeRate.FindFirst then;
+        if CurrencyExchangeRate.FindFirst() then;
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -253,7 +254,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
         SalesInvoice."Currency Code".AssistEdit;
         SalesInvoice.Close;
@@ -269,9 +270,9 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
-        if CurrencyExchangeRate.FindFirst then;
+        if CurrencyExchangeRate.FindFirst() then;
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -280,7 +281,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
         SalesQuote."Currency Code".AssistEdit;
         SalesQuote.Close;
@@ -296,9 +297,9 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if CurrencyExchangeRate.FindFirst then;
+        if CurrencyExchangeRate.FindFirst() then;
 
         LibrarySmallBusiness.CreateVendor(Vendor);
         Vendor.Name := Vendor."No.";
@@ -307,7 +308,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         LibrarySmallBusiness.CreateItem(Item);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseInvoice."Currency Code".AssistEdit;
         PurchaseInvoice.Close;
@@ -324,7 +325,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader: Record "Sales Header";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -334,12 +335,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         UserSetup.Reset();
         UserSetup.SetRange("User ID", UserId);
-        UserSetup.FindFirst;
+        UserSetup.FindFirst();
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
         SalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesInvoice.Close;
 
         Assert.AreEqual(UserSetup."Sales Resp. Ctr. Filter", SalesHeader."Responsibility Center", '');
@@ -362,11 +363,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerWithName(Cust, '(XXXX)');
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
         SalesInvoice.Close;
     end;
@@ -379,13 +380,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerWithName(Cust, '(XYXX)');
         CreateCustomerWithName(Cust, '((XYXX) 2');
 
         LibraryVariableStorage.Enqueue(2);
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue('XYXX');
 
         SalesInvoice.Close;
@@ -398,11 +399,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithName(Vendor, '(YYYY)');
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseInvoice.Close;
     end;
@@ -415,13 +416,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithName(Vendor, '(YXYY)');
         CreateVendorWithName(Vendor, '(YXYY) 2');
 
         LibraryVariableStorage.Enqueue(2);
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue('YXYY');
 
         PurchaseInvoice.Close;
@@ -438,7 +439,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateVendor(Vendor);
         Vendor.Name := Vendor."No.";
@@ -448,12 +449,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         UserSetup.Reset();
         UserSetup.SetRange("User ID", UserId);
-        UserSetup.FindFirst;
+        UserSetup.FindFirst();
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseInvoice.Close;
 
         Assert.AreEqual(UserSetup."Purchase Resp. Ctr. Filter", PurchaseHeader."Responsibility Center",
@@ -481,7 +482,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         OldCreditWarning: Option;
     begin
-        Initialize;
+        Initialize();
         SetCreditWarning(OldCreditWarning, SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
 
         LibrarySmallBusiness.CreateCustomer(Cust);
@@ -489,12 +490,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust.Name := Cust."No.";
         Cust.Modify();
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
         SalesInvoice.Close;
 
         SetCreditWarning(OldCreditWarning, OldCreditWarning);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -506,7 +507,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         OldCreditWarning: Option;
     begin
-        Initialize;
+        Initialize();
         SetCreditWarning(OldCreditWarning, SalesReceivablesSetup."Credit Warnings"::"No Warning");
 
         LibrarySmallBusiness.CreateCustomer(Cust);
@@ -514,7 +515,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust.Name := Cust."No.";
         Cust.Modify();
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
         SalesInvoice.Close;
 
@@ -533,7 +534,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         OldCreditWarning: Option;
     begin
-        Initialize;
+        Initialize();
         SetCreditWarning(OldCreditWarning, SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
 
         LibrarySmallBusiness.CreateCustomer(Cust);
@@ -546,13 +547,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CustWithLimit.Name := CustWithLimit."No.";
         CustWithLimit.Modify();
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
         SalesInvoice."Sell-to Customer Name".SetValue(CustWithLimit.Name);
         SalesInvoice.Close;
 
         SetCreditWarning(OldCreditWarning, OldCreditWarning);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -565,7 +566,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ExtendedTextLine: Record "Extended Text Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -575,7 +576,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name"::Item, Item."No.");
         LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesInvoice.SalesLines.New;
@@ -598,7 +599,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ExtendedTextLine: Record "Extended Text Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateVendor(Vendor);
         Vendor.Name := Vendor."No.";
@@ -608,7 +609,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name"::Item, Item."No.");
         LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
 
         PurchaseInvoice.PurchLines.New;
@@ -625,11 +626,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         LibraryVariableStorage.Enqueue(Cust."No.");
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".Lookup;
         Assert.AreEqual(Cust.Name, SalesInvoice."Sell-to Customer Name".Value, 'Wrong Customer Name');
     end;
@@ -642,10 +643,10 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateCustomer(Cust);
         LibraryVariableStorage.Enqueue(Cust."No.");
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".Lookup;
         Assert.AreEqual(Cust.Name, SalesQuote."Sell-to Customer Name".Value, 'Wrong Customer Name');
     end;
@@ -658,10 +659,10 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vend: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateVendor(Vend);
         LibraryVariableStorage.Enqueue(Vend."No.");
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".Lookup;
         Assert.AreEqual(Vend.Name, PurchaseInvoice."Buy-from Vendor Name".Value, 'Wrong Vendor Name');
     end;
@@ -674,7 +675,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Item: Record Item;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -683,7 +684,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         CreateCommentForItem(Item);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesInvoice.SalesLines.New;
@@ -699,7 +700,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Item: Record Item;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateVendor(Vendor);
         Vendor.Name := Vendor."No.";
@@ -708,7 +709,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         CreateCommentForItem(Item);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
 
         PurchaseInvoice.PurchLines.New;
@@ -724,13 +725,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
         Cust.Modify(true);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         LibraryVariableStorage.Enqueue(false);
@@ -747,7 +748,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader: Record "Sales Header";
         SalesQuotes: TestPage "Sales Quotes";
     begin
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
         CreateCustomerWithNumberAsName(Cust);
@@ -775,7 +776,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         ItemQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -784,7 +785,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesInvoice.SalesLines.New;
@@ -794,13 +795,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         ReferenceInvoiceSalesHeader.SetRange("Document Type", ReferenceInvoiceSalesHeader."Document Type"::Invoice);
         ReferenceInvoiceSalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
-        ReferenceInvoiceSalesHeader.FindFirst;
+        ReferenceInvoiceSalesHeader.FindFirst();
 
         ReferenceSalesLine.SetRange("Document Type", ReferenceInvoiceSalesHeader."Document Type");
         ReferenceSalesLine.SetRange("Document No.", ReferenceInvoiceSalesHeader."No.");
-        ReferenceSalesLine.FindFirst;
+        ReferenceSalesLine.FindFirst();
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesQuote.SalesLines.New;
@@ -818,11 +819,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         InvoiceSalesHeader.SetRange("Document Type", InvoiceSalesHeader."Document Type"::Invoice);
         InvoiceSalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
         InvoiceSalesHeader.SetFilter("No.", '<>%1', ReferenceInvoiceSalesHeader."No.");
-        InvoiceSalesHeader.FindFirst;
+        InvoiceSalesHeader.FindFirst();
 
         InvoiceSalesLine.SetRange("Document Type", InvoiceSalesHeader."Document Type");
         InvoiceSalesLine.SetRange("Document No.", InvoiceSalesHeader."No.");
-        InvoiceSalesLine.FindFirst;
+        InvoiceSalesLine.FindFirst();
 
         VerifySalesDocumentsMatch(ReferenceInvoiceSalesHeader, InvoiceSalesHeader);
     end;
@@ -836,7 +837,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         ItemQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -858,7 +859,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
@@ -877,7 +878,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         InvDiscAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
@@ -895,7 +896,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         ItemQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -920,7 +921,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -941,7 +942,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         InvDiscAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -967,7 +968,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         MakeQuoteTransfersComments(QuoteSalesHeader, Item, Cust, TempSalesCommentLine, SalesCommentLine);
 
@@ -984,12 +985,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         InvoiceSalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
         InvoiceSalesHeader.SetRange("Document Type", InvoiceSalesHeader."Document Type"::Invoice);
         Assert.AreEqual(1, InvoiceSalesHeader.Count, 'Only one header record should be present');
-        InvoiceSalesHeader.FindFirst;
+        InvoiceSalesHeader.FindFirst();
 
         InvoiceSalesCommentLine.SetRange("Document Type", SalesCommentLine."Document Type"::Invoice);
         InvoiceSalesCommentLine.SetRange("No.", InvoiceSalesHeader."No.");
         Assert.AreEqual(1, InvoiceSalesCommentLine.Count, 'Only one Comment line should be present');
-        InvoiceSalesCommentLine.FindFirst;
+        InvoiceSalesCommentLine.FindFirst();
 
         Assert.AreEqual(InvoiceSalesCommentLine.Date, TempSalesCommentLine.Date, 'Date was not set');
         Assert.AreEqual(InvoiceSalesCommentLine.Comment, TempSalesCommentLine.Comment, 'Comment text was not transfered');
@@ -1006,7 +1007,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NewShipToAddress: Text[100];
         NewShipToName: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         MakeQuoteKeepsUserEnteredInformation(QuoteSalesHeader);
 
@@ -1038,7 +1039,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuoteToInvoice: Codeunit "Sales-Quote to Invoice";
     begin
         ClearLastError;
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySmallBusiness.CreateCustomer(Customer);
@@ -1110,7 +1111,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ConvertedSalesHeader.SetRange("Sell-to Customer No.", ReferenceQuoteSalesHeader."Sell-to Customer No.");
         ConvertedSalesHeader.SetRange("Document Type", DocumentType);
         Assert.RecordCount(ConvertedSalesHeader, 1);
-        ConvertedSalesHeader.FindFirst;
+        ConvertedSalesHeader.FindFirst();
 
         VerifySalesDocumentsMatch(ReferenceQuoteSalesHeader, ConvertedSalesHeader);
         ConvertedSalesHeader.TestField("Posting Date", WorkDate);
@@ -1158,13 +1159,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
         Cust.Modify(true);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         LibraryVariableStorage.Enqueue(false);
@@ -1181,7 +1182,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader: Record "Sales Header";
         SalesQuotes: TestPage "Sales Quotes";
     begin
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
         CreateCustomerWithNumberAsName(Cust);
@@ -1209,7 +1210,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesOrder: TestPage "Sales Order";
         ItemQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -1218,7 +1219,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
 
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesOrder.SalesLines.New;
@@ -1228,13 +1229,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         ReferenceOrderSalesHeader.SetRange("Document Type", ReferenceOrderSalesHeader."Document Type"::Order);
         ReferenceOrderSalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
-        ReferenceOrderSalesHeader.FindFirst;
+        ReferenceOrderSalesHeader.FindFirst();
 
         ReferenceSalesLine.SetRange("Document Type", ReferenceOrderSalesHeader."Document Type");
         ReferenceSalesLine.SetRange("Document No.", ReferenceOrderSalesHeader."No.");
-        ReferenceSalesLine.FindFirst;
+        ReferenceSalesLine.FindFirst();
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesQuote.SalesLines.New;
@@ -1251,11 +1252,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         OrderSalesHeader.SetRange("Document Type", OrderSalesHeader."Document Type"::Order);
         OrderSalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
         OrderSalesHeader.SetFilter("No.", '<>%1', ReferenceOrderSalesHeader."No.");
-        OrderSalesHeader.FindFirst;
+        OrderSalesHeader.FindFirst();
 
         OrderSalesLine.SetRange("Document Type", OrderSalesHeader."Document Type");
         OrderSalesLine.SetRange("Document No.", OrderSalesHeader."No.");
-        OrderSalesLine.FindFirst;
+        OrderSalesLine.FindFirst();
 
         VerifySalesDocumentsMatch(ReferenceOrderSalesHeader, OrderSalesHeader);
     end;
@@ -1271,7 +1272,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         CannotConvertAssembleToOrderItemErr: Label 'You can not convert sales quote to sales invoice';
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -1282,7 +1283,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesQuote.SalesLines.New;
@@ -1304,7 +1305,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         ItemQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -1326,7 +1327,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
@@ -1345,7 +1346,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         InvDiscAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
@@ -1363,7 +1364,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         ItemQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -1388,7 +1389,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -1409,7 +1410,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         InvDiscAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -1435,7 +1436,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         MakeQuoteTransfersComments(QuoteSalesHeader, Item, Cust, TempSalesCommentLine, SalesCommentLine);
 
@@ -1452,12 +1453,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         OrderSalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
         OrderSalesHeader.SetRange("Document Type", OrderSalesHeader."Document Type"::Order);
         Assert.AreEqual(1, OrderSalesHeader.Count, 'Only one header record should be present');
-        OrderSalesHeader.FindFirst;
+        OrderSalesHeader.FindFirst();
 
         OrderSalesCommentLine.SetRange("Document Type", SalesCommentLine."Document Type"::Order);
         OrderSalesCommentLine.SetRange("No.", OrderSalesHeader."No.");
         Assert.AreEqual(1, OrderSalesCommentLine.Count, 'Only one Comment line should be present');
-        OrderSalesCommentLine.FindFirst;
+        OrderSalesCommentLine.FindFirst();
 
         Assert.AreEqual(OrderSalesCommentLine.Date, TempSalesCommentLine.Date, 'Date was not set');
         Assert.AreEqual(OrderSalesCommentLine.Comment, TempSalesCommentLine.Comment, 'Comment text was not transfered');
@@ -1474,7 +1475,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NewShipToAddress: Text[100];
         NewShipToName: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         MakeQuoteKeepsUserEnteredInformation(QuoteSalesHeader);
 
@@ -1502,7 +1503,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemQuantity: Integer;
         NoOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -1516,7 +1517,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateSalesQuoteHeaderWithLines(QuoteSalesHeader, Cust, Item, ItemQuantity, NoOfLines);
         QuoteSalesLine.SetRange("Document Type", QuoteSalesLine."Document Type"::Quote);
         QuoteSalesLine.SetRange("Document No.", QuoteSalesHeader."No.");
-        QuoteSalesLine.FindFirst;
+        QuoteSalesLine.FindFirst();
         LibrarySmallBusiness.CreateSalesCommentLine(SalesCommentLine, QuoteSalesLine);
         TempSalesCommentLine := SalesCommentLine;
     end;
@@ -1553,7 +1554,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader: Record "Sales Header";
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -1562,13 +1563,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         UserSetup.Reset();
         UserSetup.SetRange("User ID", UserId);
-        UserSetup.FindFirst;
+        UserSetup.FindFirst();
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesQuote.Close;
 
         Assert.AreEqual(UserSetup."Sales Resp. Ctr. Filter", SalesHeader."Responsibility Center", '');
@@ -1594,7 +1595,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ExtendedTextLine: Record "Extended Text Line";
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -1604,7 +1605,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name"::Item, Item."No.");
         LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesQuote.SalesLines.New;
@@ -1621,7 +1622,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Item: Record Item;
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -1630,7 +1631,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         CreateCommentForItem(Item);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesQuote.SalesLines.New;
@@ -1646,13 +1647,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
         OldCustBusRelCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         OldCustBusRelCode := UpdateCustBusRelCode('');
 
         CreateCustomer(Customer);
 
         // Exercise: Select existing customer.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
 
         // Verify.
@@ -1668,12 +1669,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
         // Exercise: Select existing customer.
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
         // Verify.
@@ -1688,11 +1689,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
 
         // Exercise: Select existing customer.
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
 
         // Verify.
@@ -1712,7 +1713,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader2: Record "Sales Header";
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and copy to another Sales Quote
         CreateCustomer(Customer);
@@ -1757,7 +1758,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader2: Record "Sales Header";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and copy to another Sales Quote
         CreateCustomer(Customer);
@@ -1801,7 +1802,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         PurchaseHeader2: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice and copy to another Sales Quote
         CreateVendor(Vendor);
@@ -1843,7 +1844,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader: Record "Sales Header";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
@@ -1851,7 +1852,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CreateCustomer(Customer1);
 
         // Exercise: Select existing customer.
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice.SalesLines.First;
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
         SalesInvoice."Sell-to Customer Name".SetValue(Customer1.Name);
@@ -1871,7 +1872,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
         OldCustBusRelCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         OldCustBusRelCode := UpdateCustBusRelCode('');
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
@@ -1879,7 +1880,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CreateCustomer(Customer1);
 
         // Exercise: Select existing customer.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote.SalesLines.First;
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         SalesQuote."Sell-to Customer Name".SetValue(Customer1.Name);
@@ -1902,7 +1903,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         BillToCustomerNo: Variant;
         BillToCustomerName: Text[100];
     begin
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         ClearTable(DATABASE::"Res. Ledger Entry");
@@ -1914,7 +1915,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         BillToCustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         LibraryVariableStorage.Enqueue(true); // for the confirm handler when asking whether you want to change the bill-to customer no.
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice.SalesLines.First;
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
         SalesInvoice."Bill-to Name".SetValue(BillToCustomerName);
@@ -1937,7 +1938,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CustomerNo: Variant;
         CustomerName: Text[100];
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
@@ -1945,7 +1946,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Exercise.
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice.SalesLines.First;
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
 
@@ -1967,7 +1968,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CustomerNo: Variant;
         CustomerName: Text[100];
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
@@ -1975,7 +1976,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Exercise.
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote.SalesLines.First;
         SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
 
@@ -1998,7 +1999,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CustomerNo: Variant;
         CustomerName: Text[100];
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
@@ -2009,7 +2010,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryVariableStorage.Enqueue(CustomerTempl1.Code); // for the customer card page handler
         LibraryVariableStorage.Enqueue(true); // for the new customer confirm handler
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice.SalesLines.First;
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
 
@@ -2032,7 +2033,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CustomerNo: Variant;
         CustomerName: Text[100];
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
@@ -2043,7 +2044,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryVariableStorage.Enqueue(CustomerTempl1.Code); // for the customer card page handler
         LibraryVariableStorage.Enqueue(true);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote.SalesLines.First;
         SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
 
@@ -2064,13 +2065,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CustomerNo: Variant;
         CustomerName: Text[100];
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         // Exercise.
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         LibraryVariableStorage.Enqueue(CustomerName); // for the customer card page handler
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice.SalesLines.First;
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
 
@@ -2090,13 +2091,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CustomerNo: Variant;
         CustomerName: Text[100];
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         // Exercise.
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         LibraryVariableStorage.Enqueue(CustomerName); // for the customer card page handler
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote.SalesLines.First;
         SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
 
@@ -2118,7 +2119,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         PayToVendorNo: Variant;
         PayToVendorName: Text[100];
     begin
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         LibraryTemplates.CreateVendorTemplateWithData(VendorTempl);
 
@@ -2126,7 +2127,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         PayToVendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
         LibraryVariableStorage.Enqueue(true); // for the confirm handler when asking whether you want to change the pay-to vendor no.
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice.PurchLines.First;
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseInvoice."Pay-to Name".SetValue(PayToVendorName);
@@ -2149,14 +2150,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Variant;
         VendorName: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         LibraryTemplates.CreateVendorTemplateWithData(VendorTempl);
 
         // Exercise.
         VendorName := LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Name), DATABASE::Vendor);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice.PurchLines.First;
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorName);
 
@@ -2176,17 +2177,17 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         CustomerName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Exercise: New customer name.
         CustomerName := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name));
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         asserterror SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
         Assert.ExpectedError(SelectCustErr);
 
         // Verify.
         Customer.SetRange(Name, CustomerName);
-        asserterror Customer.FindFirst;
+        asserterror Customer.FindFirst();
         Assert.AssertNothingInsideFilter;
 
         VerifySellToEmptyOnSalesInvoice(SalesInvoice);
@@ -2201,17 +2202,17 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
         CustomerName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Exercise: New customer name.
         CustomerName := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name));
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         asserterror SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
         Assert.ExpectedError(SelectCustErr);
 
         // Verify.
         Customer.SetRange(Name, CustomerName);
-        asserterror Customer.FindFirst;
+        asserterror Customer.FindFirst();
         Assert.AssertNothingInsideFilter;
 
         VerifySellToEmptyOnSalesQuote(SalesQuote);
@@ -2227,7 +2228,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         CustomerName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Create 2 template headers and use only the second
         LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
@@ -2238,12 +2239,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryVariableStorage.Enqueue(CustomerTempl.Code);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(CustomerName);
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
 
         // Verify.
         Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         VerifySalesInvoiceAgainstCustomer(SalesInvoice, Customer);
         VerifySalesInvoiceAgainstBillToCustomer(SalesInvoice, Customer);
     end;
@@ -2258,7 +2259,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
         CustomerName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Create 2 template headers and use only the second
         LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
@@ -2269,40 +2270,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryVariableStorage.Enqueue(CustomerTempl.Code);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(CustomerName);
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
 
         // Verify.
         Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         VerifySalesQuoteAgainstCustomer(SalesQuote, Customer);
         VerifySalesQuoteAgainstBillToCustomer(SalesQuote, Customer);
-    end;
-
-    [Test]
-    [HandlerFunctions('StrMenuHandlerOK,CustomerCardCancelEditPageHandler')]
-    [Scope('OnPrem')]
-    procedure CancelEditNewCustomer()
-    var
-        Customer: Record Customer;
-        SalesInvoice: TestPage "Sales Invoice";
-        CustomerName: Text;
-    begin
-        Initialize;
-        ClearTable(DATABASE::"Res. Ledger Entry");
-
-        // Exercise: New customer name.
-        CustomerName := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name));
-        LibraryVariableStorage.Enqueue(CustomerName); // for the customer card page handler
-        SalesInvoice.OpenNew;
-        asserterror SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
-        Assert.ExpectedError(CannotBeZeroEmptyErr);
-
-        // Verify customer still created even if not fully edited
-        Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
-
-        VerifySellToEmptyOnSalesInvoice(SalesInvoice);
     end;
 
     [Test]
@@ -2314,19 +2289,19 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
         CustomerName: Text;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         // Exercise: New customer name.
         CustomerName := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name));
         LibraryVariableStorage.Enqueue(CustomerName); // for the customer card page handler
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         asserterror SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
         Assert.ExpectedError(CannotBeZeroEmptyErr);
 
         // Verify customer still created even if not fully edited
         Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
 
         VerifySellToEmptyOnSalesQuote(SalesQuote);
     end;
@@ -2339,13 +2314,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoCustomersSameName(Customer);
 
         // Exercise: Select existing customer - second one in the page handler
         LibraryVariableStorage.Enqueue(Customer.Name); // for the customer list page handler
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(CopyStr(Customer.Name, 2, StrLen(Customer.Name) - 1));
 
         // Verify.
@@ -2364,12 +2339,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NameMiddle: Text[10];
         NameEnd: Text[10];
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::Job);
 
         Identifier := CreateSelectCustomerSetup(NameBeginning, NameMiddle, NameEnd, Customer);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // Test entering middle of the name
         LibraryVariableStorage.Enqueue(2);
@@ -2394,12 +2369,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NameMiddle: Text[10];
         NameEnd: Text[10];
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::Job);
 
         Identifier := CreateSelectCustomerSetup(NameBeginning, NameMiddle, NameEnd, Customer);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // Test entering middle of the name
         LibraryVariableStorage.Enqueue(2);
@@ -2420,7 +2395,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer2: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         Customer.Validate(Name, 'Customer Name');
@@ -2431,7 +2406,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer2.Modify(true);
 
         // Entering full name should match to first customer
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         LibraryVariableStorage.Enqueue(2);
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
@@ -2452,11 +2427,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NameMiddle: Text[10];
         NameEnd: Text[10];
     begin
-        Initialize;
+        Initialize();
 
         Identifier := CreateSelectVendorSetup(NameBeginning, NameMiddle, NameEnd, Vendor);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // Test entering middle of the name
         LibraryVariableStorage.Enqueue(2);
@@ -2481,11 +2456,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NameMiddle: Text[10];
         NameEnd: Text[10];
     begin
-        Initialize;
+        Initialize();
 
         Identifier := CreateSelectVendorSetup(NameBeginning, NameMiddle, NameEnd, Vendor);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // Test entering end of the name
         LibraryVariableStorage.Enqueue(2);
@@ -2506,7 +2481,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor2: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         Vendor.Validate(Name, 'Vendor Name');
@@ -2517,7 +2492,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor2.Modify(true);
 
         // Setting exact name should select vendor 1
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         VerifyPurchaseInvoiceAgainstVendor(PurchaseInvoice, Vendor);
         PurchaseInvoice.Close;
@@ -2532,14 +2507,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote: TestPage "Sales Quote";
         OldCustBusRelCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         OldCustBusRelCode := UpdateCustBusRelCode('');
 
         CreateTwoCustomersSameName(Customer);
 
         // Exercise: Select existing customer - second one in the page handler
         LibraryVariableStorage.Enqueue(Customer.Name); // for the customer list page handler
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(CopyStr(Customer.Name, 2, StrLen(Customer.Name) - 1));
 
         // Verify.
@@ -2555,13 +2530,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoCustomersSameName(Customer);
 
         // Exercise: Select existing customer - second one in the page handler
         LibraryVariableStorage.Enqueue(Customer.Name); // for the customer list page handler
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         asserterror SalesInvoice."Sell-to Customer Name".SetValue(CopyStr(Customer.Name, 2, StrLen(Customer.Name) - 1));
         Assert.ExpectedError(SelectCustErr);
     end;
@@ -2574,13 +2549,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer: Record Customer;
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoCustomersSameName(Customer);
 
         // Exercise: Select existing customer - second one in the page handler
         LibraryVariableStorage.Enqueue(Customer.Name); // for the customer list page handler
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         asserterror SalesQuote."Sell-to Customer Name".SetValue(CopyStr(Customer.Name, 2, StrLen(Customer.Name) - 1));
         Assert.ExpectedError(SelectCustErr);
     end;
@@ -2597,7 +2572,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [Customer Card]
         // [SCENARIO] Customer Card should be open for Customer that is sorted by "Balance Due" and has different Balance and "Balance Due"
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         // [GIVEN] Create Customer which Balance and "Balance Due" are different by posting 2 sales invoices:
@@ -2633,12 +2608,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreateVendor(Vendor1);
 
         // Exercise: Select existing Vendor.
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice.PurchLines.First;
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         // Enqueue for ChangeSellToBillToVendorConfirmHandler that is called twice
@@ -2659,13 +2634,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoVendorsSameName(Vendor);
 
         // Exercise: Select existing Vendor - second one in the page handler
         LibraryVariableStorage.Enqueue(Vendor.Name); // for the Vendor list page handler
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(CopyStr(Vendor.Name, 2, StrLen(Vendor.Name) - 1));
 
         // Verify.
@@ -2680,13 +2655,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoVendorsSameName(Vendor);
 
         // Exercise: Select existing Vendor - second one in the page handler
         LibraryVariableStorage.Enqueue(Vendor.Name); // for the Vendor list page handler
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         asserterror PurchaseInvoice."Buy-from Vendor Name".SetValue(CopyStr(Vendor.Name, 2, StrLen(Vendor.Name) - 1));
         Assert.ExpectedError(SelectVendorErr);
     end;
@@ -2696,7 +2671,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     [Scope('OnPrem')]
     procedure CreateInvoiceFromStandardPurchaseCodes()
     begin
-        Initialize;
+        Initialize();
 
         RunCreateInvoiceFromStandardPurchaseCodes;
     end;
@@ -2706,7 +2681,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     [Scope('OnPrem')]
     procedure CreateInvoiceFromStandardPurchaseCodesStandard()
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         RunCreateInvoiceFromStandardPurchaseCodes;
@@ -2742,7 +2717,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     [Scope('OnPrem')]
     procedure CheckStandardCodeCreationPurchase()
     begin
-        Initialize;
+        Initialize();
 
         RunCheckStandardCodeCreationPurchase;
     end;
@@ -2751,7 +2726,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     [Scope('OnPrem')]
     procedure CheckStandardCodeCreationPurchaseStandard()
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         RunCheckStandardCodeCreationPurchase;
@@ -2781,14 +2756,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemAsService: Record Item;
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Production BOM Line");
         LibraryLowerPermissions.AddItemCreate;
 
         LibrarySmallBusiness.CreateItem(Item);
         LibrarySmallBusiness.CreateItemAsService(ItemAsService);
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ItemList.OpenView;
         ItemList.Filter.SetFilter("No.", ItemAsService."No.");
         ItemList.Type.AssertEquals(ItemAsService.Type);
@@ -2803,7 +2778,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Production BOM Line");
         ClearTable(DATABASE::"Troubleshooting Setup");
         ClearTable(DATABASE::"Resource Skill");
@@ -2813,7 +2788,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         LibraryLowerPermissions.AddItemCreate;
 
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(
           LibraryUtility.GenerateRandomCode(Item.FieldNo(Description),
             DATABASE::Item));
@@ -2841,7 +2816,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         RandomContact: Code[30];
         PhoneNumber: Text;
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
 
         // invoke Edit on the created vendor, from the vendor list
@@ -2877,7 +2852,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorList: TestPage "Vendor List";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorList.OpenView;
         VendorList.Filter.SetFilter("No.", Vendor."No.");
@@ -2895,7 +2870,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorCard: TestPage "Vendor Card";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorCard.OpenView;
         VendorCard.Filter.SetFilter("No.", Vendor."No.");
@@ -2912,7 +2887,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor: Record Vendor;
         VendorList: TestPage "Vendor List";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorList.OpenView;
         VendorList.Filter.SetFilter("No.", Vendor."No.");
@@ -2927,7 +2902,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorCard.OpenView;
         VendorCard.Filter.SetFilter("No.", Vendor."No.");
@@ -2946,7 +2921,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order, no default vendors for items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -2973,7 +2948,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order, use lookup for vendor field, shows Item Vendor Catalog
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3000,7 +2975,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         DummyPurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order, use lookup for vendor field, shows vendor list
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, no Item Vendor
         CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3021,8 +2996,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order and forgets to specify a vendor.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Order with lines, no default vendors for items.
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3049,7 +3024,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order where the Item has replenishment system Assembly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, Item has replenishment type Assembly
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3078,7 +3053,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order where the Item has replenishment system Assembly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, Item has replenishment type Assembly
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3108,7 +3083,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO] User cancels to create Purchase Order from Sales Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, no default vendors for items
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3132,7 +3107,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order and posts this Purchase Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, default vendors for items
         VendorNo := CreateSalesHeaderWithLinesForOneDefaultVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3158,7 +3133,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [Item Vendor]
         // [SCENARIO] User creates Purchase Order from Sales Order, same default vendor for all items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, same default vendor for all items and his "No.".
         VendorNo := CreateSalesHeaderWithLinesForOneDefaultVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3186,7 +3161,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [Item Vendor]
         // [SCENARIO] User creates Purchase Order from Sales Order, two items with different default vendors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with two lines, one default vendor for each item
         CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3233,7 +3208,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         UnavailableQuantity: Integer;
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order, Items have different availability
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 3 items, one fully available, one partially available and one unavailable
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3297,8 +3272,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         AvailableQuantity: Integer;
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order, Item is already available
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [GIVEN] Sales Order with 1 items, fully available
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
 
@@ -3337,7 +3312,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         QuantityOnSO2: Integer;
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order, Items have different availability
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 3 items, one fully available, one partially available and one unavailable
         QuantityOnSO1 := LibraryRandom.RandIntInRange(1, 10);
@@ -3390,7 +3365,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Invoice, choses all lines, no default vendors for items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3415,7 +3390,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Invoice, selects one line, no default vendors for items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3439,7 +3414,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Invoice which contains no lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice without lines, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3463,7 +3438,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User cancels to create Purchase Invoice from Sales Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3491,7 +3466,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Invoice and posts this Purchase Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3515,7 +3490,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Order, choses all lines, no default vendors for items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3540,7 +3515,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Order, selects one line, no default vendors for items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3564,7 +3539,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Order which contains no lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order without lines, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3588,7 +3563,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User cancels to create Purchase Invoice from Sales Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3616,7 +3591,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorNo: Code[20];
     begin
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Order and posts this Purchase Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, no default vendors for items, Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3641,7 +3616,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [Item Vendor]
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Invoice, choses all lines, same default vendor for all items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with lines, same default vendor for all items and his "No.".
         VendorNo := CreateSalesHeaderWithLinesForOneDefaultVendor(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3667,7 +3642,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [Item Vendor]
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Invoice, choses all lines, two items with different default vendors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with lines, two default vendors for all items and Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesForTwoDefaultVendorsAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3693,7 +3668,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [Item Vendor]
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Order, choses all lines, same default vendor for all items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, same default vendor for all items and his "No.".
         VendorNo := CreateSalesHeaderWithLinesForOneDefaultVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3719,7 +3694,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [Item Vendor]
         // [SCENARIO 163013] User creates Purchase Invoice from Sales Order, choses all lines, two items with different default vendors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with lines, two default vendors for all items and Vendor."No." will be chosen by user.
         VendorNo := CreateSalesHeaderWithLinesForTwoDefaultVendorsAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
@@ -3741,7 +3716,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         CustomerCard: TestPage "Customer Card";
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         MakeQuoteNoSeriesNotManual;
@@ -3764,7 +3739,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust: Record Customer;
         CustomerList: TestPage "Customer List";
     begin
-        Initialize;
+        Initialize();
 
         MakeQuoteNoSeriesNotManual;
         LibrarySmallBusiness.CreateCustomer(Cust);
@@ -3796,12 +3771,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateItem(Item);
         CreateCustomer(Customer);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
         // Set item on line - if no errors than is ok
@@ -3824,13 +3799,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Production BOM Line");
 
         LibrarySmallBusiness.CreateItemAsService(Item);
         CreateCustomer(Customer);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
         // Set item as service on line - if no errors than is ok
@@ -3851,13 +3826,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         Customer."Payment Terms Code" := '';
         Customer.Modify();
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
         Assert.AreEqual(SalesInvoice."Payment Terms Code".Value, '', 'Payment Terms Code should be empty by default');
@@ -3873,14 +3848,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         ExpectedDueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
-        PaymentTerms.FindLast;
+        PaymentTerms.FindLast();
         SalesInvoice."Payment Terms Code".SetValue(PaymentTerms.Code);
         ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", SalesInvoice."Document Date".AsDate);
         Assert.AreEqual(SalesInvoice."Due Date".AsDate, ExpectedDueDate, 'Due Date incorrectly calculated.');
@@ -3893,9 +3868,9 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."Shipment Date".Enabled,
           Format('Shipment Date should be present on Sales Invoice'));
 
@@ -3909,7 +3884,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     [Scope('OnPrem')]
     procedure CreateInvoiceFromStandardSalesCodes()
     begin
-        Initialize;
+        Initialize();
 
         RunCreateInvoiceFromStandardSalesCodes;
     end;
@@ -3919,7 +3894,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     [Scope('OnPrem')]
     procedure CreateInvoiceFromStandardSalesCodesStandard()
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         RunCreateInvoiceFromStandardSalesCodes;
@@ -3956,7 +3931,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     [Scope('OnPrem')]
     procedure CreateQuoteFromStandardSalesCodes()
     begin
-        Initialize;
+        Initialize();
 
         RunCreateQuoteFromStandardSalesCodes;
     end;
@@ -3966,7 +3941,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     [Scope('OnPrem')]
     procedure CreateQuoteFromStandardSalesCodesStandard()
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Job Planning Line");
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -4007,7 +3982,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Item: Record Item;
         StandardSalesCode: Record "Standard Sales Code";
     begin
-        Initialize;
+        Initialize();
 
         // Create data
         LibrarySmallBusiness.CreateItem(Item);
@@ -4033,7 +4008,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryApplicationArea.EnableBasicSetup;
 
         // [WHEN] Open Sales Invoice page
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [THEN] Field "External Document No." is visible
         Assert.IsTrue(SalesInvoice."External Document No.".Visible, '');
@@ -4050,7 +4025,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NewName: Text[100];
     begin
         // [SCENARIO 288843] User is able to change document Sell-to Customer Name after sell-to customer had been specified when Customer has "Disable Search by Name" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create sales invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -4074,7 +4049,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NewName: Text[100];
     begin
         // [SCENARIO 288843] User is able to change document Bill-to Name after bill-to customer had been specified when Customer has "Disable Search by Name" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create sales invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -4168,6 +4143,30 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ChangeSalesHeaderSellToNameSalesSetupDisableSearchByName()
+    var
+        SalesHeader: Record "Sales Header";
+        NewName: Text[100];
+    begin
+        // [SCENARIO 362012] User is able to change document Sell-to Customer Name after sell-to customer had been specified when SalesSetup has "Disable Search by Name" = TRUE
+        Initialize();
+
+        // [GIVEN] Create sales invoice
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // [GIVEN] SalesSetup has "Disable Search by Name" = TRUE
+        SetSalesSetupDisableSearchByName(true);
+
+        // [WHEN] "Sell-to Customer Name" is being changed to 'XXX'
+        NewName := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("Sell-to Customer Name"), DATABASE::"Sales Header");
+        SalesHeader.Validate("Sell-to Customer Name", NewName);
+
+        // [THEN] Field "Sell-to Customer Name" value changed to 'XXX'
+        SalesHeader.TestField("Sell-to Customer Name", NewName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ChangeSalesOrderSellToNameDisableSearchByName()
     var
         SalesHeader: Record "Sales Header";
@@ -4216,11 +4215,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryAssembly: Codeunit "Library - Assembly";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Simplify UI Sales Invoice");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         CustomerTempl.DeleteAll();
         VendorTempl.DeleteAll();
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
 
@@ -4231,14 +4230,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Simplify UI Sales Invoice");
-
+        LibrarySetupStorage.Restore();
         LibraryTemplates.EnableTemplatesFeature();
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibrarySmallBusiness.CreateResponsabilityCenter(ResponsibilityCenter);
 
         Clear(UserSetup);
@@ -4248,7 +4247,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         UserSetup.Validate("Purchase Resp. Ctr. Filter", ResponsibilityCenter.Code);
         UserSetup.Insert(true);
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibrarySales.SetStockoutWarning(false);
 
         CompanyInformation.Get();
@@ -4264,6 +4263,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         if not AssemblySetup.Get() then
             AssemblySetup.Insert();
         LibraryAssembly.CreateAssemblySetup(AssemblySetup, '', 0, LibraryUtility.GetGlobalNoSeriesCode);
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
         Commit();
@@ -4283,7 +4283,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ServiceItemComponent: Record "Service Item Component";
         ItemTempl: Record "Item Templ.";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Res. Ledger Entry":
                 ResLedgerEntry.DeleteAll();
@@ -4467,7 +4467,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         StandardSalesLine: Record "Standard Sales Line";
     begin
         StandardSalesLine.SetRange("Standard Sales Code", StandardSalesCode.Code);
-        if StandardSalesLine.FindSet then
+        if StandardSalesLine.FindSet() then
             repeat
                 SalesLine.Reset();
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -4487,7 +4487,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         StandardPurchaseLine: Record "Standard Purchase Line";
     begin
         StandardPurchaseLine.SetRange("Standard Purchase Code", StandardPurchaseCode.Code);
-        if StandardPurchaseLine.FindSet then
+        if StandardPurchaseLine.FindSet() then
             repeat
                 PurchaseLine.Reset();
                 PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -4506,7 +4506,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         StandardSalesLine: Record "Standard Sales Line";
     begin
         StandardSalesLine.SetRange("Standard Sales Code", StandardSalesCode.Code);
-        if StandardSalesLine.FindSet then
+        if StandardSalesLine.FindSet() then
             repeat
                 if StandardSalesLine."No." <> '' then
                     Assert.IsTrue(StandardSalesLine.Type = StandardSalesLine.Type::Item, 'Type should be ' +
@@ -4522,7 +4522,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         StandardPurchaseLine: Record "Standard Purchase Line";
     begin
         StandardPurchaseLine.SetRange("Standard Purchase Code", StandardPurchaseCode.Code);
-        if StandardPurchaseLine.FindSet then
+        if StandardPurchaseLine.FindSet() then
             repeat
                 if StandardPurchaseLine."No." <> '' then
                     Assert.IsTrue(StandardPurchaseLine.Type = StandardPurchaseLine.Type::Item, 'Type should be ' +
@@ -4851,7 +4851,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -4912,7 +4912,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CreateCustomer(Customer2);
 
         // Unique identifier to prevent data dependency
-        Identifier := LibraryUtility.GenerateGUID;
+        Identifier := LibraryUtility.GenerateGUID();
 
         // Make beginning of the names the same
         NameStart := 'XXX Start ';
@@ -4942,7 +4942,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CreateVendor(Vendor2);
 
         // Unique identifier to prevent data dependency
-        Identifier := LibraryUtility.GenerateGUID;
+        Identifier := LibraryUtility.GenerateGUID();
 
         // Make beginning of the names the same
         NameStart := 'XXX Start';
@@ -5359,7 +5359,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
             SetRange("Document Type", DocumentType);
             SetRange("Buy-from Vendor No.", VendorNo);
             Assert.RecordIsNotEmpty(PurchaseHeader);
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -5399,7 +5399,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesLine: Record "Sales Line";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -5533,6 +5533,15 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer.Modify();
     end;
 
+    local procedure SetSalesSetupDisableSearchByName(NewDisableSearchByName: Boolean)
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        SalesSetup.Validate("Disable Search by Name", NewDisableSearchByName);
+        SalesSetup.Modify();
+    end;
+
     local procedure CreateVendorWithName(var Vendor: Record Vendor; Name: Text[100])
     begin
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -5596,10 +5605,10 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [UI]
         // [Scenario] Actions on Sales Invoice Page not enabled if no customer selected
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Invoice page is opened on SaaS
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [THEN] All controls related to customer (and on SaaS) are disabled
         Assert.IsFalse(SalesInvoice.GetRecurringSalesLines.Enabled, ControlShouldBeDisabledErr);
@@ -5611,7 +5620,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // [WHEN] Sales invoice page is opened with no application area
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [THEN] All controls related to customer (and not on SaaS) are disabled
         Assert.IsFalse(SalesInvoice.Release.Enabled, ControlShouldBeDisabledErr);
@@ -5628,7 +5637,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // [FEATURE] [UI]
         // [Scenario] Actions on Sales Invoice Page are enabled if customer is selected
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sample sales invoice
         LibrarySales.CreateCustomer(Customer);

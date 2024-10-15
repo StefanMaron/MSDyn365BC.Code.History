@@ -131,7 +131,7 @@ codeunit 144135 "Remittance - Misc"
         LibraryPurchase.CreateVendor(Vendor);
         with Vendor do begin
             "Payment Type Code Abroad" := MockPaymentTypeCodeAbroad;
-            "Specification (Norges Bank)" := LibraryUtility.GenerateGUID;
+            "Specification (Norges Bank)" := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;

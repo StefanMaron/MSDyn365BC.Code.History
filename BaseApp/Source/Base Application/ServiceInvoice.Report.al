@@ -81,10 +81,10 @@ report 5911 "Service - Invoice"
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BillToCustNo_ServInvHeader; "Service Invoice Header"."Bill-to Customer No.")
@@ -644,7 +644,7 @@ report 5911 "Service - Invoice"
                             if not DisplayAdditionalFeeNote then
                                 CurrReport.Break();
                             if Number = 1 then begin
-                                if not TempLineFeeNoteOnReportHist.FindSet then
+                                if not TempLineFeeNoteOnReportHist.FindSet() then
                                     CurrReport.Break
                             end else
                                 if TempLineFeeNoteOnReportHist.Next() = 0 then
@@ -684,6 +684,9 @@ report 5911 "Service - Invoice"
 
                 FormatAddressFields("Service Invoice Header");
                 FormatDocumentFields("Service Invoice Header");
+
+                if not CompanyBankAccount.Get("Service Invoice Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
@@ -749,6 +752,7 @@ report 5911 "Service - Invoice"
         GLSetup: Record "General Ledger Setup";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -999,7 +1003,7 @@ report 5911 "Service - Invoice"
         DimTxtArrLength := 0;
         for i := 1 to ArrayLen(DimTxtArr) do
             DimTxtArr[i] := '';
-        if not DimSetEntry.FindSet then
+        if not DimSetEntry.FindSet() then
             exit;
         Separation := '; ';
         repeat
@@ -1025,7 +1029,7 @@ report 5911 "Service - Invoice"
         TempLineFeeNoteOnReportHist.DeleteAll();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
-        if not CustLedgerEntry.FindFirst then
+        if not CustLedgerEntry.FindFirst() then
             exit;
 
         if not Customer.Get("Service Invoice Header"."Bill-to Customer No.") then
@@ -1033,7 +1037,7 @@ report 5911 "Service - Invoice"
 
         LineFeeNoteOnReportHist.SetRange("Cust. Ledger Entry No", CustLedgerEntry."Entry No.");
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
-        if LineFeeNoteOnReportHist.FindSet then begin
+        if LineFeeNoteOnReportHist.FindSet() then begin
             repeat
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
@@ -1041,7 +1045,7 @@ report 5911 "Service - Invoice"
             until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
-            if LineFeeNoteOnReportHist.FindSet then
+            if LineFeeNoteOnReportHist.FindSet() then
                 repeat
                     TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);

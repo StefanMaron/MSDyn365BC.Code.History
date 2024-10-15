@@ -690,7 +690,7 @@ table 5993 "Service Invoice Line"
             exit;
 
         FilterPstdDocLineValueEntries(ValueEntry);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Service Shipment" then

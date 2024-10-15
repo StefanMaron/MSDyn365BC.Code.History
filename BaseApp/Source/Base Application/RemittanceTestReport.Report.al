@@ -312,7 +312,7 @@ report 15000002 "Remittance Test Report"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry.FindSet then
+                            if not DimSetEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -467,7 +467,7 @@ report 15000002 "Remittance Test Report"
                 // Split into structured (kid or ext. doc. no <> '') and
                 // structured (recipient ref. 1-3 <> '') payments
                 SetRange("Structured Payment", "Structured Payment");
-                FindLast;
+                FindLast();
 
                 // Reestablish/delete filters on the transaction fields
                 StoreJnlFilters.CopyFilter("Remittance Agreement Code", "Remittance Agreement Code");

@@ -107,7 +107,7 @@ codeunit 10623 "E-Invoice Check Serv. Document"
         with ServiceLine do begin
             SetRange("Document Type", ServiceHeader."Document Type");
             SetRange("Document No.", ServiceHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if (Type <> Type::" ") and ("No." <> '') and ("Unit of Measure" = '') then
                         Error(EmptyUnitOfMeasureErr, "Document Type", "Document No.");

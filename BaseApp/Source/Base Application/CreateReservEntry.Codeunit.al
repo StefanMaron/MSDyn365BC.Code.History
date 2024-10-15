@@ -234,15 +234,6 @@ codeunit 99000830 "Create Reserv. Entry"
         OnAfterSetQtyToHandleAndInvoice(InsertReservEntry);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by SetNewTrackingFrom() procedures.', '17.0')]
-    procedure SetNewSerialLotNo(NewSerialNo: Code[50]; NewLotNo: Code[50])
-    begin
-        InsertReservEntry."New Serial No." := NewSerialNo;
-        InsertReservEntry."New Lot No." := NewLotNo;
-    end;
-#endif
-
     procedure SetNewTrackingFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
     begin
         InsertReservEntry."New Serial No." := ItemJnlLine."Serial No.";
@@ -552,7 +543,8 @@ codeunit 99000830 "Create Reserv. Entry"
                     Sign := 1
                 else
                     Sign := -1;
-            DATABASE::"Job Planning Line":
+            DATABASE::"Job Planning Line",
+            DATABASE::Job:
                 Sign := -1;
             DATABASE::"Phys. Invt. Order Line":
                 begin
@@ -643,7 +635,7 @@ codeunit 99000830 "Create Reserv. Entry"
 
         // Ensure that the full quantity is represented in the list of Tracking Specifications:
         NonReleasedQty := ReservEntry."Quantity (Base)";
-        if TempTrkgSpec1.FindSet then
+        if TempTrkgSpec1.FindSet() then
             repeat
                 NonReleasedQty -= TempTrkgSpec1."Quantity (Base)";
             until TempTrkgSpec1.Next() = 0;
@@ -655,7 +647,7 @@ codeunit 99000830 "Create Reserv. Entry"
             exit;
 
         NonReleasedQty := ReservEntry2."Quantity (Base)";
-        if TempTrkgSpec2.FindSet then
+        if TempTrkgSpec2.FindSet() then
             repeat
                 NonReleasedQty -= TempTrkgSpec2."Quantity (Base)";
             until TempTrkgSpec2.Next() = 0;
@@ -696,7 +688,7 @@ codeunit 99000830 "Create Reserv. Entry"
         TempTrkgSpec1.SetTrackingKey();
         TempTrkgSpec2.SetTrackingKey();
 
-        if not TempTrkgSpec1.FindLast then
+        if not TempTrkgSpec1.FindLast() then
             exit;
 
         repeat
@@ -704,7 +696,7 @@ codeunit 99000830 "Create Reserv. Entry"
                 NextState::SetFilter1:
                     begin
                         TempTrkgSpec1.SetTrackingFilterFromSpec(TempTrkgSpec2);
-                        if TempTrkgSpec1.FindLast then
+                        if TempTrkgSpec1.FindLast() then
                             NextState := NextState::Split
                         else
                             NextState := NextState::LoosenFilter1;
@@ -720,7 +712,7 @@ codeunit 99000830 "Create Reserv. Entry"
                                 TempTrkgSpec1.SetRange("Lot No.");
                             OnBalanceListsOnAfterLoosenFilter1(TempTrkgSpec1, TempTrkgSpec2);
                         end;
-                        if TempTrkgSpec1.FindLast then
+                        if TempTrkgSpec1.FindLast() then
                             NextState := NextState::Split
                         else
                             NextState := NextState::Error;
@@ -728,7 +720,7 @@ codeunit 99000830 "Create Reserv. Entry"
                 NextState::SetFilter2:
                     begin
                         TempTrkgSpec2.SetTrackingFilterFromSpec(TempTrkgSpec1);
-                        if TempTrkgSpec2.FindLast then
+                        if TempTrkgSpec2.FindLast() then
                             NextState := NextState::Split
                         else
                             NextState := NextState::LoosenFilter2;
@@ -744,7 +736,7 @@ codeunit 99000830 "Create Reserv. Entry"
                                 TempTrkgSpec2.SetRange("Lot No.");
                             OnBalanceListsOnAfterLoosenFilter2(TempTrkgSpec2, TempTrkgSpec1);
                         end;
-                        if TempTrkgSpec2.FindLast then
+                        if TempTrkgSpec2.FindLast() then
                             NextState := NextState::Split
                         else
                             NextState := NextState::Error;
@@ -757,11 +749,11 @@ codeunit 99000830 "Create Reserv. Entry"
                             TempTrkgSpec1.Delete();
                             TempTrkgSpec2.Delete();
                             TempTrkgSpec1.ClearTrackingFilter;
-                            if TempTrkgSpec1.FindLast then
+                            if TempTrkgSpec1.FindLast() then
                                 NextState := NextState::SetFilter2
                             else begin
                                 TempTrkgSpec2.Reset();
-                                if TempTrkgSpec2.FindLast then
+                                if TempTrkgSpec2.FindLast() then
                                     NextState := NextState::Error
                                 else
                                     NextState := NextState::Finish;
@@ -803,13 +795,13 @@ codeunit 99000830 "Create Reserv. Entry"
         TempTrkgSpec3.Reset();
         TempTrkgSpec4.Reset();
 
-        if TempTrkgSpec3.FindSet then
+        if TempTrkgSpec3.FindSet() then
             repeat
                 TempTrkgSpec1 := TempTrkgSpec3;
                 TempTrkgSpec1.Insert();
             until TempTrkgSpec3.Next() = 0;
 
-        if TempTrkgSpec4.FindSet then
+        if TempTrkgSpec4.FindSet() then
             repeat
                 TempTrkgSpec2 := TempTrkgSpec4;
                 TempTrkgSpec2.Insert();
@@ -829,7 +821,7 @@ codeunit 99000830 "Create Reserv. Entry"
             end;
 
         TempTrkgSpec1.Reset();
-        if not TempTrkgSpec1.FindFirst then
+        if not TempTrkgSpec1.FindFirst() then
             exit(false);
 
         OnBeforeSplitReservEntry(TempTrkgSpec1, ReservEntry);

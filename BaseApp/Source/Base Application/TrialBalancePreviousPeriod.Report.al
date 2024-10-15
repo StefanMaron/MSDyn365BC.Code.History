@@ -237,7 +237,7 @@ report 10601 "Trial Balance/Previous Period"
                     // Find start of Fiscal Year
                     AccPeriod.SetRange("Starting Date", 0D, PeriodStartThisYear);
                     AccPeriod.SetRange("New Fiscal Year", true);
-                    if AccPeriod.FindLast then begin
+                    if AccPeriod.FindLast() then begin
                         FirstDayThisYear := AccPeriod."Starting Date";
                         LastDayPrevYear := ClosingDate(CalcDate('<-1D>', FirstDayThisYear));
                         FirstDayPrevYear := CalcDate('<-1Y>', FirstDayThisYear);

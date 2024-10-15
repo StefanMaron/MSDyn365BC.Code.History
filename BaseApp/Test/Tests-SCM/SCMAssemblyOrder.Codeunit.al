@@ -42,8 +42,8 @@ codeunit 137908 "SCM Assembly Order"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Order");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Initialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Order");
@@ -71,7 +71,7 @@ codeunit 137908 "SCM Assembly Order"
         HeaderQty: Decimal;
         ParentQtyPerUOM: Decimal;
     begin
-        Initialize;
+        Initialize();
         BOMQtyPer := 3;
         HeaderQty := 2;
         ParentQtyPerUOM := 15;
@@ -113,7 +113,7 @@ codeunit 137908 "SCM Assembly Order"
         HeaderQty: Decimal;
         ParentQtyPerUOM: Decimal;
     begin
-        Initialize;
+        Initialize();
         BOMQtyPer := 3;
         HeaderQty := 2;
         ParentQtyPerUOM := 15;
@@ -146,7 +146,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyHeader: Record "Assembly Header";
         Parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         Parent := MakeItemWithLot;
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, Parent, 1));
 
@@ -166,7 +166,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
         childItem.Get(MakeItem);
@@ -189,7 +189,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -211,7 +211,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -237,7 +237,7 @@ codeunit 137908 "SCM Assembly Order"
         parent: Code[20];
         SecondParent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -280,7 +280,7 @@ codeunit 137908 "SCM Assembly Order"
         resource: Record Resource;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -306,7 +306,7 @@ codeunit 137908 "SCM Assembly Order"
         resource: Record Resource;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -333,7 +333,7 @@ codeunit 137908 "SCM Assembly Order"
         resource: Record Resource;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -370,7 +370,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -398,7 +398,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         Item.Get(parent);
         Item.Validate("Costing Method", Item."Costing Method"::Average);
@@ -422,7 +422,7 @@ codeunit 137908 "SCM Assembly Order"
         resource: Record Resource;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := MakeItemWithLot;
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(500, 700));
         LibraryManufacturing.CreateBOMComponent(
@@ -455,7 +455,7 @@ codeunit 137908 "SCM Assembly Order"
         ParentQty: Decimal;
         BomQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         ParentQty := 5;
         BomQty := 2;
 
@@ -498,7 +498,7 @@ codeunit 137908 "SCM Assembly Order"
         ParentQty: Decimal;
         BomQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         Parent := LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 10);
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
         LibraryManufacturing.CreateBOMComponent(
@@ -514,7 +514,7 @@ codeunit 137908 "SCM Assembly Order"
         ValidateQuantity(AssemblyLine, BomQty);
 
         AssemblyHeader.Validate(Quantity, 10);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         ValidateQuantity(AssemblyLine, BomQty);
 
         asserterror Error('') // roll back
@@ -532,7 +532,7 @@ codeunit 137908 "SCM Assembly Order"
         parent: Code[20];
         Costprice: Decimal;
     begin
-        Initialize;
+        Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         Costprice := 500;
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(Costprice, 700));
@@ -555,7 +555,7 @@ codeunit 137908 "SCM Assembly Order"
         item: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 10));
         item.Get(LibraryKitting.CreateItemWithNewUOM(100, 700));
@@ -577,7 +577,7 @@ codeunit 137908 "SCM Assembly Order"
         item: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 5));
         item.Get(LibraryKitting.CreateItemWithNewUOM(100, 700));
@@ -597,13 +597,18 @@ codeunit 137908 "SCM Assembly Order"
     [Scope('OnPrem')]
     procedure BUG252757QtyPerInitValue()
     var
+        AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // BUG252757 Qty per on the Assembly Line cannot be set to 0
         ItemNo := LibraryKitting.CreateItemWithNewUOM(100, 700);
+        AssemblyHeader.Init();
+        AssemblyHeader.Insert(true);
         AssemblyLine.Init();
+        AssemblyLine."Document Type" := AssemblyHeader."Document Type";
+        AssemblyLine."Document No." := AssemblyHeader."No.";
         AssemblyLine.Type := AssemblyLine.Type::Item;
         AssemblyLine.Validate("No.", ItemNo);
 
@@ -626,7 +631,7 @@ codeunit 137908 "SCM Assembly Order"
         Costprice: Decimal;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         Costprice := 400;
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(Costprice, 700, 1);
         Item.Get(parent);
@@ -660,7 +665,7 @@ codeunit 137908 "SCM Assembly Order"
         Costprice: Decimal;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         Costprice := 400;
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(Costprice, 700, 1);
         Item.Get(parent);
@@ -677,14 +682,14 @@ codeunit 137908 "SCM Assembly Order"
         LibraryKitting.AddLine(AssemblyHeader, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", 10, 1, 'Test UOM consume');
 
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         ValidateQuantityPer(AssemblyLine, 1);
         ValidateQuantityToConsume(AssemblyLine, 10);
 
         AssemblyHeader.Validate("Quantity to Assemble", 3);
 
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         ValidateQuantityPer(AssemblyLine, 1);
         ValidateQuantity(AssemblyLine, 10);
         ValidateQuantityToConsume(AssemblyLine, 3);
@@ -705,7 +710,7 @@ codeunit 137908 "SCM Assembly Order"
         OrderQuantity: Decimal;
         BomQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         OrderQuantity := 5;
         BomQuantity := 1;
 
@@ -733,7 +738,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -752,7 +757,7 @@ codeunit 137908 "SCM Assembly Order"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        Initialize;
+        Initialize();
         AssemblyHeader.Init();
         AssemblyHeader.Quantity := 10;
         AssemblyHeader."Remaining Quantity" := 2;
@@ -768,7 +773,7 @@ codeunit 137908 "SCM Assembly Order"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        Initialize;
+        Initialize();
         AssemblyHeader.Init();
         AssemblyHeader.Quantity := 10;
         AssemblyHeader."Remaining Quantity" := 2;
@@ -781,7 +786,7 @@ codeunit 137908 "SCM Assembly Order"
     var
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         AssemblyLine.Init();
         AssemblyLine."Remaining Quantity" := 2;
         AssemblyLine."Qty. per Unit of Measure" := 1;
@@ -796,7 +801,7 @@ codeunit 137908 "SCM Assembly Order"
     var
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         AssemblyLine.Init();
         AssemblyLine."Remaining Quantity" := 2;
         asserterror AssemblyLine.Validate("Quantity to Consume", 3);
@@ -815,7 +820,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -850,7 +855,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -885,7 +890,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -920,7 +925,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
 
@@ -952,7 +957,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 6;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -987,7 +992,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1023,7 +1028,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1059,7 +1064,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1095,7 +1100,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 6;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1133,7 +1138,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1171,7 +1176,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1209,7 +1214,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1248,7 +1253,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
 
@@ -1284,7 +1289,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 6;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1323,7 +1328,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1363,7 +1368,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1403,7 +1408,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1443,7 +1448,7 @@ codeunit 137908 "SCM Assembly Order"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         NonBaseQtyPerUOM := 6;
         BaseQtyPerUOM := 1;
         QtyRoundingPrecision := 0.1;
@@ -1545,7 +1550,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -1568,7 +1573,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem: Record Item;
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -1688,7 +1693,7 @@ codeunit 137908 "SCM Assembly Order"
     begin
         LibraryAssembly.SetLinkToLines(AsmHeader, AsmLine);
         TempCount := 0;
-        if AsmLine.FindSet then
+        if AsmLine.FindSet() then
             repeat
                 TempCount += AsmLine."Quantity to Consume";
             until AsmLine.Next <= 0;
@@ -1709,7 +1714,7 @@ codeunit 137908 "SCM Assembly Order"
     begin
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     [Test]
@@ -1720,7 +1725,7 @@ codeunit 137908 "SCM Assembly Order"
         AsmLine: Record "Assembly Line";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Create a blank asm line with Type blank to trigger the code
@@ -1750,7 +1755,7 @@ codeunit 137908 "SCM Assembly Order"
         UndoPostingManagement: Codeunit "Undo Posting Management";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         LibraryWarehouse.CreateLocation(Location);
@@ -1769,7 +1774,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, Item."No.", Location.Code, LibraryRandom.RandInt(10), '');
         AsmHeader."Bin Code" := Bin.Code;
 
-        WhseEntry2.FindLast;
+        WhseEntry2.FindLast();
         WhseEntry.Init();
         WhseEntry."Entry No." := WhseEntry2."Entry No." + 1;
         WhseEntry."Source Type" := DATABASE::"Assembly Header";

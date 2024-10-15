@@ -377,6 +377,14 @@ table 254 "VAT Entry"
             Caption = 'Base Before Pmt. Disc.';
             Editable = false;
         }
+        field(78; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
+        field(79; "Journal Batch Name"; Code[10])
+        {
+            Caption = 'Journal Batch Name';
+        }
         field(81; "Realized Amount"; Decimal)
         {
             AutoFormatType = 1;
@@ -585,15 +593,9 @@ table 254 "VAT Entry"
     procedure CopyFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
         CopyPostingGroupsFromGenJnlLine(GenJnlLine);
-        "Posting Date" := GenJnlLine."Posting Date";
-        "Document Date" := GenJnlLine."Document Date";
-        "Document No." := GenJnlLine."Document No.";
-        "External Document No." := GenJnlLine."External Document No.";
-        "Document Type" := GenJnlLine."Document Type";
+        CopyPostingDataFromGenJnlLine(GenJnlLine);
         Type := GenJnlLine."Gen. Posting Type";
         "VAT Calculation Type" := GenJnlLine."VAT Calculation Type";
-        "Source Code" := GenJnlLine."Source Code";
-        "Reason Code" := GenJnlLine."Reason Code";
         "Ship-to/Order Address Code" := GenJnlLine."Ship-to/Order Address Code";
         "EU 3-Party Trade" := GenJnlLine."EU 3-Party Trade";
         "User ID" := UserId;
@@ -604,6 +606,19 @@ table 254 "VAT Entry"
         "VAT Registration No." := GenJnlLine."VAT Registration No.";
 
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
+    end;
+
+    procedure CopyPostingDataFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
+    begin
+        "Posting Date" := GenJnlLine."Posting Date";
+        "Document Type" := GenJnlLine."Document Type";
+        "Document Date" := GenJnlLine."Document Date";
+        "Document No." := GenJnlLine."Document No.";
+        "External Document No." := GenJnlLine."External Document No.";
+        "Source Code" := GenJnlLine."Source Code";
+        "Reason Code" := GenJnlLine."Reason Code";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
+        "Journal Batch Name" := GenJnlLine."Journal Batch Name";
     end;
 
     local procedure CopyPostingGroupsFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")

@@ -25,13 +25,12 @@ page 447 "Finance Charge Memo Lines"
                     begin
                         TypeOnAfterValidate;
                         NoOnAfterValidate();
-                        SetShowMandatoryConditions
                     end;
                 }
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = TypeIsGLAccount;
+                    ShowMandatory = Type = Type::"G/L Account";
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
@@ -54,7 +53,7 @@ page 447 "Finance Charge Memo Lines"
                 field("Document Type"; "Document Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = TypeIsCustomerLedgerEntry;
+                    ShowMandatory = Type = Type::"Customer Ledger Entry";
                     ToolTip = 'Specifies the document type of the customer ledger entry this finance charge memo line is for.';
 
                     trigger OnValidate()
@@ -65,7 +64,7 @@ page 447 "Finance Charge Memo Lines"
                 field("Document No."; "Document No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = TypeIsCustomerLedgerEntry;
+                    ShowMandatory = Type = Type::"Customer Ledger Entry";
                     ToolTip = 'Specifies the document number of the customer ledger entry this finance charge memo line is for.';
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -146,11 +145,6 @@ page 447 "Finance Charge Memo Lines"
         }
     }
 
-    trigger OnAfterGetCurrRecord()
-    begin
-        SetShowMandatoryConditions;
-    end;
-
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
@@ -169,8 +163,6 @@ page 447 "Finance Charge Memo Lines"
         RemainingAmountEmphasize: Boolean;
         [InDataSet]
         AmountEmphasize: Boolean;
-        TypeIsGLAccount: Boolean;
-        TypeIsCustomerLedgerEntry: Boolean;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
@@ -237,12 +229,6 @@ page 447 "Finance Charge Memo Lines"
     local procedure AmountOnFormat()
     begin
         AmountEmphasize := not "Detailed Interest Rates Entry";
-    end;
-
-    local procedure SetShowMandatoryConditions()
-    begin
-        TypeIsGLAccount := Type = Type::"G/L Account";
-        TypeIsCustomerLedgerEntry := Type = Type::"Customer Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]

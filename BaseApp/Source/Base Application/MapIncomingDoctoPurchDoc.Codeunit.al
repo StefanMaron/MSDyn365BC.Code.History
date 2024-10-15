@@ -60,7 +60,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetRange("Parent Record No.", 0);
             SetCurrentKey("Record No.");
 
-            if not FindSet then
+            if not FindSet() then
                 exit;
 
             repeat
@@ -106,7 +106,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetRange("Parent Record No.", ParentRecordNo);
             SetCurrentKey("Record No.");
 
-            if not FindSet then begin
+            if not FindSet() then begin
                 OnProcessLinesIntermediateDataImportNotFound(DataExch, PurchaseHeader);
                 exit;
             end;
@@ -152,7 +152,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetRange("Parent Record No.", 0);
             SetFilter(Value, '<>%1', '');
 
-            if not FindSet then
+            if not FindSet() then
                 exit;
 
             repeat
@@ -190,7 +190,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetRange("Parent Record No.", 0);
             SetFilter(Value, '<>%1', '');
 
-            if not FindSet then
+            if not FindSet() then
                 exit;
 
             repeat
@@ -223,7 +223,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetRange("Parent Record No.", 0);
             SetFilter(Value, '<>%1', '');
 
-            if not FindSet then
+            if not FindSet() then
                 exit;
 
             repeat
@@ -241,7 +241,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
 
                 // calculate totals and compare them with values from the incoming document
                 IncomingDocument.Get(DataExch."Incoming Entry No.");
-                if CurrentPurchaseLine.FindFirst then begin
+                if CurrentPurchaseLine.FindFirst() then begin
                     DocumentTotals.PurchaseCalculateTotalsWithInvoiceRounding(CurrentPurchaseLine, VATAmount, TempTotalPurchaseLine);
 
                     if AmountIncludingVATFromFile <> TempTotalPurchaseLine."Amount Including VAT" then begin
@@ -279,7 +279,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetFilter(Value, '<>%1', '');
             SetCurrentKey("Record No.");
 
-            if not FindSet then
+            if not FindSet() then
                 exit;
 
             repeat
@@ -489,7 +489,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         end;
     end;
 
-    local procedure GetValueFromIntermediate(var IntermediateDataImport: Record "Intermediate Data Import"; RecRef: RecordRef; FieldID: Integer; FieldName: Text): Text[250]
+    procedure GetValueFromIntermediate(var IntermediateDataImport: Record "Intermediate Data Import"; RecRef: RecordRef; FieldID: Integer; FieldName: Text): Text[250]
     var
         Value: Text[250];
     begin
@@ -504,13 +504,13 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         Value := '';
         IntermediateDataImport.SetRange("Field ID", FieldID);
 
-        if not IntermediateDataImport.FindFirst then
+        if not IntermediateDataImport.FindFirst() then
             Error(NotFoundErr, FieldName, RecRef.Caption, IntermediateDataImport.TableCaption);
 
         Value := IntermediateDataImport.Value;
     end;
 
-    local procedure ProcessField(var TempInt: Record "Integer"; RecRef: RecordRef; FieldNo: Integer; Value: Text[250])
+    procedure ProcessField(var TempInt: Record "Integer"; RecRef: RecordRef; FieldNo: Integer; Value: Text[250])
     var
         FieldRef: FieldRef;
     begin
@@ -535,7 +535,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         TempInt.Insert();
     end;
 
-    local procedure IsFieldProcessed(var TempInt: Record "Integer"; FieldID: Integer): Boolean
+    procedure IsFieldProcessed(var TempInt: Record "Integer"; FieldID: Integer): Boolean
     begin
         TempInt.Reset();
         TempInt.SetRange(Number, FieldID);
@@ -568,7 +568,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         Clear(TempNameValueBufferPurchLine);
 
         ID := 1;
-        if TempNameValueBufferPurchLine.FindLast then
+        if TempNameValueBufferPurchLine.FindLast() then
             ID := TempNameValueBufferPurchLine.ID + 1;
 
         TempNameValueBufferPurchLine.Init();
@@ -584,7 +584,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
     begin
         TempNameValueBufferPurchLine.Reset();
         TempNameValueBufferPurchLine.SetRange(Name, Key);
-        TempNameValueBufferPurchLine.FindFirst;
+        TempNameValueBufferPurchLine.FindFirst();
         Evaluate(RecId, Format(TempNameValueBufferPurchLine.Value));
         PurchaseLine.Get(RecId);
     end;
@@ -607,7 +607,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetRange("Field ID", PrepaymentInvLineBuffer.FieldNo(Amount));
             SetRange("Record No.", RecordNo);
 
-            if FindFirst then
+            if FindFirst() then
                 Evaluate(Amount, Value, 9);
         end;
         exit(Amount);
@@ -628,7 +628,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetRange("Parent Record No.", 0);
             SetFilter(Value, '<>%1', '');
 
-            if FindFirst then
+            if FindFirst() then
                 exit(CopyStr(Value, 1, MaxStrLen(PlaceholderPurchaseLine.Description)));
             LogMessage(
               IntermediateDataImport."Data Exch. No.",
@@ -678,7 +678,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         LineNo := 10000;
         PurchaseLine.SetRecFilter;
         PurchaseLine.SetRange("Line No.");
-        if PurchaseLine.FindLast then
+        if PurchaseLine.FindLast() then
             LineNo := LineNo + PurchaseLine."Line No.";
         PurchaseLine.Validate("Line No.", LineNo);
 

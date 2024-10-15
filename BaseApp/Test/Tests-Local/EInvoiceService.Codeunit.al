@@ -40,7 +40,7 @@ codeunit 144111 "E-Invoice Service"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceServInvoice;
 
@@ -58,7 +58,7 @@ codeunit 144111 "E-Invoice Service"
         ServInvoiceNo: Code[20];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
@@ -85,7 +85,7 @@ codeunit 144111 "E-Invoice Service"
         ServInvoiceNo: Code[20];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
@@ -111,7 +111,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice] [BBAN]
         // [SCENARIO 1.4.27] Bank Account, BBAN
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information is set up without IBAN
         // [GIVEN] Company information is set up with BBAN
@@ -140,7 +140,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice] [IBAN]
         // [SCENARIO 1.4.27] Bank Account, IBAN
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information is set up with IBAN
         IBAN := 'GB 12 CPBK 08929965044991';
@@ -171,7 +171,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice] [IBAN] [BBAN]
         // [SCENARIO 1.4.27] Bank Account, Both IBAN and BBAN
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information is set up with both IBAN and BBAN
         BankAccountNo := '99-99-888';
@@ -206,7 +206,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO] Validate the child nodes of 'Delivery', on the Invoice Lines
-        Initialize;
+        Initialize();
 
         ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
         XMLFileName := ExecEInvoice(ServiceInvoiceNo);
@@ -220,7 +220,7 @@ codeunit 144111 "E-Invoice Service"
     procedure EInvoiceServInvEndpointID()
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
         EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceServInvoice);
     end;
 
@@ -234,7 +234,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.10] Fixed value attributes added: CurrencyCode, InvoiceTypeCode, PaymentMeansCode, SchemaId
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted service invoice
         ServiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
@@ -261,7 +261,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.10] Fixed value attributes added for InvoicedQuantity: unitCode, unitCodeListID.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted service invoice
         ServiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
@@ -283,7 +283,7 @@ codeunit 144111 "E-Invoice Service"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceServInvoice;
 
@@ -303,7 +303,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice] [FCY]
         // [SCENARIO 1.4.10] Foreign currency exchange rate information is added to the service invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] A service invoice to export in a foreign currency with Tax Exchange Rate = X
         ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInForeignCurrency(ServiceHeader."Document Type"::Invoice);
@@ -329,7 +329,7 @@ codeunit 144111 "E-Invoice Service"
         // [SCENARIO] AccountingSupplierParty, AccountingCustomerParty and Delivery (on the header) contain the updated UBL 2.1 xml
         // [SCENARIO] namely the AddressType used in PostalAddress and Delivery Address is changed, as well as the Customer Contact
         // [SCENARIO] additionally a node has been removed: AccountingSupplierParty/Party/Person (as well as AccountingCustomerParty/Party/Person)
-        Initialize;
+        Initialize();
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
@@ -350,7 +350,7 @@ codeunit 144111 "E-Invoice Service"
     procedure ServiceInvoiceWithAllVATGroups()
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         ServiceInvWithNoOfVATGroups(5);
     end;
@@ -379,7 +379,7 @@ codeunit 144111 "E-Invoice Service"
     procedure ServiceInvoiceWithOneVATGroup()
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         ServiceInvWithNoOfVATGroups(1);
     end;
@@ -395,7 +395,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice] [Reverse Charge]
         // [SCENARIO 1.4.8] VAT category K is added to the Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Service Invoice to export with VAT % = 0 and Reverse Charge
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
@@ -422,7 +422,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.8] VAT category Z is added to the Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Service Invoice to export with VAT % = 0 and Outside tax area
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
@@ -444,7 +444,7 @@ codeunit 144111 "E-Invoice Service"
     procedure ServiceInvoiceWithTwoVATGroups()
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         ServiceInvWithNoOfVATGroups(2);
     end;
@@ -461,7 +461,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 1.4.28] EndPointID contains customer VAT Reg No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted service Invoice to export where bill-to customer has "VAT  Reg. No." = X
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
@@ -488,7 +488,7 @@ codeunit 144111 "E-Invoice Service"
         ServiceInvoiceNo: Code[20];
     begin
         // [FEATURE] [Invoice]
-        Initialize;
+        Initialize();
 
         ServiceInvoiceNo := EInvoiceServiceHelper.CreateServiceInvoice;
         XmlFileName := ExecEInvoice(ServiceInvoiceNo);
@@ -510,7 +510,7 @@ codeunit 144111 "E-Invoice Service"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceServCrMemo;
 
@@ -527,7 +527,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO] Validate the child nodes of 'Delivery', on the CreditNote Lines
-        Initialize;
+        Initialize();
 
         CrMemoHeaderId := EInvoiceServiceHelper.CreateServiceCrMemo;
         XMLFileName := ExecECrMemo(CrMemoHeaderId);
@@ -549,7 +549,7 @@ codeunit 144111 "E-Invoice Service"
         // [SCENARIO] AccountingSupplierParty, AccountingCustomerParty and Delivery (on the header) contain the updated UBL 2.1 xml
         // [SCENARIO] namely the AddressType used in PostalAddress and Delivery Address is changed, as well as the Customer Contact
         // [SCENARIO] additionally a node has been removed: AccountingSupplierParty/Party/Person (as well as AccountingCustomerParty/Party/Person)
-        Initialize;
+        Initialize();
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
@@ -570,7 +570,7 @@ codeunit 144111 "E-Invoice Service"
     procedure EInvoiceServCrMemoEndpointID()
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
         EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceServCrMemo);
     end;
 
@@ -585,7 +585,7 @@ codeunit 144111 "E-Invoice Service"
         ServCrMemoNo: Code[20];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
@@ -612,7 +612,7 @@ codeunit 144111 "E-Invoice Service"
         ServCrMemoNo: Code[20];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
@@ -638,7 +638,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.10] Fixed value attributes added: CurrencyCode, SchemaId
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted service invoice
         ServCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo;
@@ -663,7 +663,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.10] Fixed value attributes added for CreditedQuantity: unitCode, unitCodeListID.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted service invoice
         ServiceNo := EInvoiceServiceHelper.CreateServiceCrMemo;
@@ -685,7 +685,7 @@ codeunit 144111 "E-Invoice Service"
         XmlFileName: Text[1024];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceServCrMemo;
 
@@ -705,7 +705,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Credit Memo] [FCY]
         // [SCENARIO 1.4.10] Foreign currency exchange rate information is added to the service credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] A service credit memo to export in a foreign currency with Tax Exchange Rate = X
         ServiceCrMemoNo := EInvoiceServiceHelper.CreateServiceInForeignCurrency(ServiceHeader."Document Type"::"Credit Memo");
@@ -723,7 +723,7 @@ codeunit 144111 "E-Invoice Service"
     procedure ServiceCrMemoWithAllVATGroups()
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         ServiceCrMemoWithNoOfVATGroups(5);
     end;
@@ -734,7 +734,7 @@ codeunit 144111 "E-Invoice Service"
     procedure ServiceCrMemoWithOneVATGroup()
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         ServiceCrMemoWithNoOfVATGroups(1);
     end;
@@ -768,7 +768,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Credit Memo] [Reverse Charge]
         // [SCENARIO 1.4.8] VAT category K is added to the Service Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Service credit memo to export with VAT % = 0 and Reverse Charge
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::"Credit Memo";
@@ -795,7 +795,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.8] VAT category Z is added to the Service Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Service credit memo to export with VAT % = 0 and Outside tax area
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::"Credit Memo";
@@ -817,7 +817,7 @@ codeunit 144111 "E-Invoice Service"
     procedure ServiceCrMemoWithTwoVATGroups()
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         ServiceCrMemoWithNoOfVATGroups(2);
     end;
@@ -834,7 +834,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 1.4.28] EndPointID contains customer VAT Reg No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Service credit memo to export where bill-to customer has "VAT  Reg. No." = X
         EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
@@ -861,7 +861,7 @@ codeunit 144111 "E-Invoice Service"
         ServiceCrMemoNo: Code[20];
     begin
         // [FEATURE] [Credit Memo]
-        Initialize;
+        Initialize();
 
         ServiceCrMemoNo := EInvoiceServiceHelper.CreateServiceCrMemo;
         XmlFileName := ExecECrMemo(ServiceCrMemoNo);
@@ -1034,7 +1034,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         // [FEATURE] [KID]
         // [SCENARIO 377047] Verify exported Service Electronic Invoice XML "PaymentID" node value in case of "KID Setup"::"Document No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Receivables Setup: "KID Setup" = "Document No.", "Document No. length" = 20
         EInvoiceHelper.KIDSetup(SalesReceivablesSetup."KID Setup"::"Document No.", 20, 0);
@@ -1056,11 +1056,11 @@ codeunit 144111 "E-Invoice Service"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         InitGlobalVATRates;
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");

@@ -19,7 +19,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
     var
         ProductionOrder: Record "Production Order";
     begin
-        Initialize;
+        Initialize();
         with ProductionOrder do begin
             SetNullNull("Starting Date", "Starting Time");
             SetNullNull("Ending Date", "Ending Time");
@@ -53,7 +53,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        Initialize;
+        Initialize();
         with ProdOrderLine do begin
             SetNullNull("Starting Date", "Starting Time");
             SetNullNull("Ending Date", "Ending Time");
@@ -81,7 +81,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        Initialize;
+        Initialize();
         with ProdOrderComponent do begin
             SetNullNull("Due Date", "Due Time");
             UpdateDatetime;
@@ -107,7 +107,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        Initialize;
+        Initialize();
         with ProdOrderRoutingLine do begin
             SetNullNull("Starting Date", "Starting Time");
             SetNullNull("Ending Date", "Ending Time");
@@ -141,7 +141,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
     var
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
     begin
-        Initialize;
+        Initialize();
         with ProdOrderCapNeed do begin
             SetNullNull(Date, "Starting Time");
             SetNullNull(Date, "Ending Time");
@@ -177,7 +177,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // [SCENARIO 230435] "Due Time" and "Due Date-Time" are updated on Prod. Order Component from related Prod. Order Line when "Due Date" is updated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prod. Order Line with "Due Date" = "D" and "Due Time" = "T".
         MockProdOrderLine(ProdOrderLine);
@@ -226,7 +226,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
     begin
         with ProdOrderLine do begin
             Init;
-            "Prod. Order No." := LibraryUtility.GenerateGUID;
+            "Prod. Order No." := LibraryUtility.GenerateGUID();
             "Starting Date" := WorkDate;
             "Starting Time" := 120000T;
             Insert;

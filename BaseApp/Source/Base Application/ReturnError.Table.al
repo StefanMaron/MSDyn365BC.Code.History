@@ -51,7 +51,7 @@ table 15000007 "Return Error"
     begin
         if "Serial Number" = 0 then begin
             ReturnError.SetRange("Waiting Journal Reference", "Waiting Journal Reference");
-            if ReturnError.FindLast then
+            if ReturnError.FindLast() then
                 "Serial Number" := ReturnError."Serial Number" + 1
             else
                 "Serial Number" := 1;

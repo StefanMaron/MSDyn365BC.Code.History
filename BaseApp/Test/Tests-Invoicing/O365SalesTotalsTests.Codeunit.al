@@ -26,7 +26,7 @@ codeunit 138904 "O365 Sales Totals Tests"
 
         // Ensure WORKDATE does not drift too far from the accounting period start date
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        if not AccountingPeriod.FindLast then begin
+        if not AccountingPeriod.FindLast() then begin
             AccountingPeriod.Init();
             AccountingPeriod."Starting Date" := CalcDate('<CY+1D>', WorkDate);
             AccountingPeriod."New Fiscal Year" := true;
@@ -234,7 +234,7 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         // Setup for WORKDATE
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
         O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriod);
 
         // Verify the correct accounting period was selected
@@ -264,7 +264,7 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         // Setup
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
         WorkDate(CalcDate('<1Y>', WorkDate)); // 1 year later
 
         // Exercise
@@ -285,9 +285,9 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         // Setup
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         WorkDate(CalcDate('<-1Y>', AccountingPeriod."Starting Date")); // 1 year before first accounting period
 
         // Exercise
@@ -308,10 +308,10 @@ codeunit 138904 "O365 Sales Totals Tests"
         TotalThisMonth: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         GLSetup.Get();
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // We create customer ledger entries as well to verify these do not interfere with result.
         CreateDemoCustLedgerEntries('');
@@ -341,7 +341,7 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         // Setup for WORKDATE
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
         O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriod);
 
         // Verify the correct accounting period was selected
@@ -374,10 +374,10 @@ codeunit 138904 "O365 Sales Totals Tests"
         TotalThisWeek: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         GLSetup.Get();
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // We create customer ledger entries as well to verify these do not interfere with result.
         CreateDemoCustLedgerEntries('');
         TotalThisWeek := CreatePostedSalesInvoices('');
@@ -412,10 +412,10 @@ codeunit 138904 "O365 Sales Totals Tests"
         O365SalesStatistics: Codeunit "O365 Sales Statistics";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SalesInvoiceHeader.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreatePostedSalesInvoices(Customer."No.");
         CreateDraftSalesInvoice(Customer."No.");
         GraphMgtGeneralTools.ApiSetup;
@@ -425,7 +425,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         Assert.IsTrue(O365SalesStatistics.GenerateMonthlyCustomers(Date2DMY(WorkDate, 2), ResultCustomer), 'did not mark any customers');
 
         // Verify
-        ResultCustomer.FindFirst;
+        ResultCustomer.FindFirst();
         Assert.AreEqual(1, ResultCustomer.Count, 'Incorrect number of customers');
         Assert.AreEqual(Customer."No.", ResultCustomer."No.", 'Incorrect customer selected');
     end;

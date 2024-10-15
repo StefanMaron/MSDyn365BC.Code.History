@@ -53,7 +53,7 @@ codeunit 144129 "Remittance - Export Test"
         // [FEATURE] [BBS]
         // [SCENARIO] the Remittance - export (BBS) report is generating correct output in the specified path
         // Setup and Execute
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -68,9 +68,6 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-#endif
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
     end;
@@ -91,7 +88,7 @@ codeunit 144129 "Remittance - Export Test"
         // [FEATURE] [BBS] [KID]
         // [SCENARIO] the Remittance - export (BBS) report is generating correct output in the specified path
         // Setup and Execute
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -107,10 +104,6 @@ codeunit 144129 "Remittance - Export Test"
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
         VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
-
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-#endif
 
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
@@ -132,7 +125,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [SCENARIO] the Remittance - export (BBS) report is generating correct output in the specified path
         // Setup and Execute
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         PurchasesPayablesSetup.Get();
@@ -153,10 +146,6 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-#endif
-
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
     end;
@@ -176,7 +165,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [SCENARIO] the Remittance - export (Bank) report is generating correct output in the specified path
         // Setup and Execute
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -190,10 +179,6 @@ codeunit 144129 "Remittance - Export Test"
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
         VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
-
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-#endif
 
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
@@ -215,7 +200,7 @@ codeunit 144129 "Remittance - Export Test"
         // [FEATURE] [KID]
         // [SCENARIO] the Remittance - export (Bank) report is generating correct output in the specified path
         // Setup and Execute
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -231,10 +216,6 @@ codeunit 144129 "Remittance - Export Test"
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
         VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
-
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-#endif
 
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
@@ -254,7 +235,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [SCENARIO] the special characters are displayed correctly in the exported text file after posting with "special characters" the External Document No.
         // Setup and Execute
-        Initialize;
+        Initialize();
 
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"Fokus Bank",
@@ -271,10 +252,6 @@ codeunit 144129 "Remittance - Export Test"
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
         VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
-
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-#endif
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -297,7 +274,7 @@ codeunit 144129 "Remittance - Export Test"
         // [FEATURE] [UI]
         // [SCENARIO] Do a manual export and compare with previously exported file.
         // Setup and Execute
-        Initialize;
+        Initialize();
 
         LibraryRemittance.SetupDomesticRemittancePayment(RemittanceAgreement."Payment System"::BBS, RemittanceAgreement,
           RemittanceAccount, Vendor, GenJournalLine);
@@ -315,10 +292,6 @@ codeunit 144129 "Remittance - Export Test"
         RemittancePaymentOrder.ExportPaymentFile.Invoke; // Manual Export.
 
         CompareFiles(FileName, FileName2);
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-        FileMgt.DeleteClientFile(FileName2);
-#endif
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -336,7 +309,7 @@ codeunit 144129 "Remittance - Export Test"
         FileName: Text;
     begin
         // [SCENARIO] the amount is calculated in LCY (NOK), when posting with Non-LCY currency code
-        Initialize;
+        Initialize();
 
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank",
@@ -350,10 +323,6 @@ codeunit 144129 "Remittance - Export Test"
         FileName := ExecuteAndVerifyRemittanceExportPaymentFile(RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
 
         VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
-
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-#endif
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -371,7 +340,7 @@ codeunit 144129 "Remittance - Export Test"
         FileName: Text;
     begin
         // [SCENARIO] Error if trying to export unstructured payments
-        Initialize;
+        Initialize();
 
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank",
@@ -411,7 +380,7 @@ codeunit 144129 "Remittance - Export Test"
         FileName: Text;
     begin
         // [SCENARIO] Error if trying to export unstructured payments without a "Recipient Ref. 1"
-        Initialize;
+        Initialize();
 
         LibraryRemittance.SetupDomesticRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank",
@@ -452,7 +421,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [Suggest Remittance Payments] [Dimension]
         // [Scenario 364448] Report Suggest Remittance Payments trnasfers dimensions to Payment Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Remittance Account
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -494,7 +463,7 @@ codeunit 144129 "Remittance - Export Test"
         dt: DateTime;
     begin
         // [FEATURE] [Waiting Journal]
-        Initialize;
+        Initialize();
 
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"DnB Telebank",
@@ -513,7 +482,7 @@ codeunit 144129 "Remittance - Export Test"
         LibraryReportDataset.LoadDataSetFile;
 
         WaitingJournal.SetRange(Reference, LibraryRemittance.GetLastPaymentOrderID);
-        WaitingJournal.FindFirst;
+        WaitingJournal.FindFirst();
         RemittancePaymentOrder.Get(WaitingJournal."Payment Order ID - Sent");
 
         Assert.AreEqual(1, LibraryReportDataset.RowCount, 'The should only be one line in the Waiting Journal with the Document No.');
@@ -525,9 +494,6 @@ codeunit 144129 "Remittance - Export Test"
         Evaluate(dt, v, 9);
         Assert.AreEqual(RemittancePaymentOrder.Date, DT2Date(dt), 'PaymentOrderDate');
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FileName);
-#endif
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -544,7 +510,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [Report]
         // [SCENARIO] Test for the "Rem. Payment Order Status" report.
-        Initialize;
+        Initialize();
 
         // Setup.
         DeleteRemittancePaymentOrders;
@@ -590,7 +556,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 256370] "Rem. Payment Order Status" report is groupped by payment status
-        Initialize;
+        Initialize();
 
         // [GIVEN] Remittance Payment Order with 2 payments of each type Sent, Approved, Settled, Rejected
         DeleteRemittancePaymentOrders;
@@ -633,7 +599,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 378832] When payment's amount is less than the limit to Norges Bank and specification field is empty then NAV asks confirmation during the export (answer = Yes)
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchSetup."Amt. Spec limit to Norges Bank" has some value "LimitAmount"
         LimitAmount := LibraryRandom.RandDecInDecimalRange(10000, 20000, 2);
@@ -663,7 +629,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 378832] When payment's amount is less than the limit to Norges Bank and specification field is empty then NAV asks confirmation during the export (answer = No)
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchSetup."Amt. Spec limit to Norges Bank" has some value "LimitAmount"
         LimitAmount := LibraryRandom.RandDecInDecimalRange(10000, 20000, 2);
@@ -694,7 +660,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 378832] When payment's amount is less than the limit to Norges Bank and specification field is filled then NAV doesn't show confirmation during the export
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchSetup."Amt. Spec limit to Norges Bank" has some value "LimitAmount"
         LimitAmount := LibraryRandom.RandDecInDecimalRange(10000, 20000, 2);
@@ -724,7 +690,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 378832] When PurchSetup."Amt. Spec limit to Norges Bank" = 0 then NAV doesn't show confirmation during the export
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchSetup."Amt. Spec limit to Norges Bank" = 0
         SetAmountSpecLimit(0);
@@ -752,7 +718,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 379716] When payment's amount is less than the limit to Norges Bank and payment type code abroad field is empty then NAV asks confirmation during the export (answer = Yes)
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchSetup."Amt. Spec limit to Norges Bank" has some value "LimitAmount"
         LimitAmount := LibraryRandom.RandDecInDecimalRange(10000, 20000, 2);
@@ -782,7 +748,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 379716] When payment's amount is less than the limit to Norges Bank and payment type code abroad field is empty then NAV asks confirmation during the export (answer = No)
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchSetup."Amt. Spec limit to Norges Bank" has some value "LimitAmount"
         LimitAmount := LibraryRandom.RandDecInDecimalRange(10000, 20000, 2);
@@ -813,7 +779,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 379716] When payment's amount is less than the limit to Norges Bank and payment type code abroad field is filled then NAV doesn't show confirmation during the export
-        Initialize;
+        Initialize();
 
         // [GIVEN] PurchSetup."Amt. Spec limit to Norges Bank" has some value "LimitAmount"
         LimitAmount := LibraryRandom.RandDecInDecimalRange(10000, 20000, 2);
@@ -847,7 +813,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [Report] [Suggest Remittance Payments] [Remittance - export (bank)]
         // [SCENARIO 234988] When Remittance - export (bank) is run for suggested Remittance Payment Lines with External Doc No <> '', then only one header exists in export file.
-        Initialize;
+        Initialize();
 
         InvoicesCount := 9;        // Max count of unstructured payments per transaction = 8
         HeaderSequenceLineNo := 8; // line No with header sequence '600F'
@@ -866,7 +832,7 @@ codeunit 144129 "Remittance - Export Test"
         RemittanceExportBank.SetJournalLine(GenJournalLine);
         LibraryVariableStorage.Enqueue(RemittanceAgreementCode);
         LibraryVariableStorage.Enqueue(FileName);
-        RemittanceExportBank.Run;
+        RemittanceExportBank.Run();
 
         // [THEN] Exactly one header exists in export file
         VerifyRemittanceExportFileExactlyOneHeaderExists(FileName, HeaderSequenceLineNo, InvoicesCount);
@@ -886,7 +852,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [SCENARIO 381523] The <InstrPrty> is "HIGH" in SEPA Credit Transfer XML if Urgent is True in General Journal Line
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Urgent" is True in General Journal Line
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine.Validate(Urgent, true);
@@ -914,7 +880,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [SCENARIO 381523] The <InstrPrty> is "NORM" in SEPA Credit Transfer XML if Urgent is False in General Journal Line
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Urgent" is False in General Journal Line
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine.Validate(Urgent, false);
@@ -971,11 +937,11 @@ codeunit 144129 "Remittance - Export Test"
         OutStr: OutStream;
     begin
         // [SCENARIO 217316] "Schema Name" tag is not filled with "Ref. Aboard" value of Remittance Account when export payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with "Recipient Ref. Abroad" = "ACC"
         CreateGenJnlLine(GenJournalLine);
-        GenJournalLine.Validate("Recipient Ref. Abroad", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Recipient Ref. Abroad", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         // [WHEN] Export the line to SEPA CT file
@@ -1000,7 +966,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         // [FEATURE] [Report] [Suggest Remittance Payments]
         // [SCENARIO 234989] Posted CrMemo, run Suggest Remmitance Payments. Cr Memo shouldn't suggested.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Suggested Remittance Payments for Credit Memo
         RemittanceAgreementCode := CreateRemittanceAgreementWithExportFile(FileMgt.ServerTempFileName('txt'));
@@ -1020,10 +986,10 @@ codeunit 144129 "Remittance - Export Test"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
-        LibraryERMCountryData.UpdateLocalData;
-        LibrarySetupStorage.Restore;
+        LibraryERMCountryData.UpdateLocalData();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -1072,7 +1038,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
         GenJournalLine.SetRange("Account No.", VendorNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure CreateRemittanceAgreementWithExportFile(FileName: Text): Code[10]
@@ -1194,7 +1160,7 @@ codeunit 144129 "Remittance - Export Test"
         LibraryVariableStorage.Enqueue(RemittanceAccountCode);
         LibraryVariableStorage.Enqueue(VendorNo);
         SuggestRemittancePayments.SetGenJnlLine(GenJournalLine);
-        SuggestRemittancePayments.RunModal;
+        SuggestRemittancePayments.RunModal();
     end;
 
     local procedure GetRemittanceAccountCodeForVendorNo(VendorNo: Code[20]): Code[10]
@@ -1248,10 +1214,6 @@ codeunit 144129 "Remittance - Export Test"
         CountTrans: Integer;
         ServerFileName: Text;
     begin
-#if not CLEAN17
-        Assert.IsTrue(FileMgt.ClientFileExists(FileName), 'Export file not found.');
-#endif
-
         LibraryRemittance.GetGenJournalLinesFromWaitingJournal(LibraryRemittance.GetLastPaymentOrderID, TempGenJournalLine);
 
         GetInStreamWithoutCRNL(Ins, ExportFile, FileName);
@@ -1633,9 +1595,6 @@ codeunit 144129 "Remittance - Export Test"
         ServerFileName: Text;
     begin
         // This method only verifies a BBS file with a single payment.
-#if not CLEAN17
-        Assert.IsTrue(FileMgt.ClientFileExists(FileName), 'Export file not found.');
-#endif
         PaymentOrderNoOfTrans := 0;
         PaymentOrderNoOfRec := 0;
         TransNo := 1;
@@ -1689,7 +1648,7 @@ codeunit 144129 "Remittance - Export Test"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
-        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1846,7 +1805,7 @@ codeunit 144129 "Remittance - Export Test"
 
         PaymentOrderData.SetRange("Payment Order No.", RemittancePaymentOrderID);
         PaymentOrderData.SetRange("Empty Line", false);
-        if PaymentOrderData.FindSet then
+        if PaymentOrderData.FindSet() then
             repeat
                 Ins.ReadText(String, MaxStrLen(String));
                 Assert.AreEqual(PaymentOrderData.Data, String, LinesDoesntMatchErr);
@@ -1862,14 +1821,11 @@ codeunit 144129 "Remittance - Export Test"
         ServerFileName: Text;
     begin
         // Verify that each file line separated by carriage return and new line symbols
-#if not CLEAN17
-        ServerFileName := FileMgt.UploadFileSilent(FileName);
-#endif
         TempFile.Open(ServerFileName);
 
         PaymentOrderData.SetRange("Payment Order No.", RemittancePaymentOrderID);
         PaymentOrderData.SetRange("Empty Line", false);
-        if PaymentOrderData.FindSet then
+        if PaymentOrderData.FindSet() then
             repeat
                 TempFile.Seek(80); // each line contains 80 symbols
                 TempFile.Read(Char);
@@ -1888,7 +1844,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         with GenJournalLine do begin
             SetRange("Journal Batch Name", BatchName);
-            FindLast;
+            FindLast();
             Assert.AreEqual(DimValue1Code, "Shortcut Dimension 1 Code", FieldCaption("Shortcut Dimension 1 Code"));
             Assert.AreEqual(DimValue2Code, "Shortcut Dimension 2 Code", FieldCaption("Shortcut Dimension 2 Code"));
         end;
@@ -2034,12 +1990,6 @@ codeunit 144129 "Remittance - Export Test"
         ExpectedText: Text[80];
         ActualText: Text[80];
     begin
-#if not CLEAN17
-        ExpectedFile.Open(FileMgt.UploadFileSilent(Expected));
-        ExpectedFile.CreateInStream(ExpectedIns);
-        ActualFile.Open(FileMgt.UploadFileSilent(Actual));
-        ActualFile.CreateInStream(ActualIns);
-#endif
         repeat
             ExpectedRead := ExpectedIns.Read(ExpectedText, MaxStrLen(ExpectedText));
             ActualRead := ActualIns.Read(ActualText, MaxStrLen(ActualText));
@@ -2115,7 +2065,7 @@ codeunit 144129 "Remittance - Export Test"
             Status::Rejected:
                 WaitingJournal."Payment Order ID - Rejected" := PaymentOrderID;
         end;
-        WaitingJournal."Document No." := LibraryUtility.GenerateGUID;
+        WaitingJournal."Document No." := LibraryUtility.GenerateGUID();
         WaitingJournal.Amount := LibraryRandom.RandDecInRange(10, 20, 2);
         WaitingJournal."Amount (LCY)" := WaitingJournal.Amount;
         WaitingJournal.Insert();
@@ -2134,9 +2084,6 @@ codeunit 144129 "Remittance - Export Test"
         i: Integer;
         Char: Char;
     begin
-#if not CLEAN17
-        ServerFileName := FileMgt.UploadFileSilent(FileName);
-#endif
         TempFile.Open(ServerFileName);
         for i := 1 to TempFile.Len do begin
             TempFile.Read(Char);
@@ -2207,7 +2154,7 @@ codeunit 144129 "Remittance - Export Test"
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
               GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"G/L Account",
               LibraryERM.CreateGLAccountNo, -LibraryRandom.RandDecInRange(1000, 2000, 2));
-            GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID);
+            GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
             GenJournalLine.Modify(true);
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);

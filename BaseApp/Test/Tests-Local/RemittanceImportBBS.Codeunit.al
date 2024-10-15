@@ -42,7 +42,7 @@ codeunit 144131 "Remittance - Import BBS"
         OldDate: Date;
     begin
         // [SCENARIO 260205] Import BBS file with Payment balancing Gen. Journal lines created
-        Initialize;
+        Initialize();
 
         // [GIVEN] BBS Remittance for vendor's invoice
         OldDate := UpdateWorkdate(Today);
@@ -68,9 +68,6 @@ codeunit 144131 "Remittance - Import BBS"
           RemittanceAccount."Account No.", Amount,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Payment);
         VerifyWaitingJournalStatusIsSent;
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -92,7 +89,7 @@ codeunit 144131 "Remittance - Import BBS"
         OldDate: Date;
     begin
         // [SCENARIO 260205] Import BBS file with blank balancing Gen. Journal lines created
-        Initialize;
+        Initialize();
 
         // [GIVEN] BBS Remittance for vendor's credit memo
         OldDate := UpdateWorkdate(Today);
@@ -126,9 +123,6 @@ codeunit 144131 "Remittance - Import BBS"
           RemittanceAccount."Account No.", Amount,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::" ");
         VerifyWaitingJournalStatusIsSent;
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -147,7 +141,7 @@ codeunit 144131 "Remittance - Import BBS"
         BatchName: Code[10];
         OldDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -167,9 +161,6 @@ codeunit 144131 "Remittance - Import BBS"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -188,7 +179,7 @@ codeunit 144131 "Remittance - Import BBS"
         BatchName: Code[10];
         OldDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -208,9 +199,6 @@ codeunit 144131 "Remittance - Import BBS"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -229,7 +217,7 @@ codeunit 144131 "Remittance - Import BBS"
         BatchName: Code[10];
         OldDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         OldDate := UpdateWorkdate(Today);
         LibraryRemittance.SetupDomesticRemittancePayment(
@@ -249,9 +237,6 @@ codeunit 144131 "Remittance - Import BBS"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath);
-#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -266,7 +251,7 @@ codeunit 144131 "Remittance - Import BBS"
     begin
         // [FEATURE] [Dimensions]
         // [SCENARIO 257147] The Dimensions should be copied to Gen. Journal Line from Waiting Journal Line after importing return file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return File with record with dimensions
         GenerateBankRemittanceEntriesWithDimensions(RemittanceAccount, BatchName, DimSetID);
@@ -283,10 +268,10 @@ codeunit 144131 "Remittance - Import BBS"
         WaitingJournal: Record "Waiting Journal";
         ReturnFileSetup: Record "Return File Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         WaitingJournal.DeleteAll();
         ReturnFileSetup.DeleteAll();
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateLocalData();
 
         if IsInitialized then
             exit;
@@ -305,7 +290,7 @@ codeunit 144131 "Remittance - Import BBS"
     begin
         Clear(WaitingJournal);
         Assert.AreEqual(1, WaitingJournal.Count, 'Wrong number of lines found in waiting journal');
-        WaitingJournal.FindFirst;
+        WaitingJournal.FindFirst();
     end;
 
     local procedure ClearAllGenJournalLines(GenJournalBatch: Record "Gen. Journal Batch")
@@ -361,9 +346,6 @@ codeunit 144131 "Remittance - Import BBS"
         BBSPaymentFile: File;
         BBSPaymentOutputStream: OutStream;
         ServerFileName: Text;
-#if not CLEAN17
-        ClientFileName: Text;
-#endif
     begin
         GetWaitingJournal(WaitingJournal);
 
@@ -393,12 +375,6 @@ codeunit 144131 "Remittance - Import BBS"
         end;
 
         BBSPaymentFile.Close;
-#if not CLEAN17
-        ClientFileName := FileMgt.ClientTempFileName('txt');
-        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
-        FileMgt.DeleteServerFile(ServerFileName);
-        exit(ClientFileName);
-#endif
     end;
 
     local procedure GenerateBBSRemittanceStartRecordShipmentLine(ShipmentNo: Text[7]; DataRecipient: Text[8]): Text
@@ -570,9 +546,6 @@ codeunit 144131 "Remittance - Import BBS"
         FilePath :=
           LibraryRemittance.ExecuteRemittanceExportPaymentFile(
             LibraryVariableStorage, RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
-#if not CLEAN17
-        FileMgt.DeleteClientFile(FilePath); // We do not need the exported file, used only to create a setup in the product
-#endif
 
         // Generate the BBS Payment file
         // Suprisingly report is ignoring amount from the file
@@ -590,7 +563,7 @@ codeunit 144131 "Remittance - Import BBS"
     begin
         WaitingJournal.SetRange("Account No.", VendorNo);
         WaitingJournal.SetRange("Document No.", DocumentNo);
-        WaitingJournal.FindFirst;
+        WaitingJournal.FindFirst();
         WaitingJournal.Validate("Document Type", WaitingJournal."Document Type"::"Credit Memo");
         WaitingJournal.Modify(true);
     end;
@@ -677,7 +650,7 @@ codeunit 144131 "Remittance - Import BBS"
     begin
         GenJournalLine.SetFilter("Remittance Account Code", RemittanceAccount.Code);
         GenJournalLine.SetFilter("Remittance Agreement Code", RemittanceAccount."Remittance Agreement Code");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Dimension Set ID", DimSetID);
     end;
 

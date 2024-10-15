@@ -32,7 +32,7 @@ codeunit 144002 "Single VAT Code UT"
         GenJournalLine: Record "Gen. Journal Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
 
@@ -59,7 +59,7 @@ codeunit 144002 "Single VAT Code UT"
         GenJournalLine: Record "Gen. Journal Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
 
@@ -86,7 +86,7 @@ codeunit 144002 "Single VAT Code UT"
         GenJournalLine: Record "Gen. Journal Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
 
@@ -112,7 +112,7 @@ codeunit 144002 "Single VAT Code UT"
         GenJournalLine: Record "Gen. Journal Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
 
@@ -141,7 +141,7 @@ codeunit 144002 "Single VAT Code UT"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase]
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         LibraryPurchase.CreateVendor(Vendor);
@@ -178,7 +178,7 @@ codeunit 144002 "Single VAT Code UT"
         SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [Sales]
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         LibrarySales.CreateCustomer(Customer);

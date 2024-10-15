@@ -33,7 +33,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
 
         // Setup: Find VAT Posting Setup with Calculation Type: Normal VAT. Update a GL Account with VAT Posting Groups and post
         // positive and negative entries for the GL Account. Calculate VAT Amount for verification after posting.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         PostGenJnlLineWithVATSetup(GenJournalLine, VATPostingSetup);
         Amount := GenJournalLine.Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %");
@@ -56,7 +56,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
 
         // Setup: Find VAT Posting Setup with Calculation Type: Reverse Charge VAT. Update a GL Account with VAT Posting Groups and post
         // positive and negative entries for the GL Account. Calculate VAT Amount for verification after posting.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         PostGenJnlLineWithVATSetup(GenJournalLine, VATPostingSetup);
         Amount := GenJournalLine.Amount * VATPostingSetup."VAT %" / 100;
@@ -76,7 +76,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         // Test to check reverse Charge Entry.
 
         // Setup: Update General Ledger setup and VAT Posting Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(SavedVATPostingSetup, SavedVATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         LibraryERM.SetAddReportingCurrency(CreateCurrency);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -110,7 +110,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         // Check VAT Amount correctly updated on General Journal Line.
 
         // Setup: Find General Journal Batch, take Random Amount for General Journal Line.
-        Initialize;
+        Initialize();
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
         Amount := LibraryRandom.RandDec(100, 3);
@@ -133,13 +133,13 @@ codeunit 134126 "ERM Reversal VAT Entries"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reversal VAT Entries");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reversal VAT Entries");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
         Commit();
@@ -219,7 +219,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
     var
         VATEntry: Record "VAT Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         VATEntry.FindSet();
         repeat
@@ -244,7 +244,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY, StrSubstNo(AmountError, GLEntry.FieldCaption(Amount),
             Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
@@ -265,7 +265,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         GLEntry.SetRange("Document No.", DoumentNo);
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount,

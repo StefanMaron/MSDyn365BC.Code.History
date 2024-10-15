@@ -32,7 +32,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     var
         XmlFileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceFinChMemo;
 
@@ -52,7 +52,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         IssuedFinChMemoNo: Code[20];
         XmlFileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         IssuedFinChMemoNo := EInvoiceFinChMemoHelper.CreateFinChMemo;
         AddLinesToIssuedFinChMemo(IssuedFinChMemoNo);
@@ -67,7 +67,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     [Scope('OnPrem')]
     procedure EInvoiceFinChMemoEndpointID()
     begin
-        Initialize;
+        Initialize();
         EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceFinChMemo);
     end;
 
@@ -79,7 +79,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         IssuedFinChMemoNo: Code[20];
         XmlFileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         IssuedFinChMemoNo := EInvoiceFinChMemoHelper.CreateFinChMemo;
 
@@ -99,7 +99,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         XmlFileName: Text[1024];
         FinchNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
 
@@ -127,7 +127,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         XmlFileName: Text[1024];
         FinchNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
 
@@ -149,7 +149,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     [Scope('OnPrem')]
     procedure FinChMemoWithOneVATGroup()
     begin
-        Initialize;
+        Initialize();
 
         FinChMemoWithNoOfVATGroups(1);
     end;
@@ -159,7 +159,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     [Scope('OnPrem')]
     procedure FinChMemoWithTwoVATGroups()
     begin
-        Initialize;
+        Initialize();
 
         FinChMemoWithNoOfVATGroups(2);
     end;
@@ -169,7 +169,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     [Scope('OnPrem')]
     procedure FinChMemoWithAllVATGroups()
     begin
-        Initialize;
+        Initialize();
 
         FinChMemoWithNoOfVATGroups(5);
     end;
@@ -199,7 +199,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     var
         XmlFileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceFinChMemo;
 
@@ -213,7 +213,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
     [Scope('OnPrem')]
     procedure ValidateEInvFinChMemoFile()
     begin
-        Initialize;
+        Initialize();
         EInvoiceFinChMemo;
     end;
 
@@ -240,7 +240,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         AmountValue := LibraryRandom.RandDec(1000, 2);
         with IssuedFinChMemoLine do begin
             SetRange("Finance Charge Memo No.", IssuedFinChMemoHeader."No.");
-            FindLast;
+            FindLast();
             Init;
             "Line No." := "Line No." + 10000;
             Type := Type::"Customer Ledger Entry";
@@ -308,7 +308,7 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
             exit;
 
         InitGlobalVATRates;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         isInitialized := true;
     end;
 

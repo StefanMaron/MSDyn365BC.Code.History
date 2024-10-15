@@ -625,13 +625,13 @@ page 255 "Cash Receipt Journal"
                                 begin
                                     Clear(ReadDataDlgRep);
                                     ReadDataDlgRep.SetJournal(Rec);
-                                    ReadDataDlgRep.RunModal;
+                                    ReadDataDlgRep.RunModal();
                                 end;
                             OCRSetup.Format::BBS:
                                 begin
                                     Clear(ReadBBSRep);
                                     ReadBBSRep.SetJournal(Rec);
-                                    ReadBBSRep.RunModal;
+                                    ReadBBSRep.RunModal();
                                 end;
                         end;
                         CurrPage.Update();
@@ -650,7 +650,7 @@ page 255 "Cash Receipt Journal"
                     begin
                         Clear(OCRControlReport);
                         OCRControlReport.SetTableView(Rec);
-                        OCRControlReport.Run;
+                        OCRControlReport.Run();
                     end;
                 }
                 action("Show warning")
@@ -861,7 +861,7 @@ page 255 "Cash Receipt Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action("Test Report")
@@ -1047,7 +1047,7 @@ page 255 "Cash Receipt Journal"
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter);
-                        FlowTemplateSelector.Run;
+                        FlowTemplateSelector.Run();
                     end;
                 }
                 action(SeeFlows)
@@ -1255,6 +1255,7 @@ page 255 "Cash Receipt Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1354,7 +1355,7 @@ page 255 "Cash Receipt Journal"
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);

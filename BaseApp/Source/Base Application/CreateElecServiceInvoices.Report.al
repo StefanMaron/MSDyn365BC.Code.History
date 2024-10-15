@@ -41,19 +41,19 @@ report 10644 "Create Elec. Service Invoices"
                 ServInvHeader.Copy("Service Invoice Header");
                 ServInvHeader.FilterGroup(6);
                 ServInvHeader.SetRange("E-Invoice", true);
-                if not ServInvHeader.FindFirst then
+                if not ServInvHeader.FindFirst() then
                     Error(Text003);
 
                 // All electronic service invoices?
                 ServInvHeader.SetRange("E-Invoice", false);
-                if ServInvHeader.FindFirst then
+                if ServInvHeader.FindFirst() then
                     if not Confirm(Text000, true) then
                         CurrReport.Quit;
                 ServInvHeader.SetRange("E-Invoice");
 
                 // Some already sent?
                 ServInvHeader.SetRange("E-Invoice Created", true);
-                if ServInvHeader.FindFirst then
+                if ServInvHeader.FindFirst() then
                     if not Confirm(Text001) then
                         CurrReport.Quit;
 

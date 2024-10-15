@@ -59,7 +59,7 @@ codeunit 143009 "Library - Remittance"
         if IsRemittanceSepa then begin
             VendorBankAccount.Reset();
             VendorBankAccount.SetFilter("Vendor No.", Vendor."No.");
-            VendorBankAccount.FindFirst;
+            VendorBankAccount.FindFirst();
             VendorBankAccount.Validate("Bank Account No.", '33445556675');
             VendorBankAccount.Modify(true);
         end;
@@ -83,7 +83,7 @@ codeunit 143009 "Library - Remittance"
     var
         RemittancePaymentOrder: Record "Remittance Payment Order";
     begin
-        if RemittancePaymentOrder.FindLast then
+        if RemittancePaymentOrder.FindLast() then
             exit(RemittancePaymentOrder.ID);
         exit(0);
     end;
@@ -197,7 +197,7 @@ codeunit 143009 "Library - Remittance"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
@@ -252,7 +252,7 @@ codeunit 143009 "Library - Remittance"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         BankAccount.Validate("Payment Export Format", FindRemittanceExportSetup(IsRemittanceSepa));
         BankAccount.Modify(true);
         exit(BankAccount."No.");
@@ -266,7 +266,7 @@ codeunit 143009 "Library - Remittance"
     begin
         GeneralLedgerSetup.Get();
         Currency.SetFilter(Code, '<>%1', GeneralLedgerSetup."LCY Code");
-        Currency.FindFirst;
+        Currency.FindFirst();
         exit(Currency.Code);
     end;
 
@@ -279,7 +279,7 @@ codeunit 143009 "Library - Remittance"
             BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"SEPA CT-Export File")
         else
             BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"Export Remittance");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         exit(BankExportImportSetup.Code);
     end;
 
@@ -305,7 +305,7 @@ codeunit 143009 "Library - Remittance"
         LibraryVariableStorage.Enqueue(Vendor."No.");
         LibraryVariableStorage.Enqueue(SuggestPaymentsMsg);
         SuggestRemittancePayments.SetGenJnlLine(GenJournalLine);
-        SuggestRemittancePayments.RunModal;
+        SuggestRemittancePayments.RunModal();
 
         // Verify
         GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");

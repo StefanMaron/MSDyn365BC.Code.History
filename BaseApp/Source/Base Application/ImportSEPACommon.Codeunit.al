@@ -145,7 +145,7 @@ codeunit 10635 "Import SEPA Common"
         // Create import PaymOrder.
         // Select ID. Find the next one:
         RemittancePaymentOrder.LockTable();
-        if RemittancePaymentOrder.FindLast then
+        if RemittancePaymentOrder.FindLast() then
             NextPaymOrderId := RemittancePaymentOrder.ID + 1
         else
             NextPaymOrderId := 1;
@@ -222,7 +222,7 @@ codeunit 10635 "Import SEPA Common"
         CheckGenJournalLine := GenJournalLine;
         CheckGenJournalLine.SetRange("Journal Template Name", CheckGenJournalLine."Journal Template Name");
         CheckGenJournalLine.SetRange("Journal Batch Name", CheckGenJournalLine."Journal Batch Name");
-        if CheckGenJournalLine.FindLast then
+        if CheckGenJournalLine.FindLast() then
             JournalNextLineNo := CheckGenJournalLine."Line No." + 10000
         else
             JournalNextLineNo := 10000;

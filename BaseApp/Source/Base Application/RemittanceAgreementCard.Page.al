@@ -86,11 +86,7 @@ page 15000007 "Remittance Agreement Card"
 
                     trigger OnAssistEdit()
                     begin
-#if not CLEAN17
-                        ComDlgFilename := FileMgt.OpenFileDialog(FieldCaption("Payment File Name"), "Payment File Name", '');
-#else
                         ComDlgFilename := FileMgt.UploadFile(FieldCaption("Payment File Name"), "Payment File Name");
-#endif
 
                         if ComDlgFilename <> '' then begin
                             Validate("Payment File Name", ComDlgFilename);

@@ -212,7 +212,7 @@ table 15000003 "Remittance Account"
     begin
         // Default if it's only an agreement.
         if RemittanceAgreement.Count = 1 then begin
-            RemittanceAgreement.FindFirst;
+            RemittanceAgreement.FindFirst();
             Validate("Remittance Agreement Code", RemittanceAgreement.Code);
         end;
     end;

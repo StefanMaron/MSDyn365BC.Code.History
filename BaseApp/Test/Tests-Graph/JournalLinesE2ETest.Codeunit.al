@@ -44,7 +44,7 @@ codeunit 135505 "Journal Lines E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a journal line through a POST method and check if it was created
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -74,7 +74,7 @@ codeunit 135505 "Journal Lines E2E Test"
 
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryGraphJournalLines.CheckLineWithGenericLineValues(GenJournalLine, Amount);
         Assert.AreEqual(
           JournalName, GenJournalLine."Journal Batch Name", 'Journal Line ' + JournalBatchNameTxt + ' should be the default');
@@ -98,7 +98,7 @@ codeunit 135505 "Journal Lines E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a journal line through a POST method and check if it was created
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -122,7 +122,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(Amount, GenJournalLine.Amount, 'Journal Line ' + AmountNameTxt + ' should be changed');
         Assert.AreNotEqual('', GenJournalLine."Document No.", 'Document No should not be empty.');
     end;
@@ -141,14 +141,14 @@ codeunit 135505 "Journal Lines E2E Test"
         ResponseDocumentNo: Text;
     begin
         // [SCENARIO] Create a journal line through a POST method and check if it was created
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
 
         // [GIVEN] 2 lines with total balance of 0 and 1 more at the end
         Amount := LibraryRandom.RandDecInRange(1, 500, 1);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         LineNo[1] := LibraryGraphJournalLines.CreateJournalLineWithAmountAndDocNo(JournalName, Amount, DocumentNo);
         LineNo[2] := LibraryGraphJournalLines.CreateJournalLineWithAmountAndDocNo(JournalName, -Amount, DocumentNo);
         LineNo[3] := LibraryGraphJournalLines.CreateSimpleJournalLine(JournalName);
@@ -192,14 +192,14 @@ codeunit 135505 "Journal Lines E2E Test"
         ResponseDocumentNo: Text;
     begin
         // [SCENARIO] Create a journal line through a POST method and check if it was created
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
 
         // [GIVEN] 2 lines with total balance of 0
         Amount := LibraryRandom.RandDecInRange(1, 500, 1);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         LineNo[1] := LibraryGraphJournalLines.CreateJournalLineWithAmountAndDocNo(JournalName, Amount, DocumentNo);
         LineNo[2] := LibraryGraphJournalLines.CreateJournalLineWithAmountAndDocNo(JournalName, -Amount, DocumentNo);
 
@@ -239,7 +239,7 @@ codeunit 135505 "Journal Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a line and use a GET method with an ID specified to retrieve it
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -250,7 +250,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLineGUID := GenJournalLine.SystemId;
         Commit();
 
@@ -279,7 +279,7 @@ codeunit 135505 "Journal Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create lines and use a GET method to retrieve them
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -320,7 +320,7 @@ codeunit 135505 "Journal Lines E2E Test"
         NewAccountNo: Code[20];
     begin
         // [SCENARIO] Create a journal line, use a PATCH method to change it and then verify the changes
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -338,7 +338,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
         Commit();
@@ -354,7 +354,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", NewLineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryGraphJournalLines.CheckLineWithGenericLineValues(GenJournalLine, NewAmount);
         Assert.AreEqual(NewAccountNo, GenJournalLine."Account No.", 'Journal Line ' + AccountNoNameTxt + ' should be changed');
     end;
@@ -372,7 +372,7 @@ codeunit 135505 "Journal Lines E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a journal line and check if an error is thrown when we PATCH the journal display name
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] 2 journals
         JournalName[1] := LibraryGraphJournalLines.CreateJournal;
@@ -388,7 +388,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName[1]);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
         Commit();
@@ -413,7 +413,7 @@ codeunit 135505 "Journal Lines E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a journal line, use a DELETE method to remove it and then verify the deletion
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -425,7 +425,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'GenJournalLineGUID should not be empty');
         Commit();
@@ -452,7 +452,7 @@ codeunit 135505 "Journal Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Getting a Journal Line directly from the /journalLines endpoint fails
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -477,7 +477,7 @@ codeunit 135505 "Journal Lines E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Creating a Journal Line directly from the /journalLines endpoint fails
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a JSON text with a journal line containing only the amount
         Amount := LibraryRandom.RandDecInRange(1, 500, 1);
@@ -505,7 +505,7 @@ codeunit 135505 "Journal Lines E2E Test"
         ResponseText: array[3] of Text;
     begin
         // [SCENARIO] Create a journal line through a POST method and check if the Account Id and the Account No Sync correctly
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -538,7 +538,7 @@ codeunit 135505 "Journal Lines E2E Test"
         // [THEN] the journal lines created should have the same account information
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[1]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           AccountNo, GenJournalLine."Account No.", 'Journal Line ' + AccountNoNameTxt + ' should have the correct Account No');
         Assert.AreEqual(
@@ -547,7 +547,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.Reset();
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[2]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           AccountNo, GenJournalLine."Account No.", 'Journal Line ' + AccountNoNameTxt + ' should have the correct Account No');
         Assert.AreEqual(
@@ -556,7 +556,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.Reset();
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[3]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           AccountNo, GenJournalLine."Account No.", 'Journal Line ' + AccountNoNameTxt + ' should have the correct Account No');
         Assert.AreEqual(
@@ -576,7 +576,7 @@ codeunit 135505 "Journal Lines E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a journal line through a POST method and check if the Account Id and the Account No Sync throws the errors
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -617,7 +617,7 @@ codeunit 135505 "Journal Lines E2E Test"
         NonGlobalDimensionValue: Code[20];
     begin
         // [SCENARIO] Create a journal line through a POST method and check if it was created
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -659,7 +659,7 @@ codeunit 135505 "Journal Lines E2E Test"
         I: Integer;
     begin
         // [SCENARIO] Create a journal line, use a PATCH method to add dimensions and then verify the changes
-        LibraryGraphJournalLines.Initialize;
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateJournal;
@@ -671,7 +671,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
         Commit();
@@ -826,7 +826,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         Assert.AreEqual(ExpectedGlobalDimensionValue, GenJournalLine."Shortcut Dimension 1 Code", 'Incorrect Shortcut Dimension 1 Code.');
         Assert.AreEqual('', GenJournalLine."Shortcut Dimension 2 Code", 'Incorrect Shortcut Dimension 2 Code.');
@@ -930,7 +930,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         Evaluate(LineNo, LineNoValue);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure GetJournalLineURL(JournalLineId: Text): Text

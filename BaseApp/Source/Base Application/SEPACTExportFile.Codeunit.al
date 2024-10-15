@@ -14,7 +14,7 @@ codeunit 1220 "SEPA CT-Export File"
             ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(Rec);
 
             // Delete journal lines that where just processed
-            if FindSet then
+            if FindSet() then
                 DeleteAll();
         end;
     end;
@@ -35,7 +35,7 @@ codeunit 1220 "SEPA CT-Export File"
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, GenJnlLine);
 
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         UseCommonDialog := not ExportToServerFile;
         OnBeforeBLOBExport(TempBlob, CreditTransferRegister, UseCommonDialog, FileCreated, IsHandled);
         if not IsHandled then

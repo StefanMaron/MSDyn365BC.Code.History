@@ -51,19 +51,19 @@ report 10640 "Create Electronic Invoices"
                 SalesInvHeader.Copy("Sales Invoice Header");
                 SalesInvHeader.FilterGroup(6);
                 SalesInvHeader.SetRange("E-Invoice", true);
-                if not SalesInvHeader.FindFirst then
+                if not SalesInvHeader.FindFirst() then
                     Error(Text003);
 
                 // All electronic invoices?
                 SalesInvHeader.SetRange("E-Invoice", false);
-                if SalesInvHeader.FindFirst then
+                if SalesInvHeader.FindFirst() then
                     if not Confirm(Text000, true) then
                         CurrReport.Quit;
                 SalesInvHeader.SetRange("E-Invoice");
 
                 // Some already sent?
                 SalesInvHeader.SetRange("E-Invoice Created", true);
-                if SalesInvHeader.FindFirst then
+                if SalesInvHeader.FindFirst() then
                     if not Confirm(Text001, true) then
                         CurrReport.Quit;
 

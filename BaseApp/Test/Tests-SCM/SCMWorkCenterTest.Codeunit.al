@@ -48,7 +48,7 @@ codeunit 137800 "SCM Work Center Test"
     begin
         // [SCENARIO] Verify Production Order Allocation Qty. on several days
 
-        Initialize;
+        Initialize();
         UpdateMfgSetup(080000T, 230000T);
         WorkCenter.Init();
         SetupTime := 120.5;
@@ -96,7 +96,7 @@ codeunit 137800 "SCM Work Center Test"
     begin
         // [SCENARIO] Verify Prod. Order Routing Line's dates when Wait Time is set
 
-        Initialize;
+        Initialize();
         WaitTime := 15; // value is specific for rounding issues
         DueDate := CalcDate('<CW+5D>', WorkDate); // next friday
 
@@ -114,7 +114,7 @@ codeunit 137800 "SCM Work Center Test"
 
         with ProdOrderLine do begin
             SetRange("Item No.", Item."No.");
-            FindFirst;
+            FindFirst();
             Time := "Ending Time";
         end;
 
@@ -246,7 +246,7 @@ codeunit 137800 "SCM Work Center Test"
         // [FEATURE] [Capacity Constrained Resource] [Planning Worksheet]
         // [SCENARIO] Planning worksheet creates sequential production orders with consistent starting/ending dates when capacity constrained resource is used in production
 
-        Initialize;
+        Initialize();
         UpdateMfgSetup(000000T, 235959T);
         SetupTime := 19;
         RunTime := 29;
@@ -318,8 +318,8 @@ codeunit 137800 "SCM Work Center Test"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Work Center Test");
         IsInitialized := true;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ShopCalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Work Center Test");
@@ -337,7 +337,7 @@ codeunit 137800 "SCM Work Center Test"
         Quantity: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         RunTime := 60; // values are specific
         Quantity := 3;
         OrderDate := CalcDate('<CW+5D>', WorkDate); // next friday
@@ -655,7 +655,7 @@ codeunit 137800 "SCM Work Center Test"
     begin
         with ShopCalendarWorkingDays do begin
             SetRange("Shop Calendar Code", ShopCalendarCode);
-            FindFirst;
+            FindFirst();
             exit("Ending Time");
         end;
     end;
@@ -664,7 +664,7 @@ codeunit 137800 "SCM Work Center Test"
     var
         ShopCalendar: Record "Shop Calendar";
     begin
-        ShopCalendar.FindFirst;
+        ShopCalendar.FindFirst();
         exit(ShopCalendar.Code);
     end;
 
@@ -711,7 +711,7 @@ codeunit 137800 "SCM Work Center Test"
             SetRange(Type, Type::Item);
             SetFilter("No.", ItemNoFilter);
             ModifyAll("Accept Action Message", true);
-            FindFirst;
+            FindFirst();
             LibraryPlanning.CarryOutPlanWksh(RequisitionLine, ProdOrderChoice::"Firm Planned", 0, 0, 0, '', '', '', '');
         end;
     end;
@@ -737,7 +737,7 @@ codeunit 137800 "SCM Work Center Test"
         with ProdOrderRtngLine do begin
             SetRange(Type, Type::"Machine Center");
             SetRange("No.", MachineCenterNo);
-            FindFirst;
+            FindFirst();
             VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
         end;
     end;
@@ -749,7 +749,7 @@ codeunit 137800 "SCM Work Center Test"
         with ProdOrderRtngLine do begin
             SetRange(Type, Type::"Machine Center");
             SetRange("No.", MachineCenterNo);
-            FindLast;
+            FindLast();
             VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
         end;
     end;
@@ -761,7 +761,7 @@ codeunit 137800 "SCM Work Center Test"
         with ProdOrderRtngLine do begin
             SetRange(Type, Type::"Work Center");
             SetRange("No.", WorkCenterNo);
-            FindFirst;
+            FindFirst();
             VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
         end;
     end;
@@ -783,7 +783,7 @@ codeunit 137800 "SCM Work Center Test"
         with RequisitionLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(StaringDate, "Starting Date", ReqLineDatesErr);
             Assert.AreEqual(StartingTime, "Starting Time", ReqLineDatesErr);
             Assert.AreEqual(EndingDate, "Ending Date", ReqLineDatesErr);
@@ -797,7 +797,7 @@ codeunit 137800 "SCM Work Center Test"
     begin
         with ProdOrderComponent do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpDueDate, "Due Date", ProdOrderCompDatesErr);
             Assert.AreEqual(ExpDueTime, "Due Time", ProdOrderCompDatesErr);
         end;

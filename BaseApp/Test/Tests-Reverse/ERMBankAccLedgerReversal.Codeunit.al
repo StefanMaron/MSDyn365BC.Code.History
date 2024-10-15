@@ -32,7 +32,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Create and post General Journal Line using Random Values with Document Type Payment and Refund for Customer.
 
         // Setup: Create Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // Create and post General Journal Line and Reverse Bank Ledger Entry for Customer.
@@ -51,7 +51,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Create and post General Journal Line using Random Values with Document Type Payment and Refund for Vendor.
 
         // Setup: Create Vendor.
-        Initialize;
+        Initialize();
 
         // Create and post General Journal Line and Reverse Bank Ledger Entry for Vendor.
         CreateAndReverseBankLedgerEntry(
@@ -69,7 +69,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Create and post General Journal Line using Random Values with Document Type Blank for GL Account.
 
         // Setup : Create GL Account.
-        Initialize;
+        Initialize();
 
         // Create and post General Journal Line and Reverse Bank Ledger Entry for GL Account.
         CreateAndReverseBankLedgerEntry(
@@ -87,7 +87,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Create and post General Journal Line using Random Values with Document Type Blank for Bank Account.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create and post General Journal Line and Reverse Bank Ledger Entry for Bank Account.
         CreateAndReverseBankLedgerEntry(
@@ -105,7 +105,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Verify No. and Balance on Bank Account List Report.
 
         // Setup: Create Bank Account and post Gen. Jnl. Line with Bank Account No. as Bal. Account.
-        Initialize;
+        Initialize();
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, '', false);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");  // Enqueue values for BankAccountListReqPageHandler.
 
@@ -128,7 +128,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Verify No. and Balance on Bank Account List Report with Currency.
 
         // Setup: Create Bank Account with Currency and post Gen. Jnl. Line with Bank Account No. as Bal. Account.
-        Initialize;
+        Initialize();
         Currency.Get(CreateCurrency);
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, Currency.Code, true);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");  // Enqueue values for BankAccountListReqPageHandler.
@@ -151,7 +151,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Verify Bank Account No. and Amount on Bank Account Register Report.
 
         // Setup: Create Bank Account, create and post Gen. Jnl. Line with Bank Account No. as Bal. Account.
-        Initialize;
+        Initialize();
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, '', false);
 
         // Exercise.
@@ -173,7 +173,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Verify Bank Account No. and Amount on Bank Account Register Report with Currency.
 
         // Setup: Create Bank Account with Currency and post Gen. Jnl. Line with Bank Account No. as Bal. Account.
-        Initialize;
+        Initialize();
         Currency.Get(CreateCurrency);
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, Currency.Code, true);
         Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate);
@@ -195,7 +195,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Verify Bank Account No., Amount, Document No. and Document Type on Bank Acc. Detail Trial Bal Report.
 
         // Setup: Create Bank Account and post Gen. Jnl. Line with Bank Account No. as Bal. Account.
-        Initialize;
+        Initialize();
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, '', false);
 
         // Exercise.
@@ -215,7 +215,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Verify Bank Account No., Amount, Document No. and Document Type on Bank Acc. Detail Trial Bal Report with reversed entries.
 
         // Setup: Create Bank Account and post Gen. Jnl. Line with Bank Account No. as Bal. Account. Reverse Bank Account Ledger Entries.
-        Initialize;
+        Initialize();
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, '', true);
         ReverseBankLedgerEntry;
         Commit();  // Required to run the report.
@@ -235,7 +235,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
     begin
         // Check Bank Account Label Report with Label Format 36 x 70 mm (3 columns).
-        Initialize;
+        Initialize();
         asserterror BankAccountLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
     end;
 
@@ -247,7 +247,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
     begin
         // Check Bank Account Label Report with Label Format 37 x 70 mm (3 columns).
-        Initialize;
+        Initialize();
         asserterror BankAccountLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
     end;
 
@@ -259,7 +259,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
     begin
         // Check Bank Account Label Report with Label Format 36 x 105 mm (2 columns).
-        Initialize;
+        Initialize();
         asserterror BankAccountLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
     end;
 
@@ -271,7 +271,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
     begin
         // Check Bank Account Label Report with Label Format 37 x 105 mm (2 columns).
-        Initialize;
+        Initialize();
         asserterror BankAccountLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
     end;
 
@@ -293,7 +293,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         BankAccount.SetFilter("No.", '%1|%2|%3', BankAccount."No.", BankAccount2."No.", BankAccount3."No.");
         BankAccountLabels.SetTableView(BankAccount);
         LibraryVariableStorage.Enqueue(LabelFormat);
-        BankAccountLabels.Run;
+        BankAccountLabels.Run();
 
         // Verify: Verify All Bank Account with Different Label Format.
         LibraryReportDataset.LoadDataSetFile;
@@ -305,12 +305,12 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Acc Ledger Reversal");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Bank Acc Ledger Reversal");
-        LibraryERMCountryData.UpdateLocalPostingSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Bank Acc Ledger Reversal");
@@ -360,7 +360,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         CountryRegion: Record "Country/Region";
     begin
         LibraryERM.CreatePostCode(PostCode);  // Creation of Post Code is required to avoid special characters in existing ones.
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate(
           Address,
@@ -438,7 +438,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         GLRegister: Record "G/L Register";
         ReversalEntry: Record "Reversal Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
     end;

@@ -1,4 +1,4 @@
-page 507 "Blanket Sales Order"
+﻿page 507 "Blanket Sales Order"
 {
     Caption = 'Blanket Sales Order';
     PageType = Document;
@@ -155,11 +155,6 @@ page 507 "Blanket Sales Order"
                     Editable = "Sell-to Customer No." <> '';
                     ToolTip = 'Specifies the name of the contact person at the customer.';
                 }
-                field("Your Reference"; "Your Reference")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
-                }
                 field("No. of Archived Versions"; "No. of Archived Versions")
                 {
                     ApplicationArea = Suite;
@@ -184,6 +179,12 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
+                }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
@@ -260,6 +261,11 @@ page 507 "Blanket Sales Order"
                         CurrPage.Update();
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("Shipment Date"; "Shipment Date")
                 {
                     ApplicationArea = Suite;
@@ -289,6 +295,7 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -320,6 +327,17 @@ page 507 "Blanket Sales Order"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
+                field("Payment Discount %"; "Payment Discount %")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the payment discount percentage that is granted if the customer pays on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
+                }
                 field("Tax Liable"; "Tax Liable")
                 {
                     ApplicationArea = SalesTax;
@@ -334,11 +352,6 @@ page 507 "Blanket Sales Order"
                     begin
                         CurrPage.SalesLines.PAGE.RedistributeTotalsOnAfterValidate;
                     end;
-                }
-                field("Payment Discount %"; "Payment Discount %")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the payment discount percentage that is granted if the customer pays on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -857,7 +870,7 @@ page 507 "Blanket Sales Order"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1059,7 +1072,7 @@ page 507 "Blanket Sales Order"
                         SalesHeader.SetRecFilter;
                         CreateRepeatingOrder.SetTableView(SalesHeader);
                         CreateRepeatingOrder.SetHiddenError(false);
-                        CreateRepeatingOrder.RunModal;
+                        CreateRepeatingOrder.RunModal();
                     end;
                 end;
             }
@@ -1184,12 +1197,17 @@ page 507 "Blanket Sales Order"
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
-        SetDocNoVisible;
+        SetDocNoVisible();
+
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        GLSetup: Record "General Ledger Setup";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
@@ -1204,6 +1222,10 @@ page 507 "Blanket Sales Order"
         CanCancelApprovalForRecord: Boolean;
         [InDataSet]
         StatusStyleTxt: Text;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
 
     protected var

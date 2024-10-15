@@ -444,6 +444,12 @@ page 5900 "Service Order"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("Prices Including VAT"; "Prices Including VAT")
                 {
                     ApplicationArea = VAT;
@@ -726,6 +732,14 @@ page 5900 "Service Order"
         }
         area(factboxes)
         {
+            part(ServiceDocCheckFactbox; "Service Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = ServiceDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -797,7 +811,7 @@ page 5900 "Service Order"
                     begin
                         DemandOverview.SetCalculationParameter(true);
                         DemandOverview.Initialize(0D, 4, "No.", '', '');
-                        DemandOverview.RunModal;
+                        DemandOverview.RunModal();
                     end;
                 }
                 action("<Action7>")
@@ -819,7 +833,7 @@ page 5900 "Service Order"
                         OrderPromisingLine.SetRange("Source Type", OrderPromisingLine."Source Type"::"Service Order");
                         OrderPromisingLine.SetRange("Source ID", "No.");
                         OrderPromisingLines.SetTableView(OrderPromisingLine);
-                        OrderPromisingLines.RunModal;
+                        OrderPromisingLines.RunModal();
                     end;
                 }
                 action("&Customer Card")
@@ -953,7 +967,9 @@ page 5900 "Service Order"
                     PromotedCategory = Category4;
                     RunObject = Page "Whse. Shipment Lines";
                     RunPageLink = "Source Type" = CONST(5902),
+#pragma warning disable
                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                   "Source No." = FIELD("No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse shipments for the document, in advanced warehouse configurations.';
@@ -1218,12 +1234,17 @@ page 5900 "Service Order"
             DocumentIsPosted := (not Get("Document Type", "No."));
 
         ActivateFields();
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnAfterGetRecord()
     begin
+        ActivateFields();
         BillToContact.GetOrClear("Bill-to Contact No.");
         SellToContact.GetOrClear("Contact No.");
+        ActivateFields();
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1239,6 +1260,7 @@ page 5900 "Service Order"
         ServOrderMgt: Codeunit ServOrderManagement;
         ServLogMgt: Codeunit ServLogManagement;
         UserMgt: Codeunit "User Setup Management";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocumentIsPosted: Boolean;
@@ -1246,12 +1268,25 @@ page 5900 "Service Order"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        ServiceDocCheckFactboxVisible: Boolean;
 
     local procedure ActivateFields()
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.ServiceDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            ActivateFields();
     end;
 
     local procedure CustomerNoOnAfterValidate()
@@ -1307,12 +1342,17 @@ page 5900 "Service Order"
     begin
         if not OrderServiceHeader.Get("Document Type", "No.") then begin
             ServiceInvoiceHeader.SetRange("No.", "Last Posting No.");
-            if ServiceInvoiceHeader.FindFirst then
+            if ServiceInvoiceHeader.FindFirst() then
                 if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedServiceOrderQst, ServiceInvoiceHeader."No."),
                      InstructionMgt.ShowPostedConfirmationMessageCode)
                 then
-                    PAGE.Run(PAGE::"Posted Service Invoice", ServiceInvoiceHeader);
+                    InstructionMgt.ShowPostedDocument(ServiceInvoiceHeader, Page::"Service Order");
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var ServiceHeader: Record "Service Header")
+    begin
     end;
 }
 

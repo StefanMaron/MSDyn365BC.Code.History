@@ -25,11 +25,7 @@ report 15000065 "OCR Payment - Data Dialog"
 
                         trigger OnAssistEdit()
                         begin
-#if not CLEAN17
-                            FileName := FileMgt.OpenFileDialog(Text10623, FileName, Text10624);
-#else
                             FileName := FileMgt.UploadFile(Text10623, FileName);
-#endif
                             if FileName <> '' then
                                 OCRPaymentFileName := FileMgt.GetFileName(FileName);
                         end;
@@ -73,10 +69,6 @@ report 15000065 "OCR Payment - Data Dialog"
             Message(text160807, MessageText, NumberOfWarnings)
         else
             Message(MessageText);
-#if not CLEAN17
-        if OCRSetup."Delete Return File" then
-            CreateFilename();
-#endif
     end;
 
     trigger OnPreReport()
@@ -84,14 +76,7 @@ report 15000065 "OCR Payment - Data Dialog"
         if FileName = '' then
             Error(Text160815);
 
-#if not CLEAN17
-        if not FileMgt.IsLocalFileSystemAccessible then
-            ServerTempFile := FileName
-        else
-            ServerTempFile := FileMgt.UploadFileSilent(FileName);
-#else
         ServerTempFile := FileName;
-#endif
 
         if ((OCRSetup."Journal Template Name" <> '') or (OCRSetup."Journal Name" <> '')) and
            ((OCRSetup."Journal Template Name" <> JournalSelection."Journal Template Name") or
@@ -104,7 +89,7 @@ report 15000065 "OCR Payment - Data Dialog"
 
         GenJnlLine.SetRange("Journal Template Name", JournalSelection."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", JournalSelection."Journal Batch Name");
-        if GenJnlLine.FindLast then begin
+        if GenJnlLine.FindLast() then begin
             if not Confirm(text160803, false) then
                 Error('');
             NextLineNo := GenJnlLine."Line No." + 10000;
@@ -170,10 +155,6 @@ report 15000065 "OCR Payment - Data Dialog"
         RecordType: Text[2];
         KID: Text[25];
         ServerTempFile: Text[1024];
-#if not CLEAN17
-        file1: Text[250];
-        file2: Text[250];
-#endif
         MessageText: Text[250];
         OCRPaymentFileName: Text;
         OCRAmount: Decimal;
@@ -202,9 +183,6 @@ report 15000065 "OCR Payment - Data Dialog"
         text160819: Label 'Document no. "%1" does not exist.\KID="%2".';
         text160820: Label 'Reminder no. "%1" does not exist.\KID="%2".';
         Text10623: Label 'Import from OCR Payment File.';
-#if not CLEAN17
-        Text10624: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
-#endif
         NewDocumentNo: Boolean;
 
     local procedure CreatePayment()
@@ -256,7 +234,7 @@ report 15000065 "OCR Payment - Data Dialog"
                 end;
                 CustEntry.SetRange("Document No.", ApplyToDocumentNo);
 
-                if not CustEntry.FindFirst then begin
+                if not CustEntry.FindFirst() then begin
                     SetWarning(6); // Document no. does not exist
                                    // Create temporary customer entry and info used in following:
                     CustEntry."Customer No." := '';
@@ -449,27 +427,5 @@ report 15000065 "OCR Payment - Data Dialog"
             Text := CopyStr(Text, 1, MaxStrLen(GenJnlLine."Warning text") - 3) + '...';
         GenJnlLine.Validate("Warning text", Text);
     end;
-
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('ClientFileExists will always return false.', '17.4')]
-    procedure CreateFilename()
-    begin
-        if FileMgt.ClientFileExists(FileName) then begin
-            if (CopyStr(FileName, StrLen(FileName) - 1, 1) = '~') or
-               (CopyStr(FileName, StrLen(FileName) - 2, 1) = '~')
-            then
-                exit;
-
-            file1 := CopyStr(FileName, 1, StrLen(FileName) - 1) + '~';
-            file2 := CopyStr(FileName, 1, StrLen(FileName) - 2) + '~~';
-            if FileMgt.ClientFileExists(file2) then
-                FileMgt.DeleteClientFile(file2);
-            if FileMgt.ClientFileExists(file1) then
-                FileMgt.MoveFile(file1, file2);
-            FileMgt.MoveFile(FileName, file1);
-        end;
-    end;
-#endif
 }
 

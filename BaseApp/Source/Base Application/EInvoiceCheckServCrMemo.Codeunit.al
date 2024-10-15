@@ -13,9 +13,6 @@ codeunit 10625 "E-Invoice Check Serv. Cr. Memo"
 
     var
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
-#if not CLEAN17
-        InvalidPathErr: Label 'does not contain a valid path';
-#endif
 
     local procedure CheckCompanyInfo()
     var
@@ -39,18 +36,11 @@ codeunit 10625 "E-Invoice Check Serv. Cr. Memo"
     local procedure CheckServiceMgtSetup()
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-#endif
     begin
         ServiceMgtSetup.Get();
 
         ServiceMgtSetup."E-Invoice Serv. Cr. Memo Path" := DelChr(ServiceMgtSetup."E-Invoice Serv. Cr. Memo Path", '>', '\');
         ServiceMgtSetup.TestField("E-Invoice Serv. Cr. Memo Path");
-#if not CLEAN17
-        if not FileMgt.DirectoryExistsOnDotNetClient(ServiceMgtSetup."E-Invoice Serv. Cr. Memo Path") then
-            ServiceMgtSetup.FieldError("E-Invoice Serv. Cr. Memo Path", InvalidPathErr);
-#endif
     end;
 }
 

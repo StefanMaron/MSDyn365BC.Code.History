@@ -12,13 +12,13 @@ page 9063 "Purchase Agent Activities"
             cuegroup("Pre-arrival Follow-up on Purchase Orders")
             {
                 Caption = 'Pre-arrival Follow-up on Purchase Orders';
-                field("To Send or Confirm"; "To Send or Confirm")
+                field("To Send or Confirm"; Rec."To Send or Confirm")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies the number of documents to send or confirm that are displayed in the Purchase Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Upcoming Orders"; "Upcoming Orders")
+                field("Upcoming Orders"; Rec."Upcoming Orders")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Purchase Order List";
@@ -55,7 +55,7 @@ page 9063 "Purchase Agent Activities"
             cuegroup("Post Arrival Follow-up")
             {
                 Caption = 'Post Arrival Follow-up';
-                field(OutstandingOrders; "Outstanding Purchase Orders")
+                field(OutstandingOrders; Rec."Outstanding Purchase Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Outstanding Purchase Orders';
@@ -64,10 +64,10 @@ page 9063 "Purchase Agent Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowOrders(FieldNo("Outstanding Purchase Orders"));
+                        Rec.ShowOrders(Rec.FieldNo("Outstanding Purchase Orders"));
                     end;
                 }
-                field("Purchase Return Orders - All"; "Purchase Return Orders - All")
+                field("Purchase Return Orders - All"; Rec."Purchase Return Orders - All")
                 {
                     ApplicationArea = PurchReturnOrder;
                     DrillDownPageID = "Purchase Return Order List";
@@ -81,7 +81,7 @@ page 9063 "Purchase Agent Activities"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Find entries...';
                         RunObject = Page Navigate;
-                        ShortCutKey = 'Shift+Ctrl+I';
+                        ShortCutKey = 'Ctrl+Alt+Q';
                         ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     }
                     action("New Purchase Return Order")
@@ -97,7 +97,7 @@ page 9063 "Purchase Agent Activities"
             cuegroup("Purchase Orders - Authorize for Payment")
             {
                 Caption = 'Purchase Orders - Authorize for Payment';
-                field(NotInvoiced; "Not Invoiced")
+                field(NotInvoiced; Rec."Not Invoiced")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Received, Not Invoiced';
@@ -106,10 +106,10 @@ page 9063 "Purchase Agent Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowOrders(FieldNo("Not Invoiced"));
+                        Rec.ShowOrders(Rec.FieldNo("Not Invoiced"));
                     end;
                 }
-                field(PartiallyInvoiced; "Partially Invoiced")
+                field(PartiallyInvoiced; Rec."Partially Invoiced")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Partially Invoiced';
@@ -118,34 +118,7 @@ page 9063 "Purchase Agent Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowOrders(FieldNo("Partially Invoiced"));
-                    end;
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
+                        Rec.ShowOrders(Rec.FieldNo("Partially Invoiced"));
                     end;
                 }
             }
@@ -158,35 +131,32 @@ page 9063 "Purchase Agent Activities"
 
     trigger OnAfterGetRecord()
     begin
-        CalculateCueFieldValues;
+        CalculateCueFieldValues();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRespCenterFilter;
-        SetFilter("Date Filter", '>=%1', WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetRespCenterFilter();
+        Rec.SetFilter("Date Filter", '>=%1', WorkDate());
+        Rec.SetRange("User ID Filter", UserId());
     end;
-
-    var
-        UserTaskManagement: Codeunit "User Task Management";
 
     local procedure CalculateCueFieldValues()
     begin
-        if FieldActive("Outstanding Purchase Orders") then
-            "Outstanding Purchase Orders" := CountOrders(FieldNo("Outstanding Purchase Orders"));
+        if Rec.FieldActive("Outstanding Purchase Orders") then
+            Rec."Outstanding Purchase Orders" := Rec.CountOrders(Rec.FieldNo("Outstanding Purchase Orders"));
 
-        if FieldActive("Not Invoiced") then
-            "Not Invoiced" := CountOrders(FieldNo("Not Invoiced"));
+        if Rec.FieldActive("Not Invoiced") then
+            Rec."Not Invoiced" := Rec.CountOrders(Rec.FieldNo("Not Invoiced"));
 
-        if FieldActive("Partially Invoiced") then
-            "Partially Invoiced" := CountOrders(FieldNo("Partially Invoiced"));
+        if Rec.FieldActive("Partially Invoiced") then
+            Rec."Partially Invoiced" := Rec.CountOrders(Rec.FieldNo("Partially Invoiced"));
     end;
 }
 

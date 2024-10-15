@@ -11,7 +11,7 @@ codeunit 1034 "Job Planning Line - Calendar"
         LocalJobPlanningLine.SetFilter("Line Type", '%1|%2', "Line Type"::Budget, "Line Type"::"Both Budget and Billable");
         LocalJobPlanningLine.SetRange(Type, Type::Resource);
         LocalJobPlanningLine.SetFilter("No.", '<>''''');
-        if LocalJobPlanningLine.FindSet then begin
+        if LocalJobPlanningLine.FindSet() then begin
             repeat
                 SetPlanningLine(LocalJobPlanningLine);
                 CreateAndSend;
@@ -112,7 +112,7 @@ codeunit 1034 "Job Planning Line - Calendar"
         Stream.Write(ICS);
         TempBlob.CreateInStream(InStream);
 
-        TempEmailItem.Initialize;
+        TempEmailItem.Initialize();
         TempEmailItem.Subject := JobTask.Description;
         TempEmailItem.AddAttachment(InStream, StrSubstNo('%1.ics', JobTask.TableCaption));
         TempEmailItem."Send to" := RecipientEmail;
@@ -175,7 +175,7 @@ codeunit 1034 "Job Planning Line - Calendar"
             SetRange(Type, Type::Resource);
             SetFilter("Line Type", '%1|%2', "Line Type"::Budget, "Line Type"::"Both Budget and Billable");
             SetFilter("No.", '<>%1&<>''''', Resource."No.");
-            if FindSet then begin
+            if FindSet() then begin
                 AdditionalResources += '\n\n' + AdditionalResourcesTxt + ':';
                 repeat
                     LocalResource.Get("No.");
@@ -228,24 +228,18 @@ codeunit 1034 "Job Planning Line - Calendar"
 
     local procedure GetOrganizer(): Text
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
         ProjectManagerUser: Record User;
         EmailAccount: Record "Email Account";
-        EmailFeature: Codeunit "Email Feature";
         EmailScenario: Codeunit "Email Scenario";
     begin
         ProjectManagerUser.SetRange("User Name", ProjectManagerResource."Time Sheet Owner User ID");
-        if ProjectManagerUser.FindFirst then
+        if ProjectManagerUser.FindFirst() then
             if ProjectManagerUser."Authentication Email" <> '' then
                 exit(ProjectManagerUser."Authentication Email");
 
-        if EmailFeature.IsEnabled() then begin
-            EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount);
-            exit(EmailAccount."Email Address");
-        end;
+        EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount);
+        exit(EmailAccount."Email Address");
 
-        SMTPMailSetup.GetSetup();
-        exit(SMTPMailSetup."User ID");
     end;
 
     local procedure GetStartDate() StartDateTime: Text
@@ -284,7 +278,7 @@ codeunit 1034 "Job Planning Line - Calendar"
     begin
         LocalResource.Get(ResourceNo);
         LocalUser.SetRange("User Name", LocalResource."Time Sheet Owner User ID");
-        if LocalUser.FindFirst then
+        if LocalUser.FindFirst() then
             exit(LocalUser."Authentication Email");
     end;
 

@@ -155,7 +155,7 @@ codeunit 1540 "Workflow Webhook Setup"
         StepID := CreateResponseStep(WorkflowCode, StepID, WorkflowResponseHandling.ShowMessageCode, 0, EmptyUserID);
 
         WorkflowStep.SetRange(ID, StepID);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStepArgument.Get(WorkflowStep.Argument);
         WorkflowStepArgument.Message := WorkflowSetup.GetGeneralJournalBatchIsNotBalancedMsg;
         WorkflowStepArgument.Modify(true);

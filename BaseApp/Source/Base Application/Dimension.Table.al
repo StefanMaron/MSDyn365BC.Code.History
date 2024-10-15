@@ -125,14 +125,14 @@ table 348 Dimension
     begin
         DimVal.SetRange("Dimension Code", xRec.Code);
         if CheckIfDimUsed(xRec.Code, 0, '', '', 0) then begin
-            if DimVal.FindSet then
+            if DimVal.FindSet() then
                 repeat
                     if DimVal.CheckIfDimValueUsed then
                         Error(Text000, GetCheckDimErr);
                 until DimVal.Next() = 0;
             Error(Text001, GetCheckDimErr);
         end;
-        if DimVal.FindSet then
+        if DimVal.FindSet() then
             repeat
                 if DimVal.CheckIfDimValueUsed then
                     Error(Text002);
@@ -341,7 +341,7 @@ table 348 Dimension
         if CheckAllDim or CheckGlobalDim or CheckBudgetDim then begin
             if BudgetNameChecked <> '' then
                 GLBudgetName.SetRange(Name, BudgetNameChecked);
-            if GLBudgetName.FindSet then
+            if GLBudgetName.FindSet() then
                 repeat
                     if (DimTypeChecked <> DimTypeChecked::Budget1) and
                        (DimChecked = GLBudgetName."Budget Dimension 1 Code")
@@ -367,7 +367,7 @@ table 348 Dimension
                 ItemBudgetName.SetRange("Analysis Area", AnalysisAreaChecked);
                 ItemBudgetName.SetRange(Name, BudgetNameChecked);
             end;
-            if ItemBudgetName.FindSet then
+            if ItemBudgetName.FindSet() then
                 repeat
                     if (DimTypeChecked <> DimTypeChecked::ItemBudget1) and
                        (DimChecked = ItemBudgetName."Budget Dimension 1 Code")
@@ -391,7 +391,7 @@ table 348 Dimension
                 ItemAnalysisView.SetRange("Analysis Area", AnalysisAreaChecked);
                 ItemAnalysisView.SetRange(Code, AnalysisViewChecked);
             end;
-            if ItemAnalysisView.FindSet then
+            if ItemAnalysisView.FindSet() then
                 repeat
                     if (DimTypeChecked <> DimTypeChecked::ItemAnalysis1) and
                        (DimChecked = ItemAnalysisView."Dimension 1 Code")
@@ -434,7 +434,7 @@ table 348 Dimension
         if CheckAllDim or CheckAnalysisViewDim then begin
             if AnalysisViewChecked <> '' then
                 AnalysisView.SetRange(Code, AnalysisViewChecked);
-            if AnalysisView.FindSet then
+            if AnalysisView.FindSet() then
                 repeat
                     if (DimTypeChecked <> DimTypeChecked::Analysis1) and
                        (DimChecked = AnalysisView."Dimension 1 Code")

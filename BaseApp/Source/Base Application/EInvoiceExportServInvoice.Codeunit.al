@@ -15,10 +15,6 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         ServiceMgtSetup.Get();
         ServiceMgtSetup."E-Invoice Service Invoice Path" := DelChr(ServiceMgtSetup."E-Invoice Service Invoice Path", '>', '\');
         ServiceMgtSetup.TestField("E-Invoice Service Invoice Path");
-#if not CLEAN17
-        if not FileMgt.DirectoryExistsOnDotNetClient(ServiceMgtSetup."E-Invoice Service Invoice Path") then
-            ServiceMgtSetup.FieldError("E-Invoice Service Invoice Path", InvalidPathErr);
-#endif
 
         // Set filters on the service invoice line
         ServiceInvoiceLine.SetRange("Document No.", "No.");
@@ -26,7 +22,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         ServiceInvoiceLine.SetFilter("No.", '<>%1', ' ');
 
         // If there are no lines, there's nothing to export
-        if not ServiceInvoiceLine.FindSet then
+        if not ServiceInvoiceLine.FindSet() then
             exit;
 
         // Pre-processing verifications
@@ -81,10 +77,6 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
 
     var
         TempEInvoiceTransferFile: Record "E-Invoice Transfer File" temporary;
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-        InvalidPathErr: Label 'does not contain a valid path';
-#endif
 
     [Scope('OnPrem')]
     procedure GetExportedFileInfo(var EInvoiceTransferFile: Record "E-Invoice Transfer File")
@@ -141,7 +133,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceLine.SetRange("Document No.", TempEInvoiceExportHeader."No.");
-        if ServiceInvoiceLine.FindSet then begin
+        if ServiceInvoiceLine.FindSet() then begin
             TempEInvoiceExportHeader."Sales Line Found" := true;
             repeat
                 if IsRoundingLine(ServiceInvoiceLine) then
@@ -162,7 +154,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         Id: Integer;
     begin
         Id := 0;
-        if TempEInvoiceExportLine.FindLast then
+        if TempEInvoiceExportLine.FindLast() then
             Id := TempEInvoiceExportLine.ID + 1;
 
         TempEInvoiceExportLine.Init();
@@ -210,7 +202,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         if ServiceInvoiceLine.Type = ServiceInvoiceLine.Type::"G/L Account" then begin
             Customer.Get(ServiceInvoiceLine."Bill-to Customer No.");
             CustomerPostingGroup.SetFilter(Code, Customer."Customer Posting Group");
-            if CustomerPostingGroup.FindFirst then
+            if CustomerPostingGroup.FindFirst() then
                 if ServiceInvoiceLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
                     exit(true);
         end;

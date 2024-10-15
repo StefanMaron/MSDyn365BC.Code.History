@@ -228,7 +228,7 @@ codeunit 10600 "Norwegian VAT Tools"
                     VATCode.Get("Bal. VAT Code");
                     VATPostingSetup.SetCurrentKey("VAT Code");
                     VATPostingSetup.SetRange("VAT Code", "Bal. VAT Code");
-                    VATPostingSetup.FindFirst;
+                    VATPostingSetup.FindFirst();
                     Validate("Bal. Gen. Posting Type", VATCode."Gen. Posting Type");
                     Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
                     Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -242,7 +242,7 @@ codeunit 10600 "Norwegian VAT Tools"
                     VATCode.Get("VAT Code");
                     VATPostingSetup.SetCurrentKey("VAT Code");
                     VATPostingSetup.SetRange("VAT Code", "VAT Code");
-                    VATPostingSetup.FindFirst;
+                    VATPostingSetup.FindFirst();
                     Validate("Gen. Posting Type", VATCode."Gen. Posting Type");
                     Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
                     Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -260,7 +260,7 @@ codeunit 10600 "Norwegian VAT Tools"
         end else begin
             VATPostingSetup.SetCurrentKey("VAT Code");
             VATPostingSetup.SetRange("VAT Code", SalesLine."VAT Code");
-            VATPostingSetup.FindFirst;
+            VATPostingSetup.FindFirst();
             SalesLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
             SalesLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
             SalesLine.Validate("VAT Bus. Posting Group");
@@ -279,7 +279,7 @@ codeunit 10600 "Norwegian VAT Tools"
         end else begin
             VATPostingSetup.SetCurrentKey("VAT Code");
             VATPostingSetup.SetRange("VAT Code", PurchaseLine."VAT Code");
-            VATPostingSetup.FindFirst;
+            VATPostingSetup.FindFirst();
             PurchaseLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
             PurchaseLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
             PurchaseLine.Validate("VAT Bus. Posting Group");
@@ -334,7 +334,7 @@ codeunit 10600 "Norwegian VAT Tools"
         VATPeriod.SetCurrentKey("Start Month", "Start Day");
         VATPeriod.SetRange("Start Month", 0, Month);
         VATPeriod.SetRange("Start Day", 0, Day);
-        VATPeriod.FindLast;
+        VATPeriod.FindLast();
         exit(DMY2Date(VATPeriod."Start Day", VATPeriod."Start Month", Date2DMY(DateInPeriod, 3)));
     end;
 
@@ -351,7 +351,7 @@ codeunit 10600 "Norwegian VAT Tools"
         VATPeriod.SetCurrentKey("Start Month", "Start Day");
         VATPeriod.SetRange("Start Month", 0, Month);
         VATPeriod.SetRange("Start Day", 0, Day);
-        VATPeriod.FindLast;
+        VATPeriod.FindLast();
         exit(VATPeriod."Period No.");
     end;
 

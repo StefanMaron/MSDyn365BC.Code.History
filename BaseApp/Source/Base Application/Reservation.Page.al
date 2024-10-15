@@ -318,7 +318,7 @@ page 498 Reservation
                         ReservEntry2.SetPointerFilter();
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservEntry2.SetRange("Disallow Cancellation", false);
-                        if ReservEntry2.FindSet then
+                        if ReservEntry2.FindSet() then
                             repeat
                                 ReservEntry3.Get(ReservEntry2."Entry No.", not ReservEntry2.Positive);
                                 if RelatesToSummEntry(ReservEntry3, Rec) then begin
@@ -448,7 +448,6 @@ page 498 Reservation
     local procedure RelatesToSummEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary"): Boolean
     var
         IsHandled: Boolean;
-        IsRelated: Boolean;
     begin
         IsHandled := false;
         OnAfterRelatesToSummEntry(ReservEntrySummary, FilterReservEntry, IsHandled);
@@ -475,7 +474,7 @@ page 498 Reservation
         if HandleItemTracking then begin
             EntrySummary := Rec;
             QtyReservedBase := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     QtyReservedBase += ReservedThisLine(Rec);
                 until Next() = 0;
@@ -513,7 +512,7 @@ page 498 Reservation
             Clear(AvailableItemTrackingLines);
             AvailableItemTrackingLines.SetItemTrackingLine(
                 "Table ID", "Source Subtype", ReservEntry, ReservMgt.IsPositive, ReservEntry."Shipment Date");
-            AvailableItemTrackingLines.RunModal;
+            AvailableItemTrackingLines.RunModal();
             exit;
         end;
 

@@ -38,12 +38,12 @@ table 1827 "Business Unit Setup"
         Language: Record Language;
     begin
         Company.SetFilter(Name, '<>%1', ConsolidatedCompany);
-        if not Company.FindSet then
+        if not Company.FindSet() then
             exit;
 
         Language.Init();
 
-        if Company.FindSet then
+        if Company.FindSet() then
             repeat
                 // Use a table that all users can access, and check whether users have permissions to open the company.
                 if Language.ChangeCompany(Company.Name) then begin

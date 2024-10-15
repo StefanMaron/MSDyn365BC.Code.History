@@ -147,7 +147,7 @@ codeunit 143010 "E-Invoice Service Helper"
     begin
         ServLine.SetRange("Document Type", ServHeader."Document Type");
         ServLine.SetRange("Document No.", ServHeader."No.");
-        if ServLine.FindSet then
+        if ServLine.FindSet() then
             repeat
                 UnitOfMeasure.Get(ServLine."Unit of Measure");
                 if UnitOfMeasure."International Standard Code" <> '' then begin
@@ -169,7 +169,7 @@ codeunit 143010 "E-Invoice Service Helper"
         Consume := false;
         LibraryService.PostServiceOrder(ServHeader, Ship, Consume, Invoice);
 
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         exit(CustLedgEntry."Document No.");
     end;
 

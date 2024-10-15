@@ -28,6 +28,8 @@ table 85 "Acc. Schedule Line"
             ELSE
             IF ("Totaling Type" = CONST("Total Accounts")) "G/L Account"
             ELSE
+            IF ("Totaling Type" = CONST("Account Category")) "G/L Account Category"
+            ELSE
             IF ("Totaling Type" = CONST("Cash Flow Entry Accounts")) "Cash Flow Account"
             ELSE
             IF ("Totaling Type" = CONST("Cash Flow Total Accounts")) "Cash Flow Account"
@@ -216,6 +218,16 @@ table 85 "Acc. Schedule Line"
                     Underline := false;
                     Message(ForceUnderLineMsg, FieldCaption(Underline));
                 end;
+            end;
+        }
+        field(40; "Hide Currency Symbol"; Boolean)
+        {
+            Caption = 'Hide Currency Symbol';
+
+            trigger OnValidate()
+            begin
+                if "Hide Currency Symbol" then
+                    TestField("Totaling Type", "Acc. Schedule Line Totaling Type"::Formula);
             end;
         }
         field(840; "Cash Flow Forecast Filter"; Code[20])
@@ -477,11 +489,12 @@ table 85 "Acc. Schedule Line"
         end;
     end;
 
-    local procedure LookupTotaling()
+    procedure LookupTotaling()
     var
         GLAccList: Page "G/L Account List";
         CostTypeList: Page "Cost Type List";
         CFAccList: Page "Cash Flow Account List";
+        GLAccCatList: Page "G/L Account Categories";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -494,7 +507,7 @@ table 85 "Acc. Schedule Line"
             "Totaling Type"::"Total Accounts":
                 begin
                     GLAccList.LookupMode(true);
-                    if GLAccList.RunModal = ACTION::LookupOK then
+                    if GLAccList.RunModal() = ACTION::LookupOK then
                         Validate(Totaling, GLAccList.GetSelectionFilter);
                 end;
             "Totaling Type"::"Cost Type",
@@ -511,6 +524,12 @@ table 85 "Acc. Schedule Line"
                     if CFAccList.RunModal = ACTION::LookupOK then
                         Validate(Totaling, CFAccList.GetSelectionFilter);
                 end;
+            "Totaling Type"::"Account Category":
+                begin
+                    GLAccCatList.LookupMode(true);
+                    if GLAccCatList.RunModal() = ACTION::LookupOK then
+                        Validate(Totaling, GLAccCatList.GetSelectionFilter());
+                end;
         end;
 
         OnAfterLookupTotaling(Rec);
@@ -522,7 +541,7 @@ table 85 "Acc. Schedule Line"
     begin
         GLBudgetNames.LookupMode(true);
         if GLBudgetNames.RunModal = ACTION::LookupOK then begin
-            Text := GLBudgetNames.GetSelectionFilter;
+            Text := GLBudgetNames.GetSelectionFilter();
             exit(true);
         end;
         exit(false)

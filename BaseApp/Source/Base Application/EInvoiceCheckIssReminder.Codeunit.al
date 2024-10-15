@@ -10,9 +10,6 @@ codeunit 10618 "E-Invoice Check Iss. Reminder"
     end;
 
     var
-#if not CLEAN17
-        InvalidPathErr: Label 'does not contain a valid path';
-#endif
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
 
     local procedure CheckCompanyInfo()
@@ -33,16 +30,9 @@ codeunit 10618 "E-Invoice Check Iss. Reminder"
     local procedure CheckSalesSetup()
     var
         SalesSetup: Record "Sales & Receivables Setup";
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-#endif
     begin
         SalesSetup.Get();
         SalesSetup.TestField("E-Invoice Reminder Path");
-#if not CLEAN17
-        if not FileMgt.DirectoryExistsOnDotNetClient(SalesSetup."E-Invoice Reminder Path") then
-            SalesSetup.FieldError("E-Invoice Reminder Path", InvalidPathErr);
-#endif
     end;
 
     local procedure CheckFinChargeMemoHeader(IssuedReminderHeader: Record "Issued Reminder Header")

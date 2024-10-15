@@ -25,7 +25,7 @@ codeunit 135523 "Trial Balance Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can retrieve Trial Balance Report information from the trialBalance API.
-        Initialize;
+        Initialize();
 
         // [WHEN] A GET request is made to the trialBalance API.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Trial Balance Entity", ServiceNameTxt);
@@ -46,7 +46,7 @@ codeunit 135523 "Trial Balance Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a trialBalance record through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a trialBalance JSON object to send to the service.
         TrialBalanceEntityBufferJSON := GetTrialBalanceJSON(TempTrialBalanceEntityBuffer);
@@ -64,7 +64,7 @@ codeunit 135523 "Trial Balance Entity E2E Test"
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         IsInitialized := true;
     end;
 
@@ -79,7 +79,7 @@ codeunit 135523 "Trial Balance Entity E2E Test"
             TrialBalanceEntityBuffer."No." :=
               LibraryUtility.GenerateRandomCode(TrialBalanceEntityBuffer.FieldNo("No."), DATABASE::"Trial Balance Entity Buffer");
         if TrialBalanceEntityBuffer.Name = '' then
-            TrialBalanceEntityBuffer.Name := LibraryUtility.GenerateGUID;
+            TrialBalanceEntityBuffer.Name := LibraryUtility.GenerateGUID();
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'number', TrialBalanceEntityBuffer."No.");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'display', TrialBalanceEntityBuffer.Name);

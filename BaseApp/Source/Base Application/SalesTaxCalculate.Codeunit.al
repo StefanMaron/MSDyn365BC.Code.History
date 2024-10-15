@@ -31,9 +31,6 @@ codeunit 398 "Sales Tax Calculate"
         IsHandled: Boolean;
     begin
         TaxAmount := 0;
-#if not CLEAN17
-        OnBeforeCalculateTax(TaxAreaCode, TaxGroupCode, TaxLiable);
-#endif
         IsHandled := false;
         OnBeforeCalculateTaxProcedure(TaxAreaCode, TaxGroupCode, TaxLiable, Date, Amount, Quantity, ExchangeRate, TaxAmount, IsHandled);
         If IsHandled then
@@ -73,7 +70,7 @@ codeunit 398 "Sales Tax Calculate"
                 else
                     TaxDetail.SetFilter("Effective Date", '<=%1', Date);
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales Tax");
-                if TaxDetail.FindLast then begin
+                if TaxDetail.FindLast() then begin
                     TaxOnTaxCalculated := TaxOnTaxCalculated or TaxDetail."Calculate Tax on Tax";
                     if TaxDetail."Calculate Tax on Tax" then
                         TaxBaseAmount := Amount + TaxAmount
@@ -91,7 +88,7 @@ codeunit 398 "Sales Tax Calculate"
                     end;
                 end;
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
-                if TaxDetail.FindLast then
+                if TaxDetail.FindLast() then
                     if (Abs(Quantity) <= TaxDetail."Maximum Amount/Qty.") or
                        (TaxDetail."Maximum Amount/Qty." = 0)
                     then
@@ -170,7 +167,7 @@ codeunit 398 "Sales Tax Calculate"
                 else
                     TaxDetail.SetFilter("Effective Date", '<=%1', Date);
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales Tax");
-                if TaxDetail.FindLast then begin
+                if TaxDetail.FindLast() then begin
                     TaxOnTaxCalculated := TaxOnTaxCalculated or TaxDetail."Calculate Tax on Tax";
                     InclinationLess := TaxDetail."Tax Below Maximum" / 100;
                     InclinationHigher := TaxDetail."Tax Above Maximum" / 100;
@@ -260,7 +257,7 @@ codeunit 398 "Sales Tax Calculate"
                     end;
                 end;
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
-                if TaxDetail.FindLast then begin
+                if TaxDetail.FindLast() then begin
                     if (Abs(Quantity) <= TaxDetail."Maximum Amount/Qty.") or
                        (TaxDetail."Maximum Amount/Qty." = 0)
                     then
@@ -478,13 +475,7 @@ codeunit 398 "Sales Tax Calculate"
 
         exit(true);
     end;
-#if not CLEAN17
-    [Obsolete('Replaced by OnBeforeCalculateTaxProcedure', '17.0')]
-    [IntegrationEvent(false, false)]
-    procedure OnBeforeCalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
-    begin
-    end;
-#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTaxProcedure(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal; var TaxAmount: Decimal; var IsHandled: Boolean)
     begin

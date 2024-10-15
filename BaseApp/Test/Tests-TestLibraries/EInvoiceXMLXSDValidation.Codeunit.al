@@ -343,7 +343,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 if not DoesVATGroupExist(TempVATEntry, VATEntry) then begin
                     TempVATEntry := VATEntry;
@@ -374,10 +374,10 @@ codeunit 143002 "E-Invoice XML XSD Validation"
 
         FillTempVATEntryBufFromHeader(TaxSubtotalList, TempVATEntry);
 
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 TempVATEntry.SetRange("VAT Prod. Posting Group", GetVATIdentifier(VATEntry));
-                TempVATEntry.FindFirst;
+                TempVATEntry.FindFirst();
                 InvertInvoiceVATAmounts(VATEntry);
                 Assert.AreEqual(VATEntry.Base, TempVATEntry.Base, 'Wrong TaxableAmount');
                 Assert.AreEqual(VATEntry.Amount, TempVATEntry.Amount, 'Wrong TaxAmount');
@@ -443,7 +443,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
         GenProductPostingGroup.SetFilter(Code, VATEntry."Gen. Prod. Posting Group");
-        GenProductPostingGroup.FindFirst;
+        GenProductPostingGroup.FindFirst();
         exit(GenProductPostingGroup.Description);
     end;
 
@@ -531,10 +531,10 @@ codeunit 143002 "E-Invoice XML XSD Validation"
 
         FillTempVATEntryBufFromLine(ItemList, TempVATEntry);
 
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 TempVATEntry.SetRange("VAT Prod. Posting Group", GetVATIdentifier(VATEntry));
-                TempVATEntry.FindFirst;
+                TempVATEntry.FindFirst();
                 Assert.AreEqual(GetTaxCategoryID(VATEntry, TempVATEntry."VAT Base Discount %"), TempVATEntry."VAT Code", 'Wrong ID');
                 TempVATEntry.Delete();
             until VATEntry.Next = 0;

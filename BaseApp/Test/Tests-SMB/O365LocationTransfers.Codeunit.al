@@ -39,7 +39,7 @@ codeunit 137281 "O365 Location Transfers"
         OriginalQuantity: Decimal;
         TransferQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
 
         CreateLocations(LocationFrom, LocationTo, LocationInTransit);
@@ -77,7 +77,7 @@ codeunit 137281 "O365 Location Transfers"
         SecondOriginalQuantity: Decimal;
         SecondTransferQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateLocations(LocationFrom, LocationTo, LocationInTransit);
 
@@ -118,7 +118,7 @@ codeunit 137281 "O365 Location Transfers"
         OriginalQuantity: Decimal;
         TransferQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         LocationFrom := CreateLocationWithInventoryPostingSetup(false);
         LocationTo := CreateLocationWithInventoryPostingSetup(false);
@@ -153,10 +153,10 @@ codeunit 137281 "O365 Location Transfers"
         ItemNo: Code[20];
     begin
         // 1. Setup: Create three locations and a transfer order
-        Initialize;
+        Initialize();
         CreateLocations(FromLocation, ToLocation, InTransitLocation);
 
-        TransferOrder.OpenNew;
+        TransferOrder.OpenNew();
         TransferOrder."Transfer-from Code".SetValue(FromLocation);
         TransferOrder."Transfer-to Code".SetValue(ToLocation);
         TransferOrder."In-Transit Code".SetValue(InTransitLocation);
@@ -164,13 +164,13 @@ codeunit 137281 "O365 Location Transfers"
         // 2. Exercise: Set Item No. to a non-existent item no.
         LibraryLowerPermissions.SetO365INVCreate;
         LibraryLowerPermissions.AddItemCreate;
-        ItemNo := LibraryUtility.GenerateGUID;
+        ItemNo := LibraryUtility.GenerateGUID();
         TransferOrder.TransferLines."Item No.".SetValue(ItemNo);
 
         // 3. Verify: That the item was created
         Item.SetRange(Description, ItemNo);
         Assert.RecordCount(Item, 1);
-        Item.FindFirst;
+        Item.FindFirst();
         TransferOrder.TransferLines.Description.AssertEquals(ItemNo);
         TransferOrder.TransferLines."Item No.".AssertEquals(Item."No.");
     end;
@@ -189,7 +189,7 @@ codeunit 137281 "O365 Location Transfers"
         OriginalQuantity: Decimal;
         TransferQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         LocationFrom := CreateLocationWithInventoryPostingSetup(false);
         LocationTo := CreateLocationWithInventoryPostingSetup(false);
@@ -241,7 +241,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] Location with "Require Shipment" enabled should not be accepted in the "Transfer-from Code" of a direct transfer order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L1" with "Require Shipment"
         LibraryWarehouse.CreateLocationWMS(FromLocation, false, false, false, false, true);
@@ -269,7 +269,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] Location with "Require Receive" enabled should not be accepted in the "Transfer-to Code" of a direct transfer order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L1" without warehouse handling
         LibraryWarehouse.CreateLocation(FromLocation);
@@ -297,7 +297,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] Location with "Require Pick" enabled should not be accepted in the "Transfer-from Code" of a direct transfer order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L1" with "Require Pick"
         LibraryWarehouse.CreateLocationWMS(FromLocation, false, false, true, false, false);
@@ -325,7 +325,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] Location with "Require Put-away" enabled should not be accepted in the "Transfer-to Code" of a direct transfer order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L1" without warehouse handling
         LibraryWarehouse.CreateLocation(FromLocation);
@@ -352,7 +352,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] It should not be allowed to change transfer-from location to a location that requires outbound warehouse handling in a direct transfer order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two locations "L1" and "L2" without warehouse handling
         LibraryWarehouse.CreateLocation(Location[1]);
@@ -381,7 +381,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] It should not be allowed to change transfer-to location to a location that requires inbound warehouse handling in a direct transfer order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two locations "L1" and "L2" without warehouse handling
         LibraryWarehouse.CreateLocation(Location[1]);
@@ -411,7 +411,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] It should not be allowed to post a direct transfer order if outbound warehouse handling was enabled on location after creating the order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two locations "L1" and "L2" without warehouse handling
         LibraryWarehouse.CreateLocation(FromLocation);
@@ -445,7 +445,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] It should not be allowed to release a direct transfer order if inbound warehouse handling was enabled on location after creating the order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two locations "L1" and "L2" without warehouse handling
         LibraryWarehouse.CreateLocation(FromLocation);
@@ -481,7 +481,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] It should not be allowed to post a direct transfer order if outbound warehouse handling was enabled on location after releasing the order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two locations "L1" and "L2" without warehouse handling
         LibraryWarehouse.CreateLocation(FromLocation);
@@ -520,7 +520,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] It should not be allowed to post a direct transfer order if inbound warehouse handling was enabled on location after releasing the order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two locations "L1" and "L2" without warehouse handling
         LibraryWarehouse.CreateLocation(FromLocation);
@@ -560,7 +560,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] Direct transfer order should be posted if the transfer-from location requires inbound warehouse handling, but not outbound
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L1" with "Require Receive" and "Require Put-away" enabled
         LibraryWarehouse.CreateLocationWMS(FromLocation, false, true, false, true, false);
@@ -601,7 +601,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 253751] Direct transfer order should be posted if the transfer-to location requires outbound warehouse handling, but not inbound
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L1" withount warehouse handling
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
@@ -639,7 +639,7 @@ codeunit 137281 "O365 Location Transfers"
     begin
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 270430] If posting of the receipt side of a direct transfer order fails, posted shipment is rolled back
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two locations: BLUE with no warehouse settings, and SILVER with bin mandatory
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
@@ -677,7 +677,7 @@ codeunit 137281 "O365 Location Transfers"
     begin
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 278532] Direct transfer order can be posted with "Location Mandatory" enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Location Mandatory" in inventory setup is enabled
         LibraryInventory.SetLocationMandatory(true);
@@ -713,7 +713,7 @@ codeunit 137281 "O365 Location Transfers"
         // [FEATURE] [Direct Transfer] [Item Journal]
         // [SCENARIO 278532] "Transfer Shipment" entry in item journal cannot be posted with blank "Location Code" when "Location Mandatory" is enabled in inventory setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Location Mandatory" in inventory setup is enabled
         LibraryInventory.SetLocationMandatory(true);
@@ -743,9 +743,9 @@ codeunit 137281 "O365 Location Transfers"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // [FEATURE] [Direct Transfer] [Item Journal]
-        // [SCENARIO 278532] "Transfer Receipt" entry in item journal cannot be posted with blank "New Location Code" when "Location Mandatory" is enabled in inventory setupInitialize;
+        // [SCENARIO 278532] "Transfer Receipt" entry in item journal cannot be posted with blank "New Location Code" when "Location Mandatory" is enabled in inventory setupInitialize();
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Location Mandatory" in inventory setup is enabled
         LibraryInventory.SetLocationMandatory(true);
@@ -778,7 +778,7 @@ codeunit 137281 "O365 Location Transfers"
     begin
         // [FEATURE] [Direct Transfer] [UI]
         // [SCENARIO 292732] User is able to change Direct Transfer from Yes to No for transfer order with lines which are not posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare locations and item for direct transfer order
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
@@ -806,7 +806,7 @@ codeunit 137281 "O365 Location Transfers"
 
         // [THEN] Transfer order line has "Direct Transfer" = No
         TransferLine.SetRange("Document No.", TransferHeader."No.");
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField("Direct Transfer", false);
     end;
 
@@ -822,7 +822,7 @@ codeunit 137281 "O365 Location Transfers"
     begin
         // [FEATURE] [Direct Transfer] [UI]
         // [SCENARIO 292732] User is able to change Direct Transfer from Yes to No for transfer order with lines which are not posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare locations and item for direct transfer order
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
@@ -888,21 +888,21 @@ codeunit 137281 "O365 Location Transfers"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Location Transfers");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableLocationsSetup;
         LibraryUtility.GetGlobalNoSeriesCode;
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Location Transfers");
 
-        LibraryUtility.GenerateGUID;
+        LibraryUtility.GenerateGUID();
 
         UpdatePostedDirectTransfersNoSeries();
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
         Commit();

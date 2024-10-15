@@ -67,7 +67,7 @@ codeunit 10613 "E-Invoice Check Fin. Chrg.Memo"
         with FinChargeMemoLine do begin
             Reset;
             SetRange("Finance Charge Memo No.", FinChargeMemoHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Description = '' then
                         if (Type <> Type::" ") and ("No." <> '') then

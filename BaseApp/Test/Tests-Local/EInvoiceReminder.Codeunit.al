@@ -33,7 +33,7 @@ codeunit 144118 "E-Invoice Reminder"
     var
         XmlFileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceReminder;
 
@@ -51,7 +51,7 @@ codeunit 144118 "E-Invoice Reminder"
         IssuedReminderNo: Code[20];
         XmlFileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         IssuedReminderNo := EInvoiceReminderHelper.CreateReminder;
         AddLinesToIssuedReminder(IssuedReminderNo);
@@ -66,7 +66,7 @@ codeunit 144118 "E-Invoice Reminder"
     [Scope('OnPrem')]
     procedure EInvoiceReminderEndpointID()
     begin
-        Initialize;
+        Initialize();
         EInvoiceXMLXSDValidation.VerifyEndpointID(EInvoiceReminder);
     end;
 
@@ -80,7 +80,7 @@ codeunit 144118 "E-Invoice Reminder"
         XmlFileName: Text[1024];
         IssReminderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(true);
@@ -106,7 +106,7 @@ codeunit 144118 "E-Invoice Reminder"
         XmlFileName: Text[1024];
         IssReminderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // setup
         LibraryERM.SetEnterpriseRegisterCompInfo(false);
@@ -130,7 +130,7 @@ codeunit 144118 "E-Invoice Reminder"
         IssuedReminderNo: Code[20];
         XmlFileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         IssuedReminderNo := EInvoiceReminderHelper.CreateReminder;
 
@@ -146,7 +146,7 @@ codeunit 144118 "E-Invoice Reminder"
     var
         XmlFileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         XmlFileName := EInvoiceReminder;
 
@@ -160,7 +160,7 @@ codeunit 144118 "E-Invoice Reminder"
     [Scope('OnPrem')]
     procedure ReminderWithAllVATGroups()
     begin
-        Initialize;
+        Initialize();
 
         ReminderWithNoOfVATGroups(5);
     end;
@@ -187,7 +187,7 @@ codeunit 144118 "E-Invoice Reminder"
     [Scope('OnPrem')]
     procedure ReminderWithOneVATGroup()
     begin
-        Initialize;
+        Initialize();
         ReminderWithNoOfVATGroups(1);
     end;
 
@@ -196,7 +196,7 @@ codeunit 144118 "E-Invoice Reminder"
     [Scope('OnPrem')]
     procedure ReminderWithTwoVATGroups()
     begin
-        Initialize;
+        Initialize();
         ReminderWithNoOfVATGroups(2);
     end;
 
@@ -205,7 +205,7 @@ codeunit 144118 "E-Invoice Reminder"
     [Scope('OnPrem')]
     procedure ValidateEInvReminderFile()
     begin
-        Initialize;
+        Initialize();
         EInvoiceReminder;
     end;
 
@@ -222,7 +222,7 @@ codeunit 144118 "E-Invoice Reminder"
         LineNo: Integer;
     begin
         // [SCENARIO 302996] Tax subtotals created for reminder lines if VAT Prod. Posting Group is not empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Zero VAT Posting Setup with Description = "ZeroVAT"
         // [GIVEN] Reminder where first line is fee line of zero VAT and one line with Description = "Fee" and Amount = 1000
@@ -231,7 +231,7 @@ codeunit 144118 "E-Invoice Reminder"
         EInvoiceReminderHelper.CreateReminderLines(
           ReminderHeader."No.", 1, CreateZeroVATPostingSetup(ReminderHeader."VAT Bus. Posting Group"), LineNo);
         ReminderLineFee.SetRange("Reminder No.", ReminderHeader."No.");
-        ReminderLineFee.FindFirst;
+        ReminderLineFee.FindFirst();
         AddCustLedgerEntryReminderLine(ReminderLine, ReminderHeader);
         IssuedReminderNo := EInvoiceReminderHelper.IssueReminder(ReminderHeader."No.");
 
@@ -266,12 +266,12 @@ codeunit 144118 "E-Invoice Reminder"
         XmlFileName: Text;
     begin
         // [SCENARIO 303015] AccountingCustomerParty/Party/EndpointID is taken from Customer's VAT Registration No. when GLN is not blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with GLN = '01234123456789' and 'VAT Reg. No.' = 'NO123456000'
         IssuedReminderHeader.Get(EInvoiceReminderHelper.CreateReminder);
-        IssuedReminderHeader.GLN := LibraryUtility.GenerateGUID;
-        IssuedReminderHeader."VAT Registration No." := LibraryUtility.GenerateGUID;
+        IssuedReminderHeader.GLN := LibraryUtility.GenerateGUID();
+        IssuedReminderHeader."VAT Registration No." := LibraryUtility.GenerateGUID();
         IssuedReminderHeader.Modify();
 
         // [WHEN] Create Electronic Reminder
@@ -293,11 +293,11 @@ codeunit 144118 "E-Invoice Reminder"
         XmlFileName: Text;
     begin
         // [SCENARIO 303015] AccountingCustomerParty/Party/EndpointID is taken from Customer's GLN when VAT Registration No. is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with GLN = '01234123456789' 'VAT Reg. No.' = blank
         IssuedReminderHeader.Get(EInvoiceReminderHelper.CreateReminder);
-        IssuedReminderHeader.GLN := LibraryUtility.GenerateGUID;
+        IssuedReminderHeader.GLN := LibraryUtility.GenerateGUID();
         IssuedReminderHeader."VAT Registration No." := '';
         IssuedReminderHeader.Modify();
 
@@ -321,12 +321,12 @@ codeunit 144118 "E-Invoice Reminder"
         XmlFileName: Text;
     begin
         // [SCENARIO 303015] AccountingSupplierParty/Party/EndpointID is taken from Company's VAT Registration No. when GLN is not blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information with GLN = '01234123456789' and 'VAT Reg. No.' = 'NO123456000'
         CompanyInformation.Get();
-        CompanyInformation.GLN := LibraryUtility.GenerateGUID;
-        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID;
+        CompanyInformation.GLN := LibraryUtility.GenerateGUID();
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify();
         IssuedReminderNo := EInvoiceReminderHelper.CreateReminder;
 
@@ -348,7 +348,7 @@ codeunit 144118 "E-Invoice Reminder"
             exit;
 
         InitGlobalVATRates;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         isInitialized := true;
     end;
 
@@ -360,7 +360,7 @@ codeunit 144118 "E-Invoice Reminder"
         AmountValue := LibraryRandom.RandDec(1000, 2);
         with IssuedReminderLine do begin
             SetRange("Reminder No.", IssuedReminderHeader."No.");
-            FindLast;
+            FindLast();
             Init;
             "Line No." := "Line No." + 10000;
             Type := Type::"Customer Ledger Entry";
@@ -395,7 +395,7 @@ codeunit 144118 "E-Invoice Reminder"
             "Line No." := LibraryUtility.GetNewRecNo(ReminderLine, FieldNo("Line No."));
             Type := Type::"Customer Ledger Entry";
             "Entry No." := MockCustLedgerEntry(ReminderHeader."Customer No.");
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             "Remaining Amount" := LibraryRandom.RandInt(1000);
             Insert;
         end;
