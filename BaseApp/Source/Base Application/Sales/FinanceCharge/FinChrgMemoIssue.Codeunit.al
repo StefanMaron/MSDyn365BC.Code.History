@@ -284,6 +284,7 @@ codeunit 395 "FinChrgMemo-Issue"
             TempGenJnlLine."Account Type" := AccType;
             TempGenJnlLine."Account No." := AccNo;
             TempGenJnlLine.Validate("Account No.");
+            TempGenJnlLine."Posting Group" := "Customer Posting Group";
             if TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::"G/L Account" then begin
                 TempGenJnlLine."Gen. Posting Type" := TempGenJnlLine."Gen. Posting Type"::Sale;
                 TempGenJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";

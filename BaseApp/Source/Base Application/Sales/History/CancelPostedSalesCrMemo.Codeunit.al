@@ -105,18 +105,24 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     end;
 
     procedure TestCorrectCrMemoIsAllowed(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        IsHandled: Boolean;
     begin
-        TestIfPostingIsAllowed(SalesCrMemoHeader);
-        TestIfCustomerIsBlocked(SalesCrMemoHeader, SalesCrMemoHeader."Sell-to Customer No.");
-        TestIfCustomerIsBlocked(SalesCrMemoHeader, SalesCrMemoHeader."Bill-to Customer No.");
-        TestIfInvoiceIsCorrectedOnce(SalesCrMemoHeader);
-        TestIfCrMemoIsCorrectiveDoc(SalesCrMemoHeader);
-        TestCustomerDimension(SalesCrMemoHeader, SalesCrMemoHeader."Bill-to Customer No.");
-        TestDimensionOnHeader(SalesCrMemoHeader);
-        TestSalesLines(SalesCrMemoHeader);
-        TestIfAnyFreeNumberSeries(SalesCrMemoHeader);
-        TestExternalDocument(SalesCrMemoHeader);
-        TestInventoryPostingClosed(SalesCrMemoHeader);
+        IsHandled := false;
+        OnBeforeTestCorrectCrMemoIsAllowed(SalesCrMemoHeader, IsHandled);
+        if not IsHandled then begin
+            TestIfPostingIsAllowed(SalesCrMemoHeader);
+            TestIfCustomerIsBlocked(SalesCrMemoHeader, SalesCrMemoHeader."Sell-to Customer No.");
+            TestIfCustomerIsBlocked(SalesCrMemoHeader, SalesCrMemoHeader."Bill-to Customer No.");
+            TestIfInvoiceIsCorrectedOnce(SalesCrMemoHeader);
+            TestIfCrMemoIsCorrectiveDoc(SalesCrMemoHeader);
+            TestCustomerDimension(SalesCrMemoHeader, SalesCrMemoHeader."Bill-to Customer No.");
+            TestDimensionOnHeader(SalesCrMemoHeader);
+            TestSalesLines(SalesCrMemoHeader);
+            TestIfAnyFreeNumberSeries(SalesCrMemoHeader);
+            TestExternalDocument(SalesCrMemoHeader);
+            TestInventoryPostingClosed(SalesCrMemoHeader);
+        end;
 
         OnAfterTestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
     end;
@@ -547,6 +553,11 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPostedSalesInvoice(var SalesInvHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestCorrectCrMemoIsAllowed(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
     begin
     end;
 }
