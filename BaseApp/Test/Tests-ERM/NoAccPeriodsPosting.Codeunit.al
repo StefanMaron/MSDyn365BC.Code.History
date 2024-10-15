@@ -24,6 +24,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
+        DuplicateRecordErr: Label 'Document No. %1 already exists. It is not possible to calculate new deferrals for a Document No. that already exists.', Comment = '%1=Document No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -307,6 +308,92 @@ codeunit 134361 "No Acc. Periods: Posting"
         VerifyItemLedgEntryCostAmount(Item."No.", -UnitCost * ItemJournalLine.Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PreviewPostGenJournalWithDeferralTemplateWithError()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 470572] Not possible to post a Deferral when the Document No exist, an error message occurs when trying to post, 
+        // however, this error message does not appear when doing the Preview Posting.
+        Initialize();
+
+        // [GIVEN] Create G/L Account with Deferral template code
+        GLAccountNo := CreateGLAccountWithStraightLineDeferral();
+
+        // [GIVEN] Create Gen. Journal Batch
+        CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create Gen. Journal Line 
+        CreateGenJournalLineForDeferralEntry(GenJournalLine, GenJournalBatch, GLAccountNo);
+
+        // [WHEN] Save Document no. when Gen. Journal Line has Document No.
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [THEN] Post Gen. Journal Line 
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create Gen. Journal Line with same Document  No. 
+        CreateGenJournalLineForDeferralEntry(GenJournalLine, GenJournalBatch, GLAccountNo);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify(true);
+
+        // [VERIFY] Verify Error will come during Posting Preview.
+        asserterror GenJnlPost.Preview(GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySameDocumentNoErrWithDeferralTemplate()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalBatch1: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine1: Record "Gen. Journal Line";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 470170] When posting Deferrals for a Document No that already exist the error message is not intuitive to the user
+        Initialize();
+
+        // [GIVEN] Create G/L Account with Deferral template code
+        GLAccountNo := CreateGLAccountWithStraightLineDeferral();
+
+        // [GIVEN] Create Gen. Journal Batch
+        CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create Gen. Journal Line 
+        CreateGenJournalLineForDeferralEntry(GenJournalLine, GenJournalBatch, GLAccountNo);
+
+        // [WHEN] Save Document no. when Gen. Journal Line has Document No.
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [THEN] Post Gen. Journal Line 
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create Gen. Journal Line with same Document  No.
+        CreateGenJournalBatch(GenJournalBatch1);
+
+        // [GIVEN] Create Gen. Journal Batch
+        CreateGenJournalLineForDeferralEntry(GenJournalLine1, GenJournalBatch1, GLAccountNo);
+
+        // [GIVEN] Update the same Document No. and Line No.
+        GenJournalLine1.Validate("Document No.", DocumentNo);
+        GenJournalLine1."Line No." := GenJournalLine."Line No.";
+        GenJournalLine1.Modify(true);
+
+        // [WHEN] Expected Error will come during Posting Preview.
+        asserterror GenJnlPostLine.RunWithCheck(GenJournalLine1);
+
+        // [VERIFY] Verify the error message will be Duplicate Record Error
+        Assert.ExpectedError(StrSubstNo(DuplicateRecordErr, DocumentNo));
+    end;
+
     local procedure Initialize()
     var
         AccountingPeriod: Record "Accounting Period";
@@ -530,6 +617,25 @@ codeunit 134361 "No Acc. Periods: Posting"
             CalcFields("Cost Amount (Actual)");
             TestField("Cost Amount (Actual)", CostAmount);
         end;
+    end;
+
+    local procedure CreateGenJournalLineForDeferralEntry(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; GLAccountNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
     [ConfirmHandler]

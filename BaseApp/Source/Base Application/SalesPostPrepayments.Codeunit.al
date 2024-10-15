@@ -589,7 +589,8 @@
             if SalesLine.Find('-') then
                 repeat
                     if PrepmtAmount(SalesLine, DocumentType) <> 0 then begin
-                        CheckSalesLineIsNegative(SalesHeader, SalesLine);
+                        if not CheckSystemCreatedInvoiceRoundEntry(SalesLine, SalesHeader."Customer Posting Group") then
+                            CheckSalesLineIsNegative(SalesHeader, SalesLine);
                         if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo"] then begin
                             VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
                             if VATPostingSetup."EU Service" then begin
@@ -1831,6 +1832,15 @@
             SalesLine.FieldError(Quantity, StrSubstNo(Text018, SalesHeader.FieldCaption("Prepayment %")));
         if SalesLine."Unit Price" < 0 then
             SalesLine.FieldError("Unit Price", StrSubstNo(Text018, SalesHeader.FieldCaption("Prepayment %")));
+    end;
+
+    local procedure CheckSystemCreatedInvoiceRoundEntry(SalesLine: Record "Sales Line"; CustomerPostingGroup: Code[20]): Boolean
+    begin
+        if (SalesLine.Type = SalesLine.Type::"G/L Account") and
+           (SalesLine."No." = GetInvRoundingAccNo(CustomerPostingGroup)) and
+           (SalesLine."System-Created Entry")
+        then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]
