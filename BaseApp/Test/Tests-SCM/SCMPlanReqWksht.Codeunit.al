@@ -58,6 +58,7 @@
         BinCodeErr: Label '%1 must be %2 in %3', Comment = '%1 = Bin Code, %2 = Bin Code value, %3 = Planning Component';
         ItemFiltersLbl: Label '%1|%2', Comment = '%1 = Item, %2 = Item 2';
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1 = Quantity, %2 = Minimum Order Quanity, %3 = Requisition Line';
+        MPSOrderErr: Label 'MPS Order mustbe true.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -4419,6 +4420,55 @@
                 RequisitionLine.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure MPSTrueWhenCalcRegnPlanForSafetyStockItemAndOrderWithinDueDate()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        SafetyStockQty: Decimal;
+        OldCombinedMPSMRPCalculation: Boolean;
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [SCENARIO 502028] A basic item is planned with MRP when just a safety stock demand is available and
+        // with MPS as soon as a second demand is available from a sales order.
+        Initialize();
+
+        // [GIVEN] Set "Combined MPS/MRP Calculation" as false in Manufacturing Setup
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);
+
+        // [GIVEN] Generate and save Safety Stock Quantity in a Variable.
+        SafetyStockQty := LibraryRandom.RandIntInRange(5, 5);
+
+        // [GIVEN] Create Safety Stock Item with Lot-for-Lot Reordering Policy.
+        CreateSafetyStockItem(Item, SafetyStockQty);
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create Sales Lines with Item
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 1));
+
+        // [WHEN] Run Regenerative plan report
+        StartDate := DMY2Date(01, 01, Date2DMY(WorkDate(), 3));
+        EndDate := DMY2Date(31, 12, Date2DMY(WorkDate(), 3));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartDate, EndDate);
+
+        // [WHEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindLast();
+
+        // [THEN] Verify: MPS is true
+        Assert.IsTrue(RequisitionLine."MPS Order", MPSOrderErr);
+
+        // Teardown
+        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -5950,7 +6000,7 @@
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         Item.Init();
-        Item."No." := Format(LibraryRandom.RandText(4));
+        Item."No." := LibraryUtility.GenerateRandomCode20(Item.FieldNo("No."), DATABASE::Item);
         Item.Insert(true);
 
         LibraryInventory.CreateItemUnitOfMeasure(
@@ -6016,6 +6066,14 @@
         Item.Validate("Minimum Order Quantity", LibraryRandom.RandIntInRange(50, 50));
         Item.Validate("Order Multiple", LibraryRandom.RandIntInRange(10, 10));
         Evaluate(Item."Lot Accumulation Period", '5D');
+        Item.Modify(true);
+    end;
+
+    local procedure CreateSafetyStockItem(var Item: Record Item; SafetyStockQty: Decimal)
+    begin
+        CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::Purchase);
+        Item.Validate("Safety Stock Quantity", SafetyStockQty);
+        Item.Validate("Include Inventory", true);
         Item.Modify(true);
     end;
 

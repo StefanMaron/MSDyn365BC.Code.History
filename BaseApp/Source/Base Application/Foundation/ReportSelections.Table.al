@@ -1724,7 +1724,7 @@ table 77 "Report Selections"
         REPORT.SaveAsHtml(ReportID, FilePath, RecordVariant);
     end;
 
-    local procedure FindReportSelections(var ReportSelections: Record "Report Selections"; AccountNo: Code[20]; TableNo: Integer): Boolean
+    procedure FindReportSelections(var ReportSelections: Record "Report Selections"; AccountNo: Code[20]; TableNo: Integer): Boolean
     var
         Handled: Boolean;
     begin
