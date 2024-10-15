@@ -86,6 +86,7 @@ permissionset 5759 "D365 BANKING"
                   tabledata "SWIFT Code" = RIMD,
                   tabledata "To-do" = R,
                   tabledata "VAT Entry" = Rimd,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "Vendor Bank Account" = R,
                   tabledata "Vendor Ledger Entry" = Rimd,
                   tabledata "Vendor Posting Group" = RIMD;

@@ -167,7 +167,15 @@ report 1320 "Notification Email"
             exit;
 
         SettingsURL := GetUrl(CLIENTTYPE::Web, CompanyName, OBJECTTYPE::Page, Page::"Notification Setup");
-        SettingsURL += StrSubstNo(NotificationSetupFilterStringTxt, ReceipientUser."User Name");
+        SettingsURL += StrSubstNo(NotificationSetupFilterStringTxt, GetNotificationUser());
+    end;
+
+    local procedure GetNotificationUser(): Text
+    begin
+        if not GuiAllowed then
+            exit(ReceipientUser."User Name");
+
+        exit(UserId);
     end;
 
     local procedure SetDocumentTypeAndNumber(SourceRecRef: RecordRef)

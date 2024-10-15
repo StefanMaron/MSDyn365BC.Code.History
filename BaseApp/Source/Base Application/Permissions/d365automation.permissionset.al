@@ -1479,6 +1479,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "VAT Report Line" = RIMD,
                   tabledata "VAT Report Line Relation" = RIMD,
                   tabledata "VAT Report Setup" = RIMD,
+                  tabledata "VAT Reporting Code" = RIMD,
                   tabledata "VAT Reports Configuration" = RIMD,
                   tabledata "VAT Return Period" = RIMD,
                   tabledata "VAT Setup Posting Groups" = RIMD,
