@@ -202,7 +202,7 @@
                 if "Deferral Code" <> '' then
                     Validate("Deferral Code");
 
-                
+
                 GLSetup.Get();
                 GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
                 Validate("VAT Reporting Date");
@@ -1534,7 +1534,7 @@
             begin
                 Validate("Payment Terms Code");
 
-                
+
                 GLSetup.Get();
                 GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
                 Validate("VAT Reporting Date");
@@ -2073,6 +2073,16 @@
         field(173; "Applies-to Ext. Doc. No."; Code[35])
         {
             Caption = 'Applies-to Ext. Doc. No.';
+        }
+        field(175; "Invoice Received Date"; Date)
+        {
+            trigger OnValidate()
+            begin
+                if (Rec."Invoice Received Date" <> 0D) and
+                   (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor))
+                then
+                    TestField("Document Type", "Document Type"::Invoice);
+            end;
         }
         field(180; "Keep Description"; Boolean)
         {
@@ -5380,7 +5390,7 @@
         else
             TempJobJnlLine.Validate("Posting Date", xRec."Posting Date");
         TempJobJnlLine.Validate(Type, TempJobJnlLine.Type::"G/L Account");
-        
+
         "Job Currency Factor" := 0;
         if "Job Currency Code" <> '' then begin
             if "Posting Date" = 0D then
@@ -6837,7 +6847,7 @@
         Prepayment := true;
         "Due Date" := PurchHeader."Prepayment Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
-        "Payment Method Code" := PurchHeader."Payment Method Code"; 
+        "Payment Method Code" := PurchHeader."Payment Method Code";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
@@ -6861,6 +6871,7 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         "Due Date" := PurchHeader."Due Date";
+        "Invoice Received Date" := PurchHeader."Invoice Received Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
         "Pmt. Discount Date" := PurchHeader."Pmt. Discount Date";
         "Payment Discount %" := PurchHeader."Payment Discount %";
@@ -6938,7 +6949,7 @@
         Prepayment := true;
         "Due Date" := SalesHeader."Prepayment Due Date";
         "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
-        "Payment Method Code" := SalesHeader."Payment Method Code"; 
+        "Payment Method Code" := SalesHeader."Payment Method Code";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := SalesHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := SalesHeader."Prepmt. Payment Discount %";

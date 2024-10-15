@@ -25,7 +25,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         IsInitialized: Boolean;
         TempBatchNameTxt: Label 'BD_TEMP';
         ShortcutDimErrorTxt: Label 'Recurring Method must not be BD Balance by Dimension in Gen. Journal Line';
-        KeepExistingDimensionsMsg: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
+        KeepExistingDimensionsMsg: Label 'This will change the dimension specified on the document. Do you want to recalculate/update dimensions?';
         UpdateDimensionOnLineMsg: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     [Test]
@@ -5743,7 +5743,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     procedure VerifyDimensionsAreUpdatedOnSalesLineOnChangeSalespersonOnSalesHeader()
     var
         Item: Record Item;

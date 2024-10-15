@@ -149,6 +149,12 @@
                     Importance = Additional;
                     ToolTip = 'Specifies that you can change the vendor name on open purchase documents. The change applies only to the documents.';
                 }
+                field("Company Size Code"; Rec."Company Size Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the size of the vendor''s company.';
+                }
             }
             group("Address & Contact")
             {
@@ -558,6 +564,12 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor.';
+                }
+                field("Exclude from Pmt. Practices"; Rec."Exclude from Pmt. Practices")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that the vendor must be excluded from Payment Practices calculations.';
                 }
             }
             group(Receiving)
