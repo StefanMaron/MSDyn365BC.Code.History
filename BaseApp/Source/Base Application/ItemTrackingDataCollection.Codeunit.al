@@ -663,6 +663,25 @@ codeunit 6501 "Item Tracking Data Collection"
         exit(TempGlobalEntrySummary."Total Available Quantity" >= 0);
     end;
 
+    procedure CheckAvailableTrackingQuantity(var TempTrackingSpecification: Record "Tracking Specification" temporary): Boolean
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        RetrieveLookupData(TempTrackingSpecification, false);
+
+        ItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(CurrItemTrackingCode);
+        ItemTrackingSetup.CopyTrackingFromTrackingSpec(TempTrackingSpecification);
+
+        TempGlobalEntrySummary.Reset();
+        TempGlobalEntrySummary.SetTrackingKey();
+        TempGlobalEntrySummary.SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup);
+        if TempGlobalEntrySummary.IsEmpty() then
+            exit(false);
+
+        TempGlobalEntrySummary.CalcSums("Total Available Quantity");
+        exit(TempGlobalEntrySummary."Total Available Quantity" >= 0);
+    end;
+
     procedure UpdateTrackingDataSetWithChange(var TempTrackingSpecificationChanged: Record "Tracking Specification" temporary; LineIsDemand: Boolean; CurrentSignFactor: Integer; ChangeType: Option Insert,Modify,Delete)
     var
         LastEntryNo: Integer;

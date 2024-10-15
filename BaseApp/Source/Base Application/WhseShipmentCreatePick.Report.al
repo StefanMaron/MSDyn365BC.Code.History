@@ -20,6 +20,9 @@ report 7318 "Whse.-Shipment - Create Pick"
                     var
                         WMSMgt: Codeunit "WMS Management";
                     begin
+                        if not "Assembly Line".IsInventoriableItem() then
+                            CurrReport.Skip();
+
                         WMSMgt.CheckInboundBlockedBin("Location Code", "Bin Code", "No.", "Variant Code", "Unit of Measure Code");
 
                         WhseWkshLine.SetRange("Source Line No.", "Line No.");
