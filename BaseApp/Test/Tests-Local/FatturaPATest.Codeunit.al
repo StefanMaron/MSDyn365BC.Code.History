@@ -1494,6 +1494,39 @@ codeunit 144200 "FatturaPA Test"
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/CodiceFiscale');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSalesInvoiceWithZeroUnitPrice()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 270181] PrezzoUnitario xml node generates for the sales line with zero unit price
+
+        Initialize();
+
+        // [GIVEN] A posted Sales Invoice with two lines, first line has unit price, the second one does not
+        SalesInvoiceHeader.SetRange(
+          "No.", CreateAndPostSalesInvoiceWithSecondLineZeroUnitPrice(CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer()));
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] The exported XML file has two PrezzoUnitario xml nodes. The second one has value of "0.00"
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoUnitario');
+        Assert.RecordCount(TempXMLBuffer, 2);
+        FindNextElement(TempXMLBuffer);
+        Amount := 0;
+        TempXMLBuffer.TestField(Value, Format(Amount, 0, '<Precision,2:5><Standard Format,9>'));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1552,6 +1585,16 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         DocumentRecordRef.GetTable(SalesInvoiceHeader);
         exit(GetDocumentNo(DocumentRecordRef));
+    end;
+
+    local procedure CreateAndPostSalesInvoiceWithSecondLineZeroUnitPrice(PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDocument(SalesHeader, PaymentMethodCode, PaymentTermsCode, CustomerNo, SalesHeader."Document Type"::Invoice);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure CreateAndPostSalesInvoiceWithNegativeLine(var UnitPrice: Decimal; var Quantity: Decimal; var DocumentNo: Code[20]; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20])

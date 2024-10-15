@@ -196,10 +196,11 @@ codeunit 144561 "ERM Split VAT"
     end;
 
     [Test]
-    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestUpdateTriggerQuantity()
     var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [GIVEN] a sales invoice having a user entered and an automatically generated line
@@ -213,6 +214,7 @@ codeunit 144561 "ERM Split VAT"
 
         // Cleanup
         TestCleanup;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -236,9 +238,11 @@ codeunit 144561 "ERM Split VAT"
     end;
 
     [Test]
+    [HandlerFunctions('SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestUpdateTriggerQuantityNothingToUpdate()
     var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [GIVEN] a sales invoice having a user entered and an automatically generated line
@@ -252,6 +256,7 @@ codeunit 144561 "ERM Split VAT"
 
         // Cleanup
         TestCleanup;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2402,6 +2407,16 @@ codeunit 144561 "ERM Split VAT"
     begin
         LibraryVariableStorage.Dequeue(InvoiceDiscountAmount);
         ServiceStatistics."Inv. Discount Amount_General".AssertEquals(InvoiceDiscountAmount);
+    end;
+
+    [SendNotificationHandler]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [RecallNotificationHandler]
+    procedure RecallNotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 }
 

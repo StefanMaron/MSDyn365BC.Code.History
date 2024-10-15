@@ -2327,7 +2327,7 @@
         end else
             ItemLedgEntry.SetRange(Positive, false);
 
-        OnSelectItemEntryOnBeforeOpenPage(ItemLedgEntry, Rec);
+        OnSelectItemEntryOnBeforeOpenPage(ItemLedgEntry, Rec, CurrentFieldNo);
 
         if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then begin
             ItemJnlLine2 := Rec;
@@ -4301,7 +4301,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSelectItemEntryOnBeforeOpenPage(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnSelectItemEntryOnBeforeOpenPage(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 

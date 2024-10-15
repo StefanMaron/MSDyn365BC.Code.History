@@ -175,10 +175,12 @@
     procedure PerformManualCheckAndRelease(var SalesHeader: Record "Sales Header")
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         IsHandled: Boolean;
     begin
-        OnBeforePerformManualCheckAndRelease(SalesHeader, PreviewMode);
+        IsHandled := false;
+        OnBeforePerformManualCheckAndRelease(SalesHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
 
         with SalesHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
@@ -190,8 +192,7 @@
                 Error(Text005, "Document Type", "No.");
             end;
 
-        if ApprovalsMgmt.IsSalesHeaderPendingApproval(SalesHeader) then
-            Error(Text002);
+        CheckSalesHeaderPendingApproval(SalesHeader);
 
         IsHandled := false;
         OnBeforePerformManualRelease(SalesHeader, PreviewMode, IsHandled);
@@ -201,6 +202,20 @@
         CODEUNIT.Run(CODEUNIT::"Release Sales Document", SalesHeader);
 
         OnAfterPerformManualCheckAndRelease(SalesHeader, PreviewMode);
+    end;
+
+    local procedure CheckSalesHeaderPendingApproval(var SalesHeader: Record "Sales Header")
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesHeaderPendingApproval(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ApprovalsMgmt.IsSalesHeaderPendingApproval(SalesHeader) then
+            Error(Text002);
     end;
 
     procedure PerformManualReopen(var SalesHeader: Record "Sales Header")
@@ -295,6 +310,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesHeaderPendingApproval(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeManualReOpenSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
     begin
     end;
@@ -365,7 +385,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePerformManualCheckAndRelease(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    local procedure OnBeforePerformManualCheckAndRelease(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 

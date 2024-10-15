@@ -76,5 +76,6 @@ permissionset 1001 "LOCAL"
                   tabledata "Withhold Code Line" = RIMD,
                   tabledata "Withholding Tax" = RIMD,
                   tabledata "Withholding Tax Line" = RIMD,
-                  tabledata "Withholding Tax Payment" = RIMD;
+                  tabledata "Withholding Tax Payment" = RIMD,
+                  tabledata "Withholding Exceptional Event" = RIMD;
 }

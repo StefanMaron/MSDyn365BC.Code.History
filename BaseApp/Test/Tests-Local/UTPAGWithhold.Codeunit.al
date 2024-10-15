@@ -357,6 +357,7 @@ codeunit 144094 "UT PAG Withhold"
         ComputedWithholdingTaxPage.Close;
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure NonTaxableIncomeTypeUT()
@@ -415,6 +416,7 @@ codeunit 144094 "UT PAG Withhold"
         WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(10));
         WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"13");
     end;
+#endif
 
     local procedure Initialize()
     begin

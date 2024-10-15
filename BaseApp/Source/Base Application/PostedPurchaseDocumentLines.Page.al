@@ -222,7 +222,7 @@ page 5855 "Posted Purchase Document Lines"
             2:
                 begin
                     CurrPage.PostedReturnShpts.PAGE.GetSelectedLine(FromReturnShptLine);
-                    CopyDocMgt.SetProperties(false, true, false, false, true, true, OriginalQuantity);
+                    CopyDocMgt.SetProperties(false, false, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopyPurchaseLinesToDoc(
                       "Purchase Document Type From"::"Posted Return Shipment".AsInteger(), ToPurchHeader,
                       FromPurchRcptLine, FromPurchInvLine, FromReturnShptLine, FromPurchCrMemoLine, LinesNotCopied, MissingExCostRevLink);

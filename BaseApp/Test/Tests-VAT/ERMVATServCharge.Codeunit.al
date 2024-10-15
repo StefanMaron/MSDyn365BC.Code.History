@@ -561,6 +561,7 @@
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");

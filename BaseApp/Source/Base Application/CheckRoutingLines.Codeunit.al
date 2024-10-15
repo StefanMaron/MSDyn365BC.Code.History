@@ -65,7 +65,13 @@ codeunit 99000752 "Check Routing Lines"
     var
         RtngLine: Record "Routing Line";
         RtngLine2: Record "Routing Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcPreviousOperations(RtngHeader, VersionCode, IsHandled);
+        if IsHandled then
+            exit;
+
         RtngLine.SetRange("Routing No.", RtngHeader."No.");
         RtngLine.SetRange("Version Code", VersionCode);
         RtngLine.ModifyAll("Previous Operation No.", '');
@@ -470,6 +476,11 @@ codeunit 99000752 "Check Routing Lines"
                       Text007,
                       RtngLine."Routing No.");
             until RtngLine.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcPreviousOperations(var RoutingHeader: Record "Routing Header"; VersionCode: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

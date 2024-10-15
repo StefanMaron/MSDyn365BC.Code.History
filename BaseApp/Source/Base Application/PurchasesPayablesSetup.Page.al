@@ -53,6 +53,17 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if it is mandatory to enter an external document number in the External Document No. field on a purchase header or the External Document No. field on a general journal line.';
                 }
+                field("Same Ext. Doc. No. in Diff. FY"; "Same Ext. Doc. No. in Diff. FY")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you are allowed to post documents with the same value in the External Document No. field across different fiscal years.';
+                }
+                field("Ext. Doc. No. Period Source"; "Ext. Doc. No. Period Source")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = "Same Ext. Doc. No. in Diff. FY";
+                    ToolTip = 'Specifies the time period during which each document must have a unique value in the External Document No. field.';
+                }
                 field("Allow VAT Difference"; "Allow VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;

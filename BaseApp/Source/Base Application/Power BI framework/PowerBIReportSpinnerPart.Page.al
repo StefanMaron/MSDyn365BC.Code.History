@@ -601,13 +601,6 @@ page 6303 "Power BI Report Spinner Part"
             exit;
         end;
 
-        if not PowerBiServiceMgt.IsUserSynchronizingReports() then
-            if PowerBIReportSynchronizer.UserNeedsToSynchronize(Context) then begin
-                LoadOptInImage();
-                PageState := PageState::ShouldDeploy;
-                exit;
-            end;
-
         SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
         LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
         RefreshTempReportBuffer(ExceptionMessage, ExceptionDetails); // Also points the record to last opened report id
@@ -618,11 +611,18 @@ page 6303 "Power BI Report Spinner Part"
         end;
 
         if TempPowerBiReportBuffer.IsEmpty() then begin
-            if PowerBiServiceMgt.IsUserSynchronizingReports() then
-                PageState := PageState::NoReportButDeploying
-            else
-                PageState := PageState::NoReport;
+            if PowerBiServiceMgt.IsUserSynchronizingReports() then begin
+                PageState := PageState::NoReportButDeploying;
+                exit;
+            end;
 
+            if PowerBIReportSynchronizer.UserNeedsToSynchronize(Context) then begin
+                LoadOptInImage();
+                PageState := PageState::ShouldDeploy;
+                exit;
+            end;
+
+            PageState := PageState::NoReport;
             exit;
         end;
 

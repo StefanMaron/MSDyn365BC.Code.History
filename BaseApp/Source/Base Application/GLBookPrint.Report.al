@@ -275,7 +275,7 @@ report 12121 "G/L Book - Print"
 
                 if "Document Date" <> 0D then
                     "Document Date" := NormalDate("Document Date");
-
+                Descr := '';
                 case "Source Type" of
                     "Source Type"::Customer:
                         GetBillToName;
@@ -291,8 +291,6 @@ report 12121 "G/L Book - Print"
                             FA.Get("Source No.");
                             Descr := FA.Description;
                         end;
-                    else
-                        Descr := '';
                 end;
 
                 if (not CurrReport.Preview) and

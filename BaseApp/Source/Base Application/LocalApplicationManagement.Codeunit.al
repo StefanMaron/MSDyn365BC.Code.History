@@ -493,5 +493,27 @@ codeunit 12104 LocalApplicationManagement
             Error(CancelledErr);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, 1312, 'OnAfterSetFilterForExternalDocNo', '', false, false)]
+    local procedure OnAfterSetFilterForExternalDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentDate: Date)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        DateFilterCalc: Codeunit "DateFilter-Calc";
+        FYPeriodFilter: Text[30];
+        FYPeriodName: Text[30];
+    begin
+        PurchasesPayablesSetup.Get();
+        if not PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY" then
+            exit;
+
+        case PurchasesPayablesSetup."Ext. Doc. No. Period Source" of
+            PurchasesPayablesSetup."Ext. Doc. No. Period Source"::"Calendar Year":
+                VendorLedgerEntry.SetRange("Document Date", CalcDate('<-CY>', DocumentDate), CalcDate('<CY>', DocumentDate));
+            PurchasesPayablesSetup."Ext. Doc. No. Period Source"::"Fiscal Year":
+                begin
+                    DateFilterCalc.CreateFiscalYearFilter(FYPeriodFilter, FYPeriodName, DocumentDate, 0);
+                    VendorLedgerEntry.SetFilter("Document Date", FYPeriodFilter);
+                end;
+        end;
+    end;
 }
 

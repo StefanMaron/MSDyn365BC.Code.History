@@ -3,7 +3,8 @@
     Caption = 'Sales Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
     LookupPageID = "Sales List";
-    Permissions = tabledata "Assemble-to-Order Link" = rmid;
+    Permissions = tabledata "Assemble-to-Order Link" = rmid,
+                  tabledata "Assembly Header" = m;
 
     fields
     {
@@ -394,8 +395,7 @@
                     if "Ship-to Code" <> '' then begin
                         if xRec."Ship-to Code" <> '' then begin
                             GetCust("Sell-to Customer No.");
-                            if Cust."Location Code" <> '' then
-                                Validate("Location Code", Cust."Location Code");
+                            SetCustomerLocationCode();
                             "Tax Area Code" := Cust."Tax Area Code";
                         end;
                         ShipToAddr.Get("Sell-to Customer No.", "Ship-to Code");
@@ -3293,6 +3293,8 @@
 
         // Remove view filters so that the cards does not show filtered view notification
         SetView('');
+
+        OnAfterOnInsert(Rec);
     end;
 
     trigger OnRename()
@@ -4356,7 +4358,7 @@
         ReservMgt: Codeunit "Reservation Management";
         IsHandled: Boolean;
     begin
-        OnBeforeDeleteSalesLines(SalesLine, IsHandled);
+        OnBeforeDeleteSalesLines(SalesLine, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -5756,6 +5758,7 @@
                         then begin
                             if SalesHeader.Get("Document Type"::Quote, Opportunity."Sales Document No.") then begin
                                 SalesHeader."Opportunity No." := '';
+                                OnLinkSalesDocWithOpportunityOnBeforeSalesHeaderModify(Rec, OldOpportunityNo, Opportunity);
                                 SalesHeader.Modify();
                             end;
                             UpdateOpportunityLink(Opportunity, Opportunity."Sales Document Type"::Quote, "No.");
@@ -5773,6 +5776,7 @@
     begin
         Opportunity."Sales Document Type" := SalesDocumentType;
         Opportunity."Sales Document No." := SalesHeaderNo;
+        OnUpdateOpportunityLinkOnBeforeModify(Opportunity, Rec, SalesDocumentType, SalesHeaderNo);
         Opportunity.Modify();
     end;
 
@@ -5804,7 +5808,13 @@
         Item: Record Item;
         QtyToShipBaseTotal: Decimal;
         Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckShippingAdvice(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.SetRange("Drop Shipment", false);
@@ -7018,6 +7028,7 @@
         Opp.Find;
         Opp."Sales Document Type" := Opp."Sales Document Type"::" ";
         Opp."Sales Document No." := '';
+        OnUpdateOpportunityOnBeforeModify(Opp, Rec);
         Opp.Modify();
         "Opportunity No." := '';
     end;
@@ -7497,7 +7508,14 @@
     end;
 
     procedure TestQuantityShippedField(SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestQuantityShippedField(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.TestField("Quantity Shipped", 0);
         OnAfterTestQuantityShippedField(SalesLine);
     end;
@@ -7794,6 +7812,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestNoSeries(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -7825,6 +7848,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateShipToContactOnBeforeValidateShipToContact(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOpportunityOnBeforeModify(var Opportunity: Record Opportunity; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOpportunityLinkOnBeforeModify(var Opportunity: Record Opportunity; var SalesHeader: Record "Sales Header"; SalesDocumentType: Option; SalesHeaderNo: Code[20])
     begin
     end;
 
@@ -7967,6 +8000,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckShippingAdvice(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmUpdateAllLineDim(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; NewParentDimSetID: Integer; OldParentDimSetID: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -8032,7 +8070,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeleteSalesLines(var SalesLine: Record "Sales Line"; var IsHandled: Boolean);
+    local procedure OnBeforeDeleteSalesLines(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header");
     begin
     end;
 
@@ -8434,6 +8472,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestQuantityShippedField(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeTestStatusOpen(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
@@ -8486,6 +8529,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkSalesDocWithOpportunityOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; OldOpportunityNo: Code[20]; Opportunity: Record Opportunity)
     begin
     end;
 

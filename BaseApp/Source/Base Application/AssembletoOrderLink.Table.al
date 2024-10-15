@@ -1069,7 +1069,13 @@ table 904 "Assemble-to-Order Link"
     end;
 
     procedure GetATOLink(AssemblyHeader: Record "Assembly Header") LinkFound: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetATOLink(Rec, AssemblyHeader, LinkFound, IsHandled);
+        if IsHandled then
+            exit(LinkFound);
         LinkFound := Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
         if LinkFound then
             TestField(Type, Type::Sale);
@@ -1301,6 +1307,11 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeChangeUOM(var AssemblyHeader: Record "Assembly Header"; NewUOMCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetATOLink(var AssembleToOrderLink: Record "Assemble-to-Order Link"; var AssemblyHeader: Record "Assembly Header"; var LinkFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 

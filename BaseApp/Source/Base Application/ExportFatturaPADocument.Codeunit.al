@@ -216,6 +216,11 @@ codeunit 12179 "Export FatturaPA Document"
     begin
         if Amount = 0 then
             exit('');
+        exit(FormatNonBlankQuantity(Amount));
+    end;
+
+    local procedure FormatNonBlankQuantity(Amount: Decimal): Text[250]
+    begin
         exit(Format(Amount, 0, '<Precision,2:5><Standard Format,9>'))
     end;
 
@@ -441,7 +446,7 @@ codeunit 12179 "Export FatturaPA Document"
             AddNonEmptyElement('Descrizione', TempFatturaLine.Description);
             AddNonEmptyElement('Quantita', FormatQuantity(TempFatturaLine.Quantity));
             AddNonEmptyElement('UnitaMisura', TempFatturaLine."Unit of Measure");
-            AddNonEmptyElement('PrezzoUnitario', FormatQuantity(TempFatturaLine."Unit Price"));
+            AddNonEmptyElement('PrezzoUnitario', FormatNonBlankQuantity(TempFatturaLine."Unit Price"));
             if (TempFatturaLine."Discount Percent" <> 0) or (TempFatturaLine."Discount Amount" <> 0) then begin
                 AddGroupElement('ScontoMaggiorazione');
                 AddNonEmptyElement('Tipo', 'SC');

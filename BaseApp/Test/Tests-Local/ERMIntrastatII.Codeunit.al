@@ -1211,6 +1211,47 @@ codeunit 144063 "ERM Intrastat - II"
         VerifyCounterpartyVATRegistrationNo(SalesHeader."Sell-to Customer No.", '');
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,GLBookPrintRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLBookPrintReportNoFollowingLineDescription()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO 393654] GL Book report should not copy last line description for next lines that should not have such description
+        Initialize;
+
+        // [GIVEN] Posted Sales Document for Customer "C" and Payment Method with Bill Code
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesDocument(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", CreateServiceTariffNumber, 100,
+          VATPostingSetup."VAT Calculation Type"::"Normal VAT", 100);
+        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod);
+        SalesHeader.Modify(True);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Issued Bank Receipt
+        RunIssueBankReceipt(SalesLine."Sell-to Customer No.");
+        Commit;
+
+        // [WHEN] Run Report G/L Book Print for Customer "C"
+        RunGLBookPrintReportForSourceNo(SalesLine."Sell-to Customer No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Last line for Sales Invoice should have Description = Customer.Name
+        LibraryReportDataset.MoveToRow(3);
+        LibraryReportDataset.AssertCurrentRowValueEquals(DescriptionCap, Customer.Name);
+
+        // [THEN] Following lines for Bank receipt should have no description
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals(DescriptionCap, '');
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals(DescriptionCap, '');
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -1878,6 +1919,16 @@ codeunit 144063 "ERM Intrastat - II"
         GLBookPrint.Run;
     end;
 
+    local procedure RunGLBookPrintReportForSourceNo(SourceNo: Code[20])
+    var
+        GLBookEntry: Record "GL Book Entry";
+        GLBookPrint: Report "G/L Book - Print";
+    begin
+        GLBookEntry.SetRange("Source No.", SourceNo);
+        GLBookPrint.SetTableView(GLBookEntry);
+        GLBookPrint.Run;
+    end;
+
     local procedure RunVATRegisterPrintReport(DocumentType: Enum "Gen. Journal Document Type"; SellToBuyFromNo: Code[20]; Type: Option)
     var
         VATBookEntry: Record "VAT Book Entry";
@@ -1956,6 +2007,47 @@ codeunit 144063 "ERM Intrastat - II"
         LibraryReportDataset.AssertCurrentRowValueEquals('LedgAmount', ExpectedAmount);
     end;
 
+    local procedure RunIssueBankReceipt(CustomerNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        IssuingCustomerBill: Report "Issuing Customer Bill";
+    begin
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        IssuingCustomerBill.SetTableView(CustLedgerEntry);
+        IssuingCustomerBill.SetPostingDescription(CustomerNo);
+        IssuingCustomerBill.UseRequestPage(false);
+        IssuingCustomerBill.Run;
+    end;
+
+    local procedure CreatePaymentMethod(): Code[10]
+    var
+        PaymentMethod: Record "Payment Method";
+        BillPostingGroup: Record "Bill Posting Group";
+    begin
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Bill Code", CreateBill);
+        PaymentMethod.Modify(true);
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, LibraryERM.CreateBankAccountNo, PaymentMethod.Code);
+        exit(PaymentMethod.Code);
+    end;
+
+    local procedure CreateBill(): Code[20]
+    var
+        Bill: Record Bill;
+        SourceCode: Record "Source Code";
+    begin
+        LibraryITLocalization.CreateBill(Bill);
+        Bill.Validate("Allow Issue", true);
+        Bill.Validate("Bills for Coll. Temp. Acc. No.", LibraryErm.CreateGLAccountNo());
+        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode);
+        Bill.Validate("Temporary Bill No.", Bill."List No.");
+        Bill.Validate("Final Bill No.", Bill."List No.");
+        LibraryERM.CreateSourceCode(SourceCode);
+        Bill.Validate("Bill Source Code", SourceCode.Code);
+        Bill.Modify(true);
+        exit(Bill.Code);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -2021,6 +2113,12 @@ codeunit 144063 "ERM Intrastat - II"
         VATRegisterPrint.PrintCompanyInformations.SetValue(false);
         VATRegisterPrint.VATRegister.SetValue(VATRegister);
         VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

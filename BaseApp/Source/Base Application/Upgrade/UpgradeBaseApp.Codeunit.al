@@ -1,4 +1,4 @@
-codeunit 104000 "Upgrade - BaseApp"
+﻿codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
 
@@ -1949,38 +1949,50 @@ codeunit 104000 "Upgrade - BaseApp"
         DimensionSetEntry: Record "Dimension Set Entry";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
+        DimFilterString: Text;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDimensionSetEntryUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDimSetEntryGlobalDimNoUpgradeTag()) THEN
             exit;
 
         if GeneralLedgerSetup.Get() then begin
             if GeneralLedgerSetup."Shortcut Dimension 3 Code" <> '' then begin
                 DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 3 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 3);
+                DimensionSetEntry.ModifyAll("Global Dimension No.", 3, false);
+                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 3 Code";
             end;
             if GeneralLedgerSetup."Shortcut Dimension 4 Code" <> '' then begin
                 DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 4 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 4);
+                DimensionSetEntry.ModifyAll("Global Dimension No.", 4, false);
+                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 4 Code";
             end;
             if GeneralLedgerSetup."Shortcut Dimension 5 Code" <> '' then begin
                 DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 5 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 5);
+                DimensionSetEntry.ModifyAll("Global Dimension No.", 5, false);
+                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 5 Code";
             end;
             if GeneralLedgerSetup."Shortcut Dimension 6 Code" <> '' then begin
                 DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 6 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 6);
+                DimensionSetEntry.ModifyAll("Global Dimension No.", 6, false);
+                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 6 Code";
             end;
             if GeneralLedgerSetup."Shortcut Dimension 7 Code" <> '' then begin
                 DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 7 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 7);
+                DimensionSetEntry.ModifyAll("Global Dimension No.", 7, false);
+                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 7 Code";
             end;
             if GeneralLedgerSetup."Shortcut Dimension 8 Code" <> '' then begin
                 DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 8 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 8);
+                DimensionSetEntry.ModifyAll("Global Dimension No.", 8, false);
+                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 8 Code";
             end;
+            IF DimFilterString <> '' then begin
+                DimFilterString := DelChr(DimFilterString, '<', '&');
+                DimensionSetEntry.SetFilter("Dimension Code", DimFilterString);
+            end;
+            DimensionSetEntry.ModifyAll("Global Dimension No.", 0, false);
         end;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDimensionSetEntryUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDimSetEntryGlobalDimNoUpgradeTag());
     end;
 
     local procedure UpgradePurchaseOrderEntityBuffer()

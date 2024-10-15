@@ -623,7 +623,7 @@
             exit(true);
         if not CalledFromVendBillLine then
             exit(TempWithholdingSocSec."Payment Line-Withholding" <> 0);
-        exit(TempWithholdingSocSec."Withholding Tax Amount" <> 0);
+        exit(true);
     end;
 
     procedure SocialSecurityApplicable(TempWithholdingSocSec: Record "Tmp Withholding Contribution"; CalledFromVendBillLine: Boolean): Boolean

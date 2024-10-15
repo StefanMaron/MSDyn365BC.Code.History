@@ -798,7 +798,7 @@
 
         CreateItemsWithPrice(Item, 1);
         CreateSellToWithDifferentBillToCust(SellToCust, BillToCust);
-        SellItem(SellToCust, Item, 1, SalesInvoiceHeader);
+        SellItemWithDiscount(SellToCust, Item, 1, SalesInvoiceHeader, LibraryRandom.RandIntInRange(1, 10));
 
         GenPostingSetup.Get(BillToCust."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
         GLAcc.SetFilter("No.", '%1|%2|%3|%4',
@@ -1783,6 +1783,15 @@
         SalesInvoiceHeader.Get(LibrarySmallBusiness.PostSalesInvoice(SalesHeader));
     end;
 
+    local procedure SellItemWithDiscount(SellToCust: Record Customer; Item: Record Item; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header"; LineDiscountPct: Integer)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesInvoiceWithDiscountForItem(SellToCust, Item, Qty, SalesHeader, SalesLine, LineDiscountPct);
+        SalesInvoiceHeader.Get(LibrarySmallBusiness.PostSalesInvoice(SalesHeader));
+    end;
+
     local procedure CopyGLAccToGLAcc(var FromGLAcc: Record "G/L Account"; var ToGLAcc: Record "G/L Account")
     begin
         FromGLAcc.FindSet();
@@ -1852,6 +1861,13 @@
     begin
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Cust);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, Qty);
+    end;
+
+    local procedure CreateSalesInvoiceWithDiscountForItem(Cust: Record Customer; Item: Record Item; Qty: Decimal; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineDiscountPct: Integer)
+    begin
+        CreateSalesInvoiceForItem(Cust, Item, Qty, SalesHeader, SalesLine);
+        SalesLine.Validate("Line Discount %", LineDiscountPct);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateAndPostPurchInvForItem(Item: Record Item; Qty: Decimal; UnitCost: Decimal)

@@ -21,9 +21,14 @@ codeunit 12132 "Withholding Tax Export"
         CommunicationNumber: Integer;
         ReplaceFieldValueToMaxAllowedQst: Label 'The witholding tax amount (field AU001019): %1, is greater than the maximum allowed value taxable base (field AU001018): %2. \\Do you want to replace the witholding tax amount with the maximum allowed?', Comment = '%1=witholding tax amount, a decimal value, %2=taxable base, a decimal value.';
         BaseExcludedAmountTotalErr: Label 'Base - Excluded Amount total on lines for Withholding Tax Entry No. = %1 must be equal to Base - Excluded Amount on the Withholding Tax card for that entry (%2).', Comment = '%1=Entry number,%2=Amount.';
+        ReportingYear: Integer;
+        ExceptionalEvent: Code[10];
+        BlankedExceptionalEventErr: Label 'You must specify an exceptional event.';
+        RecordDCount: Integer;
+        CURTxt: Label 'CUR%1', Locked = true, Comment = '%1 - year';
 
     [Scope('OnPrem')]
-    procedure Export(Year: Integer; SigningCompanyOfficialNo: Code[20]; PreparedBy: Option Company,"Tax Representative"; NrOfCommunication: Integer)
+    procedure Export(Year: Integer; SigningCompanyOfficialNo: Code[20]; PreparedBy: Option Company,"Tax Representative"; NrOfCommunication: Integer; ExceptionalEventCode: Code[10])
     var
         TempWithholdingTax: Record "Withholding Tax" temporary;
         TempWithholdingTaxPrevYears: Record "Withholding Tax" temporary;
@@ -32,9 +37,14 @@ codeunit 12132 "Withholding Tax Export"
         CompanyInformation.Get();
         ReportPreparedBy := PreparedBy;
         CommunicationNumber := NrOfCommunication;
+        ReportingYear := Year;
+        ExceptionalEvent := ExceptionalEventCode;
 
         if not SigningCompanyOfficials.Get(SigningCompanyOfficialNo) then
             Error(NoSigningCompanyOfficialErr);
+
+        if ExceptionalEvent = '' then
+            Error(BlankedExceptionalEventErr);
 
         CalculateWithholdingTaxPerVendor(TempWithholdingTax, TempContributions, Year, Year);
 
@@ -48,6 +58,7 @@ codeunit 12132 "Withholding Tax Export"
         FlatFileManagement.Initialize;
         FlatFileManagement.SetEstimatedNumberOfRecords(TempWithholdingTax.Count);
 
+        RecordDCount := TempWithholdingTax.Count();
         StartNewFileWithHeader; // Creates record A and B
         CreateFileBody(TempWithholdingTax, TempWithholdingTaxPrevYears, TempContributions, Year); // Creates record D and H
 
@@ -174,7 +185,7 @@ codeunit 12132 "Withholding Tax Export"
     begin
         StartNewRecord(ConstRecordType::A);
 
-        FlatFileManagement.WritePositionalValue(16, 5, ConstFormat::NU, 'CUR21', false); // A-3
+        FlatFileManagement.WritePositionalValue(16, 5, ConstFormat::NU, StrSubstNo(CURTxt, ReportingYear mod 100 + 1), false); // A-3
 
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then begin
             FlatFileManagement.WritePositionalValue(21, 2, ConstFormat::NU, '10', false); // A-4
@@ -231,7 +242,7 @@ codeunit 12132 "Withholding Tax Export"
         else
             FlatFileManagement.WritePositionalValue(
               297, 12, ConstFormat::AN, FlatFileManagement.CleanPhoneNumber(CompanyInformation."Phone No."), true); // B-16
-        FlatFileManagement.WritePositionalValue(309, 2, ConstFormat::NP, '1', false); // B-17
+        FlatFileManagement.WritePositionalValue(309, 2, ConstFormat::NP, ExceptionalEvent, false); // B-17
 
         TempErrorMessage.LogIfEmpty(
           SigningCompanyOfficials, SigningCompanyOfficials.FieldNo("Fiscal Code"), TempErrorMessage."Message Type"::Error);
@@ -250,7 +261,10 @@ codeunit 12132 "Withholding Tax Export"
             FlatFileManagement.WritePositionalValue(373, 11, ConstFormat::CN, TaxCode, false); // B-22
 
         FlatFileManagement.WritePositionalValue(384, 18, ConstFormat::AN, '000000000000000000', false); // B-23
-        FlatFileManagement.WritePositionalValue(402, 8, ConstFormat::NU, Format(CommunicationNumber), false); // B-24
+        if CommunicationNumber <> 0 then
+            FlatFileManagement.WritePositionalValue(402, 8, ConstFormat::NU, Format(CommunicationNumber), false) // B-24
+        else
+            FlatFileManagement.WritePositionalValue(402, 8, ConstFormat::NU, Format(RecordDCount), false); // B-24
         FlatFileManagement.WritePositionalValue(410, 1, ConstFormat::CB, '0', false); // B-25
         FlatFileManagement.WritePositionalValue(411, 1, ConstFormat::CB, '1', false); // B-26
 
@@ -286,8 +300,10 @@ codeunit 12132 "Withholding Tax Export"
     var
         VendorWithholdingTax: Record Vendor;
         GeneralLedgerSetup: Record "General Ledger Setup";
+        VendorCountryRegion: Record "Country/Region";
         CompanyTaxCode: Code[20];
         VendorTaxCode: Code[20];
+        VendorCountryCode: Code[10];
     begin
         VendorWithholdingTax.Get(TempWithholdingTax."Vendor No.");
 
@@ -377,10 +393,11 @@ codeunit 12132 "Withholding Tax Export"
             TempErrorMessage.LogIfEmpty(
               VendorWithholdingTax, VendorWithholdingTax.FieldNo("First Name"), TempErrorMessage."Message Type"::Warning);
         FlatFileManagement.WriteBlockValue('DA002003', ConstFormat::AN, VendorWithholdingTax."First Name");
-        if VendorWithholdingTax.Gender = VendorWithholdingTax.Gender::Male then
-            FlatFileManagement.WriteBlockValue('DA002004', ConstFormat::AN, 'M')
-        else
-            FlatFileManagement.WriteBlockValue('DA002004', ConstFormat::AN, 'F');
+        if VendorWithholdingTax."Individual Person" then
+            if VendorWithholdingTax.Gender = VendorWithholdingTax.Gender::Male then
+                FlatFileManagement.WriteBlockValue('DA002004', ConstFormat::AN, 'M')
+            else
+                FlatFileManagement.WriteBlockValue('DA002004', ConstFormat::AN, 'F');
         FlatFileManagement.WriteBlockValue(
           'DA002005', ConstFormat::DT, FlatFileManagement.FormatDate(VendorWithholdingTax."Date of Birth", ConstFormat::DT));
         FlatFileManagement.WriteBlockValue('DA002006', ConstFormat::AN, VendorWithholdingTax."Birth City");
@@ -388,6 +405,13 @@ codeunit 12132 "Withholding Tax Export"
         if VendorWithholdingTax."Special Category" <> VendorWithholdingTax."Special Category"::" " then
             FlatFileManagement.WriteBlockValue('DA002008', ConstFormat::AN, Format(VendorWithholdingTax."Special Category"));
         FlatFileManagement.WriteBlockValue('DA002010', ConstFormat::NU, '0');
+
+        VendorCountryCode := CompanyInformation.GetCountryRegionCode(VendorWithholdingTax."Country/Region Code");
+        if VendorCountryCode <> 'IT' then begin
+            VendorCountryRegion.Get(VendorCountryCode);
+            VendorCountryRegion.TestField("ISO Numeric Code");
+            FlatFileManagement.WriteBlockValue('DA002011', ConstFormat::AN, VendorCountryRegion."ISO Numeric Code");
+        end;
 
         FlatFileManagement.WriteBlockValue('DA002030', ConstFormat::AN, '');
 

@@ -608,7 +608,12 @@ table 23 Vendor
                 CompanyInfo: Record "Company Information";
                 GLSetup: Record "General Ledger Setup";
                 LocalAppMgt: Codeunit LocalApplicationManagement;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVATRegistrationNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
                 GLSetup.Get();
                 CompanyInfo.Get();
                 if (("Country/Region Code" = CompanyInfo."Country/Region Code") or
@@ -2824,6 +2829,11 @@ table 23 Vendor
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATRegistrationNo(var Rec: Record "Vendor"; xRec: Record "Vendor"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

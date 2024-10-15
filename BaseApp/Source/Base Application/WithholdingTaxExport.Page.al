@@ -25,7 +25,7 @@ page 12103 "Withholding Tax Export"
                     MinValue = 2000;
                     NotBlank = true;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the year.';
+                    ToolTip = 'Specifies the withholding tax reporting period.';
                 }
                 field("Signing Company Officials"; SigningCompanyOfficialsNo)
                 {
@@ -47,6 +47,13 @@ page 12103 "Withholding Tax Export"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Communication Number';
                     ToolTip = 'Specifies the communication number.';
+                }
+                field("Exceptional Event"; ExceptionalEventCode)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Exceptional Event';
+                    ToolTip = 'Specifies the exception event to use for this withholding tax export.';
+                    TableRelation = "Withholding Exceptional Event".Code;
                 }
             }
         }
@@ -70,7 +77,7 @@ page 12103 "Withholding Tax Export"
                 var
                     WithholdingTaxExport: Codeunit "Withholding Tax Export";
                 begin
-                    WithholdingTaxExport.Export(Year, SigningCompanyOfficialsNo, PreparedBy, CommunicationNumber);
+                    WithholdingTaxExport.Export(Year, SigningCompanyOfficialsNo, PreparedBy, CommunicationNumber, ExceptionalEventCode);
                 end;
             }
         }
@@ -86,5 +93,6 @@ page 12103 "Withholding Tax Export"
         SigningCompanyOfficialsNo: Code[20];
         PreparedBy: Option Company,"Tax Representative";
         CommunicationNumber: Integer;
+        ExceptionalEventCode: Code[10];
 }
 

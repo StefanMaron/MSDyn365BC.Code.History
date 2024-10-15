@@ -1,6 +1,5 @@
 codeunit 144090 "ERM Withhold"
 {
-    // // [FEATURE] [Withholding Tax]
     // Test for Withhold Tax functionality.
     //  1. Verify Social Security Code on Vendor - using Lookup and select Contribution code.
     //  2. Verify Social Security Code on Vendor - using Lookup and create new Contribution code.
@@ -77,6 +76,7 @@ codeunit 144090 "ERM Withhold"
 
     trigger OnRun()
     begin
+        // [FEATURE] [Withholding Tax]
     end;
 
     var
@@ -2104,6 +2104,45 @@ codeunit 144090 "ERM Withhold"
         PurchWithhContribution.TestField("Withholding Tax %", WithholdingTaxPercent);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure ZeroWithholdingTaxIsCreatedAfterPostVendorBill()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorBillHeader: Record "Vendor Bill Header";
+        BillPostingGroup: Record "Bill Posting Group";
+        WithholdingTax: Record "Withholding Tax";
+        WithholdCode: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 395226] Zero "Withholding Tax" is created after posting Vendor Bill with "Withholding Tax %" = 0, "Taxable Base %" = 100
+        Initialize();
+
+        // [GIVEN] Withholding Tax setup with "Withholding Tax %" = 0, "Taxable Base %" = 100
+        WithholdCode := CreateWithholdCodeWithLineAndRates(100, 0);
+        VendorNo := CreateVendorWithSocSecAndWithholdCodes(WithholdCode, '', '');
+        // [GIVEN] Posted purchase invoice
+        CreatePurchaseInvoiceWithAmount(PurchaseHeader, WorkDate(), VendorNo, 1, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        PurchaseHeader.Validate("Payment Method Code", CreatePaymentMethodWithBill());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Vendor Bill card with suggested vendor payment
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, PurchaseHeader."Payment Method Code");
+        LibraryITLocalization.CreateBillPostingGroup(
+          BillPostingGroup, VendorBillHeader."Bank Account No.", VendorBillHeader."Payment Method Code");
+        RunSuggestVendorBillsForVendorNo(VendorBillHeader, VendorNo);
+        // [GIVEN] Issue the Bill (Create List)
+        LibraryITLocalization.IssueVendorBill(VendorBillHeader);
+
+        // [WHEN] Post the Bill
+        LibraryITLocalization.PostIssuedVendorBill(VendorBillHeader);
+
+        // [THEN] Withholding Tax is created with "Withholding Tax Amount" = 0
+        FindWithholdingTax(WithholdingTax, VendorNo);
+        WithholdingTax.TestField("Total Amount");
+        WithholdingTax.TestField("Withholding Tax Amount", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2291,7 +2330,8 @@ codeunit 144090 "ERM Withhold"
         exit(ContributionBracket.Code);
     end;
 
-    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20];
+                                                                                                           Amount: Decimal)
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2319,7 +2359,8 @@ codeunit 144090 "ERM Withhold"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PricesIncludingVAT: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20];
+                                                                                                       PricesIncludingVAT: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2440,6 +2481,9 @@ codeunit 144090 "ERM Withhold"
         Bill: Record Bill;
     begin
         LibraryITLocalization.CreateBill(Bill);
+        Bill.Validate("Vendor Bill List", LibraryERM.CreateNoSeriesCode());
+        Bill.Validate("Vendor Bill No.", LibraryERM.CreateNoSeriesCode());
+        Bill.Modify(true);
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bill Code", Bill.Code);
         PaymentMethod.Modify(true);

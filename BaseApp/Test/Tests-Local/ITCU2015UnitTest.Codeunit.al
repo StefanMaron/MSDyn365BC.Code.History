@@ -23,6 +23,9 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WrongRecordFoundErr: Label 'Wrong record found.';
         EmptyFieldErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
         BaseExcludedAmountTotalErr: Label 'Base - Excluded Amount total on lines for Withholding Tax Entry No. = %1 must be equal to Base - Excluded Amount on the Withholding Tax card for that entry (%2).', Comment = '%1=Entry number,%2=Amount.';
+        IsInitialized: Boolean;
+        BlankedExceptionalEventErr: Label 'You must specify an exceptional event.';
+        CURTxt: Label 'CUR%1', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -740,6 +743,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WithholdingTaxCard.Close();
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure WithholdingTaxCardChangeNonTaxableIncomeTypeClearsLines()
@@ -774,14 +778,123 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // Cleanup
         WithholdingTaxCard.Close();
     end;
+#endif
+
+    [Test]
+    procedure ExceptionalEventMandatoryField()
+    var
+        WithholdingTaxExport: TestPage "Withholding Tax Export";
+    BEGIN
+        // [FEATURE] [UI]
+        // [SCENARIO 397347] Withholding Tax Export has a mandatory field "Exceptional Event" code
+        Initialize();
+
+        WithholdingTaxExport.OpenEdit();
+        WithholdingTaxExport."Signing Company Officials".SetValue(CreateCompanyOfficial());
+        WithholdingTaxExport."Exceptional Event".SetValue('');
+        asserterror WithholdingTaxExport.ExportFile.Invoke();
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(BlankedExceptionalEventErr);
+    end;
+
+    [Test]
+    procedure ForeignIndividualMaleVendor()
+    var
+        Vendor: Record Vendor;
+        CountryRegion: Record "Country/Region";
+        WithholdingTaxExport: Codeunit "Withholding Tax Export";
+        Date: Date;
+        ExceptionalEventCode: Code[10];
+        Filename: Text;
+    BEGIN
+        // [SCENARIO 397347] Foreign individual male vendor export
+        Initialize();
+
+        // [GIVEN] Foreign individual male person vendor with ISO country code = "123"
+        Vendor.Get(CreateVendor);
+        Vendor.TestField(Gender, Vendor.Gender::Male);
+        CountryRegion.Get(Vendor."Country/Region Code");
+        CountryRegion.TestField("ISO Numeric Code");
+
+        // [GIVEN] Withholding Tax for 2021 year
+        Date := DMY2Date(1, 1, LibraryRandom.RandIntInRange(2020, 2030));
+        CreateWithholdingTaxAndContributionEntry(Vendor."No.", ConstReason::A, 0, Date, Date);
+
+        // [WHEN] Export Withholding Tax using Year = "2021", Exceptional Event = "12"
+        ExceptionalEventCode := Format(LibraryRandom.RandIntInRange(10, 20));
+        Filename := TemporaryPath() + LibraryUtility.GenerateGUID() + '.dcm';
+        WithholdingTaxExport.SetServerFileName(Filename);
+        WithholdingTaxExport.Export(Date2DMY(Date, 3), CreateCompanyOfficial, 1, 0, ExceptionalEventCode);
+
+        // [THEN] Record A Field 3 = "CUR22"
+        // [THEN] Record B Field 17 = "12"
+        // [THEN] Record B Field 24 = "1"
+        // [THEN] Record D Field DA002004 = "M"
+        // [THEN] Record D Field DA002011 = "123"
+        LoadFile(Filename);
+        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(Date, 3) mod 100 + 1));
+        ValidateTextFileValue(2, 309, 2, ExceptionalEventCode);
+        ValidateTextFileValue(2, 402, 8, '00000001');
+        ValidateBlockValue(3, 'DA002004', ConstFormat::AN, 'M');
+        ValidateBlockValue(3, 'DA002011', ConstFormat::AN, CountryRegion."ISO Numeric Code");
+    end;
+
+    [Test]
+    procedure ForeignIndividualFemaleVendor()
+    var
+        Vendor: Record Vendor;
+    BEGIN
+        // [SCENARIO 397347] Foreign individual female vendor export
+        Initialize();
+
+        // [GIVEN] Foreign individual female person vendor
+        Vendor.Get(CreateVendor);
+        Vendor.Validate(Gender, Vendor.Gender::Female);
+        Vendor.Modify(true);
+
+        // [GIVEN] Withholding Tax
+        CreateWithholdingTaxAndContributionEntry(Vendor."No.", ConstReason::A, 0, WorkDate(), WorkDate());
+
+        // [WHEN] Export Withholding Tax
+        LoadFile(Export(CreateCompanyOfficial));
+
+        // [THEN] Record D Field DA002004 = "F"
+        ValidateBlockValue(3, 'DA002004', ConstFormat::AN, 'F');
+    end;
+
+    [Test]
+    procedure DomesticCompanyVendor()
+    var
+        Vendor: Record Vendor;
+    BEGIN
+        // [SCENARIO 397347] Domestic company vendor export
+        Initialize();
+
+        // [GIVEN] Domestic vendor with "Individual Person" = False
+        Vendor.Get(LibrarySpesometro.CreateVendor(false, Vendor.Resident::Resident, false, true));
+        Vendor.Validate("Country/Region Code", '');
+        Vendor.Modify();
+
+        CreateWithholdingTaxAndContributionEntry(Vendor."No.", ConstReason::A, 0, WorkDate(), WorkDate());
+
+        // [WHEN] Export Withholding Tax
+        LoadFile(Export(CreateCompanyOfficial));
+
+        // [THEN] Record D Field DA002004 is not exported
+        // [THEN] Record D Field DA002011 is not exported
+        ValidateBlockValue(3, 'DA002004', ConstFormat::AN, '');
+        ValidateBlockValue(3, 'DA002011', ConstFormat::AN, '');
+    end;
 
     local procedure Initialize()
     var
         WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxLine: Record "Withholding Tax Line";
         Contributions: Record Contributions;
-        IsInitialized: Boolean;
     begin
         WithholdingTax.DeleteAll();
+        WithholdingTaxLine.DeleteAll();
         Contributions.DeleteAll();
         CommunicationNumber := LibraryRandom.RandIntInRange(1, 99999999);
 
@@ -793,6 +906,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         CompanyInformation.County := LibraryUtility.GenerateGUID;
         CompanyInformation."Office Code" := 'abc';
         CompanyInformation.Modify();
+        Commit();
 
         IsInitialized := true;
     end;
@@ -850,7 +964,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
             if FindFirst then;
             "No." += LibraryUtility.GenerateGUID;
             "Fiscal Code" := LibraryUtility.GenerateGUID;
-            "Appointment Code" := LibrarySpesometro.CreateAppointmentCode;
+            "Appointment Code" := GetAppointmentCode();
             "First Name" := LibraryUtility.GenerateGUID;
             "Last Name" := LibraryUtility.GenerateGUID;
 
@@ -973,13 +1087,22 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WithholdingTax.Modify();
     end;
 
+    local procedure GetAppointmentCode(): Code[2];
+    var
+        AppointmentCode: Record "Appointment Code";
+    BEGIN
+        if AppointmentCode.FindFirst() then
+            exit(AppointmentCode.Code);
+        exit(LibrarySpesometro.CreateAppointmentCode());
+    end;
+
     local procedure Export(SigningCompanyOfficialNo: Code[20]) Filename: Text
     var
         WithholdingTaxExport: Codeunit "Withholding Tax Export";
     begin
         Filename := TemporaryPath + LibraryUtility.GenerateGUID + '.dcm';
         WithholdingTaxExport.SetServerFileName(Filename);
-        WithholdingTaxExport.Export(Date2DMY(WorkDate, 3), SigningCompanyOfficialNo, 1, CommunicationNumber);
+        WithholdingTaxExport.Export(Date2DMY(WorkDate, 3), SigningCompanyOfficialNo, 1, CommunicationNumber, '1');
     end;
 
     local procedure ExportCertificazioneUnica(): Text
@@ -992,7 +1115,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         Filename := TemporaryPath + LibraryUtility.GenerateGUID + '.dcm';
         WithholdingTaxExport.SetServerFileName(Filename);
-        WithholdingTaxExport.Export(Date2DMY(WorkDate, 3), SigningCompanyOfficialNo, 1, CommunicationNumber);
+        WithholdingTaxExport.Export(Date2DMY(WorkDate, 3), SigningCompanyOfficialNo, 1, CommunicationNumber, '1');
 
         exit(Filename);
     end;
@@ -1148,7 +1271,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // Validate A-Record
         ValidateTextFileValue(1, 1, 1, 'A');
 
-        ValidateTextFileValue(1, 16, 5, 'CUR21'); // TFS 390620
+        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(WorkDate(), 3) mod 100 + 1)); // TFS 397347
 
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then begin
             ValidateTextFileValue(1, 21, 2, '10');

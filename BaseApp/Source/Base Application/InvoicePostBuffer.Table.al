@@ -571,6 +571,7 @@
         "VAT Base Amount (ACY)" := TotalAmountACY;
         "VAT Amount (ACY)" := 0;
         "VAT Difference" := VATDifference;
+        OnAfterSetAmountsNoVAT(Rec, TotalAmount, TotalAmountACY, VATDifference);
     end;
 
     procedure PrepareService(var ServiceLine: Record "Service Line")
@@ -805,6 +806,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInvPostBufferUpdate(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var FromInvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAmountsNoVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer"; TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal)
     begin
     end;
 

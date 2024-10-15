@@ -260,7 +260,13 @@ report 12152 "Create Subcontr.Transf. Order"
     procedure ShowDocument()
     var
         TransfOrderForm: Page "Subcontr. Transfer Order";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDocument(TransferHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         Commit();
         TransferHeader.Reset();
         TransferHeader.SetRecFilter;
@@ -271,6 +277,11 @@ report 12152 "Create Subcontr.Transf. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTransferHeader(var TransferHeader: Record "Transfer Header"; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDocument(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }
