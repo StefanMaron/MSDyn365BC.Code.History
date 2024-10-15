@@ -36,6 +36,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceCommentLineExistError: Label '%1 for %2 %3 must not exist.';
         UnexpectedFilterErr: Label 'Unexpected filter for ServiceHeader."No." when opened from %1 page';
         ExistErr: Label '%1 for %2 must not exist.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the Report.', Comment = '%1 = Field Caption , %2 = Expected Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -1249,6 +1250,38 @@ codeunit 136112 "Working On Service Orders"
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
 
         ServiceLine.TestField("No.", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostServiceOrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifySelectedServiceOrdersExposedIntoPostBatch()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceOrders: TestPage "Service Orders";
+    begin
+        // [SCENARIO 474287] Verify the selected Service Order should populate in the "Post Batch" report.
+        Initialize();
+
+        // [GIVEN] Create a Service Header.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Save the transaction.
+        Commit();
+
+        // [GIVEN] Open a Service Orders.
+        ServiceOrders.OpenEdit();
+        ServiceOrders.GoToRecord(ServiceHeader);
+
+        // [WHEN] Post Batch Service Orders.
+        ServiceOrders.PostBatch.Invoke();
+        ServiceOrders.Close();
+
+        // [Verify] Verify: The selected Service Order should populate in the "Post Batch" report.
+        Assert.AreEqual(
+            ServiceHeader."No.",
+            LibraryVariableStorage.DequeueText(),
+            StrSubstNo(ValueMustBeEqualErr, ServiceHeader.FieldCaption("No."), ServiceHeader."No."));
     end;
 
     local procedure Initialize()

@@ -77,7 +77,7 @@ codeunit 144050 "ERM Finance Reports"
     var
         VATEntry: Record "VAT Entry";
     begin
-        // Verify error for blank Posting Date on VAT-Vies Declaration Tax - DE Report.
+        // Verify error for blank VAT Reporting Date on VAT-Vies Declaration Tax - DE Report.
 
         // Setup.
         Initialize();
@@ -86,8 +86,8 @@ codeunit 144050 "ERM Finance Reports"
         // Exercise.
         asserterror REPORT.Run(REPORT::"VAT-Vies Declaration Tax - DE");
 
-        // Verify: Verify error for blank Posting Date.
-        Assert.ExpectedError(StrSubstNo(PostingDateError, VATEntry.FieldCaption("Posting Date"), VATEntry.TableCaption()));
+        // Verify: Verify error for blank VAT Reporting Date.
+        Assert.ExpectedError(StrSubstNo(PostingDateError, VATEntry.FieldCaption("VAT Reporting Date"), VATEntry.TableCaption()));
     end;
 
     [Test]
@@ -621,7 +621,7 @@ codeunit 144050 "ERM Finance Reports"
     begin
         VATViesDeclarationTaxDE.RepPeriod.SetValue(RepPeriod::January);  // Setting value for control 'Reporting Period'.
         VATViesDeclarationTaxDE.DateSignature.SetValue(WorkDate());  // Setting value for control 'Date of Signature'.
-        VATViesDeclarationTaxDE."VAT Entry".SetFilter("Posting Date", Format(0D));
+        VATViesDeclarationTaxDE."VAT Entry".SetFilter("VAT Reporting Date", Format(0D));
         VATViesDeclarationTaxDE.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

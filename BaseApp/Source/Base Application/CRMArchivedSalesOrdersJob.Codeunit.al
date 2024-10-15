@@ -63,7 +63,8 @@ codeunit 5366 "CRM Archived Sales Orders Job"
                                 CRMIntegrationRecord2.GetBySystemId(CRMIntegrationRecord.SystemId);
                                 CRMIntegrationRecord2."Archived Sales Order Updated" := true;
                                 CRMIntegrationRecord2.Modify();
-                                SetCRMSalesOrderStateAsInvoiced(CRMSalesorder);
+                                if SalesHeaderArchive.Invoice then
+                                    SetCRMSalesOrderStateAsInvoiced(CRMSalesorder);
                             end;
                     end;
             until CRMIntegrationRecord.Next() = 0;

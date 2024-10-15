@@ -86,6 +86,11 @@ table 233 "Item Journal Batch"
         field(6500; "Item Tracking on Lines"; Boolean)
         {
             Caption = 'Item Tracking on Lines';
+
+            trigger OnValidate()
+            begin
+                TestField("Template Type", "Template Type"::Item);
+            end;
         }
     }
 

@@ -72,6 +72,9 @@
       "path": "./Email - Outlook REST API/Test"
     },
     {
+      "path": "./ErrorMessagesWithRecommendations/test/Error Messages with Recommendations Tests"
+    },
+    {
       "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {

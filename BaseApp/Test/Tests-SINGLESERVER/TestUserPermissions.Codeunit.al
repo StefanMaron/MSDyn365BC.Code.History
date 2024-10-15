@@ -459,6 +459,7 @@ codeunit 134610 "Test User Permissions"
     begin
         // Test page 9816 which is a 'matrix'-like presentation of permission sets by users.
         // Init
+        AssignSuperToCurrentUser();
         CreateUsersAndPermissionSets();
         LibraryPermissions.GetMyUser(User);
 
@@ -529,6 +530,7 @@ codeunit 134610 "Test User Permissions"
         // Execute
         LibraryVariableStorage.Enqueue(CopyToPermissionSet);
 
+        AssignSuperToCurrentUser();
         PermissionSetbyUser.OpenEdit;
         PermissionSetbyUser.First;
         PermissionSetbyUser.CopyPermissionSet.Invoke;
@@ -562,6 +564,7 @@ codeunit 134610 "Test User Permissions"
         CreateUsersUserGroupsPermissionSets();
         UserGroup.FindFirst();
         LibraryPermissions.GetMyUser(User);
+        AssignSuperToCurrentUser();
 
         // Execute
         PermissionSetbyUserGroup.OpenEdit;
@@ -667,6 +670,7 @@ codeunit 134610 "Test User Permissions"
         LibraryPermissions.AddUserToPlan(User."User Security ID", PlanID);
 
         // Execute
+        AssignSuperToCurrentUser();
         UserbyUserGroup.OpenEdit;
         UserbyUserGroup.SelectedCompany.SetValue(CompanyName);
         MoreRecords := UserbyUserGroup.First;
@@ -1699,6 +1703,19 @@ codeunit 134610 "Test User Permissions"
     begin
         OutStream.WriteText(Text);
         OutStream.WriteText;
+    end;
+
+    local procedure AssignSuperToCurrentUser()
+    var
+        AccessControl: Record "Access Control";
+    begin
+        AccessControl.SetRange("User Security ID", UserSecurityId());
+        AccessControl.SetRange("Role ID", 'SUPER');
+        if not AccessControl.IsEmpty() then
+            exit;
+        AccessControl."User Security ID" := UserSecurityId();
+        AccessControl."Role ID" := 'SUPER';
+        AccessControl.Insert(true);
     end;
 
     [ModalPageHandler]

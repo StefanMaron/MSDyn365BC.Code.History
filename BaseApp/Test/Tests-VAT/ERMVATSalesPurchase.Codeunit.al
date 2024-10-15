@@ -1,4 +1,4 @@
-codeunit 134045 "ERM VAT Sales/Purchase"
+﻿codeunit 134045 "ERM VAT Sales/Purchase"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -41,6 +41,20 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATReturnPeriodFromClosedErr: Label 'VAT Entry is in a closed VAT Return Period and can not be changed.';
         PostingDateOutOfPostingDatesErr: Label 'VAT Date is not within your range of allowed posting dates';
         VATEntrySettlementChangeErr: Label 'You cannot change the contents of this field when %1 is %2.';
+
+    [Test]
+    procedure VerifyVATDateEqualsToPostingDate()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        Initialize();
+
+        SalesHeader.Init();
+        SalesHeader.Validate("Posting Date", WorkDate());
+
+        // verify after validating Posting Date, the VAT Date is the same as Posting Date
+        Assert.AreEqual(SalesHeader."Posting Date", SalesHeader."VAT Reporting Date", 'VAT Date should be the same Posting Date by default');
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -3585,7 +3599,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [SCENARIO 466417] Restricting VAT Date change from closed period
         Initialize();
         CleanVATReturnPeriod();
-        
+
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::"Block posting within closed and warn for released period";
         GeneralLedgerSetup.Modify();
@@ -3645,7 +3659,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PostType := Enum::"General Posting Type"::Sale;
         DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
         SalesInvHeader.Get(DocNo);
-        
+
         VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
         CreateVATReturnPeriod(VATReturnPeriod.Status::Closed, VATReportHeader.Status::Open, WorkDate(), WorkDate() + 1);
         CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate() + 2, WorkDate() + 3);
@@ -3743,11 +3757,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesInvHeader: Record "Sales Invoice Header";
         VATReturnPeriod: Record "VAT Return Period";
         VATReportHeader: Record "VAT Report Header";
-        VATEntry, VATEntry2: Record "VAT Entry";
+        VATEntry, VATEntry2 : Record "VAT Entry";
         VATEntryPage: TestPage "VAT Entries";
         DocNo: Code[20];
         VATDate, NewVATDate : Date;
-        VATEntryNo, VATEntryNo2: Integer;
+        VATEntryNo, VATEntryNo2 : Integer;
         DocType: Enum "Gen. Journal Document Type";
         PostType: Enum "General Posting Type";
     begin
@@ -3785,7 +3799,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATEntryPage.First();
         asserterror VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
         Assert.ExpectedError(StrSubstNo(VATEntrySettlementChangeErr, VATEntry.FieldCaption(Type), VATEntry.Type));
-        
+
         // [THEN] Then related entry is not changed
         VATEntry2.Reset();
         VATEntry2.Get(VATEntryNo2);
@@ -4859,7 +4873,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
         assert.ExpectedError(PostingDateOutOfPostingDatesErr);
     end;
-    
+
     [Test]
     procedure PostShipSalesDocOutOfAllowedPostingPeriod()
     var
@@ -5379,15 +5393,15 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATReportHeader: Record "VAT Report Header";
         Random: Codeunit "Library - Random";
     begin
-        
+
         VATReportHeader."No." := Random.RandText(20);
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VIES";
         VATReportHeader.Status := VATReportHeaderStatus;
         VATReportHeader.Insert();
 
         VATReturnPeriod.Init();
-        VATReturnPeriod."No." := VATReportHeader."No."; 
-        VATReturnPeriod."VAT Return No." := VATReportHeader."No."; 
+        VATReturnPeriod."No." := VATReportHeader."No.";
+        VATReturnPeriod."VAT Return No." := VATReportHeader."No.";
         VATReturnPeriod."Start Date" := StartDate;
         VATReturnPeriod."End Date" := EndDate;
         VATReturnPeriod.Status := VATReturnPeriodStatus;

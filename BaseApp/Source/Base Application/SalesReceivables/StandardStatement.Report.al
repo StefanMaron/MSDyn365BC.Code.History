@@ -326,7 +326,6 @@ report 1316 "Standard Statement"
                                     NumberOfCustLedgerEntryLines += 1;
                                     CustBalance := CustBalance + Amount;
                                     IsNewCustCurrencyGroup := IsFirstPrintLine;
-                                    IsFirstPrintLine := false;
                                     ClearCompanyPicture();
                                 end;
                             end;
@@ -694,6 +693,8 @@ report 1316 "Standard Statement"
                 FormatAddr.Customer(CustAddr, Customer);
                 PrintedCustomersList.Add("No.");
 
+                UpdatePictures();
+                FirstRecordPrinted := false;
                 IsFirstLoop := false;
             end;
 
@@ -868,8 +869,8 @@ report 1316 "Standard Statement"
                         field(PrintMissingAddresses; PrintIfEmailIsMissing)
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Print Although Email is Missing';
-                            ToolTip = 'Specifies if you want to print also the statements for customers that have not been set up with a send-to email address.';
+                            Caption = 'Print Although Email is Missing or Invalid';
+                            ToolTip = 'Specifies if you want to print also the statements for customers that have not been set up with a send-to email address or defined send-to email address is invalid.';
                         }
                     }
                 }
@@ -897,26 +898,21 @@ report 1316 "Standard Statement"
     begin
         GLSetup.Get();
         SalesSetup.Get();
-
+        SavedCompanyInfo.SetAutoCalcFields(Picture);
+        SavedCompanyInfo1.SetAutoCalcFields(Picture);
+        SavedCompanyInfo2.SetAutoCalcFields(Picture);
+        SavedCompanyInfo3.SetAutoCalcFields(Picture);
+        SavedCompanyInfo.Get();
         case SalesSetup."Logo Position on Documents" of
-            SalesSetup."Logo Position on Documents"::"No Logo":
-                ;
             SalesSetup."Logo Position on Documents"::Left:
-                begin
-                    CompanyInfo1.Get();
-                    CompanyInfo1.CalcFields(Picture);
-                end;
+                SavedCompanyInfo1.Get();
             SalesSetup."Logo Position on Documents"::Center:
-                begin
-                    CompanyInfo2.Get();
-                    CompanyInfo2.CalcFields(Picture);
-                end;
+                SavedCompanyInfo2.Get();
             SalesSetup."Logo Position on Documents"::Right:
-                begin
-                    CompanyInfo3.Get();
-                    CompanyInfo3.CalcFields(Picture);
-                end;
+                SavedCompanyInfo3.Get();
         end;
+
+        UpdatePictures();
 
         LogInteractionEnable := true;
     end;
@@ -952,6 +948,10 @@ report 1316 "Standard Statement"
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
+        SavedCompanyInfo: Record "Company Information";
+        SavedCompanyInfo1: Record "Company Information";
+        SavedCompanyInfo2: Record "Company Information";
+        SavedCompanyInfo3: Record "Company Information";
         Cust2: Record Customer;
         TempCurrency2: Record Currency temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -1057,6 +1057,14 @@ report 1316 "Standard Statement"
             exit(PostingDate);
 
         exit(DueDate);
+    end;
+
+    local procedure UpdatePictures()
+    begin
+        CompanyInfo.Picture := SavedCompanyInfo.Picture;
+        CompanyInfo1.Picture := SavedCompanyInfo1.Picture;
+        CompanyInfo2.Picture := SavedCompanyInfo2.Picture;
+        CompanyInfo3.Picture := SavedCompanyInfo3.Picture;
     end;
 
     local procedure CalcAgingBandDates()

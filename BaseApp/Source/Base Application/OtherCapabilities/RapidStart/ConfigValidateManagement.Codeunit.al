@@ -299,19 +299,33 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToDate(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
+        DotNetDecimal: DotNet Decimal;
+        DotNetCultureInfo: DotNet CultureInfo;
+        DotNetNumberStyles: DotNet NumberStyles;
         Date: Date;
         ZeroDate: Date;
         Decimal: Decimal;
+        IsDateEvaluated: Boolean;
     begin
+        // Try parsing as OADate (which Excel uses for date-times)
         ZeroDate := 0D;
-        if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
-            if not Evaluate(Decimal, Value) or not (Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) and (Date <> ZeroDate)) then
-                exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Date)));
+        if DotNetDecimal.TryParse(Value, DotNetNumberStyles.Float, DotNetCultureInfo.InvariantCulture, Decimal) then
+            if Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) then
+                if (Date <> ZeroDate) then
+                    IsDateEvaluated := true;
 
-        if Validate then
-            FieldRef.Validate(Date)
-        else
-            FieldRef.Value := Date;
+        // Try parsing as text
+        if not IsDateEvaluated then
+            if Evaluate(Date, Value) or Evaluate(Date, Value, XMLFormat()) then
+                IsDateEvaluated := true;
+
+        if IsDateEvaluated then begin
+            if Validate then
+                FieldRef.Validate(Date)
+            else
+                FieldRef.Value := Date;
+        end else
+            exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Date)));
     end;
 
     local procedure EvaluateValueToDateFormula(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
