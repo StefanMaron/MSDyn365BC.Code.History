@@ -1984,6 +1984,39 @@ codeunit 134476 "ERM Dimension Purchase"
         Assert.ExpectedError(StrSubstNo(MissingDimensionErr, DimensionValue."Dimension Code", Currency."Realized Gains Acc."));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseInvoiceChangeDimension()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        PostedInvoiceNo: Code[20];
+        InvDate: Date;
+    begin
+        // [SCENARIO 496433] When changing global dimension value code and posting a purchase invoice with the new value it gets posted with the old value
+        Initialize();
+
+        // [GIVEN] Create Dimension, Dimension Value and Change Global Dimension 1 Code with newly created dimension
+        CreateDimensionAndRunChangeGlobalDimension(Dimension, DimensionValue);
+        InvDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
+
+        // [GIVEN] Create Vendor and Item
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+
+        // [THEN] Create and post Purchase Invoice when Dimension Value Code set to Purchase Line with Initial Value
+        PostedInvoiceNo := CreateAndPostPurchaseInvoice(InvDate, Vendor."No.", Item."No.", DimensionValue.Code);
+
+        // [WHEN] Copy and Post Purchase Invoice, after changing Dimension Value Code to New Value.
+        PostedInvoiceNo := CreateCopyAndPostPurchaseInvoiceWithDimensionValueRename(InvDate, Vendor."No.", Item."No.", Dimension.Code, DimensionValue, PostedInvoiceNo);
+
+        // [VERIFY] Verify: Correct Dimension Flowed on newly Posted Purchase Invoice
+        VerifyPostedPurchaseInvoiceLineContainsNewDimensionValue(PostedInvoiceNo, Item."No.", DimensionValue.Code);
+        VerifyPostedGLEntryContainsNewDimensionValue(PostedInvoiceNo, DimensionValue.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3014,6 +3047,104 @@ codeunit 134476 "ERM Dimension Purchase"
         CurrencyExchangeRate.Validate(
           "Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount" + LibraryRandom.RandDec(100, 2));
         CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure CreateDimensionAndRunChangeGlobalDimension(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        LibraryDimension.RunChangeGlobalDimensions(Dimension.Code, GeneralLedgerSetup."Global Dimension 2 Code");
+    end;
+
+    local procedure CreateAndPostPurchaseInvoice(InvDate: Date; VendorNo: Code[20]; ItemNo: Code[20]; DimensionValueCode: Code[20]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Posting Date", InvDate);
+        PurchaseHeader.Validate("Document Date", InvDate);
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Shortcut Dimension 1 Code", DimensionValueCode);
+        PurchaseLine.Modify(true);
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateCopyAndPostPurchaseInvoiceWithDimensionValueRename(InvDate: Date; VendorNo: Code[20]; ItemNo: Code[20]; DimensionCode: Code[20]; var DimensionValue: Record "Dimension Value"; DocumentNo: Code[20]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Posting Date", InvDate);
+        PurchaseHeader.Validate("Document Date", InvDate);
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+
+        RunCopyPurchaseDoc(DocumentNo, PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", false, true);
+
+        DimensionValue.Get(DimensionCode, DimensionValue.Code);
+        DimensionValue.Rename(DimensionCode, UpperCase(LibraryRandom.RandText(10)));
+
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("No.", ItemNo);
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        PurchaseLine.Modify(true);
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure RunCopyPurchaseDoc(
+        DocumentNo: Code[20];
+        NewPurchHeader: Record "Purchase Header";
+        DocType: Enum "Purchase Document Type From";
+        IncludeHeader: Boolean;
+        RecalculateLines: Boolean)
+    var
+        CopyPurchDoc: Report "Copy Purchase Document";
+    begin
+        Clear(CopyPurchDoc);
+        CopyPurchDoc.SetParameters(DocType, DocumentNo, IncludeHeader, RecalculateLines);
+        CopyPurchDoc.SetPurchHeader(NewPurchHeader);
+        CopyPurchDoc.UseRequestPage(false);
+        CopyPurchDoc.RunModal();
+    end;
+
+    local procedure VerifyPostedPurchaseInvoiceLineContainsNewDimensionValue(PostedInvoiceNo: Code[20]; ItemNo: Code[20]; DimensionValueCode: Code[20])
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+    begin
+        PurchInvLine.SetRange("Document No.", PostedInvoiceNo);
+        PurchInvLine.SetRange("No.", ItemNo);
+        PurchInvLine.FindFirst();
+        Assert.AreEqual(
+            DimensionValueCode,
+            PurchInvLine."Shortcut Dimension 1 Code",
+            StrSubstNo(DimensionValueCodeError, DimensionValueCode, PurchInvLine.FieldCaption("Shortcut Dimension 1 Code")));
+    end;
+
+    local procedure VerifyPostedGLEntryContainsNewDimensionValue(PostedInvoiceNo: Code[20]; DimensionValueCode: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", PostedInvoiceNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetFilter("Global Dimension 1 Code", '<>%1', '');
+        GLEntry.FindFirst();
+        Assert.AreEqual(
+            DimensionValueCode,
+            GLEntry."Global Dimension 1 Code",
+            StrSubstNo(DimensionValueCodeError, DimensionValueCode, GLEntry.FieldCaption("Global Dimension 1 Code")));
     end;
 
     [ConfirmHandler]
