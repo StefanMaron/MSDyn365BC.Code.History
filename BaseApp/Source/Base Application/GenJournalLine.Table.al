@@ -2833,6 +2833,10 @@
             OptionCaption = ' ,Acquisition,Self Assessment,Rebate,New Housing Rebates,Pension Rebate';
             OptionMembers = " ",Acquisition,"Self Assessment",Rebate,"New Housing Rebates","Pension Rebate";
         }
+        field(10046; "EFT Export Sequence No."; Integer)
+        {
+            Caption = 'EFT Export Sequence No.';
+        }
         field(27040; "DIOT-Type of Operation"; Option)
         {
             Caption = 'DIOT Type of Operation';

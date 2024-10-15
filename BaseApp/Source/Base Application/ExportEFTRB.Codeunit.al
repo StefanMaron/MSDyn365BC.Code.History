@@ -89,7 +89,8 @@ codeunit 10095 "Export EFT (RB)"
 
                 "Last ACH File ID Modifier" := DummyModifierValues[i];
             end;
-            "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
+            if not EFTValues.IsSetFileCreationNumber() then
+                "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
             Modify;
 
             if Exists(FileName) then
@@ -101,6 +102,7 @@ codeunit 10095 "Export EFT (RB)"
             EFTValues.SetTotalFileDebit(0);
             EFTValues.SetTotalFileCredit(0);
             EFTValues.SetTransactions(0);
+            EFTValues.SetFileCreationNumber("Last E-Pay File Creation No.");
             FedID := CompanyInformation."Federal ID No.";
 
             if TempEFTExportWorkset."Currency Code" = '' then begin
@@ -174,6 +176,7 @@ codeunit 10095 "Export EFT (RB)"
         ACHRBFooter."Total File Credit" := EFTValues.GetTotalFileCredit;
         ACHRBFooter."Zero Fill" := 0;
         ACHRBFooter."Number of Cust Info Records" := EFTValues.GetNoOfCustInfoRec;
+        ACHRBFooter."File Creation Number" := EFTValues.GetFileCreationNumber();
         OnBeforeACHRBFooterModify(ACHRBFooter, BankAccount."No.");
         ACHRBFooter.Modify;
 
@@ -293,7 +296,6 @@ codeunit 10095 "Export EFT (RB)"
         RecipientBankAcctCountryCode := CustomerBankAccount."Country/Region Code"
     end;
 
-    [Scope('OnPrem')]
     procedure JulianDate(NormalDate: Date): Integer
     var
         Year: Integer;
@@ -301,7 +303,7 @@ codeunit 10095 "Export EFT (RB)"
     begin
         Year := Date2DMY(NormalDate, 3);
         Days := (NormalDate - DMY2Date(1, 1, Year)) + 1;
-        exit(Year * 1000 + Days);
+        exit((Year mod 100) * 1000 + Days);
     end;
 
     local procedure WriteRecord(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; PaymentAmount: Decimal; SettleDate: Date; DataExchEntryNo: Integer; DataExchLineDefCode: Code[20]; IsParent: Boolean; var EFTValues: Codeunit "EFT Values")
@@ -324,6 +326,11 @@ codeunit 10095 "Export EFT (RB)"
             ACHRBDetail."Customer/Vendor Number" := AcctNo;
             ACHRBDetail."Vendor/Customer Name" := AcctName;
             ACHRBDetail."Payment Number" := PaymentsThisAcct;
+            ACHRBDetail."Document No." := "Document No.";
+            ACHRBDetail."External Document No." := "External Document No.";
+            ACHRBDetail."Applies-to Doc. No." := "Applies-to Doc. No.";
+            ACHRBDetail."Payment Reference" := "Payment Reference";
+            ACHRBDetail."File Creation Number" := EFTValues.GetFileCreationNumber();
 
             if RecipientBankAcctCountryCode = 'CA' then begin
                 ACHRBDetail."Bank No." := RecipientBankNo;

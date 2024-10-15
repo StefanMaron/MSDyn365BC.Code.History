@@ -317,7 +317,13 @@ codeunit 10097 "Export EFT (IAT)"
         // Addenda Record 7
         ACHUSDetail."Destination City County Code" := DestinationCity + '*' + DestinationCounty + '\';
         ACHUSDetail."Destination CntryCode PostCode" := DestinationCountryCode + '*' + DestinationPostCode + '\';
-        ACHUSDetail.Modify;
+
+        ACHUSDetail."Document No." := TempEFTExportWorkset."Document No.";
+        ACHUSDetail."External Document No." := TempEFTExportWorkset."External Document No.";
+        ACHUSDetail."Applies-to Doc. No." := TempEFTExportWorkset."Applies-to Doc. No.";
+        ACHUSDetail."Payment Reference" := TempEFTExportWorkset."Payment Reference";
+        OnBeforeACHUSDetailModify(ACHUSDetail, TempEFTExportWorkset, BankAccount."No.");
+        ACHUSDetail.Modify();
 
         if EFTValues.GetParentBoolean then begin
             EFTValues.SetNoOfRec := (EFTValues.GetNoOfRec + 1);
@@ -565,6 +571,11 @@ codeunit 10097 "Export EFT (IAT)"
                     DestinationBankCountryCode := CustomerBankAccount."Country/Region Code";
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeACHUSDetailModify(var ACHUSDetail: Record "ACH US Detail"; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; BankAccNo: Code[20])
+    begin
     end;
 }
 

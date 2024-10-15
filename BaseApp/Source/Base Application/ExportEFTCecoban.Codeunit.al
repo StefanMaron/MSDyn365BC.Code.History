@@ -44,7 +44,8 @@ codeunit 10096 "Export EFT (Cecoban)"
             FileName := '';
             "Last E-Pay Export File Name" := IncStr("Last E-Pay Export File Name");
             FileName := FileManagement.ServerTempFileName('');
-            "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
+            if not EFTValues.IsSetFileCreationNumber() then
+                "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
             Modify;
 
             if Exists(FileName) then
@@ -58,6 +59,7 @@ codeunit 10096 "Export EFT (Cecoban)"
             EFTValues.SetFileEntryAddendaCount(0);
             EFTValues.SetBatchCount(0);
             EFTValues.SetBatchNo(0);
+            EFTValues.SetFileCreationNumber("Last E-Pay File Creation No.");
         end;
     end;
 
@@ -229,7 +231,12 @@ codeunit 10096 "Export EFT (Cecoban)"
         ACHCecobanDetail."Tracking Code" := ExportEFTACH.GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
         ACHCecobanDetail."Return Reason" := 0;
         ACHCecobanDetail."Initial Presentation Date" := Today;
-        ACHCecobanDetail.Modify;
+        ACHCecobanDetail."Document No." := TempEFTExportWorkset."Document No.";
+        ACHCecobanDetail."External Document No." := TempEFTExportWorkset."External Document No.";
+        ACHCecobanDetail."Applies-to Doc. No." := TempEFTExportWorkset."Applies-to Doc. No.";
+        ACHCecobanDetail."Payment Reference" := TempEFTExportWorkset."Payment Reference";
+        OnBeforeACHCecobanDetailModify(ACHCecobanDetail, TempEFTExportWorkset, BankAccount."No.");
+        ACHCecobanDetail.Modify();
 
         exit(GenerateFullTraceNoCode(EFTValues.GetTraceNo));
     end;
@@ -304,6 +311,11 @@ codeunit 10096 "Export EFT (Cecoban)"
             exit(HashAmt);
 
         exit(0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeACHCecobanDetailModify(var ACHCecobanDetail: Record "ACH Cecoban Detail"; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; BankAccNo: Code[20])
+    begin
     end;
 }
 

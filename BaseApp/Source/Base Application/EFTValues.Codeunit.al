@@ -26,6 +26,8 @@ codeunit 10340 "EFT Values"
         ParentDefCode: Code[20];
         EFTFileIsCreated: Boolean;
         IATFileIsCreated: Boolean;
+        FileCreationNumber: Integer;
+        IsFileCreationNumber: Boolean;
 
     [Scope('OnPrem')]
     procedure GetSequenceNo() SequenceNo: Integer
@@ -274,6 +276,25 @@ codeunit 10340 "EFT Values"
     procedure SetEFTFileCreated(SetEFTFile: Boolean)
     begin
         EFTFileIsCreated := SetEFTFile;
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetFileCreationNumber(): Integer
+    begin
+        exit(FileCreationNumber);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetFileCreationNumber(NewFileCreationNumber: Integer)
+    begin
+        FileCreationNumber := NewFileCreationNumber;
+        IsFileCreationNumber := true;
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsSetFileCreationNumber(): Boolean
+    begin
+        exit(IsFileCreationNumber);
     end;
 }
 

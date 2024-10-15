@@ -123,6 +123,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
     var
         ReportSelections: Record "Report Selections";
         GenJournalLine: Record "Gen. Journal Line";
+        EFTExport: Record "EFT Export";
         BankAccountNo: Code[20];
         GenJournalLineBankAccount: Code[20];
         OptionText: Text;
@@ -148,9 +149,8 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                                 GenJournalLineBankAccount := GenJournalLine."Bal. Account No.";
 
                             if ProcessLine(GenJournalLine) and (BankAccountNo = GenJournalLineBankAccount) then begin
-                                UpdateCheckInfoForGenLedgLine(GenJournalLine);
-
-                                CreateEFTRecord(GenJournalLine, BankAccountNo);
+                                CreateEFTRecord(EFTExport, GenJournalLine, BankAccountNo);
+                                UpdateCheckInfoForGenLedgLine(GenJournalLine, EFTExport);
 
                                 CreateCreditTransferRegister(BankAccountNo, GenJournalLine."Bal. Account No.", BankPaymentType);
                             end;
@@ -170,9 +170,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
             Error(VendRemittanceReportSelectionErr);
     end;
 
-    local procedure CreateEFTRecord(GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
-    var
-        EFTExport: Record "EFT Export";
+    local procedure CreateEFTRecord(var EFTExport: Record "EFT Export"; GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
     begin
         with GenJournalLine do begin
             EFTExport.Init;
@@ -196,9 +194,9 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
             EFTExport."Bal. Account Type" := "Bal. Account Type";
             EFTExport."Applies-to Doc. Type" := "Applies-to Doc. Type";
             EFTExport."Applies-to Doc. No." := "Applies-to Doc. No.";
-            EFTExport."Check Exported" := "Check Exported";
-            EFTExport."Check Printed" := "Check Printed";
-            EFTExport."Exported to Payment File" := "Exported to Payment File";
+            EFTExport."Check Exported" := true;
+            EFTExport."Check Printed" := true;
+            EFTExport."Exported to Payment File" := true;
             EFTExport."Amount (LCY)" := "Amount (LCY)";
             EFTExport."Foreign Exchange Reference" := "Foreign Exchange Reference";
             EFTExport."Foreign Exchange Indicator" := "Foreign Exchange Indicator";
@@ -215,16 +213,19 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
             EFTExport."Receiv. DFI ID Qualifier" := "Receiv. DFI ID Qualifier";
             EFTExport."Document Date" := "Document Date";
             EFTExport."Document No." := "Document No.";
+            EFTExport."External Document No." := "External Document No.";
+            EFTExport."Payment Reference" := "Payment Reference";
 
             EFTExport.Insert;
         end;
     end;
 
-    local procedure UpdateCheckInfoForGenLedgLine(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure UpdateCheckInfoForGenLedgLine(var GenJournalLine: Record "Gen. Journal Line"; EFTExport: Record "EFT Export")
     begin
         GenJournalLine."Check Printed" := true;
         GenJournalLine."Check Exported" := true;
         GenJournalLine."Exported to Payment File" := true;
+        GenJournalLine."EFT Export Sequence No." := EFTExport."Sequence No.";
 
         GenJournalLine.Modify;
     end;

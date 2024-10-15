@@ -650,7 +650,7 @@ report 1306 "Standard Sales - Invoice"
                         VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                     VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                     VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                    VATAmountLine.InsertLine;
+                    VATAmountLine.InsertLine();
 
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";

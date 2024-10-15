@@ -69,7 +69,8 @@ codeunit 10094 "Export EFT (ACH)"
                     i := i + 1;
                 "Last ACH File ID Modifier" := ModifierValues[i];
             end;
-            "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
+            if not EFTValues.IsSetFileCreationNumber() then
+                "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
             Modify;
 
             if Exists(FileName) then
@@ -83,6 +84,7 @@ codeunit 10094 "Export EFT (ACH)"
             EFTValues.SetFileEntryAddendaCount(0);
             EFTValues.SetBatchCount(0);
             EFTValues.SetBatchNo(0);
+            EFTValues.SetFileCreationNumber("Last E-Pay File Creation No.");
             BlockingFactor := 10;
             RecordLength := 94;
 
@@ -267,6 +269,12 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSDetail."Trace Number" := GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
         ACHUSDetail."Entry Detail Sequence No" :=
             StringConversionManagement.GetPaddedString(Format(EFTValues.GetTraceNo), 7, '0', Justification::Right);
+
+        ACHUSDetail."Document No." := TempEFTExportWorkset."Document No.";
+        ACHUSDetail."External Document No." := TempEFTExportWorkset."External Document No.";
+        ACHUSDetail."Applies-to Doc. No." := TempEFTExportWorkset."Applies-to Doc. No.";
+        ACHUSDetail."Payment Reference" := TempEFTExportWorkset."Payment Reference";
+        OnBeforeACHUSDetailModify(ACHUSDetail, TempEFTExportWorkset, BankAccount."No.");
         ACHUSDetail.Modify();
 
         TempEFTExportWorkset.TraceNumber := GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
@@ -469,6 +477,11 @@ codeunit 10094 "Export EFT (ACH)"
     local procedure TryDeleteFile(FileName: Text)
     begin
         FileManagement.DeleteServerFile(FileName);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeACHUSDetailModify(var ACHUSDetail: Record "ACH US Detail"; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; BankAccNo: Code[20])
+    begin
     end;
 }
 

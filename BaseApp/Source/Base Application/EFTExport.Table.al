@@ -66,6 +66,14 @@ table 10810 "EFT Export"
         {
             Caption = 'Account No.';
         }
+        field(15; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
+        }
+        field(16; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
         field(21; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
@@ -213,5 +221,19 @@ table 10810 "EFT Export"
     fieldgroups
     {
     }
+
+    trigger OnDelete()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJournalLine.SetRange("Line No.", "Line No.");
+        GenJournalLine.SetRange("EFT Export Sequence No.", "Sequence No.");
+        if GenJournalLine.FindFirst() then begin
+            GenJournalLine."EFT Export Sequence No." := 0;
+            GenJournalLine.Modify();
+        end;
+    end;
 }
 

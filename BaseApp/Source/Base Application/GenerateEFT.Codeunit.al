@@ -51,7 +51,7 @@ codeunit 10098 "Generate EFT"
 
         EFTValues.SetParentDefCode('');
 
-        TempEFTExportWorkset.Reset;
+        TempEFTExportWorkset.Reset();
         TempEFTExportWorkset.SetRange("Bank Payment Type", 4, 4);
         if TempEFTExportWorkset.FindFirst then
             StartEFTProcess(SettlementDate, TempEFTExportWorkset, EFTValues);
@@ -73,10 +73,9 @@ codeunit 10098 "Generate EFT"
             exit;
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField(Blocked, false);
-            TestField("Currency Code", '');  // local currency only
             TestField("Export Format");
             TestField("Last Remittance Advice No.");
         end;
@@ -99,16 +98,17 @@ codeunit 10098 "Generate EFT"
             end;
     end;
 
-    local procedure SetGenJrnlCheckTransmitted(JournalTemplateName: Code[10]; JournalBatchName: Code[10]; LineNo: Integer)
+    local procedure SetGenJrnlCheckTransmitted(EFTExportWorkset: Record "EFT Export Workset")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
-        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        GenJournalLine.SetRange("Line No.", LineNo);
+        GenJournalLine.SetRange("Journal Template Name", EFTExportWorkset."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", EFTExportWorkset."Journal Batch Name");
+        GenJournalLine.SetRange("Line No.", EFTExportWorkset."Line No.");
+        GenJournalLine.SetRange("EFT Export Sequence No.", EFTExportWorkset."Sequence No.");
         if GenJournalLine.FindFirst then begin
             GenJournalLine."Check Transmitted" := true;
-            GenJournalLine.Modify;
+            GenJournalLine.Modify();
         end;
     end;
 
@@ -138,9 +138,8 @@ codeunit 10098 "Generate EFT"
         EFTExport."Check Exported" := true;
         EFTExport."Exported to Payment File" := true;
         EFTExport.Transmitted := true;
-        EFTExport.Modify;
-        SetGenJrnlCheckTransmitted(TempEFTExportWorkset."Journal Template Name",
-          TempEFTExportWorkset."Journal Batch Name", TempEFTExportWorkset."Line No.");
+        EFTExport.Modify();
+        SetGenJrnlCheckTransmitted(TempEFTExportWorkset);
     end;
 
     local procedure StartEFTProcess(SettlementDate: Date; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var EFTValues: Codeunit "EFT Values")
@@ -187,7 +186,7 @@ codeunit 10098 "Generate EFT"
                 Modify;
             end;
         until TempEFTExportWorkset.Next = 0;
-        Commit;
+        Commit();
 
         if TempEFTExportWorkset.FindFirst then begin
             repeat
