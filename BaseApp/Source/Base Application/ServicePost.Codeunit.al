@@ -57,6 +57,7 @@ codeunit 5980 "Service-Post"
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         GLEntry: Record "G/L Entry";
         ServDocReg: Record "Service Document Register";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";

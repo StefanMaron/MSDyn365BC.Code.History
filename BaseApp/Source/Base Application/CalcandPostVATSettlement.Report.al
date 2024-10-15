@@ -1,4 +1,4 @@
-report 20 "Calc. and Post VAT Settlement"
+﻿report 20 "Calc. and Post VAT Settlement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CalcandPostVATSettlement.rdlc';
@@ -205,6 +205,7 @@ report 20 "Calc. and Post VAT Settlement"
                     trigger OnAfterGetRecord()
                     begin
                         VATAmountOfPropDed += GetVATAmountOfPropDeduct("VAT Entry", "VAT Posting Setup");
+                        OnBeforeCheckPrintVATEntries("VAT Entry");
                         if not PrintVATEntries then
                             CurrReport.Skip();
                     end;
@@ -336,7 +337,8 @@ report 20 "Calc. and Post VAT Settlement"
                                             then begin
                                                 CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
                                                 GenJnlLine2.Amount := VATAmountOfPropDed;
-						SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
+                                                SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
+                                                OnBeforePostGenJnlLineReverseChargeVAT(GenJnlLine2, VATEntry, VATAmount, VATAmountAddCurr);
                                                 if PostSettlement then
                                                     PostGenJnlLine(GenJnlLine2);
                                                 VATAmountOfPropDedSettled += VATEntry.Amount - VATAmountOfPropDed;
@@ -838,6 +840,16 @@ report 20 "Calc. and Post VAT Settlement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPrintVATEntries(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostGenJnlLineReverseChargeVAT(var GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; var VATAmount: Decimal; var VATAmountAddCurr: Decimal)
     begin
     end;
 

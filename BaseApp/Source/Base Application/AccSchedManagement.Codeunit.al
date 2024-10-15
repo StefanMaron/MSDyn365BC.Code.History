@@ -1302,7 +1302,7 @@ codeunit 8 AccSchedManagement
         exit(PeriodError);
     end;
 
-    local procedure ShowError(MessageLine: Text[100]; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
+    local procedure ShowError(MessageLine: Text; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
         AccSchedLine.SetRange("Schedule Name", AccSchedLine."Schedule Name");
         AccSchedLine.SetRange("Line No.", CallingAccSchedLineID);
@@ -1732,6 +1732,8 @@ codeunit 8 AccSchedManagement
             if ColumnLayout."Ledger Entry Type" = ColumnLayout."Ledger Entry Type"::"Budget Entries" then
                 CostType.SetFilter("Budget Filter", GetFilter("Cost Budget Filter"));
         end;
+
+        OnAfterSetCostTypeRowFilters(CostType, AccSchedLine2);
     end;
 
     procedure SetCostTypeColumnFilters(var CostType: Record "Cost Type"; AccSchedLine2: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
@@ -2180,6 +2182,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCostEntryFilters(var CostType: Record "Cost Type"; var CostEntry: Record "Cost Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; UseDimFilter: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCostTypeRowFilters(var CostType: Record "Cost Type"; var AccSchedLine2: Record "Acc. Schedule Line")
     begin
     end;
 

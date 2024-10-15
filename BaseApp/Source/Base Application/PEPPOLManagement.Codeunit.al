@@ -419,6 +419,17 @@ codeunit 1605 "PEPPOL Management"
         NetworkID := '';
     end;
 
+    procedure GetPaymentMeansInfoReminder(SalesHeader: Record "Sales Header"; var PaymentMeansCode: Text; var PaymentChannelCode: Text; var PaymentID: Text; var PrimaryAccountNumberID: Text; var NetworkID: Text)
+    var
+        DocumentTools: Codeunit DocumentTools;
+    begin
+        PaymentMeansCode := PaymentMeansFundsTransferCodeTxt;
+        PaymentChannelCode := '';
+        PaymentID := DocumentTools.GetEHFDocumentPaymentID(SalesHeader, SalesHeader."Doc. No. Occurrence");
+        PrimaryAccountNumberID := '';
+        NetworkID := '';
+    end;
+
     procedure GetPaymentMeansPayeeFinancialAcc(var PayeeFinancialAccountID: Text; var PaymentMeansSchemeID: Text; var FinancialInstitutionBranchID: Text; var FinancialInstitutionID: Text; var FinancialInstitutionSchemeID: Text; var FinancialInstitutionName: Text)
     var
         CompanyInfo: Record "Company Information";
@@ -1239,7 +1250,7 @@ codeunit 1605 "PEPPOL Management"
     begin
         IssuedFinChargeMemoHeader.Get(FinChargeNo);
         IssuedReminderHeader.TransferFields(IssuedFinChargeMemoHeader);
-        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader);
+        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader, 2);
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinChargeNo);
         if IssuedFinChargeMemoLine.FindSet() then
             repeat
@@ -1254,7 +1265,7 @@ codeunit 1605 "PEPPOL Management"
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
         IssuedReminderHeader.Get(ReminderNo);
-        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader);
+        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader, 3);
 
         IssuedReminderLine.SetRange("Reminder No.", ReminderNo);
         if IssuedReminderLine.FindSet() then
@@ -1272,7 +1283,7 @@ codeunit 1605 "PEPPOL Management"
     begin
         FinanceChargeMemoHeader.Get(FinChargeNo);
         IssuedReminderHeader.TransferFields(FinanceChargeMemoHeader);
-        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader);
+        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader, 2);
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinChargeNo);
         if FinanceChargeMemoLine.FindSet() then
             repeat
@@ -1290,7 +1301,7 @@ codeunit 1605 "PEPPOL Management"
     begin
         ReminderHeader.Get(ReminderNo);
         IssuedReminderHeader.TransferFields(ReminderHeader);
-        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader);
+        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader, 3);
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         if ReminderLine.FindSet() then
             repeat
@@ -1299,7 +1310,7 @@ codeunit 1605 "PEPPOL Management"
             until ReminderLine.Next() = 0;
     end;
 
-    local procedure ReminderHeaderToSalesHeader(var TempSalesHeader: Record "Sales Header" temporary; IssuedReminderHeader: Record "Issued Reminder Header")
+    local procedure ReminderHeaderToSalesHeader(var TempSalesHeader: Record "Sales Header" temporary; IssuedReminderHeader: Record "Issued Reminder Header"; GiroKIDDocType: Integer)
     begin
         with TempSalesHeader do begin
             Init();
@@ -1316,10 +1327,14 @@ codeunit 1605 "PEPPOL Management"
             "Bill-to City" := IssuedReminderHeader.City;
             "Bill-to Post Code" := IssuedReminderHeader."Post Code";
             "Bill-to County" := IssuedReminderHeader.County;
-            "Your Reference" := IssuedReminderHeader."Your Reference";
+            if IssuedReminderHeader."Your Reference" = '' then
+                "Your Reference" := IssuedReminderHeader."No."
+            else
+                "Your Reference" := IssuedReminderHeader."Your Reference";
             "Language Code" := IssuedReminderHeader."Language Code";
             "VAT Registration No." := IssuedReminderHeader."VAT Registration No.";
             GLN := IssuedReminderHeader.GLN;
+            "Doc. No. Occurrence" := GiroKIDDocType;
             "Shipment Date" := "Document Date";
             "Ship-to Address" := "Bill-to Address";
             "Ship-to City" := "Bill-to City";

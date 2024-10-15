@@ -871,11 +871,9 @@ xmlport 10601 "EHF Reminder 3.0"
 
                 trigger OnBeforePassVariable()
                 begin
-                    PEPPOLMgt.GetPaymentMeansInfo(
+                    PEPPOLMgt.GetPaymentMeansInfoReminder(
                       TempSalesHeader,
                       PaymentMeansCode,
-                      DummyVar,
-                      DummyVar,
                       PaymentChannelCode,
                       PaymentID,
                       PrimaryAccountNumberID,

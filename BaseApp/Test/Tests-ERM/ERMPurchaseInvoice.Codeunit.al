@@ -181,6 +181,33 @@ codeunit 134328 "ERM Purchase Invoice"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PostPurchaseInvoiceWithPreviewTokInPostingNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostedInvoiceNo: Code[20];
+    begin
+        // Create and Post Purchase Invoice with Posting No as *** and verify that it gets posted and *** entries are not created.
+
+        // Create Purchase Invoice, set 'Posting No.' to ***.
+        Initialize;
+        FindVATPostingSetup(VATPostingSetup);
+        CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateAndModifyVendor('', VATPostingSetup."VAT Bus. Posting Group"));
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader."Posting No." := '***';
+        PurchaseHeader.Modify(true);
+
+        // Exercise: Post Purchase Invoice.
+        LibraryLowerPermissions.SetPurchDocsPost;
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Verify: Verify Posted Purchase Invoice does not have *** as the id..
+        Assert.AreNotEqual(PostedInvoiceNo, '***', '*** entry created');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PostPurchaseInvoiceWhileModifyingLineDuringPosting()
     var
         PurchaseHeader: Record "Purchase Header";

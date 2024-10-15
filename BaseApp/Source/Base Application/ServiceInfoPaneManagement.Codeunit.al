@@ -1,4 +1,4 @@
-codeunit 5972 "Service Info-Pane Management"
+﻿codeunit 5972 "Service Info-Pane Management"
 {
 
     trigger OnRun()
@@ -29,7 +29,7 @@ codeunit 5972 "Service Info-Pane Management"
             Item.SetRange("Variant Filter", ServLine."Variant Code");
             Item.SetRange("Location Filter", ServLine."Location Code");
             Item.SetRange("Drop Shipment Filter", false);
-            OnCalcAvailabilityOnAfterSetItemFilters(Item);
+            OnCalcAvailabilityOnAfterSetItemFilters(Item, ServLine);
 
             exit(
               AvailableToPromise.QtyAvailabletoPromise(
@@ -211,7 +211,7 @@ codeunit 5972 "Service Info-Pane Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcAvailabilityOnAfterSetItemFilters(var Item: Record Item)
+    local procedure OnCalcAvailabilityOnAfterSetItemFilters(var Item: Record Item; var ServLine: Record "Service Line")
     begin
     end;
 }

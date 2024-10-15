@@ -195,6 +195,11 @@ table 5079 "Marketing Setup"
         field(69; "Autodiscovery E-Mail Address"; Text[250])
         {
             Caption = 'Autodiscovery Email Address';
+
+            trigger OnValidate()
+            begin
+                ResetExchangeTenantId();
+            end;
         }
         field(70; "Email Batch Size"; Integer)
         {
@@ -204,6 +209,11 @@ table 5079 "Marketing Setup"
         field(71; "Exchange Service URL"; Text[250])
         {
             Caption = 'Exchange Service URL';
+
+            trigger OnValidate()
+            begin
+                ResetExchangeTenantId();
+            end;
         }
         field(72; "Exchange Account User Name"; Text[250])
         {
@@ -254,11 +264,21 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Exchange Client Id';
             DataClassification = EndUserIdentifiableInformation;
+
+            trigger OnValidate()
+            begin
+                ResetExchangeTenantId();
+            end;
         }
         field(80; "Exchange Client Secret Key"; Guid)
         {
             Caption = 'Exchange Client Secret Key';
             DataClassification = EndUserPseudonymousIdentifiers;
+
+            trigger OnValidate()
+            begin
+                ResetExchangeTenantId();
+            end;
         }
         field(81; "Email Logging Enabled"; Boolean)
         {
@@ -269,6 +289,11 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Exchange Redirect URL';
             DataClassification = EndUserIdentifiableInformation;
+
+            trigger OnValidate()
+            begin
+                ResetExchangeTenantId();
+            end;
         }
     }
 
@@ -465,6 +490,15 @@ table 5079 "Marketing Setup"
             ContactType::Person:
                 exit(MarketingSetup."Cust. Template Person Code");
         end
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure ResetExchangeTenantId()
+    var
+        EmptyGuid: Guid;
+    begin
+        SetExchangeTenantId(EmptyGuid);
     end;
 
     [Scope('OnPrem')]

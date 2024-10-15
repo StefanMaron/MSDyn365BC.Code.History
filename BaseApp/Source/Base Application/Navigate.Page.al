@@ -1,4 +1,4 @@
-page 344 Navigate
+﻿page 344 Navigate
 {
     AdditionalSearchTerms = 'find,search,analyze';
     ApplicationArea = Basic, Suite, FixedAssets, Service, CostAccounting;
@@ -2035,7 +2035,7 @@ page 344 Navigate
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindRecords(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
     end;
