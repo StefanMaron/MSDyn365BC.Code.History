@@ -15,7 +15,7 @@ codeunit 1294 "OCR Service Mgt."
         NoFileContentErr: Label 'The file is empty.';
         InitiateUploadMsg: Label 'Initiate document upload.';
         GetDocumentConfirmMsg: Label 'Acknowledge document receipt.';
-        DocumentDownloadedTxt: Label 'Downloaded %1', Comment = '%1 = Document Identifier (usually a guid)';
+        DocumentDownloadedTxt: Label 'The document was downloaded. Document ID: %1, Track ID: %2', Comment = '%1 = Document Identifier (usually a guid), %2 = Track ID';
         UploadFileMsg: Label 'Send to OCR service.';
         AuthenticateMsg: Label 'Log in to OCR service.';
         GetNewDocumentsMsg: Label 'Get received OCR documents.';
@@ -24,7 +24,9 @@ codeunit 1294 "OCR Service Mgt."
         UploadFileFailedTelemetryMsg: Label 'The document failed to upload. Service Error: %1', Locked = true;
         UploadFileFailedWithNoResponseMsg: Label 'The document failed to upload. The OCR service returned no response.', Locked = true;
         UploadTotalSuccessMsg: Label 'Notify OCR service that %1 documents are ready for upload.', Comment = '%1 = Number of documents to be uploaded';
-        NewDocumentsTotalMsg: Label 'Downloaded %1 documents', Comment = '%1 = Number of documents downloaded (e.g. 5)';
+        NewDocumentsTotalMsg: Label 'Downloaded %1 of %2 documents.', Comment = '%1 = Number of documents downloaded (e.g. 5), %2 = Number of documents processed';
+        DocumentNotDownloadedTxt: Label 'Could not download the document from the OCR service. Document ID: %1, Track ID: %2', Comment = '%1 = Document ID, %2 = Track ID';
+        DownloadNotRegisteredTxt: Label 'Could not register that the document was downloaded from the OCR service. Document ID: %1, Track ID: %2', Comment = '%1 = Document ID, %2 = Track ID';
         ImportSuccessMsg: Label 'The document was successfully received.';
         DocumentNotReadyMsg: Label 'The document cannot be received yet. Try again in a few moments.';
         NotUploadedErr: Label 'You must upload the image first.';
@@ -62,7 +64,7 @@ codeunit 1294 "OCR Service Mgt."
         InsertingIncomingDocumentTxt: Label 'Inserting incoming document.', Locked = true;
         UpdatingIncomingDocumentTxt: Label 'Updating incoming document.', Locked = true;
         InvalidDocumentIdTxt: Label 'Invalid document ID was received from OCR service.', Locked = true;
-        DocumentsDownloadedTxt: Label 'Documents were successfully downloaded from OCR service. Document count: %1.', Locked = true;
+        DocumentsDownloadedTxt: Label '%1 of %2 documents were successfully downloaded from OCR service.', Locked = true;
         DocumentNotUploadedTxt: Label 'The document is not uploaded.', Locked = true;
         CannotFindAttachmentTxt: Label 'Cannot find attachment.', Locked = true;
         UploadFileSucceedTxt: Label 'A document was successfully uploaded to OCR service.', Locked = true;
@@ -391,13 +393,13 @@ codeunit 1294 "OCR Service Mgt."
         if not RsoGetRequest(StrSubstNo('files/rest/requestupload?targetCount=%1', NumberOfUploads), ResponseStr) then begin
             Session.LogMessage('00008KE', InitializingUploadFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailed(OCRServiceSetup.RecordId, InitiateUploadMsg, '');
-            exit(false);
+            exit(false); // in case error text is empty
         end;
         ResponseStr.ReadText(ResponseText);
         if ResponseText = '' then begin
             Session.LogMessage('00008KF', InitializingUploadFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailed(OCRServiceSetup.RecordId, InitiateUploadMsg, '');
-            exit(false);
+            exit(false); // in case error text is empty
         end;
 
         Session.LogMessage('00008KG', StrSubstNo(UploadTotalSuccessMsg, NumberOfUploads), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
@@ -452,6 +454,7 @@ codeunit 1294 "OCR Service Mgt."
     begin
         if not TempBlob.HasValue then begin
             Session.LogMessage('00008KH', NoFileContentTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            LogActivityFailedNoError(OCRServiceSetup.RecordId, UploadFileMsg, NoFileContentErr);
             LogActivityFailed(LoggingRecordId, UploadFileMsg, NoFileContentErr); // throws error
         end;
 
@@ -473,6 +476,7 @@ codeunit 1294 "OCR Service Mgt."
         if not HttpWebRequestMgt.GetResponse(ResponseStr, HttpStatusCode, ResponseHeaders) then begin
             if HttpWebRequestMgt.ProcessFaultXMLResponse('', '/ServiceError/Message', '', '') then;
             Session.LogMessage('000089L', UploadFileFailedWithNoResponseMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            LogActivityFailedNoError(OCRServiceSetup.RecordId, UploadFileMsg, '');
             LogActivityFailed(LoggingRecordId, UploadFileMsg, '');
             exit(false); // in case error text is empty
         end;
@@ -481,6 +485,7 @@ codeunit 1294 "OCR Service Mgt."
 
         if ResponseText = '<BoolValue xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><Value>true</Value></BoolValue>' then begin
             Session.LogMessage('00008KI', UploadFileSucceedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            LogActivitySucceeded(OCRServiceSetup.RecordId, UploadFileMsg, '');
             LogActivitySucceeded(LoggingRecordId, UploadFileMsg, '');
             if GuiAllowed and (not OfficeMgt.IsAvailable) then
                 Message(UploadSuccessMsg);
@@ -488,6 +493,7 @@ codeunit 1294 "OCR Service Mgt."
         end;
 
         Session.LogMessage('000089M', StrSubstNo(UploadFileFailedTelemetryMsg, ResponseText), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        LogActivityFailedNoError(OCRServiceSetup.RecordId, UploadFileMsg, StrSubstNo(UploadFileFailedMsg, ResponseText));
         LogActivityFailed(LoggingRecordId, UploadFileMsg, StrSubstNo(UploadFileFailedMsg, ResponseText)); // throws error
     end;
 
@@ -670,7 +676,8 @@ codeunit 1294 "OCR Service Mgt."
         ResponseStr: InStream;
         ExternalBatchId: Text[50];
         DocId: Text[50];
-        DocCount: Integer;
+        CountProcessed: Integer;
+        CountDownloaded: Integer;
     begin
         GetOcrServiceSetup(true);
 
@@ -684,36 +691,37 @@ codeunit 1294 "OCR Service Mgt."
             ExternalBatchId := ChildNode.InnerText;
             if (ExternalBatchFilter = '') or (ExternalBatchFilter = ExternalBatchId) then
                 foreach ChildNode in XMLNode.SelectNodes('DocumentId') do begin
+                    CountProcessed += 1;
                     DocId := ChildNode.InnerText;
 
                     if not Regex.IsMatch(DocId, '^[a-zA-Z0-9\-\{\}]*$') then begin
                         Session.LogMessage('00008LB', InvalidDocumentIdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-                        Error(NotValidDocIDErr, DocId);
+                        LogActivityFailed(OCRServiceSetup.RecordId, GetNewDocumentsMsg, StrSubstNo(NotValidDocIDErr, DocId));
                     end;
 
-                    DocCount += DownloadDocument(ExternalBatchId, DocId);
+                    CountDownloaded += DownloadDocument(ExternalBatchId, DocId);
 
-                    if DocCount > GetMaxDocDownloadCount then begin
-                        Session.LogMessage('00008KL', StrSubstNo(DocumentsDownloadedTxt, DocCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-                        LogActivitySucceeded(OCRServiceSetup.RecordId, GetNewDocumentsMsg, StrSubstNo(NewDocumentsTotalMsg, DocCount));
-                        exit(DocCount);
+                    if CountDownloaded > GetMaxDocDownloadCount then begin
+                        Session.LogMessage('00008KL', StrSubstNo(DocumentsDownloadedTxt, CountDownloaded, CountProcessed), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+                        LogActivitySucceeded(OCRServiceSetup.RecordId, GetNewDocumentsMsg, StrSubstNo(NewDocumentsTotalMsg, CountDownloaded, CountProcessed));
+                        exit(CountDownloaded);
                     end;
                 end;
         end;
 
-        Session.LogMessage('00008KM', StrSubstNo(DocumentsDownloadedTxt, DocCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('00008KM', StrSubstNo(DocumentsDownloadedTxt, CountDownloaded, CountProcessed), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
 
-        LogActivitySucceeded(OCRServiceSetup.RecordId, GetNewDocumentsMsg, StrSubstNo(NewDocumentsTotalMsg, DocCount));
+        LogActivitySucceeded(OCRServiceSetup.RecordId, GetNewDocumentsMsg, StrSubstNo(NewDocumentsTotalMsg, CountDownloaded, CountProcessed));
 
-        if (ExternalBatchFilter <> '') and (DocCount > 0) then
-            exit(DocCount);
+        if (ExternalBatchFilter <> '') and (CountDownloaded > 0) then
+            exit(CountDownloaded);
 
         if ExternalBatchFilter <> '' then
             GetDocumentStatus(ExternalBatchFilter)
         else
             GetDocumentsExcludeProcessed;
 
-        exit(DocCount);
+        exit(CountDownloaded);
     end;
 
     [Scope('OnPrem')]
@@ -913,16 +921,20 @@ codeunit 1294 "OCR Service Mgt."
         XMLRootNode: DotNet XmlNode;
         AttachmentName: Text[250];
         ContentType: Text[50];
+        TrackId: Text;
     begin
         if not RsoGetRequest(StrSubstNo('documents/rest/%1', DocId), ResponseStr) then begin
             Session.LogMessage('00008KP', OCRServiceUserFailedToDownloadDocumentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            LogActivityFailedNoError(OCRServiceSetup.RecordId, StrSubstNo(DocumentNotDownloadedTxt, DocId, ''), '');
             exit(0);
         end;
         if not XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStr, XMLRootNode) then begin
             Session.LogMessage('000089N', OCRServiceUserFailedToDownloadDocumentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-            LogActivityFailed(OCRServiceSetup.RecordId, GetDocumentMsg, '');
+            LogActivityFailedNoError(OCRServiceSetup.RecordId, StrSubstNo(DocumentNotDownloadedTxt, DocId, ''), '');
             exit(0);
         end;
+
+        TrackId := XMLDOMManagement.FindNodeText(XMLRootNode, 'TrackId');
 
         if ExternalBatchId <> '' then
             IncomingDocumentAttachment.SetRange("External Document Reference", ExternalBatchId);
@@ -938,6 +950,7 @@ codeunit 1294 "OCR Service Mgt."
             IncomingDocumentAttachment.SetRange("External Document Reference");
             if not RsoGetRequestBinary(StrSubstNo('documents/rest/file/%1/image', DocId), ImageInStr, ContentType) then begin
                 Session.LogMessage('00008KS', OCRServiceUserFailedToDownloadDocumentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+                LogActivityFailedNoError(OCRServiceSetup.RecordId, StrSubstNo(DocumentNotDownloadedTxt, DocId, TrackId), '');
                 exit(0);
             end;
 
@@ -957,18 +970,23 @@ codeunit 1294 "OCR Service Mgt."
 
         UpdateIncomingDocWithOCRData(IncomingDocument, XMLRootNode);
         Session.LogMessage('000089O', OCRServiceUserSuccessfullyDownloadedDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-        LogActivitySucceeded(IncomingDocument.RecordId, GetDocumentMsg, StrSubstNo(DocumentDownloadedTxt, DocId));
+        LogActivitySucceeded(OCRServiceSetup.RecordId, GetDocumentMsg, StrSubstNo(DocumentDownloadedTxt, DocId, TrackId));
+        LogActivitySucceeded(IncomingDocument.RecordId, GetDocumentMsg, StrSubstNo(DocumentDownloadedTxt, DocId, TrackId));
 
         if not RsoPutRequest(
              StrSubstNo('documents/rest/%1/downloaded', DocId),
              '<UploadDataCollection xmlns:i="http://www.w3.org/2001/XMLSchema-instance" />', ResponseStr)
         then begin
             Session.LogMessage('00008KU', RegisteringDownloadFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            LogActivityFailedNoError(OCRServiceSetup.RecordId, StrSubstNo(DownloadNotRegisteredTxt, DocId, TrackId), '');
+            LogActivityFailedNoError(IncomingDocument.RecordId, StrSubstNo(DownloadNotRegisteredTxt, DocId, TrackId), '');
             exit(0);
         end;
 
         Session.LogMessage('00008KV', RegisteringDownloadSucceedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-        LogActivitySucceeded(IncomingDocument.RecordId, GetDocumentConfirmMsg, StrSubstNo(DocumentDownloadedTxt, DocId));
+        LogActivitySucceeded(OCRServiceSetup.RecordId, GetDocumentConfirmMsg, StrSubstNo(DocumentDownloadedTxt, DocId, TrackId));
+        LogActivitySucceeded(IncomingDocument.RecordId, GetDocumentConfirmMsg, StrSubstNo(DocumentDownloadedTxt, DocId, TrackId));
+        Commit();
         exit(1);
     end;
 
@@ -978,6 +996,7 @@ codeunit 1294 "OCR Service Mgt."
         Vendor: Record Vendor;
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         XMLDOMManagement: Codeunit "XML DOM Management";
+        VendorFound: Boolean;
     begin
         with IncomingDocument do begin
             if "Data Exchange Type" = '' then
@@ -1001,21 +1020,25 @@ codeunit 1294 "OCR Service Mgt."
 
             "OCR Track ID" := CopyStr(XMLDOMManagement.FindNodeText(XMLRootNode, 'TrackId'), 1, MaxStrLen("OCR Track ID"));
 
-            if not IsNullGuid("Vendor Id") then begin
-                if Vendor.GetBySystemId("Vendor Id") then
-                    Validate("Vendor No.", Vendor."No.");
-            end else
-                if "Vendor VAT Registration No." <> '' then begin
-                    Vendor.SetRange("VAT Registration No.", "Vendor VAT Registration No.");
-                    if Vendor.FindFirst then
-                        Validate("Vendor No.", Vendor."No.")
-                    else begin
-                        Vendor.SetRange("VAT Registration No.");
-                        Vendor.SetRange(ABN, "Vendor VAT Registration No.");
-                        if Vendor.FindFirst then
-                            Validate("Vendor No.", Vendor."No.");
-                    end;
+            if not IsNullGuid("Vendor Id") then
+                VendorFound := Vendor.GetBySystemId("Vendor Id");
+            if (not VendorFound) and ("Vendor No." <> '') then
+                VendorFound := Vendor.Get("Vendor No.");
+            if (not VendorFound) and ("Vendor VAT Registration No." <> '') then begin
+                Vendor.SetRange("VAT Registration No.", "Vendor VAT Registration No.");
+                VendorFound := Vendor.FindFirst();
+                if not VendorFound then begin
+                    Vendor.SetRange("VAT Registration No.");
+                    Vendor.SetRange(ABN, "Vendor VAT Registration No.");
+                    VendorFound := Vendor.FindFirst();
                 end;
+            end;
+            if VendorFound then begin
+                if "Vendor Id" <> Vendor.SystemId then
+                    Validate("Vendor Id", Vendor.SystemId);
+                if "Vendor No." <> Vendor."No." then
+                    Validate("Vendor No.", Vendor."No.");
+            end;
 
             Modify;
         end;
@@ -1030,6 +1053,16 @@ codeunit 1294 "OCR Service Mgt."
     end;
 
     procedure LogActivityFailed(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
+    begin
+        LogActivityFailed(RelatedRecordID, ActivityDescription, ActivityMessage, false);
+    end;
+
+    local procedure LogActivityFailedNoError(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
+    begin
+        LogActivityFailed(RelatedRecordID, ActivityDescription, ActivityMessage, true);
+    end;
+
+    local procedure LogActivityFailed(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text; IgnoreError: Boolean)
     var
         ActivityLog: Record "Activity Log";
     begin
@@ -1040,6 +1073,9 @@ codeunit 1294 "OCR Service Mgt."
           ActivityDescription, ActivityMessage);
 
         Commit();
+
+        if IgnoreError then
+            exit;
 
         if DelChr(ActivityMessage, '<>', ' ') <> '' then
             Error(ActivityMessage);

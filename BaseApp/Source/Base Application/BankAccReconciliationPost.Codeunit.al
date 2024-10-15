@@ -431,6 +431,9 @@
 
             GenJnlLine.ValidateApplyRequirements(GenJnlLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
+
+            PostUnrealizedWHT(GenJnlLine);
+
             OnPostPaymentApplicationsOnAfterPostGenJnlLine(GenJnlLine, GenJnlPostLine);
             if not PostPaymentsOnly then begin
                 BankAccountLedgerEntry.SetRange(Open, true);
@@ -442,6 +445,27 @@
                     CloseBankAccountLedgerEntry(BankAccountLedgerEntry."Entry No.", BankAccountLedgerEntry.Amount);
             end;
         end;
+    end;
+
+    local procedure PostUnrealizedWHT(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        GenJournalLineWHT: Record "Gen. Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        if not GeneralLedgerSetup."Enable WHT" then
+            exit;
+
+        GenJournalLineWHT.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJournalLineWHT.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        GenJournalLineWHT.SetRange("Is WHT", true);
+        GenJournalLineWHT.SetRange("System-Created Entry", true);
+        if not GenJournalLineWHT.FindFirst() then
+            exit;
+
+        GenJnlPostLine.RunWithCheck(GenJournalLineWHT);
+
+        GenJournalLineWHT.Delete();
     end;
 
     local procedure UpdateBank(BankAccRecon: Record "Bank Acc. Reconciliation"; Amt: Decimal)

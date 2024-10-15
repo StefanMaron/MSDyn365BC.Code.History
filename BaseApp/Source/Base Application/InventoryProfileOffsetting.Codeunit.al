@@ -1703,6 +1703,7 @@
         OriginalSupplyDate: Date;
         NewSupplyDate: Date;
         CanBeRescheduled: Boolean;
+        DemandDueDate: Date;
     begin
         if FromLotAccumulationPeriodStartDate(LotAccumulationPeriodStartDate, DemandInvtProfile."Due Date") then begin
             NewSupplyDate := LotAccumulationPeriodStartDate;
@@ -1712,18 +1713,22 @@
             LotAccumulationPeriodStartDate := 0D;
         end;
 
+        DemandDueDate := DemandInvtProfile."Due Date";
+        if TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase then
+            DemandDueDate := GetPrevAvailDateFromCompanyCalendar(DemandInvtProfile."Due Date");
+
         OriginalSupplyDate := SupplyInvtProfile."Due Date";
         WeAreSureThatDatesMatch := false;
 
-        if DemandInvtProfile."Due Date" < SupplyInvtProfile."Due Date" then begin
-            CanBeRescheduled := CheckScheduleIn(SupplyInvtProfile, DemandInvtProfile."Due Date", NewSupplyDate, true);
+        if DemandDueDate < SupplyInvtProfile."Due Date" then begin
+            CanBeRescheduled := CheckScheduleIn(SupplyInvtProfile, DemandDueDate, NewSupplyDate, true);
             if CanBeRescheduled then
                 WeAreSureThatDatesMatch := true
             else
                 NextState := NextState::CreateSupply;
         end else
-            if DemandInvtProfile."Due Date" > SupplyInvtProfile."Due Date" then begin
-                CanBeRescheduled := CheckScheduleOut(SupplyInvtProfile, DemandInvtProfile."Due Date", NewSupplyDate, true);
+            if DemandDueDate > SupplyInvtProfile."Due Date" then begin
+                CanBeRescheduled := CheckScheduleOut(SupplyInvtProfile, DemandDueDate, NewSupplyDate, true);
                 if CanBeRescheduled then
                     WeAreSureThatDatesMatch := not ScheduleAllOutChangesSequence(SupplyInvtProfile, NewSupplyDate)
                 else
@@ -1739,7 +1744,7 @@
               TempReminderInvtProfile, NewSupplyDate, LastProjectedInventory, LatestBucketStartDate, ROPHasBeenCrossed);
             if ROPHasBeenCrossed then begin
                 CreateSupplyForward(SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
-                  LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, DemandInvtProfile."Due Date");
+                  LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, DemandDueDate);
                 if NewSupplyHasTakenOver then begin
                     WeAreSureThatDatesMatch := false;
                     NextState := NextState::MatchDates;
@@ -4825,6 +4830,17 @@
         if InventoryProfile.IsSupply then
             InventoryProfile.ChangeSign;
         InventoryProfile.Insert();
+    end;
+
+    local procedure GetPrevAvailDateFromCompanyCalendar(InitialDate: Date): Date
+    var
+        CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+    begin
+        if InitialDate = 0D then
+            exit(InitialDate);
+
+        CustomCalendarChange[1].SetSource(CustomCalendarChange[1]."Source Type"::Company, '', '', '');
+        exit(CalendarManagement.CalcDateBOC2('<0D>', InitialDate, CustomCalendarChange, false));
     end;
 
     [IntegrationEvent(false, false)]

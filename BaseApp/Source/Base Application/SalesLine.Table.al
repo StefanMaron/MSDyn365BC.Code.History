@@ -239,7 +239,7 @@
 
                 if HasTypeToFillMandatoryFields() then begin
                     if Type <> Type::"Fixed Asset" then
-                    	ValidateVATProdPostingGroup();
+                        ValidateVATProdPostingGroup();
                     Validate("WHT Product Posting Group");
                 end;
 
@@ -4476,6 +4476,7 @@
                     if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
                         "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
                 end;
+
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -7699,7 +7700,7 @@
         exit(0);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetGLSetup()
     begin
         if not GLSetupRead then
@@ -7862,6 +7863,8 @@
             "Inv. Disc. Amount to Invoice" := 0;
         end;
         OnValidateLineDiscountPercentOnBeforeUpdateAmounts(Rec, CurrFieldNo);
+        if ("Prepayment Amount" = 0) and ("Prepmt Amt to Deduct" = 0) then
+            "Prepmt. VAT Base Amt." := 0;
         UpdateAmounts();
 
         OnAfterValidateLineDiscountPercent(Rec, CurrFieldNo);
