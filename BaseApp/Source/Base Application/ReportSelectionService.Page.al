@@ -43,6 +43,35 @@ page 5932 "Report Selection - Service"
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the display name of the report.';
                 }
+                field("Use for Email Body"; Rec."Use for Email Body")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
+                }
+                field("Use for Email Attachment"; Rec."Use for Email Attachment")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the related document will be attached to the email.';
+                }
+                field("Email Body Layout Code"; Rec."Email Body Layout Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the ID of the email body layout that is used.';
+                    Visible = false;
+                }
+                field("Email Body Layout Description"; Rec."Email Body Layout Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a description of the email body layout that is used.';
+
+                    trigger OnDrillDown()
+                    var
+                        CustomReportLayout: Record "Custom Report Layout";
+                    begin
+                        if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
+                            Rec.Validate("Email Body Layout Code", CustomReportLayout.Code);
+                    end;
+                }
             }
         }
         area(factboxes)

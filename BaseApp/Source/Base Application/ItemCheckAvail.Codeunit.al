@@ -14,6 +14,7 @@
         ItemNo: Code[20];
         UnitOfMeasureCode: Code[10];
         ItemLocationCode: Code[10];
+        VariantCode: Code[10];
         NewItemNetChange: Decimal;
         OldItemNetChange: Decimal;
         OldItemNetResChange: Decimal;
@@ -224,6 +225,7 @@
         OldItemNetChange := ConvertQty(OldItemNetChangeArg);
         OldItemShipmentDate := OldShipmentDateArg;
         ItemLocationCode := ItemLocationCodeArg;
+        VariantCode := ItemVariantCodeArg;
 
         if NewItemNetChange >= 0 then
             exit(false);
@@ -624,6 +626,7 @@
         ItemAvailabilityCheck.PopulateDataOnNotification(AvailabilityCheckNotification, ItemNo, UnitOfMeasureCode,
           InventoryQty, GrossReq, ReservedReq, SchedRcpt, ReservedRcpt, CurrentQuantity, CurrentReservedQty,
           TotalQuantity, EarliestAvailDate, LocationCode);
+        ItemAvailabilityCheck.PopulateDataOnNotification(AvailabilityCheckNotification, 'VariantCode', VariantCode);
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
           AvailabilityCheckNotification, RecordId, GetItemAvailabilityNotificationId);
         exit(false);

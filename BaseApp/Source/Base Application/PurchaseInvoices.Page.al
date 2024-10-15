@@ -239,12 +239,20 @@ page 9308 "Purchase Invoices"
                 field(Amount; Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sum of the amounts in the Amount field on the associated purchase lines.';
+                    ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
             }
         }
         area(factboxes)
         {
+            part(AttachedDocuments; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(38),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part("Power BI Report FactBox"; "Power BI Report FactBox")
             {
                 ApplicationArea = Basic, Suite;

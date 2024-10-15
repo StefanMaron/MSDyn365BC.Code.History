@@ -543,7 +543,7 @@ page 5097 "Create Task"
                 ClearDefaultAttendeeInfo;
                 CurrPage.AttendeeSubform.PAGE.GetAttendee(AttendeeTemp);
                 SetAttendee(AttendeeTemp);
-                SalespersonCodeEnable := false;
+                SalespersonCodeEnable := not "Team To-do";
                 WizardContactNameEnable := true;
             end;
         IsMeeting := (Type = Type::Meeting);
