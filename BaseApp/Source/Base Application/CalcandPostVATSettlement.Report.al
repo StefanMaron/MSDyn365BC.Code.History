@@ -886,7 +886,6 @@
                         PostGenJnlLine(GenJnlLine);
 
                     CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
-		    SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
                     GenJnlLine2.Amount += VATEntry."VAT Amount (Non Deductible)"; // NAVCZ
                     if PostSettlement then
                         PostGenJnlLine(GenJnlLine2);
