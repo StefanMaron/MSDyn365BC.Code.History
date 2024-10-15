@@ -12,7 +12,7 @@ codeunit 144021 "Ref. Payment - Exported Test"
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
 
-    local procedure CreatePurchaseDocument(var Vendor: Record Vendor; Type: Integer): Text
+    local procedure CreatePurchaseDocument(var Vendor: Record Vendor; Type: Enum "Purchase Document Type"): Text
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

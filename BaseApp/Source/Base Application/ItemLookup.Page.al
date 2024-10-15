@@ -253,6 +253,8 @@ page 32 "Item Lookup"
                     ItemList.SetTableView(Rec);
                     ItemList.SetRecord(Rec);
                     ItemList.LookupMode := true;
+
+                    Commit();
                     if ItemList.RunModal = ACTION::LookupOK then begin
                         ItemList.GetRecord(Rec);
                         CurrPage.Close;

@@ -30,7 +30,7 @@ table 130 "Incoming Document"
         }
         field(5; "Created By User Name"; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("Created By User ID")));
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Created By User ID")));
             Caption = 'Created By User Name';
             Editable = false;
             FieldClass = FlowField;
@@ -54,7 +54,7 @@ table 130 "Incoming Document"
         }
         field(9; "Released By User Name"; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("Released By User ID")));
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Released By User ID")));
             Caption = 'Released By User Name';
             Editable = false;
             FieldClass = FlowField;
@@ -73,7 +73,7 @@ table 130 "Incoming Document"
         }
         field(12; "Last Modified By User Name"; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("Last Modified By User ID")));
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Last Modified By User ID")));
             Caption = 'Last Modified By User Name';
             Editable = false;
             FieldClass = FlowField;
@@ -215,7 +215,7 @@ table 130 "Incoming Document"
         }
         field(39; "OCR Service Doc. Template Name"; Text[50])
         {
-            CalcFormula = Lookup ("OCR Service Document Template".Name WHERE(Code = FIELD("OCR Service Doc. Template Code")));
+            CalcFormula = Lookup("OCR Service Document Template".Name WHERE(Code = FIELD("OCR Service Doc. Template Code")));
             Caption = 'OCR Service Doc. Template Name';
             Editable = false;
             FieldClass = FlowField;
@@ -234,7 +234,7 @@ table 130 "Incoming Document"
         field(42; "Vendor Id"; Guid)
         {
             Caption = 'Vendor Id';
-            TableRelation = Vendor.Id;
+            TableRelation = Vendor.SystemId;
         }
         field(50; "Currency Code"; Code[10])
         {
@@ -518,7 +518,7 @@ table 130 "Incoming Document"
         Modify;
 
         ClearErrorMessages;
-        TestReadyForProcessing;
+        TestReadyForProcessing();
 
         CheckNotCreated;
 
@@ -598,12 +598,12 @@ table 130 "Incoming Document"
         IsHandled: Boolean;
     begin
         if "Document Type" <> "Document Type"::Journal then
-            TestIfAlreadyExists;
-        TestReadyForProcessing;
+            TestIfAlreadyExists();
+        TestReadyForProcessing();
         OnBeforeGetJournalTemplateAndBatch(JournalTemplate, JournalBatch, IsHandled);
         if not IsHandled then begin
-        IncomingDocumentsSetup.TestField("General Journal Template Name");
-        IncomingDocumentsSetup.TestField("General Journal Batch Name");
+            IncomingDocumentsSetup.TestField("General Journal Template Name");
+            IncomingDocumentsSetup.TestField("General Journal Batch Name");
             JournalTemplate := IncomingDocumentsSetup."General Journal Template Name";
             JournalBatch := IncomingDocumentsSetup."General Journal Batch Name";
         end;
@@ -617,7 +617,7 @@ table 130 "Incoming Document"
 
         "Document Type" := "Document Type"::Journal;
 
-        if GenJnlLine.FindLast then;
+        if GenJnlLine.FindLast() then;
         LastGenJnlLine := GenJnlLine;
         LineNo := GenJnlLine."Line No." + 10000;
         GenJnlLine.Init();
@@ -638,13 +638,16 @@ table 130 "Incoming Document"
         if GetURL <> '' then
             GenJnlLine.AddLink(GetURL, Description);
 
-        ShowRecord;
+        IsHandled := false;
+        OnCreateGenJnlLineOnBeforeShowRecord(Rec, IsHandled);
+        if not IsHandled then
+            ShowRecord();
     end;
 
     procedure CreatePurchInvoice()
     begin
         if "Document Type" <> "Document Type"::"Purchase Invoice" then
-            TestIfAlreadyExists;
+            TestIfAlreadyExists();
 
         "Document Type" := "Document Type"::"Purchase Invoice";
         CreatePurchDoc(DocumentType::Invoice);
@@ -653,7 +656,7 @@ table 130 "Incoming Document"
     procedure CreatePurchCreditMemo()
     begin
         if "Document Type" <> "Document Type"::"Purchase Credit Memo" then
-            TestIfAlreadyExists;
+            TestIfAlreadyExists();
 
         "Document Type" := "Document Type"::"Purchase Credit Memo";
         CreatePurchDoc(DocumentType::"Credit Memo");
@@ -662,7 +665,7 @@ table 130 "Incoming Document"
     procedure CreateSalesInvoice()
     begin
         if "Document Type" <> "Document Type"::"Sales Invoice" then
-            TestIfAlreadyExists;
+            TestIfAlreadyExists();
 
         "Document Type" := "Document Type"::"Sales Invoice";
         CreateSalesDoc(DocumentType::Invoice);
@@ -671,7 +674,7 @@ table 130 "Incoming Document"
     procedure CreateSalesCreditMemo()
     begin
         if "Document Type" <> "Document Type"::"Sales Credit Memo" then
-            TestIfAlreadyExists;
+            TestIfAlreadyExists();
 
         "Document Type" := "Document Type"::"Sales Credit Memo";
         CreateSalesDoc(DocumentType::"Credit Memo");
@@ -768,7 +771,7 @@ table 130 "Incoming Document"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Replaced with CreateIncomingDocument function','15.3')]
+    [Obsolete('Replaced with CreateIncomingDocument function', '15.3')]
     procedure CreateIncomingDocumentFromServerFile(FileName: Text; FilePath: Text)
     var
         IncomingDocument: Record "Incoming Document";
@@ -971,11 +974,12 @@ table 130 "Incoming Document"
     local procedure CreateSalesDoc(DocType: Option)
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
-        TestReadyForProcessing;
+        TestReadyForProcessing();
         SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
         if not SalesHeader.IsEmpty then begin
-            ShowRecord;
+            ShowRecord();
             exit;
         end;
         SalesHeader.Reset();
@@ -996,17 +1000,22 @@ table 130 "Incoming Document"
         "Document No." := SalesHeader."No.";
         Modify(true);
         Commit();
-        ShowRecord;
+
+        IsHandled := false;
+        OnCreateSalesDocOnBeforeShowRecord(Rec, IsHandled);
+        if not IsHandled then
+            ShowRecord();
     end;
 
     local procedure CreatePurchDoc(DocType: Option)
     var
         PurchHeader: Record "Purchase Header";
+        IsHandled: Boolean;
     begin
-        TestReadyForProcessing;
+        TestReadyForProcessing();
         PurchHeader.SetRange("Incoming Document Entry No.", "Entry No.");
         if not PurchHeader.IsEmpty then begin
-            ShowRecord;
+            ShowRecord();
             exit;
         end;
         PurchHeader.Reset();
@@ -1027,7 +1036,11 @@ table 130 "Incoming Document"
         "Document No." := PurchHeader."No.";
         Modify(true);
         Commit();
-        ShowRecord;
+
+        IsHandled := false;
+        OnCreatePurchDocOnBeforeShowRecord(Rec, IsHandled);
+        if not IsHandled then
+            ShowRecord();
     end;
 
     procedure SetGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -1035,8 +1048,8 @@ table 130 "Incoming Document"
         if GenJnlLine."Incoming Document Entry No." = 0 then
             exit;
         Get(GenJnlLine."Incoming Document Entry No.");
-        TestReadyForProcessing;
-        TestIfAlreadyExists;
+        TestReadyForProcessing();
+        TestIfAlreadyExists();
         "Document Type" := "Document Type"::Journal;
         Modify(true);
         if not DocLinkExists(GenJnlLine) then
@@ -1048,8 +1061,8 @@ table 130 "Incoming Document"
         if SalesHeader."Incoming Document Entry No." = 0 then
             exit;
         Get(SalesHeader."Incoming Document Entry No.");
-        TestReadyForProcessing;
-        TestIfAlreadyExists;
+        TestReadyForProcessing();
+        TestIfAlreadyExists();
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Invoice:
                 "Document Type" := "Document Type"::"Sales Invoice";
@@ -1066,8 +1079,8 @@ table 130 "Incoming Document"
         if PurchaseHeader."Incoming Document Entry No." = 0 then
             exit;
         Get(PurchaseHeader."Incoming Document Entry No.");
-        TestReadyForProcessing;
-        TestIfAlreadyExists;
+        TestReadyForProcessing();
+        TestIfAlreadyExists();
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Invoice:
                 "Document Type" := "Document Type"::"Purchase Invoice";
@@ -1156,7 +1169,7 @@ table 130 "Incoming Document"
     begin
         TestField("Entry No.");
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not IncomingDocumentAttachment.FindLast then
+        if not IncomingDocumentAttachment.FindLast() then
             IncomingDocumentAttachment."Line No." := 10000
         else
             IncomingDocumentAttachment."Line No." += 10000;
@@ -1179,7 +1192,7 @@ table 130 "Incoming Document"
     begin
         TestField("Entry No.");
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not IncomingDocumentAttachment.FindLast then
+        if not IncomingDocumentAttachment.FindLast() then
             IncomingDocumentAttachment."Line No." := 10000
         else
             IncomingDocumentAttachment."Line No." += 10000;
@@ -1433,6 +1446,7 @@ table 130 "Incoming Document"
         case FieldNumber of
             FieldNo("Vendor Name"):
                 exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name")));
+            // TODO: This line needs updating. With introduction of SystemId in version 14 the Id is not matching the System Id.
             FieldNo("Vendor Id"):
                 exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo(Id)));
             FieldNo("Vendor VAT Registration No."):
@@ -1811,7 +1825,7 @@ table 130 "Incoming Document"
         ImportAttachmentIncDoc.ImportAttachment(NewIncomingDocumentAttachment, FilePath);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ShowMainAttachment()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -1859,7 +1873,6 @@ table 130 "Incoming Document"
         DataTypeManagement: Codeunit "Data Type Management";
         DocumentNoFieldRef: FieldRef;
         PostingDateFieldRef: FieldRef;
-        PostingDate: Date;
     begin
         if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, SalesInvoiceHeader.FieldName("No.")) then
             if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, VATEntry.FieldName("Document No.")) then
@@ -1868,11 +1881,22 @@ table 130 "Incoming Document"
         if not DataTypeManagement.FindFieldByName(MainRecordRef, PostingDateFieldRef, SalesInvoiceHeader.FieldName("Posting Date")) then
             exit(false);
 
-        IncomingDocument.SetRange("Document No.", Format(DocumentNoFieldRef.Value));
-        Evaluate(PostingDate, Format(PostingDateFieldRef.Value));
+        exit(FindByDocumentNoAndPostingDate(IncomingDocument, DocumentNoFieldRef.Value, PostingDateFieldRef.Value))
+    end;
+
+    procedure FindByDocumentNoAndPostingDate(var IncomingDocument: Record "Incoming Document"; DocumentNo: Text; PostingDateText: Text): Boolean
+    var
+        PostingDate: Date;
+    begin
+        if (DocumentNo = '') or (PostingDateText = '') then
+            exit(false);
+
+        if not Evaluate(PostingDate, PostingDateText) then
+            exit(false);
+
+        IncomingDocument.SetRange("Document No.", DocumentNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
-        if (Format(DocumentNoFieldRef.Value) = '') or (PostingDate = 0D) then
-            exit;
+
         exit(IncomingDocument.FindFirst);
     end;
 
@@ -1953,6 +1977,25 @@ table 130 "Incoming Document"
         Error(NoDocAttachErr);
     end;
 
+    procedure HasAttachment(): Boolean
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+    begin
+        exit(GetMainAttachment(IncomingDocumentAttachment));
+    end;
+
+    procedure CanReplaceMainAttachment(): Boolean
+    begin
+        if not HasAttachment then
+            exit(true);
+        exit(not WasSentToOCR);
+    end;
+
+    local procedure WasSentToOCR(): Boolean
+    begin
+        exit("OCR Status" <> "OCR Status"::" ");
+    end;
+
     [IntegrationEvent(false, false)]
     procedure OnAfterCreateGenJnlLineFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
@@ -2013,23 +2056,19 @@ table 130 "Incoming Document"
     begin
     end;
 
-    procedure HasAttachment(): Boolean
-    var
-        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateGenJnlLineOnBeforeShowRecord(IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
-        exit(GetMainAttachment(IncomingDocumentAttachment));
     end;
 
-    procedure CanReplaceMainAttachment(): Boolean
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesDocOnBeforeShowRecord(IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
-        if not HasAttachment then
-            exit(true);
-        exit(not WasSentToOCR);
     end;
 
-    local procedure WasSentToOCR(): Boolean
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchDocOnBeforeShowRecord(IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
-        exit("OCR Status" <> "OCR Status"::" ");
     end;
 }
 

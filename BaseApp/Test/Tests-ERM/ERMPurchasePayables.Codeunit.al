@@ -26,6 +26,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryResource: Codeunit "Library - Resource";
         IsInitialized: Boolean;
         MustNotBeEqualErr: Label 'Transaction No. %1 and %2 must not be equal.', Comment = '%1=Transaction1;%2=Transaction2';
@@ -43,7 +44,6 @@ codeunit 134331 "ERM Purchase Payables"
         CreateNewTxt: Label 'Create New...';
         FieldEnabledErr: Label 'Field %1 must be enabled.', Comment = '%1 - field name';
         IsNotFoundErr: Label 'is not found on the page';
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
         DateFormulaReverseErr: Label 'Date formula has been reversed incorrectly.';
         InvoiceMessageErr: Label 'Invoice Message must have a value in Purchase Header: Document Type=%1, No.=%2. It cannot be zero or empty.';
         NotificationBatchPurchHeaderMsg: Label 'An error or warning occured during operation Batch processing of Purchase Header records.';
@@ -695,7 +695,7 @@ codeunit 134331 "ERM Purchase Payables"
         OpenVendorHistPaytoFactBox(VendorHistPaytoFactBox, PurchaseHeader."Pay-to Vendor No.");
 
         // Verify: Verify Number of Orders on the Vendor Hist. Pay-to FactBox after creating a new Purchase Order.
-        VendorHistPaytoFactBox."Pay-to No. of Orders".AssertEquals(1);  // One Purchase Order have been created by the test function, so Number of Orders is taken as 1.
+        VendorHistPaytoFactBox.NoOfOrdersTile.AssertEquals(1);  // One Purchase Order have been created by the test function, so Number of Orders is taken as 1.
     end;
 
     [Test]
@@ -716,7 +716,7 @@ codeunit 134331 "ERM Purchase Payables"
         OpenVendorHistPaytoFactBox(VendorHistPaytoFactBox, PurchaseHeader."Pay-to Vendor No.");
 
         // Verify: Verify Number of Invoices on the Vendor Hist. Pay-to FactBox after creating a new Purchase Invoice.
-        VendorHistPaytoFactBox."Pay-to No. of Invoices".AssertEquals(1);  // One Purchase Invoice have been created by the test function, so Number of Invoices is taken as 1.
+        VendorHistPaytoFactBox.NoOfInvoicesTile.AssertEquals(1);  // One Purchase Invoice have been created by the test function, so Number of Invoices is taken as 1.
     end;
 
     [Test]
@@ -737,7 +737,7 @@ codeunit 134331 "ERM Purchase Payables"
         OpenVendorHistPaytoFactBox(VendorHistPaytoFactBox, PurchaseHeader."Pay-to Vendor No.");
 
         // Verify: Verify Number of Credit Memos on the Vendor Hist. Pay-to FactBox after creating a new Purchase Credit Memo.
-        VendorHistPaytoFactBox."Pay-to No. of Credit Memos".AssertEquals(1);  // One Purchase Credit Memo have been created by the test function, so Number of Credit Memos is taken as 1.
+        VendorHistPaytoFactBox.NoOfCreditMemosTile.AssertEquals(1);  // One Purchase Credit Memo have been created by the test function, so Number of Credit Memos is taken as 1.
     end;
 
     [Test]
@@ -758,7 +758,7 @@ codeunit 134331 "ERM Purchase Payables"
         OpenVendorHistPaytoFactBox(VendorHistPaytoFactBox, PurchaseHeader."Pay-to Vendor No.");
 
         // Verify: Verify Number of Quotes on the Vendor Hist. Pay-to FactBox after creating a new Purchase Quote.
-        VendorHistPaytoFactBox."Pay-to No. of Quotes".AssertEquals(1);  // One Purchase Quote have been created by the test function, so Number of Quotes is taken as 1.
+        VendorHistPaytoFactBox.NoOfQuotesTile.AssertEquals(1);  // One Purchase Quote have been created by the test function, so Number of Quotes is taken as 1.
     end;
 
     [Test]
@@ -779,7 +779,7 @@ codeunit 134331 "ERM Purchase Payables"
         OpenVendorHistPaytoFactBox(VendorHistPaytoFactBox, PurchaseHeader."Pay-to Vendor No.");
 
         // Verify: Verify Number of Return Orders on the Vendor Hist. Pay-to FactBox after creating a new Purchase Return Order.
-        VendorHistPaytoFactBox."Pay-to No. of Return Orders".AssertEquals(1);  // One Purchase Return Order have been created by the test function, so Number of Return Orders is taken as 1.
+        VendorHistPaytoFactBox.NoOfReturnOrdersTile.AssertEquals(1);  // One Purchase Return Order have been created by the test function, so Number of Return Orders is taken as 1.
     end;
 
     [Test]
@@ -799,8 +799,8 @@ codeunit 134331 "ERM Purchase Payables"
         OpenVendorHistPaytoFactBox(VendorHistPaytoFactBox, PurchaseHeader."Pay-to Vendor No.");
 
         // Verify: Verify Number of Posted Invoices and Number of Posted Receipts on the Vendor Hist. Pay-to FactBox after posting a new Purchase Order.
-        VendorHistPaytoFactBox."Pay-to No. of Pstd. Invoices".AssertEquals(1);  // One Posted Purchase Invoice have been created by the test function, so Number of Posted Invoices is taken as 1.
-        VendorHistPaytoFactBox."Pay-to No. of Pstd. Receipts".AssertEquals(1);  // One Posted Purchase Receipt have been created by the test function, so Number of Posted Receipts is taken as 1.
+        VendorHistPaytoFactBox.NoOfPostedInvoicesTile.AssertEquals(1);  // One Posted Purchase Invoice have been created by the test function, so Number of Posted Invoices is taken as 1.
+        VendorHistPaytoFactBox.NoOfPostedReceiptsTile.AssertEquals(1);  // One Posted Purchase Receipt have been created by the test function, so Number of Posted Receipts is taken as 1.
     end;
 
     [Test]
@@ -820,7 +820,7 @@ codeunit 134331 "ERM Purchase Payables"
         OpenVendorHistPaytoFactBox(VendorHistPaytoFactBox, PurchaseHeader."Pay-to Vendor No.");
 
         // Verify: Verify Number of Posted Credit Memos on the Vendor Hist. Pay-to FactBox after posting a new Purchase Credit Memo.
-        VendorHistPaytoFactBox."Pay-to No. of Pstd. Cr. Memos".AssertEquals(1);  // One Posted Purchase Credit Memo have been created by the test function, so Number of Posted Credit Memos is taken as 1.
+        VendorHistPaytoFactBox.NoOfPostedCreditMemosTile.AssertEquals(1);  // One Posted Purchase Credit Memo have been created by the test function, so Number of Posted Credit Memos is taken as 1.
     end;
 
     [Test]
@@ -840,7 +840,7 @@ codeunit 134331 "ERM Purchase Payables"
         OpenVendorHistPaytoFactBox(VendorHistPaytoFactBox, PurchaseHeader."Pay-to Vendor No.");
 
         // Verify: Verify Number of Posted Return Shipments on the Vendor Hist. Pay-to FactBox after posting a new Purchase Return Order.
-        VendorHistPaytoFactBox."Pay-to No. of Pstd. Return S.".AssertEquals(1);  // One Posted Return Shipment have been created by the test function, so Number of Posted Return Shipments is taken as 1.
+        VendorHistPaytoFactBox.NoOfPostedReturnShipmentsTile.AssertEquals(1);  // One Posted Return Shipment have been created by the test function, so Number of Posted Return Shipments is taken as 1.
     end;
 
     [Test]
@@ -1734,7 +1734,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Document "PO" to Purchase Order "O"
-        CopyPurchDocument(PurchaseHeader, DocType::Order, PurchaseHeaderNo);
+        CopyPurchDocument(PurchaseHeader, "Purchase Document Type From"::Order, PurchaseHeaderNo);
 
         // [THEN] "Last Posting No." is <blank> in Purchase Order "O"
         PurchaseHeader.TestField("Last Posting No.", '');
@@ -1764,7 +1764,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Archived Purchase Order to Purchase Order "O"
-        CopyPurchDocumentFromArchived(PurchaseHeader, DocType::"Arch. Order", PurchaseHeaderNo, true, false, PurchaseHeader."Document Type");
+        CopyPurchDocumentFromArchived(PurchaseHeader, "Purchase Document Type From"::"Arch. Order", PurchaseHeaderNo, true, false, PurchaseHeader."Document Type");
 
         // [THEN] "Last Posting No." is <blank> in Purchase Order "O"
         PurchaseHeader.TestField("Last Posting No.", '');
@@ -1790,7 +1790,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Document "PO" to Purchase Order "O"
-        CopyPurchDocument(PurchaseHeader, DocType::Order, PurchaseHeaderNo);
+        CopyPurchDocument(PurchaseHeader, "Purchase Document Type From"::Order, PurchaseHeaderNo);
 
         // [THEN] "Last Prepayment No." and "Last Prepmt. Cr. Memo No." are both <blank> is Purchase Order "O"
         PurchaseHeader.TestField("Last Prepayment No.", '');
@@ -1822,7 +1822,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Archived Purchase Order to Purchase Order "O"
-        CopyPurchDocumentFromArchived(PurchaseHeader, DocType::"Arch. Order", PurchaseHeaderNo, true, false, PurchaseHeader."Document Type");
+        CopyPurchDocumentFromArchived(PurchaseHeader, "Purchase Document Type From"::"Arch. Order", PurchaseHeaderNo, true, false, PurchaseHeader."Document Type");
 
         // [THEN] "Last Prepayment No." and "Last Prepmt. Cr. Memo No." are both <blank> is Purchase Order "O"
         PurchaseHeader.TestField("Last Prepayment No.", '');
@@ -1848,7 +1848,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Document "PO" to Purchase Order "O"
-        CopyPurchDocument(PurchaseHeader, DocType::"Return Order", PurchaseHeaderNo);
+        CopyPurchDocument(PurchaseHeader, "Purchase Document Type From"::"Return Order", PurchaseHeaderNo);
 
         // [THEN] "Last Return Shipment No." is <blank> in Purchase Order "O"
         PurchaseHeader.TestField("Last Return Shipment No.", '');
@@ -1902,7 +1902,7 @@ codeunit 134331 "ERM Purchase Payables"
 
         // [WHEN] Copy Archived Purchase Order to Purchase Order "O"
         CopyPurchDocumentFromArchived(
-          PurchaseHeader, DocType::"Arch. Return Order", PurchaseHeaderNo, true, false, PurchaseHeader."Document Type"::"Return Order");
+          PurchaseHeader, "Purchase Document Type From"::"Arch. Return Order", PurchaseHeaderNo, true, false, PurchaseHeader."Document Type"::"Return Order");
 
         // [THEN] "Last Return Shipment No." is <blank> in Purchase Order "O"
         PurchaseHeader.TestField("Last Return Shipment No.", '');
@@ -2159,7 +2159,7 @@ codeunit 134331 "ERM Purchase Payables"
 
         // [GIVEN] Enabled SaaS setup
         LibraryPermissions.SetTestabilitySoftwareAsAService(true);
-        
+
         // [WHEN] Open Tariff Numbers page
         TariffNumbersPage.OpenNew();
 
@@ -2208,6 +2208,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
         PriceListLine.DeleteAll();
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
 
         if IsInitialized then
             exit;
@@ -2270,7 +2271,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CopyPurchDocument(var ToPurchaseHeader: Record "Purchase Header"; DocType: Integer; DocNo: Code[20])
+    local procedure CopyPurchDocument(var ToPurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type From"; DocNo: Code[20])
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
@@ -2278,7 +2279,7 @@ codeunit 134331 "ERM Purchase Payables"
         CopyDocumentMgt.CopyPurchDoc(DocType, DocNo, ToPurchaseHeader);
     end;
 
-    local procedure CopyPurchDocumentFromArchived(var ToPurchaseHeader: Record "Purchase Header"; DocType: Integer; DocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean; ArchivedDocType: Integer)
+    local procedure CopyPurchDocumentFromArchived(var ToPurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type From"; DocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean; ArchivedDocType: Enum "Purchase Document Type")
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
         DocNoOccurrence: Integer;
@@ -2309,7 +2310,7 @@ codeunit 134331 "ERM Purchase Payables"
         BatchPostPurchaseInvoices.Run;
     end;
 
-    local procedure CreateOneItemPurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Option)
+    local procedure CreateOneItemPurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
     begin
@@ -2337,7 +2338,7 @@ codeunit 134331 "ERM Purchase Payables"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure PurchaseLineFactboxForPurchaseDocument(PurchaseDocType: Option)
+    local procedure PurchaseLineFactboxForPurchaseDocument(PurchaseDocType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2435,7 +2436,7 @@ codeunit 134331 "ERM Purchase Payables"
         PurchaseLineDiscount.Modify(true);
     end;
 
-    local procedure CreatePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Integer; VendorNo: Code[20])
+    local procedure CreatePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
@@ -2444,7 +2445,7 @@ codeunit 134331 "ERM Purchase Payables"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option): Code[20]
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
@@ -2453,7 +2454,7 @@ codeunit 134331 "ERM Purchase Payables"
         exit(NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false));
     end;
 
-    local procedure CreatePurchaseDocumentforGLAcc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20]): Code[20]
+    local procedure CreatePurchaseDocumentforGLAcc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]): Code[20]
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
@@ -2573,7 +2574,7 @@ codeunit 134331 "ERM Purchase Payables"
         UserSetup.Delete(true);
     end;
 
-    local procedure GetPurchDocNoOccurenceAndVersionFromArchivedDoc(var DocNoOccurrence: Integer; var DocVersionNo: Integer; ArchivedDocType: Integer; DocNo: Code[20])
+    local procedure GetPurchDocNoOccurenceAndVersionFromArchivedDoc(var DocNoOccurrence: Integer; var DocVersionNo: Integer; ArchivedDocType: Enum "Purchase Document Type"; DocNo: Code[20])
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
     begin
@@ -2584,7 +2585,7 @@ codeunit 134331 "ERM Purchase Payables"
         DocVersionNo := PurchaseHeaderArchive."Version No.";
     end;
 
-    local procedure FindGenJournalLine(AccountType: Option; AccountNo: Code[20]): Boolean
+    local procedure FindGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Boolean
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2599,7 +2600,7 @@ codeunit 134331 "ERM Purchase Payables"
         GLEntry.FindLast;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; Type: Option)
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; Type: Enum "General Posting Type")
     begin
         VATEntry.SetCurrentKey(Base);
         VATEntry.SetRange("Document No.", DocumentNo);
@@ -2681,7 +2682,7 @@ codeunit 134331 "ERM Purchase Payables"
         CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code, GLAccountNo, GLAccountNo2);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -2831,7 +2832,7 @@ codeunit 134331 "ERM Purchase Payables"
         VendorHistPaytoFactBox.FILTER.SetFilter("No.", No);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2860,7 +2861,6 @@ codeunit 134331 "ERM Purchase Payables"
         GenJournalBatch: Record "Gen. Journal Batch";
         Vendor: Record Vendor;
         SuggestVendorPayments: Report "Suggest Vendor Payments";
-        BalanceAccountType: Option "G/L Account",Customer,Vendor,"Bank Account";
     begin
         // Create General Journal Template and General Journal Batch.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -2874,8 +2874,9 @@ codeunit 134331 "ERM Purchase Payables"
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
-        SuggestVendorPayments.InitializeRequest(LastPmtDate, false, 0, false, LastPmtDate, VendorNo, true,
-          BalanceAccountType::"G/L Account", '', 0);  // Blank value for Account No.
+        SuggestVendorPayments.InitializeRequest(
+            LastPmtDate, false, 0, false, LastPmtDate, VendorNo, true,
+            "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");  // Blank value for Account No.
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.Run;
     end;

@@ -31,7 +31,7 @@ page 5935 "Service Credit Memo"
 
                     trigger OnValidate()
                     begin
-                        CustomerNoOnAfterValidate;
+                        CustomerNoOnAfterValidate();
                     end;
                 }
                 field("Contact No."; "Contact No.")
@@ -102,7 +102,34 @@ page 5935 "Service Credit Memo"
                     field("Contact Name"; "Contact Name")
                     {
                         ApplicationArea = Service;
-                        ToolTip = 'Specifies the name of the contact who will receive the service.';
+                        ToolTip = 'Specifies the name of the contact person who will receive the service.';
+                    }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person who will receive the service.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person who will receive the service.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person who will receive the service.';
                     }
                 }
                 field("Posting Date"; "Posting Date")
@@ -228,6 +255,33 @@ page 5935 "Service Credit Memo"
                         ApplicationArea = Service;
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
@@ -536,7 +590,7 @@ page 5935 "Service Credit Memo"
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo".AsInteger(), "No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
@@ -753,6 +807,12 @@ page 5935 "Service Credit Memo"
             SetCustomerFromFilter;
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if SellToContact.Get("Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
+    end;
+
     trigger OnOpenPage()
     begin
         SetSecurityFilterOnRespCenter;
@@ -769,6 +829,8 @@ page 5935 "Service Credit Memo"
     end;
 
     var
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         GetPrepaidTransactions: Report "Get Prepaid Contract Entries";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";

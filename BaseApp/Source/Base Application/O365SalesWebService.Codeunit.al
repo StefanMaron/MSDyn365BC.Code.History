@@ -76,6 +76,7 @@ codeunit 2190 "O365 Sales Web Service"
         ActivityLog: Record "Activity Log";
         O365SalesGraph: Record "O365 Sales Graph";
         O365SalesEvent: Record "O365 Sales Event";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         OutStr: OutStream;
         ContactGraphId: Text[250];
         ConnectionId: Text;
@@ -84,9 +85,6 @@ codeunit 2190 "O365 Sales Web Service"
             exit;
 
         if not SalesInvoiceHeader.Get(InvoiceNo) then
-            exit;
-
-        if IsNullGuid(SalesInvoiceHeader.Id) then
             exit;
 
         if SalesInvoiceHeader."Due Date" > Today then
@@ -101,7 +99,7 @@ codeunit 2190 "O365 Sales Web Service"
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
-        InitializeO365SalesGraphForDocuments(O365SalesGraph, InvoiceOverdueTypeTxt, Format(SalesInvoiceHeader.Id), ContactGraphId);
+        InitializeO365SalesGraphForDocuments(O365SalesGraph, InvoiceOverdueTypeTxt, Format(SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader)), ContactGraphId);
         O365SalesGraph.Details.CreateOutStream(OutStr, TEXTENCODING::UTF8);
         if not GetOverdueDetails(InvoiceNo, OutStr) then
             exit;
@@ -819,16 +817,14 @@ codeunit 2190 "O365 Sales Web Service"
     local procedure GetIdsIfValidInvoice(InvoiceNo: Code[20]; var ContactGraphId: Text[250]; var ConnectionId: Text; var SalesInvoiceHeaderId: Text[60]): Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         if not SalesInvoiceHeader.Get(InvoiceNo) then
             exit(false);
 
-        if IsNullGuid(SalesInvoiceHeader.Id) then
-            exit(false);
-
         ContactGraphId := GetGraphIdForContactFromInvoice(SalesInvoiceHeader);
         ConnectionId := Format(CreateGuid);
-        SalesInvoiceHeaderId := Format(SalesInvoiceHeader.Id);
+        SalesInvoiceHeaderId := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
 
         exit(true);
     end;
@@ -840,12 +836,12 @@ codeunit 2190 "O365 Sales Web Service"
         if not SalesHeader.Get(SalesHeader."Document Type"::Quote, EstimateNo) then
             exit(false);
 
-        if IsNullGuid(SalesHeader.Id) then
+        if IsNullGuid(SalesHeader.SystemId) then
             exit(false);
 
         ContactGraphId := GetGraphIdForContactFromSalesDoc(SalesHeader);
         ConnectionId := Format(CreateGuid);
-        SalesHeaderId := Format(SalesHeader.Id);
+        SalesHeaderId := Format(SalesHeader.SystemId);
 
         exit(true);
     end;

@@ -342,14 +342,8 @@ page 7004 "Sales Line Discounts"
         Item: Record Item;
         ItemDiscGr: Record "Item Discount Group";
         ClientTypeManagement: Codeunit "Client Type Management";
-        SalesTypeFilter: Option Customer,"Customer Discount Group","All Customers",Campaign,"None";
-        SalesCodeFilter: Text;
-        ItemTypeFilter: Option Item,"Item Discount Group","None";
-        CodeFilter: Text;
-        StartingDateFilter: Text[30];
         Text000: Label 'All Customers';
         PageCaption: Text;
-        CurrencyCodeFilter: Text;
         [InDataSet]
         SalesCodeEditable: Boolean;
         [InDataSet]
@@ -357,6 +351,14 @@ page 7004 "Sales Line Discounts"
         [InDataSet]
         CodeFilterCtrlEnable: Boolean;
         IsOnMobile: Boolean;
+
+    protected var
+        CodeFilter: Text;
+        CurrencyCodeFilter: Text;
+        SalesCodeFilter: Text;
+        SalesTypeFilter: Option Customer,"Customer Discount Group","All Customers",Campaign,"None";
+        ItemTypeFilter: Option Item,"Item Discount Group","None";
+        StartingDateFilter: Text[30];
 
     local procedure GetRecFilters()
     begin

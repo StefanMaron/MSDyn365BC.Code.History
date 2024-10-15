@@ -299,7 +299,8 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             if IsRefund(BankAccReconLine) then
                 "Document Type" := "Document Type"::Refund;
 
-            "Account Type" := BankAccReconLine.GetAppliedToAccountType;
+            "Posting Date" := BankAccReconLine."Transaction Date";
+            "Account Type" := "Gen. Journal Account Type".FromInteger(BankAccReconLine.GetAppliedToAccountType());
             BankAccReconciliation.Get(
               BankAccReconLine."Statement Type", BankAccReconLine."Bank Account No.", BankAccReconLine."Statement No.");
             "Copy VAT Setup to Jnl. Lines" := BankAccReconciliation."Copy VAT Setup to Jnl. Line";
@@ -308,7 +309,6 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             DimensionManagement.UpdateGlobalDimFromDimSetID(
               BankAccReconLine."Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
-            "Posting Date" := BankAccReconLine."Transaction Date";
             Description := BankAccReconLine.GetDescription;
 
             "Document No." := BankAccReconLine."Statement No.";

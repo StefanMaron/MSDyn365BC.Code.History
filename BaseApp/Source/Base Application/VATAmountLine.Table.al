@@ -1,4 +1,4 @@
-﻿table 290 "VAT Amount Line"
+table 290 "VAT Amount Line"
 {
     Caption = 'VAT Amount Line';
 
@@ -220,7 +220,7 @@
         exit(true);
     end;
 
-    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Option; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean)
+    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean)
     begin
         Init;
         "VAT Identifier" := VATIdentifier;

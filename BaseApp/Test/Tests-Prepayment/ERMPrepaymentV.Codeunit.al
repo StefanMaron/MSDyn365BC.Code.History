@@ -1,4 +1,4 @@
-﻿codeunit 134106 "ERM Prepayment V"
+codeunit 134106 "ERM Prepayment V"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -28,6 +28,8 @@
         IncorrectGLEntryExistsErr: Label 'Incorrect G/L Entry exists.';
         CountDimSetEntriesErr: Label 'Count of Dimension Set Entries is wrong.';
         IncorrectVATEntryAmountErr: Label 'Incorrect VAT Entry Amount.';
+        SalesInvDiscForPrepmtExceededErr: Label 'You cannot enter an invoice discount for sales document %1.';
+        PurchaseInvDiscForPrepmtExceededErr: Label 'You cannot enter an invoice discount for purchase document %1';
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
 
@@ -2527,86 +2529,135 @@
     end;
 
     [Test]
-    procedure PostSalesOrderWithPrepayment100PctAndInvoiceDiscountAmount()
+    [Scope('OnPrem')]
+    procedure InvDiscAfterPostSalesPrepmtInvoice()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        VATPostingSetup: Record "VAT Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
-        ItemNo: array[2] of Code[20];
-        CustomerNo: Code[20];
-        PostedDocNo: Code[20];
     begin
-        // [FEATURE] [Sales] [Invoice Discount]
-        // [SCENARIO 350540] Post Sales Order in case Prepayment % = 100 and positive Invoice Discount Amount.
+        // [FEATURE] [Invoice Discount]
+        // [SCENARIO 288239] User enters invoice discount which is greater than amount left to post after prepayment invoice was posted
         Initialize();
 
-        // [GIVEN] VAT Posting Setup with VAT Rate = 7.7. Sales Order with Prepayment % = 100, "Prices Including VAT" = FALSE.
-        // [GIVEN] Sales Line with Item, Quantity = 1, "Unit Price" = 563.85; Invoice Discount Amount = 245.01.
-        // [GIVEN] Posted Prepayment Invoice.
-        PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, 7.7);
-        CreateSalesHeader(SalesHeader, CustomerNo, 100, true);
-        SalesHeader.Validate("Prices Including VAT", false);
+        // [GIVEN] Order with posted prepayment invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(60, 90));
         SalesHeader.Modify(true);
-
-        CreateCustomItemSalesLine(SalesLine, SalesHeader, ItemNo[1], 1, 563.85);
-        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(245.01, SalesHeader);
-        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(50, 100));
+        SalesLine.Modify(true);
+        UpdateSalesPrepmtAccount(CreateGLAccount(SalesLine."VAT Prod. Posting Group"), SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
-        // [WHEN] Post Sales Order.
-        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        // [WHEN] Enter invoice discount amount greater than amount will be posted including prepayment invoice amount
+        asserterror SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(SalesLine.Amount / 100 * SalesHeader."Prepayment %", SalesHeader);
 
-        // [THEN] Sales Order with two lines and Amount = 0 was posted. 
-        // [THEN] First line with Item, "Line Amount" = 563.85, Amount = 563.85 - 245.01 = 318.84.
-        // [THEN] Second line with G/L Account, Amount = -(563.85 - 245.01) = -318.84.
-        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-        VerifyPostedSalesInvoiceWithPrepmt(
-            PostedDocNo, SalesLine.Type::Item, ItemNo[1], GeneralPostingSetup."Sales Prepayments Account",
-            SalesLine."Line Amount", SalesLine."Inv. Discount Amount");
+        // [THEN] Error message thrown
+        Assert.ExpectedError(StrSubstNo(SalesInvDiscForPrepmtExceededErr, SalesLine."Document No."));
     end;
 
     [Test]
-    procedure PostPurchaseOrderWithPrepayment100PctAndInvoiceDiscountAmount()
+    [Scope('OnPrem')]
+    procedure InvDiscAfterPostPurchasePrepmtInvoice()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
-        PurchInvHeader: Record "Purch. Inv. Header";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-        ItemNo: array[2] of Code[20];
-        VendorNo: Code[20];
-        PostedDocNo: Code[20];
     begin
-        // [FEATURE] [Purchase] [Invoice Discount]
-        // [SCENARIO 350540] Post Purchase Order in case Prepayment % = 100 and positive Invoice Discount Amount.
+        // [FEATURE] [Invoice Discount]
+        // [SCENARIO 288239] User enters invoice discount which is greater than amount left to post after prepayment invoice was posted
         Initialize();
 
-        // [GIVEN] VAT Posting Setup with VAT Rate = 7.7. Purchase Order with Prepayment % = 100, "Prices Including VAT" = FALSE.
-        // [GIVEN] Purchase Line with Item, Quantity = 1, "Unit Price" = 563.85; Invoice Discount Amount = 245.01.
-        // [GIVEN] Posted Prepayment Invoice.
-        PrepareVendorAndTwoItemsWithSetup(VATPostingSetup, VendorNo, ItemNo, 7.7);
-        CreatePurchaseHeader(PurchaseHeader, VendorNo, 100, true);
-        PurchaseHeader.Validate("Prices Including VAT", false);
+        // [GIVEN] Order with posted prepayment invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(60, 90));
         PurchaseHeader.Modify(true);
-
-        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, ItemNo[1], 1, 563.85);
-        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(245.01, PurchaseHeader);
-        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(50, 100));
+        PurchaseLine.Modify(true);
+        UpdatePurchasePrepmtAccount(CreateGLAccount(PurchaseLine."VAT Prod. Posting Group"), PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
-        // [WHEN] Post Purchase Order.
-        PostedDocNo := PostPurchaseDocument(PurchaseHeader);
+        // [WHEN] Enter invoice discount amount greater than amount will be posted including prepayment invoice amount
+        asserterror PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(PurchaseLine.Amount / 100 * PurchaseHeader."Prepayment %", PurchaseHeader);
 
-        // [THEN] Purchase Order with two lines and Amount = 0 was posted. 
-        // [THEN] First line with Item, "Line Amount" = 563.85, Amount = 563.85 - 245.01 = 318.84.
-        // [THEN] Second line with G/L Account, Amount = -(563.85 - 245.01) = -318.84.
-        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        VerifyPostedPurchaseInvoiceWithPrepmt(
-            PostedDocNo, PurchaseLine.Type::Item, ItemNo[1], GeneralPostingSetup."Purch. Prepayments Account",
-            PurchaseLine."Line Amount", PurchaseLine."Inv. Discount Amount");
+        // [THEN] Error message thrown
+        Assert.ExpectedError(StrSubstNo(PurchaseInvDiscForPrepmtExceededErr, PurchaseLine."Document No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InvDiscCalcInvDiscAfterPostSalesPrepmtInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+    begin
+        // [FEATURE] [Invoice Discount]
+        // [SCENARIO 288239] User calculates invoice discount which is greater than amount left to post after prepayment invoice was posted
+        Initialize();
+
+        // [GIVEN] Order with posted prepayment invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(60, 90));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(50, 100));
+        SalesLine.Modify(true);
+        UpdateSalesPrepmtAccount(CreateGLAccount(SalesLine."VAT Prod. Posting Group"), SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Invoice discount for customer
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, SalesHeader."Sell-to Customer No.", '', 0);
+        CustInvoiceDisc.Validate("Discount %", SalesHeader."Prepayment %");
+        CustInvoiceDisc.Modify(true);
+
+        // [WHEN] Calculate invoice discount
+        asserterror Codeunit.Run(Codeunit::"Sales-Calc. Discount", SalesLine);
+
+        // [THEN] Error message thrown
+        Assert.ExpectedError(StrSubstNo(SalesInvDiscForPrepmtExceededErr, SalesLine."Document No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InvDiscCalcInvDiscAfterPostPurchasePrepmtInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+    begin
+        // [FEATURE] [Invoice Discount]
+        // [SCENARIO 288239] User calculates invoice discount which is greater than amount left to post after prepayment invoice was posted
+        Initialize();
+
+        // [GIVEN] Order with posted prepayment invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(60, 90));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(50, 100));
+        PurchaseLine.Modify(true);
+        UpdatePurchasePrepmtAccount(CreateGLAccount(PurchaseLine."VAT Prod. Posting Group"), PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Invoice discount for vendor
+        LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, PurchaseHeader."Buy-from Vendor No.", '', 0);
+        VendorInvoiceDisc.Validate("Discount %", PurchaseHeader."Prepayment %");
+        VendorInvoiceDisc.Modify(true);
+
+        // [WHEN] Calculate invoice discount
+        asserterror Codeunit.Run(Codeunit::"Purch.-Calc.Discount", PurchaseLine);
+
+        // [THEN] Error message thrown
+        Assert.ExpectedError(StrSubstNo(PurchaseInvDiscForPrepmtExceededErr, PurchaseLine."Document No."));
     end;
 
     [Test]
@@ -2695,6 +2746,89 @@
         TempSalesLine.SetRange("Prepayment Line", false);
         TempSalesLine.FindFirst();
         TempSalesLine.TestField("Prepmt. Line Amount", TempSalesLine."Line Amount");
+    end;
+
+    [Test]
+    procedure PostSalesOrderWithPrepayment100PctAndInvoiceDiscountAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        ItemNo: array[2] of Code[20];
+        CustomerNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice Discount]
+        // [SCENARIO 350540] Post Sales Order in case Prepayment % = 100 and positive Invoice Discount Amount.
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with VAT Rate = 7.7. Sales Order with Prepayment % = 100, "Prices Including VAT" = FALSE.
+        // [GIVEN] Sales Line with Item, Quantity = 1, "Unit Price" = 563.85; Invoice Discount Amount = 245.01.
+        // [GIVEN] Posted Prepayment Invoice.
+        PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, 7.7);
+        CreateSalesHeader(SalesHeader, CustomerNo, 100, true);
+        SalesHeader.Validate("Prices Including VAT", false);
+        SalesHeader.Modify(true);
+
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, ItemNo[1], 1, 563.85);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(245.01, SalesHeader);
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Post Sales Order.
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Sales Order with two lines and Amount = 0 was posted. 
+        // [THEN] First line with Item, "Line Amount" = 563.85, Amount = 563.85 - 245.01 = 318.84.
+        // [THEN] Second line with G/L Account, Amount = -(563.85 - 245.01) = -318.84.
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        VerifyPostedSalesInvoiceWithPrepmt(
+            PostedDocNo, SalesLine.Type::Item, ItemNo[1], GeneralPostingSetup."Sales Prepayments Account",
+            SalesLine."Line Amount", SalesLine."Inv. Discount Amount");
+    end;
+
+    [Test]
+    procedure PostPurchaseOrderWithPrepayment100PctAndInvoiceDiscountAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+        ItemNo: array[2] of Code[20];
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice Discount]
+        // [SCENARIO 350540] Post Purchase Order in case Prepayment % = 100 and positive Invoice Discount Amount.
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with VAT Rate = 7.7. Purchase Order with Prepayment % = 100, "Prices Including VAT" = FALSE.
+        // [GIVEN] Purchase Line with Item, Quantity = 1, "Unit Price" = 563.85; Invoice Discount Amount = 245.01.
+        // [GIVEN] Posted Prepayment Invoice.
+        PrepareVendorAndTwoItemsWithSetup(VATPostingSetup, VendorNo, ItemNo, 7.7);
+        CreatePurchaseHeader(PurchaseHeader, VendorNo, 100, true);
+        PurchaseHeader.Validate("Prices Including VAT", false);
+        PurchaseHeader.Modify(true);
+
+        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, ItemNo[1], 1, 563.85);
+        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(245.01, PurchaseHeader);
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [WHEN] Post Purchase Order.
+        PostedDocNo := PostPurchaseDocument(PurchaseHeader);
+
+        // [THEN] Purchase Order with two lines and Amount = 0 was posted. 
+        // [THEN] First line with Item, "Line Amount" = 563.85, Amount = 563.85 - 245.01 = 318.84.
+        // [THEN] Second line with G/L Account, Amount = -(563.85 - 245.01) = -318.84.
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        VerifyPostedPurchaseInvoiceWithPrepmt(
+            PostedDocNo, PurchaseLine.Type::Item, ItemNo[1], GeneralPostingSetup."Purch. Prepayments Account",
+            PurchaseLine."Line Amount", PurchaseLine."Inv. Discount Amount");
     end;
 
     [Test]
@@ -3097,19 +3231,17 @@
     local procedure CopySalesOrderFromSalesOrder(DocFromNo: Code[20]; var SalesHeaderTo: Record "Sales Header")
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
-        RefDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         CopyDocumentMgt.SetProperties(true, false, false, false, false, false, false);
-        CopyDocumentMgt.CopySalesDoc(RefDocType::Order, DocFromNo, SalesHeaderTo);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Order, DocFromNo, SalesHeaderTo);
     end;
 
     local procedure CopyPurchOrderFromPurchOrder(DocFromNo: Code[20]; var PurchaseHeaderTo: Record "Purchase Header")
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
-        RefDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         CopyDocumentMgt.SetProperties(true, false, false, false, false, false, false);
-        CopyDocumentMgt.CopyPurchDoc(RefDocType::Order, DocFromNo, PurchaseHeaderTo);
+        CopyDocumentMgt.CopyPurchDoc("Purchase Document Type From"::Order, DocFromNo, PurchaseHeaderTo);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATRate: Decimal)
@@ -4011,7 +4143,7 @@
           StrSubstNo('%1 needs to be rounded', Format(Value, 0, '<Sign><Integer Thousand><Decimals,3><Filler Character,0>')));
     end;
 
-    local procedure VerifySalesLineFullPrepaymentWithDiscount(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifySalesLineFullPrepaymentWithDiscount(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -4021,7 +4153,7 @@
         SalesLine.TestField("Prepmt. Line Amount", SalesLine.Amount);
     end;
 
-    local procedure VerifyPurchaseLineFullPrepaymentWithDiscount(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyPurchaseLineFullPrepaymentWithDiscount(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin

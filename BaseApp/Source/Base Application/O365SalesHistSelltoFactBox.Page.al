@@ -11,7 +11,7 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
             group(Control23)
             {
                 ShowCaption = false;
-                Visible = RegularFastTabVisible;
+                Visible = false;
                 field("No. of Invoices"; "No. of Invoices")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
@@ -38,7 +38,6 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
             cuegroup(Control2)
             {
                 ShowCaption = false;
-                Visible = CuesVisible;
                 field(NoofInvoicesTile; "No. of Invoices")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
@@ -70,19 +69,6 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
     actions
     {
     }
-
-    trigger OnOpenPage()
-    var
-        OfficeManagement: Codeunit "Office Management";
-    begin
-        RegularFastTabVisible := ClientTypeMgt.GetCurrentClientType = CLIENTTYPE::Windows;
-        CuesVisible := (not RegularFastTabVisible) or OfficeManagement.IsAvailable;
-    end;
-
-    var
-        ClientTypeMgt: Codeunit "Client Type Management";
-        RegularFastTabVisible: Boolean;
-        CuesVisible: Boolean;
 
     local procedure DrillDownInvoices(Posted: Boolean)
     var

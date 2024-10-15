@@ -342,7 +342,7 @@ page 5540 "Item Availability by Timeline"
     trigger OnAfterGetRecord()
     begin
         Description := TimelineEventDescription;
-        ActionMsg := ActionMessage;
+        ActionMsg := "Action Message Type".FromInteger(ActionMessage);
     end;
 
     trigger OnInit()

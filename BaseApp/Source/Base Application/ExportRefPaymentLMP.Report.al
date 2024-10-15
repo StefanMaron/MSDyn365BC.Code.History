@@ -290,7 +290,7 @@ report 32000006 "Export Ref. Payment -  LMP"
 
             if MessageType = '1' then
                 InvoiceMessage := TextSpaceFormat(InvoiceMessage, 20, 0, '0');
-            if Rec."Document Type" = 2 then
+            if Rec."Document Type" = "Gen. Journal Document Type"::Invoice then
                 EventType := '0'
             else
                 EventType := '2';

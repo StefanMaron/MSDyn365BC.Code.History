@@ -26,6 +26,9 @@ page 8906 "Resource Manager Role Center"
                     ApplicationArea = Jobs;
                     Caption = 'Resource Price Changes';
                     RunObject = page "Resource Price Changes";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Adjust Resource Costs/Prices")
                 {
@@ -125,6 +128,9 @@ page 8906 "Resource Manager Role Center"
                         ApplicationArea = Jobs;
                         Caption = 'Resource - Price List';
                         RunObject = report "Resource - Price List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
                     }
                 }
                 group("Group5")
@@ -154,6 +160,9 @@ page 8906 "Resource Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Resource Costs';
                         RunObject = page "Resource Costs";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
                     }
                     action("Prices")
                     {
@@ -161,6 +170,9 @@ page 8906 "Resource Manager Role Center"
                         Caption = 'Resource Prices';
                         RunObject = page "Resource Prices";
                         AccessByPermission = tabledata 156 = R;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
                     }
                     action("Rounding Methods")
                     {

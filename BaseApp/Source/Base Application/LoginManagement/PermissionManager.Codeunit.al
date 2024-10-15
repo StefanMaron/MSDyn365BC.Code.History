@@ -1,7 +1,6 @@
 codeunit 9002 "Permission Manager"
 {
-    Permissions = TableData "Encrypted Key/Value" = r,
-                  TableData "User Group Plan" = rimd;
+    Permissions = TableData "User Group Plan" = rimd;
     SingleInstance = true;
 
     trigger OnRun()
@@ -215,9 +214,9 @@ codeunit 9002 "Permission Manager"
     /// This procedure retrieves a Default Profile ID to be used for a user, in case there is no valid 
     /// custom profile set for them in their User Personalization. 
     /// </summary>
-    /// <param name=UserSecurityID>The SID for the User to find a default profile for</param>
-    /// <param name=AllProfile>The returned AllProfile that is the default for the specified user</param>
-    /// <returns>
+    /// <param name="UserSecurityID">The SID for the User to find a default profile for</param>
+    /// <param name="AllProfile">The returned AllProfile that is the default for the specified user</param>
+    /// <remarks>
     /// <list type="number">
     ///   <item><description>If we can provide a tailored default for the user (from the Plan/License), return that, otherwise</description></item>
     ///   <item><description>If there is any system-wide default AllProfile in the table, return it, otherwise</description></item>
@@ -225,7 +224,7 @@ codeunit 9002 "Permission Manager"
     ///   defaulting logic), and if there is a profile for it return it, otherwise</description></item>
     ///   <item><description>Fall back to just return the first AllProfile available in the table</description></item>
     /// </list>
-    /// </returns>
+    /// </remarks>
     [Scope('OnPrem')]
     procedure GetDefaultProfileID(UserSecurityID: Guid; var AllProfile: Record "All Profile")
     var
@@ -279,7 +278,7 @@ codeunit 9002 "Permission Manager"
           UserGroupPermissionSet.WritePermission);
     end;
 
-    [Obsolete('Procedure is now part of codeunit User Permissions (System Application)','16.0')]
+    [Obsolete('Procedure is now part of codeunit User Permissions (System Application)', '16.0')]
     procedure CanManageUsersOnTenant(UserSID: Guid): Boolean
     var
         UserPermissions: Codeunit "User Permissions";

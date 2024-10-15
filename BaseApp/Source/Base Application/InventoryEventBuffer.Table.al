@@ -44,13 +44,11 @@ table 5530 "Inventory Event Buffer"
             DataClassification = SystemMetadata;
             Editable = false;
         }
-        field(15; Type; Option)
+        field(15; Type; Enum "Inventory Event Buffer Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
             Editable = false;
-            OptionCaption = 'Inventory,Purchase,Sale,,,Transfer,Component,Production,Service,Job,Forecast,Blanket Sales Order,Plan,Plan Revert,Assembly Order,Assembly Component';
-            OptionMembers = Inventory,Purchase,Sale,,,Transfer,Component,Production,Service,Job,Forecast,"Blanket Sales Order",Plan,"Plan Revert","Assembly Order","Assembly Component";
         }
         field(20; "Remaining Quantity (Base)"; Decimal)
         {
@@ -338,7 +336,7 @@ table 5530 "Inventory Event Buffer"
         "Ref. Order No." := ReqLine."Ref. Order No.";
         "Ref. Order Type" := GetRefOrderTypeFromReqLine(ReqLine."Ref. Order Type");
         // Notice: Planned outbound transfer uses an opposite direction of transfer
-        "Transfer Direction" := 1;
+        "Transfer Direction" := "Transfer Direction"::Inbound;
 
         OnAfterTransferFromReqLineTransDemand(Rec, ReqLine);
     end;
@@ -514,7 +512,7 @@ table 5530 "Inventory Event Buffer"
         OnAfterTransferFromSalesBlanketOrder(Rec, SalesLine);
     end;
 
-    procedure PlanRevertEntry(InvtEventBuf: Record "Inventory Event Buffer"; ParentActionMessage: Option)
+    procedure PlanRevertEntry(InvtEventBuf: Record "Inventory Event Buffer"; ParentActionMessage: Enum "Action Message Type")
     begin
         Rec := InvtEventBuf;
         Type := Type::"Plan Revert";

@@ -19,6 +19,7 @@ codeunit 5474 "Graph Mgt - Sales Header"
         GraphMgtGeneralTools.UpdateIntegrationRecords(SalesHeaderRecordRef, DummySalesHeader.FieldNo(Id), OnlyItemsWithoutId);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     [Scope('OnPrem')]
     procedure UpdateReferencedIdFieldOnSalesHeader(var RecRef: RecordRef; NewId: Guid; var Handled: Boolean)
     var

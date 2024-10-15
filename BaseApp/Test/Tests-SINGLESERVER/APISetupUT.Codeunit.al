@@ -20,6 +20,7 @@ codeunit 134636 "API Setup UT"
     local procedure Initialze()
     begin
         APIMockEvents.SetIsAPIEnabled(true);
+        APIMockEvents.SetIsIntegrationManagementEnabled(true);
 
         if IsInitialzed then
             exit;
@@ -44,14 +45,14 @@ codeunit 134636 "API Setup UT"
         // [GIVEN] new Customer, with no integration record
         Customer.Init();
         Customer.Insert(true);
-        IntegrationRecord.Get(Customer.Id);
+        IntegrationRecord.Get(Customer.SystemId);
         IntegrationRecord.Delete();
 
         // [WHEN] Run APISetupIfEnabled
         GraphMgtGeneralTools.APISetupIfEnabled;
 
         // [THEN] Customer still has no Integration Record
-        Assert.IsFalse(IntegrationRecord.Get(Customer.Id), 'IntegrationRecord should not exist');
+        Assert.IsFalse(IntegrationRecord.Get(Customer.SystemId), 'IntegrationRecord should not exist');
     end;
 
     [Test]
@@ -143,7 +144,7 @@ codeunit 134636 "API Setup UT"
         Clear(Customer."Payment Method Id");
         Clear(Customer."Payment Terms Id");
         Clear(Customer."Currency Id");
-        Clear(Customer.Id);
+        Clear(Customer.SystemId);
 
         // Execute
         Customer.Modify(true);
@@ -153,7 +154,7 @@ codeunit 134636 "API Setup UT"
         Assert.AreEqual(Customer."Payment Method Id", PreviousCustomer."Payment Method Id", 'Mismatch on "Payment Method Id"');
         Assert.AreEqual(Customer."Payment Terms Id", PreviousCustomer."Payment Terms Id", 'Mismatch on "Payment Terms Id"');
         Assert.AreEqual(Customer."Currency Id", PreviousCustomer."Currency Id", 'Mismatch on "Currency Id"');
-        Assert.AreEqual(Customer.Id, PreviousCustomer.Id, 'Id should be preserved');
+        Assert.AreEqual(Customer.SystemId, PreviousCustomer.SystemId, 'Id should be preserved');
     end;
 
     [Test]
@@ -173,7 +174,7 @@ codeunit 134636 "API Setup UT"
         Clear(Customer."Payment Method Id");
         Clear(Customer."Payment Terms Id");
         Clear(Customer."Currency Id");
-        Clear(Customer.Id);
+        Clear(Customer.SystemId);
 
         // Execute
         GraphMgtGeneralTools.ApiSetup;
@@ -184,7 +185,7 @@ codeunit 134636 "API Setup UT"
         Assert.AreEqual(Customer."Payment Method Id", PreviousCustomer."Payment Method Id", 'Mismatch on "Payment Method Id"');
         Assert.AreEqual(Customer."Payment Terms Id", PreviousCustomer."Payment Terms Id", 'Mismatch on "Payment Terms Id"');
         Assert.AreEqual(Customer."Currency Id", PreviousCustomer."Currency Id", 'Mismatch on "Currency Id"');
-        Assert.AreEqual(Customer.Id, PreviousCustomer.Id, 'Id should be preserved');
+        Assert.AreEqual(Customer.SystemId, PreviousCustomer.SystemId, 'Id should be preserved');
     end;
 
     [Test]
@@ -819,7 +820,7 @@ codeunit 134636 "API Setup UT"
         Assert.AreEqual(Customer."Payment Method Id", PaymentMethod.Id, '"Payment Method Id" was not set');
         Assert.AreEqual(Customer."Currency Id", Currency.Id, '"Currency Id" was not set');
 
-        VerifyIntegrationRecord(Customer.Id, Customer.RecordId);
+        VerifyIntegrationRecord(Customer.SystemId, Customer.RecordId);
     end;
 
     local procedure VerifyVendorRelatedRecordIDs(var Vendor: Record Vendor)

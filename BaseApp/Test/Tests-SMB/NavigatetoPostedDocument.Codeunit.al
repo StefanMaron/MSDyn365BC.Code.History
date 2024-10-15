@@ -569,7 +569,7 @@ codeunit 138047 "Navigate to Posted Document"
         end;
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -582,7 +582,7 @@ codeunit 138047 "Navigate to Posted Document"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
@@ -595,7 +595,7 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         Item: Record Item;
         ServiceLine: Record "Service Line";

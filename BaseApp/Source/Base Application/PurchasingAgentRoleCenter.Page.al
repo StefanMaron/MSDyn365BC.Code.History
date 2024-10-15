@@ -14,6 +14,10 @@ page 9007 "Purchasing Agent Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
                 part(Control1902476008; "My Vendors")
                 {
                     ApplicationArea = Basic, Suite;
@@ -448,10 +452,11 @@ page 9007 "Purchasing Agent Role Center"
             action("Navi&gate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Navi&gate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }
     }

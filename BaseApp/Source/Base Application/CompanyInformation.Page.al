@@ -542,6 +542,19 @@ Page 1 "Company Information"
                     Image = MailSetup;
                     RunObject = Page "SMTP Mail Setup";
                     ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with the ''Email Account Setup'' action';
+                    ObsoleteTag = '17.0';
+                    Visible = not IsEmailFeatureEnabled;
+                }
+                action("Email Account Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Account Setup';
+                    Image = MailSetup;
+                    RunObject = page "Email Accounts";
+                    ToolTip = 'Set up email accounts used in the product.';
+                    Visible = IsEmailFeatureEnabled;
                 }
             }
             group(Currencies)
@@ -606,7 +619,7 @@ Page 1 "Company Information"
                 Caption = 'Codes';
                 action("Source Codes")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Source Codes';
                     Image = CodesList;
                     RunObject = Page "Source Codes";
@@ -614,7 +627,7 @@ Page 1 "Company Information"
                 }
                 action("Reason Codes")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Reason Codes';
                     Image = CodesList;
                     RunObject = Page "Reason Codes";
@@ -652,7 +665,10 @@ Page 1 "Company Information"
     trigger OnOpenPage()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EmailFeature: Codeunit "Email Feature";
+        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
     begin
+        IsEmailFeatureEnabled := EmailFeature.IsEnabled();
         Reset;
         if not Get then begin
             Init;
@@ -662,6 +678,7 @@ Page 1 "Company Information"
         CountyVisible := FormatAddress.UseCounty("Country/Region Code");
 
         ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(Experience);
+        MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
 
     var
@@ -679,6 +696,7 @@ Page 1 "Company Information"
         CountyVisible: Boolean;
         SystemIndicatorChanged: Boolean;
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
+        IsEmailFeatureEnabled: Boolean;
 
     local procedure UpdateSystemIndicator()
     var

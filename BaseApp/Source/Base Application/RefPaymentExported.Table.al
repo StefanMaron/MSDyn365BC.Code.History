@@ -28,7 +28,7 @@ table 32000002 "Ref. Payment - Exported"
                     Description := CopyStr(Vend.Name, 1, MaxStrLen(Description));
                     "Vendor Account" := Vend."Preferred Bank Account Code";
                     Validate("Vendor Account");
-                    Vend.CheckBlockedVendOnJnls(Vend, 1, false);
+                    Vend.CheckBlockedVendOnJnls(Vend, "Gen. Journal Document Type"::Payment, false);
                 end;
             end;
         }

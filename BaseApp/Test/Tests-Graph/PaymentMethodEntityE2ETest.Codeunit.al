@@ -21,31 +21,6 @@ codeunit 135518 "Payment Method Entity E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestVerifyIDandLastModifiedDateTime()
-    var
-        PaymentMethod: Record "Payment Method";
-        IntegrationRecord: Record "Integration Record";
-        PaymentMethodCode: Text;
-        PaymentMethodId: Guid;
-    begin
-        // [SCENARIO] Create a Payment Method and verify it has Id and LastDateTimeModified.
-        Initialize;
-
-        // [GIVEN] a modified Payment Method record
-        PaymentMethodCode := CreatePaymentMethod;
-
-        // [WHEN] we retrieve the Payment Method from the database
-        PaymentMethod.Get(PaymentMethodCode);
-        PaymentMethodId := PaymentMethod.Id;
-
-        // [THEN] the Payment Method should have an integration id and last date time modified
-        IntegrationRecord.Get(PaymentMethodId);
-        IntegrationRecord.TestField("Integration ID");
-        PaymentMethod.TestField("Last Modified Date Time");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestGetPaymentMethods()
     var
         PaymentMethodCode: array[2] of Text;
@@ -119,7 +94,7 @@ codeunit 135518 "Payment Method Entity E2E Test"
         RequestBody := GetPaymentMethodJSON(PaymentMethod);
 
         // [WHEN] The user makes a patch request to the service.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(PaymentMethod.Id, PAGE::"Payment Methods Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(PaymentMethod.SystemId, PAGE::"Payment Methods Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
         // [THEN] The response text contains the new values.
@@ -147,7 +122,7 @@ codeunit 135518 "Payment Method Entity E2E Test"
         PaymentMethod.Get(PaymentMethodCode);
 
         // [WHEN] The user makes a DELETE request to the endpoint for the Payment Method.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(PaymentMethod.Id, PAGE::"Payment Methods Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(PaymentMethod.SystemId, PAGE::"Payment Methods Entity", ServiceNameTxt);
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', Responsetext);
 
         // [THEN] The response is empty.

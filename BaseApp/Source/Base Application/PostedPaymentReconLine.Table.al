@@ -14,7 +14,6 @@ table 1296 "Posted Payment Recon. Line"
         {
             Caption = 'Statement No.';
             TableRelation = "Posted Payment Recon. Hdr"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
-            ValidateTableRelation = false;
         }
         field(3; "Statement Line No."; Integer)
         {
@@ -34,19 +33,19 @@ table 1296 "Posted Payment Recon. Line"
         }
         field(7; "Statement Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Statement Amount';
         }
         field(8; Difference; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Difference';
         }
         field(9; "Applied Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Applied Amount';
             Editable = false;

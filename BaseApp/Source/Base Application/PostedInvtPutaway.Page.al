@@ -33,14 +33,14 @@ page 7390 "Posted Invt. Put-away"
                 field("Destination No."; "Destination No.")
                 {
                     ApplicationArea = Warehouse;
-                    CaptionClass = Format(WMSMgt.GetCaption("Destination Type", "Source Document", 0));
+                    CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 0));
                     Editable = false;
                     ToolTip = 'Specifies the number or the code of the customer, vendor, location, item, family, or sales order linked to the posted inventory put-away.';
                 }
-                field("WMSMgt.GetDestinationName(""Destination Type"",""Destination No."")"; WMSMgt.GetDestinationName("Destination Type", "Destination No."))
+                field("WMSMgt.GetDestinationName(""Destination Type"",""Destination No."")"; WMSMgt.GetDestinationEntityName("Destination Type", "Destination No."))
                 {
                     ApplicationArea = Warehouse;
-                    CaptionClass = Format(WMSMgt.GetCaption("Destination Type", "Source Document", 1));
+                    CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 1));
                     Caption = 'Name';
                     Editable = false;
                     ToolTip = 'Specifies the name of a put-away of items that has been posted in one of the warehouses.';
@@ -59,13 +59,13 @@ page 7390 "Posted Invt. Put-away"
                 field("External Document No."; "External Document No.")
                 {
                     ApplicationArea = Warehouse;
-                    CaptionClass = Format(WMSMgt.GetCaption("Destination Type", "Source Document", 2));
+                    CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 2));
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("External Document No.2"; "External Document No.2")
                 {
                     ApplicationArea = Warehouse;
-                    CaptionClass = Format(WMSMgt.GetCaption("Destination Type", "Source Document", 3));
+                    CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 3));
                     ToolTip = 'Specifies an additional part of the document number that refers to the customer''s or vendor''s numbering system.';
                 }
             }
@@ -117,11 +117,12 @@ page 7390 "Posted Invt. Put-away"
             action("&Navigate")
             {
                 ApplicationArea = Warehouse;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin

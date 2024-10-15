@@ -95,7 +95,7 @@ codeunit 1312 "Vendor Mgt."
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeader);
     end;
 
-    local procedure CalcAmountsOnPostedDocs(VendNo: Code[20]; var RecCount: Integer; DocType: Integer): Decimal
+    local procedure CalcAmountsOnPostedDocs(VendNo: Code[20]; var RecCount: Integer; DocType: Enum "Gen. Journal Document Type"): Decimal
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -107,52 +107,47 @@ codeunit 1312 "Vendor Mgt."
         end;
     end;
 
-    local procedure CalcAmountsOnUnpostedDocs(VendNo: Code[20]; var RecCount: Integer; DocType: Integer): Decimal
+    local procedure CalcAmountsOnUnpostedDocs(VendNo: Code[20]; var RecCount: Integer; DocType: Enum "Purchase Document Type") Result: Decimal
     var
-        PurchaseLine: Record "Purchase Line";
-        Result: Decimal;
-        VAT: Decimal;
-        OutstandingAmount: Decimal;
-        OldDocumentNo: Code[20];
+        PurchaseHeader: Record "Purchase Header";
+        PurchOutstdAmountOnVAT: Query "Purch. Outstd. Amount On VAT";
+        Factor: Integer;
     begin
         RecCount := 0;
         Result := 0;
+        if VendNo = '' then
+            exit;
 
-        SetFilterForUnpostedLines(PurchaseLine, VendNo, DocType);
-        with PurchaseLine do begin
-            if FindSet then
-                repeat
-                    case "Document Type" of
-                        "Document Type"::Invoice:
-                            OutstandingAmount := "Outstanding Amount (LCY)";
-                        "Document Type"::"Credit Memo":
-                            OutstandingAmount := -"Outstanding Amount (LCY)";
-                    end;
-                    VAT := 100 + "VAT %";
-                    Result += OutstandingAmount * 100 / VAT;
+        PurchaseHeader.SetRange("Document Type", DocType);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", VendNo);
+        RecCount := PurchaseHeader.Count();
 
-                    if OldDocumentNo <> "Document No." then begin
-                        OldDocumentNo := "Document No.";
-                        RecCount += 1;
-                    end;
-                until Next = 0;
+        case DocType of
+            "Purchase Document Type"::Invoice:
+                Factor := 1;
+            "Purchase Document Type"::"Credit Memo":
+                Factor := -1;
         end;
+        PurchOutstdAmountOnVAT.SetRange(Document_Type, DocType);
+        PurchOutstdAmountOnVAT.SetRange(Buy_from_Vendor_No_, VendNo);
+        PurchOutstdAmountOnVAT.Open();
+        while PurchOutstdAmountOnVAT.Read() do
+            Result += Factor * PurchOutstdAmountOnVAT.Sum_Outstanding_Amount__LCY_ * 100 / (100 + PurchOutstdAmountOnVAT.VAT__);
+        PurchOutstdAmountOnVAT.Close();
+
         exit(Round(Result));
     end;
 
-    local procedure SetFilterForUnpostedLines(var PurchaseLine: Record "Purchase Line"; VendNo: Code[20]; DocumentType: Integer)
+    local procedure SetFilterForUnpostedLines(var PurchaseLine: Record "Purchase Line"; VendNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with PurchaseLine do begin
             SetRange("Buy-from Vendor No.", VendNo);
 
-            if DocumentType = -1 then
-                SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo")
-            else
-                SetRange("Document Type", DocumentType);
+            SetRange("Document Type", DocumentType);
         end;
     end;
 
-    local procedure SetFilterForPostedDocs(var VendLedgEntry: Record "Vendor Ledger Entry"; VendNo: Code[20]; DocumentType: Integer)
+    local procedure SetFilterForPostedDocs(var VendLedgEntry: Record "Vendor Ledger Entry"; VendNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with VendLedgEntry do begin
             SetRange("Buy-from Vendor No.", VendNo);
@@ -161,7 +156,7 @@ codeunit 1312 "Vendor Mgt."
         end;
     end;
 
-    procedure SetFilterForExternalDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; ExternalDocNo: Text[35]; VendorNo: Code[20]; DocumentDate: Date)
+    procedure SetFilterForExternalDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; ExternalDocNo: Text[35]; VendorNo: Code[20]; DocumentDate: Date)
     begin
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("External Document No.", ExternalDocNo);

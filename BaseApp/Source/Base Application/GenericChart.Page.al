@@ -3,6 +3,9 @@ page 1390 "Generic Chart"
     Caption = 'Key Performance Indicators';
     PageType = CardPart;
     SourceTable = "Business Chart Buffer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The page has been replaced with page 1392 "Help And Chart Wrapper".';
+    ObsoleteTag = '17.0';
 
     layout
     {

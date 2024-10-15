@@ -24,7 +24,7 @@ page 447 "Finance Charge Memo Lines"
                     trigger OnValidate()
                     begin
                         TypeOnAfterValidate;
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                         SetShowMandatoryConditions
                     end;
                 }
@@ -36,7 +36,7 @@ page 447 "Finance Charge Memo Lines"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Posting Date"; "Posting Date")
@@ -76,7 +76,7 @@ page 447 "Finance Charge Memo Lines"
 
                     trigger OnValidate()
                     begin
-                        DocumentNoOnAfterValidate;
+                        DocumentNoOnAfterValidate();
                     end;
                 }
                 field("Due Date"; "Due Date")

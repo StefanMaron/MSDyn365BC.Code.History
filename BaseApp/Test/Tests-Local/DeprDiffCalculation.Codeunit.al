@@ -550,7 +550,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         CreateFixedAsset(FixedAsset, FAPostingGroup.Code);
     end;
 
-    local procedure CreateAndSetupFixedAsset(var FixedAsset: Record "Fixed Asset"; StartingDate: Date; FAPostingGroupCode: Code[20]; DepreciationBookCodeSUMU: Code[10]; DepreciationMethodSUMU: Option; EndingDateFormulaSUMU: Text; DecliningBalancePercentSUMU: Decimal; DepreciationBookCodeTax: Code[10]; DepreciationMethodTax: Option; EndingDateFormulaTax: Text; DecliningBalancePercentTax: Decimal; ClearDeprDifferenceAcc: Boolean; ClearDeprDifferenceBalAcc: Boolean)
+    local procedure CreateAndSetupFixedAsset(var FixedAsset: Record "Fixed Asset"; StartingDate: Date; FAPostingGroupCode: Code[20]; DepreciationBookCodeSUMU: Code[10]; DepreciationMethodSUMU: Enum "FA Depreciation Method"; EndingDateFormulaSUMU: Text; DecliningBalancePercentSUMU: Decimal; DepreciationBookCodeTax: Code[10]; DepreciationMethodTax: Enum "FA Depreciation Method"; EndingDateFormulaTax: Text; DecliningBalancePercentTax: Decimal; ClearDeprDifferenceAcc: Boolean; ClearDeprDifferenceBalAcc: Boolean)
     var
         FAClass: Record "FA Class";
     begin
@@ -571,7 +571,7 @@ codeunit 144020 "Depr. Diff. Calculation"
           StartingDate, EndingDateFormulaTax, DecliningBalancePercentTax);
     end;
 
-    local procedure CreateAndSetupFADepreciationBook(FixedAsset: Record "Fixed Asset"; FAPostingGroupCode: Code[20]; DepreciationBooKCode: Code[10]; DepreciationMethod: Option; StartDate: Date; EndingDateFormulaExpression: Text; DecliningBalancePercent: Decimal)
+    local procedure CreateAndSetupFADepreciationBook(FixedAsset: Record "Fixed Asset"; FAPostingGroupCode: Code[20]; DepreciationBooKCode: Code[10]; DepreciationMethod: Enum "FA Depreciation Method"; StartDate: Date; EndingDateFormulaExpression: Text; DecliningBalancePercent: Decimal)
     var
         FADepreciationBook: Record "FA Depreciation Book";
         EndingDateFormula: DateFormula;
@@ -624,7 +624,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         UpdateFAJournalSetup(FAJournalSetup);
     end;
 
-    local procedure CreateFAJournalLineWithAmount(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option; PostingDate: Date; LineAmount: Decimal)
+    local procedure CreateFAJournalLineWithAmount(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Journal Line Document Type"; PostingDate: Date; LineAmount: Decimal)
     var
         FAJournalBatch: Record "FA Journal Batch";
     begin
@@ -682,7 +682,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         end;
     end;
 
-    local procedure CreateAndPostAcqusitionLine(FANo: Code[20]; FAPostingType: Option; DepreciationBookCode: Code[10]; PostingDate: Date; LineAmount: Decimal)
+    local procedure CreateAndPostAcqusitionLine(FANo: Code[20]; FAPostingType: Enum "FA Journal Line FA Posting Type"; DepreciationBookCode: Code[10]; PostingDate: Date; LineAmount: Decimal)
     var
         FAJournalLine: Record "FA Journal Line";
     begin
@@ -690,7 +690,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
 
-    local procedure CreateFAAndPostDepreciation(Amount: Decimal; StartingDate: Date; PostingDate: Date; DepreciationBookCodeSUMU: Code[10]; DepreciationBookCodeTax: Code[10]; DepreciationMethodTax: Option; EndingDateFormulaTax: Text; DecliningBalancePercentTax: Decimal; ClearDeprDifferenceAcc: Boolean; ClearDeprDifferenceBalAcc: Boolean): Code[20]
+    local procedure CreateFAAndPostDepreciation(Amount: Decimal; StartingDate: Date; PostingDate: Date; DepreciationBookCodeSUMU: Code[10]; DepreciationBookCodeTax: Code[10]; DepreciationMethodTax: Enum "FA Depreciation Method"; EndingDateFormulaTax: Text; DecliningBalancePercentTax: Decimal; ClearDeprDifferenceAcc: Boolean; ClearDeprDifferenceBalAcc: Boolean): Code[20]
     var
         FixedAsset: Record "Fixed Asset";
         FAJournalLine: Record "FA Journal Line";

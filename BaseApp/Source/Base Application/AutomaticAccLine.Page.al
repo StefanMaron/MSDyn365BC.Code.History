@@ -174,7 +174,7 @@ page 11207 "Automatic Acc. Line"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

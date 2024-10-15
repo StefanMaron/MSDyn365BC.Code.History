@@ -42,11 +42,9 @@ table 5 "Finance Charge Terms"
         {
             Caption = 'Description';
         }
-        field(8; "Interest Calculation Method"; Option)
+        field(8; "Interest Calculation Method"; Enum "Interest Calculation Method")
         {
             Caption = 'Interest Calculation Method';
-            OptionCaption = 'Average Daily Balance,Balance Due';
-            OptionMembers = "Average Daily Balance","Balance Due";
         }
         field(9; "Interest Period (Days)"; Integer)
         {

@@ -1,4 +1,4 @@
-table 98 "General Ledger Setup"
+﻿table 98 "General Ledger Setup"
 {
     Caption = 'General Ledger Setup';
 
@@ -64,7 +64,7 @@ table 98 "General Ledger Setup"
         field(44; "Cust. Balances Due"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                                  "Initial Entry Due Date" = FIELD("Date Filter")));
             Caption = 'Cust. Balances Due';
@@ -74,7 +74,7 @@ table 98 "General Ledger Setup"
         field(45; "Vendor Balances Due"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                                    "Initial Entry Due Date" = FIELD("Date Filter")));
             Caption = 'Vendor Balances Due';
@@ -346,7 +346,7 @@ table 98 "General Ledger Setup"
                 if "Amount Rounding Precision" <> 0 then
                     "Inv. Rounding Precision (LCY)" := Round("Inv. Rounding Precision (LCY)", "Amount Rounding Precision");
 
-                RoundingErrorCheck(FieldCaption("Amount Rounding Precision"));
+                CheckRoundingError(FieldCaption("Amount Rounding Precision"));
 
                 if HideDialog then
                     Message(Text021);
@@ -519,6 +519,9 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Adapt Main Menu to Permissions';
             InitValue = true;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced with UI Elements Removal feature.';
+            ObsoleteTag = '17.0';
         }
         field(97; "Allow G/L Acc. Deletion Before"; Date)
         {
@@ -788,27 +791,26 @@ table 98 "General Ledger Setup"
         RecordHasBeenRead := true;
     end;
 
-    local procedure RoundingErrorCheck(NameOfField: Text[100])
+    procedure CheckRoundingError(NameOfField: Text[100])
     begin
         ErrorMessage := false;
-        if GLEntry.FindFirst then
+        if GLEntry.FindFirst() then
             ErrorMessage := true;
-        if ItemLedgerEntry.FindFirst then
+        if ItemLedgerEntry.FindFirst() then
             ErrorMessage := true;
-        if JobLedgEntry.FindFirst then
+        if JobLedgEntry.FindFirst() then
             ErrorMessage := true;
-        if ResLedgEntry.FindFirst then
+        if ResLedgEntry.FindFirst() then
             ErrorMessage := true;
-        if FALedgerEntry.FindFirst then
+        if FALedgerEntry.FindFirst() then
             ErrorMessage := true;
-        if MaintenanceLedgerEntry.FindFirst then
+        if MaintenanceLedgerEntry.FindFirst() then
             ErrorMessage := true;
-        if InsCoverageLedgerEntry.FindFirst then
+        if InsCoverageLedgerEntry.FindFirst() then
             ErrorMessage := true;
+        OnBeforeCheckRoundingError(ErrorMessage);
         if ErrorMessage then
-            Error(
-              Text018,
-              NameOfField);
+            Error(Text018, NameOfField);
     end;
 
     local procedure DeleteIntrastatJnl()
@@ -931,6 +933,11 @@ table 98 "General Ledger Setup"
     procedure GetPmtToleranceVisible(): Boolean
     begin
         exit(("Payment Tolerance %" > 0) or ("Max. Payment Tolerance Amount" <> 0));
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckRoundingError(var ErrorMessage: Boolean);
+    begin
     end;
 }
 

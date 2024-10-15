@@ -265,7 +265,7 @@ codeunit 134077 "ERM Currency Factor"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -277,7 +277,7 @@ codeunit 134077 "ERM Currency Factor"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal) AmountLCY: Decimal
+    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal) AmountLCY: Decimal
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin

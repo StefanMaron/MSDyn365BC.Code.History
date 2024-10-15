@@ -72,6 +72,42 @@ report 404 "Purchase - Quote"
             column(VatRegistrationNoCaption; VatRegistrationNoCaptionLbl)
             {
             }
+            column(BuyFromContactPhoneNoLbl; BuyFromContactPhoneNoLbl)
+            {
+            }
+            column(BuyFromContactMobilePhoneNoLbl; BuyFromContactMobilePhoneNoLbl)
+            {
+            }
+            column(BuyFromContactEmailLbl; BuyFromContactEmailLbl)
+            {
+            }
+            column(PayToContactPhoneNoLbl; PayToContactPhoneNoLbl)
+            {
+            }
+            column(PayToContactMobilePhoneNoLbl; PayToContactMobilePhoneNoLbl)
+            {
+            }
+            column(PayToContactEmailLbl; PayToContactEmailLbl)
+            {
+            }
+            column(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+            {
+            }
+            column(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+            {
+            }
+            column(BuyFromContactEmail; BuyFromContact."E-Mail")
+            {
+            }
+            column(PayToContactPhoneNo; PayToContact."Phone No.")
+            {
+            }
+            column(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+            {
+            }
+            column(PayToContactEmail; PayToContact."E-Mail")
+            {
+            }
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = SORTING(Number);
@@ -473,6 +509,8 @@ report 404 "Purchase - Quote"
 
                 FormatAddressFields("Purchase Header");
                 FormatDocumentFields("Purchase Header");
+                if BuyFromContact.Get("Buy-from Contact No.") then;
+                if PayToContact.Get("Pay-to Contact No.") then;
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
@@ -604,6 +642,8 @@ report 404 "Purchase - Quote"
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         PurchSetup: Record "Purchases & Payables Setup";
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         Language: Codeunit Language;
         PurchPost: Codeunit "Purch.-Post";
         FormatAddr: Codeunit "Format Address";
@@ -655,6 +695,12 @@ report 404 "Purchase - Quote"
         HomePageCaptionLbl: Label 'Home Page';
         EMailCaptionLbl: Label 'Email';
         VatRegistrationNoCaptionLbl: Label 'VAT Registration No.';
+        BuyFromContactPhoneNoLbl: Label 'Buy-from Contact Phone No.';
+        BuyFromContactMobilePhoneNoLbl: Label 'Buy-from Contact Mobile Phone No.';
+        BuyFromContactEmailLbl: Label 'Buy-from Contact E-Mail';
+        PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
+        PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
+        PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
         BusinessIdentityCodeLbl: Label 'Business Identity Code';
         RegisteredHomeCityLbl: Label 'Registered Home City';
 

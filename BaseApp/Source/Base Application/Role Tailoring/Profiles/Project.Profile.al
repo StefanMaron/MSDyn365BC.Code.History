@@ -2,7 +2,7 @@ profile "PROJECTS"
 {
     Enabled = true;
     Caption = 'Project';
-    ProfileDescription = 'Full functionality for anyone in the Project department, such as project managers.';
+    ProfileDescription = 'Navigation menu only.';
     Promoted = true;
     RoleCenter = 8904;
 }

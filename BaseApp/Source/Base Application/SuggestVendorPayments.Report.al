@@ -382,7 +382,7 @@ report 393 "Suggest Vendor Payments"
                             trigger OnValidate()
                             begin
                                 if (GenJnlLine2."Bal. Account Type" <> GenJnlLine2."Bal. Account Type"::"Bank Account") and
-                                   (GenJnlLine2."Bank Payment Type" > 0)
+                                   (GenJnlLine2."Bank Payment Type".AsInteger() > 0)
                                 then
                                     Error(
                                       Text010,
@@ -526,7 +526,7 @@ report 393 "Suggest Vendor Payments"
         StopPayments: Boolean;
         DocNoPerLine: Boolean;
         BankPmtType: Enum "Bank Payment Type";
-        BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account";
+        BalAccType: Enum "Gen. Journal Account Type";
         BalAccNo: Code[20];
         MessageText: Text;
         GenJnlLineInserted: Boolean;
@@ -565,7 +565,7 @@ report 393 "Suggest Vendor Payments"
         end;
     end;
 
-    procedure InitializeRequest(LastPmtDate: Date; FindPmtDisc: Boolean; NewAvailableAmount: Decimal; NewSkipExportedPayments: Boolean; NewPostingDate: Date; NewStartDocNo: Code[20]; NewSummarizePerVend: Boolean; BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account"; BalAccNo: Code[20]; BankPmtType: Enum "Bank Payment Type")
+    procedure InitializeRequest(LastPmtDate: Date; FindPmtDisc: Boolean; NewAvailableAmount: Decimal; NewSkipExportedPayments: Boolean; NewPostingDate: Date; NewStartDocNo: Code[20]; NewSummarizePerVend: Boolean; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; BankPmtType: Enum "Bank Payment Type")
     begin
         LastDueDateToPayReq := LastPmtDate;
         UsePaymentDisc := FindPmtDisc;
@@ -610,7 +610,7 @@ report 393 "Suggest Vendor Payments"
                 if not IsHandled then
                     if SendToBank then begin // + NSFI BANK
                         RefPaymentLines.Reset();
-                        if GenJnlLine2."Bal. Account Type" = 3 then
+                        if GenJnlLine2."Bal. Account Type" = GenJnlLine2."Bal. Account Type"::"Bank Account" then
                             RefPaymentLines.SetFilter("Payment Account", GenJnlLine2."Bal. Account No.");
                         RefPaymentLines.SetRange(Transferred, true);
                         RefPaymentLines.SetRange("Posted to G/L", false);
@@ -656,7 +656,7 @@ report 393 "Suggest Vendor Payments"
             "Payment Terms Code" := Vend2."Payment Terms Code";
             Validate("Bill-to/Pay-to No.", "Account No.");
             Validate("Sell-to/Buy-from No.", "Account No.");
-            "Gen. Posting Type" := 0;
+            "Gen. Posting Type" := "Gen. Posting Type"::" ";
             "Gen. Bus. Posting Group" := '';
             "Gen. Prod. Posting Group" := '';
             "VAT Bus. Posting Group" := '';
@@ -673,7 +673,7 @@ report 393 "Suggest Vendor Payments"
             if SendToBank then // + NSFI BANK
               begin
                 RefPaymentLines.Reset();
-                if GenJnlLine2."Bal. Account Type" = 3 then
+                if GenJnlLine2."Bal. Account Type" = GenJnlLine2."Bal. Account Type"::"Bank Account" then
                     RefPaymentLines.SetFilter("Payment Account", GenJnlLine2."Bal. Account No.");
                 RefPaymentLines.SetRange(Transferred, true);
                 RefPaymentLines.SetRange("Posted to G/L", false);
@@ -802,7 +802,7 @@ report 393 "Suggest Vendor Payments"
                                 TempPaymentBuffer."Message Type" := VendLedgEntry."Message Type";
                                 TempPaymentBuffer."Invoice Message" := VendLedgEntry."Invoice Message";
                                 RefPaymentLines.Reset();
-                                if GenJnlLine2."Bal. Account Type" = 3 then
+                                if GenJnlLine2."Bal. Account Type" = GenJnlLine2."Bal. Account Type"::"Bank Account" then
                                     RefPaymentLines.SetFilter("Payment Account", GenJnlLine2."Bal. Account No.");
                                 RefPaymentLines.SetRange(Transferred, true);
                                 RefPaymentLines.SetRange("Posted to G/L", false);
@@ -952,8 +952,8 @@ report 393 "Suggest Vendor Payments"
                 "Dimension Set ID" := NewDimensionID;
             end;
             CreateDim(
-              DimMgt.TypeToTableID1("Account Type"), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+              DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+              DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
               DATABASE::Job, "Job No.",
               DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
               DATABASE::Campaign, "Campaign No.");
@@ -974,7 +974,7 @@ report 393 "Suggest Vendor Payments"
         end;
     end;
 
-    local procedure SetBankAccCurrencyFilter(BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
+    local procedure SetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
     var
         BankAcc: Record "Bank Account";
     begin
@@ -996,7 +996,7 @@ report 393 "Suggest Vendor Payments"
         end;
     end;
 
-    local procedure CheckCurrencies(BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
+    local procedure CheckCurrencies(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
     var
         BankAcc: Record "Bank Account";
         TmpPayableVendLedgEntry2: Record "Payable Vendor Ledger Entry" temporary;

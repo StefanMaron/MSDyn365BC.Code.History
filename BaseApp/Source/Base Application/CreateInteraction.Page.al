@@ -285,7 +285,7 @@ page 5077 "Create Interaction"
 
                 trigger OnAction()
                 begin
-                    PreviewHTMLContent;
+                    PreviewSegLineHTMLContent();
                 end;
             }
             action(Finish)
@@ -301,7 +301,7 @@ page 5077 "Create Interaction"
 
                 trigger OnAction()
                 begin
-                    FinishWizard(true);
+                    FinishSegLineWizard(true);
                     IsFinished := true;
                     CurrPage.Close;
                 end;
@@ -357,7 +357,7 @@ page 5077 "Create Interaction"
         if IsFinished then
             exit;
 
-        FinishWizard(CloseAction in [ACTION::OK, ACTION::LookupOK]);
+        FinishSegLineWizard(CloseAction in [ACTION::OK, ACTION::LookupOK]);
     end;
 
     var
@@ -409,7 +409,7 @@ page 5077 "Create Interaction"
 
     local procedure AttachmentReload()
     begin
-        LoadAttachment(true);
+        LoadSegLineAttachment(true);
         HTMLAttachment := IsHTMLAttachment;
         if HTMLAttachment then
             HTMLContentBodyText := LoadContentBodyTextFromCustomLayoutAttachment;

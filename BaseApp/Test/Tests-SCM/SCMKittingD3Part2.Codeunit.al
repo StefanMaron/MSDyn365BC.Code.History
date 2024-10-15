@@ -62,7 +62,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure Adjustment(ParentCostingMethod: Option; CompCostingMethod: Option; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option): Code[20]
+    local procedure Adjustment(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option): Code[20]
     var
         AssemblyHeader: Record "Assembly Header";
         TempAssemblyLine: Record "Assembly Line" temporary;
@@ -232,7 +232,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure AdjPostGL(ParentCostingMethod: Option; CompCostingMethod: Option; PerPostingGroup: Boolean; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option)
+    local procedure AdjPostGL(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; PerPostingGroup: Boolean; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option)
     var
         PostedAssemblyHeader: Record "Posted Assembly Header";
         AssemblyHeaderNo: Code[20];
@@ -312,7 +312,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure BatchAdjustment(var AssemblyHeaderNo1: Code[20]; var AssemblyHeaderNo2: Code[20]; ParentCostingMethod: Option; CompCostingMethod: Option; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option)
+    local procedure BatchAdjustment(var AssemblyHeaderNo1: Code[20]; var AssemblyHeaderNo2: Code[20]; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource1: Option; AdjSource2: Option)
     var
         AssemblyHeader: Record "Assembly Header";
         TempAssemblyLine: Record "Assembly Line" temporary;
@@ -406,7 +406,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure BatchPostToGL(ParentCostingMethod: Option; CompCostingMethod: Option; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource: Option)
+    local procedure BatchPostToGL(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; AutCostPosting: Boolean; AutCostAdj: Option; AdjustHeader: Boolean; AdjSource: Option)
     var
         PostedAssemblyHeader: Record "Posted Assembly Header";
         AssemblyHeaderNo1: Code[20];
@@ -548,7 +548,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure SKUPosting(ParentCostingMethod: Option; CompCostingMethod: Option; CreatePer: Option Location,Variant,"Location & Variant")
+    local procedure SKUPosting(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; CreatePer: Option Location,Variant,"Location & Variant")
     var
         Item: Record Item;
         Item1: Record Item;
@@ -661,7 +661,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Normal]
-    local procedure CircularRef(CostingMethod: Option; UseVariant: Boolean)
+    local procedure CircularRef(CostingMethod: Enum "Costing Method"; UseVariant: Boolean)
     var
         ItemVariant: Record "Item Variant";
         AssemblyHeader: Record "Assembly Header";

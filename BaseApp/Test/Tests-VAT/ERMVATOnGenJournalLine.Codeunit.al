@@ -393,7 +393,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          0, '', GenJournalLine."Bal. Account Type"::Customer, CustomerNo, Amount);
+          "Gen. Journal Account Type"::"G/L Account", '', GenJournalLine."Bal. Account Type"::Customer, CustomerNo, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify();
     end;
@@ -402,7 +402,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          0, '', GenJournalLine."Bal. Account Type"::Vendor, VendorNo, Amount);
+          "Gen. Journal Account Type"::"G/L Account", '', GenJournalLine."Bal. Account Type"::Vendor, VendorNo, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify();
     end;
@@ -411,12 +411,12 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, 0, '', Amount);
+          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Account Type"::"G/L Account", '', Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify();
     end;
 
-    local procedure CreateRecurringGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateRecurringGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);

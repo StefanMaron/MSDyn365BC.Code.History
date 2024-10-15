@@ -236,11 +236,23 @@ codeunit 138500 "Common Demodata"
     var
         PriceCalculationSetup: Record "Price Calculation Setup";
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
+        JobsSetup: Record "Jobs Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         // [FEATURE] [Price Calculation Setup]
         // [THEN] "Price Calculation Setup" and "Dtld. Price Calculation Setup" tables are empty
         Assert.RecordIsEmpty(PriceCalculationSetup);
         Assert.RecordIsEmpty(DtldPriceCalculationSetup);
+        // [THEN] "Price List Nos." in Sales Setup is filled.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.TestField("Price List Nos.");
+        // [THEN] "Price List Nos." in Purchase Setup is filled.
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.TestField("Price List Nos.");
+        // [THEN] "Price List Nos." in Jobs Setup is filled.
+        JobsSetup.Get();
+        JobsSetup.TestField("Price List Nos.");
     end;
 
     [Test]

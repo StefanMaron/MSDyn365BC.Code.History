@@ -420,7 +420,7 @@ codeunit 144005 "Reference No Test"
         SalesAndReceivablesSetup.Modify();
     end;
 
-    local procedure CreateAndPostSalesDocument(DocumentType: Option): Code[20]
+    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";

@@ -39,7 +39,7 @@ page 5964 "Service Quote"
 
                     trigger OnValidate()
                     begin
-                        CustomerNoOnAfterValidate;
+                        CustomerNoOnAfterValidate();
                     end;
                 }
                 field("Contact No."; "Contact No.")

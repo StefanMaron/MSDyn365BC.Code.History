@@ -843,7 +843,7 @@ codeunit 134153 "Test Intrastat"
         exit(SetupAndPostSalesDocumentAndPrepIntraJnlLines(IntrastatJnlLine, SalesHeader."Document Type"::"Credit Memo"));
     end;
 
-    local procedure SetupAndPostSalesDocumentAndPrepIntraJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; DocumentType: Option): Code[20]
+    local procedure SetupAndPostSalesDocumentAndPrepIntraJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         Item: Record Item;
@@ -891,7 +891,7 @@ codeunit 134153 "Test Intrastat"
             PurchaseHeader."Document Type"::"Credit Memo"));
     end;
 
-    local procedure SetupAndPostPurchaseDocumentAndPrepIntraJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; DocumentType: Option): Code[20]
+    local procedure SetupAndPostPurchaseDocumentAndPrepIntraJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         Item: Record Item;
@@ -919,7 +919,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlBatch.Modify(true);
     end;
 
-    local procedure CreateAndPostSalesDoc(DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostSalesDoc(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -929,7 +929,7 @@ codeunit 134153 "Test Intrastat"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchDoc(DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostPurchDoc(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

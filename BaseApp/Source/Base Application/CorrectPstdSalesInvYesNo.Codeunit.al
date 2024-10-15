@@ -21,7 +21,7 @@ codeunit 1322 "Correct PstdSalesInv (Yes/No)"
     begin
         CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
         if Confirm(CorrectPostedInvoiceQst) then begin
-            CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+            CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
             IsHandled := false;
             OnCorrectInvoiceOnBeforeOpenSalesInvoicePage(SalesHeader, IsHandled);
             if not IsHandled then

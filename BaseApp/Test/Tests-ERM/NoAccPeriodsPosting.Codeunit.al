@@ -350,7 +350,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         FAJournalSetup.Modify(true);
     end;
 
-    local procedure CreateFAGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateFAGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal; PostingDate: Date)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -413,7 +413,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateDeferralTemplate(CalcMethod: Option; StartDate: Option; NumOfPeriods: Integer; PeriodDescription: Text[50]; DeferralPct: Decimal): Code[10]
+    procedure CreateDeferralTemplate(CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer; PeriodDescription: Text[50]; DeferralPct: Decimal): Code[10]
     var
         DeferralTemplate: Record "Deferral Template";
     begin

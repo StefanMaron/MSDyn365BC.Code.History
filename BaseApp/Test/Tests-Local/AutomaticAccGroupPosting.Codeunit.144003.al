@@ -25,8 +25,6 @@ codeunit 144003 "Automatic Acc. Group Posting"
         DimensionDoesNotExistsErr: Label 'Dimension value %1 %2 does not exists for G/L Entry No. %3.';
         WrongValueErr: Label 'Wrong value of field %1 in table %2, entry no. %3.';
         WrongAmountGLEntriesErr: Label 'Wrong Amount in G/L Entry.';
-        CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined";
-        StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
 
     [Test]
     [Scope('OnPrem')]
@@ -181,7 +179,8 @@ codeunit 144003 "Automatic Acc. Group Posting"
         AutoAccGroupNo := CreateAutomaticAccGroupWithTwoLines(AutoGroupGLAccountNo);
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral Account" = "GL-D"
-        CreateDeferralCode(DeferralTemplate, CalcMethod::"Straight-Line", StartDate::"Posting Date", LibraryRandom.RandIntInRange(2, 5));
+        CreateDeferralCode(
+            DeferralTemplate, "Deferral Calculation Method"::"Straight-Line", "Deferral Calculation Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5));
 
         // [GIVEN] Gen. Journal Line for "G/L Account" = "GL-PI" with Amount = 100, "Auto. Acc. Group" = "AAG" and "Deferral Code" = "D"
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -224,7 +223,8 @@ codeunit 144003 "Automatic Acc. Group Posting"
         AutoAccGroupNo := CreateAutomaticAccGroupWithTwoLines(AutoGroupGLAccountNo);
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral Account" = "GL-D"
-        CreateDeferralCode(DeferralTemplate, CalcMethod::"Straight-Line", StartDate::"Posting Date", LibraryRandom.RandIntInRange(2, 5));
+        CreateDeferralCode(
+            DeferralTemplate, "Deferral Calculation Method"::"Straight-Line", "Deferral Calculation Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5));
 
         // [GIVEN] Purchase invoice for "G/L Account" = "GL-PI" with Amount = 100, "Auto. Acc. Group" = "AAG" and "Deferral Code" = "D"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -269,7 +269,8 @@ codeunit 144003 "Automatic Acc. Group Posting"
         AutoAccGroupNo := CreateAutomaticAccGroupWithTwoLines(AutoGroupGLAccountNo);
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral Account" = "GL-D"
-        CreateDeferralCode(DeferralTemplate, CalcMethod::"Straight-Line", StartDate::"Posting Date", LibraryRandom.RandIntInRange(2, 5));
+        CreateDeferralCode(
+            DeferralTemplate, "Deferral Calculation Method"::"Straight-Line", "Deferral Calculation Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5));
 
         // [GIVEN] Sales invoice for "G/L Account" = "GL-PI" with Amount = 100, "Auto. Acc. Group" = "AAG" and "Deferral Code" = "D"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -326,7 +327,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
 
         // [GIVEN] Deferral Template "D" of method "Straight-Line" starts at "Beginning of Next Period" and "Deferral Account" = "Def"
         CreateDeferralCode(
-          DeferralTemplate, CalcMethod::"Straight-Line", StartDate::"Beginning of Next Period", 1);
+          DeferralTemplate, "Deferral Calculation Method"::"Straight-Line", "Deferral Calculation Start Date"::"Beginning of Next Period", 1);
 
         // [GIVEN] Purchase invoice of two lines for "G/L Account" = "GLAcc"
         // [GIVEN] Amount = 100, "Auto. Acc. Group" = "AG1" and Deferral Code = "D"
@@ -388,7 +389,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         AutoAccGroupNo2 := CreateAutoAccGroupWithTwoLinesNoGLAccount(DimensionCode, AllocationPct1, AllocationPct2);
 
         // [GIVEN] Deferral Template "D" of method "Straight-Line" starts at "Beginning of Next Period" and "Deferral Account" = "Def"
-        CreateDeferralCode(DeferralTemplate, CalcMethod::"Straight-Line", StartDate::"Beginning of Next Period", 1);
+        CreateDeferralCode(DeferralTemplate, "Deferral Calculation Method"::"Straight-Line", "Deferral Calculation Start Date"::"Beginning of Next Period", 1);
 
         // [GIVEN] Sales invoice of two lines for "G/L Account" = "GLAcc"
         // [GIVEN] Amount = 100, "Auto. Acc. Group" = "AG1" and Deferral Code = "D"
@@ -600,7 +601,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [THEN] The number of G/L entries for "GL-AAG" = "D"."No. of Periods" + 1 => (entry per deferral period + entry for remaining amount)
         ExpectedAmount :=
             Round(
-                Round(SalesLine."VAT Base Amount" * (100 - DeferralTemplate."Deferral %") / 100) * 
+                Round(SalesLine."VAT Base Amount" * (100 - DeferralTemplate."Deferral %") / 100) *
                 AutomaticAccLine."Allocation %" / 100);
 
         DeferralPeriodAmount :=
@@ -645,7 +646,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         PurchaseLine.Modify(true);
 
         // [WHEN] Post invoice
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader,true,true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The balance of G/L entries for "GL-AAG" = 10 => 10% of document amount
         // [THEN] The number of G/L entries for "GL-AAG" = "D"."No. of Periods" + 1 => (entry per deferral period + entry for remaining amount)
@@ -891,7 +892,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateDeferralCode(var DeferralTemplate: Record "Deferral Template"; CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined"; StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period"; NumOfPeriods: Integer): Code[10]
+    local procedure CreateDeferralCode(var DeferralTemplate: Record "Deferral Template"; CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer): Code[10]
     begin
         DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" :=
@@ -1077,7 +1078,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         end;
     end;
 
-    local procedure CreateAutoAccLineWithDimensionAndPartialDeferralTemplateEqualPerPeriod(var AutomaticAccLine: Record "Automatic Acc. Line";var DeferralTemplate: Record "Deferral Template")
+    local procedure CreateAutoAccLineWithDimensionAndPartialDeferralTemplateEqualPerPeriod(var AutomaticAccLine: Record "Automatic Acc. Line"; var DeferralTemplate: Record "Deferral Template")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         AutomaticAccHeader: Record "Automatic Acc. Header";
@@ -1090,10 +1091,10 @@ codeunit 144003 "Automatic Acc. Group Posting"
         CreateAutomaticAccHeader(AutomaticAccHeader);
         CreateTwoDimSets(GeneralLedgerSetup, DimensionValue, DimensionSetID, GenJournalDimensionSetID);
         CreateBalancedAutoAccLines(
-            AutomaticAccLine,AutomaticAccHeader."No.", LibraryRandom.RandIntInRange(10, 20), DimensionSetID, '', '');
+            AutomaticAccLine, AutomaticAccHeader."No.", LibraryRandom.RandIntInRange(10, 20), DimensionSetID, '', '');
 
         CreateDeferralCode(
-            DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period",
+            DeferralTemplate, "Deferral Calculation Method"::"Equal per Period",
             DeferralTemplate."Start Date"::"Beginning of Next Period", LibraryRandom.RandIntInRange(2, 5));
         DeferralTemplate.Validate("Deferral %", LibraryRandom.RandIntInRange(10, 20));
         DeferralTemplate.Modify(true);

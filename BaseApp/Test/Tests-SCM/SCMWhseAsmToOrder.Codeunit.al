@@ -99,7 +99,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
         SalesLine.Validate("Qty. to Assemble to Order", 7);
         SalesLine.Modify();
-        SalesLine.ShowReservation; // reserve the rest of qty on sales against ILE: Bug 273866
+        SalesLine.ShowReservation(); // reserve the rest of qty on sales against ILE: Bug 273866
         Assert.IsTrue(SalesLine.AsmToOrderExists(AsmHeader), TXT_ASSEMBLY_EXISTS);
 
         Assert.AreEqual(10, SalesLine."Qty. to Ship", StrSubstNo(TXT_CHECKING, SalesLine.FieldCaption("Qty. to Ship")));
@@ -744,7 +744,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         SalesLine.Validate("Qty. to Assemble to Order", AssemblyQty);
         SalesLine.Validate("Bin Code", SalesBinCode);
         SalesLine.Modify(true);
-        SalesLine.ShowReservation; // reserve the rest of qty on sales against ILE (VSTF273866)
+        SalesLine.ShowReservation(); // reserve the rest of qty on sales against ILE (VSTF273866)
 
         // Create inventory pick from sales line
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1153,7 +1153,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // Assign item tracking to assembly
         LibraryItemTracking.CreateAssemblyLineItemTracking(ReservEntry, AsmLine, ChildItemSN1, '', 1);
         LibraryItemTracking.CreateAssemblyLineItemTracking(ReservEntry, AsmLine, ChildItemSN2, '', 1);
-        AsmHeader.OpenItemTrackingLines;
+        AsmHeader.OpenItemTrackingLines();
 
         // Create Inventory Pick from sales line (should create inventory movement also for the components)
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -1246,7 +1246,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         SalesLine.Validate("Bin Code", '');
         SalesLine.Modify();
         // [GIVEN] reserve the rest of qty on sales against ILE (VSTF273866)
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
         // [GIVEN] assign 2 lots to asm order taking care that it does not cover the whole qty
         SalesLine.AsmToOrderExists(AsmHeader);
         AsmOrder.Trap;
@@ -1512,7 +1512,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Assert.AreEqual(7, AsmLine."Qty. Picked (Base)", '');
 
         // Reserve the NonATO part to the sales.
-        SalesLine.ShowReservation; // reserve the rest of qty on sales against ILE - Bug 273866
+        SalesLine.ShowReservation(); // reserve the rest of qty on sales against ILE - Bug 273866
 
         // Ship 2 PCS of ATO and 1 PCS from inventory.
         ATOWhseShptLine.SetRange("Source Type", DATABASE::"Sales Line");
@@ -1662,7 +1662,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // Assign item tracking to assembly
         LibraryItemTracking.CreateAssemblyLineItemTracking(ReservEntry, AsmLine, ChildItemSN1, '', 1);
         LibraryItemTracking.CreateAssemblyLineItemTracking(ReservEntry, AsmLine, ChildItemSN2, '', 1);
-        AsmHeader.OpenItemTrackingLines;
+        AsmHeader.OpenItemTrackingLines();
 
         // Create warehouse shipment from sales line and set new bin code on warehouse shipment line
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -1740,7 +1740,8 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WhseShptHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WhseShptLine.SetRange("No.", WhseShptHeader."No.");
         WhseShptLine.FindFirst;
         WhseShptLine.Validate("Qty. to Ship", 1); // change qty. to ship to 1- but still the pick should be made for the full qty of 2 (verified later)
@@ -1847,7 +1848,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         SalesLine.Validate("Qty. to Assemble to Order", 3);
         SalesLine.Modify(true);
         SalesLine.AsmToOrderExists(AsmHeader);
-        AsmHeader.OpenItemTrackingLines;
+        AsmHeader.OpenItemTrackingLines();
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
         AsmLine.FindFirst;
@@ -1862,7 +1863,8 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // Create & release whse shipment
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WhseShptHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         LibraryWarehouse.ReleaseWarehouseShipment(WhseShptHeader);
         ATOWhseShptLine.SetRange("No.", WhseShptHeader."No.");
         ATOWhseShptLine.SetRange("Assemble to Order", true);
@@ -2068,7 +2070,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // Create a pick worksheet line for the shpt / asm line.
         LibraryWarehouse.CreateWhseWorksheetLine(WhseWkshLine, '', '', Location.Code, WhseWkshLine."Whse. Document Type"::Assembly);
         WhseWkshLine."Source Type" := DATABASE::"Assembly Line";
-        WhseWkshLine."Source Subtype" := AsmLine."Document Type";
+        WhseWkshLine."Source Subtype" := AsmLine."Document Type".AsInteger();
         WhseWkshLine."Source No." := AsmLine."Document No.";
         WhseWkshLine."Source Line No." := AsmLine."Line No.";
         WhseWkshLine."Source Subline No." := 0;
@@ -2176,7 +2178,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // [GIVEN] Create and release warehouse shipment for the sales order.
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
 
         // [GIVEN] Open pick worksheet and get the warehouse shipment.

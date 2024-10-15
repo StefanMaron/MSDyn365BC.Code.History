@@ -23,7 +23,7 @@ report 840 "Suggest Worksheet Lines"
 
                     GetSubPostingGLAccounts(GLAcc, TempGLAccount);
 
-                    if TempGLAccount.FindSet then
+                    if TempGLAccount.FindSet() then
                         repeat
                             TempGLAccount.CalcFields(Balance);
 
@@ -35,7 +35,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"Liquid Funds"] then
+                    if not ConsiderSource[SourceType::"Liquid Funds".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -58,12 +58,12 @@ report 840 "Suggest Worksheet Lines"
 
                     CalcFields("Remaining Amt. (LCY)", "Remaining Amount");
 
-                    InsertCFLineForCustLedgerEntry;
+                    InsertCFLineForCustLedgerEntry();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::Receivables] then
+                    if not ConsiderSource[SourceType::Receivables.AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -86,12 +86,12 @@ report 840 "Suggest Worksheet Lines"
 
                     CalcFields("Remaining Amt. (LCY)", "Remaining Amount");
 
-                    InsertCFLineForVendorLedgEntry;
+                    InsertCFLineForVendorLedgEntry();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::Payables] then
+                    if not ConsiderSource[SourceType::Payables.AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -113,12 +113,12 @@ report 840 "Suggest Worksheet Lines"
                     else
                         Vendor.Init();
 
-                    InsertCFLineForPurchaseLine;
+                    InsertCFLineForPurchaseLine();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"Purchase Order"] then
+                    if not ConsiderSource[SourceType::"Purchase Orders".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -143,12 +143,12 @@ report 840 "Suggest Worksheet Lines"
                     else
                         Customer.Init();
 
-                    InsertCFLineForSalesLine;
+                    InsertCFLineForSalesLine();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"Sales Order"] then
+                    if not ConsiderSource[SourceType::"Sales Orders".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -167,13 +167,13 @@ report 840 "Suggest Worksheet Lines"
                         Window.Update(2, Text009);
                         Window.Update(3, "No.");
 
-                        InsertCFLineForInvestmentFixAs;
+                        InsertCFLineForFixedAssetsBudget();
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"Budgeted Fixed Asset"] then
+                    if not ConsiderSource[SourceType::"Fixed Assets Budget".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -196,13 +196,13 @@ report 840 "Suggest Worksheet Lines"
                             Window.Update(2, Text010);
                             Window.Update(3, "No.");
 
-                            InsertCFLineForSaleFixedAsset;
+                            InsertCFLineForFixedAssetsDisposal();
                         end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"Sale of Fixed Asset"] then
+                    if not ConsiderSource[SourceType::"Fixed Assets Disposal".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -220,12 +220,12 @@ report 840 "Suggest Worksheet Lines"
                     Window.Update(2, Text011);
                     Window.Update(3, Code);
 
-                    InsertCFLineForManualExpens;
+                    InsertCFLineForManualExpense();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"Cash Flow Manual Expense"] then
+                    if not ConsiderSource[SourceType::"Cash Flow Manual Expense".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -241,12 +241,12 @@ report 840 "Suggest Worksheet Lines"
                     Window.Update(2, Text012);
                     Window.Update(3, Code);
 
-                    InsertCFLineForManualRevenue;
+                    InsertCFLineForManualRevenue();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"Cash Flow Manual Revenue"] then
+                    if not ConsiderSource[SourceType::"Cash Flow Manual Revenue".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -262,7 +262,7 @@ report 840 "Suggest Worksheet Lines"
                     GLAcc: Record "G/L Account";
                 begin
                     GLAcc.SetFilter("No.", "G/L Account Filter");
-                    if GLAcc.FindSet then
+                    if GLAcc.FindSet() then
                         repeat
                             Window.Update(2, Text031);
                             Window.Update(3, GLAcc."No.");
@@ -270,7 +270,7 @@ report 840 "Suggest Worksheet Lines"
                             GLBudgEntry.SetRange("Budget Name", GLBudgName);
                             GLBudgEntry.SetRange("G/L Account No.", GLAcc."No.");
                             GLBudgEntry.SetRange(Date, "Cash Flow Forecast"."G/L Budget From", "Cash Flow Forecast"."G/L Budget To");
-                            if GLBudgEntry.FindSet then
+                            if GLBudgEntry.FindSet() then
                                 repeat
                                     InsertCFLineForGLBudget(GLAcc);
                                 until GLBudgEntry.Next = 0;
@@ -279,7 +279,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"G/L Budget"] then
+                    if not ConsiderSource[SourceType::"G/L Budget".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -301,12 +301,12 @@ report 840 "Suggest Worksheet Lines"
                     else
                         Customer.Init();
 
-                    InsertCFLineForServiceLine;
+                    InsertCFLineForServiceLine();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::"Service Orders"] then
+                    if not ConsiderSource[SourceType::"Service Orders".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -325,12 +325,12 @@ report 840 "Suggest Worksheet Lines"
                     if not ("Line Type" in ["Line Type"::Billable, "Line Type"::"Both Budget and Billable"]) then
                         exit;
 
-                    InsertCFLineForJobPlanningLine;
+                    InsertCFLineForJobPlanningLine();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::Job] then
+                    if not ConsiderSource[SourceType::Job.AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -356,7 +356,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::Tax] then
+                    if not ConsiderSource[SourceType::Tax.AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -384,7 +384,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::Tax] then
+                    if not ConsiderSource[SourceType::Tax.AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -408,7 +408,7 @@ report 840 "Suggest Worksheet Lines"
 
                 trigger OnPreDataItem()
                 begin
-                    if not ConsiderSource[SourceType::Tax] then
+                    if not ConsiderSource[SourceType::Tax.AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -429,7 +429,7 @@ report 840 "Suggest Worksheet Lines"
                 var
                     CashFlowForecastHandler: Codeunit "Cash Flow Forecast Handler";
                 begin
-                    if not ConsiderSource[SourceType::"Azure AI"] then
+                    if not ConsiderSource[SourceType::"Azure AI".AsInteger()] then
                         CurrReport.Break();
 
                     if not ReadPermission then
@@ -439,7 +439,7 @@ report 840 "Suggest Worksheet Lines"
                         CurrReport.Break();
 
                     SetRange(Type, Type::Forecast, Type::Correction);
-                    if FindSet then;
+                    if FindSet() then;
                 end;
             }
 
@@ -488,67 +488,67 @@ report 840 "Suggest Worksheet Lines"
                     group("Source Types to Include:")
                     {
                         Caption = 'Source Types to Include:';
-                        field("ConsiderSource[SourceType::""Liquid Funds""]"; ConsiderSource[SourceType::"Liquid Funds"])
+                        field("ConsiderSource[SourceType::""Liquid Funds""]"; ConsiderSource[SourceType::"Liquid Funds".AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Liquid Funds';
                             ToolTip = 'Specifies if you want to transfer the balances of the general ledger accounts that are defined as liquid funds.';
                         }
-                        field("ConsiderSource[SourceType::Receivables]"; ConsiderSource[SourceType::Receivables])
+                        field("ConsiderSource[SourceType::Receivables]"; ConsiderSource[SourceType::Receivables.AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Receivables';
                             ToolTip = 'Specifies if you want to include open customer ledger entries in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::""Sales Order""]"; ConsiderSource[SourceType::"Sales Order"])
+                        field("ConsiderSource[SourceType::""Sales Order""]"; ConsiderSource[SourceType::"Sales Orders".AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Sales Orders';
                             ToolTip = 'Specifies if you want to include sales orders in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::""Service Orders""]"; ConsiderSource[SourceType::"Service Orders"])
+                        field("ConsiderSource[SourceType::""Service Orders""]"; ConsiderSource[SourceType::"Service Orders".AsInteger()])
                         {
                             ApplicationArea = Service;
                             Caption = 'Service Orders';
                             ToolTip = 'Specifies if you want to include service orders in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::""Sale of Fixed Asset""]"; ConsiderSource[SourceType::"Sale of Fixed Asset"])
+                        field("ConsiderSource[SourceType::""Sale of Fixed Asset""]"; ConsiderSource[SourceType::"Fixed Assets Disposal".AsInteger()])
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Fixed Assets Disposal';
                             ToolTip = 'Specifies if planned sales of fixed assets as revenues are included in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::""Cash Flow Manual Revenue""]"; ConsiderSource[SourceType::"Cash Flow Manual Revenue"])
+                        field("ConsiderSource[SourceType::""Cash Flow Manual Revenue""]"; ConsiderSource[SourceType::"Cash Flow Manual Revenue".AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Manual Revenues';
                             ToolTip = 'Specifies if manual revenues in the cash flow forecast are included.';
                         }
-                        field("ConsiderSource[SourceType::Payables]"; ConsiderSource[SourceType::Payables])
+                        field("ConsiderSource[SourceType::Payables]"; ConsiderSource[SourceType::Payables.AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Payables';
                             ToolTip = 'Specifies if you want to include open vendor ledger entries in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::""Purchase Order""]"; ConsiderSource[SourceType::"Purchase Order"])
+                        field("ConsiderSource[SourceType::""Purchase Order""]"; ConsiderSource[SourceType::"Purchase Orders".AsInteger()])
                         {
                             ApplicationArea = Suite;
                             Caption = 'Purchase Orders';
                             ToolTip = 'Specifies if you want to include purchase orders in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::""Budgeted Fixed Asset""]"; ConsiderSource[SourceType::"Budgeted Fixed Asset"])
+                        field("ConsiderSource[SourceType::""Budgeted Fixed Asset""]"; ConsiderSource[SourceType::"Fixed Assets Budget".AsInteger()])
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Fixed Assets Budget';
                             ToolTip = 'Specifies if planned investments of fixed assets are included in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::""Cash Flow Manual Expense""]"; ConsiderSource[SourceType::"Cash Flow Manual Expense"])
+                        field("ConsiderSource[SourceType::""Cash Flow Manual Expense""]"; ConsiderSource[SourceType::"Cash Flow Manual Expense".AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Manual Expenses';
                             ToolTip = 'Specifies if manual expenses in the cash flow forecast are included.';
                         }
-                        field("ConsiderSource[SourceType::""G/L Budget""]"; ConsiderSource[SourceType::"G/L Budget"])
+                        field("ConsiderSource[SourceType::""G/L Budget""]"; ConsiderSource[SourceType::"G/L Budget".AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Budget';
@@ -561,19 +561,19 @@ report 840 "Suggest Worksheet Lines"
                             TableRelation = "G/L Budget Name";
                             ToolTip = 'Specifies the name of the general ledger budget if you have selected G/L budget.';
                         }
-                        field("ConsiderSource[SourceType::Job]"; ConsiderSource[SourceType::Job])
+                        field("ConsiderSource[SourceType::Job]"; ConsiderSource[SourceType::Job.AsInteger()])
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Jobs';
                             ToolTip = 'Specifies if you want to include jobs in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::Tax]"; ConsiderSource[SourceType::Tax])
+                        field("ConsiderSource[SourceType::Tax]"; ConsiderSource[SourceType::Tax.AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Taxes';
                             ToolTip = 'Specifies if you want to include tax information in the cash flow forecast.';
                         }
-                        field("ConsiderSource[SourceType::""Azure AI""]"; ConsiderSource[SourceType::"Azure AI"])
+                        field("ConsiderSource[SourceType::""Azure AI""]"; ConsiderSource[SourceType::"Azure AI".AsInteger()])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Azure AI Forecast';
@@ -601,35 +601,35 @@ report 840 "Suggest Worksheet Lines"
             GLBudgetEntry: Record "G/L Budget Entry";
             GLAcc: Record "G/L Account";
         begin
-            if ConsiderSource[SourceType::"Liquid Funds"] then
-                ConsiderSource[SourceType::"Liquid Funds"] := GLAcc.ReadPermission;
-            if ConsiderSource[SourceType::Receivables] then
-                ConsiderSource[SourceType::Receivables] := "Cust. Ledger Entry".ReadPermission;
-            if ConsiderSource[SourceType::Payables] then
-                ConsiderSource[SourceType::Payables] := "Vendor Ledger Entry".ReadPermission;
-            if ConsiderSource[SourceType::"Purchase Order"] then
-                ConsiderSource[SourceType::"Purchase Order"] := "Purchase Line".ReadPermission;
-            if ConsiderSource[SourceType::"Sales Order"] then
-                ConsiderSource[SourceType::"Sales Order"] := "Sales Line".ReadPermission;
-            if ConsiderSource[SourceType::"Cash Flow Manual Expense"] then
-                ConsiderSource[SourceType::"Cash Flow Manual Expense"] := CFManualExpense.ReadPermission;
-            if ConsiderSource[SourceType::"Cash Flow Manual Revenue"] then
-                ConsiderSource[SourceType::"Cash Flow Manual Revenue"] := CFManualRevenue.ReadPermission;
-            if ConsiderSource[SourceType::"Budgeted Fixed Asset"] then
-                ConsiderSource[SourceType::"Budgeted Fixed Asset"] := InvestmentFixedAsset.ReadPermission;
-            if ConsiderSource[SourceType::"Sale of Fixed Asset"] then
-                ConsiderSource[SourceType::"Sale of Fixed Asset"] := SaleFixedAsset.ReadPermission;
-            if ConsiderSource[SourceType::"G/L Budget"] then
-                ConsiderSource[SourceType::"G/L Budget"] := GLBudgetEntry.ReadPermission;
-            if ConsiderSource[SourceType::"Service Orders"] then
-                ConsiderSource[SourceType::"Service Orders"] := "Service Line".ReadPermission;
-            if ConsiderSource[SourceType::Job] then
-                ConsiderSource[SourceType::Job] := "Job Planning Line".ReadPermission;
-            if ConsiderSource[SourceType::Tax] then
-                ConsiderSource[SourceType::Tax] := "Sales Header".ReadPermission and
+            if ConsiderSource[SourceType::"Liquid Funds".AsInteger()] then
+                ConsiderSource[SourceType::"Liquid Funds".AsInteger()] := GLAcc.ReadPermission;
+            if ConsiderSource[SourceType::Receivables.AsInteger()] then
+                ConsiderSource[SourceType::Receivables.AsInteger()] := "Cust. Ledger Entry".ReadPermission;
+            if ConsiderSource[SourceType::Payables.AsInteger()] then
+                ConsiderSource[SourceType::Payables.AsInteger()] := "Vendor Ledger Entry".ReadPermission;
+            if ConsiderSource[SourceType::"Purchase Orders".AsInteger()] then
+                ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := "Purchase Line".ReadPermission;
+            if ConsiderSource[SourceType::"Sales Orders".AsInteger()] then
+                ConsiderSource[SourceType::"Sales Orders".AsInteger()] := "Sales Line".ReadPermission;
+            if ConsiderSource[SourceType::"Cash Flow Manual Expense".AsInteger()] then
+                ConsiderSource[SourceType::"Cash Flow Manual Expense".AsInteger()] := CFManualExpense.ReadPermission;
+            if ConsiderSource[SourceType::"Cash Flow Manual Revenue".AsInteger()] then
+                ConsiderSource[SourceType::"Cash Flow Manual Revenue".AsInteger()] := CFManualRevenue.ReadPermission;
+            if ConsiderSource[SourceType::"Fixed Assets Budget".AsInteger()] then
+                ConsiderSource[SourceType::"Fixed Assets Budget".AsInteger()] := InvestmentFixedAsset.ReadPermission;
+            if ConsiderSource[SourceType::"Fixed Assets Disposal".AsInteger()] then
+                ConsiderSource[SourceType::"Fixed Assets Disposal".AsInteger()] := SaleFixedAsset.ReadPermission;
+            if ConsiderSource[SourceType::"G/L Budget".AsInteger()] then
+                ConsiderSource[SourceType::"G/L Budget".AsInteger()] := GLBudgetEntry.ReadPermission;
+            if ConsiderSource[SourceType::"Service Orders".AsInteger()] then
+                ConsiderSource[SourceType::"Service Orders".AsInteger()] := "Service Line".ReadPermission;
+            if ConsiderSource[SourceType::Job.AsInteger()] then
+                ConsiderSource[SourceType::Job.AsInteger()] := "Job Planning Line".ReadPermission;
+            if ConsiderSource[SourceType::Tax.AsInteger()] then
+                ConsiderSource[SourceType::Tax.AsInteger()] := "Sales Header".ReadPermission and
                   "Purchase Header".ReadPermission and "VAT Entry".ReadPermission;
-            if ConsiderSource[SourceType::"Azure AI"] then
-                ConsiderSource[SourceType::"Azure AI"] := "Cash Flow Azure AI Buffer".ReadPermission;
+            if ConsiderSource[SourceType::"Azure AI".AsInteger()] then
+                ConsiderSource[SourceType::"Azure AI".AsInteger()] := "Cash Flow Azure AI Buffer".ReadPermission;
         end;
     }
 
@@ -702,7 +702,7 @@ report 840 "Suggest Worksheet Lines"
         CashFlowManagement: Codeunit "Cash Flow Management";
         Window: Dialog;
         ConsiderSource: array[16] of Boolean;
-        SourceType: Option ,Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Budgeted Fixed Asset","Sale of Fixed Asset","Service Orders","G/L Budget",,,Job,Tax,"Azure AI";
+        SourceType: Enum "Cash Flow Source Type";
         CashFlowNo: Code[20];
         LineNo: Integer;
         DateLastExecution: Date;
@@ -780,7 +780,7 @@ report 840 "Suggest Worksheet Lines"
 
         TempCFWorksheetLine.Reset();
         TempCFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
-        if TempCFWorksheetLine.FindSet then
+        if TempCFWorksheetLine.FindSet() then
             repeat
                 CFWorksheetLine := TempCFWorksheetLine;
                 CFWorksheetLine.Insert(true);
@@ -800,7 +800,7 @@ report 840 "Suggest Worksheet Lines"
         CFForecastEntry: Record "Cash Flow Forecast Entry";
     begin
         TempCashFlowForecast.Reset();
-        if TempCashFlowForecast.FindSet then begin
+        if TempCashFlowForecast.FindSet() then begin
             CFForecastEntry.LockTable();
             CFForecastEntry.Reset();
             repeat
@@ -814,7 +814,7 @@ report 840 "Suggest Worksheet Lines"
     local procedure InsertCFLineForGLAccount(GLAcc: Record "G/L Account")
     begin
         with CFWorksheetLine2 do begin
-            Init;
+            Init();
             "Source Type" := "Source Type"::"Liquid Funds";
             "Source No." := GLAcc."No.";
             "Document No." := GLAcc."No.";
@@ -837,7 +837,7 @@ report 840 "Suggest Worksheet Lines"
         MaxPmtTolerance: Decimal;
     begin
         with CFWorksheetLine2 do begin
-            Init;
+            Init();
             "Source Type" := "Source Type"::Receivables;
             "Source No." := "Cust. Ledger Entry"."Document No.";
             "Document Type" := "Cust. Ledger Entry"."Document Type";
@@ -886,7 +886,7 @@ report 840 "Suggest Worksheet Lines"
         MaxPmtTolerance: Decimal;
     begin
         with CFWorksheetLine2 do begin
-            Init;
+            Init();
             "Source Type" := "Source Type"::Payables;
             "Source No." := "Vendor Ledger Entry"."Document No.";
             "Document Type" := "Vendor Ledger Entry"."Document Type";
@@ -942,9 +942,10 @@ report 840 "Suggest Worksheet Lines"
             MultiSalesLines := true;
         end else
             with CFWorksheetLine2 do begin
-                Init;
+                Init();
                 "Source Type" := "Source Type"::"Purchase Orders";
                 "Source No." := "Purchase Line"."Document No.";
+                "Source Line No." := "Purchase Line"."Line No.";
                 "Document Type" := "Document Type"::Invoice;
                 "Document Date" := PurchHeader."Document Date";
                 "Shortcut Dimension 1 Code" := PurchHeader."Shortcut Dimension 1 Code";
@@ -990,11 +991,12 @@ report 840 "Suggest Worksheet Lines"
             MultiSalesLines := true;
         end else
             with CFWorksheetLine2 do begin
-                Init;
+                Init();
                 "Document Type" := "Document Type"::Invoice;
                 "Document Date" := SalesHeader."Document Date";
                 "Source Type" := "Source Type"::"Sales Orders";
                 "Source No." := "Sales Line"."Document No.";
+                "Source Line No." := "Sales Line"."Line No.";
                 "Shortcut Dimension 1 Code" := SalesHeader."Shortcut Dimension 1 Code";
                 "Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
                 "Dimension Set ID" := SalesHeader."Dimension Set ID";
@@ -1026,10 +1028,10 @@ report 840 "Suggest Worksheet Lines"
             end;
     end;
 
-    local procedure InsertCFLineForInvestmentFixAs()
+    local procedure InsertCFLineForFixedAssetsBudget()
     begin
         with CFWorksheetLine2 do begin
-            Init;
+            Init();
             "Source Type" := "Source Type"::"Fixed Assets Budget";
             "Source No." := InvestmentFixedAsset."No.";
             "Document No." := InvestmentFixedAsset."No.";
@@ -1048,10 +1050,10 @@ report 840 "Suggest Worksheet Lines"
         end;
     end;
 
-    local procedure InsertCFLineForSaleFixedAsset()
+    local procedure InsertCFLineForFixedAssetsDisposal()
     begin
         with CFWorksheetLine2 do begin
-            Init;
+            Init();
             "Source Type" := "Source Type"::"Fixed Assets Disposal";
             "Source No." := SaleFixedAsset."No.";
             "Document No." := SaleFixedAsset."No.";
@@ -1070,11 +1072,11 @@ report 840 "Suggest Worksheet Lines"
         end;
     end;
 
-    local procedure InsertCFLineForManualExpens()
+    local procedure InsertCFLineForManualExpense()
     begin
         with CFWorksheetLine2 do begin
             "Cash Flow Manual Expense".TestField("Starting Date");
-            Init;
+            Init();
             "Source Type" := "Source Type"::"Cash Flow Manual Expense";
             "Source No." := "Cash Flow Manual Expense".Code;
             "Document No." := "Cash Flow Manual Expense".Code;
@@ -1109,7 +1111,7 @@ report 840 "Suggest Worksheet Lines"
     begin
         with CFWorksheetLine2 do begin
             "Cash Flow Manual Revenue".TestField("Starting Date");
-            Init;
+            Init();
             "Source Type" := "Source Type"::"Cash Flow Manual Revenue";
             "Source No." := "Cash Flow Manual Revenue".Code;
             "Document No." := "Cash Flow Manual Revenue".Code;
@@ -1143,7 +1145,7 @@ report 840 "Suggest Worksheet Lines"
     local procedure InsertCFLineForGLBudget(GLAcc: Record "G/L Account")
     begin
         with CFWorksheetLine2 do begin
-            Init;
+            Init();
             "Source Type" := "Source Type"::"G/L Budget";
             "Source No." := GLAcc."No.";
             "G/L Budget Name" := GLBudgEntry."Budget Name";
@@ -1176,9 +1178,10 @@ report 840 "Suggest Worksheet Lines"
             MultiSalesLines := true;
         end else
             with CFWorksheetLine2 do begin
-                Init;
+                Init();
                 "Source Type" := "Source Type"::"Service Orders";
                 "Source No." := "Service Line"."Document No.";
+                "Source Line No." := "Service Line"."Line No.";
                 "Document Type" := "Document Type"::Invoice;
                 "Document Date" := ServiceHeader."Document Date";
                 "Shortcut Dimension 1 Code" := ServiceHeader."Shortcut Dimension 1 Code";
@@ -1227,7 +1230,7 @@ report 840 "Suggest Worksheet Lines"
             InsertOrModifyCFLine(InsertConditionHasBeenMetAlready);
         end else
             with CFWorksheetLine2 do begin
-                Init;
+                Init();
                 "Source Type" := "Source Type"::Job;
                 "Source No." := "Job Planning Line"."Job No.";
                 "Document Type" := "Document Type"::Invoice;
@@ -1278,7 +1281,7 @@ report 840 "Suggest Worksheet Lines"
                 InsertOrModifyCFLine(InsertConditionHasBeenMetAlready);
             end else
                 with CFWorksheetLine2 do begin
-                    Init;
+                    Init();
                     "Source Type" := "Source Type"::Tax;
                     "Source No." := SourceNo;
                     "Document Type" := "Document Type"::" ";
@@ -1311,7 +1314,7 @@ report 840 "Suggest Worksheet Lines"
             exit;
 
         with CFWorksheetLine2 do begin
-            Init;
+            Init();
             "Source Type" := "Source Type"::"Azure AI";
             "Source No." := Format(SourceTableNum);
             "Document Type" := "Document Type"::" ";
@@ -1337,31 +1340,31 @@ report 840 "Suggest Worksheet Lines"
                             Round("Cash Flow Azure AI Buffer".Delta));
                     end;
                 XPAYABLESCORRECTIONTxt:
-                    if ConsiderSource["Source Type"::Payables] then begin
+                    if ConsiderSource["Source Type"::Payables.AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Payables CF Account No.";
                         Description := StrSubstNo(AzureAICorrectionDescriptionTxt, LowerCase(XPAYABLESTxt));
                     end else
                         exit;
                 XRECEIVABLESCORRECTIONTxt:
-                    if ConsiderSource["Source Type"::Receivables] then begin
+                    if ConsiderSource["Source Type"::Receivables.AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Receivables CF Account No.";
                         Description := StrSubstNo(AzureAICorrectionDescriptionTxt, LowerCase(XRECEIVABLESTxt))
                     end else
                         exit;
                 XPURCHORDERSTxt:
-                    if ConsiderSource["Source Type"::"Purchase Orders"] then begin
+                    if ConsiderSource["Source Type"::"Purchase Orders".AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Purch. Order CF Account No.";
                         Description := StrSubstNo(AzureAIOrdersCorrectionDescriptionTxt, LowerCase(XPURCHORDERSTxt))
                     end else
                         exit;
                 XSALESORDERSTxt:
-                    if ConsiderSource["Source Type"::"Sales Orders"] then begin
+                    if ConsiderSource["Source Type"::"Sales Orders".AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Sales Order CF Account No.";
                         Description := StrSubstNo(AzureAIOrdersCorrectionDescriptionTxt, LowerCase(XSALESORDERSTxt))
                     end else
                         exit;
                 XTAXRECEIVABLESTxt:
-                    if ConsiderSource["Source Type"::Tax] then begin
+                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Tax CF Account No.";
                         Description :=
                           StrSubstNo(
@@ -1370,7 +1373,7 @@ report 840 "Suggest Worksheet Lines"
                     end else
                         exit;
                 XTAXPAYABLESTxt:
-                    if ConsiderSource["Source Type"::Tax] then begin
+                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Tax CF Account No.";
                         Description :=
                           StrSubstNo(
@@ -1379,25 +1382,25 @@ report 840 "Suggest Worksheet Lines"
                     end else
                         exit;
                 XTAXPAYABLESCORRECTIONTxt:
-                    if ConsiderSource["Source Type"::Tax] then begin
+                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Tax CF Account No.";
                         Description := StrSubstNo(AzureAICorrectionTaxDescriptionTxt, LowerCase(XPAYABLESTxt));
                     end else
                         exit;
                 XTAXRECEIVABLESCORRECTIONTxt:
-                    if ConsiderSource["Source Type"::Tax] then begin
+                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Tax CF Account No.";
                         Description := StrSubstNo(AzureAICorrectionTaxDescriptionTxt, LowerCase(XRECEIVABLESTxt))
                     end else
                         exit;
                 XTAXPURCHORDERSTxt:
-                    if ConsiderSource["Source Type"::Tax] then begin
+                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Tax CF Account No.";
                         Description := StrSubstNo(AzureAIOrdersTaxCorrectionDescriptionTxt, LowerCase(XPURCHORDERSTxt))
                     end else
                         exit;
                 XTAXSALESORDERSTxt:
-                    if ConsiderSource["Source Type"::Tax] then begin
+                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
                         "Cash Flow Account No." := CFSetup."Tax CF Account No.";
                         Description := StrSubstNo(AzureAIOrdersTaxCorrectionDescriptionTxt, LowerCase(XSALESORDERSTxt))
                     end else
@@ -1421,7 +1424,7 @@ report 840 "Suggest Worksheet Lines"
     var
         SubGLAccount: Record "G/L Account";
     begin
-        if not GLAccount.FindSet then
+        if not GLAccount.FindSet() then
             exit;
 
         repeat

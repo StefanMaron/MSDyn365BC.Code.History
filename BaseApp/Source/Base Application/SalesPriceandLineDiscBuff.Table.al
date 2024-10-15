@@ -397,7 +397,7 @@ table 1304 "Sales Price and Line Disc Buff"
 
         if FindFirst then;
 
-        SendTraceTag('0000AI4', PricesAndDiscountsCountLbl, VERBOSITY::Normal, StrSubstNo(PricesAndDiscountsCountMsg, Count), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000AI4', StrSubstNo(PricesAndDiscountsCountMsg, Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PricesAndDiscountsCountLbl);
     end;
 
     procedure LoadDataForCustomer(Customer: Record Customer)
@@ -419,7 +419,7 @@ table 1304 "Sales Price and Line Disc Buff"
 
         GetCustomerCampaignSalesPrice;
 
-        SendTraceTag('0000AI3', PricesAndDiscountsCountLbl, VERBOSITY::Normal, StrSubstNo(PricesAndDiscountsCountMsg, Count), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000AI3', StrSubstNo(PricesAndDiscountsCountMsg, Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PricesAndDiscountsCountLbl);
     end;
 
     local procedure LoadSalesLineDiscForCustomer()
@@ -539,7 +539,7 @@ table 1304 "Sales Price and Line Disc Buff"
                 Code := SalesPrice."Item No.";
                 Type := Type::Item;
                 "Sales Code" := SalesPrice."Sales Code";
-                "Sales Type" := SalesPrice."Sales Type";
+                "Sales Type" := SalesPrice."Sales Type".AsInteger();
 
                 "Starting Date" := SalesPrice."Starting Date";
                 "Minimum Quantity" := SalesPrice."Minimum Quantity";
@@ -567,7 +567,7 @@ table 1304 "Sales Price and Line Disc Buff"
 
         SalesPrice."Item No." := Code;
         SalesPrice."Sales Code" := "Sales Code";
-        SalesPrice."Sales Type" := "Sales Type";
+        SalesPrice."Sales Type" := "Sales Price Type".FromInteger("Sales Type");
         SalesPrice."Starting Date" := "Starting Date";
         SalesPrice."Minimum Quantity" := "Minimum Quantity";
         SalesPrice."Unit of Measure Code" := "Unit of Measure Code";

@@ -545,7 +545,7 @@ codeunit 144018 "PAYDISC Test"
         SetupsRolledBack(GeneralLedgerSetup, SalesReceivablesSetup);
     end;
 
-    local procedure AmountToApplyInCustomerLedger(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure AmountToApplyInCustomerLedger(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         // Find Posted Customer Ledger Entries.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
@@ -554,7 +554,7 @@ codeunit 144018 "PAYDISC Test"
         CustLedgerEntry.Modify(true);
     end;
 
-    local procedure ApplyCustomerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentType2: Option; DocumentNo: Code[20]; DocumentNo2: Code[20]; DocumentNo3: Code[20])
+    local procedure ApplyCustomerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20]; DocumentNo3: Code[20])
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         CustLedgerEntry3: Record "Cust. Ledger Entry";
@@ -573,7 +573,7 @@ codeunit 144018 "PAYDISC Test"
         end;
     end;
 
-    local procedure ApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentType2: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     begin
         ApplyCustomerEntries(CustLedgerEntry, DocumentType, DocumentType2, DocumentNo, DocumentNo2, '');
     end;
@@ -627,7 +627,7 @@ codeunit 144018 "PAYDISC Test"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";

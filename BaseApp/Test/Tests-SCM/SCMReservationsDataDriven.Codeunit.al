@@ -481,7 +481,7 @@ codeunit 137017 "SCM Reservations Data Driven"
     end;
 
     [Normal]
-    local procedure RegisterWhseActivity(ActivityType: Option; SourceDocument: Option; WhseDocType: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; TakeBinCode: Code[20]; PlaceBinCode: Code[20]; QtyToHandle: Decimal)
+    local procedure RegisterWhseActivity(ActivityType: Option; SourceDocument: Enum "Warehouse Activity Source Document"; WhseDocType: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; TakeBinCode: Code[20]; PlaceBinCode: Code[20]; QtyToHandle: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";
@@ -523,7 +523,7 @@ codeunit 137017 "SCM Reservations Data Driven"
     end;
 
     [Normal]
-    local procedure CreateInvtPutPick(SourceDocument: Option ,"Sales Order","Sales Return Order","Purchase Order","Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output"; SourceNo: Code[20])
+    local procedure CreateInvtPutPick(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WhseRequest: Record "Warehouse Request";
         CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";

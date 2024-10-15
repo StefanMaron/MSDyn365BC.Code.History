@@ -19,6 +19,11 @@ codeunit 1751 "Data Classification Eval. Data"
             Field.DataClassification::EndUserIdentifiableInformation,
             Field.DataClassification::EndUserPseudonymousIdentifiers));
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
+        // exclude system fields
+        Field.SetFilter("No.", '<>%1&<>%2&<>%3',
+            Field.FieldNo(SystemId),
+            Field.FieldNo(SystemCreatedBy),
+            Field.FieldNo(SystemModifiedBy));
         if Field.FindSet then
             repeat
                 DataSensitivity."Company Name" := CompanyName;
@@ -93,6 +98,7 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyUserPlan;
         ClassifyUserGroupAccessControl;
         ClassifyUserGroupMember;
+        ClassifyAADApplication();
         ClassifyAnalysisSelectedDimension;
         ClassifyItemAnalysisViewBudgEntry;
         ClassifyItemAnalysisViewEntry;
@@ -299,6 +305,15 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyApiWebhookSubscripitonFields;
         ClassifySupportInformation;
         ClassifyCRMSynchStatus;
+        ClassifyRetentionPolicyLogEntry();
+        ClassifyEmailConnectorLogo();
+        ClassifyEmailError();
+        ClassifyEmailOutbox();
+        ClassifySentEmail();
+        ClassifyEmailMessage();
+        ClassifyEmailRecipient();
+        ClassifyEmailMessageAttachment();
+        ClassifyPostedGenJournalLine();
     end;
 
     local procedure ClassifyTablesToNormalPart1()
@@ -408,6 +423,8 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Job Journal Quantity");
         SetTableFieldsToNormal(DATABASE::"Custom Address Format");
         SetTableFieldsToNormal(DATABASE::"Custom Address Format Line");
+        SetTableFieldsToNormal(Database::"Posted Gen. Journal Batch");
+        SetTableFieldsToNormal(Database::"Copy Gen. Journal Parameters");
     end;
 
     local procedure ClassifyTablesToNormalPart2()
@@ -630,6 +647,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Last Used Chart");
         SetTableFieldsToNormal(DATABASE::"Trial Balance Setup");
         SetTableFieldsToNormal(DATABASE::"Activities Cue");
+        SetTableFieldsToNormal(DATABASE::"Approvals Activities Cue");
         SetTableFieldsToNormal(DATABASE::"Service Connection");
         SetTableFieldsToNormal(1432); // Net Promoter Score Setup
         SetTableFieldsToNormal(1471); // Table "Product Video Category"
@@ -690,7 +708,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"VAT Assisted Setup Bus. Grp.");
         SetTableFieldsToNormal(DATABASE::"Cancelled Document");
         SetTableFieldsToNormal(DATABASE::"Time Series Forecast");
-        SetTableFieldsToNormal(DATABASE::"Azure AI Usage");
+        SetTableFieldsToNormal(2004); // Azure AI Usage table
         SetTableFieldsToNormal(DATABASE::"Image Analysis Setup");
         SetTableFieldsToNormal(DATABASE::"Sales Document Icon");
         SetTableFieldsToNormal(DATABASE::"O365 Customer");
@@ -718,6 +736,10 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"O365 Sales Graph");
         SetTableFieldsToNormal(DATABASE::"O365 Sales Invoice Document");
         SetTableFieldsToNormal(DATABASE::"Native - Export Invoices");
+        SetTableFieldsToNormal(Database::"Customer Templ.");
+        SetTableFieldsToNormal(Database::"Item Templ.");
+        SetTableFieldsToNormal(Database::"Vendor Templ.");
+        SetTableFieldsToNormal(Database::"Employee Templ.");
     end;
 
     local procedure ClassifyTablesToNormalPart5()
@@ -823,6 +845,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"CDS Company");
         SetTableFieldsToNormal(DATABASE::"CDS Solution");
         SetTableFieldsToNormal(DATABASE::"CDS Teamroles");
+        SetTableFieldsToNormal(DATABASE::"CDS Teammembership");
     end;
 
     local procedure ClassifyTablesToNormalPart6()
@@ -911,6 +934,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Item Substitution");
         SetTableFieldsToNormal(DATABASE::"Substitution Condition");
         SetTableFieldsToNormal(DATABASE::"Item Cross Reference");
+        SetTableFieldsToNormal(DATABASE::"Item Reference");
         SetTableFieldsToNormal(DATABASE::"Nonstock Item");
         SetTableFieldsToNormal(DATABASE::"Nonstock Item Setup");
         SetTableFieldsToNormal(DATABASE::Manufacturer);
@@ -1021,6 +1045,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Dtld. Price Calculation Setup");
         SetTableFieldsToNormal(DATABASE::"Price List Header");
         SetTableFieldsToNormal(DATABASE::"Price List Line");
+        SetTableFieldsToNormal(DATABASE::"Price Asset");
         SetTableFieldsToNormal(DATABASE::"Price Source");
         SetTableFieldsToNormal(DATABASE::"Sales Price");
         SetTableFieldsToNormal(DATABASE::"Sales Line Discount");
@@ -1367,6 +1392,12 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Designed Query Filter");
         SetTableFieldsToNormal(DATABASE::"Designed Query Join");
         SetTableFieldsToNormal(DATABASE::"Designed Query Order By");
+        SetTableFieldsToNormal(Database::"Retention Period");
+        SetTableFieldsToNormal(Database::"Retention Policy Setup");
+        SetTableFieldsToNormal(Database::"Retention Policy Setup Line");
+        SetTableFieldsToNormal(3903); // Database::"Reten. Pol. Allowed Table"
+        SetTableFieldsToNormal(Database::"Feature Data Update Status");
+        SetTableFieldsToNormal(Database::"Integration Management Setup");
     end;
 
     procedure SetTableFieldsToNormal(TableNo: Integer)
@@ -1893,6 +1924,17 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyUserGroupMember.FieldNo("User Security ID"));
         SetFieldToPersonal(TableNo, DummyUserGroupMember.FieldNo("User Group Code"));
+    end;
+
+    local procedure ClassifyAADApplication()
+    var
+        DummyAADApplication: Record "AAD Application";
+        TableNo: Integer;
+    begin
+        // Cannot reference Internal table through DATABASE::<Table name>
+        TableNo := Database::"AAD Application"; // Persistent Blob
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyAADApplication.FieldNo("User ID"));
     end;
 
     local procedure ClassifyAnalysisSelectedDimension()
@@ -3352,6 +3394,46 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyServiceLedgerEntry.FieldNo("Document Type"));
         SetFieldToCompanyConfidential(TableNo, DummyServiceLedgerEntry.FieldNo("Service Contract No."));
         SetFieldToCompanyConfidential(TableNo, DummyServiceLedgerEntry.FieldNo("Entry No."));
+    end;
+
+    local procedure ClassifyEmailConnectorLogo()
+    begin
+        SetTableFieldsToNormal(8887);
+    end;
+
+    local procedure ClassifyEmailError()
+    begin
+        SetFieldToPersonal(8901, 3); // Error Message
+    end;
+
+    local procedure ClassifyEmailOutbox()
+    begin
+        SetFieldToPersonal(8888, 8); // Description / Email subject
+        SetFieldToPersonal(8888, 9); // Error Message
+        SetFieldToPersonal(8888, 13); // Send from
+    end;
+
+    local procedure ClassifySentEmail()
+    begin
+        SetFieldToPersonal(8889, 6); // Description / Email subject
+        SetFieldToPersonal(8889, 13); // Send from
+    end;
+
+    local procedure ClassifyEmailMessage()
+    begin
+        SetFieldToPersonal(8900, 2); // Subject
+        SetFieldToPersonal(8900, 3); // Body
+    end;
+
+    local procedure ClassifyEmailRecipient()
+    begin
+        SetFieldToPersonal(8903, 2); // Email Address
+    end;
+
+    local procedure ClassifyEmailMessageAttachment()
+    begin
+        SetFieldToPersonal(8904, 3); // Attachment
+        SetFieldToPersonal(8904, 4); // Attachment Name
     end;
 
     local procedure ClassifyTermsAndConditionsState()
@@ -5382,6 +5464,15 @@ codeunit 1751 "Data Classification Eval. Data"
         end;
     end;
 
+    local procedure ClassifyRetentionPolicyLogEntry()
+    var
+        TableNo: Integer;
+    begin
+        TableNo := 3905; // Database::"Retention Policy Log Entry"
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, 4); // FieldNo("User Id")
+    end;
+
     local procedure ClassifyFALedgerEntry()
     var
         DummyFALedgerEntry: Record "FA Ledger Entry";
@@ -5654,6 +5745,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Originally Ordered Var. Code"));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Originally Ordered No."));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Cross-Reference No."));
+        SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Item Reference No."));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Order Line No."));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Order Type"));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Unit of Measure Code"));
@@ -6251,6 +6343,16 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := 4151; // Persistent Blob
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, 2); // Blob
+    end;
+
+    local procedure ClassifyPostedGenJournalLine()
+    var
+        DummyPostedGenJournalLine: Record "Posted Gen. Journal Line";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Posted Gen. Journal Line";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyPostedGenJournalLine.FieldNo("VAT Registration No."));
     end;
 }
 

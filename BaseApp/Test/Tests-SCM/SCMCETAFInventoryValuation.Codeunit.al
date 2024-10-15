@@ -19,6 +19,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -62,8 +63,6 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         PurchaseHeader1: Record "Purchase Header";
         ParentItem: Record Item;
         CompItem: Record Item;
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
-        Status: Option Quote,Planned,"Firm Planned",Released,Finished;
         Day1: Date;
         Qty: Decimal;
         QtyPer: Decimal;
@@ -103,7 +102,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         // Finish prod. order.
         ProductionOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, Status::Finished, Day1, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, Day1, false);
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + CompItem."No.", '');
@@ -280,7 +279,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure ValuationDateTransferEntries(CostingMethod: Option)
+    local procedure ValuationDateTransferEntries(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -329,7 +328,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure ValuationDateTransferOrders(CostingMethod: Option)
+    local procedure ValuationDateTransferOrders(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -424,7 +423,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure ValuationDateLinkedEntries(CostingMethod: Option)
+    local procedure ValuationDateLinkedEntries(CostingMethod: Enum "Costing Method")
     var
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         Item: Record Item;
@@ -501,7 +500,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure ValuationDateEndlessLoop(CostingMethod: Option)
+    local procedure ValuationDateEndlessLoop(CostingMethod: Enum "Costing Method")
     var
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         Item: Record Item;
@@ -594,7 +593,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure ValuateInventoryAndUnitCost(CostingMethod: Option)
+    local procedure ValuateInventoryAndUnitCost(CostingMethod: Enum "Costing Method")
     var
         TransferHeader: Record "Transfer Header";
         FromLocation: Record Location;
@@ -693,7 +692,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure AdjAndReclassJournal(CostingMethod: Option)
+    local procedure AdjAndReclassJournal(CostingMethod: Enum "Costing Method")
     var
         Location: Record Location;
         Bin1: Record Bin;
@@ -786,7 +785,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure ValuateCostAmountActual(CostingMethod: Option)
+    local procedure ValuateCostAmountActual(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -928,7 +927,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure CostingManufacturing(CostingMethod: Option)
+    local procedure CostingManufacturing(CostingMethod: Enum "Costing Method")
     var
         SalesHeader: Record "Sales Header";
         ItemJournalLine: Record "Item Journal Line";
@@ -941,8 +940,6 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         ProductionBOMHeader: Record "Production BOM Header";
         ParentItem: Record Item;
         ChildItem: Record Item;
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
-        Status: Option Quote,Planned,"Firm Planned",Released,Finished;
         Day1: Date;
         Qty: Decimal;
         QtyPer: Decimal;
@@ -989,7 +986,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         // Finish prod. order.
         ProductionOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, Status::Finished, Day1 + 5, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, Day1 + 5, false);
 
         // Invoice the receipts.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, false, true);
@@ -1031,7 +1028,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Normal]
-    local procedure SetupProduction(var ParentItem: Record Item; var CompItem: Record Item; var ProdOrderLine: Record "Prod. Order Line"; LocationCode: Code[10]; ParentCostingMethod: Option; CompCostingMethod: Option; ProdOrderDate: Date; ProducedQty: Decimal; QtyPer: Decimal)
+    local procedure SetupProduction(var ParentItem: Record Item; var CompItem: Record Item; var ProdOrderLine: Record "Prod. Order Line"; LocationCode: Code[10]; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; ProdOrderDate: Date; ProducedQty: Decimal; QtyPer: Decimal)
     var
         ProductionOrder: Record "Production Order";
         ProductionBOMHeader: Record "Production BOM Header";

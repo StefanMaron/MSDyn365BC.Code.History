@@ -924,7 +924,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RunSuggestBankPayments(BankAccountNo, VendorNo, CalcDate('<30D>', WorkDate));
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithRandomAmounts(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option) DocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocumentWithRandomAmounts(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option) DocumentNo: Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
@@ -955,7 +955,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         exit(DocumentNo);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; LineType: Option; No: Code[20]; Quantity: Decimal; Cost: Decimal; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option; InvoiceMessage: Text[250]; InvoiceMessage2: Text[250]): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; LineType: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; Cost: Decimal; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option; InvoiceMessage: Text[250]; InvoiceMessage2: Text[250]): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -974,7 +974,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         exit(LibraryPurchase.PostPurchaseDocument2(PurchaseHeader, ToShipReceive, ToInvoice));
     end;
 
-    local procedure CreateAndPostPurchasePrepayments(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreateAndPostPurchasePrepayments(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
@@ -1015,7 +1015,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         exit(Item."No.");
     end;
 
-    local procedure CreatePostPurchaseDocument(DocumentType: Option; VendorCode: Code[20]; PostingDate: Date): Code[20]
+    local procedure CreatePostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; VendorCode: Code[20]; PostingDate: Date): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1157,7 +1157,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         VerifyValue(LibraryXPathXMLReader, XPath, ExpectedValue);
     end;
 
-    local procedure VerifyGeneralJournalPostingDate(GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure VerifyGeneralJournalPostingDate(GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date)
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");

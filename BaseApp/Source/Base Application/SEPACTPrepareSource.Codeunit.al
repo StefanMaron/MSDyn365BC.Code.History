@@ -1,4 +1,4 @@
-﻿codeunit 1222 "SEPA CT-Prepare Source"
+codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 
@@ -60,7 +60,7 @@
                     "Bal. Account No." := RefPmtExp."Payment Account";
                     "External Document No." := RefPmtExp."External Document No.";
                     Amount := RefPmtExp.Amount;
-                    "Applies-to Doc. Type" := RefPmtExp."Document Type";
+                    "Applies-to Doc. Type" := "Gen. Journal Document Type".FromInteger(RefPmtExp."Document Type");
                     "Applies-to Doc. No." := RefPmtExp."Document No.";
                     "Currency Code" := RefPmtExp."Currency Code";
                     "Due Date" := RefPmtExp."Due Date";

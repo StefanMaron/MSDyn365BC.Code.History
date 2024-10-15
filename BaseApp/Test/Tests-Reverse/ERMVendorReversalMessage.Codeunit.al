@@ -206,7 +206,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         ReverseFromLedgerPrivacyBlocked(GenJournalLine."Document Type"::Reminder, Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure ReverseFromLedgerPrivacyBlocked(DocumentType: Option; BlockedType: Option; Amount: Decimal)
+    local procedure ReverseFromLedgerPrivacyBlocked(DocumentType: Enum "Gen. Journal Document Type"; BlockedType: Enum "Vendor Blocked"; Amount: Decimal)
     var
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -226,7 +226,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         Assert.ExpectedError(StrSubstNo(ReversalFromLedgerPrivacyBlockedErr, Vendor."No."));
     end;
 
-    local procedure ReverseFromLedger(DocumentType: Option; BlockedType: Option; Amount: Decimal)
+    local procedure ReverseFromLedger(DocumentType: Enum "Gen. Journal Document Type"; BlockedType: Enum "Vendor Blocked"; Amount: Decimal)
     var
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -429,7 +429,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostApplnDateCompress(DocumentNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostApplnDateCompress(DocumentNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -463,7 +463,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; VendorNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -474,7 +474,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
           GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
     end;
 
-    local procedure CreateGenJnlLineForBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; BalAccountType: Option; BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLineForBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -487,7 +487,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLineForInvoice(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Option; BalAccountNo: Code[20]; AccountNo: Code[20])
+    local procedure CreateGenJnlLineForInvoice(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AccountNo: Code[20])
     begin
         CreateGenJnlLineForBalAccount(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, BalAccountType, BalAccountNo, AccountNo,
@@ -507,7 +507,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         Assert.ExpectedError(ReversalFromGLEntryErr);
     end;
 
-    local procedure ReversalSetup(DocumentType: Option; BlockedType: Option; Amount: Decimal): Code[20]
+    local procedure ReversalSetup(DocumentType: Enum "Gen. Journal Document Type"; BlockedType: Enum "Vendor Blocked"; Amount: Decimal): Code[20]
     var
         Vendor: Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";

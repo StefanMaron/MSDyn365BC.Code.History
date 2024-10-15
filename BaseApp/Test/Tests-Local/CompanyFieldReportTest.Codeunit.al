@@ -59,7 +59,7 @@ codeunit 144010 "Company Field Report Test"
         exit(NoSeries.Code);
     end;
 
-    local procedure CreateSalesDocument(Type: Integer; Post: Boolean): Text
+    local procedure CreateSalesDocument(Type: Enum "Sales Document Type"; Post: Boolean): Text
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -80,7 +80,7 @@ codeunit 144010 "Company Field Report Test"
         exit(DocumentNumber);
     end;
 
-    local procedure CreatePurchaseDocument(Type: Integer; Post: Boolean): Text
+    local procedure CreatePurchaseDocument(Type: Enum "Purchase Document Type"; Post: Boolean): Text
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -104,7 +104,7 @@ codeunit 144010 "Company Field Report Test"
         exit(DocumentNumber);
     end;
 
-    local procedure CreateServiceDocument(Type: Integer; Post: Boolean): Text
+    local procedure CreateServiceDocument(Type: Enum "Service Document Type"; Post: Boolean): Text
     var
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
@@ -742,7 +742,7 @@ codeunit 144010 "Company Field Report Test"
         xImplemetation: Enum "Price Calculation Handler";
     begin
         Initialize;
-        xImplemetation := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+        xImplemetation := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 
         LibrarySales.CreateCustomer(Customer);
         PriceListReport.InitializeRequest(0D, 0, Customer."No.", '');

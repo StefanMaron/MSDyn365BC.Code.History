@@ -305,8 +305,8 @@ codeunit 136125 "Service Posting Journals"
 
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.",
-          WorkDate - 1, '', '', '', 0, LibraryRandom.RandIntInRange(100, 200));
+            SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.",
+            WorkDate - 1, '', '', '', 0, LibraryRandom.RandIntInRange(100, 200));
         SalesPrice.TestField("Price Includes VAT", Customer."Prices Including VAT");
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
@@ -477,14 +477,14 @@ codeunit 136125 "Service Posting Journals"
         CreateAndUpdateServiceLine(ServiceHeader, ServiceLine.Type::Item, ItemNo, ServiceItemLine."Line No.", Qty);
     end;
 
-    local procedure CreateServiceLineWithBlankLocation(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; Type: Option; No: Code[20])
+    local procedure CreateServiceLineWithBlankLocation(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; Type: Enum "Service Document Type"; No: Code[20])
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate("Location Code", '');
         ServiceLine.Modify();
     end;
 
-    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; ServiceItemLineNo: Integer)
+    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; ServiceItemLineNo: Integer)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -518,7 +518,7 @@ codeunit 136125 "Service Posting Journals"
         exit(Customer."No.");
     end;
 
-    local procedure CreateAndUpdateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; ServiceItemLineNo: Integer; Qty: Decimal)
+    local procedure CreateAndUpdateServiceLine(ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; ServiceItemLineNo: Integer; Qty: Decimal)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -667,7 +667,7 @@ codeunit 136125 "Service Posting Journals"
         until TempServiceLine.Next = 0;
     end;
 
-    local procedure VerifyServiceLedgerEntryForBin(ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Option; EntryType: Option)
+    local procedure VerifyServiceLedgerEntryForBin(ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; EntryType: Option)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin

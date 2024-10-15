@@ -61,19 +61,19 @@ codeunit 1541 "Workflow Webhook Events"
         DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        WorkflowSetup.InsertTableRelation(DATABASE::Customer, DummyCustomer.FieldNo(Id),
+        WorkflowSetup.InsertTableRelation(DATABASE::Customer, DummyCustomer.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
-        WorkflowSetup.InsertTableRelation(DATABASE::"Gen. Journal Batch", DummyGenJournalBatch.FieldNo(Id),
+        WorkflowSetup.InsertTableRelation(DATABASE::"Gen. Journal Batch", DummyGenJournalBatch.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         WorkflowSetup.InsertTableRelation(DATABASE::"Gen. Journal Line", DummyGenJournalLine.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
-        WorkflowSetup.InsertTableRelation(DATABASE::Item, DummyItem.FieldNo(Id),
+        WorkflowSetup.InsertTableRelation(DATABASE::Item, DummyItem.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
-        WorkflowSetup.InsertTableRelation(DATABASE::"Purchase Header", DummyPurchaseHeader.FieldNo(Id),
+        WorkflowSetup.InsertTableRelation(DATABASE::"Purchase Header", DummyPurchaseHeader.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
-        WorkflowSetup.InsertTableRelation(DATABASE::"Sales Header", DummySalesHeader.FieldNo(Id),
+        WorkflowSetup.InsertTableRelation(DATABASE::"Sales Header", DummySalesHeader.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
-        WorkflowSetup.InsertTableRelation(DATABASE::Vendor, DummyVendor.FieldNo(Id),
+        WorkflowSetup.InsertTableRelation(DATABASE::Vendor, DummyVendor.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
     end;
 

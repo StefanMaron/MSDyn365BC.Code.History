@@ -12,15 +12,19 @@ report 953 "Move Time Sheets to Archive"
             trigger OnAfterGetRecord()
             begin
                 Counter := Counter + 1;
-                Window.Update(1, "No.");
-                Window.Update(2, Round(Counter / CounterTotal * 10000, 1));
+                if GuiAllowed then begin
+                    Window.Update(1, "No.");
+                    Window.Update(2, Round(Counter / CounterTotal * 10000, 1));
+                end;
                 TimeSheetMgt.MoveTimeSheetToArchive("Time Sheet Header");
             end;
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
-                Message(Text002, Counter);
+                if GuiAllowed then begin
+                    Window.Close;
+                    Message(Text002, Counter);
+                end;
             end;
 
             trigger OnPreDataItem()
@@ -28,7 +32,8 @@ report 953 "Move Time Sheets to Archive"
                 OnBeforePreDataItemTimesheetHeader("Time Sheet Header");
 
                 CounterTotal := Count;
-                Window.Open(Text001);
+                if GuiAllowed then
+                    Window.Open(Text001);
             end;
         }
     }

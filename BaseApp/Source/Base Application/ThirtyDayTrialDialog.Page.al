@@ -29,6 +29,7 @@ page 9193 "Thirty Day Trial Dialog"
                     Editable = false;
                     MultiLine = true;
                     ShowCaption = false;
+                    Visible = not IsPreview;
                 }
                 field(Content3Lbl; Content3Lbl)
                 {
@@ -123,6 +124,7 @@ page 9193 "Thirty Day Trial Dialog"
     begin
         Step := Step::Start;
         EnableControls;
+        OnIsRunningPreview(IsPreview);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -141,6 +143,7 @@ page 9193 "Thirty Day Trial Dialog"
         NextActionEnabled: Boolean;
         TrialWizardCompleted: Boolean;
         TermsAndConditionsAccepted: Boolean;
+        IsPreview: Boolean;
         LinkLbl: Label 'View Terms & Conditions';
         UrlTxt: Label 'http://go.microsoft.com/fwlink/?LinkId=828977', Locked = true;
         Content1Lbl: Label 'Use the setups that we provide, and import or create items, customers, and vendors to do things like post invoices or use graphs and reports to analyze your finances.';
@@ -200,6 +203,11 @@ page 9193 "Thirty Day Trial Dialog"
     procedure Confirmed(): Boolean
     begin
         exit(TermsAndConditionsAccepted and TrialWizardCompleted);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsRunningPreview(var isPreview: Boolean)
+    begin
     end;
 }
 

@@ -14,8 +14,10 @@ codeunit 134771 "New Document from CustomerCard"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
+        RefMode: Option Manual,Automatic,"Always Ask";
 
     local procedure Initialize()
     begin
@@ -392,6 +394,206 @@ codeunit 134771 "New Document from CustomerCard"
         VerifySalesInvoicePage(Customer, SecondSalesInvoice);
     end;
 
+    // Regression test related to
+    // Bug 364445: [Repair Item] Error while creating Sales Order where customer has recurring sales lines
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewSalesOrderForCustomerWithRecurringSalesLines()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        CustomerCard: TestPage "Customer Card";
+        SalesOrder: TestPage "Sales Order";
+    begin
+
+        // [GIVEN]  An item X with Automatic Ext. Texts set to true and a customer with a recurring sales line for 
+        //          item X with Insert Rec. Lines On Orders set to true.
+        Initialize();
+        CreateCustomer(Customer);
+        CreateItemWithRecurringSalesLineForCustomer(Customer, Item, StandardCustomerSalesCode);
+
+        Item."Automatic Ext. Texts" := true;
+        Item.Modify();
+
+        StandardCustomerSalesCode."Insert Rec. Lines On Orders" := RefMode::Automatic;
+        StandardCustomerSalesCode.Modify();
+
+        // [WHEN] Opening the customer card and then creating a new sales order.
+        CustomerCard.OpenEdit;
+        CustomerCard.GotoRecord(Customer);
+        SalesOrder.Trap;
+        CustomerCard.NewSalesOrder.Invoke;
+
+        // [THEN] The sales order is filled out with the customer information.
+        SalesOrder."Sell-to Customer Name".Activate;
+
+        Assert.AreEqual(Customer.Name, SalesOrder."Sell-to Customer Name".Value,
+            'Customername is not carried over to the document');
+
+        Assert.AreEqual(Customer.Address, SalesOrder."Sell-to Address".Value,
+            'Customer address is not carried over to the document');
+
+        Assert.AreEqual(Customer."Post Code", SalesOrder."Sell-to Post Code".Value,
+          'Customer postcode is not carried over to the document');
+
+        Assert.AreEqual(Customer.Contact, SalesOrder."Sell-to Contact".Value,
+            'Customer contact is not carried over to the document');
+
+        // [THEN] The sales lines have the recurring sales line filled out.
+        VerifyRecurringSalesLineFilledOut(Customer, Item);
+    end;
+
+    // Regression test related to
+    // Bug 364445: [Repair Item] Error while creating Sales Order where customer has recurring sales lines
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewSalesInvoiceForCustomerWithRecurringSalesLines()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        CustomerCard: TestPage "Customer Card";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+
+        // [GIVEN]  An item X with Automatic Ext. Texts set to true and a customer with a recurring sales line for
+        //          item X with Insert Rec. Lines On Invoices set to true.
+        Initialize();
+        CreateCustomer(Customer);
+        CreateItemWithRecurringSalesLineForCustomer(Customer, Item, StandardCustomerSalesCode);
+
+        Item."Automatic Ext. Texts" := true;
+        Item.Modify();
+
+        StandardCustomerSalesCode."Insert Rec. Lines On Invoices" := RefMode::Automatic;
+        StandardCustomerSalesCode.Modify();
+
+        // [WHEN] Opening the customer card and then creating a new sales invoice.
+        CustomerCard.OpenEdit;
+        CustomerCard.GotoRecord(Customer);
+        SalesInvoice.Trap;
+        CustomerCard.NewSalesInvoice.Invoke;
+
+        // [THEN] The sales invoice is filled out with the customer information and recurring sales line.
+        SalesInvoice."Sell-to Customer Name".Activate;
+
+        Assert.AreEqual(Customer.Name, SalesInvoice."Sell-to Customer Name".Value,
+            'Customername is not carried over to the document');
+
+        Assert.AreEqual(Customer.Address, SalesInvoice."Sell-to Address".Value,
+            'Customer address is not carried over to the document');
+
+        Assert.AreEqual(Customer."Post Code", SalesInvoice."Sell-to Post Code".Value,
+          'Customer postcode is not carried over to the document');
+
+        Assert.AreEqual(Customer.Contact, SalesInvoice."Sell-to Contact".Value,
+            'Customer contact is not carried over to the document');
+
+        // [THEN] The sales lines have the recurring sales line filled out.
+        VerifyRecurringSalesLineFilledOut(Customer, Item);
+    end;
+
+    // Regression test related to
+    // Bug 364445: [Repair Item] Error while creating Sales Order where customer has recurring sales lines
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewSalesCreditMemoForCustomerWithRecurringSalesLines()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        CustomerCard: TestPage "Customer Card";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+
+        // [GIVEN]  An item X with Automatic Ext. Texts set to true and a customer with a recurring sales line for
+        //          item X with Insert Rec. Lines On Cr. Memos set to true.
+        Initialize();
+        CreateCustomer(Customer);
+        CreateItemWithRecurringSalesLineForCustomer(Customer, Item, StandardCustomerSalesCode);
+
+        Item."Automatic Ext. Texts" := true;
+        Item.Modify();
+
+        StandardCustomerSalesCode."Insert Rec. Lines On Cr. Memos" := RefMode::Automatic;
+        StandardCustomerSalesCode.Modify();
+
+        // [WHEN] Opening the customer card and then creating a new sales credit memo.
+        CustomerCard.OpenEdit;
+        CustomerCard.GotoRecord(Customer);
+        SalesCreditMemo.Trap;
+        CustomerCard.NewSalesCreditMemo.Invoke;
+
+        // [THEN] The sales credit memo is filled out with the customer information and recurring sales line.
+        SalesCreditMemo."Sell-to Customer Name".Activate;
+
+        Assert.AreEqual(Customer.Name, SalesCreditMemo."Sell-to Customer Name".Value,
+            'Customername is not carried over to the document');
+
+        Assert.AreEqual(Customer.Address, SalesCreditMemo."Sell-to Address".Value,
+            'Customer address is not carried over to the document');
+
+        Assert.AreEqual(Customer."Post Code", SalesCreditMemo."Sell-to Post Code".Value,
+          'Customer postcode is not carried over to the document');
+
+        Assert.AreEqual(Customer.Contact, SalesCreditMemo."Sell-to Contact".Value,
+            'Customer contact is not carried over to the document');
+
+        // [THEN] The sales lines have the recurring sales line filled out.
+        VerifyRecurringSalesLineFilledOut(Customer, Item);
+    end;
+
+    // Regression test related to
+    // Bug 364445: [Repair Item] Error while creating Sales Order where customer has recurring sales lines
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewSalesQuoteForCustomerWithRecurringSalesLines()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        CustomerCard: TestPage "Customer Card";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+
+        // [GIVEN]  An item X with Automatic Ext. Texts set to true and a customer with a recurring sales line for 
+        //          item X with Insert Rec. Lines On Quotes set to true.
+        Initialize();
+        CreateCustomer(Customer);
+        CreateItemWithRecurringSalesLineForCustomer(Customer, Item, StandardCustomerSalesCode);
+
+        Item."Automatic Ext. Texts" := true;
+        Item.Modify();
+
+        StandardCustomerSalesCode."Insert Rec. Lines On Quotes" := RefMode::Automatic;
+        StandardCustomerSalesCode.Modify();
+
+        // [WHEN] Opening the customer card and then creating a new sales quote.
+        CustomerCard.OpenEdit;
+        CustomerCard.GotoRecord(Customer);
+        SalesQuote.Trap;
+        CustomerCard.NewSalesQuote.Invoke;
+
+        // [THEN] The sales quote is filled out with the customer information and recurring sales line.
+        SalesQuote."Sell-to Customer Name".Activate;
+
+        Assert.AreEqual(Customer.Name, SalesQuote."Sell-to Customer Name".Value,
+            'Customername is not carried over to the document');
+
+        Assert.AreEqual(Customer.Address, SalesQuote."Sell-to Address".Value,
+            'Customer address is not carried over to the document');
+
+        Assert.AreEqual(Customer."Post Code", SalesQuote."Sell-to Post Code".Value,
+          'Customer postcode is not carried over to the document');
+
+        Assert.AreEqual(Customer.Contact, SalesQuote."Sell-to Contact".Value,
+            'Customer contact is not carried over to the document');
+
+        // [THEN] The sales lines have the recurring sales line filled out.
+        VerifyRecurringSalesLineFilledOut(Customer, Item);
+    end;
+
     local procedure CreateCustomer(var Customer: Record Customer)
     var
         PostCode: Record "Post Code";
@@ -411,6 +613,42 @@ codeunit 134771 "New Document from CustomerCard"
         SalesInvoice."Sell-to Address".AssertEquals(Customer.Address);
         SalesInvoice."Sell-to Post Code".AssertEquals(Customer."Post Code");
         SalesInvoice."Sell-to Contact".AssertEquals(Customer.Contact);
+    end;
+
+    local procedure CreateItemWithRecurringSalesLineForCustomer(
+        customer: Record Customer;
+        var item: Record Item;
+        var standardCustomerSalesCode: Record "Standard Customer Sales Code"
+    )
+    var
+        StandardSalesCode: Record "Standard Sales Code";
+        StandardSalesLine: Record "Standard Sales Line";
+    begin
+
+        LibraryInventory.CreateItem(item);
+        LibrarySales.CreateStandardSalesCode(StandardSalesCode);
+        LibrarySales.CreateStandardSalesLine(StandardSalesLine, StandardSalesCode.Code);
+
+        StandardSalesLine.Type := "Sales Line Type"::Item;
+        StandardSalesLine."No." := item."No.";
+        StandardSalesLine.Quantity := 1;
+        StandardSalesLine.Modify();
+
+        LibrarySales.CreateCustomerSalesCode(standardCustomerSalesCode, customer."No.", StandardSalesCode.Code);
+    end;
+
+    local procedure VerifyRecurringSalesLineFilledOut(customer: Record Customer; item: Record Item)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("No.", item."No.");
+        Assert.AreEqual(1, SalesLine.Count(), 'Expected only one recurring sales line to be filled out.');
+
+        SalesLine.FindFirst();
+        Assert.AreEqual(SalesLine.Type::Item, SalesLine.Type, 'Expected sales line type to be item.');
+        Assert.AreEqual(customer."No.", SalesLine."Sell-to Customer No.", 'Customer No. was not filled out in sales line.');
+        Assert.AreEqual(item."No.", SalesLine."No.", 'Item No. was not filled out in sales line.');
+        Assert.AreEqual(item.Description, SalesLine.Description, 'Item Description was not filled out in sales line.');
     end;
 }
 

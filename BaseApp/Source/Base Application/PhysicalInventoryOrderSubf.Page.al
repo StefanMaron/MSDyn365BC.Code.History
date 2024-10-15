@@ -270,7 +270,7 @@ page 5877 "Physical Inventory Order Subf."
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 group("Item &Tracking Lines")
@@ -409,7 +409,7 @@ page 5877 "Physical Inventory Order Subf."
         SetDimensionsVisibility;
     end;
 
-    var
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

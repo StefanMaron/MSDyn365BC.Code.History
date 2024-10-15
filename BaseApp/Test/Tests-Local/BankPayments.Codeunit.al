@@ -149,7 +149,9 @@ codeunit 144002 "Bank Payments"
         // Must be at least one record in Tab81
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        LibraryERM.CreateGeneralJnlLine(GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, 0, 0, '', 0);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", '', 0);
 
         // Excercise
         RefPaymentExported.SetRange(Transferred, false);
@@ -229,7 +231,7 @@ codeunit 144002 "Bank Payments"
         end;
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; LineType: Option; No: Code[20]; Quantity: Decimal; Cost: Decimal; ToShipReceive: Boolean; ToInvoice: Boolean; InvoiceMessage: Text[250]; InvoiceMessage2: Text[250]): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; LineType: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; Cost: Decimal; ToShipReceive: Boolean; ToInvoice: Boolean; InvoiceMessage: Text[250]; InvoiceMessage2: Text[250]): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -247,7 +249,7 @@ codeunit 144002 "Bank Payments"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ToShipReceive, ToInvoice));
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithRandomAmounts(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean) DocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocumentWithRandomAmounts(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean) DocumentNo: Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;

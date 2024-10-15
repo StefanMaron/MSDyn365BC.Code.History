@@ -1912,7 +1912,7 @@ codeunit 134268 "Payment Proposal UT 2"
     end;
 
     [Normal]
-    local procedure CreateNewPaymentApplicationLine(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateNewPaymentApplicationLine(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         Clear(TempPaymentApplicationProposal);
         TempPaymentApplicationProposal.Init();

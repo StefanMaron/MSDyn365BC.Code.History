@@ -1,4 +1,4 @@
-table 1284 "Outstanding Bank Transaction"
+﻿table 1284 "Outstanding Bank Transaction"
 {
     Caption = 'Outstanding Bank Transaction';
 
@@ -32,7 +32,7 @@ table 1284 "Outstanding Bank Transaction"
         }
         field(7; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Amount';
         }
         field(8; Type; Option)
@@ -94,7 +94,7 @@ table 1284 "Outstanding Bank Transaction"
                 if RemainingAmt <> 0 then begin
                     TempOutstandingBankTransaction.Init();
                     TempOutstandingBankTransaction."Posting Date" := BankAccountLedgerEntry."Posting Date";
-                    TempOutstandingBankTransaction."Document Type" := BankAccountLedgerEntry."Document Type";
+                    TempOutstandingBankTransaction."Document Type" := BankAccountLedgerEntry."Document Type".AsInteger();
                     TempOutstandingBankTransaction."Document No." := BankAccountLedgerEntry."Document No.";
                     TempOutstandingBankTransaction."Bank Account No." := BankAccountLedgerEntry."Bank Account No.";
                     TempOutstandingBankTransaction.Description := BankAccountLedgerEntry.Description;
@@ -147,7 +147,7 @@ table 1284 "Outstanding Bank Transaction"
         Init;
         "Entry No." := BankAccountLedgerEntry."Entry No.";
         "Posting Date" := BankAccountLedgerEntry."Posting Date";
-        "Document Type" := BankAccountLedgerEntry."Document Type";
+        "Document Type" := BankAccountLedgerEntry."Document Type".AsInteger();
         "Document No." := BankAccountLedgerEntry."Document No.";
         "Bank Account No." := BankAccountLedgerEntry."Bank Account No.";
         Description := BankAccountLedgerEntry.Description;

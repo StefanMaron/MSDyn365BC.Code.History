@@ -972,14 +972,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CreateGeneralJournalLine(
           GenJournalLine, DocumentType, GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BankPaymentType: Option; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -998,14 +998,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BankPaymentType: Option; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     begin
         CreateGenJournalLine(
           GenJournalLine, DocumentType, AccountType, AccountNo, BankPaymentType, CurrencyCode, BalAccountNo, Amount, AppliesToDocNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostGenJournalLineWithAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AppliesToDocType: Option; DocumentNo: Code[20])
+    local procedure CreateAndPostGenJournalLineWithAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         CreateGenJournalLine(
           GenJournalLine, DocumentType, AccountType, GenJournalLine."Account No.",
@@ -1016,7 +1016,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostApplyGenJournalLineWithPostingDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AppliesToDocType: Option; DocumentNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date)
+    local procedure CreateAndPostApplyGenJournalLineWithPostingDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date)
     begin
         CreateGenJournalLine(
           GenJournalLine, DocumentType, AccountType, GenJournalLine."Account No.",
@@ -1053,7 +1053,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1278,7 +1278,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLRegister.FindLast();
     end;
 
-    local procedure UnApplyCustomerLedgerEntries(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnApplyCustomerLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1286,7 +1286,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
-    local procedure UnApplyVendorLedgerEntries(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnApplyVendorLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1294,7 +1294,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
 
-    local procedure UnApplyEmployeeLedgerEntries(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnApplyEmployeeLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin

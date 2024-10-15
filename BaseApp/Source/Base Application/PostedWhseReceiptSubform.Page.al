@@ -192,7 +192,7 @@ page 7331 "Posted Whse. Receipt Subform"
 
     local procedure ShowPostedSourceDoc()
     begin
-        WMSMgt.ShowPostedSourceDoc("Posted Source Document", "Posted Source No.");
+        WMSMgt.ShowPostedSourceDocument("Posted Source Document", "Posted Source No.");
     end;
 
     local procedure ShowBinContents()

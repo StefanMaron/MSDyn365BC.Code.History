@@ -429,12 +429,10 @@ table 5475 "Sales Invoice Entity Aggregate"
             Caption = 'Total Tax Amount';
             DataClassification = CustomerContent;
         }
-        field(9601; Status; Option)
+        field(9601; Status; Enum "Invoice Entity Aggregate Status")
         {
             Caption = 'Status';
             DataClassification = CustomerContent;
-            OptionCaption = ' ,Draft,In Review,Open,Paid,Canceled,Corrective', Locked = true;
-            OptionMembers = " ",Draft,"In Review",Open,Paid,Canceled,Corrective;
         }
         field(9602; Posted; Boolean)
         {
@@ -464,7 +462,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         {
             Caption = 'Customer Id';
             DataClassification = SystemMetadata;
-            TableRelation = Customer.Id;
+            TableRelation = Customer.SystemId;
 
             trigger OnValidate()
             begin
@@ -490,7 +488,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         {
             Caption = 'Currency Id';
             DataClassification = SystemMetadata;
-            TableRelation = Currency.Id;
+            TableRelation = Currency.SystemId;
 
             trigger OnValidate()
             begin
@@ -501,7 +499,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         {
             Caption = 'Payment Terms Id';
             DataClassification = SystemMetadata;
-            TableRelation = "Payment Terms".Id;
+            TableRelation = "Payment Terms".SystemId;
 
             trigger OnValidate()
             begin
@@ -512,7 +510,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         {
             Caption = 'Shipment Method Id';
             DataClassification = SystemMetadata;
-            TableRelation = "Shipment Method".Id;
+            TableRelation = "Shipment Method".SystemId;
 
             trigger OnValidate()
             begin
@@ -536,7 +534,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         {
             Caption = 'Bill-to Customer Id';
             DataClassification = SystemMetadata;
-            TableRelation = Customer.Id;
+            TableRelation = Customer.SystemId;
 
             trigger OnValidate()
             begin
@@ -610,7 +608,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         if not Customer.Get("Sell-to Customer No.") then
             exit;
 
-        "Customer Id" := Customer.Id;
+        "Customer Id" := Customer.SystemId;
     end;
 
     local procedure UpdateBillToCustomerId()
@@ -625,7 +623,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         if not Customer.Get("Bill-to Customer No.") then
             exit;
 
-        "Bill-to Customer Id" := Customer.Id;
+        "Bill-to Customer Id" := Customer.SystemId;
     end;
 
     local procedure UpdateOrderId()
@@ -635,7 +633,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         if not SalesHeader.Get(SalesHeader."Document Type"::Order, "Order No.") then
             exit;
 
-        "Order Id" := SalesHeader.Id;
+        "Order Id" := SalesHeader.SystemId;
     end;
 
     procedure UpdateCurrencyId()
@@ -650,7 +648,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         if not Currency.Get("Currency Code") then
             exit;
 
-        "Currency Id" := Currency.Id;
+        "Currency Id" := Currency.SystemId;
     end;
 
     procedure UpdatePaymentTermsId()
@@ -665,7 +663,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         if not PaymentTerms.Get("Payment Terms Code") then
             exit;
 
-        "Payment Terms Id" := PaymentTerms.Id;
+        "Payment Terms Id" := PaymentTerms.SystemId;
     end;
 
     procedure UpdateShipmentMethodId()
@@ -680,17 +678,15 @@ table 5475 "Sales Invoice Entity Aggregate"
         if not ShipmentMethod.Get("Shipment Method Code") then
             exit;
 
-        "Shipment Method Id" := ShipmentMethod.Id;
+        "Shipment Method Id" := ShipmentMethod.SystemId;
     end;
 
     local procedure UpdateSellToCustomerNo()
     var
         Customer: Record Customer;
     begin
-        if not IsNullGuid("Customer Id") then begin
-            Customer.SetRange(Id, "Customer Id");
-            Customer.FindFirst;
-        end;
+        if not IsNullGuid("Customer Id") then
+            Customer.GetBySystemId("Customer Id");
 
         Validate("Sell-to Customer No.", Customer."No.");
     end;
@@ -699,10 +695,8 @@ table 5475 "Sales Invoice Entity Aggregate"
     var
         Customer: Record Customer;
     begin
-        if not IsNullGuid("Bill-to Customer Id") then begin
-            Customer.SetRange(Id, "Bill-to Customer Id");
-            Customer.FindFirst;
-        end;
+        if not IsNullGuid("Bill-to Customer Id") then
+            Customer.GetBySystemId("Bill-to Customer Id");
 
         Validate("Bill-to Customer No.", Customer."No.");
     end;
@@ -716,11 +710,11 @@ table 5475 "Sales Invoice Entity Aggregate"
             exit;
         end;
 
-        SalesHeader.SetRange(Id, "Order Id");
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-
         // Order gets deleted after fullfiled, so do not blank the Order No
-        if not SalesHeader.FindFirst then
+        if not SalesHeader.GetBySystemId("Order Id") then
+            exit;
+
+        if not (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) then
             exit;
 
         Validate("Order No.", SalesHeader."No.");
@@ -730,10 +724,8 @@ table 5475 "Sales Invoice Entity Aggregate"
     var
         Currency: Record Currency;
     begin
-        if not IsNullGuid("Currency Id") then begin
-            Currency.SetRange(Id, "Currency Id");
-            Currency.FindFirst;
-        end;
+        if not IsNullGuid("Currency Id") then
+            Currency.GetBySystemId("Currency Id");
 
         Validate("Currency Code", Currency.Code);
     end;
@@ -742,10 +734,8 @@ table 5475 "Sales Invoice Entity Aggregate"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        if not IsNullGuid("Payment Terms Id") then begin
-            PaymentTerms.SetRange(Id, "Payment Terms Id");
-            PaymentTerms.FindFirst;
-        end;
+        if not IsNullGuid("Payment Terms Id") then
+            PaymentTerms.GetBySystemId("Payment Terms Id");
 
         Validate("Payment Terms Code", PaymentTerms.Code);
     end;
@@ -754,10 +744,8 @@ table 5475 "Sales Invoice Entity Aggregate"
     var
         ShipmentMethod: Record "Shipment Method";
     begin
-        if not IsNullGuid("Shipment Method Id") then begin
-            ShipmentMethod.SetRange(Id, "Shipment Method Id");
-            ShipmentMethod.FindFirst;
-        end;
+        if not IsNullGuid("Shipment Method Id") then
+            ShipmentMethod.GetBySystemId("Shipment Method Id");
 
         Validate("Shipment Method Code", ShipmentMethod.Code);
     end;
@@ -800,8 +788,10 @@ table 5475 "Sales Invoice Entity Aggregate"
         if IsNullGuid("Customer Id") then
             exit(false);
 
-        Customer.SetRange(Id, "Customer Id");
-        if not Customer.FindFirst then
+        if not GraphIntContact.IsUpdateContactIdEnabled() then
+            exit(false);
+
+        if not Customer.GetBySystemId("Customer Id") then
             exit(false);
 
         if not GraphIntContact.FindGraphContactIdFromCustomer(GraphID, Customer, Contact) then
@@ -838,7 +828,7 @@ table 5475 "Sales Invoice Entity Aggregate"
             if "VAT Bus. Posting Group" <> '' then begin
                 VATBusinessPostingGroup.SetRange(Code, "VAT Bus. Posting Group");
                 if VATBusinessPostingGroup.FindFirst then begin
-                    "Tax Area ID" := VATBusinessPostingGroup.Id;
+                    "Tax Area ID" := VATBusinessPostingGroup.SystemId;
                     exit;
                 end;
             end;
@@ -850,7 +840,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         if "Tax Area Code" <> '' then begin
             TaxArea.SetRange(Code, "Tax Area Code");
             if TaxArea.FindFirst then begin
-                "Tax Area ID" := TaxArea.Id;
+                "Tax Area ID" := TaxArea.SystemId;
                 exit;
             end;
         end;
@@ -862,13 +852,11 @@ table 5475 "Sales Invoice Entity Aggregate"
     var
         TaxArea: Record "Tax Area";
     begin
-        if not IsNullGuid("Tax Area ID") then begin
-            TaxArea.SetRange(Id, "Tax Area ID");
-            if TaxArea.FindFirst then begin
+        if not IsNullGuid("Tax Area ID") then
+            if TaxArea.GetBySystemId("Tax Area ID") then begin
                 Validate("Tax Area Code", TaxArea.Code);
                 exit;
             end;
-        end;
 
         Clear("Tax Area Code");
     end;
@@ -877,13 +865,11 @@ table 5475 "Sales Invoice Entity Aggregate"
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
-        if not IsNullGuid("Tax Area ID") then begin
-            VATBusinessPostingGroup.SetRange(Id, "Tax Area ID");
-            if VATBusinessPostingGroup.FindFirst then begin
+        if not IsNullGuid("Tax Area ID") then
+            if VATBusinessPostingGroup.GetBySystemId("Tax Area ID") then begin
                 Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
                 exit;
             end;
-        end;
 
         Clear("VAT Bus. Posting Group");
     end;

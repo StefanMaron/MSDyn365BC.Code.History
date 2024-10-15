@@ -124,12 +124,20 @@ page 9047 "Machine Operator Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with User Tasks Activities part';
+                ObsoleteTag = '17.0';
                 field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
                     Image = Checklist;
                     ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with User Tasks Activities part';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -156,7 +164,7 @@ page 9047 "Machine Operator Activities"
         end;
 
         SetFilter("Date Filter", '<=%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

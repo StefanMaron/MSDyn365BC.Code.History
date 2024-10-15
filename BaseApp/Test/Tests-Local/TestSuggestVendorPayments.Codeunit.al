@@ -379,7 +379,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateRefPaymentExportLinesFromJournal(BankAccountNo: Code[20]; VendorNo: Code[20]; DocumentType: Integer; Amount: Decimal; CurrencyCode: Code[10])
+    local procedure CreateRefPaymentExportLinesFromJournal(BankAccountNo: Code[20]; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CurrencyCode: Code[10])
     var
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -400,7 +400,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithRandomAmounts(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option) DocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocumentWithRandomAmounts(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option) DocumentNo: Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
@@ -431,7 +431,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         exit(DocumentNo);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; LineType: Option; No: Code[20]; Quantity: Decimal; Cost: Decimal; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option; InvoiceMessage: Text[250]; InvoiceMessage2: Text[250]): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; LineType: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; Cost: Decimal; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option; InvoiceMessage: Text[250]; InvoiceMessage2: Text[250]): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin

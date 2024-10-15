@@ -1,4 +1,4 @@
-﻿codeunit 32000000 "Ref. Payment Management"
+codeunit 32000000 "Ref. Payment Management"
 {
     Permissions = TableData "Gen. Journal Line" = rimd;
 

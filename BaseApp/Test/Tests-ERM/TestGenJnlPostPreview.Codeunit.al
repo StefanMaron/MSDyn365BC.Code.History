@@ -606,14 +606,14 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         // [THEN] EventSubscriber OnDeletePmtJournalLine is not called.
     end;
 
-    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; GenJournalTemplateType: Option)
+    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplateType);
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLinePayment(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Option; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLinePayment(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";

@@ -74,6 +74,11 @@ codeunit 6710 ODataUtility
         Days31To60StaticTxt: Label '31-60 Days', Locked = true;
         Over60StaticTxt: Label 'Over 60 Days', Locked = true;
         WebServiceErr: Label 'The webservice %1 required for this excel report is missing.', Comment = '%1 - Web service name';
+        GetEndpointCategoryTxt: Label 'AL Get Endpoint Category', Locked = true;
+        TenantWebserviceDoesNotExistTxt: Label 'Tenant web service does not exist.', Locked = true;
+        TenantWebserviceExistTxt: Label 'Tenant web service exist.', Locked = true;
+        NewSelectTextTxt: Label 'New select text, creating temporary tenant web service columns.', Locked = true;
+        CreateEndpointForObjectTxt: Label 'Creating endpoint for %1 %2.', Locked = true;
 
     [TryFunction]
     procedure GenerateSelectText(ServiceNameParam: Text; ObjectTypeParam: Option ,,,,,"Codeunit",,,"Page","Query"; var SelectTextParam: Text)
@@ -534,6 +539,7 @@ codeunit 6710 ODataUtility
 
         if not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) then
             exit;
+        Session.LogMessage('0000DB6', StrSubstNo(CreateEndpointForObjectTxt, TenantWebService."Object Type", TenantWebService."Object ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
 
         TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
 
@@ -545,12 +551,15 @@ codeunit 6710 ODataUtility
 
         // If we don't have an endpoint - we need a new endpoint
         if not TenantWebServiceOData.FindFirst then begin
+            Session.LogMessage('0000DB3', TenantWebserviceDoesNotExistTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
             CreateEndPoint(TenantWebService, ColumnDictionary, DefaultSelectText, TenantWebServiceColumns);
             TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
             TenantWebServiceOData.FindFirst;
         end else begin
+            Session.LogMessage('0000DB4', TenantWebserviceExistTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
             // If we have a select text mismatch - set the select text for this operation and use a temp column record
             if SavedSelectText <> DefaultSelectText then begin
+                Session.LogMessage('0000DB5', NewSelectTextTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
                 WebServiceManagement.InsertSelectedColumns(TenantWebService, ColumnDictionary, TempTenantWebServiceColumns, TableNo);
                 TempTenantWebServiceColumns.Modify(true);
                 TempTenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
@@ -563,8 +572,10 @@ codeunit 6710 ODataUtility
         end;
 
         // This record should now exist after creating the endpoint.
-        TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        TenantWebServiceColumns.FindFirst;
+        if not UseTempColumns then begin
+            TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
+            TenantWebServiceColumns.FindFirst;
+        end;
 
         WebServiceManagement.SetODataV4FilterClause(TenantWebServiceOData, ODataFilter);
         TenantWebServiceOData.Modify(true);
