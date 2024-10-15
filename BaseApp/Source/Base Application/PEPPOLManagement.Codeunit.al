@@ -1161,6 +1161,9 @@
     begin
         ToRecord := ToSalesHeader;
         RecRefTransferFields(FromRecord, ToRecord);
+
+        OnAfterRecRefTransferFieldsOnTransferHeaderToSalesHeader(FromRecord, ToRecord);
+
         ToSalesHeader := ToRecord;
     end;
 
@@ -1170,6 +1173,9 @@
     begin
         ToRecord := ToSalesLine;
         RecRefTransferFields(FromRecord, ToRecord);
+
+        OnAfterRecRefTransferFieldsOnTransferLineToSalesLine(FromRecord, ToRecord);
+
         ToSalesLine := ToRecord;
     end;
 
@@ -1436,6 +1442,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLineItemInfo(SalesLine: Record "Sales Line"; var Description: Text; var Name: Text; var SellersItemIdentificationID: Text; var StandardItemIdentificationID: Text; var StdItemIdIDSchemeID: Text; var OriginCountryIdCode: Text; var OriginCountryIdCodeListID: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecRefTransferFieldsOnTransferHeaderToSalesHeader(FromRecord: Variant; var ToRecord: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecRefTransferFieldsOnTransferLineToSalesLine(FromRecord: Variant; var ToRecord: Variant)
     begin
     end;
 }
