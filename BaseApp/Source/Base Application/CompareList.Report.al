@@ -237,8 +237,8 @@ report 99000758 "Compare List"
         CalculateDate: Date;
         i: Integer;
         First: Boolean;
-        VersionCode1: Code[10];
-        VersionCode2: Code[10];
+        VersionCode1: Code[20];
+        VersionCode2: Code[20];
         UnitOfMeasure1: Code[10];
         UnitOfMeasure2: Code[10];
         Qty1: Decimal;

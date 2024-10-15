@@ -31,7 +31,7 @@ table 9002 "User Group Access Control"
         }
         field(5; "User Name"; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("User Security ID")));
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("User Security ID")));
             Caption = 'User Name';
             Editable = false;
             FieldClass = FlowField;
@@ -117,12 +117,29 @@ table 9002 "User Group Access Control"
     var
         AccessControl: Record "Access Control";
         AccessControlExists: Boolean;
+        NullGuid: Guid;
     begin
         // If this is the first assignment via a user group and the user already had a manually defined access control,
         // we add a 'null' record for it.
         if Get(UserGroupCode, UserSecurityID, RoleID, SelectedCompany, ItemScope, AppID) then
             exit;
-        AccessControlExists := AccessControl.Get(UserSecurityID, RoleID, SelectedCompany, ItemScope, AppID);
+
+        AccessControl.SetRange("User Security ID", UserSecurityID);
+        AccessControl.SetRange("Role ID", RoleID);
+        AccessControl.SetRange("Company Name", SelectedCompany);
+        AccessControl.SetRange(Scope, ItemScope);
+
+        // SUPER and SECURITY always have null guids
+        if RoleID in ['SUPER', 'SECURITY'] then
+            AccessControl.SetRange("App ID", NullGuid)
+        else
+            // If scope is system and App ID is null, filter to non-null App IDs
+            if (ItemScope = AccessControl.Scope::System) and IsNullGuid(AppID) then
+                AccessControl.SetFilter("App ID", '<>%1', NullGuid)
+            else
+                AccessControl.SetRange("App ID", AppID);
+
+        AccessControlExists := not AccessControl.IsEmpty();
         Reset;
         Init;
         "User Group Code" := '';

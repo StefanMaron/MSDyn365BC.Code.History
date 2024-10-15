@@ -166,6 +166,7 @@ page 5980 "Service Item Card"
                         CalcFields(Name, "Name 2", Address, "Address 2", "Post Code",
                           City, Contact, "Phone No.", County, "Country/Region Code");
                         CustomerNoOnAfterValidate();
+                        IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
                     end;
                 }
                 group("Sell-to")
@@ -203,11 +204,12 @@ page 5980 "Service Item Card"
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                    }
-                    field(County; County)
-                    {
-                        ApplicationArea = Service;
-                        QuickEntry = false;
+                        field(County; County)
+                        {
+                            ApplicationArea = Service;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county as a part of the address.';
+                        }
                     }
                     field("Post Code"; "Post Code")
                     {
@@ -221,11 +223,6 @@ page 5980 "Service Item Card"
                         ApplicationArea = Service;
                         QuickEntry = false;
                         ToolTip = 'Specifies the country/region of the address.';
-
-                        trigger OnValidate()
-                        begin
-                            IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-                        end;
                     }
                     field(Contact; Contact)
                     {
@@ -260,6 +257,7 @@ page 5980 "Service Item Card"
                     trigger OnValidate()
                     begin
                         UpdateShipToCode;
+                        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
                     end;
                 }
                 group("Ship-to")
@@ -300,12 +298,12 @@ page 5980 "Service Item Card"
                     {
                         ShowCaption = false;
                         Visible = IsShipToCountyVisible;
-                    }
-                    field("Ship-to County"; "Ship-to County")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'County';
-                        QuickEntry = false;
+                        field("Ship-to County"; "Ship-to County")
+                        {
+                            ApplicationArea = Service;
+                            Caption = 'County';
+                            QuickEntry = false;
+                        }
                     }
                     field("Ship-to Post Code"; "Ship-to Post Code")
                     {
@@ -321,11 +319,6 @@ page 5980 "Service Item Card"
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         QuickEntry = false;
-
-                        trigger OnValidate()
-                        begin
-                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
-                        end;
                     }
                     field("Ship-to Contact"; "Ship-to Contact")
                     {
