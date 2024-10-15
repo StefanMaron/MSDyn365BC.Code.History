@@ -193,7 +193,7 @@ table 2158 "O365 Document Sent History"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeNewInProgressFromRecRef(RecRef, Result, IsHandled);
+        OnBeforeNewInProgressFromRecRef(RecRef, Result, IsHandled, Rec);
         if IsHandled then
             exit(Result);
 
@@ -254,7 +254,7 @@ table 2158 "O365 Document Sent History"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewInProgressFromRecRef(RecRef: RecordRef; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeNewInProgressFromRecRef(RecRef: RecordRef; var Result: Boolean; var IsHandled: Boolean; var O365DocumentSentHistory: Record "O365 Document Sent History")
     begin
     end;
 }

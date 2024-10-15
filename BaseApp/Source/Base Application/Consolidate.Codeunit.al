@@ -121,6 +121,7 @@
 
                 TempDimBufOut.Reset();
                 TempDimBufOut.DeleteAll();
+                OnRunOnBeforeTempGLEntryLoop(TempGLEntry, TempSubsidGLAcc);
                 if TempGLEntry.FindSet then
                     repeat
                         if not SkipAllDimensions then begin
@@ -1016,7 +1017,13 @@
     var
         DimEntryNo: Integer;
         Found: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateTempGLEntryProcedure(TempGLEntry, GLEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         DimEntryNo := DimBufMgt.FindDimensions(TempDimBufIn);
         Found := TempDimBufIn.FindFirst;
         if Found and (DimEntryNo = 0) then begin
@@ -1485,6 +1492,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckPostingDate(var GlEntry: Record "G/L Entry"; var IsError: Boolean; var ErrorMsg: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTempGLEntryProcedure(var TempGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeTempGLEntryLoop(var TempGLEntry: Record "G/L Entry"; TempSubsidGLAcc: Record "G/L Account")
     begin
     end;
 }

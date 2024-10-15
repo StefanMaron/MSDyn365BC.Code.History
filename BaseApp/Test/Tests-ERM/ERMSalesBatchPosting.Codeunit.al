@@ -27,6 +27,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         isInitialized: Boolean;
         BatchCompletedMsg: Label 'All the documents were processed.';
         InterCompanyZipFileNamePatternTok: Label 'Sales IC Batch - %1.zip';
+        GLInterCompanyZipFileNamePatternTok: Label 'General Journal IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
         NotificationMsg: Label 'An error or warning occured during operation Batch processing of Sales Header records.';
         DefaultCategoryCodeLbl: Label 'SALESBCKGR';
 
@@ -1378,6 +1379,87 @@ codeunit 134391 "ERM Sales Batch Posting"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    procedure BatchPostGenJournalForICPartner()
+    var
+        Customer: Record Customer;
+        CompanyInformation: Record "Company Information";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalLineToPost: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
+        DataCompression: Codeunit "Data Compression";
+        ZipEntryList: List of [Text];
+        InStreamVar: InStream;
+        OutStreamVar: OutStream;
+        ICPartnerCode: Code[20];
+        ICPartnerInboxType: enum "IC Partner Inbox Type";
+        ZipEntryName: Text;
+        Index: Integer;
+        SalesDocFilter: Text;
+    begin
+        // [FEATURE] [InterCompany] [File]
+        // [SCENARIO 415486] Stan can post a few sales orders in a batch with auto sending IC documents when IC Partner's Inbox is a File Location. Stan gets all IC documents in a single zip file.
+        Initialize();
+
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+
+        ICPartnerCode := CreateICPartnerWithInbox(ICPartnerInboxType::"File Location");
+        UpdateICSetup(ICPartnerCode, CompanyInformation."IC Inbox Type"::"File Location", true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Intercompany);
+        GenJournalTemplate.Modify(true);
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalBatch.Modify(true);
+
+        for Index := 1 to ArrayLen(GenJournalLine) do begin
+            LibraryERM.CreateGeneralJnlLine(
+                GenJournalLine[Index], GenJournalTemplate.Name, GenJournalBatch.Name,
+                GenJournalLine[Index]."Document Type"::Invoice, GenJournalLine[Index]."Account Type"::Customer, Customer."No.",
+                LibraryRandom.RandIntInRange(100, 200));
+            GenJournalLine[Index].Validate("IC Partner G/L Acc. No.", CreateICGLAccountCode());
+            GenJournalLine[Index].Modify(true);
+        end;
+
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        GenJournalLineToPost.SetRange("Account Type", GenJournalLineToPost."Account Type"::Customer);
+        GenJournalLineToPost.SetRange("Account No.", Customer."No.");
+        GenJournalLineToPost.FindFirst();
+
+        GenJournalLineToPost.SendToPosting(Codeunit::"Gen. Jnl.-Post");
+
+        ZipEntryName := CopyStr(StrSubstNo(GLInterCompanyZipFileNamePatternTok, Format(WorkDate(), 10, '<Year4>-<Month,2>-<Day,2>')), 1, 1024);
+        Assert.AreEqual(ZipEntryName, LibraryFileMgtHandler.GetDownloadFromSreamToFileName(), 'Invalid zip file name to save');
+
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        TempBlob.CreateInStream(InStreamVar);
+        DataCompression.OpenZipArchive(InStreamVar, false);
+        DataCompression.GetEntryList(ZipEntryList);
+        DataCompression.CloseZipArchive();
+
+        Assert.AreEqual(2, ZipEntryList.Count(), 'Incorrect number of files in zip');
+
+        for Index := 1 to ZipEntryList.Count() do begin
+            ZipEntryList.Get(Index, ZipEntryName);
+            Assert.AreEqual(StrSubstNo('%1_%2.xml', ICPartnerCode, Index), ZipEntryName, 'Incorrect name of file in zip at position: ' + Format(Index));
+        end;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1452,6 +1534,14 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchProcessingSessionMap."User ID" := UserSecurityId;
         BatchProcessingSessionMap."Session ID" := BachSessionID;
         BatchProcessingSessionMap.Insert();
+    end;
+
+    local procedure CreateICGLAccountCode(): Code[20]
+    var
+        ICGLAccount: Record "IC G/L Account";
+    begin
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+        exit(ICGLAccount."No.");
     end;
 
     local procedure UpdateICSetup(ICPartnerCode: Code[20]; ICInboxType: Option; AutoSendTransaction: Boolean)
@@ -1834,6 +1924,13 @@ codeunit 134391 "ERM Sales Batch Posting"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Message: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [MessageHandler]

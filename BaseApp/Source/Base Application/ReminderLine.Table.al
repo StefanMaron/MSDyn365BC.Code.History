@@ -49,7 +49,14 @@
             TableRelation = "Cust. Ledger Entry";
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupEntryNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Type <> Type::"Customer Ledger Entry" then
                     exit;
                 SetCustLedgEntryView;
@@ -1001,6 +1008,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupDocNo(var ReminderLine: Record "Reminder Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupEntryNo(var ReminderLine: Record "Reminder Line"; var IsHandled: Boolean)
     begin
     end;
 

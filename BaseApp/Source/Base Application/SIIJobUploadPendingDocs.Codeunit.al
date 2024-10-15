@@ -71,7 +71,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
 
         if SalesHeader.IsTemporary then
             exit;
-			
+
         if (SalesInvHdrNo = '') and (SalesCrMemoHdrNo = '') then
             exit;
 
@@ -94,7 +94,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
 
         if PurchaseHeader.IsTemporary then
             exit;
-			
+
         if (PurchInvHdrNo = '') and (PurchCrMemoHdrNo = '') then
             exit;
 
@@ -105,8 +105,12 @@ codeunit 10753 "SII Job Upload Pending Docs."
     procedure OnAfterPostServiceDoc(var ServiceHeader: Record "Service Header")
     var
         SIISetup: Record "SII Setup";
+        IsHandled: Boolean;
     begin
-        OnBeforeOnAfterPostServiceDoc(ServiceHeader);
+        IsHandled := false;
+        OnBeforeOnAfterPostServiceDoc(ServiceHeader, IsHandled);
+        if not IsHandled then
+            exit;
 
         if not SIISetup.IsEnabled then
             exit;
@@ -348,7 +352,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnAfterPostServiceDoc(var ServiceHeader: Record "Service Header")
+    local procedure OnBeforeOnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

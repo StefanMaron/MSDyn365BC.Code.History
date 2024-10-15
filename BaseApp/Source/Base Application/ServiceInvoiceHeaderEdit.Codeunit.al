@@ -30,8 +30,10 @@ codeunit 10768 "Service Invoice Header - Edit"
 
     local procedure UpdateSIIDocUploadState(ServiceInvoiceHeader: Record "Service Invoice Header")
     var
+        xSIIDocUploadState: Record "SII Doc. Upload State";
         SIIDocUploadState: Record "SII Doc. Upload State";
         SIIManagement: Codeunit "SII Management";
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
     begin
         if not SIIManagement.IsSIISetupEnabled() then
             exit;
@@ -44,8 +46,10 @@ codeunit 10768 "Service Invoice Header - Edit"
         then
             exit;
 
+        xSIIDocUploadState := SIIDocUploadState;
         SIIDocUploadState.AssignSalesInvoiceType(ServiceInvoiceHeader."Invoice Type");
         SIIDocUploadState.AssignSalesSchemeCode(ServiceInvoiceHeader."Special Scheme Code");
+        SIISchemeCodeMgt.ValidateServiceSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState, SIIDocUploadState);
         SIIDocUploadState.IDType := ServiceInvoiceHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := ServiceInvoiceHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := ServiceInvoiceHeader."Succeeded VAT Registration No.";

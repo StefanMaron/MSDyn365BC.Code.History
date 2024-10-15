@@ -47,10 +47,12 @@ report 593 "Intrastat - Make Declaration"
                         CountryCode := CountryRegion."EU Country/Region Code"
                     else
                         CountryCode := '';
+
+                    CountryOfOriginCode := CopyStr("Country/Region of Origin Code", 1, MaxStrLen(CountryOfOriginCode));
                     if CountryRegion.Get("Country/Region of Origin Code") then
-                        CountryOfOriginCode := CountryRegion."EU Country/Region Code"
-                    else
-                        CountryOfOriginCode := '';
+                        if CountryRegion."EU Country/Region Code" <> '' then
+                            CountryOfOriginCode := CopyStr(CountryRegion."EU Country/Region Code", 1, MaxStrLen(CountryOfOriginCode));
+
                     case "Statistical System" of
                         0:
                             StatSystem := '';
@@ -273,7 +275,7 @@ report 593 "Intrastat - Make Declaration"
             CopyStr(IntrastatJnlLine."Transaction Type", 1, 2) + ';' +
             CopyStr(IntrastatJnlLine."Transport Method", 1, 1) + ';' +
             CopyStr(IntrastatJnlLine."Entry/Exit Point", 1, 4) + ';' +
-            PadStr(IntrastatJnlLine."Tariff No.", 8) + ';' +
+            PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0') + ';' +
             CopyStr(CountryOfOriginCode, 1, 2) + ';' +
             StatSystem + ';' +
             DecimalFormat(IntrastatJnlLine."Total Weight", '<Precision,2:><Integer><Decimal>') + ';' +
@@ -292,7 +294,7 @@ report 593 "Intrastat - Make Declaration"
             CopyStr(IntrastatJnlLine."Transaction Type", 1, 2) + ';' +
             CopyStr(IntrastatJnlLine."Transport Method", 1, 1) + ';' +
             CopyStr(IntrastatJnlLine."Entry/Exit Point", 1, 4) + ';' +
-            PadStr(IntrastatJnlLine."Tariff No.", 8) + ';' +
+            PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0') + ';' +
             CopyStr(CountryOfOriginCode, 1, 2) + ';' +
             StatSystem + ';' +
             DecimalFormat(IntrastatJnlLine."Total Weight", '<Precision,2:><Integer><Decimal>') + ';' +

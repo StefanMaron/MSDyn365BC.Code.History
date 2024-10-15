@@ -572,7 +572,7 @@
                 else begin
                     "Qty. to Invoice (Base)" := CalcBaseQty("Qty. to Invoice", FieldCaption("Qty. to Invoice"), FieldCaption("Qty. to Invoice (Base)"));
                     if ("Qty. per Unit of Measure" <> 0) and not IsSubcontractingCreditMemo() then
-                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Invoice", "Qty. to Invoice (Base)", "Quantity Invoiced", "Qty. Invoiced (Base)");
+                        ValidateQuantityInvIsBalanced();
                 end;
                 if ("Qty. to Invoice" * Quantity < 0) or (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice)) then
                     Error(
@@ -616,7 +616,7 @@
                 end else begin
                     "Qty. to Receive (Base)" := CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)"));
                     if "Qty. per Unit of Measure" <> 0 then
-                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Quantity Received", "Qty. Received (Base)");
+                        ValidateQuantityReceiveIsBalanced();
                     OnValidateQtyToReceiveOnAfterCalcQtyToReceiveBase(Rec, CurrFieldNo);
                     InitQtyToInvoice();
                 end;
@@ -664,11 +664,10 @@
             trigger OnValidate()
             var
                 Item: Record Item;
-                IndirectCostPercent: Decimal;
             begin
                 TestStatusOpen();
                 TestField("No.");
-                TestField(Quantity);
+                TestFieldQuantity(FieldNo("Unit Cost (LCY)"));
 
                 if "Prod. Order No." <> '' then
                     Error(
@@ -700,18 +699,7 @@
                 OnValidateUnitCostLCYOnAfterUpdateUnitCostCurrency(Rec, UnitCostCurrency);
 
                 "Indirect Cost %" := 0;
-                if ("Direct Unit Cost" <> 0) and
-                   ("Direct Unit Cost" <> ("Line Discount Amount" / Quantity))
-                then begin
-                    IndirectCostPercent :=
-                      Round(
-                        (UnitCostCurrency - "Direct Unit Cost" + "Line Discount Amount" / Quantity) /
-                        ("Direct Unit Cost" - "Line Discount Amount" / Quantity) * 100, 0.00001);
-                    if IndirectCostPercent >= 0 then begin
-                        "Indirect Cost %" := IndirectCostPercent;
-                        CheckLineTypeOnIndirectCostPercentUpdate();
-                    end;
-                end;
+                CalcIndirectCostPercent();
 
                 UpdateSalesCostFromUnitCostLCY();
 
@@ -3123,7 +3111,7 @@
                 else begin
                     "Return Qty. to Ship (Base)" := CalcBaseQty("Return Qty. to Ship", FieldCaption("Return Qty. to Ship"), FieldCaption("Return Qty. to Ship (Base)"));
                     if "Qty. per Unit of Measure" <> 0 then
-                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Return Qty. to Ship", "Return Qty. to Ship (Base)", "Return Qty. Shipped", "Return Qty. Shipped (Base)");
+                        ValidateQuantityReturnIsBalanced();
                     InitQtyToInvoice();
                 end;
 
@@ -3733,7 +3721,6 @@
         Text037: Label 'cannot be %1.';
         Text038: Label 'cannot be less than %1.';
         Text039: Label 'cannot be more than %1.';
-        Text040: Label 'You must use form %1 to enter %2, if item tracking is used.';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
         Text99000000: Label 'You cannot change %1 when the purchase order is associated to a production order.';
         PurchHeader: Record "Purchase Header";
@@ -4103,6 +4090,30 @@
     begin
         "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
         OnAfterCalcQtyPerUnitOfMeasure(Rec, Item, CurrfieldNo);
+    end;
+
+    local procedure CalcIndirectCostPercent()
+    var
+        IndirectCostPercent: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcIndirectCostPercent(Rec, UnitCostCurrency, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Direct Unit Cost" <> 0) and
+           ("Direct Unit Cost" <> ("Line Discount Amount" / Quantity))
+        then begin
+            IndirectCostPercent :=
+              Round(
+                (UnitCostCurrency - "Direct Unit Cost" + "Line Discount Amount" / Quantity) /
+                ("Direct Unit Cost" - "Line Discount Amount" / Quantity) * 100, 0.00001);
+            if IndirectCostPercent >= 0 then begin
+                "Indirect Cost %" := IndirectCostPercent;
+                CheckLineTypeOnIndirectCostPercentUpdate();
+            end;
+        end;
     end;
 
     local procedure CopyFromStandardText()
@@ -5434,6 +5445,42 @@
             Validate("Line Discount %");
     end;
 
+    local procedure ValidateQuantityInvIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityInvIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Invoice", "Qty. to Invoice (Base)", "Quantity Invoiced", "Qty. Invoiced (Base)");
+    end;
+
+    local procedure ValidateQuantityReceiveIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityReceiveIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Quantity Received", "Qty. Received (Base)");
+    end;
+
+    local procedure ValidateQuantityReturnIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityReturnIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Return Qty. to Ship", "Return Qty. to Ship (Base)", "Return Qty. Shipped", "Return Qty. Shipped (Base)");
+    end;
+
     local procedure AssignFieldsForQtyPerUOM(Item: Record Item; FieldNo: Integer)
     var
         IsHandled: Boolean;
@@ -6591,7 +6638,6 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ApplyRec: Record "Item Application Entry";
-        ItemTrackingLines: Page "Item Tracking Lines";
         ReturnedQty: Decimal;
         RemainingtobeReturnedQty: Decimal;
     begin
@@ -6614,8 +6660,7 @@
         end;
         ItemLedgEntry.Get("Appl.-to Item Entry");
         ItemLedgEntry.TestField(Positive, true);
-        if ItemLedgEntry.TrackingExists() then
-            Error(Text040, ItemTrackingLines.Caption, FieldCaption("Appl.-to Item Entry"));
+        ItemLedgEntry.CheckTrackingDoesNotExist(RecordId, FieldCaption("Appl.-to Item Entry"));
 
         ItemLedgEntry.TestField("Item No.", "No.");
         ItemLedgEntry.TestField("Variant Code", "Variant Code");
@@ -7181,7 +7226,19 @@
             CheckLocationOnWMS();
         if ("Job No." <> '') then
             if Location.Get("Location Code") then
-                Location.TestField("Directed Put-away and Pick", false);
+                EnsureDirectedPutawayandPickFalse(Location);
+    end;
+
+    local procedure EnsureDirectedPutawayandPickFalse(var Location: Record Location)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeEnsureDirectedPutawayandPickFalse(Rec, Location, IsHandled);
+        if IsHandled then
+            exit;
+
+        Location.TestField("Directed Put-away and Pick", false);
     end;
 
     procedure CheckLocationOnWMS()
@@ -7303,6 +7360,7 @@
             "Inv. Disc. Amount to Invoice" := 0;
             "Pmt. Discount Amount" := 0;
         end;
+        OnValidateLineDiscountPercentOnBeforeUpdateAmounts(Rec);
         UpdateAmounts();
         UpdateUnitCost();
     end;
@@ -7683,6 +7741,8 @@
             "Line Discount %" := LineDiscountPct;
         end else
             "Line Discount %" := 0;
+
+        OnAfterUpdateLineDiscPct(Rec);
     end;
 
     procedure UpdateBaseAmounts(NewAmount: Decimal; NewAmountIncludingVAT: Decimal; NewVATBaseAmount: Decimal)
@@ -7949,6 +8009,16 @@
         PAGE.RunModal(PAGE::"Posted Purchase Cr. Memo Lines", PurchCrMemoLine);
     end;
 
+    local procedure TestFieldQuantity(CurrentFieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestFieldQuantity(Rec, CurrentFieldNo, IsHandled);
+        if not IsHandled then
+            TestField(Quantity);
+    end;
+
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
         OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
@@ -8078,6 +8148,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDirectUnitCost(var PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateLineDiscPct(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -8340,6 +8415,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcIndirectCostPercent(var PurchaseLine: Record "Purchase Line"; UnitCostCurrency: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPrepaymentToDeduct(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -8431,6 +8511,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(PurchaseLine: Record "Purchase Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnsureDirectedPutawayandPickFalse(var PurchaseLine: Record "Purchase Line"; Location: Record Location; var IsHandled: Boolean)
     begin
     end;
 
@@ -8690,6 +8775,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityInvIsBalanced(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityReceiveIsBalanced(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityReturnIsBalanced(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateReturnReasonCode(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -8915,6 +9015,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateLineDiscountPercentOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLineDiscountPercentOnBeforeUpdateAmounts(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -9264,6 +9369,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOverReceiptProcessing(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestFieldQuantity(var PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

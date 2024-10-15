@@ -20,6 +20,7 @@ codeunit 147330 "Edit Posted Documents ES"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
+        LibrarySII: Codeunit "Library - SII";
         isInitialized: Boolean;
 
     [Test]
@@ -935,6 +936,250 @@ codeunit 147330 "Edit Posted Documents ES"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PostedSalesInvoiceUpdateSpecSchemeCodeOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateSpecialSchemeCodeTakenFromVATPostingSetupInPostedSalesInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        SalesDocType: Enum "Sales Document Type";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 423069] Special Scheme updated for the posted sales invoice with VAT Posting Setup with scheme code specified
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "Special Scheme Code" = "02 Export"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"02 Export");
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Posted sales invoice with this VAT Posting Setup
+        PostedDocNo := CreateAndPostSalesDocWithVATPostingSetup(SalesDocType::Invoice, VATPostingSetup);
+        LibraryVariableStorage.Enqueue(Format(VATPostingSetup."Sales Special Scheme Code"::"01 General"));
+        LibraryLowerPermissions.SetSalesDocsPost();
+
+        // [GIVEN] Opened "Posted Sales Invoice - Update" page.
+        PostedSalesInvoice.OpenView();
+        PostedSalesInvoice.FILTER.SetFilter("No.", PostedDocNo);
+        PostedSalesInvoice."Update Document".Invoke();
+
+        // [WHEN] Change "Special Scheme Code" to "01 General" and click OK
+        // [THEN] Special Scheme Code is "01 General" in "SII Sales Document Scheme Code"
+        SIISalesDocumentSchemeCode.Get(
+          SIISalesDocumentSchemeCode."Entry Type"::Sales, SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice",
+          PostedDocNo, VATPostingSetup."Sales Special Scheme Code"::"01 General");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateSpecSchemeCodeOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateSpecialSchemeCodeTakenFromVATPostingSetupInPostedSalesCrMemo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+        SalesDocType: Enum "Sales Document Type";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 423069] Special Scheme updated for the posted sales credit memo with VAT Posting Setup with scheme code specified
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "Special Scheme Code" = "02 Export"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"02 Export");
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Posted sales credit memo with this VAT Posting Setup
+        PostedDocNo := CreateAndPostSalesDocWithVATPostingSetup(SalesDocType::"Credit Memo", VATPostingSetup);
+        LibraryVariableStorage.Enqueue(Format(VATPostingSetup."Sales Special Scheme Code"::"01 General"));
+        LibraryLowerPermissions.SetSalesDocsPost();
+
+        // [GIVEN] Opened "Posted Credit Memo - Update" page.
+        PostedSalesCreditMemo.OpenView();
+        PostedSalesCreditMemo.FILTER.SetFilter("No.", PostedDocNo);
+        PostedSalesCreditMemo."Update Document".Invoke();
+
+        // [WHEN] Change "Special Scheme Code" to "01 General" and click OK
+        // [THEN] Special Scheme Code is "01 General" in "SII Sales Document Scheme Code"
+        SIISalesDocumentSchemeCode.Get(
+          SIISalesDocumentSchemeCode."Entry Type"::Sales, SIISalesDocumentSchemeCode."Document Type"::"Posted Credit Memo",
+          PostedDocNo, VATPostingSetup."Sales Special Scheme Code"::"01 General");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchInvoiceUpdateSpecSchemeCodeOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateSpecialSchemeCodeTakenFromVATPostingSetupInPostedPurchInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        PurchDocType: Enum "Purchase Document Type";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Invoice]
+        // [SCENARIO 423069] Special Scheme updated for the posted purchase invoice with VAT Posting Setup with scheme code specified
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "Special Scheme Code" = "02 Export"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate(
+          "Purch. Special Scheme Code", VATPostingSetup."Purch. Special Scheme Code"::"02 Special System Activities");
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Posted purchase invoice with this VAT Posting Setup
+        PostedDocNo := CreateAndPostPurchDocWithVATPostingSetup(PurchDocType::Invoice, VATPostingSetup);
+        LibraryVariableStorage.Enqueue(Format(VATPostingSetup."Purch. Special Scheme Code"::"01 General"));
+        LibraryLowerPermissions.SetPurchDocsPost();
+
+        // [GIVEN] Opened "Posted Purchase Invoice - Update" page.
+        PostedPurchaseInvoice.OpenView();
+        PostedPurchaseInvoice.FILTER.SetFilter("No.", PostedDocNo);
+        PostedPurchaseInvoice."Update Document".Invoke();
+
+        // [WHEN] Change "Special Scheme Code" to "01 General" and click OK
+        // [THEN] Special Scheme Code is "01 General" in "SII Purchse Document Scheme Code"
+        SIIPurchDocSchemeCode.Get(
+          SIIPurchDocSchemeCode."Document Type"::"Posted Invoice",
+          PostedDocNo, VATPostingSetup."Purch. Special Scheme Code"::"01 General");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchCrMemoUpdateSpecSchemeCodeOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateSpecialSchemeCodeTakenFromVATPostingSetupInPostedPurchCrMemo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+        PurchDocType: Enum "Purchase Document Type";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Credit Memo]
+        // [SCENARIO 423069] Special Scheme updated for the posted purchase credit memo with VAT Posting Setup with scheme code specified
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "Special Scheme Code" = "02 Export"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate(
+          "Purch. Special Scheme Code", VATPostingSetup."Purch. Special Scheme Code"::"02 Special System Activities");
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Posted purchase credit memo with this VAT Posting Setup
+        PostedDocNo := CreateAndPostPurchDocWithVATPostingSetup(PurchDocType::"Credit Memo", VATPostingSetup);
+        LibraryVariableStorage.Enqueue(Format(VATPostingSetup."Purch. Special Scheme Code"::"01 General"));
+        LibraryLowerPermissions.SetPurchDocsPost();
+
+        // [GIVEN] Opened "Posted Purchase Cr. Memo - Update" page.
+        PostedPurchaseCreditMemo.OpenView();
+        PostedPurchaseCreditMemo.FILTER.SetFilter("No.", PostedDocNo);
+        PostedPurchaseCreditMemo."Update Document".Invoke();
+
+        // [WHEN] Change "Special Scheme Code" to "01 General" and click OK
+        // [THEN] Special Scheme Code is "01 General" in "SII Purchse Document Scheme Code"
+        SIIPurchDocSchemeCode.Get(
+          SIIPurchDocSchemeCode."Document Type"::"Posted Credit Memo",
+          PostedDocNo, VATPostingSetup."Purch. Special Scheme Code"::"01 General");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedServInvoiceUpdateSpecSchemeCodeOKModalPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UpdateSpecialSchemeCodeTakenFromVATPostingSetupInPostedServInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        PostedServiceInvoice: TestPage "Posted Service Invoice";
+        ServDocType: Enum "Service Document Type";
+    begin
+        // [FEATURE] [Service Invoice]
+        // [SCENARIO 423069] Special Scheme updated for the posted service invoice with VAT Posting Setup with scheme code specified
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "Special Scheme Code" = "02 Export"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"02 Export");
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Posted service invoice with this VAT Posting Setup
+        LibraryService.FindServiceInvoiceHeader(
+          ServiceInvoiceHeader,
+          CreateAndPostServiceDocWithVATPostingSetup(ServDocType::Invoice, VATPostingSetup));
+        LibraryVariableStorage.Enqueue(Format(VATPostingSetup."Sales Special Scheme Code"::"01 General"));
+
+        // [GIVEN] Opened "Posted Service Invoice - Update" page.
+        PostedServiceInvoice.OpenView();
+        PostedServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceHeader."No.");
+        PostedServiceInvoice."Update Document".Invoke();
+
+        // [WHEN] Change "Special Scheme Code" to "01 General" and click OK
+        // [THEN] Special Scheme Code is "01 General" in "SII Sales Document Scheme Code"
+        SIISalesDocumentSchemeCode.Get(
+          SIISalesDocumentSchemeCode."Entry Type"::Service, SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice",
+          ServiceInvoiceHeader."No.", VATPostingSetup."Sales Special Scheme Code"::"01 General");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedServCrMemoUpdateSpecSchemeCodeOKModalPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UpdateSpecialSchemeCodeTakenFromVATPostingSetupInPostedServCrMemo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        PostedServiceCreditMemo: TestPage "Posted Service Credit Memo";
+        ServDocType: Enum "Service Document Type";
+    begin
+        // [FEATURE] [Service Credit Memo]
+        // [SCENARIO 423069] Special Scheme updated for the posted service credit memo with VAT Posting Setup with scheme code specified
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "Special Scheme Code" = "02 Export"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"02 Export");
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Posted service credit memo with this VAT Posting Setup
+        LibraryService.FindServiceCrMemoHeader(
+          ServiceCrMemoHeader,
+          CreateAndPostServiceDocWithVATPostingSetup(ServDocType::"Credit Memo", VATPostingSetup));
+        LibraryVariableStorage.Enqueue(Format(VATPostingSetup."Sales Special Scheme Code"::"01 General"));
+
+        // [GIVEN] Opened "Posted Service Cr. Memo - Update" page.
+        PostedServiceCreditMemo.OpenView();
+        PostedServiceCreditMemo.FILTER.SetFilter("No.", ServiceCrMemoHeader."No.");
+        PostedServiceCreditMemo."Update Document".Invoke();
+
+        // [WHEN] Change "Special Scheme Code" to "01 General" and click OK
+        // [THEN] Special Scheme Code is "01 General" in "SII Sales Document Scheme Code"
+        SIISalesDocumentSchemeCode.Get(
+          SIISalesDocumentSchemeCode."Entry Type"::Service, SIISalesDocumentSchemeCode."Document Type"::"Posted Credit Memo",
+          ServiceCrMemoHeader."No.", VATPostingSetup."Sales Special Scheme Code"::"01 General");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents ES");
@@ -944,6 +1189,8 @@ codeunit 147330 "Edit Posted Documents ES"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Edit Posted Documents ES");
 
+        LibrarySII.InitSetup(true, false);
+        LibrarySII.BindSubscriptionJobQueue();
         Commit();
         IsInitialized := true;
 
@@ -1022,6 +1269,61 @@ codeunit 147330 "Edit Posted Documents ES"
         ServPostYesNo.PostDocument(ServiceHeader);
         LibraryService.FindServiceCrMemoHeader(ServiceCrMemoHeader, ServiceHeader."No.");
         PostedDocNo := ServiceCrMemoHeader."No.";
+    end;
+
+    local procedure CreateAndPostSalesDocWithVATPostingSetup(DocType: Enum "Sales Document Type"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateAndPostPurchDocWithVATPostingSetup(DocType: Enum "Purchase Document Type"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateAndPostServiceDocWithVATPostingSetup(DocType: Enum "Service Document Type"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceLine: Record "Service Line";
+        ServicePostYesNo: Codeunit "Service-Post (Yes/No)";
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, DocType, LibrarySales.CreateCustomerNo());
+        ServiceHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Bill-to Customer No.");
+        ServiceItem.Validate("Response Time (Hours)", LibraryRandom.RandDecInRange(5, 10, 2));
+        ServiceItem.Modify(true);
+        LibraryService.CreateServiceLineWithQuantity(
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, ServiceItem."Item No.", LibraryRandom.RandIntInRange(5, 10));
+        ServiceLine.Validate("Service Item Line No.", 0);
+        ServiceLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandIntInRange(3, 5));
+        ServiceLine.Modify(true);
+
+        ServicePostYesNo.PostDocument(ServiceHeader);
+        exit(ServiceHeader."No.");
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1422,5 +1724,53 @@ codeunit 147330 "Edit Posted Documents ES"
         InvNo := LibraryVariableStorage.PeekText(1);
         PostedPurchaseInvoices."No.".AssertEquals(InvNo);
         PostedPurchaseInvoices.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceUpdateSpecSchemeCodeOKModalPageHandler(var PostedSalesInvoiceUpdate: TestPage "Posted Sales Invoice - Update")
+    begin
+        PostedSalesInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesInvoiceUpdate.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateSpecSchemeCodeOKModalPageHandler(var PostedSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
+    begin
+        PostedSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedSalesCrMemoUpdate.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchInvoiceUpdateSpecSchemeCodeOKModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
+    begin
+        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateSpecSchemeCodeOKModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
+    begin
+        PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedServInvoiceUpdateSpecSchemeCodeOKModalPageHandler(var PostedServInvoiceUpdate: TestPage "Posted Serv. Invoice - Update")
+    begin
+        PostedServInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedServInvoiceUpdate.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedServCrMemoUpdateSpecSchemeCodeOKModalPageHandler(var PostedServCrMemoUpdate: TestPage "Posted Serv. Cr. Memo - Update")
+    begin
+        PostedServCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
+        PostedServCrMemoUpdate.OK.Invoke();
     end;
 }

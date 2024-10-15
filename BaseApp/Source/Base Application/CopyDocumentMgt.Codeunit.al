@@ -2092,7 +2092,13 @@
         SalesSetup: Record "Sales & Receivables Setup";
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSalesRounding(FromSalesLine, RoundingLineInserted, IsHandled);
+        if IsHandled then
+            exit;
+
         if (FromSalesLine.Type <> FromSalesLine.Type::"G/L Account") or (FromSalesLine."No." = '') then
             exit;
         if not FromSalesLine."System-Created Entry" then
@@ -3176,6 +3182,7 @@
                         CopySalesLinesToBuffer(
                           FromSalesHeader, FromSalesLine, FromSalesLine2, FromSalesLineBuf,
                           ToSalesHeader, TempDocSalesLine, "Document No.", NextLineNo);
+                    OnAfterCopySalesCrMemoLine(TempDocSalesLine, ToSalesHeader, FromSalesLineBuf, FromSalesCrMemoLine);
                 until Next() = 0;
 
         // Create sales line from buffer
@@ -5011,6 +5018,7 @@
             SalesLine."Line Discount Amount" := Round(SalesLine."Line Discount Amount", Currency."Amount Rounding Precision");
             SalesLine."Inv. Discount Amount" := Round(SalesLine."Inv. Discount Amount", Currency."Amount Rounding Precision");
 
+            OnReCalcSalesLineOnBeforeCalcVAT(FromSalesHeader, ToSalesHeader, SalesLine);
             CalcVAT(
               SalesLine."Unit Price", SalesLine."VAT %", FromSalesHeader."Prices Including VAT",
               "Prices Including VAT", Currency."Unit-Amount Rounding Precision");
@@ -5077,6 +5085,7 @@
             PurchLine."Line Discount Amount" := Round(PurchLine."Line Discount Amount", Currency."Amount Rounding Precision");
             PurchLine."Inv. Discount Amount" := Round(PurchLine."Inv. Discount Amount", Currency."Amount Rounding Precision");
 
+            OnReCalcPurchLineOnBeforeCalcVAT(FromPurchHeader, ToPurchHeader, PurchLine);
             CalcVAT(
               PurchLine."Direct Unit Cost", PurchLine."VAT %", FromPurchHeader."Prices Including VAT",
               "Prices Including VAT", Currency."Unit-Amount Rounding Precision");
@@ -6964,35 +6973,38 @@
     procedure UpdateVendLedgEntry(var ToPurchHeader: Record "Purchase Header"; FromDocType: Enum "Gen. Journal Document Type"; FromDocNo: Code[20]; FromPurchInvHeader: Record "Purch. Inv. Header")
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateVendLedgEntry(ToPurchHeader, VendLedgEntry);
-
-        VendLedgEntry.SetCurrentKey("Document No.");
-        if FromDocType = "Purchase Document Type From"::"Posted Invoice" then
-            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice)
-        else
-            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
-        VendLedgEntry.SetRange("Document No.", FromDocNo);
-        VendLedgEntry.SetRange("Vendor No.", ToPurchHeader."Pay-to Vendor No.");
-        VendLedgEntry.SetRange(Open, true);
-        VendLedgEntry.SetRange("Document Situation", VendLedgEntry."Document Situation"::" ");
-        if VendLedgEntry.FindFirst then begin
-            if FromDocType = "Purchase Document Type From"::"Posted Invoice" then begin
-                ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::Invoice;
-                ToPurchHeader."Applies-to Doc. No." := FromDocNo;
-            end else begin
-                ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::"Credit Memo";
-                ToPurchHeader."Applies-to Doc. No." := FromDocNo;
-            end;
-            VendLedgEntry.CalcFields("Remaining Amount");
-            VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
-            VendLedgEntry."Accepted Payment Tolerance" := 0;
-            VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
-            CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
-        end else
+        IsHandled := false;
+        OnBeforeUpdateVendLedgEntry(ToPurchHeader, VendLedgEntry, IsHandled);
+        if not IsHandled then begin
+            VendLedgEntry.SetCurrentKey("Document No.");
             if FromDocType = "Purchase Document Type From"::"Posted Invoice" then
-                TestPurchEfecs(FromDocType, ToPurchHeader, FromPurchInvHeader, VendLedgEntry);
-		
+                VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice)
+            else
+                VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
+            VendLedgEntry.SetRange("Document No.", FromDocNo);
+            VendLedgEntry.SetRange("Vendor No.", ToPurchHeader."Pay-to Vendor No.");
+            VendLedgEntry.SetRange(Open, true);
+            VendLedgEntry.SetRange("Document Situation", VendLedgEntry."Document Situation"::" ");
+            if VendLedgEntry.FindFirst() then begin
+                if FromDocType = "Purchase Document Type From"::"Posted Invoice" then begin
+                    ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::Invoice;
+                    ToPurchHeader."Applies-to Doc. No." := FromDocNo;
+                end else begin
+                    ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::"Credit Memo";
+                    ToPurchHeader."Applies-to Doc. No." := FromDocNo;
+                end;
+                VendLedgEntry.CalcFields("Remaining Amount");
+                VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
+                VendLedgEntry."Accepted Payment Tolerance" := 0;
+                VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+                CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
+            end else
+                if FromDocType = "Purchase Document Type From"::"Posted Invoice" then
+                    TestPurchEfecs(FromDocType, ToPurchHeader, FromPurchInvHeader, VendLedgEntry);
+        end;
+
         OnAfterUpdateVendLedgEntry(ToPurchHeader, FromDocNo);
     end;
 
@@ -8170,6 +8182,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopySalesCrMemoLine(var TempDocSalesLine: Record "Sales Line" temporary; var ToSalesHeader: Record "Sales Header"; var FromSalesLineBuf: Record "Sales Line"; var FromSalesCrMemoLine: Record "Sales Cr.Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesInvLine(var TempDocSalesLine: Record "Sales Line" temporary; var ToSalesHeader: Record "Sales Header"; var FromSalesLineBuf: Record "Sales Line"; var FromSalesInvLine: Record "Sales Invoice Line")
     begin
     end;
@@ -8470,7 +8487,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateVendLedgEntry(var ToPurchaseHeader: Record "Purchase Header"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnBeforeUpdateVendLedgEntry(var ToPurchaseHeader: Record "Purchase Header"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9300,6 +9317,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnReCalcSalesLineOnBeforeCalcVAT(FromSalesHeader: Record "Sales Header"; ToSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReCalcPurchLineOnBeforeCalcVAT(FromPurchaseHeader: Record "Purchase Header"; ToPurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesHeaderWhenCopyFromSalesHeaderOnBeforeValidateShipToCode(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -9371,6 +9398,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocLineOnBeforeValidateLineDiscountPct(var ToSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesRounding(FromSalesLine: Record "Sales Line"; var RoundingLineInserted: Boolean; var IsHandled: Boolean)
     begin
     end;
 

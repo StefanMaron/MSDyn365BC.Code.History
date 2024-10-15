@@ -1695,7 +1695,7 @@ table 210 "Job Journal Line"
     begin
         "Total Cost" := Round("Unit Cost" * Quantity, AmountRoundingPrecisionFCY);
         "Total Cost (LCY)" := ConvertAmountToLCY("Total Cost", AmountRoundingPrecision);
-        OnAfterUpdateTotalCost(Rec);
+        OnAfterUpdateTotalCost(Rec, AmountRoundingPrecision, AmountRoundingPrecisionFCY);
     end;
 
     local procedure ConvertAmountToFCY(AmountLCY: Decimal; Precision: Decimal) AmountFCY: Decimal;
@@ -2046,7 +2046,7 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateTotalCost(var JobJournalLine: Record "Job Journal Line")
+    local procedure OnAfterUpdateTotalCost(var JobJournalLine: Record "Job Journal Line"; AmountRoundingPrecision: Decimal; AmountRoundingPrecisionFCY: Decimal)
     begin
     end;
 

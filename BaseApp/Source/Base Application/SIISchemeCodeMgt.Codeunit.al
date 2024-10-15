@@ -128,6 +128,85 @@ codeunit 10758 "SII Scheme Code Mgt."
             PAGE.RunModal(0, SIIPurchDocSchemeCode);
     end;
 
+    procedure ValidateSalesSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState: Record "SII Doc. Upload State"; SIIDocUploadState: Record "SII Doc. Upload State")
+    var
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+    begin
+        ValidateSalesAndServSpecialRegimeCodeInSIIDocUploadState(
+          xSIIDocUploadState, SIIDocUploadState, SIISalesDocumentSchemeCode."Entry Type"::Sales);
+    end;
+
+    procedure ValidateServiceSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState: Record "SII Doc. Upload State"; SIIDocUploadState: Record "SII Doc. Upload State")
+    var
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+    begin
+        ValidateSalesAndServSpecialRegimeCodeInSIIDocUploadState(
+          xSIIDocUploadState, SIIDocUploadState, SIISalesDocumentSchemeCode."Entry Type"::Service);
+    end;
+
+    local procedure ValidateSalesAndServSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState: Record "SII Doc. Upload State"; SIIDocUploadState: Record "SII Doc. Upload State"; EntryType: Option)
+    var
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        DocType: Option;
+    begin
+        if xSIIDocUploadState."Sales Special Scheme Code" = SIIDocUploadState."Sales Special Scheme Code" then
+            exit;
+
+        DocType := GetSpecialRegimeDocTypeFromSIIDocUploadState(SIIDocUploadState);
+        if xSIIDocUploadState."Sales Special Scheme Code" <> 0 then
+            if SIISalesDocumentSchemeCode.Get(EntryType, DocType, SIIDocUploadState."Document No.",
+                 xSIIDocUploadState."Sales Special Scheme Code")
+            then
+                SIISalesDocumentSchemeCode.Delete(true);
+
+        if SIIDocUploadState."Sales Special Scheme Code" = 0 then
+            exit;
+
+        SIISalesDocumentSchemeCode.Init();
+        SIISalesDocumentSchemeCode.Validate("Entry Type", EntryType);
+        SIISalesDocumentSchemeCode.Validate("Document Type", DocType);
+        SIISalesDocumentSchemeCode.Validate(
+          "Document No.", CopyStr(SIIDocUploadState."Document No.", 1, MaxStrLen(SIISalesDocumentSchemeCode."Document No.")));
+        SIISalesDocumentSchemeCode.Validate("Special Scheme Code", SIIDocUploadState."Sales Special Scheme Code");
+        SIISalesDocumentSchemeCode.Insert(true);
+    end;
+
+    procedure ValidatePurchSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState: Record "SII Doc. Upload State"; SIIDocUploadState: Record "SII Doc. Upload State")
+    var
+        SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
+        DocType: Option;
+    begin
+        if xSIIDocUploadState."Purch. Special Scheme Code" = SIIDocUploadState."Purch. Special Scheme Code" then
+            exit;
+
+        DocType := GetSpecialRegimeDocTypeFromSIIDocUploadState(SIIDocUploadState);
+        if xSIIDocUploadState."Purch. Special Scheme Code" <> 0 then
+            if SIIPurchDocSchemeCode.Get(DocType, SIIDocUploadState."Document No.", xSIIDocUploadState."Purch. Special Scheme Code") then
+                SIIPurchDocSchemeCode.Delete(true);
+
+        if SIIDocUploadState."Purch. Special Scheme Code" = 0 then
+            exit;
+
+        SIIPurchDocSchemeCode.Init();
+        SIIPurchDocSchemeCode.Validate("Document Type", DocType);
+        SIIPurchDocSchemeCode.Validate(
+          "Document No.", CopyStr(SIIDocUploadState."Document No.", 1, MaxStrLen(SIIPurchDocSchemeCode."Document No.")));
+        SIIPurchDocSchemeCode.Validate("Special Scheme Code", SIIDocUploadState."Purch. Special Scheme Code");
+        SIIPurchDocSchemeCode.Insert(true);
+    end;
+
+    local procedure GetSpecialRegimeDocTypeFromSIIDocUploadState(SIIDocUploadState: Record "SII Doc. Upload State"): Integer
+    var
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+    begin
+        case SIIDocUploadState."Document Type" of
+            SIIDocUploadState."Document Type"::Invoice:
+                exit(SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
+            SIIDocUploadState."Document Type"::"Credit Memo":
+                exit(SIISalesDocumentSchemeCode."Document Type"::"Posted Credit Memo");
+        end;
+    end;
+
     local procedure GetSIIPurchDocRecFromRec(var SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code"; RecVar: Variant): Boolean
     var
         PurchaseHeader: Record "Purchase Header";

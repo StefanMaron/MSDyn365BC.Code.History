@@ -194,11 +194,17 @@ table 9053 "Sales Cue"
                 MaxDelay := WorkDate - SalesLine."Shipment Date";
     end;
 
-    procedure CountOrders(FieldNumber: Integer): Integer
+    procedure CountOrders(FieldNumber: Integer) Result: Integer
     var
         SalesHeader: Record "Sales Header";
         CountSalesOrders: Query "Count Sales Orders";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCountOrders(Rec, FieldNumber, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CountSalesOrders.SetRange(Status, SalesHeader.Status::Released);
         CountSalesOrders.SetRange(Completely_Shipped, false);
         FilterGroup(2);
@@ -281,6 +287,11 @@ table 9053 "Sales Cue"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetRespCenterFilter(var SalesCue: Record "Sales Cue"; RespCenterCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCountOrders(var SalesCue: Record "Sales Cue"; FieldNumber: Integer; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -31,6 +31,7 @@ report 198 "Date Compress Customer Ledger"
                     SetRange("Customer Posting Group", "Customer Posting Group");
                     SetRange("Currency Code", "Currency Code");
                     SetRange("Document Type", "Document Type");
+                    OnAfterCustLedgEntry2SetFilters(CustLedgEntry2, "Cust. Ledger Entry");
 
                     if RetainNo(FieldNo("Document No.")) then
                         SetRange("Document No.", "Document No.");
@@ -565,6 +566,7 @@ report 198 "Date Compress Customer Ledger"
             DtldCustLedgEntryBuffer.SetRange("Initial Entry Global Dim. 1", "Cust. Ledger Entry"."Global Dimension 1 Code");
         if RetainNo("Cust. Ledger Entry".FieldNo("Global Dimension 2 Code")) then
             DtldCustLedgEntryBuffer.SetRange("Initial Entry Global Dim. 2", "Cust. Ledger Entry"."Global Dimension 2 Code");
+        OnSummarizeDtldEntryOnAfterDtldCustLedgEntryBufferSetFilters(DtldCustLedgEntryBuffer, DtldCustLedgEntry, "Cust. Ledger Entry", NewCustLedgEntry);
 
         if not DtldCustLedgEntryBuffer.Find('-') then begin
             DtldCustLedgEntryBuffer.Reset();
@@ -589,6 +591,7 @@ report 198 "Date Compress Customer Ledger"
             DtldCustLedgEntryBuffer."Initial Entry Global Dim. 1" := NewCustLedgEntry."Global Dimension 1 Code";
             DtldCustLedgEntryBuffer."Initial Entry Global Dim. 2" := NewCustLedgEntry."Global Dimension 2 Code";
             DtldCustLedgEntryBuffer."Excluded from calculation" := DtldCustLedgEntry."Excluded from calculation";
+            OnSummarizeDtldEntryOnAfterInitDtldCustLedgEntryBuffer(DtldCustLedgEntryBuffer, DtldCustLedgEntryBuffer, "Cust. Ledger Entry", NewCustLedgEntry);
 
             NewEntry := true;
         end;
@@ -708,6 +711,21 @@ report 198 "Date Compress Customer Ledger"
         TelemetryDimensions.Add('NoofNewRecords', Format(DateComprReg."No. of New Records", 0, 9));
 
         Session.LogMessage('0000F4L', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCustLedgEntry2SetFilters(var ToCustLedgEntry: Record "Cust. Ledger Entry"; FromCustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSummarizeDtldEntryOnAfterDtldCustLedgEntryBufferSetFilters(var DtldCustLedgEntryBuffer: Record "Detailed Cust. Ledg. Entry"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var OriginCustLedgEntry: Record "Cust. Ledger Entry"; var NewCustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSummarizeDtldEntryOnAfterInitDtldCustLedgEntryBuffer(var DtldCustLedgEntryBuffer: Record "Detailed Cust. Ledg. Entry"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var OriginCustLedgEntry: Record "Cust. Ledger Entry"; var NewCustLedgEntry: Record "Cust. Ledger Entry")
+    begin
     end;
 }
 

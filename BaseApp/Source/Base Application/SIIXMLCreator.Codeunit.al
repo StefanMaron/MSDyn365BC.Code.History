@@ -184,7 +184,7 @@
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', CustLedgerEntry."Document No.", 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'FechaExpedicionFacturaEmisor', FormatDate(CustLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
+          XMLNode, 'FechaExpedicionFacturaEmisor', GetSalesExpeditionDate(CustLedgerEntry), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
 
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Cobros', '', 'siiLR', SiiLRTxt, XMLNode);
@@ -453,7 +453,7 @@
             XMLDOMManagement.AddElementWithPrefix(
               XMLNode, 'NumSerieFacturaEmisor', Format(CustLedgerEntry."Document No."), 'sii', SiiTxt, TempXMLNode);
             XMLDOMManagement.AddElementWithPrefix(
-              XMLNode, 'FechaExpedicionFacturaEmisor', FormatDate(CustLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
+              XMLNode, 'FechaExpedicionFacturaEmisor', GetSalesExpeditionDate(CustLedgerEntry), 'sii', SiiTxt, TempXMLNode);
             XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FacturaExpedida', '', 'siiLR', SiiLRTxt, XMLNode);
 
@@ -1177,7 +1177,7 @@
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', Format(CustLedgerEntry."Document No."), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'FechaExpedicionFacturaEmisor', FormatDate(CustLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
+          XMLNode, 'FechaExpedicionFacturaEmisor', GetSalesExpeditionDate(CustLedgerEntry), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FacturaExpedida', '', 'siiLR', SiiLRTxt, XMLNode);
         if SIIDocUploadState."Sales Cr. Memo Type" = SIIDocUploadState."Sales Cr. Memo Type"::" " then
@@ -2667,6 +2667,15 @@
         end;
     end;
 
+    local procedure GetSalesExpeditionDate(CustLedgerEntry: Record "Cust. Ledger Entry"): Text
+    var
+        PostingDate: Date;
+    begin
+        PostingDate := CustLedgerEntry."Posting Date";
+        OnAfterGetSalesExpeditionDate(CustLedgerEntry, PostingDate);
+        exit(FormatDate(PostingDate));
+    end;
+
     [Scope('OnPrem')]
     procedure Reset()
     begin
@@ -2680,6 +2689,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateNonExemptVATEntries(var TempVATEntryOut: Record "VAT Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSalesExpeditionDate(CustLedgerEntry: Record "Cust. Ledger Entry"; var PostingDate: Date)
     begin
     end;
 

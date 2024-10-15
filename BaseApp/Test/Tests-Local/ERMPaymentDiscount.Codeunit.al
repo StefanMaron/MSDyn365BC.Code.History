@@ -734,6 +734,75 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseLine.TestField(Amount, PurchaseQuoteLineAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure PurchOrderWithDistributedItemChargeAndPaymentDiscount()
+    var
+        Item: array[2] of Record Item;
+        ItemCharge: Record "Item Charge";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ValueEntry: Record "Value Entry";
+        ReceiptNo: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Purchase] [Item Charge]
+        // [SCENARIO 418830] Payment discount amount for item charge is distributed among several purchase receipt lines.
+        Initialize();
+
+        // [GIVEN] Enable discounts.
+        UpdatePurchasesPayablesSetup();
+
+        // [GIVEN] Purchase order with two lines - items "I1" and "I2".
+        // [GIVEN] Post the order as Receive.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, '');
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryPurchase.CreatePurchaseLine(PurchaseLineOrder, PurchaseHeaderOrder, PurchaseLineOrder.Type::Item, Item[i]."No.", 1);
+        end;
+        ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Purchase invoice with 10% payment discount.
+        // [GIVEN] Create a line for item charge, quantity = 1, amount = 1000.
+        CreatePurchaseHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, '', 10);
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineInvoice, PurchaseHeaderInvoice, PurchaseLineInvoice.Type::"Charge (Item)", ItemCharge."No.", 1);
+        PurchaseLineInvoice.Validate("Direct Unit Cost", 1000);
+        PurchaseLineInvoice.Modify(true);
+
+        // [GIVEN] Distribute the item charge equally among purchase receipt lines "I1" and "I2", 0.5 to each.
+        for i := 1 to ArrayLen(Item) do begin
+            PurchRcptLine.SetRange("Document No.", ReceiptNo);
+            PurchRcptLine.SetRange("No.", Item[i]."No.");
+            PurchRcptLine.FindFirst();
+            LibraryPurchase.CreateItemChargeAssignment(
+              ItemChargeAssignmentPurch, PurchaseLineInvoice, ItemCharge,
+              ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt, PurchRcptLine."Document No.", PurchRcptLine."Line No.",
+              PurchRcptLine."No.", 0.5, PurchaseLineInvoice."Direct Unit Cost");
+            ItemChargeAssignmentPurch.Insert(true);
+        end;
+
+        // [GIVEN] Calculate payment discounts.
+        ModifyGLSetupForPaymentDiscount();
+        OpenPurchaseInvoiceToCalculatePaymentDiscount(PurchaseHeaderInvoice."No.");
+
+        // [WHEN] Post the purchase invoice.
+        PurchaseHeaderInvoice.Find();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        // [THEN] The amount of 900 (1000 - 10%) is equally assigned to both "I1" and "I2", 450 to each.
+        for i := 1 to ArrayLen(Item) do begin
+            ValueEntry.SetRange("Item No.", Item[i]."No.");
+            ValueEntry.CalcSums("Cost Amount (Actual)");
+            ValueEntry.TestField("Cost Amount (Actual)", 450);
+        end;
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

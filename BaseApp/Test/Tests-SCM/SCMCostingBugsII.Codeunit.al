@@ -571,6 +571,8 @@ codeunit 137621 "SCM Costing Bugs II"
         InventoryQty: Decimal;
         InventoryAmt: Decimal;
     begin
+        Initialize();
+
         InventoryQty := LibraryRandom.RandIntInRange(100, 200);
         InventoryAmt := LibraryRandom.RandDecInRange(100, 200, 2);
 
@@ -593,6 +595,8 @@ codeunit 137621 "SCM Costing Bugs II"
         Qty: Integer;
         Amt: Decimal;
     begin
+        Initialize();
+
         Qty := LibraryRandom.RandIntInRange(10, 20);
         Amt := LibraryRandom.RandDec(100, 2);
 
