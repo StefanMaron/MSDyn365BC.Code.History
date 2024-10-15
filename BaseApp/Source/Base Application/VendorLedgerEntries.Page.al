@@ -27,6 +27,13 @@ page 29 "Vendor Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the vendor entry''s posting date.';
                 }
+                field("Invoice Received Date"; Rec."Invoice Received Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the date when the vendor''s invoice was received.';
+                    Visible = false;
+                }
                 field("Autodocument No."; "Autodocument No.")
                 {
                     ApplicationArea = Basic, Suite;
