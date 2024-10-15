@@ -608,7 +608,7 @@ report 1307 "Standard Sales - Credit Memo"
 
                     OnAfterCalculateSalesTax(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
-                    FormatDocument.SetSalesCrMemoLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+                    FormatLineValues(Line);
 
                     if FirstLineHasBeenOutput then
                         Clear(DummyCompanyInfo.Picture);
@@ -777,10 +777,7 @@ report 1307 "Standard Sales - Credit Memo"
                 column(Code_VATClauseLine_Lbl; VATClause.FieldCaption(Code))
                 {
                 }
-                column(Description_VATClauseLine; VATClause.Description)
-                {
-                }
-                column(Description2_VATClauseLine; VATClause."Description 2")
+                column(Description_VATClauseLine; VATClauseText)
                 {
                 }
                 column(VATAmount_VATClauseLine; "VAT Amount")
@@ -798,7 +795,7 @@ report 1307 "Standard Sales - Credit Memo"
                         CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
                         CurrReport.Skip();
-                    VATClause.GetDescription(Header);
+                    VATClauseText := VATClause.GetDescriptionText(Header);
                 end;
             }
             dataitem(ReportTotalsLine; "Report Totals Buffer")
@@ -1174,6 +1171,7 @@ report 1307 "Standard Sales - Credit Memo"
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your credit memo is attached to this message.';
+        VATClauseText: Text;
         AmtSubjecttoSalesTaxLbl: Label 'Amount Subject to Sales Tax';
         AmtExemptfromSalesTaxLbl: Label 'Amount Exempt from Sales Tax';
         TotalTaxLbl: Label 'Total Tax';
@@ -1312,6 +1310,16 @@ report 1307 "Standard Sales - Credit Memo"
         end;
     end;
 
+    local procedure FormatLineValues(CurrLine: Record "Sales Cr.Memo Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFormatLineValues(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount, IsHandled);
+        if not IsHandled then
+            FormatDocument.SetSalesCrMemoLine(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+    end;
+
     local procedure CreateUSReportTotalLines()
     begin
         ReportTotalsLine.DeleteAll();
@@ -1351,6 +1359,11 @@ report 1307 "Standard Sales - Credit Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDocumentCaption(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var DocCaption: Text[250])
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatLineValues(SalesCrMemoLine: Record "Sales Cr.Memo Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
     begin
     end;
 }

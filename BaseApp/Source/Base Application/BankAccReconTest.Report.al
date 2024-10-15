@@ -660,6 +660,8 @@ report 1408 "Bank Acc. Recon. - Test"
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange(Open, true);
         BankAccountLedgerEntry.SetRange(Reversed, false);
+        if "Bank Acc. Reconciliation"."Statement Date" <> 0D then
+            BankAccountLedgerEntry.SetRange("Posting Date", 0D, "Bank Acc. Reconciliation"."Statement Date");
         if "Bank Acc. Reconciliation"."Statement Type" = "Bank Acc. Reconciliation"."Statement Type"::"Bank Reconciliation" then
             BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::Open);
         if BankAccountLedgerEntry.FindSet() then

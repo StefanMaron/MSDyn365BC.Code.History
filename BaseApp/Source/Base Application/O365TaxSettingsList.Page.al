@@ -14,7 +14,7 @@ page 10151 "O365 Tax Settings List"
             repeater(Control1020001)
             {
                 ShowCaption = false;
-                field(GetDescriptionInCurrentLanguage; GetDescriptionInCurrentLanguage)
+                field(GetDescriptionInCurrentLanguage; GetDescriptionInCurrentLanguageFullLength())
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
                     Editable = false;
@@ -59,4 +59,3 @@ page 10151 "O365 Tax Settings List"
         DefaultCode: Code[20];
         StyleExpr: Text;
 }
-

@@ -1,4 +1,4 @@
-page 27006 "CFDI Relation Documents"
+﻿page 27006 "CFDI Relation Documents"
 {
     DelayedInsert = true;
     PageType = List;
@@ -25,6 +25,11 @@ page 27006 "CFDI Relation Documents"
                     begin
                         CurrPage.Update();
                     end;
+                }
+                field("SAT Relation Type"; Rec."SAT Relation Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the relation of the CFDI document. ';
                 }
                 field("Fiscal Invoice Number PAC"; "Fiscal Invoice Number PAC")
                 {

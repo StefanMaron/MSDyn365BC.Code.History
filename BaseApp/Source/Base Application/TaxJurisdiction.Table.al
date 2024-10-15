@@ -140,6 +140,7 @@ table 320 "Tax Jurisdiction"
 
     trigger OnInsert()
     begin
+        FeatureTelemetry.LogUptake('1000HN3', CanGSTTok, Enum::"Feature Uptake Status"::"Set up");
         SetDefaults;
         InsertDetailLines;
     end;
@@ -147,6 +148,8 @@ table 320 "Tax Jurisdiction"
     var
         GLSetup: Record "General Ledger Setup";
         TaxDetail: Record "Tax Detail";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        CanGSTTok: Label 'Canada GST/HST Report', Locked = true;
 
     procedure GetSalesAccount(Unrealized: Boolean): Code[20]
     begin
@@ -242,13 +245,28 @@ table 320 "Tax Jurisdiction"
         TaxDetail.DeleteAll();
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced with GetDescriptionInCurrentLanguageFullLength.', '21.0')]
     procedure GetDescriptionInCurrentLanguage(): Text[50]
     var
         TaxJurisdictionTranslation: Record "Tax Jurisdiction Translation";
         Language: Codeunit Language;
     begin
         if TaxJurisdictionTranslation.Get(Code, Language.GetUserLanguageCode) then
+            exit(CopyStr(TaxJurisdictionTranslation.Description, 1, 50));
+
+        exit(CopyStr(Description, 1, 50));
+    end;
+#endif
+
+    procedure GetDescriptionInCurrentLanguageFullLength(): Text[100]
+    var
+        TaxJurisdictionTranslation: Record "Tax Jurisdiction Translation";
+        Language: Codeunit Language;
+    begin
+        if TaxJurisdictionTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(TaxJurisdictionTranslation.Description);
+
         exit(Description);
     end;
 
@@ -260,4 +278,3 @@ table 320 "Tax Jurisdiction"
         exit(Name);
     end;
 }
-

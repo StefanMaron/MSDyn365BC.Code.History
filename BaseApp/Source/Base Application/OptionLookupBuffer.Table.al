@@ -112,7 +112,7 @@ table 1670 "Option Lookup Buffer"
                     OptionType := Format(Permission."Read Permission");
                 else begin
                         IsHandled := false;
-                        OnAutoCOmpleteOptionLookupTypeCase(LookupType, OptionType);
+                        OnAutoCOmpleteOptionLookupTypeCase(LookupType, OptionType, IsHandled);
                         if not IsHandled then
                             exit(false);
                     end;
@@ -297,7 +297,7 @@ table 1670 "Option Lookup Buffer"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAutoCompleteOptionLookupTypeCase(LookupType: Enum "Option Lookup Type"; var OptionType: Text[30])
+    local procedure OnAutoCompleteOptionLookupTypeCase(LookupType: Enum "Option Lookup Type"; var OptionType: Text[30]; var IsHandled: Boolean)
     begin
     end;
 }

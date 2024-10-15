@@ -1212,6 +1212,114 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchaseLine.TestField("Blanket Order Line No.", BlanketPurchaseLine."Line No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketPurchaseOrderQtyReceiveZeroPartialPost()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseLine2: Record "Purchase Line";
+    begin
+        // [SCENARIO 435438] Blanket Order - Qty. to Ship should be zero if related Order has not been fully received.
+        Initialize();
+
+        // [GIVEN] Blanket Purchase Order with Quantity = X, "Qty. to Receive" = X - 1
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 2 + LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity - 1);
+        PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity - 1);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Purchase Order created from Blanket Purchase Order
+        CODEUNIT.Run(CODEUNIT::"Blanket Purch. Order to Order", PurchaseHeader);
+        FindOrderLineFromBlanket(PurchaseLine2, PurchaseHeader);
+        PurchaseHeader2.Get(PurchaseLine2."Document Type", PurchaseLine2."Document No.");
+
+        // [GIVEN] Purchase Order "Qty. to Receive" = X - 2
+        PurchaseLine2.Validate("Qty. to Receive", PurchaseLine2."Qty. to Receive" - 1);
+        PurchaseLine2.Modify();
+
+        // [WHEN] Purchase Order Posted (partial)
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        // [THEN] Blanket Purchase Order "Qty. to Receive" = 0
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        Assert.AreEqual(0, PurchaseLine."Qty. to Receive", PurchaseLine.FieldName("Qty. to Receive"));
+        Assert.AreEqual(0, PurchaseLine."Qty. to Receive (Base)", PurchaseLine.FieldName("Qty. to Receive (Base)"));
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketPurchaseOrderQtyReceiveFullPost()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseLine2: Record "Purchase Line";
+    begin
+        // [SCENARIO 435438] Blanket Order - Qty. to Receive should be zero if related Order has not been fully received.
+        Initialize();
+
+        // [GIVEN] Blanket Purchase Order with Quantity = X, "Qty. to Receive" = X - 1
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 2 + LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity - 1);
+        PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity - 1);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Purchase Order created from Blanket Purchase Order
+        CODEUNIT.Run(CODEUNIT::"Blanket Purch. Order to Order", PurchaseHeader);
+        FindOrderLineFromBlanket(PurchaseLine2, PurchaseHeader);
+        PurchaseHeader2.Get(PurchaseLine2."Document Type", PurchaseLine2."Document No.");
+
+        // [WHEN] Purchase Order Posted (full)
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        // [THEN] Blanket Purchase Order "Qty. to Receive"= Quantity - Quantity(Received)
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        Assert.AreEqual(PurchaseLine.Quantity - PurchaseLine."Quantity Received", PurchaseLine."Qty. to Receive", PurchaseLine.FieldName("Qty. to Receive"));
+        Assert.AreEqual(
+            PurchaseLine."Quantity (Base)" - PurchaseLine."Qty. Received (Base)",
+            PurchaseLine."Qty. to Receive (Base)", PurchaseLine.FieldName("Qty. to Receive (Base)"));
+    end;
+
+    [Test]
+    procedure DoNotCheckForBlockedItemWhenQtyToReceiveZero()
+    var
+        Item: Record Item;
+        BlockedItem: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Blocked]
+        // [SCENARIO 438283] Do not check if the item is blocked when "Qty. to Receive" = 0.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(BlockedItem);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", '',
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, BlockedItem."No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Qty. to Receive", 0);
+        PurchaseLine.Modify(true);
+
+        BlockedItem.Validate(Blocked, true);
+        BlockedItem.Modify(true);
+
+        CODEUNIT.Run(CODEUNIT::"Blanket Purch. Order to Order", PurchaseHeader);
+
+        PurchaseLine.SetRange("No.", Item."No.");
+        FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
+
+        PurchaseLine.SetRange("No.", BlockedItem."No.");
+        asserterror FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1453,6 +1561,19 @@ codeunit 134326 "ERM Purchase Blanket Order"
             TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", "Document Date"));
             TestField("Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", "Document Date"));
         end;
+    end;
+
+    local procedure FindOrderLineFromBlanket(var PurchaseLine: Record "Purchase Line"; BlanketPurchaseHeader: Record "Purchase Header")
+    begin
+        FilterOrderLineFromBlanket(PurchaseLine, BlanketPurchaseHeader);
+        PurchaseLine.FindFirst();
+    end;
+
+    local procedure FilterOrderLineFromBlanket(var PurchaseLine: Record "Purchase Line"; BlanketPurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseLine.SetRange("Buy-from Vendor No.", BlanketPurchaseHeader."Buy-from Vendor No.");
+        PurchaseLine.SetRange("Blanket Order No.", BlanketPurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
     end;
 
     [MessageHandler]

@@ -8,6 +8,7 @@ page 1355 "Posted Sales Inv. - Update"
     ShowFilter = false;
     SourceTable = "Sales Invoice Header";
     SourceTableTemporary = true;
+    Caption = 'Posted Sales Inv. - Update';
 
     layout
     {
@@ -15,7 +16,8 @@ page 1355 "Posted Sales Inv. - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                Caption = 'General';
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -32,6 +34,7 @@ page 1355 "Posted Sales Inv. - Update"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    Caption = 'Posting Date';
                     ToolTip = 'Specifies the posting date for the document.';
                 }
             }
@@ -41,16 +44,19 @@ page 1355 "Posted Sales Inv. - Update"
                 field("Payment Method Code"; "Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Payment Method Code';
                     ToolTip = 'Specifies how the customer must pay for products on the sales document, such as with bank transfer, cash, or check.';
                 }
                 field("Payment Reference"; "Payment Reference")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Payment Reference';
                     ToolTip = 'Specifies the payment of the sales invoice.';
                 }
                 field("Company Bank Account Code"; "Company Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Company Bank Account Code';
                     ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
             }

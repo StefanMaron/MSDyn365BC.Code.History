@@ -122,6 +122,20 @@ codeunit 7011 "Price Source List"
             until TempChildPriceSource.Next() = 0;
     end;
 
+    procedure AddJobAsSources(JobNo: Code[20]; JobTaskNo: Code[20])
+    begin
+        if JobNo <> '' then begin
+            IncLevel();
+            Add("Price Source Type"::"All Jobs");
+            IncLevel();
+            Add("Price Source Type"::Job, JobNo);
+            if JobTaskNo <> '' then begin
+                IncLevel();
+                Add("Price Source Type"::"Job Task", JobNo, JobTaskNo);
+            end;
+        end;
+    end;
+
     procedure GetValue(SourceType: Enum "Price Source Type") Result: Code[20];
     var
         LocalTempPriceSource: Record "Price Source" temporary;

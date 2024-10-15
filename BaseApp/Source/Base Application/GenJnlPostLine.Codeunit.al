@@ -154,6 +154,7 @@
                 GenJnlCheckLine.RunCheck(GenJnlLine);
             end;
 
+            CheckJnlLineForEFTFile(GenJnlLine);
             AmountRoundingPrecision := InitAmounts(GenJnlLine);
 
             if "Bill-to/Pay-to No." = '' then
@@ -950,10 +951,10 @@
                 IsHandled := false;
                 OnPostGLAccOnBeforeInsertGLEntry(GenJnlLine, GLEntry, IsHandled, Balancing);
                 if not IsHandled then
-                if (GLEntry.Amount <> 0) or (GLEntry."Additional-Currency Amount" <> 0) or
-                   ("VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax")
-                then
-                    InsertGLEntry(GenJnlLine, GLEntry, true);
+                    if (GLEntry.Amount <> 0) or (GLEntry."Additional-Currency Amount" <> 0) or
+                       ("VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax")
+                    then
+                        InsertGLEntry(GenJnlLine, GLEntry, true);
                 PostJob(GenJnlLine, GLEntry);
                 PostVAT(GenJnlLine, GLEntry, VATPostingSetup);
                 DeferralPosting("Deferral Code", "Source Code", "Account No.", GenJnlLine, Balancing);
@@ -1604,6 +1605,8 @@
 
         GetCurrencyExchRate(GenJnlLine);
         TempGLEntryBuf.DeleteAll();
+        if not GLEntryInconsistent then
+            TempGLEntryPreview.DeleteAll();
         CalculateCurrentBalance(
           GenJnlLine."Account No.", GenJnlLine."Bal. Account No.", GenJnlLine.IncludeVATAmount,
           GenJnlLine."Amount (LCY)", GenJnlLine."VAT Amount");
@@ -6983,6 +6986,18 @@
         exit(Currency.GetRealizedLossesAccount);
     end;
 
+    local procedure CheckJnlLineForEFTFile(GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCheckJnlLineForEFTFile(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GenJnlLine."EFT Export Sequence No." <> 0 then
+            GenJnlLine.TestField("Check Transmitted");
+    end;
+
     procedure SetFADimAlreadyChecked(NewFADimAlreadyChecked: Boolean)
     begin
         FADimAlreadyChecked := NewFADimAlreadyChecked;
@@ -8786,6 +8801,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnContinuePostingOnIncreaseNextTransactionNo(var GenJnlLine: Record "Gen. Journal Line"; var NextTransactionNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJnlLineForEFTFile(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

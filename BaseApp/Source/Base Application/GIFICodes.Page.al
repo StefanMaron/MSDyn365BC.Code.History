@@ -39,6 +39,12 @@ page 10017 "GIFI Codes"
                 PromotedCategory = Process;
                 RunObject = Report "Export GIFI Info. to Excel";
                 ToolTip = 'Export balance information using General Index of Financial Information (GIFI) codes and save the exported file in Excel. You can use the file to transfer information to your tax preparation software.';
+            
+                trigger OnAction()
+                begin
+                    FeatureTelemetry.LogUptake('1000HM8', CanGIFITok, Enum::"Feature Uptake Status"::"Used");
+                    FeatureTelemetry.LogUsage('1000HM9', CanGIFITok, 'Canada GIDI Codes Infro Exported');
+                end;
             }
         }
         area(reporting)
@@ -56,5 +62,14 @@ page 10017 "GIFI Codes"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        FeatureTelemetry.LogUptake('1000HM6', CanGIFITok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        CanGIFITok: Label 'Canada GIDI Codes', Locked = true;
 }
 

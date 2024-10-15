@@ -177,7 +177,7 @@ codeunit 40 LogInManagement
     [Obsolete('No longer used, Company-Initialize runs on System Initialize''s event OnAfterLogin', '20.0')]
     procedure InitializeCompany()
     begin
-        if not GLSetup.Get then
+        if not GLSetup.Get() then
             CODEUNIT.Run(CODEUNIT::"Company-Initialize");
     end;
 #endif

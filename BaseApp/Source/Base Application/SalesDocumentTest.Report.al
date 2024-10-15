@@ -2290,11 +2290,11 @@
 
     local procedure CheckSalesLine(SalesLine2: Record "Sales Line")
     var
-        ErrorText: Text[250];
+        ErrorTextLocal: Text[250];
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSalesLine(SalesLine2, IsHandled);
+        OnBeforeCheckSalesLine(SalesLine2, IsHandled, ErrorCounter, ErrorText);
         if IsHandled then
             exit;
 
@@ -2409,9 +2409,9 @@
                                     FA.TableCaption, "No."));
                     end;
                 else begin
-                        OnCheckSalesLineCaseTypeElse(Type.AsInteger(), "No.", ErrorText);
-                        if ErrorText <> '' then
-                            AddError(ErrorText);
+                        OnCheckSalesLineCaseTypeElse(Type.AsInteger(), "No.", ErrorTextLocal);
+                        if ErrorTextLocal <> '' then
+                            AddError(ErrorTextLocal);
                     end;
             end;
     end;
@@ -2571,7 +2571,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
     begin
     end;
 

@@ -1345,7 +1345,13 @@
     procedure VerifyNoOutboundWhseHandlingOnLocation(LocationCode: Code[10])
     var
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyNoOutboundWhseHandlingOnLocation(LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         GetInventorySetup();
         if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
             exit;
@@ -1490,6 +1496,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateTransferToCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean; var HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyNoOutboundWhseHandlingOnLocation(LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

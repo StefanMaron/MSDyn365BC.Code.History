@@ -985,7 +985,9 @@
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HR9', MXInvoiceTok, Enum::"Feature Uptake Status"::"Used");
                         ExportEDocument;
+                        FeatureTelemetry.LogUsage('1000HS0', MXInvoiceTok, 'MX Electronic Invoice Exported as E-Documents and as XML Files');
                     end;
                 }
                 action(ExportEDocumentPDF)
@@ -999,7 +1001,9 @@
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HR8', MXInvoiceTok, Enum::"Feature Uptake Status"::"Used");
                         ExportEDocumentPDF();
+                        FeatureTelemetry.LogUsage('1000HS5', MXInvoiceTok, 'MX Electronic Invoice Exported as PDFs');
                     end;
                 }
                 action("CFDI Information")
@@ -1383,8 +1387,10 @@
         BillToContact: Record Contact;
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         FormatAddress: Codeunit "Format Address";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ChangeExchangeRate: Page "Change Exchange Rate";
         HasIncomingDocument: Boolean;
+        MXInvoiceTok: Label 'MX Electronic Invoice', Locked = true;
         DocExchStatusStyle: Text;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;

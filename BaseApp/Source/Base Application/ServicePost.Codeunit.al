@@ -223,6 +223,9 @@
         // Might change the value of global Ship,Consume,Invoice vars.
         CheckAndSetPostingConstants(PassedServiceHeader, PassedShip, PassedConsume, PassedInvoice);
 
+        OnInitializeOnAfterCheckAndSetPostingConstants(
+            PassedServiceHeader, PassedServiceLine, PassedShip, PassedConsume, PassedInvoice, PreviewMode);
+
         // check for service lines with adjusted price
         if (not HideValidationDialog or not GuiAllowed) and
            Invoice and (PassedServiceHeader."Document Type" = PassedServiceHeader."Document Type"::Order)
@@ -432,6 +435,7 @@
 
         if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
+            OnLockTablesOnBeforeGLEntryFindLast(GLEntry);
             if GLEntry.FindLast() then;
         end;
     end;
@@ -701,6 +705,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLockTablesOnBeforeGLEntryFindLast(var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTestDeleteHeaderOnAfterServiceShptHeaderTransferFields(var ServiceShipmentHeader: Record "Service Shipment Header"; ServiceHeader: Record "Service Header")
     begin
     end;
@@ -712,6 +721,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTestDeleteHeaderOnAfterServiceCrMemoHeaderTransferFields(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializeOnAfterCheckAndSetPostingConstants(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; PreviewMode: Boolean)
     begin
     end;
 }

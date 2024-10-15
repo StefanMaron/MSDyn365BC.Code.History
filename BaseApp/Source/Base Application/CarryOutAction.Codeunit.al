@@ -916,9 +916,7 @@ codeunit 99000813 "Carry Out Action"
         TransLine.Validate("Transfer-to Code", ReqLine."Location Code");
         TransLine.Validate(Quantity, ReqLine.Quantity);
         TransLine.Validate("Unit of Measure Code", ReqLine."Unit of Measure Code");
-        TransLine."Shortcut Dimension 1 Code" := ReqLine."Shortcut Dimension 1 Code";
-        TransLine."Shortcut Dimension 2 Code" := ReqLine."Shortcut Dimension 2 Code";
-        TransLine."Dimension Set ID" := ReqLine."Dimension Set ID";
+        CopyDimensionsFromReqToTransLine(TransLine, ReqLine);
         TransLine."Receipt Date" := ReqLine."Due Date";
         TransLine."Shipment Date" := ReqLine."Transfer Shipment Date";
         TransLine.Validate("Planning Flexibility", ReqLine."Planning Flexibility");
@@ -931,6 +929,20 @@ codeunit 99000813 "Carry Out Action"
             ReserveBindingOrderToTrans(TransLine, ReqLine);
 
         OnAfterInsertTransLine(TransHeader, ReqLine, TransLine, NextLineNo);
+    end;
+
+    local procedure CopyDimensionsFromReqToTransLine(var TransferLine: Record "Transfer Line"; RequisitionLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyDimensionsFromReqToTransLine(TransferLine, RequisitionLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransferLine."Shortcut Dimension 1 Code" := RequisitionLine."Shortcut Dimension 1 Code";
+        TransferLine."Shortcut Dimension 2 Code" := RequisitionLine."Shortcut Dimension 2 Code";
+        TransferLine."Dimension Set ID" := RequisitionLine."Dimension Set ID";
     end;
 
     procedure PrintTransferOrders()
@@ -1603,6 +1615,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDimensionsFromReqToTransLine(var TransferLine: Record "Transfer Line"; RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 
