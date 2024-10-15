@@ -19,6 +19,11 @@ table 1458 "RC Headlines User Data"
             Caption = 'User workdate (used for computations)';
             DataClassification = SystemMetadata;
         }
+        field(4; "Last Computed"; DateTime)
+        {
+            Caption = 'Last Computed';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

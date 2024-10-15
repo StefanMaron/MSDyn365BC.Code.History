@@ -405,6 +405,11 @@
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        ShowShortcutDimCode(ShortcutDimCode);
+                    end;
                 }
                 field("Job Line Type"; "Job Line Type")
                 {
@@ -1119,6 +1124,8 @@
            (xRec."No." <> '')
         then
             CurrPage.SaveRecord;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     local procedure CrossReferenceNoOnAfterValidat()
@@ -1150,11 +1157,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     procedure UpdateEditableOnRow()
@@ -1221,6 +1225,11 @@
             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                 if xRec."Document No." = '' then
                     Type := Type::Item;
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

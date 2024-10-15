@@ -415,7 +415,7 @@
                     group("Number of Lines")
                     {
                         Caption = 'Number of Lines';
-                        field(NumberOfJournalRecords; Count)
+                        field(NumberOfJournalRecords; NumberOfRecords)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -683,6 +683,8 @@
     trigger OnAfterGetCurrRecord()
     begin
         JobJnlManagement.GetNames(Rec, JobDescription, AccName);
+        if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, CLIENTTYPE::Api]) then
+            NumberOfRecords := Count();
     end;
 
     trigger OnAfterGetRecord()
@@ -737,6 +739,7 @@
         JobJnlReconcile: Page "Job Journal Reconcile";
         JobDescription: Text[100];
         AccName: Text[100];
+        NumberOfRecords: Integer;
         CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         IsSaasExcelAddinEnabled: Boolean;

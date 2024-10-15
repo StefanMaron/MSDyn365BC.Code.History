@@ -146,9 +146,7 @@ table 5940 "Service Item"
             begin
                 if "Customer No." <> xRec."Customer No." then begin
                     if CheckifActiveServContLineExist then
-                        Error(
-                          Text004,
-                          FieldCaption("Customer No."), "Customer No.", TableCaption, "No.");
+                        Error(Text004, FieldCaption("Customer No."), "Customer No.", TableCaption, "No.");
                     ServItemLinesExistErr(FieldCaption("Customer No."));
                     if ServLedgEntryExist then
                         if not ConfirmManagement.GetResponseOrDefault(
@@ -1100,7 +1098,14 @@ table 5940 "Service Item"
     end;
 
     local procedure ServItemLinesExistErr(ChangedFieldName: Text[100])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServItemLinesExistErr(Rec, ChangedFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServItemLinesExist then
             Error(
               ChgCustomerErr,
@@ -1177,6 +1182,11 @@ table 5940 "Service Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMessageIfServItemLinesExist(ServiceItem: Record "Service Item"; ChangedFieldName: Text[100]; var MessageText: Text; var ShowMessage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServItemLinesExistErr(var ServiceItem: Record "Service Item"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 }

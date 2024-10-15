@@ -538,6 +538,8 @@ table 79 "Company Information"
         Modulus97 := 97;
         if (StrLen(IBANCode) <= 5) or (StrLen(IBANCode) > 34) then
             IBANError(OriginalIBANCode);
+        if IsDigit(IBANCode[1]) or IsDigit(IBANCode[2]) then
+            IBANError(OriginalIBANCode);
         ConvertIBAN(IBANCode);
         while StrLen(IBANCode) > 6 do
             IBANCode := CalcModulus(CopyStr(IBANCode, 1, 6), Modulus97) + CopyStr(IBANCode, 7);
@@ -591,10 +593,18 @@ table 79 "Company Information"
             end;
             exit(true);
         end;
-        if (Letter >= '0') and (Letter <= '9') then
+        if IsDigit(Letter[1]) then
             exit(false);
 
         IBANError(IBANCode);
+    end;
+
+    local procedure IsDigit(LetterChar: Char): Boolean
+    var
+        Letter: Code[1];
+    begin
+        Letter[1] := LetterChar;
+        exit((Letter >= '0') and (Letter <= '9'))
     end;
 
     local procedure IBANError(WrongIBAN: Text)

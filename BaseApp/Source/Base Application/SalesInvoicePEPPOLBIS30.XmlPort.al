@@ -31,10 +31,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
             textelement(InvoiceTypeCode)
             {
                 NamespacePrefix = 'cbc';
-                textattribute(invoicetypecodelistid)
-                {
-                    XmlName = 'listID';
-                }
             }
             textelement(Note)
             {
@@ -59,10 +55,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
             textelement(DocumentCurrencyCode)
             {
                 NamespacePrefix = 'cbc';
-                textattribute(documentcurrencycodelistid)
-                {
-                    XmlName = 'listID';
-                }
             }
             textelement(AccountingCost)
             {
@@ -456,8 +448,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     SupplierRegAddrCityName: Text;
                     SupplierRegAddrCountryIdCode: Text;
                     SupplRegAddrCountryIdListId: Text;
-                    ContactID: Text;
-                    ListID: Text;
                 begin
                     PEPPOLMgt.GetAccountingSupplierPartyInfoBIS(
                       SupplierEndpointID,
@@ -472,7 +462,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       PostalZone,
                       CountrySubentity,
                       IdentificationCode,
-                      ListID);
+                      DummyVar);
 
                     PEPPOLMgt.GetAccountingSupplierPartyTaxSchemeBIS(
                       TempVATAmtLine,
@@ -490,7 +480,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
 
                     PEPPOLMgt.GetAccountingSupplierPartyContact(
                       SalesHeader,
-                      ContactID,
+                      DummyVar,
                       ContactName,
                       Telephone,
                       Telefax,
@@ -612,6 +602,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                             textattribute(custpartytaxschemecompidschid)
                             {
                                 XmlName = 'schemeID';
+
+                                trigger OnBeforePassVariable()
+                                begin
+                                    if CustPartyTaxSchemeCompIDSchID = '' then
+                                        currXMLport.Skip;
+                                end;
                             }
 
                             trigger OnBeforePassVariable()
@@ -728,9 +724,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 }
 
                 trigger OnBeforePassVariable()
-                var
-                    CustomerListID: Text;
-                    CustContactID: Text;
                 begin
                     PEPPOLMgt.GetAccountingCustomerPartyInfoBIS(
                       SalesHeader,
@@ -748,9 +741,9 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       CustomerPostalZone,
                       CustomerCountrySubentity,
                       CustomerIdentificationCode,
-                      CustomerListID);
+                      DummyVar);
 
-                    PEPPOLMgt.GetAccountingCustomerPartyTaxScheme(
+                    PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS(
                       SalesHeader,
                       CustPartyTaxSchemeCompanyID,
                       CustPartyTaxSchemeCompIDSchID,
@@ -764,7 +757,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
 
                     PEPPOLMgt.GetAccountingCustomerPartyContact(
                       SalesHeader,
-                      CustContactID,
+                      DummyVar,
                       CustContactName,
                       CustContactTelephone,
                       CustContactTelefax,
@@ -925,8 +918,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 }
 
                 trigger OnBeforePassVariable()
-                var
-                    DeliveryCountryListID: Text;
                 begin
                     PEPPOLMgt.GetGLNDeliveryInfo(
                       SalesHeader,
@@ -942,7 +933,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       DeliveryPostalZone,
                       DeliveryCountrySubentity,
                       DeliveryCountryIdCode,
-                      DeliveryCountryListID);
+                      DummyVar);
                 end;
             }
             textelement(PaymentMeans)
@@ -951,10 +942,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 textelement(PaymentMeansCode)
                 {
                     NamespacePrefix = 'cbc';
-                    textattribute(paymentmeanslistid)
-                    {
-                        XmlName = 'listID';
-                    }
                 }
                 textelement(PaymentChannelCode)
                 {
@@ -1001,10 +988,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     {
                         NamespacePrefix = 'cbc';
                         XmlName = 'ID';
-                        textattribute(paymentmeansschemeid)
-                        {
-                            XmlName = 'schemeID';
-                        }
                     }
                     textelement(FinancialInstitutionBranch)
                     {
@@ -1014,77 +997,16 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                             NamespacePrefix = 'cbc';
                             XmlName = 'ID';
                         }
-                        textelement(FinancialInstitution)
-                        {
-                            NamespacePrefix = 'cac';
-                            textelement(financialinstitutionid)
-                            {
-                                NamespacePrefix = 'cbc';
-                                XmlName = 'ID';
-                                textattribute(financialinstitutionschemeid)
-                                {
-                                    XmlName = 'schemeID';
-                                }
-                            }
-                            textelement(Address)
-                            {
-                                NamespacePrefix = 'cac';
-                                textelement(financialinstitutionstreetname)
-                                {
-                                    NamespacePrefix = 'cbc';
-                                    XmlName = 'StreetName';
-                                }
-                                textelement(AdditionalStreetName)
-                                {
-                                    NamespacePrefix = 'cbc';
-                                }
-                                textelement(financialinstitutioncityname)
-                                {
-                                    NamespacePrefix = 'cbc';
-                                    XmlName = 'CityName';
-                                }
-                                textelement(financialinstitutionpostalzone)
-                                {
-                                    NamespacePrefix = 'cbc';
-                                    XmlName = 'PostalZone';
-                                }
-                                textelement(financialinstcountrysubentity)
-                                {
-                                    NamespacePrefix = 'cbc';
-                                    XmlName = 'CountrySubentity';
-                                }
-                                textelement(financialinstitutioncountry)
-                                {
-                                    NamespacePrefix = 'cac';
-                                    XmlName = 'Country';
-                                    textelement(financialinstcountryidcode)
-                                    {
-                                        NamespacePrefix = 'cbc';
-                                        XmlName = 'IdentificationCode';
-                                    }
-                                }
-
-                                trigger OnBeforePassVariable()
-                                begin
-                                    if FinancialInstCountryIdCode = '' then
-                                        currXMLport.Skip;
-                                end;
-                            }
-                        }
                     }
                 }
 
                 trigger OnBeforePassVariable()
-                var
-                    PaymentDueDate: Text;
-                    FinancialInstitutionName: Text;
-                    FinancialInstCountryListID: Text;
                 begin
                     PEPPOLMgt.GetPaymentMeansInfo(
                       SalesHeader,
                       PaymentMeansCode,
-                      PaymentMeansListID,
-                      PaymentDueDate,
+                      DummyVar,
+                      DummyVar,
                       PaymentChannelCode,
                       PaymentID,
                       PrimaryAccountNumberID,
@@ -1092,20 +1014,11 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
 
                     PEPPOLMgt.GetPaymentMeansPayeeFinancialAcc(
                       PayeeFinancialAccountID,
-                      PaymentMeansSchemeID,
+                      DummyVar,
                       FinancialInstitutionBranchID,
-                      FinancialInstitutionID,
-                      FinancialInstitutionSchemeID,
-                      FinancialInstitutionName);
-
-                    PEPPOLMgt.GetPaymentMeansFinancialInstitutionAddr(
-                      FinancialInstitutionStreetName,
-                      AdditionalStreetName,
-                      FinancialInstitutionCityName,
-                      FinancialInstitutionPostalZone,
-                      FinancialInstCountrySubentity,
-                      FinancialInstCountryIdCode,
-                      FinancialInstCountryListID);
+                      DummyVar,
+                      DummyVar,
+                      DummyVar);
                 end;
             }
             tableelement(pmttermsloop; Integer)
@@ -1124,6 +1037,9 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     PEPPOLMgt.GetPaymentTermsInfo(
                       SalesHeader,
                       PaymentTermsNote);
+
+                    if PaymentTermsNote = '' then
+                        currXMLport.Skip;
                 end;
 
                 trigger OnPreXmlItem()
@@ -1143,10 +1059,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 textelement(AllowanceChargeReasonCode)
                 {
                     NamespacePrefix = 'cbc';
-                    textattribute(allowancechargelistid)
-                    {
-                        XmlName = 'listID';
-                    }
                 }
                 textelement(AllowanceChargeReason)
                 {
@@ -1203,7 +1115,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       SalesHeader,
                       ChargeIndicator,
                       AllowanceChargeReasonCode,
-                      AllowanceChargeListID,
+                      DummyVar,
                       AllowanceChargeReason,
                       Amount,
                       AllowanceChargeCurrencyID,
@@ -1458,14 +1370,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     NamespacePrefix = 'cbc';
                     textattribute(unitCode)
                     {
-                    }
-                    textattribute(unitCodeListID)
-                    {
-
-                        trigger OnBeforePassVariable()
-                        begin
-                            unitCodeListID := DefaultUnitCostListID;
-                        end;
                     }
                 }
                 textelement(invoicelineextensionamount)
@@ -1892,15 +1796,6 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                         {
                             XmlName = 'unitCode';
                         }
-                        textattribute(codelistidbaseqty)
-                        {
-                            XmlName = 'unitCodeListID';
-
-                            trigger OnBeforePassVariable()
-                            begin
-                                CodeListIDBaseQty := DefaultUnitCostListID;
-                            end;
-                        }
                     }
                     tableelement(priceallowancechargeloop; Integer)
                     {
@@ -1977,7 +1872,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       LineExtensionAmountCurrencyID,
                       InvoiceLineAccountingCost);
 
-                    PEPPOLMgt.GetLineUnitCodeInfo(SalesLine, unitCode, DefaultUnitCostListID);
+                    PEPPOLMgt.GetLineUnitCodeInfo(SalesLine, unitCode, DummyVar);
                 end;
             }
 
@@ -1996,11 +1891,11 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                   ID,
                   IssueDate,
                   InvoiceTypeCode,
-                  InvoiceTypeCodeListID,
+                  DummyVar,
                   Note,
                   TaxPointDate,
                   DocumentCurrencyCode,
-                  DocumentCurrencyCodeListID,
+                  DummyVar,
                   TaxCurrencyCode,
                   TaxCurrencyCodeListID,
                   AccountingCost);
@@ -2045,11 +1940,11 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
         SalesLine: Record "Sales Line";
         TempVATProductPostingGroup: Record "VAT Product Posting Group" temporary;
         PEPPOLMgt: Codeunit "PEPPOL Management";
+        DummyVar: Text;
         SpecifyASalesInvoiceNoErr: Label 'You must specify a sales invoice number.';
         SpecifyAServInvoiceNoErr: Label 'You must specify a service invoice number.';
         UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
         ProcessedDocType: Option Sale,Service;
-        DefaultUnitCostListID: Text;
 
     local procedure GetTotals()
     begin

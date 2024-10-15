@@ -168,6 +168,13 @@ table 5847 "Average Cost Calc. Overview"
         ValueEntry."Valuation Date" := "Valuation Date";
         ValueEntry."Location Code" := "Location Code";
         ValueEntry."Variant Code" := "Variant Code";
+
+        OnAfterSetItemFilters(ValueEntry, Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemFilters(var ValueEntry: Record "Value Entry"; AverageCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
     end;
 }
 

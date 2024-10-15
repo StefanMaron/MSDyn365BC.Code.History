@@ -1458,6 +1458,113 @@ codeunit 134141 "ERM Bank Reconciliation"
         Assert.AreEqual(ICPartnerAccountTypeQst, LibraryVariableStorage.DequeueText, '');
     end;
 
+    [Test]
+    [HandlerFunctions('BankAccReconTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLBalanceFieldsOfBanAccReconTestReportConsiderStatementDateWhenDefined()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccountNo: Code[20];
+        AccountNo: Code[20];
+        RequestPageXML: Text;
+    begin
+        // [FEATURE] [Report] [Bank Acc. Recon. - Test]
+        // [SCENARIO 335898] G/L Balance and G/L Balance (LCY) fields of "Bank Acc. Recon. - Test" report considers the "Statement Date" when it is defined in Bank Acc. Reconciliation.
+        Initialize;
+
+        // [GIVEN] Two posted vendor payments
+        // [GIVEN] "Posting Date" = 02.01 and Amount 100
+        // [GIVEN] "Posting Date" = 01.01 and Amount 200
+        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        AccountNo := LibraryPurchase.CreateVendorNo;
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate + 1, AccountNo, BankAccountNo);
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate, AccountNo, BankAccountNo);
+
+        // [GIVEN] Bank Account Reconciliation with "Statement Date" = 01.01
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Modify(true);
+        Commit;
+
+        BankAccReconciliation.SetRecFilter;
+
+        // [WHEN] Run report "Bank Acc. Recon. - Test"
+        RequestPageXML := REPORT.RunRequestPage(REPORT::"Bank Acc. Recon. - Test", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(REPORT::"Bank Acc. Recon. - Test", BankAccReconciliation, RequestPageXML);
+
+        // [THEN] TotalBalOnBankAccount has value 200
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalBalOnBankAccount', -GenJournalLine.Amount);
+
+        // [THEN] TotalBalOnBankAccountLCY has value 200
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalBalOnBankAccountLCY', -GenJournalLine.Amount);
+
+        // [THEN] GLSubtotal has value 200
+        LibraryReportDataset.AssertElementWithValueExists('GL_Subtotal', -GenJournalLine.Amount);
+
+        // [THEN] EndingGLBalance has value 200
+        LibraryReportDataset.AssertElementWithValueExists('Ending_GL_Balance', -GenJournalLine.Amount);
+
+        // [THEN] Difference has value 0
+        LibraryReportDataset.AssertElementWithValueExists('Difference', 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('BankAccReconTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLBalanceFieldsOfBanAccReconTestReportDoesNotConsiderStatementDateWhenNotDefined()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccountNo: Code[20];
+        AccountNo: Code[20];
+        TotalAmount: Decimal;
+        RequestPageXML: Text;
+    begin
+        // [FEATURE] [Report] [Bank Acc. Recon. - Test]
+        // [SCENARIO 335898] G/L Balance and G/L Balance (LCY) fields of "Bank Acc. Recon. - Test" report does not consider the "Statement Date" when it is not defined in Bank Acc. Reconciliation.
+        Initialize;
+
+        // [GIVEN] Two posted vendor payments
+        // [GIVEN] "Posting Date" = 02.01 and Amount 100
+        // [GIVEN] "Posting Date" = 01.01 and Amount 200
+        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        AccountNo := LibraryPurchase.CreateVendorNo;
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate, AccountNo, BankAccountNo);
+        TotalAmount += GenJournalLine.Amount;
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate + 1, AccountNo, BankAccountNo);
+        TotalAmount += GenJournalLine.Amount;
+
+        // [GIVEN] Bank Account Reconciliation with no "Statement Date" specified
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation.Validate("Statement Date", 0D);
+        BankAccReconciliation.Modify(true);
+        Commit;
+
+        BankAccReconciliation.SetRecFilter;
+
+        // [WHEN] Run report "Bank Acc. Recon. - Test"
+        RequestPageXML := REPORT.RunRequestPage(REPORT::"Bank Acc. Recon. - Test", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(REPORT::"Bank Acc. Recon. - Test", BankAccReconciliation, RequestPageXML);
+
+        // [THEN] TotalBalOnBankAccount has value 300
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalBalOnBankAccount', -TotalAmount);
+
+        // [THEN] TotalBalOnBankAccountLCY has value 300
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalBalOnBankAccountLCY', -TotalAmount);
+
+        // [THEN] GLSubtotal has value 300
+        LibraryReportDataset.AssertElementWithValueExists('GL_Subtotal', -TotalAmount);
+
+        // [THEN] EndingGLBalance has value 300
+        LibraryReportDataset.AssertElementWithValueExists('Ending_GL_Balance', -TotalAmount);
+
+        // [THEN] Difference has value 0
+        LibraryReportDataset.AssertElementWithValueExists('Difference', 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Reconciliation");
@@ -1543,6 +1650,18 @@ codeunit 134141 "ERM Bank Reconciliation"
             DocumentNo[I] := CreatePaymentJournalLineWithVendorAndBank(GenJournalLine, AccountNo, BankAccountNo);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
         end;
+    end;
+
+    local procedure PostPaymentJournalLineWithDateAndSource(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountNo: Code[20]; BankAccountNo: Code[20])
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, 0, GenJournalLine."Account Type"::Vendor, AccountNo,
+          -LibraryRandom.RandIntInRange(1000, 2000));
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure ReverseTransactionGenJournalLine(DocumentNo: Code[20]; BankAccountNo: Code[20])

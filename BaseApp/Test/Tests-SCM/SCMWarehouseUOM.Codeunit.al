@@ -1945,7 +1945,7 @@ codeunit 137150 "SCM Warehouse UOM"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler,ConfirmHandler')]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure RegisterPickFromWarehouseShipmentAfterPostingOutputFromProductionOrderUsingSerialItemTracking()
     begin
@@ -1955,7 +1955,7 @@ codeunit 137150 "SCM Warehouse UOM"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler,ConfirmHandler')]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure PostWarehouseShipmentAfterPostingOutputFromProductionOrderUsingSerialItemTracking()
     begin

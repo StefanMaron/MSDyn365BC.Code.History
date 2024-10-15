@@ -761,11 +761,12 @@ page 9850 "Tenant Permissions"
             else
                 if TenantPermissionSet.FindFirst then
                     CurrentRoleID := TenantPermissionSet."Role ID";
-        CopiedFromSystemRoleId := PermissionSetLink.GetSourceForLinkedPermissionSet(CurrentRoleID);
         Reset;
         FillTempPermissions;
         IsEditable := CurrPage.Editable;
         SingleFilterSelected := GetRangeMin("Role ID") = GetRangeMax("Role ID");
+        if SingleFilterSelected then
+            CopiedFromSystemRoleId := PermissionSetLink.GetSourceForLinkedPermissionSet(CurrentRoleID);
     end;
 
     var
@@ -1034,8 +1035,9 @@ page 9850 "Tenant Permissions"
         if TenantPermission."Object ID" <> 0 then begin
             TenantPermission.CalcFields("Object Name");
             ObjectCaption := TenantPermission."Object Name";
-            AllObj.Get(TenantPermission."Object Type", TenantPermission."Object ID");
-            ObjectName := AllObj."Object Name";
+            ObjectName := '';
+            if AllObj.Get(TenantPermission."Object Type", TenantPermission."Object ID") then
+                ObjectName := AllObj."Object Name";
         end else begin
             ObjectName := CopyStr(StrSubstNo(AllObjTxt, TenantPermission."Object Type"), 1, MaxStrLen(TenantPermission."Object Name"));
             ObjectCaption := ObjectName;

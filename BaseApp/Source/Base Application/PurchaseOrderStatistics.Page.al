@@ -391,7 +391,7 @@ page 403 "Purchase Order Statistics"
                     trigger OnValidate()
                     begin
                         ActiveTab := ActiveTab::Prepayment;
-                        UpdatePrepmtAmount;
+                        UpdatePrepmtAmount();
                     end;
                 }
                 field(PrepmtVATAmount; PrepmtVATAmount)
@@ -413,6 +413,12 @@ page 403 "Purchase Order Statistics"
                     Caption = 'Prepmt. Amount Invoiced';
                     Editable = false;
                     ToolTip = 'Specifies the total prepayment amount that has been invoiced for the order.';
+
+                    trigger OnValidate()
+                    begin
+                        OnBeforeValidatePrepmtTotalAmount2(Rec, PrepmtTotalAmount, PrepmtTotalAmount2);
+                        UpdatePrepmtAmount();
+                    end;
                 }
                 field("TotalPurchLine[1].""Prepmt. Amt. Inv."""; TotalPurchLine[1]."Prepmt. Amt. Inv.")
                 {
@@ -868,6 +874,11 @@ page 403 "Purchase Order Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtTotalAmount2(PurchaseHeader: Record "Purchase Header"; var PrepmtTotalAmount: Decimal; var PrepmtTotalAmount2: Decimal)
     begin
     end;
 }

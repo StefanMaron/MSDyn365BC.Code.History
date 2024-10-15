@@ -55,6 +55,9 @@ codeunit 134984 "ERM Sales Report III"
         RowPrintedMultiplyErr: Label 'Analysis row must be printed only once.';
         RunReportNotSupportedErr: Label 'The method RunReport is not supported for TestPages';
         Rep1302DatasetErr: Label 'Wrong REP1302 "Standard Sales - Pro Forma Inv" dataset.';
+        PurchaseOrderNoLbl: Label 'Purchase Order No.';
+        OurDocumentNoLbl: Label 'Our Document No.';
+        ExpectedCellValueErr: Label 'Cell value expected.';
 
     [Test]
     [HandlerFunctions('RHSalesCreditMemo')]
@@ -2081,6 +2084,46 @@ codeunit 134984 "ERM Sales Report III"
     end;
 
     [Test]
+    [HandlerFunctions('SalesShipmentSaveAsExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesShipmentReportHasExternalDocNoAndOrderNo()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        CustomerNo: Code[20];
+        ItemNo: Code[20];
+        ExternalDocNo: array[2] of Code[10];
+        Index: Integer;
+    begin
+        // [FEATURE] [Sales Shipment] [UT]
+        // [SCENARIO 331988] Report 208 "Sales - Shipment" exposes "External Document No." and "Order No." fields as "Purchase Order No." and "Our Document No." respectively
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Two posted Sales Shipments with different "External Document No."
+        CustomerNo := LibrarySales.CreateCustomerNo;
+        ItemNo := LibraryInventory.CreateItemNo;
+        for Index := 1 to 2 do begin
+            ExternalDocNo[Index] := LibraryUtility.GenerateGUID;
+            LibrarySales.CreateSalesDocumentWithItem(
+              SalesHeader[Index], SalesLine[Index], SalesHeader[Index]."Document Type"::Order,
+              CustomerNo, ItemNo, LibraryRandom.RandIntInRange(2, 5), '', 0D);
+            SalesHeader[Index].Validate("External Document No.", ExternalDocNo[Index]);
+            SalesHeader[Index].Modify(true);
+            LibrarySales.PostSalesDocument(SalesHeader[Index], true, false);
+        end;
+
+        // [WHEN] Run Report 208 "Sales - Shipment" and save as Excel, handled by SalesShipmentSaveAsExcelRequestPageHandler
+        Commit;
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        REPORT.Run(REPORT::"Sales - Shipment", true, false, SalesShipmentHeader);
+
+        // [THEN] Verify that "Our Document No." and "Purchase Order No." report fields are populated accordingly.
+        VerifySalesShipmentDocFieldsExcel(SalesHeader);
+    end;
+
+    [Test]
     [HandlerFunctions('AgedAccountsReceivableReportRequestPageHandler')]
     procedure AgedAccReceivableCustomerPhoneNoAndContact()
     var
@@ -3686,6 +3729,27 @@ codeunit 134984 "ERM Sales Report III"
         end;
     end;
 
+    local procedure VerifySalesShipmentDocFieldsExcel(SalesHeader: array[2] of Record "Sales Header")
+    var
+        WorksheetCount: Integer;
+        Index: Integer;
+    begin
+        LibraryReportValidation.OpenExcelFile;
+        WorksheetCount := LibraryReportValidation.CountWorksheets;
+
+        for Index := 1 to WorksheetCount do begin
+            Assert.IsTrue(
+              LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(Index, PurchaseOrderNoLbl), ExpectedCellValueErr);
+            Assert.IsTrue(
+              LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(Index, OurDocumentNoLbl), ExpectedCellValueErr);
+            Assert.IsTrue(
+              LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(
+                Index, SalesHeader[Index]."External Document No."), ExpectedCellValueErr);
+            Assert.IsTrue(
+              LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(Index, SalesHeader[Index]."No."), ExpectedCellValueErr);
+        end;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DocumentEntriesReqPageHandler(var DocumentEntries: TestRequestPage "Document Entries")
@@ -3846,6 +3910,13 @@ codeunit 134984 "ERM Sales Report III"
     procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
     begin
         SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesShipmentSaveAsExcelRequestPageHandler(var SalesShipment: TestRequestPage "Sales - Shipment")
+    begin
+        SalesShipment.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
     [RequestPageHandler]

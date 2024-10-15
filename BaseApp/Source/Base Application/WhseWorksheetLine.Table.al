@@ -234,7 +234,7 @@ table 7326 "Whse. Worksheet Line"
                         GetLocation("Location Code");
                         if Location."Bin Mandatory" then begin
                             if CurrFieldNo <> FieldNo("Qty. to Handle") then begin
-                                AvailableQty := CalcAvailableQtyBase;
+                                AvailableQty := CalcAvailableQtyBase();
                                 if not Location."Always Create Pick Line" then
                                     if "Qty. to Handle (Base)" > AvailableQty then begin
                                         if ("Shipping Advice" = "Shipping Advice"::Complete) or
@@ -246,7 +246,7 @@ table 7326 "Whse. Worksheet Line"
                                     end;
                             end
                         end else begin
-                            AvailableQty := CalcAvailableQtyBase;
+                            AvailableQty := CalcAvailableQtyBase();
                             if "Qty. to Handle (Base)" > AvailableQty then begin
                                 if ("Shipping Advice" = "Shipping Advice"::Complete) or
                                    (AvailableQty < 0)
@@ -689,7 +689,13 @@ table 7326 "Whse. Worksheet Line"
         QtyAssgndOnWkshBase: Decimal;
         QtyReservedOnPickShip: Decimal;
         QtyReservedForCurrLine: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcAvailableQtyBase(Rec, AvailableQty, IsHandled);
+        if IsHandled then
+            exit(AvailableQty);
+
         GetItem("Item No.", Description);
         GetLocation("Location Code");
 
@@ -911,7 +917,13 @@ table 7326 "Whse. Worksheet Line"
     procedure PutAwayCreate(var WhsePutAwayWkshLine: Record "Whse. Worksheet Line")
     var
         CreatePutAwayFromWhseSource: Report "Whse.-Source - Create Document";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePutAwayCreate(WhsePutAwayWkshLine, IsHandled);
+        if IsHandled then
+            exit;
+
         CreatePutAwayFromWhseSource.SetWhseWkshLine(WhsePutAwayWkshLine);
         CreatePutAwayFromWhseSource.RunModal;
         CreatePutAwayFromWhseSource.GetResultMessage(1);
@@ -1234,7 +1246,13 @@ table 7326 "Whse. Worksheet Line"
     var
         AvailQtyBaseInQCBins: Query "Avail Qty. (Base) In QC Bins";
         ReturnedQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeQtyOnQCBins(Rec, ReturnedQty, IsHandled);
+        if IsHandled then
+            exit(ReturnedQty);
+
         AvailQtyBaseInQCBins.SetRange(Location_Code, "Location Code");
         AvailQtyBaseInQCBins.SetRange(Item_No, "Item No.");
         AvailQtyBaseInQCBins.SetRange(Variant_Code, "Variant Code");
@@ -1497,7 +1515,22 @@ table 7326 "Whse. Worksheet Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePutAwayCreate(var PutAwayWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcAvailQtyToMoveOnAfterSetFilters(var NewWhseWorksheetLine: Record "Whse. Worksheet Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailableQtyBase(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var AvailableQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeQtyOnQCBins(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var ReturnedQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

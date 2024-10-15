@@ -150,6 +150,31 @@ codeunit 134906 "ERM Finance Charge Memo Text"
           IssuedFinChargeMemoHeader."No.", IssuedFinChargeMemoLine.Type::"G/L Account", 0, FinanceChargeTerms."Additional Fee (LCY)");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckFinanceChargeTermsFiveDecimalPlaces();
+    var
+      FinanceChargeTerms : Record "Finance Charge Terms";
+      FinanceChargeTerms_page : TestPage "Finance Charge Terms";
+    begin
+      // [FEATURE] [UT]
+      // [SCENARIO 337388] Finance Charge Terms has five decimal places
+
+      // [GIVEN]  Created Finance Charge Terms
+      LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
+
+      // [GIVEN] Page "Finance Charge Terms" was opened
+      FinanceChargeTerms_page.Openedit;
+      FinanceChargeTerms_page.Filter.Setfilter(Code,FinanceChargeTerms.Code);
+      FinanceChargeTerms_page.First;
+
+      // [WHEN] Set value with 5 decimal places.
+      FinanceChargeTerms_page."Interest Rate".Setvalue(9.12345);
+
+      // [THEN] The value was set
+      FinanceChargeTerms_page."Interest Rate".Assertequals(9.12345);
+    end;
+
     local procedure ComputeEndingText(FinanceChargeMemoNo: Code[20]; CurrencyCode: Code[10]): Text[100]
     var
         FinChrgMemoHeader: Record "Finance Charge Memo Header";

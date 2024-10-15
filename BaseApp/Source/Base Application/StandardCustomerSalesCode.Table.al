@@ -209,6 +209,8 @@ table 172 "Standard Customer Sales Code"
                         SalesLine.Validate(Quantity, StdSalesLine.Quantity);
                         if StdSalesLine."Unit of Measure Code" <> '' then
                             SalesLine.Validate("Unit of Measure Code", StdSalesLine."Unit of Measure Code");
+                        if StdSalesLine.Description <> '' then
+                            SalesLine.Validate(Description, StdSalesLine.Description);
                         if (StdSalesLine.Type = StdSalesLine.Type::"G/L Account") or
                            (StdSalesLine.Type = StdSalesLine.Type::"Charge (Item)")
                         then
