@@ -1787,7 +1787,7 @@ codeunit 6620 "Copy Document Mgt."
                     InitSalesDeferralCode(ToSalesLine);
 
             OnUpdateSalesLineOnBeforeClearDropShipmentAndSpecialOrder(ToSalesLine, FromSalesLine);
-            if not (ToSalesLine."Document Type" in ["Sales Document Type"::Order, "Sales Document Type"::Quote]) then begin
+            if not (ToSalesLine."Document Type" in ["Sales Document Type"::Order, "Sales Document Type"::Quote, "Sales Document Type"::"Blanket Order"]) then begin
                 ToSalesLine."Drop Shipment" := false;
                 ToSalesLine."Special Order" := false;
             end;
