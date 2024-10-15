@@ -1371,6 +1371,36 @@ codeunit 147305 "Cartera Posting"
         VerifyVATEntryExists(BillGroup."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DetailedCustLedgEntryAmountNotIncludedInMyCustomerBalanceCalculation()
+    var
+        Customer: Record Customer;
+        MyCustomer: Record "My Customer";
+        ExpectedAmount: Decimal;
+    begin
+        // [FEATURE] [UT] [Customer Ledger Entry]
+        // [SCENARIO 366386] The flow-field "Balance (LCY)" in My Customer does not account for Excluded Dtld. Ledger Entries
+        Initialize();
+
+        // [GIVEN] Created Customer and My Customer
+        LibrarySales.CreateCustomer(Customer);
+        CreateMyCustomer(Customer, UserId);
+
+        // [GIVEN] Created Detailed Ledger Entry A with "Amount (LCY)" = 100 and "Excluded from calculation" = FALSE
+        ExpectedAmount := CreateDetailedCustLedgEntry(Customer."No.", false);
+
+        // [GIVEN] Created Detailed Ledger Entry B with "Amount (LCY)" = 200 and "Excluded from calculation" = TRUE
+        CreateDetailedCustLedgEntry(Customer."No.", true);
+
+        // [WHEN] Calculate "Balance (LCY)" for My Customer
+        MyCustomer.Get(UserId, Customer."No.");
+        MyCustomer.CalcFields("Balance (LCY)");
+
+        // [THEN] "Balance (LCY)" in My Customer = 100
+        Assert.AreEqual(ExpectedAmount, MyCustomer."Balance (LCY)", '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1381,6 +1411,30 @@ codeunit 147305 "Cartera Posting"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Cartera Setup");
         isInitialized := true;
+    end;
+
+    local procedure CreateMyCustomer(Customer: Record Customer; UserID: Text)
+    var
+        MyCustomer: Record "My Customer";
+    begin
+        MyCustomer.Init();
+        MyCustomer.Validate("Customer No.", Customer."No.");
+        MyCustomer."User ID" := CopyStr(UserID, 1, MaxStrLen(MyCustomer."User ID"));
+        MyCustomer.Insert(true);
+    end;
+
+    local procedure CreateDetailedCustLedgEntry(CustomerNo: Code[20]; Excluded: Boolean): Decimal
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Customer No." := CustomerNo;
+        DetailedCustLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+        DetailedCustLedgEntry."Excluded from calculation" := Excluded;
+        DetailedCustLedgEntry.Insert();
+        exit(DetailedCustLedgEntry."Amount (LCY)");
     end;
 
     local procedure ClearAddReportingCurrency()

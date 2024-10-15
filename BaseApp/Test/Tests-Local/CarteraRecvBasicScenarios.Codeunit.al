@@ -31,6 +31,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         CheckBillSituationGroupErr: Label '%1 cannot be applied because it is included in a bill group. To apply the document, remove it from the bill group and try again.', Comment = '%1 - document type and number';
         CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted bill group.', Comment = '%1 - document type and number';
+        PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1141,6 +1142,75 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         Assert.ExpectedError(StrSubstNo(CheckBillSituationPostedErr, CarteraDoc.Description));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostCrMemoAppliedToInvoiceIncludedintoBillGroup()
+    var
+        SalesHeader: Record "Sales Header";
+        BillGroup: Record "Bill Group";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 367139] An error occurs trying to posted credit memo applied to the bill already included into payment order
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with automatically created bill
+        DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
+        CustomerNo := SalesHeader."Sell-to Customer No.";
+
+        // [GIVEN] Purchase credit memo applied to posted bill
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        ApplyHeaderToBill(SalesHeader, DocumentNo, '1');
+
+        // [GIVEN] Add bill to Payment order
+        CreateBillGroupAndAddDocumentLCY(BillGroup, CarteraDoc, SalesHeader."Sell-to Customer No.", DocumentNo);
+
+        // [WHEN] Try to post the credit memo
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] An error occurs: "A grouped document cannot be settled from a journal."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(PostDocumentAppliedToBillInGroupErr, DocumentNo, BillGroup."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostCrMemoAppliedToInvoiceIncludedintoPostedBillGroup()
+    var
+        SalesHeader: Record "Sales Header";
+        BillGroup: Record "Bill Group";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 367139] An error occurs trying to posted credit memo applied to the bill already included into posted payment order
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with automatically created bill
+        DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
+        CustomerNo := SalesHeader."Sell-to Customer No.";
+
+        // [GIVEN] Purchase credit memo applied to posted bill
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        ApplyHeaderToBill(SalesHeader, DocumentNo, '1');
+
+        // [GIVEN] Add bill to Payment order, post it.
+        CreateBillGroupAndAddDocumentLCY(BillGroup, CarteraDoc, SalesHeader."Sell-to Customer No.", DocumentNo);
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+
+        // [WHEN] Try to post the credit memo
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] An error occurs: "A grouped document cannot be settled from a journal."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(PostDocumentAppliedToBillInGroupErr, DocumentNo, BillGroup."No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1289,6 +1359,14 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         BillGroupsTestPage.GotoRecord(BillGroup);
         BillGroupsTestPage.Docs.Insert.Invoke;
         BillGroupsTestPage.OK.Invoke;
+    end;
+
+    local procedure ApplyHeaderToBill(var SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; BillNo: Code[20])
+    begin
+        SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Bill);
+        SalesHeader.Validate("Applies-to Doc. No.", DocumentNo);
+        SalesHeader.Validate("Applies-to Bill No.", BillNo);
+        SalesHeader.Modify(true);
     end;
 
     local procedure RemoveCarteraDocumentFromBillGroup(BillGroupNo: Code[20])

@@ -19,8 +19,6 @@ codeunit 7000006 "Document-Post"
     var
         Text1100000: Label 'must be of a type that creates bills';
         Text1100001: Label 'A customer or vendor must be specified when a bill is created.';
-        Text1100002: Label 'A grouped document cannot be settled from a journal.\';
-        Text1100003: Label 'Remove Document %1/%2 from Group/Pmt. Order %3 and try again.\';
         Text1100004: Label 'Sales Bill %1/%2 already exists.';
         Text1100005: Label 'Purchase Document %1/%2 already exists.';
         Text1100006: Label 'Receivable %1 %2/%3 cannot be applied to, because it is included in a posted Bill Group.';
@@ -35,12 +33,14 @@ codeunit 7000006 "Document-Post"
         Text1100015: Label 'There is nothing to post.';
         Text1100016: Label 'The journal lines were successfully posted.';
         Text1100017: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
+        CarteraDocBillGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/%2 from Group/Pmt. Order %3 and try again.', Comment = '%1=Document Number,%2=Bill number,%3=Bill Group number.';
 
     procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     var
         CarteraDoc: Record "Cartera Doc.";
         PaymentMethod: Record "Payment Method";
         SystemCreated: Boolean;
+        CarteraDocType: Option;
     begin
         with GenJnlLine do begin
             if ("Document Type" = "Document Type"::Invoice) and
@@ -66,42 +66,17 @@ codeunit 7000006 "Document-Post"
                 SystemCreated := false
             else
                 SystemCreated := "System-Created Entry";
-            if ("Account Type" = "Account Type"::Customer) and
+
+            if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) and
                ("Applies-to Doc. Type" in ["Applies-to Doc. Type"::Bill, "Applies-to Doc. Type"::Invoice]) and
                not SystemCreated
             then begin
-                CarteraDoc.Reset;
-                CarteraDoc.SetCurrentKey(Type, "Document No.");
-                CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
-                CarteraDoc.SetRange("Document No.", "Applies-to Doc. No.");
-                if "Applies-to Doc. Type" = "Applies-to Doc. Type"::Bill then
-                    CarteraDoc.SetRange("No.", "Applies-to Bill No.")
+                if "Account Type" = "Account Type"::Customer then
+                    CarteraDocType := CarteraDoc.Type::Receivable
                 else
-                    CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
-                if CarteraDoc.FindFirst and (CarteraDoc."Bill Gr./Pmt. Order No." <> '') then
-                    Error(
-                      Text1100002 +
-                      Text1100003,
-                      CarteraDoc."Document No.", CarteraDoc."No.", CarteraDoc."Bill Gr./Pmt. Order No.");
-            end;
-            if ("Account Type" = "Account Type"::Vendor) and
-               (("Applies-to Doc. Type" = "Applies-to Doc. Type"::Bill) or ("Applies-to Doc. Type" = "Applies-to Doc. Type"::
-                                                                            Invoice)) and
-               not SystemCreated
-            then begin
-                CarteraDoc.Reset;
-                CarteraDoc.SetCurrentKey(Type, "Document No.");
-                CarteraDoc.SetRange(Type, CarteraDoc.Type::Payable);
-                CarteraDoc.SetRange("Document No.", "Applies-to Doc. No.");
-                if "Applies-to Doc. Type" = "Applies-to Doc. Type"::Bill then
-                    CarteraDoc.SetRange("No.", "Applies-to Bill No.")
-                else
-                    CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
-                if CarteraDoc.FindFirst and (CarteraDoc."Bill Gr./Pmt. Order No." <> '') then
-                    Error(
-                      Text1100002 +
-                      Text1100003,
-                      CarteraDoc."Document No.", CarteraDoc."No.", CarteraDoc."Bill Gr./Pmt. Order No.");
+                    CarteraDocType := CarteraDoc.Type::Payable;
+                CheckCarteraDocsForBillGroups(CarteraDocType, "Applies-to Doc. No.", "Applies-to Bill No.");
+                CheckPostedCarteraDocsForBillGroups(CarteraDocType, "Applies-to Doc. No.", "Applies-to Bill No.");
             end;
         end;
         OnAfterCheckGenJnlLine(GenJnlLine);
@@ -541,6 +516,44 @@ codeunit 7000006 "Document-Post"
         if (CheckDate < AllowPostingFrom) or (CheckDate > AllowPostingTo) then
             Error(Text1100008,
               CheckDate);
+    end;
+
+    local procedure CheckCarteraDocsForBillGroups(CarteraDocType: Option; DocumentNo: Code[20]; BillNo: Code[20])
+    var
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        CarteraDoc.Reset();
+        CarteraDoc.SetCurrentKey(Type, "Document No.");
+        CarteraDoc.SetRange(Type, CarteraDocType);
+        CarteraDoc.SetRange("Document No.", DocumentNo);
+        if BillNo <> '' then
+            CarteraDoc.SetRange("No.", BillNo)
+        else
+            CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
+        CarteraDoc.SetFilter("Bill Gr./Pmt. Order No.", '<>%1', '');
+        if CarteraDoc.FindFirst() then
+            Error(
+              CarteraDocBillGroupErr,
+              CarteraDoc."Document No.", CarteraDoc."No.", CarteraDoc."Bill Gr./Pmt. Order No.");
+    end;
+
+    local procedure CheckPostedCarteraDocsForBillGroups(CarteraDocType: Option; DocumentNo: Code[20]; BillNo: Code[20])
+    var
+        PostedCarteraDoc: Record "Posted Cartera Doc.";
+    begin
+        PostedCarteraDoc.Reset();
+        PostedCarteraDoc.SetCurrentKey(Type, "Document No.");
+        PostedCarteraDoc.SetRange(Type, CarteraDocType);
+        PostedCarteraDoc.SetRange("Document No.", DocumentNo);
+        if BillNo <> '' then
+            PostedCarteraDoc.SetRange("No.", BillNo)
+        else
+            PostedCarteraDoc.SetRange("Document Type", PostedCarteraDoc."Document Type"::Invoice);
+        PostedCarteraDoc.SetFilter("Bill Gr./Pmt. Order No.", '<>%1', '');
+        if PostedCarteraDoc.FindFirst() then
+            Error(
+              CarteraDocBillGroupErr,
+              PostedCarteraDoc."Document No.", PostedCarteraDoc."No.", PostedCarteraDoc."Bill Gr./Pmt. Order No.");
     end;
 
     procedure CloseBillGroupIfEmpty(PostedBillGroup: Record "Posted Bill Group"; PostingDate: Date)
