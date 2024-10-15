@@ -6254,15 +6254,19 @@
                 SalesShipmentHeader."Ship-to Code",
                 SalesShipmentHeader."Sell-to Country/Region Code"));
         end;
-        if SalesHeader.IsCreditDocType() then
-            CountryRegionCode := SalesHeader."Sell-to Country/Region Code"
-        else
+        if SalesHeader.IsCreditDocType() then begin
+            if (SalesHeader."Ship-to Country/Region Code" <> '') then
+                exit(SalesHeader."Ship-to Country/Region Code")
+            else
+                exit(SalesHeader."Sell-to Country/Region Code");
+        end else begin
             CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
-        exit(
-          GetCountryRegionCode(
-            SalesLine."Sell-to Customer No.",
-            SalesHeader."Ship-to Code",
-            CountryRegionCode));
+            exit(
+              GetCountryRegionCode(
+                SalesLine."Sell-to Customer No.",
+                SalesHeader."Ship-to Code",
+                CountryRegionCode));
+        end;
     end;
 
     local procedure GetCountryRegionCode(CustNo: Code[20]; ShipToCode: Code[10]; SellToCountryRegionCode: Code[10]) Result: Code[10]

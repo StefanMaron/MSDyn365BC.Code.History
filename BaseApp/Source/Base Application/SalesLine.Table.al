@@ -1,4 +1,4 @@
-table 37 "Sales Line"
+﻿﻿table 37 "Sales Line"
 {
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
@@ -354,6 +354,8 @@ table 37 "Sales Line"
 
                 if "Document Type" = "Document Type"::"Return Order" then
                     ValidateReturnReasonCode(FieldNo("Location Code"));
+
+                DeleteWarehouseRequest(xRec);
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -501,22 +503,22 @@ table 37 "Sales Line"
                                     "No.":
                                         Description := xRec.Description;
                                     else begin
-                                            CurrFieldNo := FieldNo("No.");
-                                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                                        end;
+                                        CurrFieldNo := FieldNo("No.");
+                                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                    end;
                                 end;
                         end;
                     else begin
-                            IsHandled := false;
-                            OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
-                            if not IsHandled then begin
-                                ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
-                                if ReturnValue <> '' then begin
-                                    CurrFieldNo := FieldNo("No.");
-                                    Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
-                                end;
+                        IsHandled := false;
+                        OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
+                        if not IsHandled then begin
+                            ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
+                            if ReturnValue <> '' then begin
+                                CurrFieldNo := FieldNo("No.");
+                                Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
                             end;
                         end;
+                    end;
                 end;
 
                 IsHandled := false;
@@ -3369,6 +3371,8 @@ table 37 "Sales Line"
             DeferralUtilities.DeferralCodeOnDelete(
                 "Deferral Document Type"::Sales.AsInteger(), '', '',
                 "Document Type".AsInteger(), "Document No.", "Line No.");
+
+        DeleteWarehouseRequest(Rec);
     end;
 
     trigger OnInsert()
@@ -5903,9 +5907,9 @@ table 37 "Sales Line"
                                                     VATAmountLine.Quantity += "Qty. to Invoice (Base)";
                                                 end;
                                             else begin
-                                                    QtyToHandle := "Qty. to Invoice";
-                                                    VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                                end;
+                                                QtyToHandle := "Qty. to Invoice";
+                                                VATAmountLine.Quantity += "Qty. to Invoice (Base)";
+                                            end;
                                         end;
 
                                     OnCalcVATAmountLinesOnBeforeAssignAmtToHandle(SalesHeader, SalesLine, VATAmountLine, IncludePrepayments, QtyType, QtyToHandle, AmtToHandle);
@@ -8608,6 +8612,22 @@ table 37 "Sales Line"
     begin
         ShipmentBinAvailable := Bin.Get(Location.Code, Location."Shipment Bin Code");
         exit(Location."Require Shipment" and ShipmentBinAvailable);
+    end;
+
+    local procedure DeleteWarehouseRequest(SalesLine: Record "Sales Line")
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        if ((SalesLine."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or ((SalesLine."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0)) then
+            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound)
+        else
+            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetSourceFilter(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.");
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
+        WarehouseRequest.SetRange("Location Code", SalesLine."Location Code");
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.DeleteAll(true);
     end;
 
     [IntegrationEvent(false, false)]
