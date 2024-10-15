@@ -105,6 +105,7 @@
                                         <CellContents>
                                           <Textbox Name="TextboxPurchaseLedgerSummaryCaptionSource">
                                             <CanGrow>true</CanGrow>
+                                            <CanShrink>true</CanShrink>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -472,6 +473,7 @@
                                         <CellContents>
                                           <Textbox Name="PrnDocnoCaption">
                                             <CanGrow>true</CanGrow>
+                                            <CanShrink>true</CanShrink>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -787,6 +789,7 @@
                                         <CellContents>
                                           <Textbox Name="DocumentNoCaption">
                                             <CanGrow>true</CanGrow>
+                                            <CanShrink>true</CanShrink>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -1149,6 +1152,8 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="DocumentNo">
+                                            <CanGrow>true</CanGrow>
+                                            <CanShrink>true</CanShrink>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -1449,6 +1454,8 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="PrnDocno">
+                                            <CanGrow>true</CanGrow>
+                                            <CanShrink>true</CanShrink>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -6532,7 +6539,6 @@
                           <KeepTogether>true</KeepTogether>
                           <Style />
                         </Rectangle>
-                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                   </TablixCells>

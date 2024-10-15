@@ -2816,7 +2816,7 @@
     begin
         if TableValuePair.Count = 0 then exit(true);
         DefaultDim.SetRange("Table ID", TableValuePair.Keys.Get(1));
-        DefaultDim.SetRange("No.", TableValuePair.Values.Get(1));
+        DefaultDim.SetFilter("No.", '%1|%2', TableValuePair.Values.Get(1), '');
         DefaultDim.SetFilter("Dimension Value Code", '<>%1', '');
         if not DefaultDim.IsEmpty() then exit(true);
     end;

@@ -76,9 +76,9 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
                             SetFinChargeMemoEntryCancelled(IssuedFinChargeMemoLine);
                             InterestAmount := InterestAmount + IssuedFinChargeMemoLine.Amount;
                             InterestVATAmount := InterestVATAmount + IssuedFinChargeMemoLine."VAT Amount";
-                        end;
+                        end;                
                     IssuedFinChargeMemoLine.Type::"G/L Account":
-                        if FinanceChargeTerms."Post Additional Fee" then
+                        if FinanceChargeTerms."Post Additional Fee" or (IssuedFinChargeMemoLine."Line Type" = IssuedFinChargeMemoLine."Line Type"::Rounding) then
                             InsertGenJnlLineForFee(IssuedFinChargeMemoHeader, IssuedFinChargeMemoLine, DocumentNo, PostingDate);
                 end;
             until IssuedFinChargeMemoLine.Next() = 0;

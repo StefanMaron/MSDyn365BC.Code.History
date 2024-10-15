@@ -3978,6 +3978,46 @@
         VerifyQtyOnReqLines(ParentItem, ChildItem, 5);
     end;
 
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
+    procedure VerifyQuantityOnReqLineForCompItemWithMaxQtyAndMakeToOrderSetupWhenInventoryIsAvailable()
+    var
+        Location: Record Location;
+        ParentItem, ChildItem : Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 466957] Verify Qty. on Req. Line for Component Item with Max. Qty. policy and Make-to-Order setup when Inventory is available
+        Initialize();
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
+
+        // [GIVEN] Set Location at "Component At Location" on Manufacturing Setup
+        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+
+        // [GIVEN] Create two Manufacturing Items
+        CreateManufacturingItems(ParentItem, ChildItem, 5, 50);
+
+        // [GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ParentItem."No.", 5);
+
+        // [GIVEN] Update Shipment Date on Sales Line
+        UpdateShipmentDateOnSalesLine(SalesLine, SalesLine."Shipment Date" + LibraryRandom.RandInt(5));
+
+        // [GIVEN] Create and Post Item Journal
+        CreateAndPostItemJournal(ChildItem."No.", 1, Location.Code);
+
+        // [WHEN] Calculate Regenerative Plan
+        CalculateRegenerativePlanForPlanWorksheet(ChildItem."No.", ParentItem."No.");
+
+        // [THEN] Verify results        
+        VerifyQtyOnReqLines(ParentItem, ChildItem, 5, 4, 50);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -5287,6 +5327,25 @@
         LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
     end;
 
+    local procedure VerifyQtyOnReqLines(ParentItem: Record Item; var ChildItem: Record Item; ParentQty: Decimal; ChildQty: Decimal; MaxQty: Decimal)
+    var
+        RequisitionLine: Record "Requisition Line";
+        RefOrderNo: Code[20];
+    begin
+        FilterOnRequisitionLines(RequisitionLine, ChildItem."No.", ParentItem."No.");
+        RequisitionLine.FindSet();
+        repeat
+            if RequisitionLine."No." = ParentItem."No." then
+                RequisitionLine.TestField(Quantity, ParentQty);
+            if RequisitionLine."No." = ChildItem."No." then
+                if RefOrderNo = RequisitionLine."Ref. Order No." then
+                    RequisitionLine.TestField(Quantity, ChildQty)
+                else
+                    RequisitionLine.TestField(Quantity, MaxQty);
+            RefOrderNo := RequisitionLine."Ref. Order No.";
+        until RequisitionLine.Next() = 0;
+    end;
+
     local procedure VerifyQtyOnReqLines(ParentItem: Record Item; var ChildItem: Record Item; ParentQty: Decimal; ChildQty: Decimal)
     var
         RequisitionLine: Record "Requisition Line";
@@ -5339,6 +5398,23 @@
         ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Components at Location", NewComponentsAtLocation);
         ManufacturingSetup.Modify(true);
+    end;
+
+    local procedure CreateManufacturingItems(var ParentItem: Record Item; var ChildItem: Record Item; ReorderPoint: Decimal; MaxQty: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        CreateItem(ChildItem, ChildItem."Reordering Policy"::"Maximum Qty.", ChildItem."Replenishment System"::"Prod. Order");
+        ChildItem.Validate("Manufacturing Policy", ChildItem."Manufacturing Policy"::"Make-to-Order");
+        ChildItem.Validate("Reorder Point", ReorderPoint);
+        ChildItem.Validate("Maximum Inventory", MaxQty);
+        ChildItem.Modify(true);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+
+        CreateItem(ParentItem, ParentItem."Reordering Policy"::"Lot-for-Lot", ParentItem."Replenishment System"::"Prod. Order");
+        ParentItem.Validate("Manufacturing Policy", ParentItem."Manufacturing Policy"::"Make-to-Order");
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Modify(true);
     end;
 
     local procedure CreateManufacturingItems(var ParentItem: Record Item; var ChildItem: Record Item; LotAccumulationPeriod: Text[30]; OrderMultiple: Decimal)

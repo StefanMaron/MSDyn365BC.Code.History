@@ -198,7 +198,7 @@ report 11308 "VAT Annual Listing"
                     trigger OnAfterGetRecord()
                     begin
                         // Filling up buffer for printing in printloop
-                        if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
+                        if (IsCustBalanceGreaterThanMinimum() and IsCustVATAmountNotZero()) or IsCreditMemoWithAppliedInvoice then begin
                             Buffer.Reset();
                             Buffer.SetRange("VAT Registration No.", VAT1 + ' ' + VAT2);
                             if Buffer.FindFirst() then begin
@@ -416,6 +416,11 @@ report 11308 "VAT Annual Listing"
     local procedure IsCustBalanceGreaterThanMinimum(): Boolean
     begin
         exit(-WBase >= Minimum);
+    end;
+
+    local procedure IsCustVATAmountNotZero(): Boolean
+    begin
+        exit(WAmount <> 0);
     end;
 }
 
