@@ -1398,6 +1398,78 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         Assert.AreEqual(IncomingDocument.Status::New, IncomingDocument.Status, '');
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPeppolImportMultipleFails()
+    var
+        CompanyInformation: Record "Company Information";
+        DataExchDef: Record "Data Exch. Def";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: array[2] of Record "Sales Invoice Header";
+        IncomingDocument: array[2] of Record "Incoming Document";
+        IncomingDocumentCreateDocument: Record "Incoming Document";
+        DataExchangeType: Record "Data Exchange Type";
+        IncomingDocumentTestPage: TestPage "Incoming Document";
+        XmlPath: array[2] of Text;
+        Index: Integer;
+    begin
+        Initialize();
+
+        // Setup: configure data exchange setup and create incoming document
+        DataExchDef.Get('PEPPOLINVOICE');
+
+        DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
+        if not DataExchangeType.FindFirst() then begin
+            DataExchangeType.Code := 'PEPPOL';
+            DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
+            DataExchangeType.Insert();
+        end;
+
+        // Setup: export XML
+        for Index := 1 to ArrayLen(SalesInvoiceHeader) do begin
+            SalesHeader.Get(SalesHeader."Document Type"::Invoice, CreateSalesDocument(SalesHeader."Document Type"::Invoice, true));
+            SalesInvoiceHeader[Index].Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+            XmlPath[Index] := ExportPEPPOLInvoice(SalesInvoiceHeader[Index]);
+
+            LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument[Index]);
+            IncomingDocument[Index]."Data Exchange Type" := DataExchangeType.Code;
+            IncomingDocument[Index].Modify();
+
+            // Setup: attach XML
+            ImportAttachToIncomingDoc(IncomingDocument[Index], XmlPath[Index]);
+        end;
+
+        SetupCompanyForInvoiceImport(SalesInvoiceHeader[1]);
+
+        CompanyInformation.Get();
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
+        CompanyInformation.Modify(true);
+
+        // Execute: run data exchange
+        LibraryVariableStorage.Enqueue(DocNotCreatedMsg);
+        LibraryVariableStorage.Enqueue(DocNotCreatedMsg);
+
+        IncomingDocumentCreateDocument.SetFilter(
+          "Entry No.", '%1|%2', IncomingDocument[1]."Entry No.", IncomingDocument[2]."Entry No.");
+
+        IncomingDocumentCreateDocument.FindSet();
+        repeat
+            IncomingDocumentCreateDocument.CreateDocumentWithDataExchange();
+        until IncomingDocumentCreateDocument.Next() = 0;
+
+        for Index := 1 to ArrayLen(IncomingDocument) do begin
+            // Verify - there should be the error about missing G/L Account for non-item lines;
+            IncomingDocument[Index].Find();
+
+            IncomingDocumentTestPage.OpenEdit();
+            IncomingDocumentTestPage.FILTER.SetFilter("Entry No.", Format(IncomingDocument[Index]."Entry No."));
+            Assert.ExpectedMessage(
+              'The customer''s VAT registration number', IncomingDocumentTestPage.ErrorMessagesPart.Description.Value);
+            IncomingDocumentTestPage.Close();
+        end;
+    end;
+
     local procedure CreateDataExchDefSalesInvoiceAndLinesWithNamespaces(var DataExchDef: Record "Data Exch. Def")
     var
         SalesHeaderDataExchLineDef: Record "Data Exch. Line Def";
@@ -2567,7 +2639,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         repeat
             ActualDataExchField.SetRange("Column No.", ExpectedDataExchField."Column No.");
             ActualDataExchField.SetRange("Data Exch. Line Def Code", ExpectedDataExchField."Data Exch. Line Def Code");
-            if not ActualDataExchField.FindFirst then
+            if not ActualDataExchField.FindFirst() then
                 Error(CannotFindColumnErr, ExpectedDataExchField."Column No.", ExpectedDataExchField."Data Exch. Line Def Code");
 
             Assert.AreEqual(ExpectedDataExchField.Value, ActualDataExchField.Value, 'Expected values do not match');
@@ -2582,7 +2654,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         RecordVar: Variant;
     begin
         LibraryVariableStorage.Enqueue(Choice);
-        IncomingDocument.CreateManually;
+        IncomingDocument.CreateManually();
 
         if not IncomingDocument.GetRecord(RecordVar) then
             Error(NoDocCreatedForChoiceErr, Choice);
@@ -2617,7 +2689,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
                 "Document Type"::Journal:
                     begin
                         GenJournalLine := RecordVar;
-                        GenJournalLine.Find;
+                        GenJournalLine.Find();
                         GenJournalLine.Delete();
                     end;
                 else
@@ -2695,11 +2767,11 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         PurchasesPayablesSetup.Validate("Credit Acc. for Non-Item Lines", GLAccount."No.");
         PurchasesPayablesSetup.Modify(true);
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
-        if IncomingDocumentsSetup.Get then
+        if IncomingDocumentsSetup.Get() then
             IncomingDocumentsSetup.Delete();
 
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -2726,7 +2798,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     [Scope('OnPrem')]
     procedure StrMenuHandler(Options: Text; var Choice: Integer; Instructions: Text)
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
         Choice += 1;
     end;
 
@@ -2734,28 +2806,28 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     [Scope('OnPrem')]
     procedure PageHandler43(var "Page": TestPage "Sales Invoice")
     begin
-        Page.Close;
+        Page.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PageHandler44(var "Page": TestPage "Sales Credit Memo")
     begin
-        Page.Close;
+        Page.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PageHandler51(var "Page": TestPage "Purchase Invoice")
     begin
-        Page.Close;
+        Page.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PageHandler52(var "Page": TestPage "Purchase Credit Memo")
     begin
-        Page.Close;
+        Page.Close();
     end;
 }
 
