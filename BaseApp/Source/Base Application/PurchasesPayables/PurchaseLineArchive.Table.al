@@ -1156,6 +1156,26 @@
             "Document Type".AsInteger(), "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
     end;
 
+    procedure CopyTempLines(PurchaseHeaderArchive: Record "Purchase Header Archive"; var TempPurchaseLine: Record "Purchase Line" temporary)
+    var
+        PurchaseLineArchive: Record "Purchase Line Archive";
+    begin
+        DeleteAll();
+
+        PurchaseLineArchive.SetRange("Document Type", PurchaseHeaderArchive."Document Type");
+        PurchaseLineArchive.SetRange("Document No.", PurchaseHeaderArchive."No.");
+        PurchaseLineArchive.SetRange("Version No.", PurchaseHeaderArchive."Version No.");
+        PurchaseLineArchive.SetRange("Doc. No. Occurrence", PurchaseHeaderArchive."Doc. No. Occurrence");
+        if PurchaseLineArchive.FindSet() then
+            repeat
+                Init();
+                Rec := PurchaseLineArchive;
+                Insert();
+                TempPurchaseLine.TransferFields(PurchaseLineArchive);
+                TempPurchaseLine.Insert();
+            until PurchaseLineArchive.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDeferrals(PurchaseLineArchive: Record "Purchase Line Archive"; var IsHandled: Boolean)
     begin

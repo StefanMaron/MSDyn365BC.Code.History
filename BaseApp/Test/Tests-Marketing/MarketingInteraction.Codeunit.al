@@ -2879,6 +2879,79 @@ codeunit 136208 "Marketing Interaction"
         Assert.IsTrue(LoggedSegment.FindFirst(), LoggedSegemntEntriesCreateMsg);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyChangingContactNoOnSegmentLineNotDeletingAttachment()
+    var
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        Contact1: Record Contact;
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+    begin
+        // [SCENARIO 490864] Attachment is deleted after changing (selecting different) "Contact No." on existing Segment Line: Error "The Attachment does not exist. Identification fields and values: No.='1'"
+        Initialize();
+
+        // [GIVEN] Create Interaction Template.
+        CreateInteractionTemplateWithCorrespondenceType(
+            InteractionTemplate,
+            InteractionTemplate."Correspondence Type (Default)"::"Hard Copy");
+
+        // [GIVEN] Modify Interaction Template Fields.
+        ModifyInteractionTemplate(InteractionTemplate);
+
+        // [GIVEN] Create Interaction Template Language with Attachment
+        CreateInteractionTmplLanguageWithAttachmentNo(
+            InteractionTemplate.Code,
+            CreateAttachmentWithFileValue('DOC'));
+
+        // [GIVEN] Create two different contacts.
+        CreateContactWithEmail(Contact);
+        CreateContactWithEmail(Contact1);
+
+        //[GIVEN] Create a Segment.
+        CreateSegmentWithInteractionTemplateAndContact(
+            SegmentHeader,
+            InteractionTemplate.Code,
+            Contact."No.",
+            SegmentHeader."Correspondence Type (Default)"::"Hard Copy");
+
+        // [GIVEN] Revalidate the Contact No.
+        SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
+        SegmentLine.FindFirst();
+        SegmentLine.Validate("Contact No.", Contact1."No.");
+        SegmentLine.Modify(true);
+
+        // [VERIFY] The attachment was not deleted after changing the "Contact No." on the existing segment line.
+        Assert.Equal(SegmentHeader."Attachment No.", SegmentLine."Attachment No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler,ModalReportHandler')]
+    procedure VerifyAttachmentExistsOnInteractionWhenSegmentPostedWithWordTemplatAndTwoContacts()
+    var
+        SegmentHeader: Record "Segment Header";
+        Segment: TestPage Segment;
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+    begin
+        // [SCENARIO 491599] Segment Merge Attachment not attached to all segment line contacts
+        Initialize();
+
+        // [GIVEN] Segment for Interaction Template with Word template and given wizard action and 2 Contacts
+        PrepareSegmentWordTemplateWithTwoContacts(SegmentHeader, WizardAction::"Merge");
+
+        // [WHEN] Log Segment
+        Segment.OpenView();
+        Segment.GotoRecord(SegmentHeader);
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+        Segment.LogSegment.Invoke();
+
+        // [VERIFY]: Verify Attachment exists on all posted interaction after segment logged
+        VerifyAttachmentExistOnPostedInteractionLog(SegmentHeader."No.");
+    end;
+
     local procedure Initialize()
     var
         LibrarySales: Codeunit "Library - Sales";
@@ -3668,7 +3741,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         exit('UEsDBBQABgAIAAAAIQDfpNJsWgEAACAFAAATAAgCW0NvbnRlbnRfVHlwZXNdLnhtbCCiBAIooAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC0lMtuwjAQRfeV+g+Rt1Vi6KKqKgKLPpYtUukHGHsCVv2Sx7z+vhMCUVUBkQpsIiUz994zVsaD0dqabAkRtXcl6xc9loGTXmk3K9nX5C1/ZBkm4ZQw3kHJNoBsNLy9GUw2ATAjtcOSzVMKT5yjnIMVWPgAjiqVj1Ykeo0zHoT8FjPg973eA5feJXApT7UHGw5eoBILk7LXNX1uSCIYZNlz01hnlUyEYLQUiep86dSflHyXUJBy24NzHfCOGhg/mFBXjgfsdB90NFEryMYipndhqYuvfFRcebmwpCxO2xzg9FWlJbT62i1ELwGRztyaoq1Yod2e/ygHpo0BvDxF49sdDymR4BoAO+dOhBVMP69G8cu8E6Si3ImYGrg8RmvdCZFoA6F59s/m2NqciqTOcfQBaaPjP8ber2ytzmngADHp039dm0jWZ88H9W2gQB3I5tv7bfgDAAD//wMAUEsDBBQABgAIAAAAIQAekRq37wAAAE4CAAALAAgCX3JlbHMvLnJlbHMgogQCKKAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArJLBasMwDEDvg/2D0b1R2sEYo04vY9DbGNkHCFtJTBPb2GrX/v082NgCXelhR8vS05PQenOcRnXglF3wGpZVDYq9Cdb5XsNb+7x4AJWFvKUxeNZw4gyb5vZm/cojSSnKg4tZFYrPGgaR+IiYzcAT5SpE9uWnC2kiKc/UYySzo55xVdf3mH4zoJkx1dZqSFt7B6o9Rb6GHbrOGX4KZj+xlzMtkI/C3rJdxFTqk7gyjWop9SwabDAvJZyRYqwKGvC80ep6o7+nxYmFLAmhCYkv+3xmXBJa/ueK5hk/Nu8hWbRf4W8bnF1B8wEAAP//AwBQSwMEFAAGAAgAAAAhAGn7VzHGAwAA2w4AABEAAAB3b3JkL2RvY3VtZW50LnhtbKyX3Y6bOhCA7yudd0Dc7zqQPxZtUqVAViu1PVGzva4ccAIqYGQ7yaav1EfoXZ/sjM1vQndL2JML8M/M55nxeHDu3z8nsXYgjEc0nenG7UDXSOrTIEp3M/3r0/LG0jUucBrgmKZkpp8I19/P/3l3f7QD6u8TkgoNECm3j5k/00MhMhsh7ockwfw2iXxGOd2KW58miG63kU/QkbIAmQNjoFoZoz7hHNZzcHrAXC9w/nM3WsDwEZQlcIT8EDNBnmuGcTVkjO6Q1QaZPUDgoWm0UcOrURMkrWqBRr1AYFWLNO5H+oNzk34ks02a9iMN2ySrH6mVTkk7wWlGUpjcUpZgAV22Qwlm3/fZDYAzLKJNFEfiBMzBpMTgKP3ewyLQqgjJMLiaMEUJDUg8DEoKnel7ltqF/k2lL023c/3iVWqwLv7nKm5RHJTniJEYYkFTHkZZdcKTvjSYDEvI4TUnDklcyh0zo+Nxeak8uXkoa2AX84v4J3Fu+etEY9BhRySi0uhiwvmapSUJZGG9cK/QNIJrdCwgJcBsASY+6VjwS4ZVMJBfn1DJiToejZKT74rkRHVgjY517NKYBoAHIgivophlXJHUxQKHmFeJLonkOqPGFe6UNGKU7d52EB4Y3Wc1LXob7bEua0d5wbiCVRyo5iHnbzNmHeIMql3i24+7lDK8icEiOB4aZLimdkA+IVHkSzXJsxqXe63JGqPP4Wa0ocFJvjOYG9kZZvgRknKwmCxdy4DvgByF74qQo1PXW7iOu4BRG25hwRcQHCzGk6nlVEMu2eJ9LOTM6M4wnWpm1RCWC27jYB0lWQxm2lHKBRRs7ZP35cFbPnofXW29+Oitv3lw9mNNyTP1WKlXSleM0i2a36NqTMx//2wo/f4l50QuoZ7VgqqXtZ2eetYHc+QMzp0eucOxZzrLM6fPXfufnV6FcH399ple63ep18N1w3IWS2Msd7a538Wv436fz1y6rowFQxy4qGhV6+mUQdpuyA5KfOFWJawC9AS2yCNj8wz7IJoxwgk7EH3eDJzz7+enRZEtElKpXiBfWJ8TGQhBWib8Je6NZS+C/vp6JA3qpV7Ykbupa3iOjH1jR8bGYOiMPZmib9+RvyRj7tz1yXiu1ykZOfHFSkbp0icVl936B0zBBcIwzZFyHb5VxtiCNsoFPqkQCwr3HGOUi7BoF4q6u6FC0KTux2TbmA0JDgi4PzVVd0upaHR3e6G6xXI+jTmMFvkoZdQw/MV8YLLa2nGUklUkfLByOFGzqHRRNfOSi+p/pfP/AAAA//8DAFBLAwQUAAYACAAAACEA1mSzUfQAAAAxAwAAHAAIAXdvcmQvX3JlbHMvZG9jdW1lbnQueG1sLnJlbHMgogQBKKAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACskstqwzAQRfeF/oOYfS07fVBC5GxKIdvW/QBFHj+oLAnN9OG/r0hJ69BguvByrphzz4A228/BineM1HunoMhyEOiMr3vXKnipHq/uQRBrV2vrHSoYkWBbXl5sntBqTkvU9YFEojhS0DGHtZRkOhw0ZT6gSy+Nj4PmNMZWBm1edYtyled3Mk4ZUJ4wxa5WEHf1NYhqDPgftm+a3uCDN28DOj5TIT9w/4zM6ThKWB1bZAWTMEtEkOdFVkuK0B+LYzKnUCyqwKPFqcBhnqu/XbKe0y7+th/G77CYc7hZ0qHxjiu9txOPn+goIU8+evkFAAD//wMAUEsDBBQABgAIAAAAIQCWta3i8QUAAFAbAAAVAAAAd29yZC90aGVtZS90aGVtZTEueG1s7FlLbxNHHL9X6ncY7R38iB2SCAfFjg0tBKLEUHEc7453B8/urGbGCb5VcKxUqSqteihSbz1UbZFA6oV+mrRULZX4Cv3P7Hq9Y4/BkFSlAh+88/j934+dsS9euhszdESEpDxpebXzVQ+RxOcBTcKWd7PfO7fhIalwEmDGE9LyJkR6l7Y//OAi3lIRiQkC+kRu4ZYXKZVuVSrSh2Usz/OUJLA35CLGCqYirAQCHwPfmFXq1ep6JcY08VCCY2B7YzikPkF9zdLbnjLvMvhKlNQLPhOHmjWxKAw2GNX0Q05khwl0hFnLAzkBP+6Tu8pDDEsFGy2vaj5eZftipSBiagltia5nPjldThCM6oZOhIOCsNZrbF7YLfgbAFOLuG632+nWCn4GgH0fLM10KWMbvY1ae8qzBMqGi7w71Wa1YeNL/NcW8Jvtdru5aeENKBs2FvAb1fXGTt3CG1A2bC7q397pdNYtvAFlw/UFfO/C5nrDxhtQxGgyWkDreBaRKSBDzq444RsA35gmwAxVKWVXRp+oZbkW4ztc9ABggosVTZCapGSIfcB1cDwQFGsBeIvg0k625MuFJS0LSV/QVLW8j1MMFTGDvHj644unj9HJvScn9345uX//5N7PDqorOAnLVM+//+Lvh5+ivx5/9/zBV268LON//+mz33790g1UZeCzrx/98eTRs28+//OHBw74jsCDMrxPYyLRdXKMDngMhjkEkIF4PYp+hGmZYicJJU6wpnGguyqy0NcnmOXRsXBtYnvwloAW4AJeHt+xFD6MxFhRB/BqFFvAPc5ZmwunTVe1rLIXxknoFi7GZdwBxkcu2Z25+HbHKeTyNC1taEQsNfcZhByHJCEK6T0+IsRBdptSy6971Bdc8qFCtylqY+p0SZ8OrGyaEV2hMcRl4lIQ4m35Zu8WanPmYr9LjmwkVAVmLpaEWW68jMcKx06NcczKyGtYRS4lDyfCtxwuFUQ6JIyjbkCkdNHcEBNL3asYepEz7HtsEttIoejIhbyGOS8jd/moE+E4depMk6iM/UiOIEUx2ufKqQS3K0TPIQ44WRruW5RY4X51bd+koaXSLEH0zljkfdvqwDFNXtaOGYV+fNbtGBrgs28f/o8a8Q68k1yVMN9+l+Hmm26Hi4C+/T13F4+TfQJp/r7lvm+572LLXVbPqzbaWW81x+Xpodjwi5eekIeUsUM1YeSaNF1ZgtJBDxbNxBAVB/I0gmEuzsKFApsxElx9QlV0GOEUxNSMhFDmrEOJUi7hGmCWnbz1BrwVVLbWnF4AAY3VHg+y5bXyxbBgY2ahuXxOBa1pBqsKW7twOmG1DLiitJpRbVFaYbJTmnnk3oRqQFhf+2vr9Uw0ZAxmJNB+zxhMw3LmIZIRDkgeI233oiE147cV3KYveatL29RsTyFtlSCVxTWWiJtG7zRRmjKYRUnX7Vw5ssSeoWPQqllvesjHacsbwiEKhnEK/KRuQJiFScvzVW7KK4t53mB3WtaqSw22RKRCql0so4zKbOVELJnpX282tB/OxgBHN1pNi7WN2n+ohXmUQ0uGQ+KrJSuzab7Hx4qIwyg4RgM2FgcY9NapCvYEVMI7w+SangioULMDM7vy8yqY/30mrw7M0gjnPUmX6NTCDG7GhQ5mVlKvmM3p/oammJI/I1PKafyOmaIzF46ta4Ee+nAMEBjpHG15XKiIQxdKI+r3BBwcjCzQC0FZaJUQ0782a13J0axvZTxMQcE5RB3QEAkKnU5FgpB9ldv5Cma1vCvmlZEzyvtMoa5Ms+eAHBHW19W7ru33UDTtJrkjDG4+aPY8d8Yg1IX6tp58srR53ePBTFBGv6qwUtMvvQo2T6fCa75qs461IK7eXPlVm8LlA+kvaNxU+Gx2vu3zA4g+YtMTJYJEPJcdPJAuxWw0AJ2zxUyaZpVJ+LeOUbMQFHLnnF0ujjN0dnFcmnP2y8W9ubPzkeXrch45XF1ZLNFK6SJjZgv/OvHBHZC9CxelMVPS2EfuwlWzM/2/APhkEg3p9j8AAAD//wMAUEsDBBQABgAIAAAAIQBcCcNPzgcAANQbAAARAAAAd29yZC9zZXR0aW5ncy54bWzsWVtv67gRfi/Q/yAYRW+oY8vXHGd9Fr5uvCcX187Z0wIBurRE24QpUktSvrTof+8MKVpOnBTJ9qEveYmlmeE3F86MOMx33+8THmyp0kyKbim8qJYCKiIZM7Hqlr4+jMuXpUAbImLCpaDd0oHq0veff/ub73YdTY0BMR0AhNCdJOqW1saknUpFR2uaEH0hUyqAuZQqIQZe1aqSELXJ0nIkk5QYtmCcmUOlVq22SjmM7JYyJTo5RDlhkZJaLg0u6cjlkkU0//Er1Fv0uiVDGWUJFcZqrCjKwQYp9Jql2qMlvxYNmGsPsv1vTmwT7uV2YfUN7u6kio8r3mIeLkiVjKjWsEEJ9wYyUShunAEddV+A7txFCwXLw6p9OrW8+T6A2hlAK6L792Fc5hgVWHmKw+L34bSOOKwIbNj6dcacAOjYxOt3odR8XCu4lhiyJvqYRYhI32dU8wh3SIoYaf6WrHGsG7ZQRLmazFMmiTqTlZCKLDiYA6kTwO4H1jr8C0HEH/tI95aOcSh9hh7xTymTYNdJqYqgUKDBVKulCjIgPeVybogBiI5OKee240ScEuEktDlwOiWCjq2NY8YNVSC8JeBNfVwNS/BCOJ+jnAZofI8ybWTiSVUkQY2D6ickC60n4iuG11LWlGDLeyIlsmRB1XOqwSg8ocRM0cg4K7Eh3otZJrxB58wpUWSlSLp+XeTOa35V4gGtODoNQVMFN6camdavn7pl6Vum2XMXCMZWQKAs9Y4kjmP3AXKA31K1ovmL8G3v4ZDi5tn9QCFQdEMWlGu3Dt43D/KvGYVkwnfM7tMloI5tqZONpBDg4dyg017AsX5BAE+aj25Gg4fgz8F4dn8b/DwEyLnMILd+97OTRiWOEqgOtgU1iUPHIhHqm9EICsTj5S5C4kebkVJSac/JF8lYS/zNYu45UyW3LKaqe3ssxN5gdHF/Mxr2L8LaRfUK0koFk2G3FydMXKGRgbOpO+g8IlM/arNhnFPxOJQ7wSWJ9eNEwB6gkVIENt4BrvzHA01STOHgj7U/PRYOX+y53l/dyph2Z7DJV6M9ZHlM4wDMg2ozDHbw979k0lxdD2fdv4/mV5Pb0d+64ZUjXv1ITWBN7swP2tAkwMgtCBSEEzgTm9EV0wa2YgrfudeERmLFBA1wm7v19gkDDUf04EZGG9xja3n1ROIHLheEAzrYDr/9jG+C+1R3a+cylvegiNAuXBrcKoTu6M5GzqqbEq2xI75m8EBRjG0eA7+sOyZc0yd+ReqQmtcFhlL8wQQDmR7QQ8JpALs4wENOZM6Ec3rwjZm1zEwwoylnEcFfwtSZ+Hw8PadlaSoVaoTsgKaLhp0J9Q8puB9gxk3EUgY/Ec5ie+I5E71hCTOQPcN+MCDRGrvIK2iDtYQPzphRHp8BupqxHdJXy0mJ5m1dRUVp1nz58yHlDL8UdtGnHOikW/j0dJzldazcA9pxS1JUc7ZkMZA8S/LPiYCm5jmToW9taUpjbHee81UwaDjBJIb+xgBcHQ0EoGddg+N3z1GoKA+/ILVybtLz9w+sD6wPrA+sD6wPrA+sD6z/H1bFzzeVZ1NeTJck4waGzDlMkR6oXcvBhZxmIjKZPfl9gcERjouWEa0JTjBUzeF8C8SBFEbJ4+QUyztp8MSqqM6HRHcPiE+Zpt/goF6rVmt2uLWT6CyDGdUKrpTc9TIjl8zYdxC/w4nXjf8w/N7AdGI5VguceScCD3E9fRymc3f88h43X5jQcpPdwMzSh0FgU6gjnMsdekHvl3M4H1otEzd2F1rwFI6+OFU2HAUztxZiAGMTjM00dkO7w3fMBzlmSpsx29P4G4vNekA5dxBMw9h3uCZilfGCb3nAYWa6sib3RIwXCrdEbQrVP8EA2ONsJRAOp4y589oy7bITqyB2UW7bCwjg836xP8ZMaJZv+BRGFedLBAMDjeGs3SeciMihuI2duyviwB2/u6Un1744AuLlQ6bY2y+57A0GJlN4nB1eUnTMprAOg2K06UtjZHJ9SNcU7x2k+B8U57VUpK7SLNb+YSalORZjtddu9+sjZylyC07YqI76+aDzjDNujaq9lziNT2FtMHiJ0w7bveqLenrNVvvyxTWv2zbo1XrNZu5n7l3SwQvuqfJPY6jtIHErBiRZKEaCW7wCr6DEQm36THj+gi6lsqOb58yzhWeWy46hoZj5GDbLM2y3SWwlDOnSPnPI81WBm0uoF6nQxH48YuHtI1U/KJmljrtTJHVl60XCRiNfyYSBedjTdbaY+1WCqMMJKxPx/daOiJUiPDCEQipRjM8NKW6zjm0YMoerOaYbhU6cuqxdrMJuCeptbdzdXYgTr9rYl8WqlvNqlldzPPtCIvQMpPOHglbztBO5uqfVC1rD0xoFrelpzYLW8rSWvS+FOVvhDR8UkH9E+lJi46TxdcE/I7kg2DYzERHPYgrZEMsI2iheCLumotckpUP3HYLsk46Qf5h0sO3QvYGgxsyUAp2yOCF7vF2utRA9l4b+idcrp7LIQ+H0KUIM30Nf2U8W2wp4Zgt+HyOGn55Dsii+bn/xX14N3SiFnmzk8bra8cIGeB1NoNDgydKbw2HvU7vfcOzmkd107H/Vw8vxZb0xLvdGzbDcGNSG5X6r2Sg3L0fjfrXZ7o8GrX/nder/Hff5PwAAAP//AwBQSwMEFAAGAAgAAAAhAHWQ+bsMAQAAfwIAABwAAAB3b3JkL19yZWxzL3NldHRpbmdzLnhtbC5yZWxz3JI/a8MwEMX3Qr+DEBTaoZbjoZQQOUPdgocsrbMZyiGdbRH9Q1Ja59tXaSk0kCFzp+Pdcb/HO261no0mHxiicpbTRVFSglY4qezI6bZ7uX+kJCawErSzyOkBI13X11erV9SQ8lKclI8kU2zkdErJLxmLYkIDsXAebZ4MLhhIWYaReRA7GJFVZfnAwl8GrU+YpJWchlZWlHQHj5ew3TAogY0Te4M2nbFgBpTeYBjxze2DwIyGLBKng9KY4exp2W9jvkYf005pjbZv3KfVDmTsW5swgDjSbqryG5NrAwneOzQ++xz1bXXXH3s/DsWs4/xrs3Ey53ieM8aCpux84MV/DsxO3qb+AgAA//8DAFBLAwQUAAYACAAAACEA1/biEBYLAADlbgAADwAAAHdvcmQvc3R5bGVzLnhtbLSdTXPbOBKG71u1/4Gl0+4hkb+duMaZcpxk7do444mczRkiIQtrktCSVGzPr18ApCTITVBooH1JLIn9EMDbL4Am9fHb709FnvziVS1keT7af7s3SniZykyU9+ejH3df3rwbJXXDyozlsuTno2dej37/8Pe//fZ4VjfPOa8TBSjrsyI9H82bZnE2HtfpnBesfisXvFQvzmRVsEY9rO7HBaselos3qSwWrBFTkYvmeXywt3cy6jCVD0XOZiLln2S6LHjZmPhxxXNFlGU9F4t6RXv0oT3KKltUMuV1rTpd5C2vYKJcY/aPAKgQaSVrOWveqs50LTIoFb6/Z/4q8g3gGAc4AICTlD/hGO86xlhF2hyR4Tgna47ILE5YYyxAnTXZHEU5WI3rWMeyhs1ZPbeJHNeo4zXuudBjVKRn1/elrNg0VySleqKESwxY/6v6r/8zf/In87zuwuiD8kIm0098xpZ5U+uH1W3VPewemf++yLKpk8czVqdCnI/uRKHs840/Jt9lwVS2PZ5xVjcXtWC9L84vyro/LK3h02N9ypyV9+r1Xyw/H/HyzY/J9knWT01FpsisejO50IHjrs3t/1ZPFutH7VEvuq0sqAw5aecF9SqffZXpA88mjXrhfLSnT6We/HF9WwlZKe9vnpvwQlyJLOOldVw5Fxn/Oeflj5pnm+f//GLs2z2RymWp/j48PTFK5HX2+SnlCz0ZqFdLVqgzf9MBuT76f6vY/W6E+g6fc6YnwGQfHXGgI2qrLwaxfNERPPfwlbhHr8Q9fiXuyStxT1+J++6VuO+JuaLM1JRmjveg7uL4umAXxzfrd3F8s3wXxzerd3F8s3gXxzdrd3F8s3QXxzcr3ZxGpgRZqCnxOagp8RmoKfH5pynx2acp8bmnKfGZpynxeacp8VnXbg+Sa5XEZRNNm0nZlLLhScOf4mmsVCxT2tDw9ArCK5JOEmDaeaNb1aJpKTOPPTmJ59rY6HogkbNkJu6Xlap/Y5vJy188V5VowrJM8QiBFW+WlW//PTK44jNe8TLllGlMB81FyZNyWUwJMnHB7slYvMyIh29FJJkCCqaK4mhKIxmZcb+Kukm+0Qy+YcWv/gYTv/wbTPz6bzDxGwCD+bjMc042RB2NaKQ6GtGAdTSicWvzk2rcOhrRuHU0onHraPHjdiea3Ex+XgvtZS71Jdjos07EfcnUQhg/7XYXt5JbVrH7ii3mib6GF439KLPn5I5iKl+TqDavRv9L1UlRLuPH70btbvS6ekWz6Zwspw0qoyYsX7a7jvhUYE38eGzk+iKqmky0fizBTPVN7zm0eBS23LQyvmEbVvwE+tJDpM3rkAStzGX6QDNpXD0veKX2zg/RpC8yz+Ujz+iIk6aSba55GfxzsZizWpgSyitgddcwuWGL6Mbe5kyUNJp8flMwkSd0S9fV3c3X5E4udOGqB4YG+FE2jSzImN2Fl3/85NN/0jTwQpU25TNRby+I6nMDuxQEC0hLkhkRSe1vRClI1kfD+zd/nkpWZTS0W1U/G0s3nIg4YcWi3T4QeEvNeY+VoLgKZnj/YZXQV5qoTHVHArOu29TL6X95Gj/VfZOJ3mVGc/5YNuYCkNmymmg6XPwWYAsXv/wbNdXyoPOXoLNbuPjObuGoOnuZs7oWFPeDtnlU3V3xqPsbX8R3PJnLarbM6QZwBSQbwRWQbAhlvizKmrLHhkfYYcOj7i9hyhgewZUfw/tXJTIyMQyMSgkDo5LBwKg0MDBSAeJv+Vqw+Du/Fiz+BnALI9oCWDCqPCNd/oluJlgwqjwzMKo8MzCqPDMwqjw7/JTw2UxtgumWGAtJlXMWkm6hKRteLGTFqmci5Oec3zOCi58t7baSM/0Oblm27/MkQOqrzTnhZrvFUYn8k0/JmqZZlO2iyrq7OS/iS9jbnKV8LvOMVwPX6sTmPcnv3w/QVPU6WbC0uyBuhxmO10XIr+J+3iST+fq6uo052dsZuSqft8J2n1AvuSDsYCDshmdiWawa2qbbVvChf7DJr63go93Bm3V9K/LYMxKe82R35GbPuhV56hkJz/nOM9K4ZityKA8/seqhNxFOh/JnXXE5ku90KIvWwb2nHUqkdWRfCp4OZdGWVZKLNNXX7qE6fp5xx/uZxx2PcZGbgrGTm+LtKzdiyGDf+S+h19m4adS0YH1b/WXoodnkes2lfy5le13djj8w7wn1ir9WG5uy5kkv59B8wsSLszXvuEfWewJyI7xnIjfCe0pyI7zmJmc4apJyU7xnKzfCe9pyI9DzF1wjcPMXjMfNXzA+ZP6ClJD5K2Jf4EZ4bxDcCLRRIQJt1Ii9gxuBMioIDzIqpKCNChFoo0IE2qhwS4YzKozHGRXGhxgVUkKMCiloo0IE2qgQgTYqRKCNChFoowbu9p3hQUaFFLRRIQJtVIhAG9XsFyOMCuNxRoXxIUaFlBCjQgraqBCBNipEoI0KEWijQgTaqBCBMioIDzIqpKCNChFoo0IE2qjmhkOEUWE8zqgwPsSokBJiVEhBGxUi0EaFCLRRIQJtVIhAGxUiUEYF4UFGhRS0USECbVSIQBvV3MyLMCqMxxkVxocYFVJCjAopaKNCBNqoEIE2KkSgjQoRaKNCBMqoIDzIqJCCNipEoI0KEUP52d1CtN/0bsfu4696ulAH/jezukZ9tz/raqMO/VGrVrlZpqb3Yn2U8iFZf/5sC2LqDT+ImOZCmkvUjtveNte8ZQF1l/OPy+FP19h0Iy6k+3al+6yCua8K4Ee+keCaytFQytuRoMg7Gsp0OxLsOo+GZl87EiyDR0OTrvHl6k0jajkCwUPTjBW87wgfmq2tcDjEQ3O0FQhHeGhmtgLhAA/Nx1bgcaIn55fRx57jdLJ+/ycgDKWjRTh1E4bSEmq1mo6hMXxFcxN81XMTfGV0E1B6OjF4Yd0otMJuVJjU0GZYqcON6iZgpYaEIKkBJlxqiAqWGqLCpIYTI1ZqSMBKHT45uwlBUgNMuNQQFSw1RIVJDZcyrNSQgJUaErBSRy7ITky41BAVLDVEhUkNN3dYqSEBKzUkYKWGhCCpASZcaogKlhqiwqQGVTJaakjASg0JWKkhIUhqgAmXGqKCpYaoIanNVZQtqVEKW+G4TZgViFuQrUDc5GwFBlRLVnRgtWQRAqslqNVKc1y1ZIvmJviq5yb4yugmoPR0YvDCulFohd2oMKlx1VKf1OFGdROwUuOqJafUuGppUGpctTQoNa5ackuNq5b6pMZVS31Sh0/ObkKQ1LhqaVBqXLU0KDWuWnJLjauW+qTGVUt9UuOqpT6pIxdkJyZcaly1NCg1rlpyS42rlvqkxlVLfVLjqqU+qXHVklNqXLU0KDWuWhqUGlctuaXGVUt9UuOqpT6pcdVSn9S4askpNa5aGpQaVy0NSo2rlm5UiPD7wI1+BnEDclKwqkl2fHtb1BmuWD1v2O7bm3jyj7Litcx/8Sx57QH6Gjk248etn8bRZzM/nqWOb9TY6y+ftj4IlbVfOtqdwhx4na1/w0YH67Yl3c/6dE+bLnQ3gs3f3Y8O1X+tDjzo7prWf13qH+exnrN+7secDbYvnasGpt1XXTna131X6vozXeabUl+21vGFqqZhm8FcHd0psxn29ritIW7b72h3o/030Gbjz8GBbS3sauDqI267WqjaM81bQdQf12WmAI/d7xe1Lc2eWItSr1/yPL9h7dFy4T4057OmfXV/z3zDwYvXp+2X9TnjK7NqOAHj7ca0D4fzpP3+9O7tDM481lNjz3Cb99bEjvSmbau/6g//BwAA//8DAFBLAwQUAAYACAAAACEA/OW8rC4BAABLAwAAFAAAAHdvcmQvd2ViU2V0dGluZ3MueG1snNHNbsIwDADg+6S9Q5U7pKCBUEXhMk3aedsDhMSlEUlcxWGFt5/bAavEhe6Sf3+ynfX25F32DZEshlLMprnIIGg0NuxL8fX5NlmJjJIKRjkMUIozkNhunp/WbdHC7gNS4peUsRKo8LoUdUpNISXpGryiKTYQ+LLC6FXibdxLr+Lh2Ew0+kYlu7POprOc5/lSXJj4iIJVZTW8oj56CKmPlxEcixiotg1dtfYRrcVomogaiLge7349r2y4MbOXO8hbHZGwSlMu5pJRT3H4LO9X3v0Bi3HA/A5YajiNM1YXQ3Lk0LFmnLO8OdYMnP8lMwDIJFOPUubXvsouViVVK6qHIoxLanHjzr7rkdfF+z5gVDvHEv96xh+X9XA3cv3d1C/h1J93JQi5+QEAAP//AwBQSwMEFAAGAAgAAAAhACBTH2D/AQAAdAYAABIAAAB3b3JkL2ZvbnRUYWJsZS54bWy8k9FumzAUhu8n7R2Q7xsMJWmKSiqta6Td7GJqH8AxJljDNvJxQvL2OzaEImWdyqQNBJjf53yc89s8PJ5UEx2FBWl0QZIFJZHQ3JRS7wvy+rK9WZMIHNMla4wWBTkLII+bz58eurwy2kGE+RpyxQtSO9fmcQy8ForBwrRC42RlrGIOX+0+Vsz+PLQ33KiWObmTjXTnOKV0RQaM/QjFVJXk4qvhByW0C/mxFQ0SjYZatnChdR+hdcaWrTVcAGDPqul5ikk9YpLsCqQktwZM5RbYzFBRQGF6QsNINW+A5TxAegVYcXGax1gPjBgzpxxZzuOsRo4sJ5y/K2YCgNKV9SxKevE19rnMsZpBPSWKeUUtR9xZeY8Uz7/ttbFs1yAJVz3ChYsC2N+xf/8IQ3EKum+BbIZfIepyzRRmvkglIPouuuiHUUyHgJZpAyLBmCNrCkJ9Nyt6S5c0wyvFUUZiH8hrZkF4WB9Ie7liSjbni2oDN0y00vH6oh+Zlb76fgrkHicOsKMFeaaUps/bLemVpCBPqNytl18GJfXfCsf9oNyOCvUKD5zwmvQcHjhjDH4z7p24cuSJqR1W9o4T3oHeCe9I+h+coKupExn+8Wk2Kt6J9K3vPztxP9uJRqIV7zixDXvBn9lsJ6CTAPOcyH63J9Ls7t/siWEAm18AAAD//wMAUEsDBBQABgAIAAAAIQAIENroQgEAAGMCAAARAAgBZG9jUHJvcHMvY29yZS54bWwgogQBKKAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACMklFLwzAQx98Fv0PJe5u0m1NC24HKXnQgbEPxLaS3LpikIYnr9u1N69Y53YOPx/3ux90/yac7JaMtWCcaXaA0ISgCzZtK6LpAq+UsvkOR80xXTDYaCrQHh6bl9VXODeWNhRfbGLBegIuCSTvKTYE23huKseMbUMwlgdChuW6sYj6UtsaG8Q9WA84ImWAFnlXMM9wJYzMY0UFZ8UFpPq3sBRXHIEGB9g6nSYpPrAer3MWBvvODVMLvDVxEj82B3jkxgG3bJu2oR8P+KX6bPy/6U2Ohu6w4oLLLRzLn5yHKtYDqfl8uvKijJyElhDQ3Msd/kW7KwlZ0r1FOemIo88NplFtgHqoorES/Dzh2XkcPj8sZKjOSpTG5ibPJktzS8YgS8p7jX/MnoTos8D9jSuiYnBuPgrLf+PxblF8AAAD//wMAUEsDBBQABgAIAAAAIQBD7DI71AEAANgDAAAQAAgBZG9jUHJvcHMvYXBwLnhtbCCiBAEooAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJxTwW7bMAy9D9g/GLo3ioMlGwJFxZBi6GFbC8Rtz5pMJ8JkSZDYoNnXj7IbV9l2mk/vkdTTIymL65feVkeIyXi3YfVszipw2rfG7Tfsofly9YlVCZVrlfUONuwEiV3L9+/EffQBIhpIFUm4tGEHxLDmPOkD9CrNKO0o0/nYKyQa99x3ndFw4/VzDw75Yj5fcXhBcC20V2ESZKPi+oj/K9p6nf2lx+YUSE+KBvpgFYL8nk9awaeAaDwq25geZF0vKTFRca/2kGQt+AjEk49tkouV4CMS24OKSiNNT9bLueAFF59DsEYrpLnKb0ZHn3yH1d1gtsrnBS9LBDWwA/0cDZ4kSZVUfDVuNDICMhbVPqpweHU3MbHTysKWWpedsgkEfwuIW1B5rffKZH9HXB9Bo49VMr9osQtW/VAJ8sA27KiiUQ7ZWDaSAduQMMrGoCXtiQ+wLCux+ZBNjuCycCCDB8KX7oYb0l1HveE/zNal2cHDaLWwUzo73/GH6tb3QTmaL58QDfhnegiNv8lv43WGl8Fi608GD7ugdF7Ox2W5/yIjdhSFlhY67WQKiFvqINqsT2fdHtpzzd+J/KIexx9V1qvZnL7hCZ1j9BCmP0j+BgAA//8DAFBLAQItABQABgAIAAAAIQDfpNJsWgEAACAFAAATAAAAAAAAAAAAAAAAAAAAAABbQ29udGVudF9UeXBlc10ueG1sUEsBAi0AFAAGAAgAAAAhAB6RGrfvAAAATgIAAAsAAAAAAAAAAAAAAAAAkwMAAF9yZWxzLy5yZWxzUEsBAi0AFAAGAAgAAAAhAGn7VzHGAwAA2w4AABEAAAAAAAAAAAAAAAAAswYAAHdvcmQvZG9jdW1lbnQueG1sUEsBAi0AFAAGAAgAAAAhANZks1H0AAAAMQMAABwAAAAAAAAAAAAAAAAAqAoAAHdvcmQvX3JlbHMvZG9jdW1lbnQueG1sLnJlbHNQSwECLQAUAAYACAAAACEAlrWt4vEFAABQGwAAFQAAAAAAAAAAAAAAAADeDAAAd29yZC90aGVtZS90aGVtZTEueG1sUEsBAi0AFAAGAAgAAAAhAFwJw0/OBwAA1BsAABEAAAAAAAAAAAAAAAAAAhMAAHdvcmQvc2V0dGluZ3MueG1sUEsBAi0AFAAGAAgAAAAhAHWQ+bsMAQAAfwIAABwAAAAAAAAAAAAAAAAA/xoAAHdvcmQvX3JlbHMvc2V0dGluZ3MueG1sLnJlbHNQSwECLQAUAAYACAAAACEA1/biEBYLAADlbgAADwAAAAAAAAAAAAAAAABFHAAAd29yZC9zdHlsZXMueG1sUEsBAi0AFAAGAAgAAAAhAPzlvKwuAQAASwMAABQAAAAAAAAAAAAAAAAAiCcAAHdvcmQvd2ViU2V0dGluZ3MueG1sUEsBAi0AFAAGAAgAAAAhACBTH2D/AQAAdAYAABIAAAAAAAAAAAAAAAAA6CgAAHdvcmQvZm9udFRhYmxlLnhtbFBLAQItABQABgAIAAAAIQAIENroQgEAAGMCAAARAAAAAAAAAAAAAAAAABcrAABkb2NQcm9wcy9jb3JlLnhtbFBLAQItABQABgAIAAAAIQBD7DI71AEAANgDAAAQAAAAAAAAAAAAAAAAAJAtAABkb2NQcm9wcy9hcHAueG1sUEsFBgAAAAAMAAwACwMAAJowAAAAAA==');
     end;
 
-    local Procedure ModifyInteractionTemplate(var InteractionTemplate: Record "Interaction Template")
+    local procedure ModifyInteractionTemplate(var InteractionTemplate: Record "Interaction Template")
     begin
         InteractionTemplate.Validate("Ignore Contact Corres. Type", true);
         InteractionTemplate.Validate("Information Flow", InteractionTemplate."Information Flow"::Outbound);
@@ -4071,6 +4144,67 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
             WordTemplateRec.Delete();
             Commit();
         end;
+    end;
+
+    local procedure PrepareSegmentWordTemplateWithTwoContacts(
+        var SegmentHeader: Record "Segment Header";
+        InteractionTemplateWizardAction: Enum "Interaction Template Wizard Action")
+    var
+        Contact: array[2] of Record Contact;
+        InteractionTemplate: Record "Interaction Template";
+        WordTemplateCode: Code[30];
+    begin
+        WordTemplateCode := CreateWordTemplateWithRelatedTables();
+        CreateInteractionTemplateWithCorrespondenceTypeAndWizardAction(
+            InteractionTemplate,
+            InteractionTemplate."Correspondence Type (Default)"::"Hard Copy",
+            InteractionTemplateWizardAction,
+            WordTemplateCode);
+        ModifyInteractionTemplate(InteractionTemplate);
+
+        CreateInteractionTmplLanguageWithWordTemplate(InteractionTemplate.Code, WordTemplateCode);
+        CreateContactWithEmailAndPhoneNo(Contact[1]);
+        CreateContactWithEmailAndPhoneNo(Contact[2]);
+
+        CreateSegmentWithTwoLinesInteractionTemplateAndContactAndSalesperson(
+            SegmentHeader,
+            InteractionTemplate.Code,
+            Contact[1]."No.",
+            Contact[2]."No.",
+            SegmentHeader."Correspondence Type (Default)"::"Hard Copy");
+        Commit();
+    end;
+
+    local procedure CreateSegmentWithTwoLinesInteractionTemplateAndContactAndSalesperson(
+        var SegmentHeader: Record "Segment Header";
+        InteractionTemplateCode: Code[10];
+        ContactNo: Code[20];
+        ContactNo2: Code[20];
+        CorrespondenceType: Enum "Correspondence Type")
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        CreateSalespersonPurchaserWithEmailAndPhoneNo(SalespersonPurchaser);
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        SegmentHeader.Validate("Interaction Template Code", InteractionTemplateCode);
+        SegmentHeader.Validate("Correspondence Type (Default)", CorrespondenceType);
+        SegmentHeader.Validate("Subject (Default)", LibraryUtility.GenerateRandomText(MaxStrLen(SegmentHeader."Subject (Default)")));
+        SegmentHeader.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        SegmentHeader.Modify(true);
+
+        CreateSegmentLineWithContactSalesPerson(SegmentHeader."No.", ContactNo, SalespersonPurchaser.Code);
+        CreateSegmentLineWithContactSalesPerson(SegmentHeader."No.", ContactNo2, SalespersonPurchaser.Code);
+    end;
+
+    local procedure VerifyAttachmentExistOnPostedInteractionLog(SegmentNo: Code[20])
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+    begin
+        InteractionLogEntry.SetRange("Segment No.", SegmentNo);
+        InteractionLogEntry.FindSet();
+        repeat
+            Assert.IsTrue(InteractionLogEntry."Attachment No." <> 0, LoggedSegemntEntriesCreateMsg);
+        until InteractionLogEntry.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]

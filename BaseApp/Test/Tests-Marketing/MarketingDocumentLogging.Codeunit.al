@@ -862,6 +862,51 @@ codeunit 136202 "Marketing Document Logging"
         Assert.RecordCount(SalesHeaderArchive, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyArchivedSalesOrderReportExecutedWithDifferentDocNoOccurence()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesHeader3: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        ArchivedSalesOrder: Report "Archived Sales Order";
+        FilePath: Text[1024];
+    begin
+        // [SCENARIO: 491374] Error when Printing Archived Sales Order If the document is of the same versions but has different Doc. No. Occurence
+        Initialize();
+
+        // [GIVEN] Setup: Create Sales Header and Sales Line with Type Item, Archive Sales Order.
+        CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
+
+        // [THEN] Archive Sales Order 1 and created Sales Order 2 using deleted Sales Order 1
+        SalesHeader2 := SalesHeader;
+        SalesOrderPageOpenArchiveAndDelete(SalesHeader);
+        SalesHeader2.Insert(true);
+
+        // [THEN] Add line item to Sales Order 2, and archive the Sales Order 2 and create Sales Order 3
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader2, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesHeader3 := SalesHeader2;
+        SalesOrderPageOpenArchiveAndDelete(SalesHeader2);
+        SalesHeader3.Insert(true);
+
+        // [THEN] Add line item to Sales Order 3, and archive the Sales Order 3
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader3, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesOrderPageOpenArchiveAndDelete(SalesHeader3);
+
+        // [THEN] Save Archived Sales Order as as XML and XLSX in local Temp folder.
+        SalesHeaderArchive.SetRange("Document Type", SalesHeader3."Document Type");
+        SalesHeaderArchive.SetRange("No.", SalesHeader3."No.");
+        ArchivedSalesOrder.SetTableView(SalesHeaderArchive);
+        FilePath := TemporaryPath + Format(SalesHeaderArchive."Document Type") + SalesHeaderArchive."No." + '.xlsx';
+
+        // [VERIFY] Verify: Test Archived Sales Order Report successfully created and Saved report have some Data
+        ArchivedSalesOrder.SaveAsExcel(FilePath);
+        LibraryUtility.CheckFileNotEmpty(FilePath);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -1204,6 +1249,19 @@ codeunit 136202 "Marketing Document Logging"
             ReportLayoutSelection."Custom Report Layout Code" := '';
             ReportLayoutSelection.Insert();
         end;
+    end;
+
+    local procedure SalesOrderPageOpenArchiveAndDelete(SalesHeader: Record "Sales Header")
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenView();
+        SalesOrder.Filter.SetFilter("Document Type", Format(SalesHeader."Document Type"::Order));
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder."Archive Document".Invoke();
+        SalesOrder.Close();
+
+        SalesHeader.Delete(true);
     end;
 
     [ConfirmHandler]
