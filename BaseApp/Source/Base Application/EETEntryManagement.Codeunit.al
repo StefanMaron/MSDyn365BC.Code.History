@@ -195,6 +195,7 @@ codeunit 31121 "EET Entry Management"
     local procedure CreateEntryForCashDocument(CashDocHeader: Record "Cash Document Header"; PostedCashDocHeader: Record "Posted Cash Document Header"): Integer
     var
         VATEntry: Record "VAT Entry";
+        TempVATEntry: Record "VAT Entry" temporary;
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CashDocLine: Record "Cash Document Line";
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -203,6 +204,7 @@ codeunit 31121 "EET Entry Management"
         EETEntry: Record "EET Entry";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         OriginalDocumentAmountLCY: Decimal;
+        RoundingAmount: Decimal;
         Coeff: Decimal;
     begin
         FindEETCashRegister(CashDocHeader."Cash Desk No.", EETCashReg);
@@ -221,8 +223,6 @@ codeunit 31121 "EET Entry Management"
 
         OriginalDocumentAmountLCY := 0;
         case true of
-            IsEETCashDeskEvent(CashDocLine) and (CashDocLine."Account Type" <> CashDocLine."Account Type"::Customer):
-                SetFilterVATEntry(PostedCashDocHeader."No.", PostedCashDocHeader."Posting Date", VATEntry);
             IsInvoicePaymentCashDoc(CashDocLine):
                 begin
                     EETEntry."Applied Document Type" := EETEntry."Applied Document Type"::Invoice;
@@ -275,17 +275,41 @@ codeunit 31121 "EET Entry Management"
         CashDocHeader.CalcFields("Amount Including VAT (LCY)");
         EETEntry."Total Sales Amount" := -CashDocHeader.SignAmount * CashDocHeader."Amount Including VAT (LCY)";
 
-        Coeff := 1;
-        if (OriginalDocumentAmountLCY <> 0) and
-           (OriginalDocumentAmountLCY <> CashDocHeader."Amount Including VAT (LCY)")
-        then
-            Coeff := CashDocHeader."Amount Including VAT (LCY)" / OriginalDocumentAmountLCY;
-
-        if VATEntry.HasFilter then
-            if VATEntry.FindSet then
+        // Collect VAT entries of applied documents
+        if VATEntry.HasFilter() then
+            if VATEntry.FindSet() then
                 repeat
-                    CalculateAmountsFromVATEntry(VATEntry, Coeff, EETEntry);
-                until VATEntry.Next = 0;
+                    TempVATEntry.Init();
+                    TempVATEntry := VATEntry;
+                    TempVATEntry.Insert();
+                until VATEntry.Next() = 0;
+
+        // Collect VAT entries of cash document
+        RoundingAmount := 0;
+        VATEntry.Reset();
+        SetFilterVATEntry(PostedCashDocHeader."No.", PostedCashDocHeader."Posting Date", VATEntry);
+        if VATEntry.FindSet() then
+            repeat
+                TempVATEntry.Init();
+                TempVATEntry := VATEntry;
+                TempVATEntry.Insert();
+                // If the cash document applies the document then the VAT entry contains the rounding amount of cash document
+                if OriginalDocumentAmountLCY <> 0 then
+                    RoundingAmount := -(TempVATEntry.Base + TempVATEntry.Amount);
+            until VATEntry.Next() = 0;
+
+        // Calculate coefficient for partial payment
+        Coeff := 1;
+        if OriginalDocumentAmountLCY <> 0 then begin
+            OriginalDocumentAmountLCY += RoundingAmount;
+            if OriginalDocumentAmountLCY <> CashDocHeader."Amount Including VAT (LCY)" then
+                Coeff := CashDocHeader."Amount Including VAT (LCY)" / OriginalDocumentAmountLCY;
+        end;
+
+        if TempVATEntry.FindSet() then
+            repeat
+                CalculateAmountsFromVATEntry(TempVATEntry, Coeff, EETEntry);
+            until TempVATEntry.Next() = 0;
 
         RoundAmounts(EETEntry);
 

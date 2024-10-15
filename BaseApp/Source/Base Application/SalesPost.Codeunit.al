@@ -263,6 +263,8 @@
         RemDiscAmt: Decimal;
         TotalChargeAmt: Decimal;
         TotalChargeAmtLCY: Decimal;
+        RoundedPrevTotalChargeAmt: Decimal;
+        PreciseTotalChargeAmt: Decimal;
         LastLineRetrieved: Boolean;
         RoundingLineInserted: Boolean;
         DropShipOrder: Boolean;
@@ -598,7 +600,7 @@
 
         if SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order] then begin
             TempSalesLineGlobal.CalcVATAmountLines(1, SalesHeader, TempSalesLineGlobal, TempVATAmountLine);
-            if TempVATAmountLine.GetTotalLineAmount(false, '') < 0 then
+            if TempVATAmountLine.GetTotalAmountInclVAT() < 0 then
                 Error(TotalInvoiceAmountNegativeErr);
         end;
     end;
@@ -1212,8 +1214,6 @@
         OriginalDiscountAmt: Decimal;
         OriginalQty: Decimal;
         SignFactor: Integer;
-        TotalChargeAmt2: Decimal;
-        TotalChargeAmtLCY2: Decimal;
         IsHandled: Boolean;
     begin
         OnBeforePostItemChargePerOrder(SalesHeader, SalesLine, ItemJnlLine2, ItemChargeSalesLine, SuppressCommit);
@@ -1255,16 +1255,18 @@
               Round(ItemJnlLine2.Amount / ItemJnlLine2."Invoiced Qty. (Base)",
                 Currency."Unit-Amount Rounding Precision");
 
-            TotalChargeAmt2 := TotalChargeAmt2 + ItemJnlLine2.Amount;
+            PreciseTotalChargeAmt += ItemJnlLine2.Amount;
+
             if SalesHeader."Currency Code" <> '' then
                 ItemJnlLine2.Amount :=
                   CurrExchRate.ExchangeAmtFCYToLCY(
-                    UseDate, SalesHeader."Currency Code", TotalChargeAmt2 + TotalSalesLine.Amount, SalesHeader."Currency Factor") -
-                  TotalChargeAmtLCY2 - TotalSalesLineLCY.Amount
+                    UseDate, SalesHeader."Currency Code", PreciseTotalChargeAmt + TotalSalesLine.Amount, SalesHeader."Currency Factor") -
+                  RoundedPrevTotalChargeAmt - TotalSalesLineLCY.Amount
             else
-                ItemJnlLine2.Amount := TotalChargeAmt2 - TotalChargeAmtLCY2;
+                ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
 
-            TotalChargeAmtLCY2 := TotalChargeAmtLCY2 + ItemJnlLine2.Amount;
+            RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
+
             ItemJnlLine2."Unit Cost" := Round(
                 ItemJnlLine2.Amount / ItemJnlLine2."Invoiced Qty. (Base)", GLSetup."Unit-Amount Rounding Precision");
             ItemJnlLine2."Applies-to Entry" := ItemJnlLine2."Item Shpt. Entry No.";
@@ -1319,8 +1321,11 @@
                     if Abs("Quantity (Base)") < Abs(NonDistrItemJnlLine."Quantity (Base)") then begin
                         ItemJnlLine2."Quantity (Base)" := -"Quantity (Base)";
                         ItemJnlLine2."Invoiced Qty. (Base)" := ItemJnlLine2."Quantity (Base)";
-                        ItemJnlLine2.Amount :=
-                          Round(OriginalAmt * Factor, GLSetup."Amount Rounding Precision");
+
+                        PreciseTotalChargeAmt += OriginalAmt * Factor;
+                        ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
+                        RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
+
                         ItemJnlLine2."Discount Amount" :=
                           Round(OriginalDiscountAmt * Factor, GLSetup."Amount Rounding Precision");
                         ItemJnlLine2."Unit Cost" :=
@@ -5289,6 +5294,7 @@
         CommoditySetup: Record "Commodity Setup";
         ItemUOM: Record "Item Unit of Measure";
         TempInvtBuf: Record "Inventory Buffer" temporary;
+        TempInvtBuf1: Record "Inventory Buffer" temporary;
         TempInvtBuf2: Record "Inventory Buffer" temporary;
         CurrExchRate2: Record "Currency Exchange Rate";
         AmountToCheckLimit: Decimal;
@@ -5366,6 +5372,7 @@
         if not SalesHeader.Invoice then
             exit;
 
+        TempInvtBuf1.COPY(TempInvtBuf,true);
         if TempInvtBuf.FindSet() then
             repeat
                 CommoditySetup.SetRange("Commodity Code", TempInvtBuf."Item No.");
@@ -5388,7 +5395,7 @@
 
                 if AmountToCheckLimit < CommoditySetup."Commodity Limit Amount LCY" then begin
                     // Normal
-                    if TempInvtBuf.Get(TempInvtBuf."Item No.", Format(SalesLine."VAT Calculation Type"::"Reverse Charge VAT", 0, '<Number>')) then
+                    if TempInvtBuf1.Get(TempInvtBuf."Item No.", Format(SalesLine."VAT Calculation Type"::"Reverse Charge VAT", 0, '<Number>')) then
                         if not Confirm(VATPostingSetupPostMismashQst, false,
                              CommoditySetup."Commodity Code", CommoditySetup."Commodity Limit Amount LCY",
                              SalesLine."VAT Calculation Type"::"Reverse Charge VAT", ItemNoText, AmountToCheckLimit)
@@ -5396,7 +5403,7 @@
                             Error('');
                 end else begin
                     // Reverse
-                    if TempInvtBuf.Get(TempInvtBuf."Item No.", Format(SalesLine."VAT Calculation Type"::"Normal VAT", 0, '<Number>')) then
+                    if TempInvtBuf1.Get(TempInvtBuf."Item No.", Format(SalesLine."VAT Calculation Type"::"Normal VAT", 0, '<Number>')) then
                         Error(VATPostingSetupPostMismashErr, CommoditySetup."Commodity Code", CommoditySetup."Commodity Limit Amount LCY",
                           SalesLine."VAT Calculation Type"::"Normal VAT", ItemNoText);
                 end;
@@ -6365,6 +6372,9 @@
                 if not TempTrackingSpecification.FindFirst() then
                     TempTrackingSpecification.Init();
             end;
+
+            PreciseTotalChargeAmt := 0;
+            RoundedPrevTotalChargeAmt := 0;
 
             if SalesLine.IsCreditDocType then begin
                 if (Abs(RemQtyToBeInvoiced) > Abs(SalesLine."Return Qty. to Receive")) or
