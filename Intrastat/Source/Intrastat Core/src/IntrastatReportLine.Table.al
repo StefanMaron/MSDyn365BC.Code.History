@@ -304,7 +304,7 @@ table 4812 "Intrastat Report Line"
             begin
                 if "Suppl. Unit of Measure" <> '' then begin
                     ItemUOM.Get("Item No.", "Suppl. Unit of Measure");
-                    Validate("Suppl. Conversion Factor", ItemUOM."Qty. per Unit of Measure");
+                    Validate("Suppl. Conversion Factor", 1 / ItemUOM."Qty. per Unit of Measure");
                 end else
                     Validate("Suppl. Conversion Factor", 0);
             end;
