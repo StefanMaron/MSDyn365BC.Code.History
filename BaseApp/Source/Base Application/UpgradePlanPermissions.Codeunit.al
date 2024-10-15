@@ -110,17 +110,20 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure SetBackupRestorePermissions()
     var
+        UserGroup: Record "User Group";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAddBackupRestorePermissionSetUpgradeTag()) then
             exit;
 
-        AddBackupRestorePermissionSet();
-        AddBackupRestoreUserGroup();
-        AddBackupRestorePermissionSetToGroup();
-        AddBackupRestoreUserGroupToDelegatedAdminPlan();
-        AddBackupRestoreUserGroupToNavInternalAdmin();
+        if not UserGroup.IsEmpty() then begin
+            AddBackupRestorePermissionSet();
+            AddBackupRestoreUserGroup();
+            AddBackupRestorePermissionSetToGroup();
+            AddBackupRestoreUserGroupToDelegatedAdminPlan();
+            AddBackupRestoreUserGroupToNavInternalAdmin();
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddBackupRestorePermissionSetUpgradeTag());
     end;
@@ -307,16 +310,19 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure SetExcelExportActionPermissions()
     var
+        UserGroup: Record "User Group";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetExcelExportActionPermissionSetUpgradeTag()) then
             exit;
 
-        AddExcelExportActionPermissionSet();
-        AddExcelExportActionUserGroup();
-        AddExcelExportActionPermissionSetToGroup();
-        AddExcelExportActionUserGroupToExistingPlans();
+        if not UserGroup.IsEmpty() then begin
+            AddExcelExportActionPermissionSet();
+            AddExcelExportActionUserGroup();
+            AddExcelExportActionPermissionSetToGroup();
+            AddExcelExportActionUserGroupToExistingPlans();
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetExcelExportActionPermissionSetUpgradeTag());
     end;
@@ -364,6 +370,7 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure SetAutomateActionPermissions()
     var
+        UserGroup: Record "User Group";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         EnvironmentInformation: Codeunit "Environment Information";
@@ -371,12 +378,13 @@ codeunit 104030 "Upgrade Plan Permissions"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAutomateActionPermissionSetUpgradeTag()) then
             exit;
 
-        if EnvironmentInformation.IsSaaS() then begin
-            AddAutomateActionUserGroup();
-            AddAutomateActionPermissionSetToGroup();
-            AddAutomateActionUserGroupToExistingPlans();
-            AddUserGroupToUsers(AutomateActionUserGroupTok);
-        end;
+        if not UserGroup.IsEmpty() then
+            if EnvironmentInformation.IsSaaS() then begin
+                AddAutomateActionUserGroup();
+                AddAutomateActionPermissionSetToGroup();
+                AddAutomateActionUserGroupToExistingPlans();
+                AddUserGroupToUsers(AutomateActionUserGroupTok);
+            end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAutomateActionPermissionSetUpgradeTag());
     end;
@@ -469,23 +477,25 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure CreateMicrosoft365Permissions()
     var
+        UserGroup: Record "User Group";
         UserGroupPermissionSet: Record "User Group Permission Set";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         PlanIds: Codeunit "Plan Ids";
     begin
-
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetTeamsUsersUserGroupUpgradeTag()) then
             exit;
 
-        // Insert TEAMS USERS user group and add it to the plan
-        InsertUserGroup(TeamsUsersTok, TeamsUsersDescriptionTxt, false);
-        UpdateUserGroupProfile(TeamsUsersTok, Page::"Blank Role Center");
-        AddUserGroupToPlan(TeamsUsersTok, PlanIds.GetMicrosoft365PlanId());
+        if not UserGroup.IsEmpty() then begin
+            // Insert TEAMS USERS user group and add it to the plan
+            InsertUserGroup(TeamsUsersTok, TeamsUsersDescriptionTxt, false);
+            UpdateUserGroupProfile(TeamsUsersTok, Page::"Blank Role Center");
+            AddUserGroupToPlan(TeamsUsersTok, PlanIds.GetMicrosoft365PlanId());
 
-        // Add LOGIN permission sets to TEAMS USERS user group
-        AddPermissionSetToUserGroup(CopyStr(LoginTok, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
-            CopyStr(TeamsUsersTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
+            // Add LOGIN permission sets to TEAMS USERS user group
+            AddPermissionSetToUserGroup(CopyStr(LoginTok, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
+                CopyStr(TeamsUsersTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetTeamsUsersUserGroupUpgradeTag());
     end;
