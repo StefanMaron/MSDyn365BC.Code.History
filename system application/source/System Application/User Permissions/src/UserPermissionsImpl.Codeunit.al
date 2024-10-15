@@ -196,8 +196,8 @@ codeunit 153 "User Permissions Impl."
             exit(true);
     end;
 
-    [IntegrationEvent(false, false)]
-    procedure OnCanManageUsersOnTenant(UserSID: Guid; var Result: Boolean)
+    [InternalEvent(false)]
+    local procedure OnCanManageUsersOnTenant(UserSID: Guid; var Result: Boolean)
     begin
         // Subscribe to this event from tests if you need to verify a different flow.
         // This feature is for testing and is subject to a different SLA than production features.
