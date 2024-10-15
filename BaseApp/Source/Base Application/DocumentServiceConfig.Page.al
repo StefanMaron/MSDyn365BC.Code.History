@@ -224,6 +224,7 @@ page 9551 "Document Service Config"
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         TestServiceQst: Label 'The %1 is not tested. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Microsoft SharePoint Connection Setup)';
         ChangeToCurrentUserErr: Label 'The user name you are trying to set does not correspond to the current logged in user and it is not allowed. Please use the currently logged in user instead.';
+        [NonDebuggable]
         ClientSecret: Text;
         DynamicEditable: Boolean;
         IsLegacyAuthentication: Boolean;

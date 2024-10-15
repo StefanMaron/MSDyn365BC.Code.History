@@ -1891,6 +1891,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.ExpectedError(TypeSaaSValidationErr);
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+        ToDo.Delete(false)
     end;
 
     [Test]
@@ -1917,6 +1918,8 @@ codeunit 134341 "UT Page Actions & Controls"
         CreateTask.TypeOnPrem.SetValue(ToDo.Type::Meeting);
         ToDo.Find;
         ToDo.TestField(Type, ToDo.Type::Meeting);
+
+        ToDo.Delete(false)
     end;
 
     [Test]
@@ -4243,6 +4246,43 @@ codeunit 134341 "UT Page Actions & Controls"
         SetSpecialPricesEnabled := LibraryVariableStorage.DequeueBoolean();
         Assert.IsTrue(SetSpecialPricesEnabled, 'Set Special Prices action is not enabled');
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateTaskSalespersonCodeEnabledTeamTask()
+    var
+        ToDo: Record "To-do";
+        SalesPerson: Record "Salesperson/Purchaser";
+        CreateTask: TestPage "Create Task";
+    begin
+        // [FEATURE] [Marketing] [To-do] 
+        // [SCEANRIO 406510] Salesperson Code should be editable with every 'Team Task' value
+
+        // [WHEN] Create Task page is opened
+        MockTodo(ToDo);
+        LibrarySales.CreateSalesperson(SalesPerson);
+
+        CreateTask.OpenEdit;
+        CreateTask.FILTER.SetFilter("No.", ToDo."No.");
+        CreateTask.Description.SetValue(LibraryUtility.GenerateRandomXMLText(10));
+        CreateTask."Salesperson Code".SetValue(SalesPerson.Code);
+
+        // [THEN] Field 'Salesperson Code' is enabled
+        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+
+        // [WHEN] 'Team Task' = True
+        CreateTask.TeamTask.SetValue(true);
+
+        // [THEN] Field 'Salesperson Code' is enabled
+        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+
+        // [WHEN] 'Team Task' = True
+        CreateTask.TeamTask.SetValue(false);
+
+        // [THEN] Field 'Salesperson Code' is enabled
+        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+        CreateTask.OK().Invoke();
     end;
 
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
