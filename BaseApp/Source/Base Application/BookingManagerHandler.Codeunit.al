@@ -22,7 +22,7 @@ codeunit 6722 "Booking Manager Handler"
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6721, 'OnGetBookingMailboxes', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnGetBookingMailboxes', '', false, false)]
     local procedure OnGetBookingMailboxes(var TempBookingMailbox: Record "Booking Mailbox" temporary)
     begin
         if not CanHandle then
@@ -31,7 +31,7 @@ codeunit 6722 "Booking Manager Handler"
         O365SyncManagement.GetBookingMailboxes(BookingSync, TempBookingMailbox, '');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6721, 'OnRegisterAppointmentConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnRegisterAppointmentConnection', '', false, false)]
     local procedure OnRegisterAppointmentConnection()
     var
         BookingSync: Record "Booking Sync";
@@ -67,7 +67,7 @@ codeunit 6722 "Booking Manager Handler"
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionName);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6721, 'OnSetBookingItemInvoiced', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnSetBookingItemInvoiced', '', false, false)]
     local procedure OnSetBookingItemInvoiced(var InvoicedBookingItem: Record "Invoiced Booking Item")
     begin
         if CanHandle then begin
@@ -80,7 +80,7 @@ codeunit 6722 "Booking Manager Handler"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6721, 'OnSynchronize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnSynchronize', '', false, false)]
     local procedure OnSynchronize(var BookingItem: Record "Booking Item")
     var
         BookingSync: Record "Booking Sync";

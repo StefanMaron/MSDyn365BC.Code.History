@@ -132,7 +132,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"VAT Prod. Posting Group");
         VATRateChangeConv.FindFirst;
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."To Code");
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         repeat
             VATPostingSetup."VAT Identifier" := '';
             VATPostingSetup.Modify(true);
@@ -172,13 +172,13 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"VAT Prod. Posting Group");
         VATRateChangeConv.FindFirst;
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."To Code");
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         repeat
             VATPostingSetup."VAT Identifier" := '';
             VATPostingSetup.Modify(true);
         until VATPostingSetup.Next = 0;
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."From Code");
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         repeat
             VATPostingSetup."VAT Identifier" := '';
             VATPostingSetup.Modify(true);

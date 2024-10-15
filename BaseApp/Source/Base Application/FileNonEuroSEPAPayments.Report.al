@@ -290,7 +290,7 @@ report 2000006 "File Non Euro SEPA Payments"
     var
         BalancingPostingDate: Date;
     begin
-        if PmtJnlLine.IsEmpty then
+        if PmtJnlLine.IsEmpty() then
             exit;
         if ExecutionDate <> 0D then
             BalancingPostingDate := ExecutionDate

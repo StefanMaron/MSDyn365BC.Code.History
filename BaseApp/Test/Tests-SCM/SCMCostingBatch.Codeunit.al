@@ -863,7 +863,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test to check the functionality of Adjust Item Cost Prices report for Stock keeping Unit Last Direct Cost with Rounding method.
 
         // Setup: Create Item with Standard Cost. Create Stock keeping Unit and update Last Direct Cost. Set values to global variables. Find first Rounding method.
-        DeleteObejctOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded;
         CreateAndModifyItem(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(100, 2), 0);  // Taking Random value for Standard Cost. Taking 0 for Unit Price as it is not required in the test.
         CreateStockkeepingUnit(Item);
         LastDirectCost := UpdateLastDirectCostOnStockkeepingUnit(Item."No.");
@@ -967,7 +967,7 @@ codeunit 137402 "SCM Costing Batch"
 
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Run Time", 1);
             ItemJournalLine.Validate("Output Quantity", 0);
@@ -996,7 +996,7 @@ codeunit 137402 "SCM Costing Batch"
         // Clear global variables.
         ClearGlobalVariables;
 
-        DeleteObejctOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded;
 
         // Lazy Setup.
         if isInitialized then
@@ -1333,7 +1333,8 @@ codeunit 137402 "SCM Costing Batch"
         PostValueEntryToGL.Reset();
         PostMethod := PostMethod::"Per Entry";
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        PostInventoryCosttoGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
+        PostInventoryCosttoGL.SetGenJnlBatch(TemplateName, BatchName);
+        PostInventoryCosttoGL.InitializeRequest(PostMethod, '', true);
         PostInventoryCosttoGL.SetTableView(PostValueEntryToGL);
         PostInventoryCosttoGL.UseRequestPage(false);
         PostInventoryCosttoGL.SaveAsPdf(StrSubstNo(FileName, TemporaryPath, LibraryUtility.GetGlobalNoSeriesCode));
@@ -1766,7 +1767,7 @@ codeunit 137402 "SCM Costing Batch"
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
     end;
 
-    local procedure DeleteObejctOptionsIfNeeded()
+    local procedure DeleteObjectOptionsIfNeeded()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin

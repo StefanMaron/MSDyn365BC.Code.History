@@ -474,13 +474,14 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
             SetTableView(PostValueEntryToGL);
             UseRequestPage := false;
             LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-            InitializeRequest(1, true, TemplateName, BatchName);
+            SetGenJnlBatch(TemplateName, BatchName);
+            InitializeRequest(1, '', true);
             SaveAsPdf(FileMgt.ServerTempFileName(''));
         end;
 
         // validation
         ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             GLItemLedgerRelation.SetRange("Value Entry No.", ValueEntry."Entry No.");
             if ValueEntry."Cost Amount (Actual)" <> 0 then

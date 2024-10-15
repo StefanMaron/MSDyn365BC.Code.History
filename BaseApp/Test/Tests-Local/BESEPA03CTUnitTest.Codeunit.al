@@ -230,7 +230,7 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
 
     local procedure VerifyPaymentExportData(var TempPaymentJournalLine: Record "Payment Journal Line" temporary; PaymentExportData: Record "Payment Export Data")
     begin
-        TempPaymentJournalLine.FindSet;
+        TempPaymentJournalLine.FindSet();
         repeat
             VerifyPaymentLine(TempPaymentJournalLine, PaymentExportData);
         until TempPaymentJournalLine.Next = 0;

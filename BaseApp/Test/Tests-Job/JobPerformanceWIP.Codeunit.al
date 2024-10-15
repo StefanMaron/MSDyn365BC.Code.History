@@ -331,7 +331,7 @@ codeunit 136304 "Job Performance WIP"
         // REMOVE THIS FILTER AS SOON AS BUG 167961 HAD BEEN RESOLVED!
         JobWIPMethod.SetFilter("Recognized Costs", '<>%1', JobWIPMethod."Recognized Costs"::"Cost Value");
         JobWIPMethod.SetRange("System Defined", true);
-        JobWIPMethod.FindSet;
+        JobWIPMethod.FindSet();
         repeat
             // with accrued sales
             WIPScenario(100, 10, 200, 40, JobWIPMethod);
@@ -484,7 +484,7 @@ codeunit 136304 "Job Performance WIP"
         JobWIPMethod.SetFilter("Recognized Costs", '<>%1&<>%2', JobWIPMethod."Recognized Costs"::"Cost Value",
           JobWIPMethod."Recognized Costs"::"At Completion");
         JobWIPMethod.SetRange("System Defined", true);
-        JobWIPMethod.FindSet;
+        JobWIPMethod.FindSet();
         CreateJobWithWIPMethod(Job, JobWIPMethod.Code, Job."WIP Posting Method"::"Per Job");
         repeat
             // Setup: create schedule and contract for job task.
@@ -2020,7 +2020,7 @@ codeunit 136304 "Job Performance WIP"
           JobPlanningLine, LibraryJob.PlanningLineTypeContract, ConsumableType, JobTask, ContractCostAmount, ContractPriceAmount, ContractPriceAmount)
     end;
 
-    local procedure CreateJobPlanningLineWithPrice(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; TotalCost: Decimal; TotalPrice: Decimal; LineAmount: Decimal)
+    local procedure CreateJobPlanningLineWithPrice(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; TotalCost: Decimal; TotalPrice: Decimal; LineAmount: Decimal)
     begin
         LibraryJob.CreateJobPlanningLine(LineType, ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine."Total Cost (LCY)" := TotalCost;
@@ -2036,12 +2036,12 @@ codeunit 136304 "Job Performance WIP"
     begin
         // Register usage amount for each job task in the filter for Fraction of the scheduled usage.
 
-        JobTask.FindSet;
+        JobTask.FindSet();
         repeat
             JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
             JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
             JobPlanningLine.SetRange("Line Type", JobPlanningLine."Line Type"::Budget);
-            JobPlanningLine.FindSet;
+            JobPlanningLine.FindSet();
             repeat
                 CreateMockJobLedgerEntry(JobPlanningLine, Fraction, JobLedgerEntry)
             until JobPlanningLine.Next = 0
@@ -2055,12 +2055,12 @@ codeunit 136304 "Job Performance WIP"
     begin
         // Register invoiced amount for each job task in the filter for Fraction of the contract.
 
-        JobTask.FindSet;
+        JobTask.FindSet();
         repeat
             JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
             JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
             JobPlanningLine.SetRange("Line Type", JobPlanningLine."Line Type"::Billable);
-            JobPlanningLine.FindSet;
+            JobPlanningLine.FindSet();
             repeat
                 CreateMockJobLedgerEntry(JobPlanningLine, Fraction, JobLedgerEntry)
             until JobPlanningLine.Next = 0
@@ -2300,7 +2300,7 @@ codeunit 136304 "Job Performance WIP"
         // only consider posting tasks
         JobTask.SetRange("Job No.", Job."No.");
         JobTask.SetRange("WIP-Total", JobTask."WIP-Total"::Total);
-        JobTask.FindSet;
+        JobTask.FindSet();
         repeat
             JobWIPTotal.SetRange("Job No.", Job."No.");
             JobWIPTotal.SetRange("Job Task No.", JobTask."Job Task No.");
@@ -2311,7 +2311,7 @@ codeunit 136304 "Job Performance WIP"
         // verify cost and sales recognition for the WIP totals
         JobTask.SetRange("Job Task Type");
         JobTask.SetRange("WIP-Total", JobTask."WIP-Total"::Total);
-        JobTask.FindSet;
+        JobTask.FindSet();
         repeat
             Assert.AreNearlyEqual(UsageTotalCost(JobTask) - TotalRecogCostGL(JobTask), WIPCostAmount(JobTask),
               GetRoundingPrecision, 'WIP cost amounts do not match');
@@ -2593,7 +2593,7 @@ codeunit 136304 "Job Performance WIP"
     begin
         JobTask.SetRange("Job No.", JobNo);
         JobTask.SetRange("WIP-Total", JobTask."WIP-Total"::Total);
-        JobTask.FindSet;
+        JobTask.FindSet();
     end;
 
     local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; JobNo: Code[20]; Type: Enum "Sales Line Type")
@@ -2646,7 +2646,7 @@ codeunit 136304 "Job Performance WIP"
         // Return a job task containing the total for all amounts of the Job's posting tasks
 
         FilterJobTaskByType(JobTask, Job."No.");
-        JobTask.FindSet;
+        JobTask.FindSet();
         repeat
             AddJobTasks(JobTask, TotalJobTask);
         until JobTask.Next = 0;
@@ -2680,7 +2680,7 @@ codeunit 136304 "Job Performance WIP"
         // Sum all posting task lines in the range.
         JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
         JobTask.SetRange("Job Task No.", JobTask."Job Task No.", EndJobTaskNo);
-        JobTask.FindSet;
+        JobTask.FindSet();
         repeat
             AddJobTasks(JobTask, TotalJobTask)
         until JobTask.Next = 0;
@@ -2796,7 +2796,7 @@ codeunit 136304 "Job Performance WIP"
                 AccountType::"WIP Invoiced Sales Account":
                     SetRange("Bal. Account No.", JobPostingGroup."WIP Invoiced Sales Account");
             end;
-            FindSet;
+            FindSet();
 
             repeat
                 TotalAmount += Amount;
@@ -2816,7 +2816,7 @@ codeunit 136304 "Job Performance WIP"
         JobWIPEntry.TestField("WIP Entry Amount", -JobTask."Usage (Total Cost)");
     end;
 
-    local procedure VerifyJobWIPEntryByType(JobNo: Code[20]; Type: Option; ExpectedAmount: Decimal)
+    local procedure VerifyJobWIPEntryByType(JobNo: Code[20]; Type: Enum "Job WIP Buffer Type"; ExpectedAmount: Decimal)
     var
         JobWIPEntry: Record "Job WIP Entry";
     begin
@@ -2826,7 +2826,7 @@ codeunit 136304 "Job Performance WIP"
         JobWIPEntry.TestField("WIP Entry Amount", ExpectedAmount);
     end;
 
-    local procedure VerifyJobWIPEntryDoesNotExist(JobNo: Code[20]; Type: Option)
+    local procedure VerifyJobWIPEntryDoesNotExist(JobNo: Code[20]; Type: Enum "Job WIP Buffer Type")
     var
         JobWIPEntry: Record "Job WIP Entry";
     begin
@@ -2867,7 +2867,7 @@ codeunit 136304 "Job Performance WIP"
         Assert.IsTrue(JobWIPGLEntry.Reversed, EntryNotReversedErr);
     end;
 
-    local procedure VerifyJobWIPEntryGLAccounts(JobNo: Code[20]; JobWIPEntryType: Option; GLAccountNo: Code[20]; BalGLAccountNo: Code[20])
+    local procedure VerifyJobWIPEntryGLAccounts(JobNo: Code[20]; JobWIPEntryType: Enum "Job WIP Buffer Type"; GLAccountNo: Code[20]; BalGLAccountNo: Code[20])
     var
         JobWIPEntry: Record "Job WIP Entry";
     begin

@@ -390,7 +390,7 @@ report 398 "Date Compress Vendor Ledger"
             if DtldVendLedgEntry.Find('-') then begin
                 repeat
                     SummarizeDtldEntry(DtldVendLedgEntry, NewVendLedgEntry);
-                until DtldVendLedgEntry.Next = 0;
+                until DtldVendLedgEntry.Next() = 0;
                 DtldVendLedgEntry.DeleteAll();
             end;
 
@@ -583,7 +583,7 @@ report 398 "Date Compress Vendor Ledger"
                     NewDtldVendLedgEntry."Entry No." := LastDtldEntryNo;
                     NewDtldVendLedgEntry.Insert(true);
                 end;
-            until DtldVendLedgEntryBuffer.Next = 0;
+            until DtldVendLedgEntryBuffer.Next() = 0;
         DtldVendLedgEntryBuffer.DeleteAll();
     end;
 

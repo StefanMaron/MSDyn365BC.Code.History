@@ -1,4 +1,4 @@
-﻿codeunit 1605 "PEPPOL Management"
+codeunit 1605 "PEPPOL Management"
 {
 
     trigger OnRun()
@@ -170,7 +170,7 @@
     procedure GetAccountingSupplierPartyTaxSchemeBIS(var VATAmtLine: Record "VAT Amount Line"; var CompanyID: Text; var CompanyIDSchemeID: Text; var TaxSchemeID: Text)
     begin
         VATAmtLine.SetFilter("Tax Category", '<>%1', GetTaxCategoryO());
-        if not VATAmtLine.IsEmpty then
+        if not VATAmtLine.IsEmpty() then
             GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
         VATAmtLine.SetRange("Tax Category");
         CompanyID := DelChr(CompanyID);

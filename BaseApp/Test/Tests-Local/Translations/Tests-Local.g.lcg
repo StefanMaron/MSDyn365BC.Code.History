@@ -23,6 +23,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Checklist Revenue and VAT Test - NamedType GLEntry2DocumentNoTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 976138744 - NamedType 1183753762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Amount To Apply field is not reset.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType AmountToApplyNotResetErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 976138744 - NamedType 3904073674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Applies-to ID field is not reset.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType AppliedToIdNotResetErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 976138744 - NamedType 559277968" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2]]></Val>
@@ -41,22 +59,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType IncorrectNoOfRecordsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 976138744 - NamedType 3904073674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3345070057 - NamedType 2504206096" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Applies-to ID field is not reset.]]></Val>
+      <Val><![CDATA[%1 is not correct for line %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType AppliedToIdNotResetErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 976138744 - NamedType 1183753762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Amount To Apply field is not reset.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Tests - NamedType AmountToApplyNotResetErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Domicilations - NamedType DimensionIsNotCorrectErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3345070057 - NamedType 227961236" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -68,15 +77,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Domicilations - NamedType DomFileNotExistsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3345070057 - NamedType 2504206096" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is not correct for line %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Domicilations - NamedType DimensionIsNotCorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3345070057 - NamedType 3582385650" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 does not exist.]]></Val>
@@ -86,67 +86,31 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Domicilations - NamedType DomLineDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 160957655" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 2120421046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The quantity of nodes does not match quantity of payments]]></Val>
+      <Val><![CDATA[Amount must be positive in Gen. Journal Line Journal Template Name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType NodeQuantityDoesNotMatchErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType AmountMustBePositiveErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 3316628989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 1798808278" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect node name]]></Val>
+      <Val><![CDATA[BE55 4501 1574 8944]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType IncorrectNodeNameErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BankIbanTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 605709193" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 3699005863" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect node value]]></Val>
+      <Val><![CDATA[The Country/Region Code field cannot be blank for bank account number %1 in payment journal line number 10000.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType IncorrectNodeValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 2836731936" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect error message.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType IncorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 407803680" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The SWIFT Code field cannot be blank in payment journal line number 10000.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankVendorSwiftErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 995007468" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The SWIFT Code field cannot be blank for bank account number %1 in payment journal line number 10000.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankSwiftErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 2879855353" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Beneficiary IBAN field cannot be blank in payment journal line number 10000.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankVendorIbanErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankCurrencyCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1990572711 - NamedType 1425000725" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -158,22 +122,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankIbanErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 352818819" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 1110212839" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Bank Country/Region Code field cannot be blank in payment journal line number 10000.]]></Val>
+      <Val><![CDATA[The export number series cannot be blank in export protocol %1.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankVendorCurrencyCodeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 3699005863" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Country/Region Code field cannot be blank for bank account number %1 in payment journal line number 10000.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankCurrencyCodeErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankNoSeriesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1990572711 - NamedType 2079676925" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -194,31 +149,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankSepaReportErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 3787406209" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 995007468" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The SEPA Allowed field cannot be No for country/region code DK in payment journal line number 10000.]]></Val>
+      <Val><![CDATA[The SWIFT Code field cannot be blank for bank account number %1 in payment journal line number 10000.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType SepaNotAllowedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankSwiftErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 1110212839" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 352818819" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The export number series cannot be blank in export protocol %1.]]></Val>
+      <Val><![CDATA[The Bank Country/Region Code field cannot be blank in payment journal line number 10000.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankNoSeriesErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankVendorCurrencyCodeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 1520140593" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 2879855353" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The currency must be euro in payment journal line number 10000.]]></Val>
+      <Val><![CDATA[The Beneficiary IBAN field cannot be blank in payment journal line number 10000.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType CurrencyMustBeEuroErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankVendorIbanErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 407803680" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The SWIFT Code field cannot be blank in payment journal line number 10000.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BlankVendorSwiftErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1990572711 - NamedType 4129285443" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -230,76 +194,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType CurrencyCannotBeEuroErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 2278315357" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 1520140593" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Should have been Posted]]></Val>
+      <Val><![CDATA[The currency must be euro in payment journal line number 10000.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType ShouldHaveBeenPostedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 2120421046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount must be positive in Gen. Journal Line Journal Template Name]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType AmountMustBePositiveErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 2712014142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Only one valid bank account should appear within the filter for this export protocol. ]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType OnlyOneBankAccountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 4215080592" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Bank Account field cannot be blank in payment journal line number 10000.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType PaymentLineBlankBankAccountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 299477724" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no Payment Journal Line within the filter.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType NoPaymentInJournalErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 1179846972" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BE68 5390 0754 7034]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType VendorIbanTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 1798808278" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BE55 4501 1574 8944]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType BankIbanTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 4077479897" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The amount must be positive for Vendor %1 and beneficiary bank account %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Vendor No.; %2 - Bank Account;]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType NotPositiveAmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType CurrencyMustBeEuroErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1990572711 - NamedType 2381905420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -320,40 +221,76 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType ErrorLogNotShownErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 1058611516" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 2836731936" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot create this type of document when Vendor %1 is blocked with type %2]]></Val>
+      <Val><![CDATA[Incorrect error message.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Vendor No; %2 - Blocked field]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentVendorErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType IncorrectErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 2920946820" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 3316628989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot create this type of document when Customer %1 is blocked with type %2]]></Val>
+      <Val><![CDATA[Incorrect node name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Customer No; %2 - Blocked field]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentCustomerErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType IncorrectNodeNameErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 4184374666" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 605709193" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot create this type of document when Vendor %1 is blocked for privacy.]]></Val>
+      <Val><![CDATA[Incorrect node value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Vendor No]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentVendorPrivacyBlockedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType IncorrectNodeValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1990572711 - NamedType 3293106658" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 160957655" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot create this type of document when Customer %1 is blocked for privacy.]]></Val>
+      <Val><![CDATA[The quantity of nodes does not match quantity of payments]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Customer No]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentCustomerPrivacyBlockedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType NodeQuantityDoesNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 299477724" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is no Payment Journal Line within the filter.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType NoPaymentInJournalErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 4077479897" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The amount must be positive for Vendor %1 and beneficiary bank account %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Vendor No.; %2 - Bank Account;]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType NotPositiveAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 2712014142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Only one valid bank account should appear within the filter for this export protocol. ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType OnlyOneBankAccountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 4215080592" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Bank Account field cannot be blank in payment journal line number 10000.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType PaymentLineBlankBankAccountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1990572711 - NamedType 1988928635" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -365,22 +302,76 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType PaymentMessageTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3467608275 - NamedType 1450012057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 3787406209" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VAT Registration Format not found.]]></Val>
+      <Val><![CDATA[The SEPA Allowed field cannot be No for country/region code DK in payment journal line number 10000.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType VatRegNoFormatNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType SepaNotAllowedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3467608275 - NamedType 1357206263" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1990572711 - NamedType 2278315357" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[File existence error.]]></Val>
+      <Val><![CDATA[Should have been Posted]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType FileExistenceErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType ShouldHaveBeenPostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 1179846972" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BE68 5390 0754 7034]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType VendorIbanTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 2920946820" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create this type of document when Customer %1 is blocked with type %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Customer No; %2 - Blocked field]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentCustomerErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 3293106658" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create this type of document when Customer %1 is blocked for privacy.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Customer No]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentCustomerPrivacyBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 1058611516" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create this type of document when Vendor %1 is blocked with type %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Vendor No; %2 - Blocked field]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentVendorErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 4184374666" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create this type of document when Vendor %1 is blocked for privacy.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Vendor No]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentVendorPrivacyBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3467608275 - NamedType 2738480885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[//ClientListing]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType ClientListingTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 3148363647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -392,6 +383,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType CompanyVATNumberCapTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3467608275 - NamedType 1357206263" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[File existence error.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType FileExistenceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 2189773451" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[//TurnOver]]></Val>
@@ -399,15 +399,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType TurnOverCapTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3467608275 - NamedType 3882360959" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[//VATAmount]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType VATAmountCapTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 3817528022" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -419,6 +410,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType TurnOverSumCapTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3467608275 - NamedType 3882360959" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[//VATAmount]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType VATAmountCapTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 636841178" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VATAmountSum]]></Val>
@@ -428,13 +428,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType VATAmountSumCapTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3467608275 - NamedType 2738480885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3467608275 - NamedType 1450012057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[//ClientListing]]></Val>
+      <Val><![CDATA[VAT Registration Format not found.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType ClientListingTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Annual Listing - NamedType VatRegNoFormatNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1387366403 - NamedType 1155119834" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -455,15 +455,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Journal - NamedType WrongNumberOfLinesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1387366403 - NamedType 1334233063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong status of Payment Journal Line.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Journal - NamedType WrongStatusOfLineErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1387366403 - NamedType 3701290545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong status of Payment Journal Batch.]]></Val>
@@ -473,13 +464,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Journal - NamedType WrongStatusOfBatchErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1383992956 - NamedType 1069379362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1387366403 - NamedType 1334233063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected %1 in row %2, column %3 on worksheet %4]]></Val>
+      <Val><![CDATA[Wrong status of Payment Journal Line.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Template Name, %2 - RowNo, %3 - ColumnNo]D;]A;(LookupHint=Codeunit Ledger Reports - NamedType TemplateNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Journal - NamedType WrongStatusOfLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1383992956 - NamedType 3402160905" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -500,6 +491,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Ledger Reports - NamedType PageTwoTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1383992956 - NamedType 1069379362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected %1 in row %2, column %3 on worksheet %4]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Template Name, %2 - RowNo, %3 - ColumnNo]D;]A;(LookupHint=Codeunit Ledger Reports - NamedType TemplateNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1383992956 - NamedType 2181035037" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The number of pages in the report differs from the expected.]]></Val>
@@ -518,15 +518,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit LinkToAcconReportTest - NamedType WrongFormatErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4044753521 - NamedType 3316387539" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect User ID.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Manual VAT Correction - NamedType UserIdErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4044753521 - NamedType 601746860" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount is not correct.]]></Val>
@@ -534,6 +525,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Manual VAT Correction - NamedType AmountIncorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4044753521 - NamedType 1771625032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There should be %1 records in Manual VAT correction table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Manual VAT Correction - NamedType ManVATCorNoOfLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4044753521 - NamedType 2130769594" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -545,13 +545,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Manual VAT Correction - NamedType RowNoLinkErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4044753521 - NamedType 1771625032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4044753521 - NamedType 3316387539" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There should be %1 records in Manual VAT correction table.]]></Val>
+      <Val><![CDATA[Incorrect User ID.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Manual VAT Correction - NamedType ManVATCorNoOfLineErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Manual VAT Correction - NamedType UserIdErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2211344488 - NamedType 1943186384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -590,13 +590,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Discount - NamedType WrongFieldValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 49323770 - NamedType 2567011177" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 49323770 - NamedType 1749852448" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[When using workdate for applying/unapplying, the workdate must not be before the latest posting date]]></Val>
+      <Val><![CDATA[Please enter a Journal Batch Name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales/Purchase Application - NamedType WrongApplDateErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales/Purchase Application - NamedType EmptyJnlBatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 49323770 - NamedType 65310996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -608,15 +608,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales/Purchase Application - NamedType EmptyJnlTemplateErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 49323770 - NamedType 1749852448" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Please enter a Journal Batch Name]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales/Purchase Application - NamedType EmptyJnlBatchErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 49323770 - NamedType 3177803720" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invalid error: ''%1''.]]></Val>
@@ -626,13 +617,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales/Purchase Application - NamedType InvalidErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4188147119 - NamedType 4256501266" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 49323770 - NamedType 2567011177" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Direct Debit Mandate ID is not transferred to Domiciliation Journal Line.]]></Val>
+      <Val><![CDATA[When using workdate for applying/unapplying, the workdate must not be before the latest posting date]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType MandateIDErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales/Purchase Application - NamedType WrongApplDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4188147119 - NamedType 2977041688" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -644,22 +635,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType AppliestoErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4188147119 - NamedType 3015347321" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4188147119 - NamedType 2413503889" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.]]></Val>
+      <Val><![CDATA[145003454572]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType FileExportErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4188147119 - NamedType 1584266250" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are more file errors than expected.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType ErrorCountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType DomNoTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4188147119 - NamedType 3777985252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -671,31 +653,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType EmptyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4188147119 - NamedType 144135229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4188147119 - NamedType 1584266250" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The customer's Partner Type, Company, must be equal to the Partner Type, Person, specified in the collection.]]></Val>
+      <Val><![CDATA[There are more file errors than expected.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType PartnerTypeErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType ErrorCountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4188147119 - NamedType 2413503889" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4188147119 - NamedType 3015347321" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[145003454572]]></Val>
+      <Val><![CDATA[The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType DomNoTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4188147119 - NamedType 2193994081" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The balance account type in %1 must be G/L Account.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType GLAccTypeErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType FileExportErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4188147119 - NamedType 1428972410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -707,13 +680,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType GLAccNoErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4188147119 - NamedType 3083826889" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4188147119 - NamedType 2193994081" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 in Journal Template is not a G/L Account No.]]></Val>
+      <Val><![CDATA[The balance account type in %1 must be G/L Account.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType InvalidGLAccNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType GLAccTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4188147119 - NamedType 450781127" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -725,13 +698,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType InvalidAccTypeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4188147119 - NamedType 574683721" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4188147119 - NamedType 3083826889" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Validation error for Field: GenJnlBatch,  Message = 'No. Series must have a value in Gen. Journal Batch: Journal Template Name]]></Val>
+      <Val><![CDATA[%1 in Journal Template is not a G/L Account No.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType NoSeriesErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType InvalidGLAccNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4188147119 - NamedType 4256501266" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Direct Debit Mandate ID is not transferred to Domiciliation Journal Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType MandateIDErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4188147119 - NamedType 2808191070" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -743,6 +725,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType NoRecordsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4188147119 - NamedType 574683721" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Validation error for Field: GenJnlBatch,  Message = 'No. Series must have a value in Gen. Journal Batch: Journal Template Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType NoSeriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4188147119 - NamedType 144135229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The customer's Partner Type, Company, must be equal to the Partner Type, Person, specified in the collection.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SEPA DD Integration Test - BE - NamedType PartnerTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3562402911 - NamedType 4078895464" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Bill-to Name must have a value]]></Val>
@@ -750,15 +750,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Enterprise No and Branch - NamedType BillToNameMustHaveValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1061145164 - NamedType 636777210" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[It cannot be zero or empty]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat Export - NamedType ReqFieldValMissingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1061145164 - NamedType 3787349005" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -777,6 +768,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat Export - NamedType KBONumberTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1061145164 - NamedType 636777210" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[It cannot be zero or empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat Export - NamedType ReqFieldValMissingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2886405626 - NamedType 874125469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -869,13 +869,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Reports BE - NamedType AmountTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 402211147 - NamedType 20121470" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 402211147 - NamedType 1037694797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[not found]]></Val>
+      <Val><![CDATA[Problem when creating Intervat XML File.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Reports BE - NamedType NotFoundMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Reports BE - NamedType CannotCreateXMLFileMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 402211147 - NamedType 2791289126" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -896,13 +896,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Reports BE - NamedType MustNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 402211147 - NamedType 1037694797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 402211147 - NamedType 20121470" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Problem when creating Intervat XML File.]]></Val>
+      <Val><![CDATA[not found]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Reports BE - NamedType CannotCreateXMLFileMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Reports BE - NamedType NotFoundMsg)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

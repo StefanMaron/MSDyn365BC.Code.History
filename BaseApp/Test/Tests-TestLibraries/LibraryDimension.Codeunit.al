@@ -190,7 +190,7 @@ codeunit 131001 "Library - Dimension"
         ServiceContractHeader.Modify(true);
     end;
 
-    procedure CreateAccTypeDefaultDimension(var DefaultDimension: Record "Default Dimension"; TableID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20]; ValuePosting: Option)
+    procedure CreateAccTypeDefaultDimension(var DefaultDimension: Record "Default Dimension"; TableID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
     begin
         CreateDefaultDimension(DefaultDimension, TableID, ' ', DimensionCode, DimensionValueCode);
         DefaultDimension.Validate("Value Posting", ValuePosting);
@@ -222,7 +222,7 @@ codeunit 131001 "Library - Dimension"
         CreateDefaultDimension(DefaultDimension, DATABASE::Vendor, VendorNo, DimensionCode, DimensionValueCode);
     end;
 
-    procedure CreateDefaultDimensionWithNewDimValue(var DefaultDimension: Record "Default Dimension"; TableID: Integer; No: Code[20]; ValuePosting: Option)
+    procedure CreateDefaultDimensionWithNewDimValue(var DefaultDimension: Record "Default Dimension"; TableID: Integer; No: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         DimValue: Record "Dimension Value";
     begin
@@ -344,7 +344,7 @@ codeunit 131001 "Library - Dimension"
     procedure FindDimension(var Dimension: Record Dimension)
     begin
         Dimension.SetRange(Blocked, false);
-        Dimension.FindSet;
+        Dimension.FindSet();
     end;
 
     procedure FindDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
@@ -352,7 +352,7 @@ codeunit 131001 "Library - Dimension"
         DimensionValue.SetRange("Dimension Code", DimensionCode);
         DimensionValue.SetRange(Blocked, false);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
-        DimensionValue.FindSet;
+        DimensionValue.FindSet();
     end;
 
     procedure FindDifferentDimensionValue(DimensionCode: Code[20]; DimensionValueCode: Code[20]): Code[20]
@@ -367,7 +367,7 @@ codeunit 131001 "Library - Dimension"
     procedure FindDimensionSetEntry(var DimensionSetEntry: Record "Dimension Set Entry"; DimensionSetID: Integer)
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindSet;
+        DimensionSetEntry.FindSet();
     end;
 
     procedure GetNextDimensionValue(var DimensionValue: Record "Dimension Value")
@@ -469,14 +469,14 @@ codeunit 131001 "Library - Dimension"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 483, 'OnBeforeScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Global Dimensions", 'OnBeforeScheduleTask', '', false, false)]
     local procedure OnBeforeScheduleTask(TableNo: Integer; var DoNotScheduleTask: Boolean; var TaskID: Guid)
     begin
         DoNotScheduleTask := true;
         TaskID := CreateGuid;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 483, 'OnCountingActiveSessions', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Global Dimensions", 'OnCountingActiveSessions', '', false, false)]
     local procedure OnCountingActiveSessionsHandler(var IsCurrSessionActiveOnly: Boolean)
     begin
         IsCurrSessionActiveOnly := true;

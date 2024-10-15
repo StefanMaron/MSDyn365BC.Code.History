@@ -40,7 +40,7 @@ codeunit 744 "VAT Report Validate"
 
     local procedure ShowErrorLog()
     begin
-        if not TempVATReportErrorLog.IsEmpty then begin
+        if not TempVATReportErrorLog.IsEmpty() then begin
             PAGE.Run(PAGE::"VAT Report Error Log", TempVATReportErrorLog);
             Error('');
         end;
@@ -50,7 +50,7 @@ codeunit 744 "VAT Report Validate"
     begin
         VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        if VATStatementReportLine.IsEmpty then begin
+        if VATStatementReportLine.IsEmpty() then begin
             InsertErrorLog(Text000);
             ShowErrorLog;
         end;

@@ -212,7 +212,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ModalBasicBankAccountCardHandler(var BasicBankAccountCard: TestPage "Payment Bank Account Card")
+    procedure ModalBasicBankAccountCardHandler(var BasicBankAccountCard: TestPage "Bank Account Card")
     begin
         BasicBankAccountCard.OK.Invoke;
     end;

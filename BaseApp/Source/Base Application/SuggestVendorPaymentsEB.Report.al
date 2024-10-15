@@ -30,7 +30,7 @@
                             Window.Update(1, "No.");
                             AmountPerVendor := 0;
                             SuggestPayments;
-                        until Next = 0
+                        until Next() = 0
                 end;
                 if OpenPayments then
                     Message(Text005,
@@ -211,7 +211,7 @@
                 if VendLedgEntry.FindSet then
                     repeat
                         SetPaymJnlLine;
-                    until VendLedgEntry.Next = 0;
+                    until VendLedgEntry.Next() = 0;
             end;
 
             // select open and due entries
@@ -222,7 +222,7 @@
             if VendLedgEntry.FindSet then
                 repeat
                     SetPaymJnlLine;
-                until VendLedgEntry.Next = 0;
+                until VendLedgEntry.Next() = 0;
 
             // select open with payment discount
             if IncPmtDiscount then begin
@@ -235,7 +235,7 @@
                 if VendLedgEntry.FindSet then
                     repeat
                         SetPaymJnlLine;
-                    until VendLedgEntry.Next = 0;
+                    until VendLedgEntry.Next() = 0;
             end;
 
             // cleanup if nothing to pay for this vendor (e.g. Credit memo's > Invoices)

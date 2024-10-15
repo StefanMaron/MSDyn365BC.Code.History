@@ -1,4 +1,4 @@
-﻿xmlport 1010 "SEPA DD pain.008.001.02"
+xmlport 1010 "SEPA DD pain.008.001.02"
 {
     Caption = 'SEPA DD pain.008.001.02';
     DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02';
@@ -47,7 +47,7 @@
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation.Address = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(PstCd; CompanyInformation."Post Code")
@@ -56,7 +56,7 @@
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation."Post Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(TwnNm; CompanyInformation.City)
@@ -65,7 +65,7 @@
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation.City = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(Ctry; CompanyInformation."Country/Region Code")
@@ -74,7 +74,7 @@
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation."Country/Region Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -169,7 +169,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if PaymentExportDataGroup."Sender Bank BIC" = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(ChrgBr; PaymentExportDataGroup."SEPA Charge Bearer Text")
@@ -245,7 +245,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if PaymentExportData."Recipient Bank BIC" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(Dbtr)
@@ -262,7 +262,7 @@
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Address" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(PstCd; PaymentExportData."Recipient Post Code")
@@ -271,7 +271,7 @@
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Post Code" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(TwnNm; PaymentExportData."Recipient City")
@@ -280,7 +280,7 @@
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient City" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(Ctry; PaymentExportData."Recipient Country/Region Code")
@@ -289,7 +289,7 @@
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Country/Region Code" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                             }
@@ -307,7 +307,7 @@
                                 trigger OnBeforePassVariable()
                                 begin
                                     if PaymentExportData."Recipient Bank BIC" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -336,7 +336,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if (PaymentExportData."Message to Recipient 1" = '') and (PaymentExportData."Document No." = '') then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -405,7 +405,7 @@
             end;
             PaymentExportDataGroup."Line No." += 1;
             PaymentExportDataGroup.Amount += PaymentExportData.Amount;
-        until PaymentExportData.Next = 0;
+        until PaymentExportData.Next() = 0;
         InsertPmtGroup(PaymentGroupNo);
     end;
 

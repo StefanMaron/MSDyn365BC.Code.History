@@ -657,7 +657,7 @@ report 5911 "Service - Invoice"
                                 if not TempLineFeeNoteOnReportHist.FindSet then
                                     CurrReport.Break
                             end else
-                                if TempLineFeeNoteOnReportHist.Next = 0 then
+                                if TempLineFeeNoteOnReportHist.Next() = 0 then
                                     CurrReport.Break();
                         end;
                     }
@@ -873,7 +873,7 @@ report 5911 "Service - Invoice"
         ServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer2 := ServiceShipmentBuffer;
-            if ServiceShipmentBuffer.Next = 0 then begin
+            if ServiceShipmentBuffer.Next() = 0 then begin
                 ServiceShipmentBuffer.Get(
                   ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2."Entry No.");
                 ServiceShipmentBuffer.Delete();
@@ -915,7 +915,7 @@ report 5911 "Service - Invoice"
                     TotalQuantity := TotalQuantity + ValueEntry."Invoiced Quantity";
                 end;
                 FirstValueEntryNo := ValueEntry."Entry No." + 1;
-            until (ValueEntry.Next = 0) or (TotalQuantity = 0);
+            until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
     procedure GenerateBufferFromShipment(ServiceInvoiceLine: Record "Service Invoice Line")
@@ -941,8 +941,8 @@ report 5911 "Service - Invoice"
                 if ServiceInvoiceLine2.Find('-') then
                     repeat
                         TotalQuantity := TotalQuantity + ServiceInvoiceLine2.Quantity;
-                    until ServiceInvoiceLine2.Next = 0;
-            until ServiceInvoiceHeader.Next = 0;
+                    until ServiceInvoiceLine2.Next() = 0;
+            until ServiceInvoiceHeader.Next() = 0;
 
         ServiceShipmentLine.SetCurrentKey("Order No.", "Order Line No.");
         ServiceShipmentLine.SetRange("Order No.", "Service Invoice Header"."Order No.");
@@ -972,7 +972,7 @@ report 5911 "Service - Invoice"
                           Quantity,
                           ServiceShipmentHeader."Posting Date");
                 end;
-            until (ServiceShipmentLine.Next = 0) or (TotalQuantity = 0);
+            until (ServiceShipmentLine.Next() = 0) or (TotalQuantity = 0);
     end;
 
     procedure AddBufferEntry(ServiceInvoiceLine: Record "Service Invoice Line"; QtyOnShipment: Decimal; PostingDate: Date)
@@ -1034,7 +1034,7 @@ report 5911 "Service - Invoice"
                 DimTxtArr[DimTxtArrLength] := TxtToAdd
             end else
                 DimTxtArr[DimTxtArrLength] := DimTxtArr[DimTxtArrLength] + Separation + TxtToAdd;
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
     end;
 
     local procedure GetLegalNoticeText(): Text[250]
@@ -1046,7 +1046,7 @@ report 5911 "Service - Invoice"
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetFilter("Unrealized Base", '<> 0');
-        if VATEntry.IsEmpty then
+        if VATEntry.IsEmpty() then
             exit('');
         exit(LegalNoticeTxt);
     end;
@@ -1073,7 +1073,7 @@ report 5911 "Service - Invoice"
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                 TempLineFeeNoteOnReportHist.Insert();
-            until LineFeeNoteOnReportHist.Next = 0;
+            until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
@@ -1081,7 +1081,7 @@ report 5911 "Service - Invoice"
                     TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                     TempLineFeeNoteOnReportHist.Insert();
-                until LineFeeNoteOnReportHist.Next = 0;
+                until LineFeeNoteOnReportHist.Next() = 0;
         end;
     end;
 

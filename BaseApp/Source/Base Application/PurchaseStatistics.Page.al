@@ -375,7 +375,7 @@ page 161 "Purchase Statistics"
                 TempVATAmountLine := TempNonDeductVATAmountLineBuffer;
                 TempVATAmountLine.Find;
                 TempVATAmountLine.ApplyNonDeductibleVAT(TempNonDeductVATAmountLineBuffer."VAT Amount");
-            until TempNonDeductVATAmountLineBuffer.Next = 0;
+            until TempNonDeductVATAmountLineBuffer.Next() = 0;
             TempNonDeductVATAmountLineBuffer.DeleteAll();
         end;
 
@@ -409,7 +409,7 @@ page 161 "Purchase Statistics"
                   Round((PurchLine."Amount Including VAT" - PurchLine.Amount) * PurchLine."Non Deductible VAT %" / 100);
                 TempNonDeductVATAmountLineBuffer."VAT Amount" += NonDeductibleVAT;
                 TempNonDeductVATAmountLineBuffer.Modify();
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
         PurchLine.SetRange("Non Deductible VAT %");
         PurchLine.SetRange("VAT Calculation Type");
     end;
@@ -422,7 +422,7 @@ page 161 "Purchase Statistics"
                 VATAmount -= TempNonDeductVATAmountLineBuffer."VAT Amount";
                 TotalPurchLine."Line Amount" += TempNonDeductVATAmountLineBuffer."VAT Amount";
                 TotalPurchLineLCY.Amount += TempNonDeductVATAmountLineBuffer."VAT Amount";
-            until TempNonDeductVATAmountLineBuffer.Next = 0;
+            until TempNonDeductVATAmountLineBuffer.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

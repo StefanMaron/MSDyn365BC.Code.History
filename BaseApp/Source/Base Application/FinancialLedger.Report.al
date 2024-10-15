@@ -287,7 +287,7 @@ report 11304 "Financial Ledger"
                         GLEntry.SetRange("Journal Template Name", "Gen. Journal Template".Name);
                         GLEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
 
-                        if GLEntry.IsEmpty then
+                        if GLEntry.IsEmpty() then
                             CurrReport.Break();
                     end;
                 }

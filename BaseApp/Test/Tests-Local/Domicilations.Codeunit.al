@@ -360,7 +360,7 @@ codeunit 144004 Domicilations
         DomiciliationJournalLine: Record "Domiciliation Journal Line";
     begin
         SuggestDomiciliations(DomiciliationJournalLine, CustomerFilter);
-        DomiciliationJournalLine.FindSet;
+        DomiciliationJournalLine.FindSet();
         DimSetID[1] := DomiciliationJournalLine."Dimension Set ID";
         DomiciliationJournalLine.Next;
         DimSetID[2] := DomiciliationJournalLine."Dimension Set ID";
@@ -411,7 +411,7 @@ codeunit 144004 Domicilations
         with GenJournalLine do begin
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet;
+            FindSet();
             Assert.AreEqual(
               DimSetID[1], "Dimension Set ID",
               StrSubstNo(DimensionIsNotCorrectErr, FieldCaption("Dimension Set ID"), "Line No."));

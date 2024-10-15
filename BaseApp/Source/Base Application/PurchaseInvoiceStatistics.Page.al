@@ -165,7 +165,7 @@ page 400 "Purchase Invoice Statistics"
                 TempVATAmountLine := TempNonDeductVATAmountLine;
                 if TempVATAmountLine.Find then
                     TempVATAmountLine.ApplyNonDeductibleVAT(TempNonDeductVATAmountLine."VAT Amount");
-            until TempNonDeductVATAmountLine.Next = 0;
+            until TempNonDeductVATAmountLine.Next() = 0;
             TempNonDeductVATAmountLine.DeleteAll();
         end;
 
@@ -235,7 +235,7 @@ page 400 "Purchase Invoice Statistics"
                 VATAmount -= TempNonDeductVATAmountLine."VAT Amount";
                 PurchInvLine."Line Amount" += TempNonDeductVATAmountLine."VAT Amount";
                 PurchInvLine.Amount += TempNonDeductVATAmountLine."VAT Amount";
-            until TempNonDeductVATAmountLine.Next = 0;
+            until TempNonDeductVATAmountLine.Next() = 0;
     end;
 
     local procedure CalculateTotals()
@@ -279,7 +279,7 @@ page 400 "Purchase Invoice Statistics"
                 OnCalculateTotalsOnAfterAddLineTotals(
                     PurchInvLine, VendAmount, AmountInclVAT, InvDiscAmount,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, VATPercentage)
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
 
         OnAfterCalculateTotals(
             Rec, VendAmount, AmountInclVAT, InvDiscAmount,

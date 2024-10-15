@@ -1,4 +1,4 @@
-﻿codeunit 6154 "API Webhook Notification Send"
+codeunit 6154 "API Webhook Notification Send"
 {
     // 1. Aggregates notifications
     // 2. Generates notifications payload per notification URL
@@ -970,6 +970,7 @@
             if not APIWebhookNotification.IsEmpty() then
                 APIWebhookNotification.DeleteAll(true);
         end;
+        ;
     end;
 
     local procedure SaveFailedAggregateNotifications(var EarliestScheduledDateTime: DateTime)
@@ -1618,7 +1619,7 @@
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnBeforeInsertLogEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeInsertLogEntry', '', false, false)]
     local procedure HandleOnBeforeInsertJobQueueLogEntry(var JobQueueLogEntry: Record "Job Queue Log Entry"; var JobQueueEntry: Record "Job Queue Entry")
     begin
         if JobQueueLogEntry.IsTemporary then

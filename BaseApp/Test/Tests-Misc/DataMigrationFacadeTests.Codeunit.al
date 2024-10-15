@@ -1661,37 +1661,32 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.ExpectedMessage(JournalLinesPostedMsg, Message);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6112, 'OnMigrateCustomer', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateCustomerSunscriber(var Sender: Codeunit "Customer Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Data Migration Facade", 'OnMigrateCustomer', '', false, false)]
+    local procedure OnMigrateCustomerSunscriber(var Sender: Codeunit "Customer Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Customer');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6112, 'OnMigrateCustomerDimensions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateCustomerDimensionsSubscriber(var Sender: Codeunit "Customer Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Data Migration Facade", 'OnMigrateCustomerDimensions', '', false, false)]
+    local procedure OnMigrateCustomerDimensionsSubscriber(var Sender: Codeunit "Customer Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Customer Dimensions');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6112, 'OnMigrateCustomerPostingGroups', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateCustomerPostingGroupsSubscriber(var Sender: Codeunit "Customer Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Data Migration Facade", 'OnMigrateCustomerPostingGroups', '', false, false)]
+    local procedure OnMigrateCustomerPostingGroupsSubscriber(var Sender: Codeunit "Customer Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
     begin
         LibraryVariableStorage.Enqueue('Migrate Customer Posting Groups');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6112, 'OnMigrateCustomerTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateCustomerTransactionsSubscriber(var Sender: Codeunit "Customer Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Data Migration Facade", 'OnMigrateCustomerTransactions', '', false, false)]
+    local procedure OnMigrateCustomerTransactionsSubscriber(var Sender: Codeunit "Customer Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
     begin
         LibraryVariableStorage.Enqueue('Migrate Customer Transactions');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6111, 'OnMigrateVendor', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateVendorSubscriber(var Sender: Codeunit "Vendor Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Data Migration Facade", 'OnMigrateVendor', '', false, false)]
+    local procedure OnMigrateVendorSubscriber(var Sender: Codeunit "Vendor Data Migration Facade"; RecordIdToMigrate: RecordID)
     var
         EventTxt: Text;
     begin
@@ -1699,37 +1694,32 @@ codeunit 135022 "Data Migration Facade Tests"
         LibraryVariableStorage.Enqueue(EventTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6111, 'OnMigrateVendorDimensions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateVendorDimensionsSubscriber(var Sender: Codeunit "Vendor Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Data Migration Facade", 'OnMigrateVendorDimensions', '', false, false)]
+    local procedure OnMigrateVendorDimensionsSubscriber(var Sender: Codeunit "Vendor Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Vendor Dimensions');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6111, 'OnMigrateVendorPostingGroups', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateVendorPostingGroupsSubscriber(var Sender: Codeunit "Vendor Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Data Migration Facade", 'OnMigrateVendorPostingGroups', '', false, false)]
+    local procedure OnMigrateVendorPostingGroupsSubscriber(var Sender: Codeunit "Vendor Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
     begin
         LibraryVariableStorage.Enqueue('Migrate Vendor Posting Groups');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6111, 'OnMigrateVendorTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateVendorTransactionSubscriber(var Sender: Codeunit "Vendor Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Data Migration Facade", 'OnMigrateVendorTransactions', '', false, false)]
+    local procedure OnMigrateVendorTransactionSubscriber(var Sender: Codeunit "Vendor Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
     begin
         LibraryVariableStorage.Enqueue('Migrate Vendor Transactions');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', true, true)]
-    [Scope('OnPrem')]
-    procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', true, true)]
+    local procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItem', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItem(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItem', '', false, false)]
+    local procedure OnMigrateItem(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     var
         Item: Record Item;
         ItemDataMigrationFacade: Codeunit "Item Data Migration Facade";
@@ -1738,79 +1728,68 @@ codeunit 135022 "Data Migration Facade Tests"
         ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', '', '', Item.Type::Inventory.AsInteger());
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemTrackingCode', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItemTrackingCode(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItemTrackingCode', '', false, false)]
+    local procedure OnMigrateItemTrackingCode(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Tracking Code');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateCostingMethod', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateCostingMethod(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateCostingMethod', '', false, false)]
+    local procedure OnMigrateCostingMethod(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Costing Method');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemUnitOfMeasure', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItemUnitOfMeasure(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItemUnitOfMeasure', '', false, false)]
+    local procedure OnMigrateItemUnitOfMeasure(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Unit Of Measure');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemDiscountGroup', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItemDiscountGroup(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItemDiscountGroup', '', false, false)]
+    local procedure OnMigrateItemDiscountGroup(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Discount Group');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemSalesLineDiscount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateSalesLineDiscount(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItemSalesLineDiscount', '', false, false)]
+    local procedure OnMigrateSalesLineDiscount(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Sales Line Discount');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemPrice', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItemPrice(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItemPrice', '', false, false)]
+    local procedure OnMigrateItemPrice(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Price');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemTariffNo', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItemTariffNumber(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItemTariffNo', '', false, false)]
+    local procedure OnMigrateItemTariffNumber(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Tariff Number');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemDimensions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItemDimension(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItemDimensions', '', false, false)]
+    local procedure OnMigrateItemDimension(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Dimensions');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItemPostingGroups', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItemPostingSetup(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItemPostingGroups', '', false, false)]
+    local procedure OnMigrateItemPostingSetup(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Posting Setup');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateInventoryTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateItemTransactions(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateInventoryTransactions', '', false, false)]
+    local procedure OnMigrateItemTransactions(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID; ChartOfAccountsMigrated: Boolean)
     begin
         LibraryVariableStorage.Enqueue('Migrate Item Transactions');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6110, 'OnMigrateGlAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnMigrateGLAccount(var Sender: Codeunit "GL Acc. Data Migration Facade"; RecordIdToMigrate: RecordID)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"GL Acc. Data Migration Facade", 'OnMigrateGlAccount', '', false, false)]
+    local procedure OnMigrateGLAccount(var Sender: Codeunit "GL Acc. Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate G/L Account');
     end;

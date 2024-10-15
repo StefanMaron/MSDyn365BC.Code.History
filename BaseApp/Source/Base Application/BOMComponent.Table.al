@@ -269,7 +269,7 @@ table 90 "BOM Component"
             if BOMComp.FindSet then
                 repeat
                     BOMComp.ValidateAgainstRecursion(ItemNo);
-                until BOMComp.Next = 0
+                until BOMComp.Next() = 0
         end
     end;
 

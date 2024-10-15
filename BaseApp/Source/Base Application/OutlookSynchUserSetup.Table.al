@@ -85,7 +85,7 @@ table 5305 "Outlook Synch. User Setup"
                             if OSynchEntityElement."No. of Dependencies" > 0 then
                                 if not OSynchSetupMgt.CheckOCollectionAvailability(OSynchEntityElement, "User ID") then
                                     "Synch. Direction" := xRec."Synch. Direction";
-                        until OSynchSetupDetail.Next = 0;
+                        until OSynchSetupDetail.Next() = 0;
                 end;
 
                 OSynchDependency.Reset();
@@ -109,7 +109,7 @@ table 5305 "Outlook Synch. User Setup"
                                       SelectStr(OSynchUserSetup."Synch. Direction"::Bidirectional + 1, FldRef.OptionMembers),
                                       OSynchDependency."Synch. Entity Code");
                                 end;
-                    until OSynchDependency.Next = 0;
+                    until OSynchDependency.Next() = 0;
             end;
         }
         field(6; "Last Synch. Time"; DateTime)
@@ -215,7 +215,7 @@ table 5305 "Outlook Synch. User Setup"
                      OSynchUserSetup1."Synch. Entity Code")
                 then
                     OSynchSetupDetail.Mark(true);
-            until OSynchSetupDetail.Next = 0;
+            until OSynchSetupDetail.Next() = 0;
 
         OSynchSetupDetail.MarkedOnly(true);
         if OSynchSetupDetail.Count > 0 then begin

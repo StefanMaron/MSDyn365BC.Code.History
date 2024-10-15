@@ -49,7 +49,7 @@ codeunit 5488 "Graph Mgt - Reports"
                 end;
                 TrialBalanceEntityBuffer."Date Filter" := GetDateRangeMax(DateFilter);
                 TrialBalanceEntityBuffer.Insert();
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
             NewTrialBalanceEntityBuffer.TransferFields(TrialBalanceEntityBuffer);
             TrialBalanceEntityBuffer.Copy(NewTrialBalanceEntityBuffer);
         end;
@@ -128,7 +128,7 @@ codeunit 5488 "Graph Mgt - Reports"
                               MatrixMgt.RoundValue(
                                 AccSchedManagement.CalcCell(AccScheduleLine, TempColumnLayout, DummyUseAmtsInAddCurr),
                                 TempColumnLayout."Rounding Factor")
-                    until TempColumnLayout.Next = 0;
+                    until TempColumnLayout.Next() = 0;
 
                 case ReportType of
                     ReportType::"Balance Sheet":
@@ -162,7 +162,7 @@ codeunit 5488 "Graph Mgt - Reports"
                             AccScheduleLineEntity."Line No." := AccScheduleLine."Line No.";
                             AccScheduleLineEntity.Description := AccScheduleLine.Description;
                             if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet then
-                                Evaluate(AccScheduleLineEntity."Net Change", DelChr(Format(ColumnValues[1], 15, FormatStr(ColumnNo))));
+                                Evaluate(AccScheduleLineEntity."Net Change", DelChr(Format(ColumnValues[1], 15, FormatStr(ColumnNo)), '<', ' '));
                             AccScheduleLineEntity."Date Filter" := GetDateRangeMax(DateFilter);
                             if ReportType = ReportType::"Income Statement" then
                                 AccScheduleLineEntity.SetFilter("Date Filter", DateFilter);
@@ -181,7 +181,7 @@ codeunit 5488 "Graph Mgt - Reports"
                         end;
                 end;
                 AccSchedManagement.ForceRecalculate(false);
-            until AccScheduleLine.Next = 0;
+            until AccScheduleLine.Next() = 0;
         end;
     end;
 
@@ -221,7 +221,9 @@ codeunit 5488 "Graph Mgt - Reports"
         DummyGuid: Guid;
         PeriodLengthFilter: Text[10];
         PeriodStartDate: Date;
+        DisplayOrder: Integer;
     begin
+        DisplayOrder := 1;
         case ReportType of
             ReportType::"Aged Accounts Receivable":
                 begin
@@ -248,8 +250,10 @@ codeunit 5488 "Graph Mgt - Reports"
                             if PeriodLengthFilter = '' then
                                 PeriodLengthFilter := AgedReportEntity."Period Length";
                             PeriodStartDate := AgedReportEntity."Period Start Date";
+                            AgedReportEntity."Display Order" := DisplayOrder;
+                            DisplayOrder += 1;
                             if AgedReportEntity.Insert() then;
-                        until Customer.Next = 0;
+                        until Customer.Next() = 0;
                 end;
             ReportType::"Aged Accounts Payable":
                 begin
@@ -275,8 +279,10 @@ codeunit 5488 "Graph Mgt - Reports"
                             if PeriodLengthFilter = '' then
                                 PeriodLengthFilter := AgedReportEntity."Period Length";
                             PeriodStartDate := AgedReportEntity."Period Start Date";
+                            AgedReportEntity."Display Order" := DisplayOrder;
+                            DisplayOrder += 1;
                             if AgedReportEntity.Insert() then;
-                        until Vendor.Next = 0;
+                        until Vendor.Next() = 0;
                 end;
         end;
 
@@ -297,6 +303,8 @@ codeunit 5488 "Graph Mgt - Reports"
         AgedReportEntity.Balance := AgedReportEntity.Balance;
         AgedReportEntity."Period Length" := Format(PeriodLengthFilter);
         AgedReportEntity."Period Start Date" := PeriodStartDate;
+        AgedReportEntity."Display Order" := DisplayOrder;
+        DisplayOrder += 1;
         if AgedReportEntity.Insert() then;
     end;
 

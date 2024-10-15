@@ -13,6 +13,7 @@ codeunit 134825 "UT Customer Table"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryMarketing: Codeunit "Library - Marketing";
         CustNotRegisteredTxt: Label 'This customer is not registered. To continue, choose one of the following options:';
         YouMustSelectCustomerErr: Label 'You must select an existing customer.';
         CustomerNameWithFilterCharsTxt: Label '&C*u|s(t''o)m)e&r*';
@@ -697,6 +698,48 @@ codeunit 134825 "UT Customer Table"
         // [THEN] The error "The email address is not valid." is thrown.
         Assert.ExpectedError('The email address "test2.com" is not valid.');
         Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetPrimaryConact()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+    begin
+        // [SCENARIO 370136] UT for function GetPrimaryConact when primary contact is defined
+        Initialize();
+
+        // [GIVEN] Customer "CUST" with primary contact "PC"
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify();
+
+        // [WHEN] Function GetPrimaryConact is being run with parameter "CONT"
+        Customer.GetPrimaryContact(Customer."No.", Contact);
+
+        // [THEN] Variable Contact contains record "PC"
+        Contact.TestField("No.", Customer."Primary Contact No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetPrimaryConactCustomerWithoutContact()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+    begin
+        // [SCENARIO 370136] UT for function GetPrimaryConact when primary contact is not defined
+        Initialize();
+
+        // [GIVEN] Customer "CUST" without primary contact
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+
+        // [WHEN] Function GetPrimaryConact is being run with parameter "CONT"
+        Customer.GetPrimaryContact(Customer."No.", Contact);
+
+        // [THEN] Variable Contact is empty
+        Contact.TestField("No.", '');
     end;
 
     local procedure Initialize()

@@ -103,7 +103,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if VATCustomer.Next = 0 then
+                    if VATCustomer.Next() = 0 then
                         CurrReport.Break();
                     if VATCustomer.Mark then
                         CurrReport.Skip();
@@ -149,7 +149,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
             trigger OnPreDataItem()
             begin
-                if Buffer.IsEmpty then begin
+                if Buffer.IsEmpty() then begin
                     Message(Text007);
                     CurrReport.Quit;
                 end;
@@ -517,7 +517,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
                 CustSequenceNum := CustSequenceNum + 1;
                 AddCustomersList(XMLCurrNode, CustSequenceNum);
                 XMLCurrNode := XMLCurrNode.ParentNode;
-            until Buffer.Next = 0;
+            until Buffer.Next() = 0;
     end;
 
     local procedure AddCustomersList(XMLCurrNode: DotNet XmlNode; CustSequenceNum: Integer)

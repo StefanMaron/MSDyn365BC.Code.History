@@ -140,7 +140,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         VATStatementLine.SetRange("Statement Template Name", GLSetup."VAT Statement Template Name");
         VATStatementLine.SetRange("Statement Name", GLSetup."VAT Statement Name");
         VATStatementLine.SetFilter("Row No.", RowNoFilter);
-        VATStatementLine.FindSet;
+        VATStatementLine.FindSet();
         VATStatementLine.Next(LibraryRandom.RandInt(VATStatementLine.Count - 1));
 
         ManualVATCorrection.DeleteAll();

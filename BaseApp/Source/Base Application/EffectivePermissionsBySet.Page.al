@@ -226,7 +226,7 @@ page 9853 "Effective Permissions By Set"
                 Insert;
                 if TempPermissionBuffer.Source = TempPermissionBuffer.Source::Entitlement then
                     EntitlementPermissionBuffer := TempPermissionBuffer;
-            until TempPermissionBuffer.Next = 0;
+            until TempPermissionBuffer.Next() = 0;
 
         CurrObjectType := CurrentObjectType;
         CurrObjectID := CurrentObjectID;

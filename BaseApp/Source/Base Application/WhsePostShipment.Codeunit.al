@@ -1,4 +1,4 @@
-﻿codeunit 5763 "Whse.-Post Shipment"
+codeunit 5763 "Whse.-Post Shipment"
 {
     Permissions = TableData "Whse. Item Tracking Line" = r,
                   TableData "Posted Whse. Shipment Header" = im,
@@ -81,7 +81,7 @@
                             Error(FullATONotPostedErr, "No.", "Line No.");
 
                     OnAfterCheckWhseShptLine(WhseShptLine);
-                until Next = 0
+                until Next() = 0
             else
                 Error(Text001);
 
@@ -132,7 +132,7 @@
                 SetRange("Source Subtype");
                 SetRange("Source No.");
                 OnAfterReleaseSourceForFilterWhseShptLine(WhseShptLine);
-            until Next = 0;
+            until Next() = 0;
         end;
 
         OnAfterPostWhseShipment(WhseShptHeader);
@@ -791,7 +791,7 @@
                 WhseComment2."Table Name" := WhseComment2."Table Name"::"Posted Whse. Shipment";
                 WhseComment2."No." := PostedWhseShptHeader."No.";
                 WhseComment2.Insert();
-            until WhseComment.Next = 0;
+            until WhseComment.Next() = 0;
 
         OnAfterCreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader);
     end;
@@ -890,66 +890,67 @@
         WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 0, 0, false);
     end;
 
-    local procedure CreateWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; PostedWhseShptLine: Record "Posted Whse. Shipment Line")
+    procedure CreateWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; PostedWhseShptLine: Record "Posted Whse. Shipment Line")
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        with PostedWhseShptLine do begin
-            WhseJnlLine.Init();
-            WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::"Negative Adjmt.";
-            WhseJnlLine."Location Code" := "Location Code";
-            WhseJnlLine."From Zone Code" := "Zone Code";
-            WhseJnlLine."From Bin Code" := "Bin Code";
-            WhseJnlLine."Item No." := "Item No.";
-            WhseJnlLine.Description := Description;
-            WhseJnlLine."Qty. (Absolute)" := Quantity;
-            WhseJnlLine."Qty. (Absolute, Base)" := "Qty. (Base)";
-            WhseJnlLine."User ID" := UserId;
-            WhseJnlLine."Variant Code" := "Variant Code";
-            WhseJnlLine."Unit of Measure Code" := "Unit of Measure Code";
-            WhseJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            WhseJnlLine.SetSource("Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
-            WhseJnlLine."Source Document" := "Source Document";
-            WhseJnlLine.SetWhseDoc(WhseJnlLine."Whse. Document Type"::Shipment, "No.", "Line No.");
-            GetItemUnitOfMeasure2("Item No.", "Unit of Measure Code");
-            WhseJnlLine.Cubage := WhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Cubage;
-            WhseJnlLine.Weight := WhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Weight;
-            WhseJnlLine."Reference No." := LastShptNo;
-            WhseJnlLine."Registering Date" := PostingDate;
-            WhseJnlLine."Registering No. Series" := WhseShptHeader."Shipping No. Series";
-            SourceCodeSetup.Get();
-            case "Source Document" of
-                "Source Document"::"Purchase Order":
-                    begin
-                        WhseJnlLine."Source Code" := SourceCodeSetup.Purchases;
-                        WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Rcpt.";
-                    end;
-                "Source Document"::"Sales Order":
-                    begin
-                        WhseJnlLine."Source Code" := SourceCodeSetup.Sales;
-                        WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Shipment";
-                    end;
-                "Source Document"::"Service Order":
-                    begin
-                        WhseJnlLine."Source Code" := SourceCodeSetup."Service Management";
-                        WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Shipment";
-                    end;
-                "Source Document"::"Purchase Return Order":
-                    begin
-                        WhseJnlLine."Source Code" := SourceCodeSetup.Purchases;
-                        WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Rtrn. Shipment";
-                    end;
-                "Source Document"::"Sales Return Order":
-                    begin
-                        WhseJnlLine."Source Code" := SourceCodeSetup.Sales;
-                        WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Rtrn. Rcpt.";
-                    end;
-                "Source Document"::"Outbound Transfer":
-                    begin
-                        WhseJnlLine."Source Code" := SourceCodeSetup.Transfer;
-                        WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted T. Shipment";
-                    end;
-            end;
+        WhseJnlLine.Init();
+        WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::"Negative Adjmt.";
+        WhseJnlLine."Location Code" := PostedWhseShptLine."Location Code";
+        WhseJnlLine."From Zone Code" := PostedWhseShptLine."Zone Code";
+        WhseJnlLine."From Bin Code" := PostedWhseShptLine."Bin Code";
+        WhseJnlLine."Item No." := PostedWhseShptLine."Item No.";
+        WhseJnlLine.Description := PostedWhseShptLine.Description;
+        WhseJnlLine."Qty. (Absolute)" := PostedWhseShptLine.Quantity;
+        WhseJnlLine."Qty. (Absolute, Base)" := PostedWhseShptLine."Qty. (Base)";
+        WhseJnlLine."User ID" := UserId;
+        WhseJnlLine."Variant Code" := PostedWhseShptLine."Variant Code";
+        WhseJnlLine."Unit of Measure Code" := PostedWhseShptLine."Unit of Measure Code";
+        WhseJnlLine."Qty. per Unit of Measure" := PostedWhseShptLine."Qty. per Unit of Measure";
+        WhseJnlLine.SetSource(
+            PostedWhseShptLine."Source Type", PostedWhseShptLine."Source Subtype", PostedWhseShptLine."Source No.",
+            PostedWhseShptLine."Source Line No.", 0);
+        WhseJnlLine."Source Document" := PostedWhseShptLine."Source Document";
+        WhseJnlLine.SetWhseDoc(
+            WhseJnlLine."Whse. Document Type"::Shipment, PostedWhseShptLine."No.", PostedWhseShptLine."Line No.");
+        GetItemUnitOfMeasure2(PostedWhseShptLine."Item No.", PostedWhseShptLine."Unit of Measure Code");
+        WhseJnlLine.Cubage := WhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Cubage;
+        WhseJnlLine.Weight := WhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Weight;
+        WhseJnlLine."Reference No." := LastShptNo;
+        WhseJnlLine."Registering Date" := PostingDate;
+        WhseJnlLine."Registering No. Series" := WhseShptHeader."Shipping No. Series";
+        SourceCodeSetup.Get();
+        case PostedWhseShptLine."Source Document" of
+            PostedWhseShptLine."Source Document"::"Purchase Order":
+                begin
+                    WhseJnlLine."Source Code" := SourceCodeSetup.Purchases;
+                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Rcpt.";
+                end;
+            PostedWhseShptLine."Source Document"::"Sales Order":
+                begin
+                    WhseJnlLine."Source Code" := SourceCodeSetup.Sales;
+                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Shipment";
+                end;
+            PostedWhseShptLine."Source Document"::"Service Order":
+                begin
+                    WhseJnlLine."Source Code" := SourceCodeSetup."Service Management";
+                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Shipment";
+                end;
+            PostedWhseShptLine."Source Document"::"Purchase Return Order":
+                begin
+                    WhseJnlLine."Source Code" := SourceCodeSetup.Purchases;
+                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Rtrn. Shipment";
+                end;
+            PostedWhseShptLine."Source Document"::"Sales Return Order":
+                begin
+                    WhseJnlLine."Source Code" := SourceCodeSetup.Sales;
+                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted Rtrn. Rcpt.";
+                end;
+            PostedWhseShptLine."Source Document"::"Outbound Transfer":
+                begin
+                    WhseJnlLine."Source Code" := SourceCodeSetup.Transfer;
+                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted T. Shipment";
+                end;
         end;
 
         OnAfterCreateWhseJnlLine(WhseJnlLine, PostedWhseShptLine);
@@ -996,12 +997,12 @@
                     if WhseItemTrkgLine.Find('-') then
                         repeat
                             QtyPickedBase := QtyPickedBase + WhseItemTrkgLine."Qty. Registered (Base)";
-                        until WhseItemTrkgLine.Next = 0;
+                        until WhseItemTrkgLine.Next() = 0;
                     if QtyPickedBase < Abs(ReservationEntry."Qty. to Handle (Base)") then
                         Error(Text006,
                           WhseShptLine."No.", WhseShptLine.FieldCaption("Line No."), WhseShptLine."Line No.");
                 end;
-            until ReservationEntry.Next = 0;
+            until ReservationEntry.Next() = 0;
     end;
 
     local procedure CheckShippingAdviceComplete()
@@ -1121,7 +1122,7 @@
                     OnBeforeSalesLineModify(SalesLine, WhseShptLine, ModifyLine, Invoice);
                     if ModifyLine then
                         SalesLine.Modify();
-                until SalesLine.Next = 0;
+                until SalesLine.Next() = 0;
         end;
     end;
 
@@ -1205,7 +1206,7 @@
                     OnBeforePurchLineModify(PurchLine, WhseShptLine, ModifyLine, Invoice);
                     if ModifyLine then
                         PurchLine.Modify();
-                until PurchLine.Next = 0;
+                until PurchLine.Next() = 0;
         end;
     end;
 
@@ -1252,7 +1253,7 @@
                     OnBeforeTransLineModify(TransLine, WhseShptLine, ModifyLine);
                     if ModifyLine then
                         TransLine.Modify();
-                until TransLine.Next = 0;
+                until TransLine.Next() = 0;
         end;
     end;
 
@@ -1303,7 +1304,7 @@
                     end;
                     if ModifyLine then
                         ServLine.Modify();
-                until ServLine.Next = 0;
+                until ServLine.Next() = 0;
         end;
     end;
 

@@ -1,5 +1,8 @@
 codeunit 5502 "Graph Mgt - Unlinked Att."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit will be removed. The functionality was replaced with systemId';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin
@@ -14,7 +17,7 @@ codeunit 5502 "Graph Mgt - Unlinked Att."
         UpdateIntegrationRecords(RecRef, DummyUnlinkedAttachment.FieldNo(Id), false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);

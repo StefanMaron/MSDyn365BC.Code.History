@@ -25,7 +25,7 @@ page 2000022 "Domiciliation Journal"
                     if GetFilter("Journal Template Name") = '' then
                         SetRange("Journal Template Name", "Journal Template Name");
                     DoLookup := DomJnlManagement.LookupName(GetRangeMax("Journal Template Name"), CurrentJnlBatchName, Text);
-                    CurrPage.Update;
+                    CurrPage.Update();
                     exit(DoLookup);
                 end;
 

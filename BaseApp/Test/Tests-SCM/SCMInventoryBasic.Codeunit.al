@@ -1135,7 +1135,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemTemplate.UpdateItemsFromTemplate(Item);
 
         // Assess: Templates are applied only to items 1 and 3
-        Item.FindSet;
+        Item.FindSet();
         repeat
             Assert.AreEqual(
               Item."VAT Prod. Posting Group",
@@ -1145,7 +1145,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Assess: Templates are not applied to items 2 and 4
         Item.SetFilter("No.", '2|4');
-        Item.FindSet;
+        Item.FindSet();
         repeat
             Assert.AreNotEqual(
               Item."VAT Prod. Posting Group",
@@ -1157,7 +1157,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemTemplate.Get(ItemTemplate.Key);
 
         Item.SetFilter("No.", '1|2|3|4');
-        Item.FindSet;
+        Item.FindSet();
         repeat
             Assert.AreNotEqual(
               Item."VAT Prod. Posting Group",
@@ -2671,7 +2671,7 @@ codeunit 137280 "SCM Inventory Basic"
         TotalCost: Decimal;
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             TotalQuantity += ItemLedgerEntry.Quantity;

@@ -614,7 +614,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [THEN] Customer ledger entries for invoices "X" and "Y" have "Last Issued Reminder Level" = 1
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.TestField("Last Issued Reminder Level", 1);
         until CustLedgerEntry.Next = 0;
@@ -741,7 +741,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         RunCancelIssuedReminders(IssuedReminderHeader);
 
         // [THEN] All 5 issued reminders are cancelled
-        IssuedReminderHeader.FindSet;
+        IssuedReminderHeader.FindSet();
         repeat
             IssuedReminderHeader.TestField(Canceled, true);
         until IssuedReminderHeader.Next = 0;
@@ -1049,7 +1049,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         RunCancelIssuedFinChargeMemos(IssuedFinChargeMemoHeader);
 
         // [THEN] All 5 issued fin. charge memos are cancelled
-        IssuedFinChargeMemoHeader.FindSet;
+        IssuedFinChargeMemoHeader.FindSet();
         repeat
             IssuedFinChargeMemoHeader.TestField(Canceled, true);
         until IssuedFinChargeMemoHeader.Next = 0;
@@ -2029,9 +2029,9 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     begin
         ReminderHeader.Get(NewReminderNo);
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
-        IssuedReminderLine.FindSet;
+        IssuedReminderLine.FindSet();
         ReminderLine.SetRange("Reminder No.", NewReminderNo);
-        ReminderLine.FindSet;
+        ReminderLine.FindSet();
         repeat
             ReminderLine.TestField(Type, IssuedReminderLine.Type);
             ReminderLine.TestField("No.", IssuedReminderLine."No.");
@@ -2066,9 +2066,9 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LastTransactionNo := GetLastTransactionNo(CancelledDocumentNo);
         Assert.IsTrue(FirstTransactionNo <> LastTransactionNo, 'Reversed G/L entries not found');
         SourceGLEntry.SetRange("Transaction No.", FirstTransactionNo);
-        SourceGLEntry.FindSet;
+        SourceGLEntry.FindSet();
         ReversedGLEntry.SetRange("Transaction No.", LastTransactionNo);
-        ReversedGLEntry.FindSet;
+        ReversedGLEntry.FindSet();
         repeat
             ReversedGLEntry.TestField("Document No.", CancelledDocumentNo);
             ReversedGLEntry.TestField("Posting Date", CancelledDocumentPostingDate);
@@ -2128,9 +2128,9 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
     begin
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoHeader."No.");
-        IssuedFinChargeMemoLine.FindSet;
+        IssuedFinChargeMemoLine.FindSet();
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeader."No.");
-        FinanceChargeMemoLine.FindSet;
+        FinanceChargeMemoLine.FindSet();
         repeat
             FinanceChargeMemoLine.TestField(Type, IssuedFinChargeMemoLine.Type);
             FinanceChargeMemoLine.TestField("No.", IssuedFinChargeMemoLine."No.");

@@ -359,7 +359,7 @@ report 7150 "Item Dimensions - Detail"
                             DimFilterText := DimFilterText + ThisFilter;
                         SetItemAnalysisViewEntryFilter(
                           TempAnalysisSelectedDim."Dimension Code", TempAnalysisSelectedDim."Dimension Value Filter");
-                    until TempAnalysisSelectedDim.Next = 0;
+                    until TempAnalysisSelectedDim.Next() = 0;
                 ItemAnalysisViewEntry.FilterGroup(0);
 
                 TempAnalysisSelectedDim.Reset();
@@ -372,7 +372,7 @@ report 7150 "Item Dimensions - Detail"
                         DimCode[i] := TempAnalysisSelectedDim."Dimension Code";
                         LevelFilter[i] := TempAnalysisSelectedDim."Dimension Value Filter";
                         i := i + 1;
-                    until (TempAnalysisSelectedDim.Next = 0) or (i > 3);
+                    until (TempAnalysisSelectedDim.Next() = 0) or (i > 3);
             end;
 
             trigger OnPreDataItem()
@@ -398,7 +398,6 @@ report 7150 "Item Dimensions - Detail"
                     {
                         ApplicationArea = Dimensions;
                         Caption = 'Analysis Area';
-                        OptionCaption = 'Sales,Purchase,Inventory';
                         ToolTip = 'Specifies if the analysis area is set up in the Sales, Purchasing, or Inventory application area.';
 
                         trigger OnValidate()
@@ -446,7 +445,7 @@ report 7150 "Item Dimensions - Detail"
                         trigger OnAssistEdit()
                         begin
                             AnalysisDimSelectionBuf.SetDimSelectionLevel(
-                              3, REPORT::"Item Dimensions - Detail", AnalysisArea, ItemAnalysisViewCode, ColumnDim);
+                              3, REPORT::"Item Dimensions - Detail", AnalysisArea.AsInteger(), ItemAnalysisViewCode, ColumnDim);
                         end;
                     }
                     field(DateFilterCtrl; DateFilter)
@@ -500,7 +499,7 @@ report 7150 "Item Dimensions - Detail"
             Error(Text001);
 
         AnalysisDimSelectionBuf.CompareDimText(
-          3, REPORT::"Item Dimensions - Detail", AnalysisArea, ItemAnalysisViewCode, ColumnDim, Text002);
+          3, REPORT::"Item Dimensions - Detail", AnalysisArea.AsInteger(), ItemAnalysisViewCode, ColumnDim, Text002);
 
         TempAnalysisSelectedDim.Reset();
         TempAnalysisSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
@@ -512,7 +511,7 @@ report 7150 "Item Dimensions - Detail"
                 TempItem.Init();
                 TempItem := Item;
                 TempItem.Insert();
-            until Item.Next = 0;
+            until Item.Next() = 0;
 
         TempLocation.Init();
         TempLocation.Insert();
@@ -524,10 +523,10 @@ report 7150 "Item Dimensions - Detail"
                 TempLocation.Init();
                 TempLocation := Location;
                 TempLocation.Insert();
-            until Location.Next = 0;
+            until Location.Next() = 0;
 
         AnalysisSelectedDim.GetSelectedDim(
-          UserId, 3, REPORT::"Item Dimensions - Detail", AnalysisArea, ItemAnalysisViewCode, TempAnalysisSelectedDim);
+          UserId, 3, REPORT::"Item Dimensions - Detail", AnalysisArea.AsInteger(), ItemAnalysisViewCode, TempAnalysisSelectedDim);
         TempAnalysisSelectedDim.Reset();
         TempAnalysisSelectedDim.SetCurrentKey(
           "User ID", "Object Type", "Object ID", "Analysis Area", "Analysis View Code", Level);
@@ -550,8 +549,8 @@ report 7150 "Item Dimensions - Detail"
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
-                    until DimVal.Next = 0;
-            until TempAnalysisSelectedDim.Next = 0;
+                    until DimVal.Next() = 0;
+            until TempAnalysisSelectedDim.Next() = 0;
     end;
 
     var
@@ -574,7 +573,7 @@ report 7150 "Item Dimensions - Detail"
         PrintEmptyLines: Boolean;
         ViewLastUpdatedText: Text[30];
         ColumnDim: Text[250];
-        AnalysisArea: Option Sales,Purchase,Inventory;
+        AnalysisArea: Enum "Analysis Area Type";
         ItemAnalysisViewCode: Code[10];
         DateFilter: Text;
         FindFirstDim: array[4] of Boolean;
@@ -630,14 +629,14 @@ report 7150 "Item Dimensions - Detail"
             if ItemAnalysisViewEntry.Find('-') then begin
                 repeat
                     ItemAViewEntryToValueEntries.GetValueEntries(ItemAnalysisViewEntry, TempValueEntry);
-                until ItemAnalysisViewEntry.Next = 0;
+                until ItemAnalysisViewEntry.Next() = 0;
             end;
             TempValueEntry.SetCurrentKey("Item No.", "Posting Date");
             TempValueEntry.SetFilter("Posting Date", DateFilter);
             if not TempValueEntry.Find('-') then
                 exit(false);
         end else
-            if TempValueEntry.Next = 0 then
+            if TempValueEntry.Next() = 0 then
                 exit(false);
         if Level > 1 then
             CalcTotalValues(Level - 1);
@@ -670,7 +669,7 @@ report 7150 "Item Dimensions - Detail"
         TempAnalysisDimSelectionBuf: Record "Analysis Dim. Selection Buffer" temporary;
         ItemAnalysisView: Record "Item Analysis View";
     begin
-        ItemAnalysisView.CopyAnalysisViewFilters(3, REPORT::"Item Dimensions - Detail", AnalysisArea, ItemAnalysisViewCode);
+        ItemAnalysisView.CopyAnalysisViewFilters(3, REPORT::"Item Dimensions - Detail", AnalysisArea.AsInteger(), ItemAnalysisViewCode);
         ColumnDim := '';
         AnalysisSelectedDim.SetRange("User ID", UserId);
         AnalysisSelectedDim.SetRange("Object Type", 3);
@@ -685,9 +684,9 @@ report 7150 "Item Dimensions - Detail"
                 TempAnalysisDimSelectionBuf."Dimension Value Filter" := AnalysisSelectedDim."Dimension Value Filter";
                 TempAnalysisDimSelectionBuf.Level := AnalysisSelectedDim.Level;
                 TempAnalysisDimSelectionBuf.Insert();
-            until AnalysisSelectedDim.Next = 0;
+            until AnalysisSelectedDim.Next() = 0;
             TempAnalysisDimSelectionBuf.SetDimSelection(
-              3, REPORT::"Item Dimensions - Detail", AnalysisArea, ItemAnalysisViewCode, ColumnDim, TempAnalysisDimSelectionBuf);
+              3, REPORT::"Item Dimensions - Detail", AnalysisArea.AsInteger(), ItemAnalysisViewCode, ColumnDim, TempAnalysisDimSelectionBuf);
         end;
     end;
 

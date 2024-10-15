@@ -1,4 +1,4 @@
-﻿codeunit 7041 "Price Asset - Item" implements "Price Asset"
+codeunit 7041 "Price Asset - Item" implements "Price Asset"
 {
     var
         Item: Record Item;

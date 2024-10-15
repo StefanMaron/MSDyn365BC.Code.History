@@ -105,15 +105,17 @@ report 1003 "Post Invt. Cost to G/L - Test"
                         repeat
                             ItemValueEntry.Get(TempCapValueEntry."Entry No.");
                             FillInvtPostToGLTestBuf(ItemValueEntry);
-                        until TempCapValueEntry.Next = 0;
+                        until TempCapValueEntry.Next() = 0;
 
-                    if PostMethod = PostMethod::"per Posting Group" then
-                        InvtPost.PostInvtPostBufPerPostGrp(DocNo, '', GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                    if PostMethod = PostMethod::"per Posting Group" then begin
+                        InvtPostToGL.SetGenJnlBatch(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                        InvtPostToGL.PostInvtPostBufPerPostGrp(DocNo, '');
+                    end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    InvtPost.SetRunOnlyCheck(false, true, true);
+                    InvtPostToGL.SetRunOnlyCheck(false, true, true);
                     TempCapValueEntry.DeleteAll();
                 end;
             }
@@ -193,7 +195,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                                 Continue := true;
                                 exit;
                             end;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -290,7 +292,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
 
                 trigger OnPreDataItem()
                 begin
-                    InvtPost.GetTempInvtPostToGLTestBuf(TempInvtPostToGLTestBuf);
+                    InvtPostToGL.GetTempInvtPostToGLTestBuf(TempInvtPostToGLTestBuf);
                     SetRange(Number, 1, TempInvtPostToGLTestBuf.Count);
                 end;
             }
@@ -425,7 +427,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
-        InvtPost: Codeunit "Inventory Posting To G/L";
+        InvtPostToGL: Codeunit "Inventory Posting To G/L";
         PostMethod: Option "per Posting Group","per Entry";
         DocNo: Code[20];
         ValueEntryFilter: Text;
@@ -463,15 +465,17 @@ report 1003 "Post Invt. Cost to G/L - Test"
     local procedure FillInvtPostToGLTestBuf(ValueEntry: Record "Value Entry")
     begin
         with ValueEntry do begin
-            if not InvtPost.BufferInvtPosting(ValueEntry) then
+            if not InvtPostToGL.BufferInvtPosting(ValueEntry) then
                 exit;
 
-            if PostMethod = PostMethod::"per Entry" then
-                InvtPost.PostInvtPostBufPerEntry(ValueEntry, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+            if PostMethod = PostMethod::"per Entry" then begin
+                InvtPostToGL.SetGenJnlBatch(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                InvtPostToGL.PostInvtPostBufPerEntry(ValueEntry);
+            end;
         end;
     end;
 
-    local procedure AddError(Text: Text[250])
+    procedure AddError(Text: Text[250])
     begin
         ErrorCounter := ErrorCounter + 1;
         ErrorText[ErrorCounter] := Text;
@@ -638,13 +642,30 @@ report 1003 "Post Invt. Cost to G/L - Test"
         exit(AccountName);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by W1 InitializeRequest() and SetGenJnlBatch().', '18.0')]
     procedure InitializeRequest(NewPostMethod: Option; NewShowDim: Boolean; NewShowOnlyWarnings: Boolean; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
     begin
         PostMethod := NewPostMethod;
-        GenJnlLine."Journal Template Name" := NewJnlTemplName;
-        GenJnlLine."Journal Batch Name" := NewJnlBatchName;
         ShowDim := NewShowDim;
         ShowOnlyWarnings := NewShowOnlyWarnings;
+        GenJnlLine."Journal Template Name" := NewJnlTemplName;
+        GenJnlLine."Journal Batch Name" := NewJnlBatchName;
+    end;
+#endif
+
+    procedure InitializeRequest(NewPostMethod: Option; NewDocNo: Code[20]; NewShowDim: Boolean; NewShowOnlyWarnings: Boolean)
+    begin
+        PostMethod := NewPostMethod;
+        DocNo := NewDocNo;
+        ShowDim := NewShowDim;
+        ShowOnlyWarnings := NewShowOnlyWarnings;
+    end;
+
+    procedure SetGenJnlBatch(NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
+    begin
+        GenJnlLine."Journal Template Name" := NewJnlTemplName;
+        GenJnlLine."Journal Batch Name" := NewJnlBatchName;
     end;
 
     [IntegrationEvent(false, false)]

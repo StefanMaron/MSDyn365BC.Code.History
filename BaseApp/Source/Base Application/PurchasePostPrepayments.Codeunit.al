@@ -17,7 +17,6 @@
     end;
 
     var
-        Text000: Label 'is not within your range of allowed posting dates';
         Text001: Label 'There is nothing to post.';
         Text002: Label 'Posting Prepayment Lines   #2######\';
         Text003: Label '%1 %2 -> Invoice %3';
@@ -26,6 +25,7 @@
         Text006: Label 'Posting to bal. account    #5######';
         Text011: Label '%1 %2 -> Credit Memo %3';
         Text012: Label 'Prepayment %1, %2 %3.';
+        PostingDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - Posting Date field caption';
         GLSetup: Record "General Ledger Setup";
         PurchSetup: Record "Purchases & Payables Setup";
         GenPostingSetup: Record "General Posting Setup";
@@ -170,7 +170,7 @@
             // Reverse old lines
             if DocumentType = DocumentType::Invoice then begin
                 GetPurchLinesToDeduct(PurchHeader, TempPurchLines);
-                if not TempPurchLines.IsEmpty then
+                if not TempPurchLines.IsEmpty() then
                     CalcVATAmountLines(PurchHeader, TempPurchLines, TempVATAmountLineDeduct, DocumentType::"Credit Memo");
             end;
 
@@ -210,7 +210,7 @@
                 end else
                     AdjustInvLineBuffers(PurchHeader, TempPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType);
                 TempPrepmtInvLineBuffer.Modify();
-            until TempPrepmtInvLineBuffer.Next = 0;
+            until TempPrepmtInvLineBuffer.Next() = 0;
 
             TempPrepmtInvLineBuffer.Reset();
             TempPrepmtInvLineBuffer.SetCurrentKey(Adjustment);
@@ -326,6 +326,9 @@
         Vend: Record Vendor;
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         CheckDimensions: Codeunit "Check Dimensions";
+        ErrorContextElement: Codeunit "Error Context Element";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        SetupRecID: RecordId;
     begin
         OnBeforeCheckPrepmtDoc(PurchHeader, DocumentType);
         with PurchHeader do begin
@@ -335,8 +338,13 @@
             TestField("Posting Date");
             TestField("Document Date");
             TestField("Journal Template Name");
+
+            ErrorMessageMgt.PushContext(ErrorContextElement, PurchHeader.RecordId, 0, '');
             if GenJnlCheckLine.DateNotAllowed("Posting Date", "Journal Template Name") then
-                FieldError("Posting Date", Text000);
+                ErrorMessageMgt.LogContextFieldError(
+                  FieldNo("Posting Date"), StrSubstNo(PostingDateNotAllowedErr, FieldCaption("Posting Date")),
+                  SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, ''),
+                  ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
 
             if not CheckOpenPrepaymentLines(PurchHeader, DocumentType) then
                 Error(Text001);
@@ -413,7 +421,7 @@
                         UpdatePrepmtSetupFields;
                         Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(Found);
     end;
@@ -517,7 +525,7 @@
                     PurchLine."Prepmt. VAT Amount Inv. (LCY)" += PrepmtAmountRnded[VAT::Amount];
                 end;
                 PurchLine.Modify();
-            until TempGlobalPrepmtInvLineBuf.Next = 0;
+            until TempGlobalPrepmtInvLineBuf.Next() = 0;
         TempGlobalPrepmtInvLineBuf.DeleteAll();
         ReverseDecArray(VATAdjustment);
     end;
@@ -729,7 +737,7 @@
                             TempVATAmountLineRemainder.Modify();
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         OnAfterUpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, DocumentType);
@@ -772,7 +780,7 @@
                         VATAmountLine."VAT Difference" := VATAmountLine."VAT Difference" + NewPrepmtVATDiffAmt;
                         VATAmountLine.Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         VATAmountLine.UpdateLines(
@@ -799,7 +807,7 @@
                 RoundAmounts(PurchHeader, TempPrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
                 if TempPrepmtInvLineBuf."VAT %" <> PrevVATPct then
                     DifVATPct := true;
-            until TempPrepmtInvLineBuf.Next = 0;
+            until TempPrepmtInvLineBuf.Next() = 0;
         end;
         TotalAmount := TotalPrepmtInvLineBuf.Amount;
         TotalVATAmount := TotalPrepmtInvLineBuf."VAT Amount";
@@ -823,7 +831,7 @@
             repeat
                 ToPurchLine := FromPurchLine;
                 ToPurchLine.Insert();
-            until FromPurchLine.Next = 0;
+            until FromPurchLine.Next() = 0;
 
             PurchSetup.Get();
             if PurchSetup."Invoice Rounding" then begin
@@ -881,7 +889,7 @@
                         TempPurchaseLine := PurchLine;
                         TempPurchaseLine.Insert();
                     end;
-                until PurchLine.Next = 0;
+                until PurchLine.Next() = 0;
             if PurchSetup."Invoice Rounding" then
                 if InsertInvoiceRounding(
                      PurchHeader, PrepmtInvLineBuf2, TotalPrepmtInvLineBuffer, PurchLine."Line No.")
@@ -1105,7 +1113,7 @@
                 end;
                 PrevLineNo := NextLineNo;
                 NextLineNo := NextLineNo + 10000;
-            until TempExtTextLine.Next = 0;
+            until TempExtTextLine.Next() = 0;
         end;
     end;
 
@@ -1246,7 +1254,7 @@
                     TotalLineAmount := TotalLineAmount + "Line Amount";
                     TotalPrepmtAmtInv := TotalPrepmtAmtInv + "Prepmt. Amt. Inv.";
                     LastLineNo := "Line No.";
-                until Next = 0
+                until Next() = 0
             else
                 Error(Text017, FieldCaption("Prepayment %"));
             if TotalLineAmount = 0 then
@@ -1265,7 +1273,7 @@
                         Validate("Prepmt. Line Amount", NewTotalPrepmtAmount - TotalPrepmtAmount);
                     TotalPrepmtAmount := TotalPrepmtAmount + "Prepmt. Line Amount";
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1304,7 +1312,7 @@
                     PurchLines := PurchLine;
                     PurchLines.Insert();
                 end;
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
     end;
 
     local procedure PrepmtVATDiffAmount(PurchLine: Record "Purchase Line"; DocumentType: Option Invoice,"Credit Memo",Statistic): Decimal
@@ -1342,7 +1350,7 @@
                             OnUpdatePurchaseDocumentOnBeforeModifyInvoicePurchLine(PurchLine);
                             PurchLine.Modify();
                         end;
-                    until PurchLine.Next = 0;
+                    until PurchLine.Next() = 0;
             end else begin
                 "Last Prepmt. Cr. Memo No." := GenJnlLineDocNo;
                 "Prepmt. Cr. Memo No." := '';
@@ -1364,7 +1372,7 @@
                         PurchLine."Prepayment VAT Difference" := 0;
                         OnUpdatePurchaseDocumentOnBeforeModifyCrMemoPurchLine(PurchLine);
                         PurchLine.Modify();
-                    until PurchLine.Next = 0;
+                    until PurchLine.Next() = 0;
             end;
         end;
     end;
@@ -1781,4 +1789,3 @@
     begin
     end;
 }
-

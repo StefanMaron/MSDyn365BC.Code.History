@@ -29,7 +29,17 @@ page 5162 "Sales Quote Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the contact person at the customer''s main address.';
                 }
+#if not CLEAN18
                 field("Sell-to Customer Template Code"; "Sell-to Customer Template Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document';
+                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
+                }
+#endif
+                field("Sell-to Customer Templ. Code"; "Sell-to Customer Templ. Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document';

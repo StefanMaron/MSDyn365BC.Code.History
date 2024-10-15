@@ -116,12 +116,12 @@
                             TmpCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Losses Account";
                             if TmpCloseIncomeStatementBuffer3.Insert() then;
                         end;
-                    until TmpCloseIncomeStatementBuffer.Next = 0;
+                    until TmpCloseIncomeStatementBuffer.Next() = 0;
 
                 if TmpCloseIncomeStatementBuffer3.Find('-') then
                     repeat
                         CheckCombination(TmpCloseIncomeStatementBuffer3);
-                    until TmpCloseIncomeStatementBuffer3.Next = 0;
+                    until TmpCloseIncomeStatementBuffer3.Next() = 0;
 
                 if GLReg."To Entry No." <> 0 then
                     GLReg.Insert();
@@ -486,7 +486,7 @@
         AccountingPeriod: Record "Accounting Period";
         OK: Boolean;
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(false);
 
         if Date <> LastDateChecked then begin

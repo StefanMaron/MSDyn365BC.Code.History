@@ -590,7 +590,7 @@ table 5995 "Service Cr.Memo Line"
                   TempVATAmountLine."VAT Base" * (1 - ServCrMemoHeader."Payment Discount %" / 100);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServCrMemoHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]

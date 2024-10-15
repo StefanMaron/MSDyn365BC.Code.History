@@ -25,7 +25,7 @@ codeunit 134612 "Test Editing Permissions"
         TargetExistsErr: Label 'The new permission set already exists.';
         TargetNameMissingErr: Label 'You must specify a name for the new permission set.';
         ZeroGuid: Guid;
-        MSPermSetChangedMsg: Label 'One or more System permission sets that you have copied to create your own have changed. //You may want to review the changed permission set in case the changes are relevant for your user-defined permission sets.';
+        MSPermSetChangedMsg: Label 'One or more System permission sets that you have copied to create your own have changed. You may want to review the changed permission set in case the changes are relevant for your user-defined permission sets.';
         SecurityFilterErr: Label 'Security filter %1 does not apply to the %2 table.', Comment = 'Security filter Customer: Chain Name=<>0 does not apply to the Vendor table.';
         SecurityFilterExistsErr: Label 'Security filter should not exit.';
         UnsupportedDataTypeErr: Label 'Cannot define a field filter for field %1 whose type is %2.', Comment = 'Cannot define a field filter for field App ID whose type is GUID.';
@@ -1465,8 +1465,6 @@ codeunit 134612 "Test Editing Permissions"
 
         LibraryPermissions.AddPermission(PermissionSetRoleID, Permission."Object Type"::"Table Data", DATABASE::Customer);
         LibraryPermissions.AddPermission(PermissionSetRoleID, Permission."Object Type"::"Table Data", DATABASE::Vendor);
-
-        LibraryPermissions.UpdateHashOnPermissionSet(PermissionSetRoleID);
     end;
 
     local procedure CreateNewExtensionPermissionSet(TenantPermissionSetRoleID: Code[20]) TenantPermissionSetAppID: Guid
@@ -1791,11 +1789,11 @@ codeunit 134612 "Test Editing Permissions"
         ZeroGUID: Guid;
     begin
         FromPermission.SetRange("Role ID", PermissionSetRoleID);
-        FromPermission.FindSet;
+        FromPermission.FindSet();
 
         ToTenantPermission.SetRange("App ID", ZeroGUID);
         ToTenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        ToTenantPermission.FindSet;
+        ToTenantPermission.FindSet();
 
         repeat
             AssertTenantPermissionSetupEqualsPermissionSetup(ToTenantPermission, FromPermission);
@@ -1858,11 +1856,11 @@ codeunit 134612 "Test Editing Permissions"
     begin
         FromTenantPermission.SetRange("App ID", FromTenantPermissionSetAppID);
         FromTenantPermission.SetRange("Role ID", FromTenantPermissionSetRoleID);
-        FromTenantPermission.FindSet;
+        FromTenantPermission.FindSet();
 
         ToTenantPermission.SetRange("App ID", ZeroGUID);
         ToTenantPermission.SetRange("Role ID", ToTenantPermissionSetRoleID);
-        ToTenantPermission.FindSet;
+        ToTenantPermission.FindSet();
 
         repeat
             AssertTenantPermissionSetupEqualsTenantPermissionSetup(ToTenantPermission, FromTenantPermission);
@@ -1971,10 +1969,11 @@ codeunit 134612 "Test Editing Permissions"
     var
         PermissionSetLink: Record "Permission Set Link";
         PermissionSet: Record "Permission Set";
+        PermissionManager: Codeunit "Permission Manager";
     begin
         Assert.IsTrue(PermissionSetLink.Get(SourcePermissionSet, TargetpermissionSet), 'Record does not exist');
         PermissionSet.Get(SourcePermissionSet);
-        Assert.AreEqual(PermissionSet.Hash, PermissionSetLink."Source Hash", 'Hash mismatch');
+        Assert.AreEqual(PermissionManager.GenerateHashForPermissionSet(PermissionSet."Role ID"), PermissionSetLink."Source Hash", 'Hash mismatch');
     end;
 
     local procedure AssertPermissionSetLinkDoesNotExist(SourcePermissionSet: Code[20]; TargetpermissionSet: Code[20])

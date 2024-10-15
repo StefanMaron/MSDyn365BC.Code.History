@@ -60,7 +60,7 @@ page 99000900 "Avail. - Planning Components"
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
                         UpdateReservFrom;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -133,7 +133,7 @@ page 99000900 "Avail. - Planning Components"
                                 if ReservEntry2."Quantity (Base)" < 0 then
                                     Error(Text002);
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
-                            until ReservEntry2.Next = 0;
+                            until ReservEntry2.Next() = 0;
 
                             UpdateReservFrom;
                         end;

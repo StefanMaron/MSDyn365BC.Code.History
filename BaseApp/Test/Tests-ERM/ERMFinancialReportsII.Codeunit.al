@@ -2291,13 +2291,13 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         IssuedReminderLine.SetRange("Reminder No.", ReminderNo);
         IssuedReminderLine.SetRange(Type, ReminderType);
-        IssuedReminderLine.FindSet;
+        IssuedReminderLine.FindSet();
     end;
 
     local procedure FindIssuedFinChargeMemoLine(var IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line"; FinChargeMemoNo: Code[20])
     begin
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinChargeMemoNo);
-        IssuedFinChargeMemoLine.FindSet;
+        IssuedFinChargeMemoLine.FindSet();
     end;
 
     local procedure FindGLAccount(var GLAccount: Record "G/L Account"; No: Code[20]; DateFilter: Date; DateFilter2: Date)
@@ -2847,7 +2847,7 @@ codeunit 134986 "ERM Financial Reports II"
         // Use Precision to take Decimal Value upto 2 Decimal Places.
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         FinanceChargeMemoLine.SetFilter("VAT %", '>0');
-        FinanceChargeMemoLine.FindSet;
+        FinanceChargeMemoLine.FindSet();
         LibraryReportDataset.LoadDataSetFile;
 
         repeat
@@ -2870,7 +2870,7 @@ codeunit 134986 "ERM Financial Reports II"
         // Use Precision to take Decimal Value upto 2 Decimal Places.
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         IssuedFinChargeMemoLine.SetFilter("VAT %", '>0');
-        IssuedFinChargeMemoLine.FindSet;
+        IssuedFinChargeMemoLine.FindSet();
         LibraryReportDataset.LoadDataSetFile;
 
         LibraryReportDataset.Reset();
@@ -2968,7 +2968,7 @@ codeunit 134986 "ERM Financial Reports II"
 
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetFilter("VAT %", '>0');
-        ReminderLine.FindSet;
+        ReminderLine.FindSet();
         repeat
             LibraryReportDataset.SetRange('VATAmountLine__VAT___', ReminderLine."VAT %");
             if not LibraryReportDataset.GetNextRow then

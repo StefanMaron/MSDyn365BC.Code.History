@@ -233,7 +233,7 @@
             LastSendWordDocsAsAttmt := TempDeliverySorter."Send Word Docs. as Attmt.";
 
             FirstRecord := false;
-        until TempDeliverySorter.Next = 0;
+        until TempDeliverySorter.Next() = 0;
 
         if TempDeliverySorter2.Find('-') then begin
             ExecuteMerge(WordApplication, TempDeliverySorter2);
@@ -328,7 +328,7 @@
                   MergeFile, Attachment, TempDeliverySorter."No.", HeaderIsReady, TempDeliverySorter."Correspondence Type".AsInteger());
                 Row := Row + 1;
                 Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
-            until TempDeliverySorter.Next = 0;
+            until TempDeliverySorter.Next() = 0;
             MergeClientFileName := CloseAndDownloadMergeSource(MergeFile);
         end else begin
             MergeClientFileName := FileMgt.ClientTempFileName('HTM');
@@ -353,7 +353,7 @@
                 AddFieldsToMergeSource(WordMergefile, InteractLogEntry, TempSegLine, FaxMailToValue, HeaderFieldCount);
                 Row := Row + 1;
                 Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
-            until TempDeliverySorter.Next = 0;
+            until TempDeliverySorter.Next() = 0;
             WordMergefile.CloseMergeFile;
         end;
 
@@ -419,7 +419,7 @@
                     "Delivery Status" := "Delivery Status"::" ";
                     Modify;
                 end;
-            until TempDeliverySorter.Next = 0;
+            until TempDeliverySorter.Next() = 0;
             Commit();
         end;
 
@@ -533,7 +533,7 @@
             if Find('-') then
                 repeat
                     WordMergefile.AddField(Name);
-                until Next = 0;
+                until Next() = 0;
         end;
 
         // Mergesource must be at least two lines
@@ -782,7 +782,7 @@
             AddNewEntry(Salesperson."Phone No.", '');
             AddNewEntry(Salesperson."E-Mail", '');
 
-            if InteractLogEntry.IsEmpty then begin
+            if InteractLogEntry.IsEmpty() then begin
                 AddNewEntry(Format(SegLine.Date), '');
                 AddNewEntry(SegLine."Campaign No.", '');
                 AddNewEntry(SegLine."Segment No.", '');
@@ -823,7 +823,7 @@
             if Find('-') then
                 repeat
                     WordMergefile.AddField(Name);
-                until Next = 0;
+                until Next() = 0;
 
             WordMergefile.WriteLine;
         end;
@@ -991,7 +991,7 @@
                 "Delivery Status" := "Delivery Status"::" ";
                 Modify;
                 Commit();
-            until DeliverySorter.Next = 0;
+            until DeliverySorter.Next() = 0;
     end;
 
     [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types and FileManagement.ClientTempFileName will always throw an error.', '17.3')]

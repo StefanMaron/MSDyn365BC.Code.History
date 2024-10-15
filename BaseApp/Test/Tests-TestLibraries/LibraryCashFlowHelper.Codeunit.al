@@ -583,7 +583,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         CreateDefaultJobPlanningLine(JobTask, JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine);
     end;
 
-    procedure CreateJobPlanningLine(Job: Record Job; LineType: Option; var JobPlanningLine: Record "Job Planning Line")
+    procedure CreateJobPlanningLine(Job: Record Job; LineType: Enum "Job Planning Line Line Type"; var JobPlanningLine: Record "Job Planning Line")
     var
         JobTask: Record "Job Task";
     begin
@@ -592,7 +592,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         CreateDefaultJobPlanningLine(JobTask, LineType, JobPlanningLine);
     end;
 
-    local procedure CreateDefaultJobPlanningLine(JobTask: Record "Job Task"; LineType: Option; var JobPlanningLine: Record "Job Planning Line")
+    local procedure CreateDefaultJobPlanningLine(JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; var JobPlanningLine: Record "Job Planning Line")
     begin
         LibraryJob.CreateJobPlanningLine(LineType, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
     end;
@@ -687,14 +687,14 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     procedure GenerateDateFromFormulaArray(BaseDate: Date; DateFormulas: array[3] of DateFormula): Date
@@ -743,7 +743,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             LineAmount := SalesLine."Outstanding Amount (LCY)";
             VATBaseAmount := GetVATBaseFromSalesLine(SalesHeader, SalesLine);
@@ -761,7 +761,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             TotalAmount += GetVATBaseFromSalesLine(SalesHeader, SalesLine);
         until SalesLine.Next = 0;
@@ -780,7 +780,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             LineAmount := PurchaseLine."Outstanding Amount (LCY)";
             VATBaseAmount := GetVATBaseFromPurchLine(PurchaseHeader, PurchaseLine);
@@ -797,7 +797,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             TotalAmount += GetVATBaseFromPurchLine(PurchaseHeader, PurchaseLine);
         until PurchaseLine.Next = 0;
@@ -816,7 +816,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             LineAmount := ServiceLine."Outstanding Amount (LCY)";
             VATBaseAmount := GetVATBaseFromServLine(ServiceHeader, ServiceLine);
@@ -927,7 +927,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         JobPlanningLine.SetFilter(
           "Line Type", StrSubstNo('%1|%2', JobPlanningLine."Line Type"::Billable, JobPlanningLine."Line Type"::"Both Budget and Billable"));
         JobPlanningLine.SetRange("Planning Date", PlanningDate);
-        JobPlanningLine.FindSet;
+        JobPlanningLine.FindSet();
         repeat
             LineAmount := JobPlanningLine."Line Amount (LCY)";
             TotalAmount += LineAmount;
@@ -984,7 +984,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TotalAmount += GetVATBaseFromServLine(ServiceHeader, ServiceLine);
         until ServiceLine.Next = 0;
@@ -1073,7 +1073,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         CFAccount: Record "Cash Flow Account";
     begin
         CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
-        CFAccount.FindSet;
+        CFAccount.FindSet();
         CFAccount.Next(SourceType.AsInteger());
         exit(CFAccount."No.");
     end;

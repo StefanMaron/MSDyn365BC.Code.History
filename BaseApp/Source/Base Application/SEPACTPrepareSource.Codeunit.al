@@ -20,7 +20,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
             repeat
                 TempGenJnlLine := FromGenJnlLine;
                 TempGenJnlLine.Insert();
-            until FromGenJnlLine.Next = 0
+            until FromGenJnlLine.Next() = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
     end;
@@ -62,7 +62,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
                     TempGenJnlLine."Recipient Bank Account" := PmtJnlLineToExport."Beneficiary Bank Account";
                     TempGenJnlLine."Message to Recipient" := PmtJnlLineToExport."Payment Message";
                     TempGenJnlLine.Insert();
-                until PmtJnlLineToExport.Next = 0;
+                until PmtJnlLineToExport.Next() = 0;
         end;
 
         OnAfterCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);

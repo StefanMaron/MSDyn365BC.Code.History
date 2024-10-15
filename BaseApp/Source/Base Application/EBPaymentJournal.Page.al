@@ -27,7 +27,7 @@ page 2000001 "EB Payment Journal"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         DoLookup := PmtJrnlMgt.LookupName(GetRangeMax("Journal Template Name"), CurrentJnlBatchName, Text);
-                        CurrPage.Update;
+                        CurrPage.Update();
                         exit(DoLookup);
                     end;
 

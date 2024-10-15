@@ -2061,7 +2061,7 @@ codeunit 134150 "ERM Intrastat Journal"
         VerifyIntrastatLine(DocumentNo, ItemNo, IntrastatJnlLineType, GetCountryRegionCode, Quantity);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Option; Type: Option; No: Code[20]; NoOfLines: Integer)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; No: Code[20]; NoOfLines: Integer)
     var
         SalesHeader: Record "Sales Header";
         i: Integer;
@@ -2372,7 +2372,7 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         with PurchRcptLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             Next(LineNo - 1);
             SetRecFilter;
         end;
@@ -2385,7 +2385,7 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         with ReturnShipmentLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             Next(LineNo - 1);
             SetRecFilter;
         end;
@@ -2408,7 +2408,7 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         with SalesShipmentLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             Next(LineNo - 1);
             SetRecFilter;
         end;
@@ -2421,7 +2421,7 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         with ReturnReceiptLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             Next(LineNo - 1);
             SetRecFilter;
         end;

@@ -68,7 +68,7 @@ table 5650 "Total Value Insured"
                         TempInsTotValueInsured.Insert();
                     end;
                 end;
-            until InsCoverageLedgEntry.Next = 0;
+            until InsCoverageLedgEntry.Next() = 0;
     end;
 
     procedure FindFirst(SearchString: Text[3]): Boolean

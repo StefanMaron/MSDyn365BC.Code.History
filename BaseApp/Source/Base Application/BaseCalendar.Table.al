@@ -41,7 +41,7 @@ table 7600 "Base Calendar"
         CustomizedCalendarChange: Record "Customized Calendar Change";
     begin
         CustomizedCalendarChange.SetRange("Base Calendar Code", Code);
-        if not CustomizedCalendarChange.IsEmpty then
+        if not CustomizedCalendarChange.IsEmpty() then
             Error(Text001, Code);
 
         BaseCalendarLine.Reset();

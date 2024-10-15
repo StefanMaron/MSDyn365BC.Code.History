@@ -2801,7 +2801,7 @@ codeunit 134385 "ERM Sales Document"
 
         // [GIVEN] Posted Sales Return Order for Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesHeader."Sell-to Customer No.");
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         LibraryVariableStorage.Enqueue(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [GIVEN] Sales Return Order and Get Posted Doc to Reverse
@@ -2811,7 +2811,7 @@ codeunit 134385 "ERM Sales Document"
         // done in PostedSalesDocumentLinesModalPageHandlerWithPostedShipments
 
         // [WHEN] Stan pushes OK on page Posted Sales Document Lines
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Message "One or more return document lines were not copied..."
         Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText);
@@ -2841,7 +2841,7 @@ codeunit 134385 "ERM Sales Document"
 
         // [GIVEN] Posted Sales Return Order for Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesHeader."Sell-to Customer No.");
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         LibraryVariableStorage.Enqueue(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [GIVEN] Sales Return Order and Get Posted Doc to Reverse
@@ -2851,7 +2851,7 @@ codeunit 134385 "ERM Sales Document"
         // done in PostedSalesDocumentLinesModalPageHandlerWithPostedShipments
 
         // [WHEN] Stan pushes OK on page Posted Sales Document Lines
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Message "One or more return document lines were not copied..."
         Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText);
@@ -3237,7 +3237,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Code[10]
+    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
@@ -3246,7 +3246,7 @@ codeunit 134385 "ERM Sales Document"
         exit(AnalysisColumnTemplate.Name);
     end;
 
-    local procedure CreateAnalysisMultipleColumns(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"; ColumnCount: Integer): Code[10]
+    local procedure CreateAnalysisMultipleColumns(ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"; ColumnCount: Integer): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         Index: Integer;
@@ -3258,7 +3258,7 @@ codeunit 134385 "ERM Sales Document"
         exit(AnalysisColumnTemplate.Name);
     end;
 
-    local procedure CreateAnalysisColumn(ColumnTemplateName: Code[10]; ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type")
+    local procedure CreateAnalysisColumn(ColumnTemplateName: Code[10]; ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type")
     var
         AnalysisColumn: Record "Analysis Column";
     begin
@@ -3275,7 +3275,7 @@ codeunit 134385 "ERM Sales Document"
         AnalysisColumn.Modify(true);
     end;
 
-    local procedure CreateAnalysisLine(ItemAnalysisViewAnalysisArea: Option; AnalysisLineType: Enum "Analysis Line Type"; RangeValue: Code[20]): Code[10]
+    local procedure CreateAnalysisLine(ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; AnalysisLineType: Enum "Analysis Line Type"; RangeValue: Code[20]): Code[10]
     var
         AnalysisLine: Record "Analysis Line";
         AnalysisLineTemplate: Record "Analysis Line Template";
@@ -3292,12 +3292,11 @@ codeunit 134385 "ERM Sales Document"
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
     begin
-        LibraryInventory.CreateAnalysisLineTemplate(
-          AnalysisLineTemplate, LibraryRandom.RandInt(AnalysisLineTemplate."Analysis Area"::Sales));
+        LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisLineTemplate."Analysis Area"::Sales);
         LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisLineTemplate."Analysis Area", AnalysisLineTemplate.Name);
     end;
 
-    local procedure CreateNewTemplateAnalysisColumnRandomSet(AnalysisArea: Option): Code[10]
+    local procedure CreateNewTemplateAnalysisColumnRandomSet(AnalysisArea: Enum "Analysis Area Type"): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         AnalysisColumn: Record "Analysis Column";
@@ -3736,7 +3735,7 @@ codeunit 134385 "ERM Sales Document"
 
     local procedure CreateSalesLinesFromDocument(var SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, SalesLine."No.", SalesLine.Quantity);
         until SalesLine.Next = 0;
@@ -3756,7 +3755,7 @@ codeunit 134385 "ERM Sales Document"
     local procedure SumLineDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) LineDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             LineDiscountAmount += SalesLine."Line Discount Amount";
         until SalesLine.Next = 0;
@@ -3765,7 +3764,7 @@ codeunit 134385 "ERM Sales Document"
     local procedure SumInvoiceDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) InvoiceDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             InvoiceDiscountAmount += SalesLine."Inv. Discount Amount";
         until SalesLine.Next = 0;
@@ -3800,7 +3799,7 @@ codeunit 134385 "ERM Sales Document"
         GLEntry: Record "G/L Entry";
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Line Disc. Account");
@@ -3812,7 +3811,7 @@ codeunit 134385 "ERM Sales Document"
         GLEntry: Record "G/L Entry";
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Inv. Disc. Account");
@@ -3821,7 +3820,7 @@ codeunit 134385 "ERM Sales Document"
 
     local procedure TotalAmountInGLEntry(var GLEntry: Record "G/L Entry") TotalAmount: Decimal
     begin
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -3838,7 +3837,7 @@ codeunit 134385 "ERM Sales Document"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure CopySalesLines(var SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line")
@@ -3951,7 +3950,7 @@ codeunit 134385 "ERM Sales Document"
     begin
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
@@ -4179,7 +4178,7 @@ codeunit 134385 "ERM Sales Document"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    [EventSubscriber(ObjectType::table, 49, 'OnAfterInvPostBufferPrepareSales', '', false, false)]
+    [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareSales', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
         // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
@@ -4457,7 +4456,7 @@ codeunit 134385 "ERM Sales Document"
     begin
         GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             TotalVATAmount += Abs(VATEntry.Base + VATEntry.Amount);
         until VATEntry.Next = 0;
@@ -4777,7 +4776,7 @@ codeunit 134385 "ERM Sales Document"
         ItemTrackingLines.OK.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterFillInvoicePostBuffer', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', '', false, false)]
     local procedure AddGroupOnFillInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSuppressed: Boolean)
     begin
         InvoicePostBuffer."Additional Grouping Identifier" := Format(SalesLine."Line No.");

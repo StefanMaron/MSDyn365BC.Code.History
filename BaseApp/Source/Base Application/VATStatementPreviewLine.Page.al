@@ -1,4 +1,4 @@
-﻿page 475 "VAT Statement Preview Line"
+page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -190,7 +190,7 @@
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
         VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
         OnUpdateFormOnBeforePageUpdate(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
-        CurrPage.Update;
+        CurrPage.Update();
 
         OnAfterUpdateForm();
     end;
@@ -233,7 +233,7 @@
         if ManualVATCorrection.FindSet then
             repeat
                 ManualVATCorrection.Mark(true);
-            until ManualVATCorrection.Next = 0;
+            until ManualVATCorrection.Next() = 0;
     end;
 
     local procedure MarkManVATCorrections(VATStatementLine: Record "VAT Statement Line"; var ManualVATCorrection: Record "Manual VAT Correction"): Boolean
@@ -248,7 +248,7 @@
             if VATStatementLine.FindSet then
                 repeat
                     MarkManVATCorrections(VATStatementLine, ManualVATCorrection);
-                until VATStatementLine.Next = 0;
+                until VATStatementLine.Next() = 0;
             exit(true);
         end;
         exit(false);

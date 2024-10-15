@@ -1,4 +1,4 @@
-﻿codeunit 99000810 "Calculate Planning Route Line"
+codeunit 99000810 "Calculate Planning Route Line"
 {
     Permissions = TableData Item = r,
                   TableData "Prod. Order Capacity Need" = rimd,
@@ -30,6 +30,8 @@
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
         ProdOrderCapNeed2: Record "Prod. Order Capacity Need";
         TempPlanningErrorLog: Record "Planning Error Log" temporary;
+        TempConstrainedCapacity: Record "Capacity Constrained Resource" temporary;
+        TempConstrainedCapacityEmpty: Record "Capacity Constrained Resource" temporary;
         CalendarMgt: Codeunit "Shop Calendar Management";
         CalculateRoutingLine: Codeunit "Calculate Routing Line";
         RoutingTimeType: Enum "Routing Time Type";
@@ -340,7 +342,7 @@
                         CalculateRoutingLine.ReturnNextCalendarEntry(CalendarEntry, OldCalendarEntry, 1);
                     end else begin
                         CalendarEntry := OldCalendarEntry;
-                        StopLoop := CalendarEntry.Next = 0;
+                        StopLoop := CalendarEntry.Next() = 0;
                     end;
             until StopLoop;
             RemainNeedQty := Round(RemainNeedQtyBase / CurrentTimeFactor, CurrentRounding);
@@ -429,7 +431,7 @@
         LoadCapBack(PlanningRoutingLine.Type, PlanningRoutingLine."No.", RoutingTimeType::"Wait Time", false);
     end;
 
-    local procedure GetSendAheadStartingTime(PlanningRoutingLineNext: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
+    local procedure GetSendAheadStartingTime(var PlanningRoutingLineNext: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
     var
         xPlanningRoutingLine: Record "Planning Routing Line";
         RunTime: Decimal;
@@ -472,7 +474,7 @@
             ProdOrderCapNeed2.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
             ProdOrderCapNeed2.SetRange("Worksheet Line No.", "Worksheet Line No.");
             ProdOrderCapNeed2.SetRange("Operation No.", "Operation No.");
-            if ProdOrderCapNeed2.FindFirst then
+            if not ProdOrderCapNeed2.IsEmpty then
                 exit(false);
 
             // calculate Starting Date/Time for the last lot of the next line by going back from Ending Date/Time of the line
@@ -611,7 +613,7 @@
                             ProdEndingTime := ProdStartingTime;
                             PlanningRoutingLine3 := PlanningRoutingLine2;
                         end;
-                until PlanningRoutingLine2.Next = 0;
+                until PlanningRoutingLine2.Next() = 0;
             if PlanningRoutingLine3."Worksheet Template Name" <> '' then begin
                 WorkCenter2.Get(PlanningRoutingLine3."Work Center No.");
                 PlanningRoutingLine3."Critical Path" := true;
@@ -661,8 +663,8 @@
                 WorkCenter."Calendar Rounding Precision");
 
             with PlanningRoutingLine do begin
-                ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
-                ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
+                ResourceIsConstrained := GetConstrainedCapacity(Type, "No.", ConstrainedCapacity);
+                ParentIsConstrained := GetConstrainedCapacity(Type::"Work Center", "Work Center No.", ParentWorkCenter);
                 if ResourceIsConstrained or ParentIsConstrained then
                     FinitelyLoadCapBack(RoutingTimeType::"Run Time", ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
                 else
@@ -678,8 +680,8 @@
         RemainNeedQty := GetSetupTimeBaseUOM;
 
         with PlanningRoutingLine do begin
-            ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
-            ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
+            ResourceIsConstrained := GetConstrainedCapacity(Type, "No.", ConstrainedCapacity);
+            ParentIsConstrained := GetConstrainedCapacity(Type::"Work Center", "Work Center No.", ParentWorkCenter);
             if ResourceIsConstrained or ParentIsConstrained then
                 FinitelyLoadCapBack(RoutingTimeType::"Setup Time", ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
             else
@@ -692,7 +694,29 @@
         PlanningRoutingLine.Modify();
     end;
 
-    local procedure GetSendAheadEndingTime(PlanningRoutingLinePrev: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
+    local procedure GetConstrainedCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var ConstrainedCapacity: Record "Capacity Constrained Resource"): Boolean
+    begin
+        if TempConstrainedCapacity.Get(CapType, CapNo) then begin
+            ConstrainedCapacity := TempConstrainedCapacity;
+            exit(true);
+        end;
+        if TempConstrainedCapacityEmpty.Get(CapType, CapNo) then
+            exit(false);
+
+        if ConstrainedCapacity.Get(CapType, CapNo) then begin
+            TempConstrainedCapacity := ConstrainedCapacity;
+            TempConstrainedCapacity.Insert();
+            exit(true);
+        end;
+
+        TempConstrainedCapacityEmpty.Init;
+        TempConstrainedCapacityEmpty."Capacity Type" := CapType;
+        TempConstrainedCapacityEmpty."Capacity No." := CapNo;
+        TempConstrainedCapacityEmpty.Insert();
+        exit(false);
+    end;
+
+    local procedure GetSendAheadEndingTime(var PlanningRoutingLinePrev: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
     var
         xPlanningRoutingLine: Record "Planning Routing Line";
         SetupTime: Decimal;
@@ -735,7 +759,7 @@
             ProdOrderCapNeed2.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
             ProdOrderCapNeed2.SetRange("Worksheet Line No.", "Worksheet Line No.");
             ProdOrderCapNeed2.SetRange("Operation No.", "Operation No.");
-            if ProdOrderCapNeed2.FindFirst then
+            if not ProdOrderCapNeed2.IsEmpty then
                 exit(false);
 
             // calculate Starting Date/Time of current line using Setup/Run/Wait/Move Time for the first send-ahead lot from previous line
@@ -889,7 +913,7 @@
                             CalendarMgt.TimeFactor(WorkCenter2."Unit of Measure Code"),
                             WorkCenter2."Calendar Rounding Precision");
                     end;
-                until PlanningRoutingLine2.Next = 0;
+                until PlanningRoutingLine2.Next() = 0;
             if PlanningRoutingLine3."Worksheet Template Name" <> '' then begin
                 PlanningRoutingLine3."Critical Path" := true;
                 PlanningRoutingLine3.UpdateDatetime;
@@ -1184,7 +1208,7 @@
         AvailCap := Min(AbscenseAvailCap, AvailCap);
     end;
 
-    local procedure FinitelyLoadCapForward(TimeType: Enum "Routing Time Type"; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean)
+    local procedure FinitelyLoadCapForward(TimeType: Enum "Routing Time Type"; var ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; var ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean)
     var
         NextProdOrderCapNeed: Record "Prod. Order Capacity Need";
         AvailTime: Decimal;
@@ -1247,7 +1271,7 @@
                             end;
                             if NextProdOrderCapNeed."Ending Time" > StartTime then
                                 StartTime := NextProdOrderCapNeed."Ending Time"
-                        until (NextProdOrderCapNeed.Next = 0) or (RemainNeedQty = 0) or (AvailCap = 0);
+                        until (NextProdOrderCapNeed.Next() = 0) or (RemainNeedQty = 0) or (AvailCap = 0);
 
                     if (AvailCap > 0) and (RemainNeedQty > 0) then begin
                         AvailTime := Min(CalendarMgt.CalcTimeDelta(CalendarEntry."Ending Time", StartTime), AvailCap);
@@ -1267,7 +1291,7 @@
                     end;
                 end;
                 if RemainNeedQty > 0 then begin
-                    if CalendarEntry.Next = 0 then begin
+                    if CalendarEntry.Next() = 0 then begin
                         TestForError(Text003, Text004, CalendarEntry.Date);
                         exit;
                     end;
@@ -1291,7 +1315,7 @@
         end;
     end;
 
-    local procedure CalculateDailyLoad(var AvailCap: Decimal; var DampTime: Decimal; ConstrainedCapacity: Record "Capacity Constrained Resource"; IsResourceConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; IsParentConstrained: Boolean)
+    local procedure CalculateDailyLoad(var AvailCap: Decimal; var DampTime: Decimal; var ConstrainedCapacity: Record "Capacity Constrained Resource"; IsResourceConstrained: Boolean; var ParentWorkCenter: Record "Capacity Constrained Resource"; IsParentConstrained: Boolean)
     var
         CurrentLoadBase: Decimal;
         AvailCapWorkCenter: Decimal;
@@ -1405,7 +1429,7 @@
                 SendAheadLotSize := xSendAheadLotSize;
 
                 Result := Result or GetSendAheadEndingTime(TmpPlanRtngLine, SendAheadLotSize);
-            until TmpPlanRtngLine.Next = 0;
+            until TmpPlanRtngLine.Next() = 0;
         end else
             Result := GetSendAheadEndingTime(TmpPlanRtngLine, SendAheadLotSize);
 
@@ -1426,20 +1450,20 @@
                 SendAheadLotSize := xSendAheadLotSize;
 
                 Result := Result or GetSendAheadStartingTime(TmpPlanRtngLine, SendAheadLotSize);
-            until TmpPlanRtngLine.Next = 0;
+            until TmpPlanRtngLine.Next() = 0;
         end else
             Result := GetSendAheadStartingTime(TmpPlanRtngLine, SendAheadLotSize);
 
         exit(Result);
     end;
 
-    local procedure GetCurrentWorkCenterTimeFactorAndRounding(CurrentWorkCenter: Record "Work Center")
+    local procedure GetCurrentWorkCenterTimeFactorAndRounding(var CurrentWorkCenter: Record "Work Center")
     begin
         CurrentTimeFactor := CalendarMgt.TimeFactor(CurrentWorkCenter."Unit of Measure Code");
         CurrentRounding := CurrentWorkCenter."Calendar Rounding Precision";
     end;
 
-    local procedure CalcCapConResWorkCenterLoadBase(CapacityConstrainedResource: Record "Capacity Constrained Resource"; DateFilter: Date; var CapEffectiveBase: Decimal; var LoadBase: Decimal)
+    local procedure CalcCapConResWorkCenterLoadBase(var CapacityConstrainedResource: Record "Capacity Constrained Resource"; DateFilter: Date; var CapEffectiveBase: Decimal; var LoadBase: Decimal)
     begin
         CapEffectiveBase := 0;
         LoadBase := 0;
@@ -1454,7 +1478,7 @@
         end;
     end;
 
-    local procedure CalcCapConResProdOrderNeedBase(CapacityConstrainedResource: Record "Capacity Constrained Resource"; DateFilter: Date; var CapEffectiveBase: Decimal; var LoadBase: Decimal)
+    local procedure CalcCapConResProdOrderNeedBase(var CapacityConstrainedResource: Record "Capacity Constrained Resource"; DateFilter: Date; var CapEffectiveBase: Decimal; var LoadBase: Decimal)
     begin
         CapEffectiveBase := 0;
         LoadBase := 0;
@@ -1478,21 +1502,19 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePlanningCapNeed(
-        var NextCapNeedLineNo: Integer; PlanningRoutingLine: Record "Planning Routing Line"; ReqLine: Record "Requisition Line"; NeedDate: Date;
+        var NextCapNeedLineNo: Integer; var PlanningRoutingLine: Record "Planning Routing Line"; var ReqLine: Record "Requisition Line"; NeedDate: Date;
         StartingTime: Time; EndingTime: Time; TimeType: option "Setup Time","Run Time"; NeedQty: Decimal; ConCurrCap: Decimal;
-        CalendarEntry: Record "Calendar Entry"; LotSize: Decimal; RemainNeedQty: Decimal; FirstInBatch: Boolean; Direction: Option "Forward","Backward")
+        var CalendarEntry: Record "Calendar Entry"; LotSize: Decimal; RemainNeedQty: Decimal; FirstInBatch: Boolean; Direction: Option "Forward","Backward")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-
-    local procedure OnBeforeCalcMoveTimeBack(var PlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; var ProdEndingDate: Date; var ProdEndingTime: Time; var ProdStartingDate: Date; var ProdStartingTime: Time; var UpdateDates: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeCalcMoveTimeBack(var PlanningRoutingLine: Record "Planning Routing Line"; var WorkCenter: Record "Work Center"; var ProdEndingDate: Date; var ProdEndingTime: Time; var ProdStartingDate: Date; var ProdStartingTime: Time; var UpdateDates: Boolean; var IsHandled: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
-
-    local procedure OnBeforeCalcWaitTimeBack(var PlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; var ProdEndingDate: Date; var ProdEndingTime: Time; var ProdStartingDate: Date; var ProdStartingTime: Time; var UpdateDates: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeCalcWaitTimeBack(var PlanningRoutingLine: Record "Planning Routing Line"; var WorkCenter: Record "Work Center"; var ProdEndingDate: Date; var ProdEndingTime: Time; var ProdStartingDate: Date; var ProdStartingTime: Time; var UpdateDates: Boolean; var IsHandled: Boolean);
     begin
     end;
 
@@ -1517,7 +1539,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePlanningCapNeed(PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var NeedQty: Decimal)
+    local procedure OnBeforeCreatePlanningCapNeed(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var NeedQty: Decimal)
     begin
     end;
 }

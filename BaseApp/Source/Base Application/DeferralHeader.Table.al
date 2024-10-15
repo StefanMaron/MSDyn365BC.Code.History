@@ -80,11 +80,11 @@ table 1701 "Deferral Header"
                 if GenJnlCheckLine.DateNotAllowed("Start Date", "Gen. Jnl. Template Name") then
                     Error(InvalidPostingDateErr, "Start Date");
 
-                if AccountingPeriod.IsEmpty then
+                if AccountingPeriod.IsEmpty() then
                     exit;
 
                 AccountingPeriod.SetFilter("Starting Date", '>=%1', "Start Date");
-                if AccountingPeriod.IsEmpty then
+                if AccountingPeriod.IsEmpty() then
                     Error(DeferSchedOutOfBoundsErr);
             end;
         }

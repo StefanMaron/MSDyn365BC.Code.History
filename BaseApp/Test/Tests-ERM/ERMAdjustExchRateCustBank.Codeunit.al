@@ -1013,7 +1013,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           GenJournalLine."Document Type"::" ");
     end;
 
-    local procedure AdjustExchRateForCustomer(ExchRateAmt: Decimal; EntryType: Option)
+    local procedure AdjustExchRateForCustomer(ExchRateAmt: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1516,7 +1516,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", BankAccountPostingGroup."G/L Account No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntryAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -1526,7 +1526,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
     end;
 
-    local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; EntryType: Option; Amount: Decimal)
+    local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         Currency: Record Currency;

@@ -6,7 +6,7 @@ codeunit 132495 MockOnFetchInitParams
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1546, 'OnFetchWorkflowWebhookNotificationInitParams', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Webhook Notify Task", 'OnFetchWorkflowWebhookNotificationInitParams', '', false, false)]
     local procedure MockOnFetchWorkflowWebhookNotificationInitParams(var RetryCount: Integer; var WaitTime: Integer; var InitHandled: Boolean)
     begin
         RetryCount := 0;

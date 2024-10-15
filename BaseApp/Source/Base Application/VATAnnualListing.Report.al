@@ -137,7 +137,7 @@ report 11308 "VAT Annual Listing"
 
                     trigger OnAfterGetRecord()
                     begin
-                        if VATCustomer.Next = 0 then
+                        if VATCustomer.Next() = 0 then
                             CurrReport.Break();
                         if VATCustomer.Mark then
                             CurrReport.Skip();

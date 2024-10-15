@@ -1337,7 +1337,7 @@ codeunit 134982 "ERM Financial Reports"
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Financial Reports");
     end;
-    
+
     local procedure MockVATEntryWithPostingDateForCustomer(Customer: Record Customer; PostingDate: Date)
     var
         VATEntry: Record "VAT Entry";
@@ -1401,7 +1401,7 @@ codeunit 134982 "ERM Financial Reports"
         with BankAccReconciliationLine do begin
             SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
             SetRange("Statement No.", BankAccReconciliation."Statement No.");
-            FindSet;
+            FindSet();
             repeat
                 Sum += "Statement Amount";
             until Next = 0;
@@ -1798,7 +1798,7 @@ codeunit 134982 "ERM Financial Reports"
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
         VATEntry.SetRange("Posting Date", WorkDate);
         VATEntry.SetFilter("VAT Registration No.", VATRegistrationNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure FindCustomerVATRegistration(var Customer: Record Customer)
@@ -2271,7 +2271,9 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHFixedAssetDetails(var FixedAssetDetails: TestRequestPage "Fixed Asset - Details")
     begin
         CurrentSaveValuesId := REPORT::"Fixed Asset - Details";
-        FixedAssetDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        if FixedAssetDetails.Editable then;
+        FixedAssetDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]
@@ -2279,7 +2281,9 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHFixedAssetDetailsExcel(var FixedAssetDetails: TestRequestPage "Fixed Asset - Details")
     begin
         CurrentSaveValuesId := REPORT::"Fixed Asset - Details";
+        if FixedAssetDetails.Editable then;
         FixedAssetDetails.SaveAsExcel(LibraryReportValidation.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]
@@ -2408,6 +2412,7 @@ codeunit 134982 "ERM Financial Reports"
     [Scope('OnPrem')]
     procedure VATVIESDeclDiskRequestPageHandler(var VATVIESDeclarationDisk: TestRequestPage "VAT- VIES Declaration Disk")
     begin
+        VATVIESDeclarationDisk.UseAmtsInAddCurr.Value();
         VATVIESDeclarationDisk.OK.Invoke;
     end;
 

@@ -303,7 +303,7 @@ codeunit 144022 "Test Telebank Pages"
         LibraryPaymentJournalBE.InitDomJournalLine(DomiciliationJournalTemplate, DomiciliationJournalBatch, DomiciliationJournalLine);
         Commit();
         Customer.FindFirst;
-        BankAccount.FindSet;
+        BankAccount.FindSet();
         DomiciliationJournal.OpenEdit;
         DomiciliationJournal.CurrentJnlBatchName.Lookup;
         DomiciliationJournal.CurrentJnlBatchName.SetValue(DomiciliationJournalBatch.Name);

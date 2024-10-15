@@ -10,14 +10,14 @@ codeunit 139091 "Postcode Dummy Service"
         PostcodeServiceManager: Codeunit "Postcode Service Manager";
         SimulatedErrorErr: Label 'Error', Locked = true;
 
-    [EventSubscriber(ObjectType::Codeunit, 9090, 'OnDiscoverPostcodeServices', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Postcode Service Manager", 'OnDiscoverPostcodeServices', '', false, false)]
     [Scope('OnPrem')]
     procedure RegisterServiceOnDiscoverPostcodeServices(var TempServiceListNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
         PostcodeServiceManager.RegisterService(TempServiceListNameValueBuffer, 'Dummy Service', 'Dummy Service');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9090, 'OnRetrieveAddressList', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Postcode Service Manager", 'OnRetrieveAddressList', '', false, false)]
     [Scope('OnPrem')]
     procedure GetAddressListOnRetrieveAddressList(ServiceKey: Text; TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary; var TempAddressListNameValueBuffer: Record "Name/Value Buffer" temporary; var IsSuccessful: Boolean; var ErrorMsg: Text)
     var
@@ -48,7 +48,7 @@ codeunit 139091 "Postcode Dummy Service"
         end
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9090, 'OnRetrieveAddress', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Postcode Service Manager", 'OnRetrieveAddress', '', false, false)]
     [Scope('OnPrem')]
     procedure GetAddressOnGetRetrieveAddress(ServiceKey: Text; TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary; TempSelectedAddressNameValueBuffer: Record "Name/Value Buffer" temporary; var TempAutocompleteAddress: Record "Autocomplete Address" temporary; var IsSuccessful: Boolean; var ErrorMsg: Text)
     begin
@@ -74,14 +74,14 @@ codeunit 139091 "Postcode Dummy Service"
             TempAutocompleteAddress."Country / Region" := 'COUNTRY';
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9090, 'OnShowConfigurationPage', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Postcode Service Manager", 'OnShowConfigurationPage', '', false, false)]
     [Scope('OnPrem')]
     procedure ConfigureOnShowConfigurationPage(ServiceKey: Text; var Successful: Boolean)
     begin
         Successful := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9090, 'OnCheckIsServiceConfigured', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Postcode Service Manager", 'OnCheckIsServiceConfigured', '', false, false)]
     [Scope('OnPrem')]
     procedure RespondOnCheckIsServiceConfigured(ServiceKey: Text; var IsConfigured: Boolean)
     begin

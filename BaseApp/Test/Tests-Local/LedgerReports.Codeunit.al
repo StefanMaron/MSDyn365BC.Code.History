@@ -341,7 +341,7 @@ codeunit 144044 "Ledger Reports"
         if UseLocalCurrency then
             Assert.AreNotEqual('', VariantValue, 'Expected currency code caption to be present.');
 
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('EntryNo_GLEntry', GLEntry."Entry No.");
@@ -356,7 +356,7 @@ codeunit 144044 "Ledger Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmt_GLEntry2', VariantValue);
         until GLEntry.Next = 0;
 
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('EntryNo_VATEntry', VATEntry."Entry No.");
@@ -418,7 +418,7 @@ codeunit 144044 "Ledger Reports"
         GLEntry.Reset();
         GLEntry.SetRange("Posting Date", WorkDate);
         GLEntry.SetRange("Source Code", SourceCodeSetup.Purchases);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             RowIndex := LibraryReportDataset.FindRow('GLEntry2EntryNo', GLEntry."Entry No.");
             if (GLEntry."Debit Amount" > 0) or (GLEntry."Credit Amount" > 0) or UseLocalCurrency then
@@ -501,7 +501,7 @@ codeunit 144044 "Ledger Reports"
         Assert.AreEqual(GLTotalCredit, GLTotalDebit, 'Expected the sum of GL Entry credit and debit are equal');
 
         VATStatementLine.SetRange("Date Filter", WorkDate);
-        VATStatementLine.FindSet;
+        VATStatementLine.FindSet();
         repeat
             RowIndex := LibraryReportDataset.FindRow('RowNo_VATStmtLine', VATStatementLine."Row No.");
             Assert.AreNotEqual(0, RowIndex, 'Expected to find VATStatementLine in dataset.');

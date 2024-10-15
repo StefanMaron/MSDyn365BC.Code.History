@@ -61,7 +61,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         // Verify: Stockkeeping  units are created and Standard Cost shown in Inventory Cost and Price List Report is equal to the
         // Standard Cost in Item Table.
         StockkeepingUnit.SetRange("Item No.", Item."No.");
-        StockkeepingUnit.FindSet;
+        StockkeepingUnit.FindSet();
         LibraryReportDataset.LoadDataSetFile;
         repeat
             LibraryReportDataset.SetRange('LocationCode_StockKeepingUnit', StockkeepingUnit."Location Code");
@@ -1285,7 +1285,7 @@ codeunit 137301 "SCM Inventory Reports - I"
     local procedure FindItem(var Item: Record Item; ItemNo: Code[20]; ItemNo2: Code[20])
     begin
         Item.SetFilter("No.", '%1|%2', ItemNo, ItemNo2);
-        Item.FindSet;
+        Item.FindSet();
     end;
 
     local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; LocationCode: Code[10])

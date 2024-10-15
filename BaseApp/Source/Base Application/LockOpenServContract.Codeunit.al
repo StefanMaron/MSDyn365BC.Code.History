@@ -50,7 +50,7 @@ codeunit 5943 "Lock-OpenServContract"
                 ServContractLine.SetRange("Contract Type", "Contract Type");
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("New Line", true);
-                if not ServContractLine.IsEmpty then begin
+                if not ServContractLine.IsEmpty() then begin
                     if not ConfirmManagement.GetResponseOrDefault(Text002, true) then
                         exit;
                     SignServContractDoc.AddendumToContract(ServContractHeader);

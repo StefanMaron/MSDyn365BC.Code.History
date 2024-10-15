@@ -214,8 +214,8 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine: Record "Assembly Line";
     begin
         CreateDimensionSetup(TempDimension, TempDimensionValue);
-        TempDimension.FindSet;
-        TempDimensionValue.FindSet;
+        TempDimension.FindSet();
+        TempDimensionValue.FindSet();
         repeat
             case Type of
                 AssemblyLine.Type::Item:
@@ -256,7 +256,7 @@ codeunit 132207 "Library - Assembly"
         ExpectedError: Text[1024];
     begin
         LibraryDimension.FindDefaultDimension(DefaultDimension, TableID, EntityNo);
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
         for Count := 1 to DefaultDimension.Count do begin
             DimensionCode[Count] := DefaultDimension."Dimension Code";
             DefaultDimension.Next;
@@ -1605,7 +1605,8 @@ codeunit 132207 "Library - Assembly"
             PostMethod := PostMethod::"per Posting Group"
         else
             PostMethod := PostMethod::"per Entry";
-        PostInventoryCostToGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
+        PostInventoryCostToGL.SetGenJnlBatch(TemplateName, BatchName);
+        PostInventoryCostToGL.InitializeRequest(PostMethod, '', true);
         PostInventoryCostToGL.SetTableView(PostValueEntryToGL);
         PostInventoryCostToGL.UseRequestPage(false);
         PostInventoryCostToGL.SaveAsPdf(PreviewDumpFilePath);
@@ -2934,7 +2935,7 @@ codeunit 132207 "Library - Assembly"
         GLEntry.SetCurrentKey("Document No.", "Posting Date");
         GLEntry.SetRange("Document No.", PostedAssemblyHeader."No.");
         GLEntry.SetRange("Posting Date", PostedAssemblyHeader."Posting Date");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -3067,7 +3068,7 @@ codeunit 132207 "Library - Assembly"
           ValueEntry."Item Ledger Entry Type"::"Assembly Output");
         ValueEntry.SetRange(Adjustment, true);
         if VarianceAmount <> 0 then begin
-            ValueEntry.FindSet;
+            ValueEntry.FindSet();
             ActualVarianceAmount := 0;
             repeat
                 ActualVarianceAmount += ValueEntry."Cost Amount (Actual)";
@@ -3141,7 +3142,7 @@ codeunit 132207 "Library - Assembly"
             AssemblyHeader.TestField("Remaining Quantity", AssemblyHeader."Quantity to Assemble");
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-            AssemblyLine.FindSet;
+            AssemblyLine.FindSet();
             repeat
                 if AssemblyLine."Resource Usage Type" <> AssemblyLine."Resource Usage Type"::Fixed then begin
                     Assert.AreNearlyEqual(AssemblyHeader.Quantity * AssemblyHeader."Qty. per Unit of Measure" *
@@ -3266,7 +3267,7 @@ codeunit 132207 "Library - Assembly"
         // Verify warehouse entries for components
         TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
-        TempAssemblyLine.FindSet;
+        TempAssemblyLine.FindSet();
         repeat
             WarehouseEntry.Reset();
             WarehouseEntry.SetRange("Source Code", SourceCodeSetup.Assembly);
@@ -3323,7 +3324,7 @@ codeunit 132207 "Library - Assembly"
         // Verify bin contents for components
         TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
-        TempAssemblyLine.FindSet;
+        TempAssemblyLine.FindSet();
         repeat
             VerifyBinContent(
               TempAssemblyLine."Location Code", TempAssemblyLine."Bin Code", TempAssemblyLine."No.", TempAssemblyLine."Variant Code",

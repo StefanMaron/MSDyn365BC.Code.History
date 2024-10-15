@@ -46,7 +46,7 @@ codeunit 2000001 CheckPaymJnlLine
                     TestField("Posting Date");
                     if CheckJnlLine.DateNotAllowed("Posting Date", TemplateName) then
                         FieldError("Posting Date", Text002);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -82,7 +82,7 @@ codeunit 2000001 CheckPaymJnlLine
     [Scope('OnPrem')]
     procedure ShowErrorLog()
     begin
-        if not ExportCheckErrorLog.IsEmpty then begin
+        if not ExportCheckErrorLog.IsEmpty() then begin
             PAGE.Run(PAGE::"Export Check Error Logs", ExportCheckErrorLog);
             Error('');
         end;
@@ -153,7 +153,7 @@ codeunit 2000001 CheckPaymJnlLine
                 repeat
                     InsertErrorLog(
                       StrSubstNo(Text005, "Account Type", "Account No.", "Beneficiary Bank Account"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

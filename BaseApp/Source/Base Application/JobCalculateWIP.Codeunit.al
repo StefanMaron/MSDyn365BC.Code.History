@@ -1,4 +1,4 @@
-﻿codeunit 1000 "Job Calculate WIP"
+codeunit 1000 "Job Calculate WIP"
 {
     Permissions = TableData "Job Ledger Entry" = rm,
                   TableData "Job Task" = rimd,
@@ -15,7 +15,7 @@
         GLSetup: Record "General Ledger Setup";
         GenJnPostLine: Codeunit "Gen. Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
-        BufferType: Option "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales";
+        BufferType: Enum "Job WIP Buffer Type";
         WIPPostingDate: Date;
         DocNo: Code[20];
         Text001: Label 'WIP %1', Comment = 'WIP GUILDFORD, 10 CR';
@@ -105,7 +105,7 @@
                     JobTaskCalcWIP(Job, FromJobTask, JobTask."Job Task No.");
                     First := true;
                 end;
-            until JobTask.Next = 0;
+            until JobTask.Next() = 0;
         CreateWIPEntries(Job."No.");
     end;
 
@@ -119,7 +119,7 @@
         if JobTask.Find('-') then
             repeat
                 JobTask.InitWIPFields;
-            until JobTask.Next = 0;
+            until JobTask.Next() = 0;
 
         JobWIPEntry.DeleteEntriesForJob(Job);
 
@@ -181,7 +181,7 @@
                     JobWIPTotalChanged := false;
                     WIPAmount := 0;
                 end;
-            until JobTask.Next = 0;
+            until JobTask.Next() = 0;
         JobTaskCalcAccruedCostsWIP(Job, AccruedCostsJobWIPTotal, AccruedCostsJobTask, RecognizedCostAmount, UsageTotalCost);
         CalcCostInvoicePercentage(JobWIPTotal);
         JobWIPTotal.Modify();
@@ -239,7 +239,7 @@
 
                     OnCreateJobWIPTotalOnAfterUpdateJobWIPTotal(JobTask, JobWIPTotal);
                 end;
-            until JobTask.Next = 0;
+            until JobTask.Next() = 0;
 
         // Get values from the "WIP-Total"::Total Job Task, which always is the last entry in the range:
         JobWIPTotal."Job No." := JobTask."Job No.";
@@ -505,14 +505,14 @@
             end;
     end;
 
-    local procedure CreateWIPBufferEntryFromTask(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Option "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales"; AppliedAccrued: Boolean)
+    local procedure CreateWIPBufferEntryFromTask(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Enum "Job WIP Buffer Type"; AppliedAccrued: Boolean)
     begin
         InitWIPBufferEntryFromTask(
           JobTask, JobWIPTotal, BufferType, GetWIPEntryAmount(BufferType, JobTask, JobWIPTotal."WIP Method", AppliedAccrued));
         UpdateWIPBufferEntryFromTask(JobTask, JobWIPTotal);
     end;
 
-    local procedure InitWIPBufferEntryFromTask(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Option "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales"; WIPEntryAmount: Decimal)
+    local procedure InitWIPBufferEntryFromTask(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Enum "Job WIP Buffer Type"; WIPEntryAmount: Decimal)
     var
         JobTaskDimension: Record "Job Task Dimension";
         TempDimensionBuffer: Record "Dimension Buffer" temporary;
@@ -531,7 +531,7 @@
                 TempDimensionBuffer."Dimension Code" := JobTaskDimension."Dimension Code";
                 TempDimensionBuffer."Dimension Value Code" := JobTaskDimension."Dimension Value Code";
                 TempDimensionBuffer.Insert();
-            until JobTaskDimension.Next = 0;
+            until JobTaskDimension.Next() = 0;
         if not DimMgt.CheckDimBuffer(TempDimensionBuffer) then
             Error(DimMgt.GetDimCombErr);
         TempJobWIPBuffer[1]."Dim Combination ID" := DimMgt.CreateDimSetIDFromDimBuf(TempDimensionBuffer);
@@ -596,7 +596,7 @@
         end;
     end;
 
-    local procedure FindJobLedgerEntriesByJobTask(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Option "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales")
+    local procedure FindJobLedgerEntriesByJobTask(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Enum "Job WIP Buffer Type")
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
@@ -611,10 +611,10 @@
         if JobLedgerEntry.FindSet then
             repeat
                 CreateWIPBufferEntryFromLedger(JobLedgerEntry, JobTask, JobWIPTotal, BufferType)
-            until JobLedgerEntry.Next = 0;
+            until JobLedgerEntry.Next() = 0;
     end;
 
-    local procedure CreateWIPBufferEntryFromLedger(var JobLedgerEntry: Record "Job Ledger Entry"; var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Option "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales")
+    local procedure CreateWIPBufferEntryFromLedger(var JobLedgerEntry: Record "Job Ledger Entry"; var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Enum "Job WIP Buffer Type")
     var
         Job: Record Job;
         JobPostingGroup: Record "Job Posting Group";
@@ -746,7 +746,7 @@
                     JobWIPEntry.Insert(true);
                     NextEntryNo := NextEntryNo + 1;
                 end;
-            until TempJobWIPBuffer[1].Next = 0;
+            until TempJobWIPBuffer[1].Next() = 0;
     end;
 
     procedure CalcGLWIP(JobNo: Code[20]; JustReverse: Boolean; DocNo: Code[20]; PostingDate: Date; NewPostDate: Boolean; JnlTemplateName2: Code[10]; JnlBatchName2: Code[10])
@@ -771,7 +771,7 @@
         JobWIPGLEntry.SetCurrentKey("Job No.", Reversed, "Job Complete");
         JobWIPGLEntry.SetRange("Job No.", JobNo);
         JobWIPGLEntry.SetRange("Job Complete", true);
-        if not JobWIPGLEntry.IsEmpty then
+        if not JobWIPGLEntry.IsEmpty() then
             exit;
         JobWIPGLEntry.Reset();
 
@@ -802,11 +802,11 @@
             repeat
                 if JobWIPGLEntry."Posting Date" > PostingDate then
                     Error(Text004, JobWIPGLEntry."Job No.", JobWIPGLEntry."Posting Date");
-            until JobWIPGLEntry.Next = 0;
+            until JobWIPGLEntry.Next() = 0;
         if JobWIPGLEntry.Find('-') then
             repeat
                 PostWIPGL(JobWIPGLEntry, true, DocNo, SourceCodeSetup."Job G/L WIP", PostingDate);
-            until JobWIPGLEntry.Next = 0;
+            until JobWIPGLEntry.Next() = 0;
         JobWIPGLEntry.ModifyAll("Reverse Date", PostingDate);
         JobWIPGLEntry.ModifyAll(Reversed, true);
         if JustReverse then
@@ -861,7 +861,7 @@
                 JobWIPTotal.Get(JobWIPGLEntry."Job WIP Total Entry No.");
                 JobWIPTotal."Posted to G/L" := true;
                 JobWIPTotal.Modify();
-            until JobWIPEntry.Next = 0;
+            until JobWIPEntry.Next() = 0;
 
         with JobTask do begin
             SetRange("Job No.", Job."No.");
@@ -870,7 +870,7 @@
                     "Recognized Sales G/L Amount" := "Recognized Sales Amount";
                     "Recognized Costs G/L Amount" := "Recognized Costs Amount";
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with JobLedgerEntry do begin
@@ -880,7 +880,7 @@
                 repeat
                     "Amt. Posted to G/L" += "Amt. to Post to G/L";
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         DeleteWIP(Job);
@@ -1042,7 +1042,7 @@
         exit(Value2);
     end;
 
-    local procedure GetWIPEntryAmount(BufferType: Option "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales"; JobTask: Record "Job Task"; WIPMethodCode: Code[20]; AppliedAccrued: Boolean): Decimal
+    local procedure GetWIPEntryAmount(BufferType: Enum "Job WIP Buffer Type"; JobTask: Record "Job Task"; WIPMethodCode: Code[20]; AppliedAccrued: Boolean): Decimal
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
@@ -1078,8 +1078,7 @@
            JobWIPMethod."Recognized Sales"::"Usage (Total Price)"]);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1001, 'OnBeforeModifyEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Job Task", 'OnBeforeModifyEvent', '', false, false)]
     procedure VerifyJobWIPEntryOnBeforeModify(var Rec: Record "Job Task"; var xRec: Record "Job Task"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -1089,8 +1088,7 @@
             VerifyJobWIPEntryIsEmpty(Rec."Job No.");
     end;
 
-    [EventSubscriber(ObjectType::Table, 1001, 'OnBeforeRenameEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Job Task", 'OnBeforeRenameEvent', '', false, false)]
     procedure VerifyJobWIPEntryOnBeforeRename(var Rec: Record "Job Task"; var xRec: Record "Job Task"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
@@ -1116,7 +1114,7 @@
         JobTask: Record "Job Task";
     begin
         JobWIPEntry.SetRange("Job No.", JobNo);
-        if not JobWIPEntry.IsEmpty then
+        if not JobWIPEntry.IsEmpty() then
             Error(CannotModifyAssociatedEntriesErr, JobTask.TableCaption);
     end;
 

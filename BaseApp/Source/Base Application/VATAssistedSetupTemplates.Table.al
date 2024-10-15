@@ -81,7 +81,7 @@ table 1878 "VAT Assisted Setup Templates"
                               CopyStr(ConfigTemplateLine."Default Value", 1, MaxStrLen("Default VAT Prod. Posting Grp"));
 
                 Insert;
-            until ConfigTemplateHeader.Next = 0;
+            until ConfigTemplateHeader.Next() = 0;
     end;
 
     procedure ValidateCustomerTemplate(var VATValidationError: Text): Boolean
@@ -134,7 +134,7 @@ table 1878 "VAT Assisted Setup Templates"
                         end;
                     end;
                 end;
-            until VATAssistedSetupTemplates.Next = 0;
+            until VATAssistedSetupTemplates.Next() = 0;
         exit(true);
     end;
 }

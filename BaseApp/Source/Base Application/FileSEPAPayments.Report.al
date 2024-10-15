@@ -284,7 +284,7 @@ report 2000005 "File SEPA Payments"
     var
         BalancingPostingDate: Date;
     begin
-        if PmtJnlLine.IsEmpty then
+        if PmtJnlLine.IsEmpty() then
             exit;
         if ExecutionDate <> 0D then
             BalancingPostingDate := ExecutionDate

@@ -63,11 +63,13 @@ table 7355 "Report Selection Warehouse"
             Sequence := '1';
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by PrintWhseActivityHeader().', '17.0')]
     procedure PrintWhseActivHeader(var WhseActivHeader: Record "Warehouse Activity Header"; ReportUsage: Integer; HideDialog: Boolean)
     begin
         PrintDocuments(WhseActivHeader, "Report Selection Warehouse Usage".FromInteger(ReportUsage), not HideDialog);
     end;
+#endif
 
     procedure PrintWhseActivityHeader(var WhseActivHeader: Record "Warehouse Activity Header"; ReportUsage: Enum "Report Selection Warehouse Usage"; HideDialog: Boolean)
     begin
@@ -115,8 +117,8 @@ table 7355 "Report Selection Warehouse"
         IsHandled: Boolean;
     begin
         SetRange(Usage, ReportUsage);
-        if IsEmpty then
-            ReportSelectionMgt.InitReportUsageWhse(Usage.AsInteger());
+        if IsEmpty() then
+            ReportSelectionMgt.InitReportSelectionWhse(Usage);
 
         OnSelectTempReportSelectionsToPrint(TempReportSelectionWarehouse, Rec, IsHandled);
         if IsHandled then

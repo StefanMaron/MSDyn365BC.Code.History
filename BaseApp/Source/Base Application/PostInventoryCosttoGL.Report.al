@@ -231,7 +231,7 @@ report 1002 "Post Inventory Cost to G/L"
                                 CurrReport.Skip();
                         end;
 
-                        if not InvtPost.BufferInvtPosting(ItemValueEntry) then begin
+                        if not InvtPostToGL.BufferInvtPosting(ItemValueEntry) then begin
                             InsertValueEntryNoBuf(ItemValueEntry);
                             CurrReport.Skip();
                         end;
@@ -337,8 +337,8 @@ report 1002 "Post Inventory Cost to G/L"
                     trigger OnAfterGetRecord()
                     begin
                         CapValueEntry.Get(TempCapValueEntry."Entry No.");
-                        if TempCapValueEntry.Next = 0 then;
-                        if not InvtPost.BufferInvtPosting(CapValueEntry) then begin
+                        if TempCapValueEntry.Next() = 0 then;
+                        if not InvtPostToGL.BufferInvtPosting(CapValueEntry) then begin
                             InsertValueEntryNoBuf(CapValueEntry);
                             CurrReport.Skip();
                         end;
@@ -421,7 +421,7 @@ report 1002 "Post Inventory Cost to G/L"
                         if not InvtPostBuf.FindSet then
                             CurrReport.Break();
                     end else
-                        if InvtPostBuf.Next = 0 then
+                        if InvtPostBuf.Next() = 0 then
                             CurrReport.Break();
 
                     DimSetEntry.SetRange("Dimension Set ID", InvtPostBuf."Dimension Set ID");
@@ -448,7 +448,7 @@ report 1002 "Post Inventory Cost to G/L"
                 trigger OnPreDataItem()
                 begin
                     if PostMethod = PostMethod::"per Posting Group" then
-                        InvtPost.GetInvtPostBuf(InvtPostBuf);
+                        InvtPostToGL.GetInvtPostBuf(InvtPostBuf);
                     InvtPostBuf.Reset();
                 end;
             }
@@ -515,7 +515,7 @@ report 1002 "Post Inventory Cost to G/L"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if TempValueEntry.Next = 0 then
+                    if TempValueEntry.Next() = 0 then
                         Clear(TempValueEntry);
 
                     SetRange("Item No.", TempValueEntry."Item No.");
@@ -676,7 +676,7 @@ report 1002 "Post Inventory Cost to G/L"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
-        InvtPost: Codeunit "Inventory Posting To G/L";
+        InvtPostToGL: Codeunit "Inventory Posting To G/L";
         Window: Dialog;
         DocNo: Code[20];
         GenPostingSetupTxt: Text[250];
@@ -741,12 +741,27 @@ report 1002 "Post Inventory Cost to G/L"
         Text11300: Label 'Please enter a Journal Template Name.';
         Text11301: Label 'Please enter a Journal Batch Name.';
 
+#if not CLEAN18
+    [Obsolete('Replaced by W1 InitializeRequest() and SetGenJnlBatch().', '18.0')]
     procedure InitializeRequest(NewPostMethod: Option; NewPost: Boolean; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
     begin
         PostMethod := NewPostMethod;
+        Post := NewPost;
+        SetGenJnlBatch(NewJnlTemplName, NewJnlBatchName);
+    end;
+#endif
+
+    procedure InitializeRequest(NewPostMethod: Option; NewDocNo: Code[20]; NewPost: Boolean)
+    begin
+        PostMethod := NewPostMethod;
+        DocNo := NewDocNo;
+        Post := NewPost;
+    end;
+
+    procedure SetGenJnlBatch(NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
+    begin
         GenJnlLine."Journal Template Name" := NewJnlTemplName;
         GenJnlLine."Journal Batch Name" := NewJnlBatchName;
-        Post := NewPost;
     end;
 
     local procedure GetDimText(var DimSetEntry: Record "Dimension Set Entry")
@@ -768,25 +783,25 @@ report 1002 "Post Inventory Cost to G/L"
                     DimText := OldDimText;
                     exit;
                 end;
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     local procedure PostEntryToGL(ValueEntry: Record "Value Entry")
     begin
-        InvtPost.Initialize(PostMethod = PostMethod::"per Posting Group", GenJnlLine."Journal Template Name", GenJnlLine.
-        "Journal Batch Name");
-        InvtPost.Run(ValueEntry);
+        InvtPostToGL.Initialize(PostMethod = PostMethod::"per Posting Group");
+        InvtPostToGL.SetGenJnlBatch(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+        InvtPostToGL.Run(ValueEntry);
         TotalValueEntriesPostedToGL += 1;
     end;
 
     local procedure UpdateAmounts()
     begin
-        InvtPost.GetAmtToPost(
+        InvtPostToGL.GetAmtToPost(
           COGSAmt, InvtAdjmtAmt, DirCostAmt,
           OvhdCostAmt, VarPurchCostAmt, VarMfgDirCostAmt, VarMfgOvhdAmt,
           WIPInvtAmt, InvtAmt, false);
 
-        InvtPost.GetAmtToPost(
+        InvtPostToGL.GetAmtToPost(
           TotalCOGSAmt, TotalInvtAdjmtAmt, TotalDirCostAmt,
           TotalOvhdCostAmt, TotalVarPurchCostAmt, TotalVarMfgDirCostAmt, TotalVarMfgOvhdCostAmt,
           TotalWIPInvtAmt, TotalInvtAmt, true);

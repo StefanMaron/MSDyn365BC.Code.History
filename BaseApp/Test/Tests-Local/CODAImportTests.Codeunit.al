@@ -765,13 +765,13 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementLine: Record "CODA Statement Line";
         CODAStatementSourceLine: Record "CODA Statement Source Line";
     begin
-        if not CODAStatement.IsEmpty then
+        if not CODAStatement.IsEmpty() then
             CODAStatement.DeleteAll(true);
 
-        if not CODAStatementLine.IsEmpty then
+        if not CODAStatementLine.IsEmpty() then
             CODAStatementLine.DeleteAll(true);
 
-        if not CODAStatementSourceLine.IsEmpty then
+        if not CODAStatementSourceLine.IsEmpty() then
             CODAStatementSourceLine.DeleteAll(true);
 
         Commit();
@@ -781,7 +781,7 @@ codeunit 144015 "CODA Import Tests"
     var
         TransactionCoding: Record "Transaction Coding";
     begin
-        TransactionCoding.FindSet;
+        TransactionCoding.FindSet();
         repeat
             TempTransactionCoding := TransactionCoding;
             TempTransactionCoding.Insert;
@@ -821,7 +821,7 @@ codeunit 144015 "CODA Import Tests"
         TransactionCoding: Record "Transaction Coding";
     begin
         TransactionCoding.DeleteAll;
-        TempTransactionCoding.FindSet;
+        TempTransactionCoding.FindSet();
         repeat
             TransactionCoding := TempTransactionCoding;
             TransactionCoding.Insert;

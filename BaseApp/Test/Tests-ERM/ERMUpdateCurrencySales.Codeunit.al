@@ -984,7 +984,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
             ApplyCustomerEntries.CalcApplnAmount;
@@ -1130,7 +1130,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
         repeat
             SalesInvoiceAmount += SalesInvoiceLine."Amount Including VAT";
         until SalesInvoiceLine.Next = 0;
@@ -1140,7 +1140,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure ModifyCurrency(var CurrencyExchangeRate: Record "Currency Exchange Rate"; var CurrencyExchangeRate2: Record "Currency Exchange Rate")
@@ -1235,7 +1235,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
         GLEntry.SetFilter(Amount, '>0');
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -1439,7 +1439,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount");
             CustLedgerEntry.TestField("Remaining Amount", 0);

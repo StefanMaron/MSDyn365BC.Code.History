@@ -466,6 +466,7 @@ report 1304 "Standard Sales - Quote"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
+#if not CLEAN18
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
@@ -478,6 +479,7 @@ report 1304 "Standard Sales - Quote"
                     ObsoleteReason = 'Replaced by Item Reference No.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 column(ItemReferenceNo_Line; "Item Reference No.")
                 {
                 }
@@ -956,7 +958,7 @@ report 1304 "Standard Sales - Quote"
                           1, Header."No.", Header."Doc. No. Occurrence",
                           Header."No. of Archived Versions", DATABASE::Customer, Header."Bill-to Customer No.",
                           Header."Salesperson Code", Header."Campaign No.", Header."Posting Description", Header."Opportunity No.");
-                until Header.Next = 0;
+                until Header.Next() = 0;
     end;
 
     trigger OnPreReport()

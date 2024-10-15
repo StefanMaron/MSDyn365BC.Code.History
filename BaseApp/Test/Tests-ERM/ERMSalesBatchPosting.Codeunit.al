@@ -1232,14 +1232,14 @@ codeunit 134391 "ERM Sales Batch Posting"
         SalesLine.Modify(true);
     end;
 
-    local procedure AddBatchProcessParameters(SalesHeader: Record "Sales Header"; ParameterId: Integer; ParameterValue: Variant; BachSessionID: Integer; BatchID: Guid)
+    local procedure AddBatchProcessParameters(SalesHeader: Record "Sales Header"; ParameterId: Enum "Batch Posting Parameter Type"; ParameterValue: Variant; BachSessionID: Integer; BatchID: Guid)
     var
         BatchProcessingParameter: Record "Batch Processing Parameter";
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
         BatchProcessingParameter.Init();
         BatchProcessingParameter."Batch ID" := BatchID;
-        BatchProcessingParameter."Parameter Id" := ParameterId;
+        BatchProcessingParameter."Parameter Id" := ParameterId.AsInteger();
         BatchProcessingParameter."Parameter Value" := Format(ParameterValue);
         BatchProcessingParameter.Insert();
 

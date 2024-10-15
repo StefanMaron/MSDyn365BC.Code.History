@@ -386,7 +386,7 @@ codeunit 144005 "ERM Annual Listing"
 
         LibraryBEHelper.CreateDomesticCustomer(Customer[2]);
         Customer[2].Validate("VAT Liable", false);
-        Customer[2].Modify(true);
+        Customer[2].Modify(TRUE);
 
         // [WHEN] Print "Annual Listing - Disk" report
         ExportAnnualListingDisk(

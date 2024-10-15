@@ -222,7 +222,7 @@ table 2000041 "CODA Statement Line"
                                         CustLedgEntry.Validate("Applies-to ID", '');
                                         CustLedgEntry.Validate("Amount to Apply", 0);
                                         CustLedgEntry.Modify();
-                                    until CustLedgEntry.Next = 0;
+                                    until CustLedgEntry.Next() = 0;
                             end;
                         "Account Type"::Vendor:
                             begin
@@ -235,7 +235,7 @@ table 2000041 "CODA Statement Line"
                                         VendLedgEntry.Validate("Applies-to ID", '');
                                         VendLedgEntry.Validate("Amount to Apply", 0);
                                         VendLedgEntry.Modify();
-                                    until VendLedgEntry.Next = 0;
+                                    until VendLedgEntry.Next() = 0;
                             end;
                     end;
                     "Applies-to ID" := '';
@@ -465,7 +465,7 @@ table 2000041 "CODA Statement Line"
                     CODAStmtLine."Unapplied Amount" := CODAStmtLine."Statement Amount";
                     CODAStmtLine."System-Created Entry" := false;
                     CODAStmtLine.Modify
-                until CODAStmtLine.Next = 0
+                until CODAStmtLine.Next() = 0
         end else begin
             Modify;
 
@@ -490,7 +490,7 @@ table 2000041 "CODA Statement Line"
                           CODAStmtLine."Unapplied Amount" - CODAStmtLine2.Amount;
                     StatusCount[CODAStmtLine2."Application Status" + 1] :=
                       StatusCount[CODAStmtLine2."Application Status" + 1] + 1
-                until CODAStmtLine2.Next = 0;
+                until CODAStmtLine2.Next() = 0;
 
             // Update status of global info using detail status info
             if StatusCount["Application Status"::" " + 1] > 0 then begin

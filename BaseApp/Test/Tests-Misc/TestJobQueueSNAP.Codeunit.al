@@ -1785,7 +1785,7 @@ codeunit 139020 "Test Job Queue SNAP"
         Assert.RecordIsNotEmpty(TempJobQueueEntry);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 448, 'OnBeforeCalcNextRunTimeForRecurringJob', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnBeforeCalcNextRunTimeForRecurringJob', '', false, false)]
     local procedure OnBeforeCalcNextRecurringRunDateTime(JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime; var NewRunDateTime: DateTime; var IsHandled: Boolean)
     begin
         NewRunDateTime := CreateDateTime(20010101D, 0T);

@@ -288,7 +288,7 @@ report 210 "Blanket Sales Order"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -461,7 +461,7 @@ report 210 "Blanket Sales Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -847,7 +847,7 @@ report 210 "Blanket Sales Order"
                           "Sales Header"."Salesperson Code", "Sales Header"."Campaign No.", "Sales Header"."Posting Description",
                           "Sales Header"."Opportunity No.");
 
-                until "Sales Header".Next = 0;
+                until "Sales Header".Next() = 0;
     end;
 
     trigger OnPreReport()

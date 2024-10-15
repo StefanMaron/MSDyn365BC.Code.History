@@ -3618,7 +3618,7 @@ codeunit 137056 "SCM Warehouse-V"
         with Bin do begin
             SetRange("Location Code", LocationCode);
             SetRange("Cross-Dock Bin", CrossDock);
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -3653,7 +3653,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
         FilterWarehouseReceiptLine(WarehouseReceiptLine, SourceNo, SourceDocument);
-        WarehouseReceiptLine.FindSet;
+        WarehouseReceiptLine.FindSet();
         repeat
             WarehouseReceiptLine.OpenItemTrackingLines();  // Open Tracking on Page Handler.
         until WarehouseReceiptLine.Next = 0;
@@ -3982,7 +3982,7 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure CreateAndReleasePurchReturnOrderAfterGetPostedDocumentLinesToReverse(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
@@ -4411,7 +4411,7 @@ codeunit 137056 "SCM Warehouse-V"
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
@@ -4428,7 +4428,7 @@ codeunit 137056 "SCM Warehouse-V"
             SetRange("Location Code", LocationCode);
             SetRange("Item No.", ItemNo);
             SetRange("Action Type", ActionType);
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -4475,7 +4475,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseEntry.SetRange("Item No.", ItemNo);
         WarehouseEntry.SetRange("Location Code", LocationCode);
         WarehouseEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
     end;
 
     local procedure FindNextLineAndAssignSerialNoAndLotNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseEntry: Record "Warehouse Entry")
@@ -4524,7 +4524,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWhseActivityLineAndInvPutAwayPick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; DocumentNo: Code[20]; ActionType: Option; SourceDocument: Enum "Warehouse Activity Source Document")
@@ -4867,7 +4867,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         ReservationEntry.SetRange("Location Code", LocationCode);
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.Validate("Expiration Date", WorkDate);
             ReservationEntry.Modify(true);
@@ -5232,7 +5232,7 @@ codeunit 137056 "SCM Warehouse-V"
         LineCount: Integer;
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             if LotSpecific then
                 ItemLedgerEntry.TestField("Lot No.")

@@ -1,4 +1,4 @@
-﻿codeunit 7111 "Insert Analysis Line"
+codeunit 7111 "Insert Analysis Line"
 {
 
     trigger OnRun()
@@ -24,7 +24,7 @@
                         InsertAnalysisLine(
                           AnalysisLine, AnalysisLineNo,
                           Item.Description, Item."No.", AnalysisLine.Type::Item, false, 0);
-                    until Item.Next = 0;
+                    until Item.Next() = 0;
             end;
         end;
     end;
@@ -48,7 +48,7 @@
                         InsertAnalysisLine(
                           AnalysisLine, AnalysisLineNo,
                           Cust.Name, Cust."No.", AnalysisLine.Type::Customer, false, 0);
-                    until Cust.Next = 0;
+                    until Cust.Next() = 0;
             end;
         end;
     end;
@@ -72,7 +72,7 @@
                         InsertAnalysisLine(
                           AnalysisLine, AnalysisLineNo,
                           Vend.Name, Vend."No.", AnalysisLine.Type::Vendor, false, 0);
-                    until Vend.Next = 0;
+                    until Vend.Next() = 0;
             end;
         end;
     end;
@@ -113,7 +113,7 @@
           AnalysisLine.Type::"Sales/Purchase person");
     end;
 
-    local procedure InsertGroup(var AnalysisLine: Record "Analysis Line"; GroupDimCode: Code[20]; TotalingType: Enum "Analysis Line Type")
+    procedure InsertGroup(var AnalysisLine: Record "Analysis Line"; GroupDimCode: Code[20]; TotalingType: Enum "Analysis Line Type")
     var
         DimVal: Record "Dimension Value";
         DimValList: Page "Dimension Value List";
@@ -138,7 +138,7 @@
                           DimVal.Name, DimVal.Code, TotalingType,
                           DimVal."Dimension Value Type" <> DimVal."Dimension Value Type"::Standard,
                           DimVal.Indentation);
-                    until DimVal.Next = 0;
+                    until DimVal.Next() = 0;
             end;
         end;
     end;

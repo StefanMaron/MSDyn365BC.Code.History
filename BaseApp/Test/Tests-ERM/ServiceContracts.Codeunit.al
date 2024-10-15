@@ -682,7 +682,7 @@ codeunit 136102 "Service Contracts"
         ServiceCommentLine: Record "Service Comment Line";
         ServiceContractQuoteDetail: Report "Service Contract Quote-Detail";
         FilePath: Text[1024];
-        Type: Option;
+        LineType: Enum "Service Comment Line Type";
     begin
         // Covers document number TC0076 - refer to TFS ID 21730.
         // [SCENARIO] The Test Case Save Service Contract Quote Details report in XML and XLSX format after adding comments Date in Service Contract header and check that some data exist in saved files.
@@ -691,7 +691,7 @@ codeunit 136102 "Service Contracts"
         Initialize;
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
-        LibraryService.CreateCommentLineForServCntrct(ServiceCommentLine, ServiceContractLine, Type);
+        LibraryService.CreateCommentLineForServCntrct(ServiceCommentLine, ServiceContractLine, LineType);
         ServiceCommentLine.Validate(Date, ServiceContractHeader."Starting Date");
         ServiceCommentLine.Modify(true);
 
@@ -725,7 +725,8 @@ codeunit 136102 "Service Contracts"
         Initialize;
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
-        LibraryService.CreateCommentLineForServCntrct(ServiceCommentLine, ServiceContractLine, ServiceContractHeader."Contract Type");
+        LibraryService.CreateCommentLineForServCntrct(
+            ServiceCommentLine, ServiceContractLine, "Service Comment Line Type".FromInteger(ServiceContractHeader."Contract Type"));
         ServiceCommentLine.Validate(Comment, Format(ServiceContractHeader.Description + ServiceContractHeader."Contract No."));
         ServiceCommentLine.Validate(Date, ServiceContractHeader."Starting Date");
         ServiceCommentLine.Modify(true);
@@ -3826,7 +3827,7 @@ codeunit 136102 "Service Contracts"
           ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             UpdateContractLineBlankServiceItemNo(ServiceContractLine);
         until ServiceContractLine.Next = 0;
@@ -3841,7 +3842,7 @@ codeunit 136102 "Service Contracts"
           ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             UpdateContractLineBlankServiceItemNo(ServiceContractLine);
             UpdateContractLineItemNo(ServiceContractLine);
@@ -3917,7 +3918,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ServiceContractLine.SetRange(Credited, false);
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             ServiceContractLine."Credit Memo Date" := WorkDate - 1;
             ServContractManagement.CreateContractLineCreditMemo(ServiceContractLine, true);
@@ -4242,7 +4243,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceHour.SetRange("Service Contract No.", ServiceContractNo);
         ServiceHour.SetRange("Service Contract Type", Type);
-        ServiceHour.FindSet;
+        ServiceHour.FindSet();
     end;
 
     local procedure FindServiceInvoiceHeader(ContractNo2: Code[20]): Code[20]
@@ -4270,7 +4271,7 @@ codeunit 136102 "Service Contracts"
         ServiceHeader.FindLast;
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure FindServiceLedgerEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceContractNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; EntryType: Option)
@@ -4508,7 +4509,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type"::Contract);
         ServiceContractLine.SetRange("Contract No.", ContractNo);
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             LineAmount += ServiceContractLine."Line Amount";
         until ServiceContractLine.Next = 0;
@@ -4977,7 +4978,7 @@ codeunit 136102 "Service Contracts"
 
         ServiceLedgerEntry.SetRange("Service Contract No.", ContractNo);
         ServiceLedgerEntry.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Cost Amount", -Amount);
             ServiceLedgerEntry.TestField("Amount (LCY)", -Amount);
@@ -5004,7 +5005,7 @@ codeunit 136102 "Service Contracts"
         ServiceLine.SetFilter("Customer No.", '<>%1', CustomerNo);
         ServiceLine.SetFilter("Service Item No.", '<>%1', ServiceItemNo);
         ServiceLine.SetFilter("Unit Cost (LCY)", '<>%1', 0);
-        if not ServiceLine.IsEmpty then
+        if not ServiceLine.IsEmpty() then
             Error(UnitCostErr);
     end;
 
@@ -5061,7 +5062,7 @@ codeunit 136102 "Service Contracts"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("External Document No.", DocNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         for i := 1 to ArrayLen(ExpectedDimensionCode) do begin
             Assert.AreEqual(
               ExpectedDimensionCode[i], GLEntry."Global Dimension 1 Code", GLEntry.FieldCaption("Global Dimension 1 Code"));

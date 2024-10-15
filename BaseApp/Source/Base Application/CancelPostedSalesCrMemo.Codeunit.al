@@ -190,7 +190,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
                     if not DimensionManagement.CheckDimIDComb(SalesCrMemoLine."Dimension Set ID") then
                         ErrorHelperLine(ErrorType::DimCombErr, SalesCrMemoLine);
                 end;
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     local procedure TestGLAccount(AccountNo: Code[20]; SalesCrMemoLine: Record "Sales Cr.Memo Line")
@@ -379,7 +379,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         exit(not DetailedCustLedgEntry.IsEmpty);
     end;
 
-    local procedure CalcDtldCustLedgEntryCount(EntryType: Option; CustLedgEntryNo: Integer): Integer
+    local procedure CalcDtldCustLedgEntryCount(EntryType: Enum "Detailed CV Ledger Entry Type"; CustLedgEntryNo: Integer): Integer
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

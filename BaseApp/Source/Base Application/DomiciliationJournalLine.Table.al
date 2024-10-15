@@ -544,7 +544,7 @@ table 2000022 "Domiciliation Journal Line"
         SetRange("Journal Batch Name", "Journal Batch Name");
         if CODEUNIT.Run(CodeunitID, DirectDebitCollectionEntry) then begin
             if DirectDebitCollectionEntry."Entry No." <> CodeunitID then begin
-                FindSet;
+                FindSet();
                 DeleteDirectDebitCollection(DirectDebitCollectionNo);
                 Commit();
                 REPORT.Run(REPORT::"Create Gen. Jnl. Lines", true, true, Rec);

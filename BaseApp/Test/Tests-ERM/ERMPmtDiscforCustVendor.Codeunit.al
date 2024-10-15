@@ -1800,20 +1800,20 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 
-    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option)
+    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
     end;
 
-    local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option)
+    local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
         DetailedVendLedgEntry.SetRange("Entry Type", EntryType);
         DetailedVendLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendLedgEntry.SetRange("Document Type", DocumentType);
-        DetailedVendLedgEntry.FindSet;
+        DetailedVendLedgEntry.FindSet();
     end;
 
     local procedure FindUpdateGeneralPostingSetupAccounts()
@@ -2011,7 +2011,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
           DocumentNo, PmtDiscAmountVAT, DetailedVendLedgEntry."Entry Type"::"Payment Discount (VAT Adjustment)");
     end;
 
-    local procedure VerifyDetailedCustLedgerEntryAmount(DocumentNo: Code[20]; AmountLCY: Decimal; EntryType: Option)
+    local procedure VerifyDetailedCustLedgerEntryAmount(DocumentNo: Code[20]; AmountLCY: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -2025,7 +2025,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         end;
     end;
 
-    local procedure VerifyDetailedVendLedgerEntryAmount(DocumentNo: Code[20]; AmountLCY: Decimal; EntryType: Option)
+    local procedure VerifyDetailedVendLedgerEntryAmount(DocumentNo: Code[20]; AmountLCY: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

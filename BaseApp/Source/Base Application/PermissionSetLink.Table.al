@@ -47,32 +47,34 @@ table 9802 "Permission Set Link"
     procedure UpdateSourceHashesOnAllLinks()
     var
         PermissionSet: Record "Permission Set";
+        PermissionManager: Codeunit "Permission Manager";
     begin
         if FindSet then
             repeat
                 if PermissionSet.Get("Permission Set ID") then begin
-                    "Source Hash" := PermissionSet.Hash;
+                    "Source Hash" := PermissionManager.GenerateHashForPermissionSet(PermissionSet."Role ID");
                     Modify;
                 end else
                     Delete;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure MarkWithChangedSource()
     var
         PermissionSet: Record "Permission Set";
+        PermissionManager: Codeunit "Permission Manager";
         SourceChanged: Boolean;
     begin
         if FindSet then
             repeat
                 SourceChanged := false;
                 if PermissionSet.Get("Permission Set ID") then
-                    SourceChanged := "Source Hash" <> PermissionSet.Hash
+                    SourceChanged := "Source Hash" <> PermissionManager.GenerateHashForPermissionSet(PermissionSet."Role ID")
                 else
                     SourceChanged := true;
                 if SourceChanged then
                     Mark(true);
-            until Next = 0;
+            until Next() = 0;
         MarkedOnly(true);
     end;
 

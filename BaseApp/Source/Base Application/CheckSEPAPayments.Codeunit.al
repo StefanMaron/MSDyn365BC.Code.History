@@ -16,7 +16,7 @@ codeunit 2000004 "Check SEPA Payments"
                 CheckPaymJnlLine.CheckBeneficiaryBankForSEPA(Rec, true);
                 CheckPaymJnlLine.ErrorIfCurrencyNotEuro(Rec);
                 OnAfterCheckPaymJnlLine(Rec, CheckPaymJnlLine);
-            until Next = 0;
+            until Next() = 0;
             CheckPaymJnlLine.CheckTotalLineAmounts;
         end else
             CheckPaymJnlLine.ErrorNoPayments;

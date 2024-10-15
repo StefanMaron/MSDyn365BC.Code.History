@@ -182,7 +182,7 @@ report 2000039 "Suggest domicilations"
             if CustLedgEntry.FindSet then
                 repeat
                     SetDomJnlLine;
-                until CustLedgEntry.Next = 0;
+                until CustLedgEntry.Next() = 0;
 
             // entries with payment discount
             if IncPmtDiscount then begin
@@ -194,7 +194,7 @@ report 2000039 "Suggest domicilations"
                 if CustLedgEntry.FindSet then
                     repeat
                         SetDomJnlLine;
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
             end;
 
             // creditmemos
@@ -207,7 +207,7 @@ report 2000039 "Suggest domicilations"
                 if CustLedgEntry.FindSet then
                     repeat
                         SetDomJnlLine;
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
             end;
         end;
     end;
@@ -223,7 +223,7 @@ report 2000039 "Suggest domicilations"
             DomJnlLine2.SetRange("Applies-to Doc. Type", CustLedgEntry."Document Type");
             DomJnlLine2.SetRange("Applies-to Doc. No.", CustLedgEntry."Document No.");
             DomJnlLine2.SetFilter(Status, '<>%1', Status::Posted);
-            if DomJnlLine2.IsEmpty then begin
+            if DomJnlLine2.IsEmpty() then begin
                 Init;
                 "Journal Template Name" := DomJnlTemplate.Name;
                 "Journal Batch Name" := DomJnlBatch.Name;
@@ -266,12 +266,12 @@ report 2000039 "Suggest domicilations"
             if FindSet then
                 repeat
                     CurrencyFilter := CurrencyFilter + '|' + Code;
-                until Next = 0;
+                until Next() = 0;
             SetRange("ISO Code", Text007);
             if FindSet then
                 repeat
                     CurrencyFilter := CurrencyFilter + '|' + Code;
-                until Next = 0;
+                until Next() = 0;
         end;
         if GLSetup."LCY Code" in [Text006, Text007] then
             CurrencyFilter := CurrencyFilter + '|''''';

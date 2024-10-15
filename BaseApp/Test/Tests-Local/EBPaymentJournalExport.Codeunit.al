@@ -2350,7 +2350,7 @@ codeunit 144008 "EB - Payment Journal Export"
             with PaymentJournalLine do begin
                 SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
                 SetRange("Journal Batch Name", PaymJournalBatch.Name);
-                FindSet;
+                FindSet();
                 repeat
                     Validate("Bank Account", '');
                     Modify(true);
@@ -2376,7 +2376,7 @@ codeunit 144008 "EB - Payment Journal Export"
         with PaymentJournalLine do begin
             SetRange("Journal Template Name", PaymJnlTemplateName);
             SetRange("Journal Batch Name", PaymJnlBatchName);
-            FindSet;
+            FindSet();
             repeat
                 Validate("Bank Account", BankAccountNo);
                 if PaymentMsg then
@@ -2697,7 +2697,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         with PaymentJournalLine do begin
             SetFilter("Account No.", VendorNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(Status::Posted, Status, ShouldHaveBeenPostedErr);
             until Next = 0;

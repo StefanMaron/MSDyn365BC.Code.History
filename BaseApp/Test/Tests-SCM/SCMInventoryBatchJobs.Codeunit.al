@@ -1604,7 +1604,8 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         InventoryPostingToGL.SetRunOnlyCheck(false, true, true);
         InventoryPostingToGL.BufferInvtPosting(ValueEntry);
-        InventoryPostingToGL.PostInvtPostBufPerEntry(ValueEntry, GenJournalTemplate.Name, GenJournalBatch.Name);
+        InventoryPostingToGL.SetGenJnlBatch(GenJournalTemplate.Name, GenJournalBatch.Name);
+        InventoryPostingToGL.PostInvtPostBufPerEntry(ValueEntry);
         InventoryPostingToGL.GetTempInvtPostToGLTestBuf(TempInvtPostToGLTestBuffer);
     end;
 
@@ -1664,7 +1665,8 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         Commit();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
-        PostInventoryCostToGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
+        PostInventoryCostToGL.SetGenJnlBatch(TemplateName, BatchName);
+        PostInventoryCostToGL.InitializeRequest(PostMethod, '', true);
         PostInventoryCostToGL.SetTableView(PostValueEntryToGL);
         PostInventoryCostToGL.UseRequestPage(false);
     end;

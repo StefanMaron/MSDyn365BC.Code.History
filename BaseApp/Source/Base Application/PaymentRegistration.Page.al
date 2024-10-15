@@ -11,6 +11,7 @@ page 981 "Payment Registration"
     SourceTable = "Payment Registration Buffer";
     SourceTableTemporary = true;
     UsageCategory = Tasks;
+    AdditionalSearchTerms = 'Payment Registration, Receive Customer Payments';
 
     layout
     {
@@ -168,6 +169,7 @@ page 981 "Payment Registration"
             group(Control27)
             {
                 ShowCaption = false;
+                Visible = Warning <> '';
                 fixed(Control26)
                 {
                     ShowCaption = false;

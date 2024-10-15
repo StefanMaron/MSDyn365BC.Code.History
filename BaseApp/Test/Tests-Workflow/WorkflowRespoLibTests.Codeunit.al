@@ -4163,12 +4163,12 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         ApprovalCommentLine.TestField(Comment, ExpectedCommentTxt);
     end;
 
-    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; SenderID: Code[50]; ApproverID: Code[50]; ApproverType: Option; LimitType: Option; DueDateFormula: DateFormula; SequenceNo: Integer)
+    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; SenderID: Code[50]; ApproverID: Code[50]; ApprovalType: Enum "Workflow Approval Type"; LimitType: Enum "Workflow Approval Limit Type"; DueDateFormula: DateFormula; SequenceNo: Integer)
     begin
         VerifyApprovalEntrySenderID(ApprovalEntry, SenderID);
         VerifyApprovalEntryApproverID(ApprovalEntry, ApproverID);
         VerifyApprovalEntrySequenceNo(ApprovalEntry, SequenceNo);
-        VerifyApprovalEntryAdditionalFields(ApprovalEntry, ApproverType, LimitType, DueDateFormula);
+        VerifyApprovalEntryAdditionalFields(ApprovalEntry, ApprovalType, LimitType, DueDateFormula);
     end;
 
     local procedure VerifyApprovalEntryIsApproved(ApprovalEntry: Record "Approval Entry")
@@ -4201,7 +4201,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         ApprovalEntry.TestField("Sequence No.", SequenceNo);
     end;
 
-    local procedure VerifyApprovalEntryAdditionalFields(ApprovalEntry: Record "Approval Entry"; ApproverType: Option; ApproverLimitType: Option; DueDateFormula: DateFormula)
+    local procedure VerifyApprovalEntryAdditionalFields(ApprovalEntry: Record "Approval Entry"; ApproverType: Enum "Workflow Approval Type"; ApproverLimitType: Enum "Workflow Approval Limit Type"; DueDateFormula: DateFormula)
     begin
         ApprovalEntry.TestField("Approval Type", ApproverType);
         ApprovalEntry.TestField("Limit Type", ApproverLimitType);
@@ -4246,7 +4246,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", ApprovalEntry."Document Type"::Invoice);
         ApprovalEntry.SetRange("Document No.", DocumentNo);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
     end;
 
     local procedure CreateWorkflowUserGroup(var WorkflowUserGroup: Record "Workflow User Group")
@@ -4269,7 +4269,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Clear(WorkflowUserGroupMember);
     end;
 
-    local procedure CreateApprovalArgument(var WorkflowStepInstance: Record "Workflow Step Instance"; ApproverType: Option; LimitType: Option; DueDateFormula: DateFormula; WFUserGroup: Code[20]; ShowMessage: Boolean)
+    local procedure CreateApprovalArgument(var WorkflowStepInstance: Record "Workflow Step Instance"; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; DueDateFormula: DateFormula; WFUserGroup: Code[20]; ShowMessage: Boolean)
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin

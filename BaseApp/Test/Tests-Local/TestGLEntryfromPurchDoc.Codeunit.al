@@ -84,7 +84,7 @@ codeunit 144050 "Test GL Entry from Purch. Doc."
             SetRange("G/L Account No.", GLAccount."No.");
             Assert.AreEqual(2, Count, 'Expected both G/L Entry rows to have the same account no');
 
-            FindSet;
+            FindSet();
             CompareSecondLineWith := 'INVALID';
             if Description = Line1Description then
                 CompareSecondLineWith := Line2Description

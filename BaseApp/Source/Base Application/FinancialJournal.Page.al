@@ -96,7 +96,7 @@ page 11300 "Financial Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         SetUserInteractions;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -110,7 +110,7 @@ page 11300 "Financial Journal"
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         ShowShortcutDimCode(ShortcutDimCode);
                         SetUserInteractions;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(Description; Description)

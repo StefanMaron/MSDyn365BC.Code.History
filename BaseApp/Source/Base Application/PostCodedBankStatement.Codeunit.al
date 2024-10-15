@@ -63,7 +63,7 @@ codeunit 2000042 "Post Coded Bank Statement"
             CodedBankStmtLine.CopyFilters(CodBankStmtLine);
             CodedBankStmtLine.SetRange(ID, ID::Movement);
             CodedBankStmtLine.SetRange("Application Status", "Application Status"::" ");
-            if not CodedBankStmtLine.IsEmpty then
+            if not CodedBankStmtLine.IsEmpty() then
                 Error(Text000);
 
             if not Confirm(Text001, false) then
@@ -102,7 +102,7 @@ codeunit 2000042 "Post Coded Bank Statement"
             TotLines := Count;
             LineCounter := 0;
             Window.Update(1, StrSubstNo(Text004, "Bank Account No.", "Statement No.", GenJnlTemplate.Name));
-            FindSet;
+            FindSet();
             repeat
                 // Test if Coded Bank statement line has been posted yet
                 if ("Journal Template Name" <> '') or
@@ -150,7 +150,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                     Window.Update(2, LineNo);
                     Window.Update(3, Round(LineCounter / TotLines * 10000, 1));
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
         Window.Close
     end;
@@ -181,7 +181,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                                 CodBankStmtLine."Unapplied Amount" := 0;
                                 CodBankStmtLine."Application Status" := "Application Status"::"Indirectly applied";
                                 CodBankStmtLine.Modify
-                            until CodBankStmtLine.Next = 0
+                            until CodBankStmtLine.Next() = 0
                     end;
                 end else begin
                     CodBankStmtLine.Reset();
@@ -200,7 +200,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                                 AppliedAmount := CodBankStmtLine.Amount;
                             UnappliedAmtInclPartial -= AppliedAmount;
                             "Unapplied Amount" := "Unapplied Amount" - CodBankStmtLine.Amount;
-                        until CodBankStmtLine.Next = 0;
+                        until CodBankStmtLine.Next() = 0;
                         if UnappliedAmtInclPartial = 0 then
                             "Application Status" := "Application Status"::"Indirectly applied";
                     end else
@@ -518,7 +518,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                             Found := Found + 1;
                             CustLedgEntry := CustLedgEntry2;
                         end;
-                    until CustLedgEntry2.Next = 0;
+                    until CustLedgEntry2.Next() = 0;
 
                 // Multiple Entries with Same Amount: Do Not Assign
                 if Found <> 1 then
@@ -641,7 +641,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                             Found := Found + 1;
                             VendLedgEntry := VendLedgEntry2
                         end;
-                    until VendLedgEntry2.Next = 0;
+                    until VendLedgEntry2.Next() = 0;
 
                 // Multiple Entries with Same Amount: Do Not Assign
                 if Found <> 1 then

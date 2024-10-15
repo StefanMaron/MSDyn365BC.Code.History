@@ -168,7 +168,7 @@ codeunit 144000 "Non-Deductible VAT"
         // 02      "VAT Amount"               0,00
         // 03     -("VAT Amount" +
         // -       "Amount Without VAT")      0,00
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Assert.AreEqual(AmountWithoutVAT + NonDeductibleVATAmount, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount - NonDeductibleVATAmount, GLEntry."VAT Amount", '');
 
@@ -254,7 +254,7 @@ codeunit 144000 "Non-Deductible VAT"
         // 03     -("VAT Amount")             0,00
         // 04     -("Amount Without VAT")     0,00
 
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Assert.AreEqual(AmountWithoutVAT + NonDeductibleVATAmount, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount - NonDeductibleVATAmount, GLEntry."VAT Amount", '');
 
@@ -359,7 +359,7 @@ codeunit 144000 "Non-Deductible VAT"
         // 5 entries are made in the GL Entry table
         Assert.AreEqual(5, GLEntry.Count, '');
 
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Assert.AreEqual(AmountWithoutVAT2 + NonDeductibleVATAmount2, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry."VAT Amount", '');
 
@@ -385,7 +385,7 @@ codeunit 144000 "Non-Deductible VAT"
 
         VATEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(2, VATEntry.Count, '');
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         Assert.AreEqual(AmountWithoutVAT2 + NonDeductibleVATAmount2, VATEntry.Base, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount2, VATEntry."Non Ded. VAT Amount", '');
@@ -473,7 +473,7 @@ codeunit 144000 "Non-Deductible VAT"
         // 05      17,01                       0,00
         // 06     -18,90                       0,00
         // 07    -185,00                       0,00
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Assert.AreEqual(AmountWithoutVAT2 + NonDeductibleVATAmount2, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry."VAT Amount", '');
 
@@ -502,7 +502,7 @@ codeunit 144000 "Non-Deductible VAT"
         // -      "NonDeductible VAT Amount"   "NonDeductible VAT Amount"
         VATEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(2, VATEntry.Count, '');
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         Assert.AreEqual(AmountWithoutVAT2 + NonDeductibleVATAmount2, VATEntry.Base, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount2, VATEntry."Non Ded. VAT Amount", '');
@@ -600,7 +600,7 @@ codeunit 144000 "Non-Deductible VAT"
         // 05      17,01                       0,00
         // 06     -18,90                       0,00
         // 07    -185,00                       0,00
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Assert.AreEqual(AmountWithoutVAT2LCY + NonDeductibleVATAmount2, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry."VAT Amount", '');
 
@@ -629,7 +629,7 @@ codeunit 144000 "Non-Deductible VAT"
         // -      "NonDeductible VAT Amount"   "NonDeductible VAT Amount"
         VATEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(2, VATEntry.Count, '');
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         Assert.AreEqual(AmountWithoutVAT2LCY + NonDeductibleVATAmount2, VATEntry.Base, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount2, VATEntry."Non Ded. VAT Amount", '');
@@ -696,7 +696,7 @@ codeunit 144000 "Non-Deductible VAT"
         // 02      "VAT Amount"               0,00
         // 03     -("VAT Amount" +
         // -       "Amount Without VAT")      0,00
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Assert.AreEqual(-(AmountWithoutVAT + NonDeductibleVATAmount), GLEntry.Amount, '');
         Assert.AreEqual(-(VATAmount - NonDeductibleVATAmount), GLEntry."VAT Amount", '');
 
@@ -2812,7 +2812,7 @@ codeunit 144000 "Non-Deductible VAT"
         VATEntry.SetRange("Document Type", DocumentType);
         Assert.AreEqual(2, VATEntry.Count, VATEntry.TableCaption);
 
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         Assert.AreEqual(
           VATEntry."VAT Calculation Type"::"Normal VAT",
           VATEntry."VAT Calculation Type",

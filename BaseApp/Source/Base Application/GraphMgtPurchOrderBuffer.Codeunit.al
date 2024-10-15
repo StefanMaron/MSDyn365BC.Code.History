@@ -522,6 +522,23 @@ codeunit 5497 "Graph Mgt - Purch Order Buffer"
         end;
     end;
 
+    procedure DeleteOrphanedRecords()
+    var
+        PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if PurchaseOrderEntityBuffer.FindSet() then
+            repeat
+                if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrderEntityBuffer."No.") then
+                    PurchaseOrderEntityBuffer.Delete();
+            until PurchaseOrderEntityBuffer.Next() = 0;
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDeletePurchaseOrdersOrphanedRecords()) then
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDeletePurchaseOrdersOrphanedRecords());
+    end;
+
     local procedure VerifyCRUDIsPossibleForLine(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate"; var PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer")
     var
         SearchPurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";

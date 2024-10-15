@@ -62,7 +62,7 @@ report 2000021 "File Domiciliations"
                                 repeat
                                     Validate("Bank Account No.", BankNo);
                                     Modify;
-                                until Next = 0;
+                                until Next() = 0;
                         end;
                 end;
 
@@ -278,7 +278,7 @@ report 2000021 "File Domiciliations"
                         SetGenJnlLine(DomJnlLine);
                         DomJnlLine.Status := DomJnlLine.Status::Posted;
                         DomJnlLine.Modify(true)
-                    until DomJnlLine.Next = 0
+                    until DomJnlLine.Next() = 0
                 end;
                 SetGenJnlLine(TempDomJnlLine);
 
@@ -313,7 +313,7 @@ report 2000021 "File Domiciliations"
                             DomicilJnlLine2 := DomJnlLine;
                             DomicilJnlLine2.Find;
                             DomicilJnlLine2.Rename(DomJnlLine."Journal Template Name", DomJnlBatchName, LineNo);
-                        until DomJnlLine.Next = 0;
+                        until DomJnlLine.Next() = 0;
                 end;
 
                 // post

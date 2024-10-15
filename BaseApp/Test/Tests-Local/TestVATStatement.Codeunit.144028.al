@@ -507,7 +507,7 @@ codeunit 144028 "Test VAT Statement"
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
 
         // [THEN] Correction Value is shown with an opposite sign
-        VATStatementLine.FindSet;
+        VATStatementLine.FindSet();
         repeat
             VATStatementPreviewPage.VATStatementLineSubForm.GotoRecord(VATStatementLine);
             ActualCorrValue := VATStatementPreviewPage.VATStatementLineSubForm.CorrectionValue.AsDEcimal;
@@ -916,7 +916,7 @@ codeunit 144028 "Test VAT Statement"
 
     local procedure AddManualVATCorrection(var VATStatementLine: Record "VAT Statement Line"; ShowAmtInACY: Boolean) TotalAmount: Decimal
     begin
-        VATStatementLine.FindSet;
+        VATStatementLine.FindSet();
         repeat
             TotalAmount += AddManualVATCorrToSingleLine(VATStatementLine, ShowAmtInACY);
         until VATStatementLine.Next = 0;
@@ -1115,7 +1115,7 @@ codeunit 144028 "Test VAT Statement"
             Reset;
             SetRange("Statement Template Name", VATStatementName."Statement Template Name");
             SetRange("Statement Name", VATStatementName.Name);
-            FindSet;
+            FindSet();
         end;
     end;
 

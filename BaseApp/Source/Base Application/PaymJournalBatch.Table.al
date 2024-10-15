@@ -69,7 +69,7 @@ table 2000002 "Paym. Journal Batch"
         if PaymentJnlLine.FindSet then
             repeat
                 PaymentJnlLine.Rename("Journal Template Name", Name, PaymentJnlLine."Line No.");
-            until (PaymentJnlLine.Next = 0);
+            until (PaymentJnlLine.Next() = 0);
     end;
 
     var

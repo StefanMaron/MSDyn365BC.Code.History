@@ -14,13 +14,13 @@ codeunit 138400 "RS Pack Content - Evaluation"
         LibrarySales: Codeunit "Library - Sales";
         PostingOutsideFYIsOnErr: Label 'Posting Outside Fiscal Year option is on';
         XOUTGOINGTxt: Label 'OUTGOING';
+        XINCOMETxt: Label 'INCOME';
         NonStockNoSeriesTok: Label 'NS-ITEM';
         TransShipmentNoSeriesTok: Label 'T-SHPT';
         TransReceiptNoSeriesTok: Label 'T-RCPT';
         TransOrderNoSeriesTok: Label 'T-ORD';
         ItemNoSeriesTok: Label 'ITEM';
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryExtensionPerm: Codeunit "Library - Extension Perm.";
         SalesReturnReceiptTok: Label 'S-RCPT';
         IsInitialized: Boolean;
 
@@ -159,7 +159,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Item.SetRange("Assembly BOM", false);
         Evaluate(Periods, TempXMLBuffer.GetAttributeValue('Periods'));
         TempXMLBuffer.FindChildElements(TempXMLBuffer);
-        TempXMLBuffer.FindSet;
+        TempXMLBuffer.FindSet();
         Assert.RecordCount(TempXMLBuffer, Item.Count);
         repeat
             TempXMLBuffer.FindChildElements(TempXMLBufferPeriods);
@@ -200,7 +200,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             // [WHEN] Post all Invoices
             Reset;
             SetRange("Document Type", "Document Type"::Invoice);
-            FindSet;
+            FindSet();
             repeat
                 PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -274,7 +274,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             Total := 0;
             PurchaseHeader.Reset();
             PurchaseHeader.SetRange("Due Date", PeriodStart, PeriodEnd);
-            PurchaseHeader.FindSet;
+            PurchaseHeader.FindSet();
             repeat
                 PurchaseHeader.CalcFields("Amount Including VAT");
                 Total := Total + PurchaseHeader."Amount Including VAT";
@@ -302,7 +302,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             // [WHEN] Post all Invoices
             Reset;
             SetRange("Document Type", "Document Type"::Invoice);
-            FindSet;
+            FindSet();
             repeat
                 PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
@@ -329,7 +329,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             // [WHEN] Post all Orders
             Reset;
             SetRange("Document Type", "Document Type"::Order);
-            FindSet;
+            FindSet();
             repeat
                 PostedOrderNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
@@ -435,10 +435,10 @@ codeunit 138400 "RS Pack Content - Evaluation"
         InteractionTemplate: Record "Interaction Template";
     begin
         // [FEATURE] [CRM] [Interaction Template]
-        // [SCENARIO 174769] Interaction Template should have 29 templates.
+        // [SCENARIO 174769] Interaction Template should have 30 templates.
         Initialize();
 
-        Assert.RecordCount(InteractionTemplate, 29);
+        Assert.RecordCount(InteractionTemplate, 30);
     end;
 
     [Test]
@@ -453,6 +453,22 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
         InteractionTemplate.Get(XOUTGOINGTxt);
         InteractionTemplate.TestField("Ignore Contact Corres. Type", true);
+        InteractionTemplate.TestField("Information Flow", InteractionTemplate."Information Flow"::Outbound);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InteractionTemplateIncom()
+    var
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [CRM] [Interaction Template]
+        // [SCENARIO 390815] Interaction Template INCOM should have Information Flow = Inbound, "Ignore Contact Corres. Type"=Yes
+        Initialize();
+
+        InteractionTemplate.Get(XINCOMETxt);
+        InteractionTemplate.TestField("Ignore Contact Corres. Type", true);
+        InteractionTemplate.TestField("Information Flow", InteractionTemplate."Information Flow"::Inbound);
     end;
 
     [Test]
@@ -694,26 +710,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VerifyPackageTablesPermissions()
-    var
-        ConfigPackageTable: Record "Config. Package Table";
-        Permission: Record Permission;
-    begin
-        Initialize();
-
-        if ConfigPackageTable.FindSet then begin
-            Permission.SetRange("Role ID", LibraryExtensionPerm.D365BusFull);
-            Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
-            repeat
-                Permission.SetRange("Object ID", ConfigPackageTable."Table ID");
-                Permission.SetFilter("Insert Permission", '<>%1', Permission."Insert Permission"::" ");
-                Assert.RecordIsNotEmpty(Permission);
-            until ConfigPackageTable.Next = 0;
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure DefaultNoSeriesInPurchSetup()
     var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -750,22 +746,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VerifyNoPermissionSetWithEmptyHash()
-    var
-        PermissionSet: Record "Permission Set";
-    begin
-        Initialize();
-
-        PermissionSet.SetRange(Hash, '');
-        if PermissionSet.FindSet then
-            repeat
-                if StrPos(PermissionSet."Role ID", 'TEST') = 0 then // not a test created permission set
-                    Assert.Fail(StrSubstNo('Some permissions sets, e,g. %1 have nothing filled in Hash field.', PermissionSet."Role ID"));
-            until PermissionSet.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VerifySalesReturnReceiptNoSeriesPopulated()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -790,6 +770,33 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Initialize();
 
         Assert.RecordCount(Purchasing, 3);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultDimensionAllowedValuesFilter()
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        // [FEATURE] [Default Dimension]
+        // [SCENARIO 386881] At least one "Default Dimension" record with non empty "Allowed Values Filter"
+        Initialize();
+
+        DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
+        Assert.RecordIsNotEmpty(DefaultDimension);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InteractionLogEntries()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+    begin
+        // [FEATURE] [Interaction Log Entry]
+        // [SCENARIO 386492] "Interaction Log Entry" table has data 
+        Initialize();
+
+        Assert.RecordIsNotEmpty(InteractionLogEntry);
     end;
 
     local procedure Initialize()

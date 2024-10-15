@@ -141,7 +141,7 @@ codeunit 132200 "Library - Costing"
         PeriodStartDate: Date;
     begin
         AvgCostAdjmtEntryPoint.SetRange("Item No.", Item."No.");
-        AvgCostAdjmtEntryPoint.FindSet;
+        AvgCostAdjmtEntryPoint.FindSet();
         ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
         ValueEntry.SetRange("Item No.", Item."No.");
         repeat
@@ -421,7 +421,7 @@ codeunit 132200 "Library - Costing"
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             if (ValueEntry."Item Ledger Entry Quantity" <> 0) and
                ((FirstEntryNo = 0) or (FirstEntryNo > ValueEntry."Entry No."))
@@ -438,7 +438,7 @@ codeunit 132200 "Library - Costing"
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             if LastValuationDate < ValueEntry."Valuation Date" then
                 LastValuationDate := ValueEntry."Valuation Date";
@@ -463,7 +463,8 @@ codeunit 132200 "Library - Costing"
         else
             PostMethod := PostMethod::"per Entry";
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        PostInventoryCosttoGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
+        PostInventoryCosttoGL.SetGenJnlBatch(TemplateName, BatchName);
+        PostInventoryCosttoGL.InitializeRequest(PostMethod, '', true);
         PostInventoryCosttoGL.SetTableView(PostValueEntryToGL);
         PostInventoryCosttoGL.UseRequestPage(false);
         PostInventoryCosttoGL.SaveAsPdf(StrSubstNo(TempPathTxt, TemporaryPath, DocNo));
@@ -476,7 +477,8 @@ codeunit 132200 "Library - Costing"
     begin
         Commit();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
-        PostInvtCostToGLTest.InitializeRequest(PostMethod, ShowDim, ShowOnlyWarnings, TemplateName, BatchName);
+        PostInvtCostToGLTest.SetGenJnlBatch(TemplateName, BatchName);
+        PostInvtCostToGLTest.InitializeRequest(PostMethod, '', ShowDim, ShowOnlyWarnings);
         PostInvtCostToGLTest.SetTableView(PostValueEntryToGL);
         PostInvtCostToGLTest.UseRequestPage(false);
     end;

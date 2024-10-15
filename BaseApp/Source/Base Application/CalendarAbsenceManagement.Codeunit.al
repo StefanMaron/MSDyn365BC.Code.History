@@ -66,7 +66,7 @@ codeunit 99000759 "Calendar Absence Management"
                         Finished := true;
                     end;
 
-                until (CalendarEntry.Next = 0) or Finished;
+                until (CalendarEntry.Next() = 0) or Finished;
         end;
 
         CalAbsentEntry."Starting Date-Time" := AbsenceStartingDateTime;
@@ -102,7 +102,7 @@ codeunit 99000759 "Calendar Absence Management"
                 exit;
 
             CalendarEntry := CalendarEntry2;
-            if CalendarEntry2.Next = 0 then
+            if CalendarEntry2.Next() = 0 then
                 exit;
 
             repeat
@@ -120,7 +120,7 @@ codeunit 99000759 "Calendar Absence Management"
                     CalendarEntry2.Insert();
                 end;
                 CalendarEntry := CalendarEntry2;
-            until CalendarEntry2.Next = 0;
+            until CalendarEntry2.Next() = 0;
         end;
     end;
 

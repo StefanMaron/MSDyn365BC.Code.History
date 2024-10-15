@@ -774,7 +774,7 @@ codeunit 144010 "VAT Reports BE"
         ExistingVATVIESCorrection: Record "VAT VIES Correction";
     begin
         with ExistingVATVIESCorrection do begin
-            if IsEmpty then
+            if IsEmpty() then
                 exit(10000);
             SetRange("Period Type", VATVIESCorrection."Period Type");
             SetRange("Declaration Period No.", VATVIESCorrection."Declaration Period No.");

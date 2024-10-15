@@ -247,7 +247,7 @@ page 5603 "Main Asset Statistics"
                         CalcAmount(LastMaintenance, Maintenance2, "Last Maintenance Date", "FA Journal Line FA Posting Type"::Maintenance);
                         CalcAmount(LastSalvageValue, SalvageValue, "Last Salvage Value Date", "FA Journal Line FA Posting Type"::"Salvage Value");
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         DispPriceVisible := DisposalDate > 0D;
         GLPriceVisible := DisposalDate > 0D;

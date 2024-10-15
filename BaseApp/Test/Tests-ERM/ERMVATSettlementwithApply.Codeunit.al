@@ -569,7 +569,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         CustLedgerEntry2.SetRange("Document No.", DocumentNo);
         CustLedgerEntry2.SetRange("Customer No.", CustLedgerEntry."Customer No.");
         CustLedgerEntry2.SetRange(Open, true);
-        CustLedgerEntry2.FindSet;
+        CustLedgerEntry2.FindSet();
         repeat
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
@@ -898,7 +898,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
         repeat
             Assert.IsTrue(DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedCustLedgEntry.TableCaption,
                 DetailedCustLedgEntry.Unapplied));
@@ -912,7 +912,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
-        DetailedVendorLedgEntry.FindSet;
+        DetailedVendorLedgEntry.FindSet();
         repeat
             Assert.IsTrue(DetailedVendorLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedVendorLedgEntry.TableCaption,
                 DetailedVendorLedgEntry.Unapplied));
@@ -925,7 +925,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount", Amount);
             CustLedgerEntry.TestField("Remaining Amount", CustLedgerEntry.Amount);
@@ -946,7 +946,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
         CurrencyExchangeRate.FindFirst;
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             AddCurrAmt :=
               (GLEntry.Amount * CurrencyExchangeRate."Exchange Rate Amount") / CurrencyExchangeRate."Relational Adjmt Exch Rate Amt";

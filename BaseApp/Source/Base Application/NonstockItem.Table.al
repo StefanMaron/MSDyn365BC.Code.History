@@ -167,6 +167,9 @@ table 5718 "Nonstock Item"
         {
             Caption = 'Item Template Code';
             TableRelation = "Config. Template Header".Code WHERE("Table ID" = CONST(27));
+            ObsoleteReason = 'This field will be removed with other functionality related to "old" templates. Use "Item Templ. Code" field instead.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -216,7 +219,7 @@ table 5718 "Nonstock Item"
         }
         field(53; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Nonstock Item"),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST("Nonstock Item"),
                                                       "No." = FIELD("Entry No.")));
             Caption = 'Comment';
             Editable = false;
@@ -227,6 +230,17 @@ table 5718 "Nonstock Item"
             Caption = 'No. Series';
             Editable = false;
             TableRelation = "No. Series";
+        }
+        field(98; "Item Templ. Code"; Code[20])
+        {
+            Caption = 'Item Template Code';
+            TableRelation = "Item Templ.";
+
+            trigger OnValidate()
+            begin
+                if ("Item Templ. Code" <> xRec."Item Templ. Code") and ("Item No." <> '') then
+                    Error(Text001);
+            end;
         }
     }
 
@@ -319,7 +333,7 @@ table 5718 "Nonstock Item"
             exit;
 
         Item.SetRange("No.", ItemNo);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Error(Text001);
     end;
 

@@ -899,7 +899,7 @@ codeunit 136205 "Marketing Setup"
         Territory.FindFirst;
         CountryRegion.FindFirst;
         Language.FindFirst;
-        Salutation.FindSet;
+        Salutation.FindSet();
 
         MarketingSetup.Get();
         TempMarketingSetup.Init();

@@ -12,7 +12,7 @@ codeunit 2000021 "File Domiciliations"
         DomJnlLine.SetRange("Journal Template Name", DirectDebitCollection.Identifier);
         DomJnlLine.SetRange("Journal Batch Name", DirectDebitCollection."Domiciliation Batch Name");
         DomJnlLine.SetRange("ISO Currency Code", ISOCurrencyCode);
-        DomJnlLine.FindSet;
+        DomJnlLine.FindSet();
         DirectDebitCollection.Delete();
         Commit();
         DomJnlManagement.CreateDomiciliations(DomJnlLine);

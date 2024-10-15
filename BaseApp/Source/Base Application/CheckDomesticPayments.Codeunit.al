@@ -24,7 +24,7 @@ codeunit 2000002 "Check Domestic Payments"
                         TempBankAcc."No." := "Bank Account";
                         TempBankAcc.Insert();
                     end;
-            until Next = 0;
+            until Next() = 0;
 
         // Check if exactly one bank account is used
         CheckForOnlyOneBankAcc;

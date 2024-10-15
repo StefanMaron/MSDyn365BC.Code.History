@@ -58,12 +58,12 @@ table 1509 "WF Event/Response Combination"
                      WFEventResponseCombination.Type::"Event", WorkflowEvent."Function Name")
                 then
                     IsDependentOnAllEvents := false;
-            until (WorkflowEvent.Next = 0) or (not IsDependentOnAllEvents);
+            until (WorkflowEvent.Next() = 0) or (not IsDependentOnAllEvents);
 
         if IsDependentOnAllEvents then begin
             WFEventResponseCombination.SetRange(Type, Type);
             WFEventResponseCombination.SetRange("Function Name", FunctionName);
-            if not WFEventResponseCombination.IsEmpty then
+            if not WFEventResponseCombination.IsEmpty() then
                 WFEventResponseCombination.DeleteAll();
         end;
     end;

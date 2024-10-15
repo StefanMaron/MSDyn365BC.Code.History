@@ -50,6 +50,28 @@ page 1295 "Posted Payment Reconciliation"
 
     actions
     {
+        area(reporting)
+        {
+            action(Print)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = '&Print';
+                Ellipsis = true;
+                Image = Print;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                Scope = Repeater;
+                ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
+
+                trigger OnAction()
+                var
+                    DocPrint: Codeunit "Document-Print";
+                begin
+                    DocPrint.PrintPostedPaymentReconciliation(Rec);
+                end;
+            }
+        }
     }
 }
 

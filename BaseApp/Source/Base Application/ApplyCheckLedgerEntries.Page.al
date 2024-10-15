@@ -173,7 +173,7 @@ page 382 "Apply Check Ledger Entries"
     begin
         CheckLedgEntry.Copy(Rec);
         CheckSetStmtNo.ToggleReconNo(CheckLedgEntry, BankAccReconLine, ChangeAmount);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

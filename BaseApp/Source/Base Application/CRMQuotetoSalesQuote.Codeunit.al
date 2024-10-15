@@ -32,6 +32,8 @@ codeunit 5348 "CRM Quote to Sales Quote"
         NotCoupledCustomerErr: Label '%1 There is no customer coupled to %3 account %2.', Comment = '%1= the text: "The sales quote cannot be created.", %2=account name, %3 - Dataverse service name';
         NotCoupledCRMProductErr: Label '%1 The %3 product %2 is not coupled to an item.', Comment = '%1= the text: "The sales quote cannot be created.", %2=product name, %3 - Dataverse service name';
         NotCoupledCRMResourceErr: Label '%1 The %3 resource %2 is not coupled to a resource.', Comment = '%1= the text: "The sales quote cannot be created.", %2=resource name, %3 - Dataverse service name';
+        AccountNotCustomerErr: Label '%1 The selected type of the %2 %3 account is not customer.', Comment = '%1= the text: "The sales order cannot be created.", %2=account name, %3=Dataverse service name';
+        AccountNotCustomerTelemetryMsg: Label '%1 The selected type of the %2 %3 account is not customer.', Locked = true;
         ResourceDoesNotExistErr: Label '%1 The resource %2 does not exist.', Comment = '%1= the text: "The sales quote cannot be created.", %2=product name';
         UnexpectedProductTypeErr: Label '%1 Unexpected value of product type code for product %2. The supported values are: sales inventory, services.', Comment = '%1= the text: "The sales quote cannot be created.", %2=product name';
         CRMProductName: Codeunit "CRM Product Name";
@@ -74,7 +76,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
                     CRMIntegrationRecord.Delete(true);
                     exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Update));
                 end;
-            until RevisionedCRMQuote.Next = 0;
+            until RevisionedCRMQuote.Next() = 0;
 
         exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Create));
     end;
@@ -209,7 +211,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         if CRMAnnotation.FindSet then
             repeat
                 CreateNote(SalesHeader, CRMAnnotation);
-            until CRMAnnotation.Next = 0;
+            until CRMAnnotation.Next() = 0;
     end;
 
     local procedure CreateOrUpdateSalesQuoteLines(CRMQuote: Record "CRM Quote"; SalesHeader: Record "Sales Header")
@@ -228,7 +230,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
                 SalesLine.Insert();
                 if SalesLine."Qty. to Assemble to Order" <> 0 then
                     SalesLine.Validate("Qty. to Assemble to Order");
-            until CRMQuotedetail.Next = 0;
+            until CRMQuotedetail.Next() = 0;
         end else begin
             SalesLine.Validate("Document Type", SalesHeader."Document Type");
             SalesLine.Validate("Document No.", SalesHeader."No.");
@@ -263,7 +265,12 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMContact: Record "CRM Contact";
     begin
         if CRMQuote.CustomerIdType = CRMQuote.CustomerIdType::account then
-            exit(CRMAccount.Get(CRMQuote.CustomerId));
+            if CRMAccount.Get(CRMQuote.CustomerId) then
+                if CRMAccount.CustomerTypeCode <> CRMAccount.CustomerTypeCode::Customer then begin
+                    Session.LogMessage('0000DMO', StrSubstNo(AccountNotCustomerTelemetryMsg, CannotCreateSalesQuoteInNAVTxt, CRMQuote.CustomerId, CRMProductName.CDSServiceName()), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::All, 'Category', CrmTelemetryCategoryTok);
+                    Error(AccountNotCustomerErr, CannotCreateSalesQuoteInNAVTxt, CRMAccount.Name, CRMProductName.CDSServiceName());
+                end else
+                    exit(true);
 
         if CRMQuote.CustomerIdType = CRMQuote.CustomerIdType::contact then
             if CRMContact.Get(CRMQuote.CustomerId) then

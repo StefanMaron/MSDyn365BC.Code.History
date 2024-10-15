@@ -82,7 +82,7 @@ codeunit 130400 "CAL Test Runner"
                         CodeCoverageMgt.Stop;
                         CALTestMgt.ExtendTestCoverage("Test Codeunit");
                     end;
-                until Next = 0;
+                until Next() = 0;
 
             CloseWindow;
         end;
@@ -242,7 +242,7 @@ codeunit 130400 "CAL Test Runner"
                 repeat
                     if "Line No." in [MinLineNo .. MaxLineNo] then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
             exit(false);
         end;
     end;

@@ -45,7 +45,7 @@ page 766 "Acc. Sched. Chart SubPage"
                     trigger OnValidate()
                     begin
                         if "Chart Type" = "Chart Type"::" " then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
             }
@@ -89,7 +89,7 @@ page 766 "Acc. Sched. Chart SubPage"
                             end;
                     end;
 
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(Delete)
@@ -105,7 +105,7 @@ page 766 "Acc. Sched. Chart SubPage"
                 begin
                     CurrPage.SetSelectionFilter(AccSchedChartSetupLine);
                     AccSchedChartSetupLine.ModifyAll("Chart Type", "Chart Type"::" ");
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("Reset to default Setup")

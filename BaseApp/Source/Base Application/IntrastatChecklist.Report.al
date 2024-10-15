@@ -313,7 +313,7 @@ report 502 "Intrastat - Checklist"
                         PrevIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
                         PrevIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
                         PrevIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
-                        PrevIntrastatJnlLine.FindFirst;
+                        PrevIntrastatJnlLine.FindFirst();
                     end;
 
                     if (TypeGroup <> Type) or

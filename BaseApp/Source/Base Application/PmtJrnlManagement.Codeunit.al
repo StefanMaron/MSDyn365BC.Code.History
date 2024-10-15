@@ -438,7 +438,7 @@ codeunit 2000000 PmtJrnlManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateTotals(var PaymentJnlLine: Record 2000001; LastPaymentJnlLine: Record 2000001; var Balance: Decimal; var TotalAmount: Decimal; var ShowAmount: Boolean; var ShowTotalAmount: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCalculateTotals(var PaymentJnlLine: Record "Payment Journal Line"; LastPaymentJnlLine: Record "Payment Journal Line"; var Balance: Decimal; var TotalAmount: Decimal; var ShowAmount: Boolean; var ShowTotalAmount: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

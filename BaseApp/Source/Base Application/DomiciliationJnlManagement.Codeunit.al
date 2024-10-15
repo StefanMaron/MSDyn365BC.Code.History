@@ -94,7 +94,7 @@ codeunit 2000020 DomiciliationJnlManagement
         end;
         DomJnlBatch.FilterGroup(0);
 
-        if DomJnlBatch.IsEmpty then begin
+        if DomJnlBatch.IsEmpty() then begin
             if not DomJnlTemplate.FindFirst then
                 TemplateSelection(DomJnlLine, JnlSelected);
             if DomJnlTemplate.FindFirst then
@@ -307,7 +307,7 @@ codeunit 2000020 DomiciliationJnlManagement
                 repeat
                     Validate("Bank Account No.", DomicJnlLine."Bank Account No.");
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

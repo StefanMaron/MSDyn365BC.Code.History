@@ -1251,7 +1251,7 @@ codeunit 134042 "ERM VAT Tolerance"
         VATBaseAmount: Decimal;
     begin
         // Verify: Verify VAT Base Amount on Purchase Line.
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             VATBaseAmount := CalcPurchVATBaseAmount(TempPurchaseLine, TolerancePctForCalculation, true);
             VerifyVATBaseAmountOnPurchLine(TempPurchaseLine, VATBaseAmount);
@@ -1264,7 +1264,7 @@ codeunit 134042 "ERM VAT Tolerance"
         VATBaseAmount: Decimal;
     begin
         // Verify: Verify VAT Base Amount on Purchase Line.
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             VATBaseAmount := CalcPurchVATBaseAmount(TempPurchaseLine, TolerancePctForCalculation, false);
             OutstandingAmount := TempPurchaseLine."Line Amount" + Round(VATBaseAmount * TempPurchaseLine."VAT %" / 100);
@@ -1276,7 +1276,7 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         VATAmount: Decimal;
     begin
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             VATAmount := Round(TempPurchaseLine."Line Amount" * TempPurchaseLine."VAT %" / (100 + TempPurchaseLine."VAT %"));
             VerifyVATOnStatistics(TempPurchaseLine."VAT %", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
@@ -1287,7 +1287,7 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         VATAmount: Decimal;
     begin
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             VATAmount := Round(TempPurchaseLine."Line Amount" * (1 - TolerancePctForCalculation / 100) * (TempPurchaseLine."VAT %" / 100));
             VerifyVATOnStatistics(TempPurchaseLine."VAT %", VATAmount);
@@ -1298,7 +1298,7 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         VATAmount: Decimal;
     begin
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             VATAmount := Round(TempSalesLine."Line Amount" * TempSalesLine."VAT %" / 100);
             VerifyVATOnStatistics(TempSalesLine."VAT %", Round(VATAmount * (1 - TolerancePctForCalculation / 100)));
@@ -1310,7 +1310,7 @@ codeunit 134042 "ERM VAT Tolerance"
         VATBaseAmount: Decimal;
     begin
         // Verify: Verify VAT Base Amount on Sales Line.
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             VATBaseAmount := CalcSalesVATBaseAmount(TempSalesLine, TolerancePctForCalculation, true);
             VerifyVATBaseAmountOnSalesLine(TempSalesLine, VATBaseAmount);
@@ -1323,7 +1323,7 @@ codeunit 134042 "ERM VAT Tolerance"
         OutstandingAmount: Decimal;
     begin
         // Verify: Verify VAT Base Amount and Outstanding Amount on Sales Line.
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             VATBaseAmount := CalcSalesVATBaseAmount(TempSalesLine, TolerancePctForCalculation, false);
             OutstandingAmount := TempSalesLine."Line Amount" + Round(VATBaseAmount * TempSalesLine."VAT %" / 100);
@@ -1335,7 +1335,7 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         VATAmount: Decimal;
     begin
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             VATAmount := Round(TempSalesLine."Line Amount" * TempSalesLine."VAT %" / (100 + TempSalesLine."VAT %"));
             VerifyVATOnStatistics(TempSalesLine."VAT %", Round(VATAmount * (1 - TolerancePctForCalculation / 100)));

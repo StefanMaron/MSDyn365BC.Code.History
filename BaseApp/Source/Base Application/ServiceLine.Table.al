@@ -1,4 +1,4 @@
-﻿table 5902 "Service Line"
+table 5902 "Service Line"
 {
     Caption = 'Service Line';
     DrillDownPageID = "Service Line List";
@@ -764,11 +764,9 @@
                     Validate("Job Planning Line No.", 0);
             end;
         }
-        field(47; "Job Line Type"; Option)
+        field(47; "Job Line Type"; Enum "Job Line Type")
         {
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
 
             trigger OnValidate()
             begin
@@ -1290,7 +1288,7 @@
                     JobPlanningLine.TestField("No.", "No.");
                     JobPlanningLine.TestField("Usage Link", true);
                     JobPlanningLine.TestField("System-Created Entry", false);
-                    "Job Line Type" := JobPlanningLine."Line Type" + 1;
+                    "Job Line Type" := JobPlanningLine.ConvertToJobLineType();
                     Validate("Job Remaining Qty.", JobPlanningLine."Remaining Qty." - Quantity);
                 end else
                     Validate("Job Remaining Qty.", 0);
@@ -2596,14 +2594,14 @@
             Error(Text045);
 
         if (Quantity <> 0) and ItemExists("No.") then begin
-            ReserveServLine.DeleteLine(Rec);
+            ServiceLineReserve.DeleteLine(Rec);
             CalcFields("Reserved Qty. (Base)");
             TestField("Reserved Qty. (Base)", 0);
             if "Shipment No." = '' then
                 TestField("Qty. Shipped Not Invoiced", 0);
         end;
 
-        ReserveServLine.DeleteLine(Rec);
+        ServiceLineReserve.DeleteLine(Rec);
         if (Type = Type::Item) and Item.Get("No.") then
             CatalogItemMgt.DelNonStockFSM(Rec);
 
@@ -2630,7 +2628,7 @@
             InsertItemTracking;
 
         if Quantity <> 0 then
-            ReserveServLine.VerifyQuantity(Rec, xRec);
+            ServiceLineReserve.VerifyQuantity(Rec, xRec);
 
         if Type = Type::Item then
             if ServHeader.WhsePickConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
@@ -2650,7 +2648,7 @@
             "Spare Part Action"::" "]
         then begin
             if (Type <> xRec.Type) or ("No." <> xRec."No.") then
-                ReserveServLine.DeleteLine(Rec);
+                ServiceLineReserve.DeleteLine(Rec);
             UpdateReservation(0);
         end;
 
@@ -2693,13 +2691,12 @@
         FaultReasonCode: Record "Fault Reason Code";
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
-        TempTrackingSpecification: Record "Tracking Specification" temporary;
         SKU: Record "Stockkeeping Unit";
         DimMgt: Codeunit DimensionManagement;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         UOMMgt: Codeunit "Unit of Measure Management";
         CatalogItemMgt: Codeunit "Catalog Item Management";
-        ReserveServLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         FieldCausedPriceCalculation: Integer;
@@ -2743,6 +2740,9 @@
         IsCustCrLimitChecked: Boolean;
         LocationChangedMsg: Label 'Item %1 with serial number %2 is stored on location %3. The Location Code field on the service line will be updated.', Comment = '%1 = Item No., %2 = Item serial No., %3 = Location code';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
+
+    protected var
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
 
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
@@ -2898,7 +2898,7 @@
             OnReplaceServItemOnCopyFromReplacementItem(Rec);
             exit(true);
         end;
-        ReserveServLine.DeleteLine(Rec);
+        ServiceLineReserve.DeleteLine(Rec);
         ClearFields;
         Validate("No.", '');
         exit(false);
@@ -3047,7 +3047,7 @@
         Rec := Line;
     end;
 
-    local procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; ServiceHeader: Record "Service Header"; var PriceCalculation: Interface "Price Calculation")
+    procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; ServiceHeader: Record "Service Header"; var PriceCalculation: Interface "Price Calculation")
     var
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
@@ -3389,11 +3389,11 @@
         TestField("No.");
         if Reserve = Reserve::Never then
             FieldError(Reserve);
-        ReserveServLine.ReservQuantity(Rec, QtyToReserve, QtyToReserveBase);
+        ServiceLineReserve.ReservQuantity(Rec, QtyToReserve, QtyToReserveBase);
         if QtyToReserveBase <> 0 then begin
             ReservMgt.SetReservSource(Rec);
             if ReplaceServItemAction then begin
-                ReserveServLine.FindReservEntry(Rec, ReservationEntry);
+                ServiceLineReserve.FindReservEntry(Rec, ReservationEntry);
                 ReservMgt.SetTrackingFromReservEntry(ReservationEntry);
             end;
             ReservMgt.AutoReserve(FullAutoReservation, '', "Order Date", QtyToReserve, QtyToReserveBase);
@@ -3448,20 +3448,11 @@
     procedure ShowNonstock()
     var
         NonstockItem: Record "Nonstock Item";
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ItemTemplate: Record "Item Template";
     begin
         TestField(Type, Type::Item);
         TestField("No.", '');
         if PAGE.RunModal(PAGE::"Catalog Item List", NonstockItem) = ACTION::LookupOK then begin
-            NonstockItem.TestField("Item Template Code");
-            ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-            ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
-            ConfigTemplateHeader.SetRange(Enabled, true);
-            ConfigTemplateHeader.FindFirst;
-
-            TestConfigTemplateLineField(NonstockItem."Item Template Code", ItemTemplate.FieldNo("Gen. Prod. Posting Group"));
-            TestConfigTemplateLineField(NonstockItem."Item Template Code", ItemTemplate.FieldNo("Inventory Posting Group"));
+            CheckNonstockItemTemplate(NonstockItem);
 
             "No." := NonstockItem."Entry No.";
             CatalogItemMgt.NonStockFSM(Rec);
@@ -3763,7 +3754,7 @@
         TestField(Type, Type::Item);
         TestField("No.");
         TestField("Quantity (Base)");
-        ReserveServLine.CallItemTracking(Rec);
+        ServiceLineReserve.CallItemTracking(Rec);
     end;
 
     protected procedure InsertItemTracking()
@@ -3773,7 +3764,7 @@
     begin
         ServiceLine := Rec;
         if TempTrackingSpecification.FindFirst then begin
-            ReserveServLine.DeleteLine(Rec);
+            ServiceLineReserve.DeleteLine(Rec);
             Clear(CreateReservEntry);
             ReservEntry.CopyTrackingFromSpec(TempTrackingSpecification);
             CreateReservEntry.CreateReservEntryFor(
@@ -3922,6 +3913,7 @@
         exit(not ReservEntry.IsEmpty);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     procedure FindResUnitCost()
     var
@@ -3934,6 +3926,7 @@
         OnAfterResourseFindCost(Rec, ResCost);
         Validate("Unit Cost (LCY)", ResCost."Unit Cost" * "Qty. per Unit of Measure");
     end;
+#endif
 
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourseFindCost(var ResourceCost: Record "Resource Cost");
@@ -3956,6 +3949,8 @@
         Planned := "Reserved Quantity" = "Outstanding Quantity";
         "Completely Shipped" := (Quantity <> 0) and ("Outstanding Quantity" = 0);
         InitOutstandingAmount;
+
+        OnAfterInitOutstanding(Rec);
     end;
 
     procedure InitOutstandingAmount()
@@ -4156,7 +4151,7 @@
                   "VAT Calculation Type"::"Reverse Charge VAT"]) and
                 ("VAT %" <> 0))
             then
-                if not ServiceLine2.IsEmpty then begin
+                if not ServiceLine2.IsEmpty() then begin
                     ServiceLine2.CalcSums(
                       "Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "VAT Base Amount");
                     TotalLineAmount := ServiceLine2."Line Amount";
@@ -4393,7 +4388,7 @@
                             end;
                     end;
                     TotalVATAmount += "Amount Including VAT" - Amount + "VAT Difference";
-                until Next = 0;
+                until Next() = 0;
             SetRange(Type);
             SetRange(Quantity);
         end;
@@ -4571,7 +4566,7 @@
                         TempVATAmountLineRemainder."VAT Base (Lowered)" := NewVATBaseAmount - "VAT Base Amount";
                         TempVATAmountLineRemainder.Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
             SetRange(Type);
             SetRange(Quantity);
             SetRange("Qty. to Invoice");
@@ -4816,7 +4811,7 @@
                         ServiceLine.Modify(true);
                         NextLine := NextLine + 10000;
                     end;
-                until ServItemLine.Next = 0;
+                until ServItemLine.Next() = 0;
 
             if ServiceLine.Get("Document Type", "Document No.", "Line No.") then begin
                 if "Qty. to Consume" > 0 then
@@ -4879,7 +4874,7 @@
             ServiceLine2.SetRange("Contract No.", xRec."Contract No.");
         ServiceLine2.SetFilter("Line No.", '<>%1', "Line No.");
 
-        if ServiceLine2.IsEmpty then
+        if ServiceLine2.IsEmpty() then
             if xRec."Contract No." <> '' then begin
                 ServDocReg.Reset();
                 if "Document Type" = "Document Type"::Invoice then
@@ -4930,9 +4925,9 @@
                 then
                     ReservationCheckDateConfl.ServiceInvLineCheck(Rec, true);
             FieldNo(Quantity):
-                ReserveServLine.VerifyQuantity(Rec, xRec);
+                ServiceLineReserve.VerifyQuantity(Rec, xRec);
         end;
-        ReserveServLine.VerifyChange(Rec, xRec);
+        ServiceLineReserve.VerifyChange(Rec, xRec);
     end;
 
     procedure ShowTracking()
@@ -5404,7 +5399,7 @@
                     UpdateDimSetup(TableID, No, DefaultDim."Table ID", DefaultDim."No.", LastAddedTableID);
                     TableAdded := true;
                 end;
-            until (DefaultDim.Next = 0) or TableAdded;
+            until (DefaultDim.Next() = 0) or TableAdded;
     end;
 
     local procedure UpdateDimSetup(var TableID: array[10] of Integer; var No: array[10] of Code[20]; NewTableID: Integer; NewNo: Code[20]; var LastAddedTableID: Integer)
@@ -5443,6 +5438,41 @@
         end else
             "Line Discount %" := 0;
     end;
+
+    local procedure CheckNonstockItemTemplate(NonstockItem: Record "Nonstock Item")
+    var
+        ItemTempl: Record "Item Templ.";
+#if not CLEAN18
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+#endif
+    begin
+#if not CLEAN18
+        if not ItemTemplMgt.IsEnabled() then begin
+            CheckNonstockOldItemTemplate(NonstockItem);
+            exit;
+        end;
+#endif
+        ItemTempl.Get(NonstockItem."Item Templ. Code");
+        ItemTempl.TestField("Gen. Prod. Posting Group");
+        ItemTempl.TestField("Inventory Posting Group");
+    end;
+
+#if not CLEAN18
+    local procedure CheckNonstockOldItemTemplate(NonstockItem: Record "Nonstock Item")
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ItemTemplate: Record "Item Template";
+    begin
+        NonstockItem.TestField("Item Template Code");
+        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
+        ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
+        ConfigTemplateHeader.SetRange(Enabled, true);
+        ConfigTemplateHeader.FindFirst;
+
+        TestConfigTemplateLineField(NonstockItem."Item Template Code", ItemTemplate.FieldNo("Gen. Prod. Posting Group"));
+        TestConfigTemplateLineField(NonstockItem."Item Template Code", ItemTemplate.FieldNo("Inventory Posting Group"));
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignHeaderValues(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -5524,7 +5554,7 @@
     begin
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourseFindCost(var ServiceLine: Record "Service Line"; var ResourceCost: Record "Resource Cost")
     begin
@@ -5552,6 +5582,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcVATAmountLines(var ServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping,Consuming)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitOutstanding(var ServiceLine: Record "Service Line")
     begin
     end;
 

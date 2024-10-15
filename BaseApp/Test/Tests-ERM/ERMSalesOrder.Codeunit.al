@@ -3228,7 +3228,7 @@ codeunit 134378 "ERM Sales Order"
         // [THEN] "VAT Entry"[1].Base = 90 and "VAT Entry"[1].Amount = 9
         // [THEN] "VAT Entry"[2].Base = -100 and "VAT Entry"[2].Amount = -13 = -(100 * 10 % + 3)
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         VerifyVATEntryAmounts(
           VATEntry,
           InvDiscAmount,
@@ -5001,7 +5001,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -5027,7 +5027,7 @@ codeunit 134378 "ERM Sales Order"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, LineType);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure FindItemChargeAssignmentSalesLine(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line")
@@ -5035,7 +5035,7 @@ codeunit 134378 "ERM Sales Order"
         ItemChargeAssignmentSales.SetRange("Document Type", SalesLine."Document Type");
         ItemChargeAssignmentSales.SetRange("Document No.", SalesLine."Document No.");
         ItemChargeAssignmentSales.SetRange("Document Line No.", SalesLine."Line No.");
-        ItemChargeAssignmentSales.FindSet;
+        ItemChargeAssignmentSales.FindSet();
     end;
 
     local procedure GetReceivablesAccountNo(CustomerNo: Code[20]): Code[20]
@@ -5071,7 +5071,7 @@ codeunit 134378 "ERM Sales Order"
         GLEntry: Record "G/L Entry";
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Line Disc. Account");
@@ -5083,7 +5083,7 @@ codeunit 134378 "ERM Sales Order"
         GLEntry: Record "G/L Entry";
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Inv. Disc. Account");
@@ -5123,7 +5123,7 @@ codeunit 134378 "ERM Sales Order"
 
     local procedure TotalAmountInGLEntry(var GLEntry: Record "G/L Entry") TotalAmount: Decimal
     begin
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -5154,7 +5154,7 @@ codeunit 134378 "ERM Sales Order"
         SalesGetShipment.SetSalesHeader(InvSalesHeader);
         with SalesShipmentHeader do begin
             SetRange("Order No.", ShippedSalesHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 SalesShipmentLine.SetRange("Document No.", "No.");
                 SalesGetShipment.CreateInvLines(SalesShipmentLine);
@@ -5174,7 +5174,7 @@ codeunit 134378 "ERM Sales Order"
         SalesGetReturnReceipts.SetSalesHeader(CrMemoSalesHeader);
         with ReturnReceiptHeader do begin
             SetRange("Return Order No.", ShippedSalesHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 ReturnReceiptLine.SetRange("Document No.", "No.");
                 SalesGetReturnReceipts.CreateInvLines(ReturnReceiptLine);
@@ -5278,7 +5278,7 @@ codeunit 134378 "ERM Sales Order"
     local procedure SumLineDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) LineDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             LineDiscountAmount += SalesLine."Line Discount Amount";
         until SalesLine.Next = 0;
@@ -5287,7 +5287,7 @@ codeunit 134378 "ERM Sales Order"
     local procedure SumInvoiceDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) InvoiceDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             InvoiceDiscountAmount += SalesLine."Inv. Discount Amount";
         until SalesLine.Next = 0;
@@ -5769,7 +5769,7 @@ codeunit 134378 "ERM Sales Order"
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         FindSalesShipmentHeader(SalesShipmentHeader, SalesLine."Document No.");
         repeat
             SalesShipmentLine.Get(SalesShipmentHeader."No.", SalesLine."Line No.");

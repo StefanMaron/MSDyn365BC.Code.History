@@ -36,7 +36,7 @@ page 1518 "My Notifications"
                     begin
                         if Enabled <> xRec.Enabled then begin
                             Filters := GetFiltersAsDisplayText;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }
@@ -51,7 +51,7 @@ page 1518 "My Notifications"
                     begin
                         if OpenFilterSettings then begin
                             Filters := GetFiltersAsDisplayText;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }

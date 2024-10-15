@@ -34,7 +34,7 @@ codeunit 5830 "Calc. Availability Overview"
                         InsertEntry(Rec, Type::Item, 0D, '', '', 0, 0, 0, 0, '', Item.Description, 0);
                     end;
                 Copy(CopyOfAvailabilityCalcOverview);
-            until Item.Next = 0;
+            until Item.Next() = 0;
         end;
         Window.Close;
     end;
@@ -111,7 +111,7 @@ codeunit 5830 "Calc. Availability Overview"
                     ModifyAll("Matches Criteria", true);
             Reset;
             if Get(FirstEntryNo) then
-                if Next = 0 then
+                if Next() = 0 then
                     Delete;
         end;
         Item.Copy(CopyOfItem);
@@ -151,11 +151,11 @@ codeunit 5830 "Calc. Availability Overview"
         GetDemandEntries(AvailabilityCalcOverview);
 
         AvailabilityCalcOverview.Get(FirstEntryNo);
-        if AvailabilityCalcOverview.Next = 0 then;
+        if AvailabilityCalcOverview.Next() = 0 then;
         UpdateRunningTotals(AvailabilityCalcOverview);
 
         AvailabilityCalcOverview.Get(FirstEntryNo);
-        if AvailabilityCalcOverview.Next = 0 then;
+        if AvailabilityCalcOverview.Next() = 0 then;
     end;
 
     local procedure GetInventoryDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -180,7 +180,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", AvailabilityCalcOverview.GetFilter("Location Code"));
                     SetFilter("Variant Code", AvailabilityCalcOverview.GetFilter("Variant Code"));
                     SetRange(Positive);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -306,7 +306,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -330,7 +330,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -354,7 +354,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Due Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -378,7 +378,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Receipt Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -402,7 +402,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -426,7 +426,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Needed by Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -450,7 +450,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Planning Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -474,7 +474,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -498,7 +498,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Due Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -522,7 +522,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -546,7 +546,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Due Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -570,7 +570,7 @@ codeunit 5830 "Calc. Availability Overview"
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Due Date", Item.GetFilter("Date Filter"));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -589,7 +589,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview.Type::Supply, "Expected Receipt Date", "Location Code", "Variant Code",
                       "Outstanding Qty. (Base)", "Reserved Qty. (Base)",
                       DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", PurchHeader."Buy-from Vendor Name", 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -608,7 +608,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview.Type::Supply, "Shipment Date", "Location Code", "Variant Code",
                       "Outstanding Qty. (Base)", "Reserved Qty. (Base)",
                       DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", SalesHeader."Sell-to Customer Name", 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -646,7 +646,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview.Type::Supply, "Receipt Date", "Transfer-to Code", "Variant Code",
                       "Outstanding Qty. (Base)", "Reserved Qty. Inbnd. (Base)",
                       DATABASE::"Transfer Line", Status, "Document No.", TransHeader."Transfer-from Name", 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -664,7 +664,7 @@ codeunit 5830 "Calc. Availability Overview"
                       "Remaining Quantity (Base)", "Reserved Qty. (Base)",
                       DATABASE::"Assembly Header", "Document Type".AsInteger(),
                       "No.", Description, 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -683,7 +683,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview.Type::Demand, "Shipment Date", "Location Code", "Variant Code",
                       -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
                       DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", SalesHeader."Sell-to Customer Name", DemandType::Sales);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -702,7 +702,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview.Type::Demand, "Needed by Date", "Location Code", "Variant Code",
                       -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
                       DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", ServHeader."Ship-to Name", DemandType::Service);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -721,7 +721,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview.Type::Demand, "Planning Date", "Location Code", "Variant Code",
                       -"Remaining Qty. (Base)", -"Reserved Qty. (Base)",
                       DATABASE::"Job Planning Line", Status, "Job No.", Job."Bill-to Name", DemandType::Job);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -740,7 +740,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview.Type::Demand, "Expected Receipt Date", "Location Code", "Variant Code",
                       -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
                       DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", PurchHeader."Buy-from Vendor Name", 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -778,7 +778,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview.Type::Demand, "Shipment Date", "Transfer-from Code", "Variant Code",
                       -"Outstanding Qty. (Base)", -"Reserved Qty. Outbnd. (Base)",
                       DATABASE::"Transfer Line", Status, "Document No.", TransHeader."Transfer-to Name", 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -798,7 +798,7 @@ codeunit 5830 "Calc. Availability Overview"
                       -"Remaining Quantity (Base)", -"Reserved Qty. (Base)",
                       DATABASE::"Assembly Line", "Document Type".AsInteger(),
                       "Document No.", AsmHeader.Description, DemandType::Assembly);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1084,7 +1084,7 @@ codeunit 5830 "Calc. Availability Overview"
               "Qty. on Sales Order",
               "Qty. on Service Order",
               "Qty. on Job Order",
-              "Scheduled Need (Qty.)",
+              "Qty. on Component Lines",
               "Trans. Ord. Shipment (Qty.)",
               Inventory,
               "Qty. on Assembly Order",
@@ -1101,7 +1101,7 @@ codeunit 5830 "Calc. Availability Overview"
             DemandRunningTotal :=
               -"Qty. on Sales Order" + "Reserved Qty. on Sales Orders" -
               "Qty. on Purch. Return" + "Res. Qty. on Purch. Returns" -
-              "Scheduled Need (Qty.)" + "Res. Qty. on Prod. Order Comp." -
+              "Qty. on Component Lines" + "Res. Qty. on Prod. Order Comp." -
               "Qty. on Service Order" + "Res. Qty. on Service Orders" -
               "Qty. on Job Order" + "Res. Qty. on Job Order" -
               "Trans. Ord. Shipment (Qty.)" + "Res. Qty. on Outbound Transfer" -
@@ -1153,9 +1153,9 @@ codeunit 5830 "Calc. Availability Overview"
 
                 OnUpdateRunningTotalsOnBeforeModify(AvailabilityCalcOverview);
                 Modify;
-            until Next = 0;
+            until Next() = 0;
             Get(FirstEntryNo);
-            if Next = 0 then;
+            if Next() = 0 then;
         end;
     end;
 

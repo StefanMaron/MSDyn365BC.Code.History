@@ -153,7 +153,7 @@ codeunit 131904 "Library - Time Sheet"
         TimeSheetHeader.FindFirst;
     end;
 
-    procedure CreateTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; Type: Option " ",Resource,Job,Service,Absence,"Assembly Order"; JobNo: Code[20]; JobTaskNo: Code[20]; ServiceOrderNo: Code[20]; CauseOfAbsenceCode: Code[10])
+    procedure CreateTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; Type: Enum "Time Sheet Line Type"; JobNo: Code[20]; JobTaskNo: Code[20]; ServiceOrderNo: Code[20]; CauseOfAbsenceCode: Code[10])
     var
         LineNo: Integer;
     begin
@@ -597,7 +597,7 @@ codeunit 131904 "Library - Time Sheet"
         CreateTimeSheets.Run;
     end;
 
-    [EventSubscriber(ObjectType::Page, 950, 'OnAfterProcess', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Time Sheet", 'OnAfterProcess', '', false, false)]
     local procedure OnAfterProcessTimeSheet(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Submit Selected","Submit All","Reopen Selected","Reopen All")
     var
         TimeSheetMgt: Codeunit "Time Sheet Management";
@@ -605,7 +605,7 @@ codeunit 131904 "Library - Time Sheet"
         TimeSheetMgt.CopyFilteredTimeSheetLinesToBuffer(TimeSheetLine, TempTimeSheetLine);
     end;
 
-    [EventSubscriber(ObjectType::Page, 952, 'OnAfterProcess', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Manager Time Sheet", 'OnAfterProcess', '', false, false)]
     local procedure OnAfterProcessManagerTimeSheet(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Approve Selected","Approve All","Reopen Selected","Reopen All","Reject Selected","Reject All")
     var
         TimeSheetMgt: Codeunit "Time Sheet Management";
@@ -613,7 +613,7 @@ codeunit 131904 "Library - Time Sheet"
         TimeSheetMgt.CopyFilteredTimeSheetLinesToBuffer(TimeSheetLine, TempTimeSheetLine);
     end;
 
-    [EventSubscriber(ObjectType::Page, 954, 'OnAfterProcess', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Manager Time Sheet by Job", 'OnAfterProcess', '', false, false)]
     local procedure OnAfterProcessManagerTimeSheetByJob(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Approve Selected","Approve All","Reopen Selected","Reopen All","Reject Selected","Reject All")
     var
         TimeSheetMgt: Codeunit "Time Sheet Management";

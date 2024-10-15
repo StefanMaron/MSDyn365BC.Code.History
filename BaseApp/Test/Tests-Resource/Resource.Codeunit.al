@@ -1484,7 +1484,7 @@ codeunit 136907 Resource
 
         LibraryVariableStorage.AssertEmpty();
     end;
-    
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1679,7 +1679,7 @@ codeunit 136907 Resource
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Post as Receive and Invoice.
     end;
 
-    local procedure CreateAndPostPurchaseOrderWithJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task"; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; DirectUnitCost: Decimal; JobLineType: Option; PostAsInvoice: Boolean): Code[20]
+    local procedure CreateAndPostPurchaseOrderWithJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task"; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; DirectUnitCost: Decimal; JobLineType: Enum "Job Line Type"; PostAsInvoice: Boolean): Code[20]
     begin
         CreatePurchaseOrderWithJob(
           PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, ItemNo, Quantity, QuantityToReceive, JobTask."Job No.",
@@ -1861,14 +1861,14 @@ codeunit 136907 Resource
         exit(Count);
     end;
 
-    local procedure CreatePurchaseOrderWithJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; JobNo: Code[20]; JobTaskNo: Code[20]; DirectUnitCost: Decimal; JobLineType: Option)
+    local procedure CreatePurchaseOrderWithJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; JobNo: Code[20]; JobTaskNo: Code[20]; DirectUnitCost: Decimal; JobLineType: Enum "Job Line Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreatePurchaseLineWithJob(
           PurchaseLine, PurchaseHeader, Type, ItemNo, Quantity, QuantityToReceive, JobNo, JobTaskNo, JobLineType, DirectUnitCost);
     end;
 
-    local procedure CreatePurchaseLineWithJob(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; JobNo: Code[20]; JobTaskNo: Code[20]; JobLineType: Option; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLineWithJob(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; JobNo: Code[20]; JobTaskNo: Code[20]; JobLineType: Enum "Job Line Type"; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, ItemNo, Quantity);
         PurchaseLine.Validate("Qty. to Receive", QuantityToReceive);
@@ -2055,7 +2055,7 @@ codeunit 136907 Resource
         ItemAnalysisViewEntry.SetRange("Item No.", ItemNo);
     end;
 
-    local procedure FilterJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; PurchaseLine: Record "Purchase Line"; LineType: Option)
+    local procedure FilterJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; PurchaseLine: Record "Purchase Line"; LineType: Enum "Job Planning Line Line Type")
     begin
         JobPlanningLine.SetRange("Job No.", PurchaseLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", PurchaseLine."Job Task No.");
@@ -2074,7 +2074,7 @@ codeunit 136907 Resource
     begin
         JobLedgerEntry.SetRange("Job No.", JobNo);
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
-        JobLedgerEntry.FindSet;
+        JobLedgerEntry.FindSet();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
@@ -2235,7 +2235,7 @@ codeunit 136907 Resource
         Assert.AreEqual(JobLedgerEntry.FindFirst, EntryExist, AdjustedJobLedgerEntryExistMsg);
     end;
 
-    local procedure VerifyEmptyJobPlanningLines(PurchaseLine: Record "Purchase Line"; LineType: Option)
+    local procedure VerifyEmptyJobPlanningLines(PurchaseLine: Record "Purchase Line"; LineType: Enum "Job Planning Line Line Type")
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
@@ -2275,7 +2275,7 @@ codeunit 136907 Resource
         ItemLedgerEntry.TestField("Cost Amount (Actual)", CostAmountActual);
     end;
 
-    local procedure VerifyJobLedgerEntry(JobNo: Code[20]; DocumentNo: Code[20]; LineType: Option; UnitOfMeasureCode: Code[10]; DirectUnitCost: Decimal; UnitCost: Decimal; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure VerifyJobLedgerEntry(JobNo: Code[20]; DocumentNo: Code[20]; LineType: Enum "Job Line Type"; UnitOfMeasureCode: Code[10]; DirectUnitCost: Decimal; UnitCost: Decimal; Quantity: Decimal; UnitPrice: Decimal)
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
@@ -2288,7 +2288,7 @@ codeunit 136907 Resource
         JobLedgerEntry.TestField("Unit Price", UnitPrice);
     end;
 
-    local procedure VerifyJobLedgerEntryDoesNotExist(JobNo: Code[20]; DocumentNo: Code[20]; LineType: Option; UnitOfMeasureCode: Code[10])
+    local procedure VerifyJobLedgerEntryDoesNotExist(JobNo: Code[20]; DocumentNo: Code[20]; LineType: Enum "Job Line Type"; UnitOfMeasureCode: Code[10])
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
@@ -2318,12 +2318,12 @@ codeunit 136907 Resource
         Assert.AreEqual(TotalQuantity, Quantity, QuantityMustBeSameMsg);
     end;
 
-    local procedure VerifyJobPlanningLine(PurchaseLine: Record "Purchase Line"; LineType: Option; MoveNext: Boolean; Quantity: Decimal)
+    local procedure VerifyJobPlanningLine(PurchaseLine: Record "Purchase Line"; LineType: Enum "Job Planning Line Line Type"; MoveNext: Boolean; Quantity: Decimal)
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         FilterJobPlanningLine(JobPlanningLine, PurchaseLine, LineType);
-        JobPlanningLine.FindSet;
+        JobPlanningLine.FindSet();
         if MoveNext then
             JobPlanningLine.Next;
         JobPlanningLine.TestField(Quantity, Quantity);
@@ -2397,7 +2397,7 @@ codeunit 136907 Resource
         ResLedgerEntry.SetRange("Document No.", DocNo);
         ResLedgerEntry.SetRange("Resource No.", ResNo);
         Assert.RecordCount(ResLedgerEntry, 2);
-        ResLedgerEntry.FindSet;
+        ResLedgerEntry.FindSet();
         ResLedgerEntry.TestField("Unit Price", UnitPrice[1]);
         ResLedgerEntry.Next;
         ResLedgerEntry.TestField("Unit Price", UnitPrice[2]);

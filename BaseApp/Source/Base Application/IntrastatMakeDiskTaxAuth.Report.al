@@ -270,7 +270,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         if Nihil then
             ReportIsNihil := true
         else begin
-            if TempIntrastatJnlLine.IsEmpty then
+            if TempIntrastatJnlLine.IsEmpty() then
                 ReportIsNihil := true;
         end;
 
@@ -349,7 +349,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXDELTRM');
                     end;
                     Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

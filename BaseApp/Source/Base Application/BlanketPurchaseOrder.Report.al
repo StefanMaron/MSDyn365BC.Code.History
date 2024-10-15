@@ -258,7 +258,7 @@ report 410 "Blanket Purchase Order"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -343,7 +343,7 @@ report 410 "Blanket Purchase Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -589,7 +589,7 @@ report 410 "Blanket Purchase Order"
                       12, "Purchase Header"."No.", "Purchase Header"."Doc. No. Occurrence",
                       "Purchase Header"."No. of Archived Versions", DATABASE::Vendor, "Purchase Header"."Pay-to Vendor No.",
                       "Purchase Header"."Purchaser Code", '', "Purchase Header"."Posting Description", '');
-                until "Purchase Header".Next = 0;
+                until "Purchase Header".Next() = 0;
     end;
 
     trigger OnPreReport()

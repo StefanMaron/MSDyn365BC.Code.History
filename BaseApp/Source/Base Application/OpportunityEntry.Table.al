@@ -428,7 +428,11 @@ table 5093 "Opportunity Entry"
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
 
         if not ContBusRel.FindFirst then
+#if not CLEAN18
             Cont.CreateCustomer('');
+#else
+            Cont.CreateCustomerFromTemplate('');
+#endif
     end;
 
     procedure InitOpportunityEntry(Opp: Record Opportunity)
@@ -475,7 +479,7 @@ table 5093 "Opportunity Entry"
                 Error(Text012);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure FinishWizard()
     var
         OppEntry: Record "Opportunity Entry";
@@ -538,7 +542,7 @@ table 5093 "Opportunity Entry"
             Error(Text009);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure FinishWizard2()
     var
         CreateNewTask: Boolean;
@@ -700,7 +704,7 @@ table 5093 "Opportunity Entry"
                             TempSalesCycleStageSkip := SalesCycleStage;
                             TempSalesCycleStageSkip.Insert();
                             Stop := not SalesCycleStage."Allow Skip";
-                        until (SalesCycleStage.Next = 0) or Stop;
+                        until (SalesCycleStage.Next() = 0) or Stop;
                     end;
             end else
                 if SalesCycleStage.Find('-') then
@@ -710,7 +714,7 @@ table 5093 "Opportunity Entry"
                             TempSalesCycleStageSkip := SalesCycleStage;
                             TempSalesCycleStageSkip.Insert();
                             Stop := not SalesCycleStage."Allow Skip";
-                        until (SalesCycleStage.Next = 0) or Stop;
+                        until (SalesCycleStage.Next() = 0) or Stop;
                     end;
 
         // Option 5 Update Current
@@ -731,7 +735,7 @@ table 5093 "Opportunity Entry"
                         TempSalesCycleStageJump.Insert
                     else
                         Stop := true;
-                until (SalesCycleStage.Next = 0) or Stop;
+                until (SalesCycleStage.Next() = 0) or Stop;
             end;
 
         case true of

@@ -1,3 +1,4 @@
+#if not CLEAN16
 page 5721 "Item Cross Reference Entries"
 {
     Caption = 'Item Cross Reference Entries';
@@ -123,4 +124,4 @@ page 5721 "Item Cross Reference Entries"
         message('Demo data created: %1', ItemCrossReference.Count());
     end;
 }
-
+#endif

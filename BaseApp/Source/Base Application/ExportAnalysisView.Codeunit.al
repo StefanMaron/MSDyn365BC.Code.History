@@ -53,10 +53,12 @@ codeunit 424 "Export Analysis View"
         ServerFileName: Text;
         SkipDownload: Boolean;
 
+#if not CLEAN16
     [Obsolete('Replaced by ExportData with AnalysisByDimParameters.', '16.0')]
     procedure ExportData(var Rec: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; AmountField: Option; ShowName: Boolean; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; Show: Option; OtherFilter: Text)
     begin
     end;
+#endif
 
     procedure ExportData(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
@@ -139,7 +141,7 @@ codeunit 424 "Export Analysis View"
                         FillOutGLAcc(TempGLAcc2."No.", AnalysisByDimParameters."Show Column Name");
                         StartNewRow;
                     end;
-                until TempGLAcc2.Next = 0;
+                until TempGLAcc2.Next() = 0;
         end else begin
             TempCFAccount2.SetRange("Account Type", TempCFAccount2."Account Type"::Entry);
             if TempCFAccount2.Find('-') then
@@ -153,7 +155,7 @@ codeunit 424 "Export Analysis View"
                         FillOutBusUnit(BusUnit.Code, AnalysisByDimParameters."Show Column Name");
                         StartNewRow;
                     end;
-                until BusUnit.Next = 0;
+                until BusUnit.Next() = 0;
             NoOfLeadingColumns := NoOfLeadingColumns + 1;
             SetStartColumnNo(NoOfLeadingColumns);
         end;
@@ -262,7 +264,7 @@ codeunit 424 "Export Analysis View"
                         end;
                         StartNewRow;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -364,7 +366,7 @@ codeunit 424 "Export Analysis View"
                         end;
                         StartNewRow;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -461,7 +463,7 @@ codeunit 424 "Export Analysis View"
                     RowNoCount := RowNoCount + 1;
                     FillCell(RowNoCount, 2, AnalysisViewFilter."Dimension Code");
                     FillCell(RowNoCount, 3, AnalysisViewFilter."Dimension Value Filter");
-                until AnalysisViewFilter.Next = 0;
+                until AnalysisViewFilter.Next() = 0;
             RowNoCount := RowNoCount + 1;
             FillCell(RowNoCount, 1, Text011);
             RowNoCount := RowNoCount + 1;
@@ -621,13 +623,13 @@ codeunit 424 "Export Analysis View"
                 TempDimValue2.Insert();
                 TempDimValue3.Copy(DimValue);
                 TempDimValue3.Insert();
-            until DimValue.Next = 0;
+            until DimValue.Next() = 0;
         TempDimValue2.SetFilter(Code, DimFilter);
         if TempDimValue2.Find('-') then
             repeat
                 if MaxLevelDim[ArrayNo] < TempDimValue2.Indentation then
                     MaxLevelDim[ArrayNo] := TempDimValue2.Indentation;
-            until TempDimValue2.Next = 0;
+            until TempDimValue2.Next() = 0;
     end;
 
     local procedure FindDimParent(var Account: Code[20]; DimensionCode: Code[20])
@@ -667,7 +669,7 @@ codeunit 424 "Export Analysis View"
             if ParentTempNameValueBuffer.FindSet then
                 repeat
                     AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
-                until ParentTempNameValueBuffer.Next = 0;
+                until ParentTempNameValueBuffer.Next() = 0;
 
             if DimensionValue.Get(DimCode, DimValueCode) then;
 
@@ -703,7 +705,7 @@ codeunit 424 "Export Analysis View"
         if ParentTempNameValueBuffer.FindSet then
             repeat
                 AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
-            until ParentTempNameValueBuffer.Next = 0;
+            until ParentTempNameValueBuffer.Next() = 0;
 
         GLAccount.Get(GLAccNo);
         if GLAccount.Indentation <> MaxLevel then
@@ -736,7 +738,7 @@ codeunit 424 "Export Analysis View"
         if ParentTempNameValueBuffer.FindSet then
             repeat
                 AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
-            until ParentTempNameValueBuffer.Next = 0;
+            until ParentTempNameValueBuffer.Next() = 0;
 
         CashFlowAccount.Get(CFAccNo);
         if CashFlowAccount.Indentation <> MaxLevel then
@@ -875,7 +877,7 @@ codeunit 424 "Export Analysis View"
                 repeat
                     TempGLAcc3.Copy(GLAcc);
                     TempGLAcc3.Insert();
-                until GLAcc.Next = 0;
+                until GLAcc.Next() = 0;
 
             TempGLAcc3.SetFilter("No.", AccFilter);
             if TempGLAcc3.Find('-') then
@@ -884,14 +886,14 @@ codeunit 424 "Export Analysis View"
                     TempGLAcc2.Insert();
                     if MaxLevel < TempGLAcc2.Indentation then
                         MaxLevel := TempGLAcc2.Indentation;
-                until TempGLAcc3.Next = 0;
+                until TempGLAcc3.Next() = 0;
             TempGLAcc3.SetRange("No.");
         end else begin
             if CFAccount.Find('-') then
                 repeat
                     TempCFAccount3.Copy(CFAccount);
                     TempCFAccount3.Insert();
-                until CFAccount.Next = 0;
+                until CFAccount.Next() = 0;
 
             TempCFAccount3.SetFilter("No.", AccFilter);
             if TempCFAccount3.Find('-') then
@@ -900,7 +902,7 @@ codeunit 424 "Export Analysis View"
                     TempCFAccount2.Insert();
                     if MaxLevel < TempCFAccount2.Indentation then
                         MaxLevel := TempCFAccount2.Indentation;
-                until TempCFAccount3.Next = 0;
+                until TempCFAccount3.Next() = 0;
             TempCFAccount3.SetRange("No.");
         end;
     end;
@@ -912,7 +914,7 @@ codeunit 424 "Export Analysis View"
                 FillOutCFAccount(TempCFAccount2."No.", ShowName);
                 StartNewRow;
             end;
-        until TempCFAccount2.Next = 0;
+        until TempCFAccount2.Next() = 0;
     end;
 
     local procedure WriteDimLine(DimNo: Integer; DimFilter: Text; DimCode: Code[20]; NoOfLeadingColumns: Integer; ShowName: Boolean)
@@ -928,7 +930,7 @@ codeunit 424 "Export Analysis View"
                     StartNewRow;
                     SetStartColumnNo(NoOfLeadingColumns);
                 end;
-            until TempDimValue2.Next = 0;
+            until TempDimValue2.Next() = 0;
     end;
 
     procedure GetServerFileName(): Text

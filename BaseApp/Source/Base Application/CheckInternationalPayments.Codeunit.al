@@ -25,7 +25,7 @@ codeunit 2000003 "Check International Payments"
                         TempBankAcc.Insert();
                     end;
                 OnAfterCheckPaymJnlLine(Rec);
-            until Next = 0;
+            until Next() = 0;
 
         // Check if exactly one bank account is used
         CheckForOnlyOneBankAcc;

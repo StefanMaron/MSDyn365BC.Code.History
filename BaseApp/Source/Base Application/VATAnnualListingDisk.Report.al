@@ -35,7 +35,7 @@ report 11309 "VAT Annual Listing - Disk"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if VATCustomer.Next = 0 then
+                    if VATCustomer.Next() = 0 then
                         CurrReport.Break();
                     if VATCustomer.Mark then
                         CurrReport.Skip();
@@ -134,7 +134,7 @@ report 11309 "VAT Annual Listing - Disk"
 
             trigger OnPreDataItem()
             begin
-                if Buffer.IsEmpty then begin
+                if Buffer.IsEmpty() then begin
                     Message(Text009);
                     CurrReport.Quit;
                 end;
@@ -392,7 +392,7 @@ report 11309 "VAT Annual Listing - Disk"
                 XMLDOMMgt.AddElement(XMLCurrNode, 'VATAmount', INTERVATHelper.GetXMLAmountRepresentation(Buffer.Amount),
                   xmlnsClientListingConsignment, XMLNewChild);
                 XMLCurrNode := XMLCurrNode.ParentNode;
-            until Buffer.Next = 0;
+            until Buffer.Next() = 0;
         end;
     end;
 

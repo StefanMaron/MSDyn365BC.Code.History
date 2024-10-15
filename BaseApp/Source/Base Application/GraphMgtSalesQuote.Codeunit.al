@@ -82,6 +82,7 @@ codeunit 5505 "Graph Mgt - Sales Quote"
               "Ship-to City", "Ship-to County", "Ship-to Country/Region Code", "Ship-to Post Code", JSON);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '18.0')]
     procedure UpdateIntegrationRecordIds(OnlyRecordsWithoutID: Boolean)
     var
         DummySalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
@@ -99,7 +100,7 @@ codeunit 5505 "Graph Mgt - Sales Quote"
           SalesQuoteEntityBufferRecordRef, DummySalesQuoteEntityBuffer.FieldNo(Id), OnlyRecordsWithoutID);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     var
         GraphMgtSalesQuoteBuffer: Codeunit "Graph Mgt - Sales Quote Buffer";

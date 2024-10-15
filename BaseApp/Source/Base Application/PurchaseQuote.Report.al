@@ -275,7 +275,7 @@ report 404 "Purchase - Quote"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -379,7 +379,7 @@ report 404 "Purchase - Quote"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -396,8 +396,15 @@ report 404 "Purchase - Quote"
                             else
                                 PurchLine.Next;
                             "Purchase Line" := PurchLine;
-                            if ("Purchase Line"."Cross-Reference No." <> '') and (not ShowInternalInfo) then
-                                "Purchase Line"."No." := "Purchase Line"."Cross-Reference No.";
+#if not CLEAN16                            
+                            if not ItemReferenceMgt.IsEnabled() then
+                                if ("Purchase Line"."Cross-Reference No." <> '') and (not ShowInternalInfo) then
+                                    "Purchase Line"."No." := "Purchase Line"."Cross-Reference No.";
+#endif                                    
+                            if not ItemReferenceMgt.IsEnabled() then
+                                if ("Purchase Line"."Item Reference No." <> '') and (not ShowInternalInfo) then
+                                    "Purchase Line"."No." :=
+                                        CopyStr("Purchase Line"."Item Reference No.", 1, MaxStrLen("Purchase Line"."No."));
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line"."Dimension Set ID");
                         end;
@@ -624,7 +631,7 @@ report 404 "Purchase - Quote"
                       11, "Purchase Header"."No.", "Purchase Header"."Doc. No. Occurrence", "Purchase Header"."No. of Archived Versions",
                       DATABASE::Vendor, "Purchase Header"."Pay-to Vendor No.", "Purchase Header"."Purchaser Code", '',
                       "Purchase Header"."Posting Description", '');
-                until "Purchase Header".Next = 0;
+                until "Purchase Header".Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -652,6 +659,7 @@ report 404 "Purchase - Quote"
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         ArchiveManagement: Codeunit ArchiveManagement;
+        ItemReferenceMgt: Codeunit "Item Reference Management";
         VendAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];

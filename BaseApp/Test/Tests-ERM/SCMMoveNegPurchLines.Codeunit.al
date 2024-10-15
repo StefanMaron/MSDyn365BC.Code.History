@@ -165,8 +165,8 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
         PurchaseHeader.Get(NewDocumentType, NewPurchaseHeaderNo);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
-        TempPurchaseLine.FindSet;
+        PurchaseLine.FindSet();
+        TempPurchaseLine.FindSet();
 
         // Examine the migrated lines.
         repeat

@@ -301,7 +301,7 @@
                             GLEntry.CalcSums(Amount, GLEntry."Additional-Currency Amount");
                             Amount := ConditionalAdd(Amount, GLEntry.Amount, GLEntry."Additional-Currency Amount");
                             Amount2 := Amount;
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                     OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount, NetAmountLCY);
                 end;
@@ -388,7 +388,7 @@
                                 ErrorText := ErrorText + '...';
                                 VATStmtLine2.FieldError("Row No.", ErrorText);
                             end;
-                        until VATStmtLine2.Next = 0;
+                        until VATStmtLine2.Next() = 0;
                 end;
         end;
 

@@ -17,7 +17,7 @@ codeunit 5802 "Inventory Posting To G/L"
             exit;
 
         if GlobalPostPerPostGroup then
-            PostInvtPostBuf(Rec, "Document No.", '', '', true, GlobalJnlTemplName, GlobalJnlBatchName)
+            PostInvtPostBuf(Rec, "Document No.", '', '', true)
         else
             PostInvtPostBuf(
               Rec,
@@ -26,9 +26,7 @@ codeunit 5802 "Inventory Posting To G/L"
               CopyStr(
                 StrSubstNo(Text000, "Entry Type", "Source No.", "Posting Date"),
                 1, MaxStrLen(GenJnlLine.Description)),
-              false,
-              GlobalJnlTemplName,
-              GlobalJnlBatchName);
+              false);
 
         OnAfterRun(Rec);
     end;
@@ -39,7 +37,7 @@ codeunit 5802 "Inventory Posting To G/L"
         Currency: Record Currency;
         SourceCodeSetup: Record "Source Code Setup";
         GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary;
-        TempInvtPostBuf: array[4] of Record "Invt. Posting Buffer" temporary;
+        TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary;
         TempInvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer" temporary;
         TempGLItemLedgRelation: Record "G/L - Item Ledger Relation" temporary;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
@@ -80,10 +78,23 @@ codeunit 5802 "Inventory Posting To G/L"
         GlobalJnlTemplName: Code[10];
         GlobalJnlBatchName: Code[10];
 
-    procedure Initialize(PostPerPostGroup: Boolean; JnlTemplName: Code[10]; JnlBatchName: Code[10])
+    procedure Initialize(PostPerPostGroup: Boolean)
     begin
         GlobalPostPerPostGroup := PostPerPostGroup;
         GlobalInvtPostBufEntryNo := 0;
+    end;
+
+#if not CLEAN18
+    [Obsolete('Replaced by W1 Initialize() and BE SetGenJnlBatch()', '18.0')]
+    procedure Initialize(PostPerPostGroup: Boolean; JnlTemplName: Code[10]; JnlBatchName: Code[10])
+    begin
+        Initialize(PostPerPostGroup);
+        SetGenJnlBatch(JnlTemplName, JnlBatchName);
+    end;
+#endif
+
+    procedure SetGenJnlBatch(JnlTemplName: Code[10]; JnlBatchName: Code[10])
+    begin
         GlobalJnlTemplName := JnlTemplName;
         GlobalJnlBatchName := JnlBatchName;
     end;
@@ -462,7 +473,14 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     local procedure BufferAsmOutputPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBufferAsmOutputPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
@@ -530,7 +548,14 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     local procedure BufferAsmConsumpPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBufferAsmConsumpPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
@@ -608,7 +633,6 @@ codeunit 5802 "Inventory Posting To G/L"
 
     local procedure CalcCostToPost(var CostToPost: Decimal; AdjdCost: Decimal; var PostedCost: Decimal; var PostToGL: Boolean)
     begin
-        GetGLSetup;
         CostToPost := AdjdCost - PostedCost;
 
         if CostToPost <> 0 then begin
@@ -906,7 +930,7 @@ codeunit 5802 "Inventory Posting To G/L"
         exit(LastLineNo);
     end;
 
-    procedure PostInvtPostBufPerEntry(var ValueEntry: Record "Value Entry"; JnlTemplName: Code[10]; JnlBatchName: Code[10])
+    procedure PostInvtPostBufPerEntry(var ValueEntry: Record "Value Entry")
     var
         DummyGenJnlLine: Record "Gen. Journal Line";
     begin
@@ -918,19 +942,47 @@ codeunit 5802 "Inventory Posting To G/L"
               CopyStr(
                 StrSubstNo(Text000, "Entry Type", "Source No.", "Posting Date"),
                 1, MaxStrLen(DummyGenJnlLine.Description)),
-              false,
-              JnlTemplName,
-              JnlBatchName);
+              false);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by W1 PostInvtPostBufPerEntry', '18.0')]
+    procedure PostInvtPostBufPerEntry(var ValueEntry: Record "Value Entry"; JnlTemplName: Code[10]; JnlBatchName: Code[10])
+    var
+        DummyGenJnlLine: Record "Gen. Journal Line";
+    begin
+        SetGenJnlBatch(JnlTemplName, JnlBatchName);
+        with ValueEntry do
+            PostInvtPostBuf(
+              ValueEntry,
+              "Document No.",
+              "External Document No.",
+              CopyStr(
+                StrSubstNo(Text000, "Entry Type", "Source No.", "Posting Date"),
+                1, MaxStrLen(DummyGenJnlLine.Description)),
+              false);
+    end;
+#endif
+
+    procedure PostInvtPostBufPerPostGrp(DocNo: Code[20]; Desc: Text[50])
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        PostInvtPostBuf(ValueEntry, DocNo, '', Desc, true);
+    end;
+
+#if not CLEAN18
+    [Obsolete('Replaced by W1 PostInvtPostBufPerPostGrp() and SetGenJnlBatch().', '18.0')]
     procedure PostInvtPostBufPerPostGrp(DocNo: Code[20]; Desc: Text[50]; JnlTemplName: Code[10]; JnlBatchName: Code[10])
     var
         ValueEntry: Record "Value Entry";
     begin
-        PostInvtPostBuf(ValueEntry, DocNo, '', Desc, true, JnlTemplName, JnlBatchName);
+        SetGenJnlBatch(JnlTemplName, JnlBatchName);
+        PostInvtPostBuf(ValueEntry, DocNo, '', Desc, true);
     end;
+#endif
 
-    local procedure PostInvtPostBuf(var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[100]; PostPerPostGrp: Boolean; JnlTemplName: Code[10]; JnlBatchName: Code[10])
+    local procedure PostInvtPostBuf(var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[100]; PostPerPostGrp: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -941,8 +993,8 @@ codeunit 5802 "Inventory Posting To G/L"
                 exit;
 
             GenJnlLine.Init();
-            GenJnlLine."Journal Template Name" := JnlTemplName;
-            GenJnlLine."Journal Batch Name" := JnlBatchName;
+            GenJnlLine."Journal Template Name" := GlobalJnlTemplName;
+            GenJnlLine."Journal Batch Name" := GlobalJnlBatchName;
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."External Document No." := ExternalDocNo;
             GenJnlLine.Description := Desc;
@@ -969,17 +1021,17 @@ codeunit 5802 "Inventory Posting To G/L"
                             if not CalledFromItemPosting then
                                 GenJnlPostLine.SetOverDimErr;
                             OnBeforePostInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine);
-                            GenJnlPostLine.RunWithCheck(GenJnlLine)
+                            PostGenJnlLine(GenJnlLine);
                         end else begin
                             OnBeforeCheckInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine);
-                            GenJnlCheckLine.RunCheck(GenJnlLine)
+                            CheckGenJnlLine(GenJnlLine);
                         end
                     else
                         InsertTempInvtPostToGLTestBuf(GenJnlLine, ValueEntry);
                 end;
                 if not CalledFromTestReport and not RunOnlyCheck then
                     CreateGLItemLedgRelation(ValueEntry);
-            until Next = 0;
+            until Next() = 0;
             RunOnlyCheck := RunOnlyCheckSaved;
             OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
 
@@ -1074,12 +1126,12 @@ codeunit 5802 "Inventory Posting To G/L"
         if GlobalPostPerPostGroup then begin
             TempGLItemLedgRelation.Reset();
             TempGLItemLedgRelation.SetRange("G/L Entry No.", GlobalInvtPostBuf."Entry No.");
-            TempGLItemLedgRelation.FindSet;
+            TempGLItemLedgRelation.FindSet();
             repeat
                 ValueEntry.Get(TempGLItemLedgRelation."Value Entry No.");
                 UpdateValueEntry(ValueEntry);
                 CreateGLItemLedgRelationEntry(GLReg);
-            until TempGLItemLedgRelation.Next = 0;
+            until TempGLItemLedgRelation.Next() = 0;
         end else begin
             UpdateValueEntry(ValueEntry);
             CreateGLItemLedgRelationEntry(GLReg);
@@ -1126,7 +1178,7 @@ codeunit 5802 "Inventory Posting To G/L"
         repeat
             InvtPostToGLTestBuf := TempInvtPostToGLTestBuf;
             InvtPostToGLTestBuf.Insert();
-        until TempInvtPostToGLTestBuf.Next = 0;
+        until TempInvtPostToGLTestBuf.Next() = 0;
     end;
 
     procedure GetAmtToPost(var NewCOGSAmt: Decimal; var NewInvtAdjmtAmt: Decimal; var NewDirCostAmt: Decimal; var NewOvhdCostAmt: Decimal; var NewVarPurchCostAmt: Decimal; var NewVarMfgDirCostAmt: Decimal; var NewVarMfgOvhdCostAmt: Decimal; var NewWIPInvtAmt: Decimal; var NewInvtAmt: Decimal; GetTotal: Boolean)
@@ -1162,7 +1214,7 @@ codeunit 5802 "Inventory Posting To G/L"
             repeat
                 InvtPostBuf := GlobalInvtPostBuf;
                 InvtPostBuf.Insert();
-            until GlobalInvtPostBuf.Next = 0;
+            until GlobalInvtPostBuf.Next() = 0;
     end;
 
     local procedure GetInvPostingGroupCode(ValueEntry: Record "Value Entry"; WIPInventory: Boolean; InvPostingGroupCode: Code[20]): Code[20]
@@ -1177,6 +1229,16 @@ codeunit 5802 "Inventory Posting To G/L"
         end;
 
         exit(InvPostingGroupCode);
+    end;
+
+    procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlCheckLine.RunCheck(GenJnlLine);
+    end;
+
+    procedure PostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
     [IntegrationEvent(true, false)]
@@ -1374,13 +1436,23 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBufferConsumpPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; CostToPost: Decimal; CostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfteUpdateReportAmounts(var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var InvtAmt: Decimal; var InvtAdjmtAmt: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeBufferAsmOutputPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var CostToPost: Decimal; var CostToPostACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeBufferAsmConsumpPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var CostToPost: Decimal; var CostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

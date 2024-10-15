@@ -392,7 +392,7 @@ table 2000001 "Payment Journal Line"
                                             if CustLedgEntry.FindFirst then;
                                             CustLedgEntry.SetRange(Positive);
                                         end;
-                            if CustLedgEntry.IsEmpty then begin
+                            if CustLedgEntry.IsEmpty() then begin
                                 CustLedgEntry.Init();
                                 CustLedgEntry."Customer No." := AccNo;
                             end;
@@ -435,7 +435,7 @@ table 2000001 "Payment Journal Line"
                                             if VendLedgEntry.FindFirst then;
                                             VendLedgEntry.SetRange(Positive);
                                         end;
-                            if VendLedgEntry.IsEmpty then begin
+                            if VendLedgEntry.IsEmpty() then begin
                                 VendLedgEntry.Init();
                                 VendLedgEntry."Vendor No." := AccNo;
                             end;
@@ -797,7 +797,7 @@ table 2000001 "Payment Journal Line"
             PaymentJnlLine.SetRange("Applies-to Doc. Type", VendLedgEntry."Document Type");
             PaymentJnlLine.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
             PaymentJnlLine.SetFilter(Status, '<>%1', PaymentJnlLine.Status::Posted);
-            if not PaymentJnlLine.IsEmpty then begin
+            if not PaymentJnlLine.IsEmpty() then begin
                 Amount := 0;
                 Error(Text010);
             end;
@@ -872,7 +872,7 @@ table 2000001 "Payment Journal Line"
             PaymentJnlLine.SetRange("Applies-to Doc. Type", CustLedgEntry."Document Type");
             PaymentJnlLine.SetRange("Applies-to Doc. No.", CustLedgEntry."Document No.");
             PaymentJnlLine.SetFilter(Status, '<>%1', PaymentJnlLine.Status::Posted);
-            if not PaymentJnlLine.IsEmpty then begin
+            if not PaymentJnlLine.IsEmpty() then begin
                 Amount := 0;
                 Error(Text010);
             end;
@@ -990,7 +990,7 @@ table 2000001 "Payment Journal Line"
                 exit(false);
             repeat
                 Amount := Amount - GenJournalLine.Amount;
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
         end;
         exit(true);
     end;

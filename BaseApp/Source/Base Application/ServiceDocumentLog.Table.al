@@ -112,7 +112,7 @@ table 5912 "Service Document Log"
             repeat
                 Rec := ServDocLog;
                 Insert;
-            until ServDocLog.Next = 0;
+            until ServDocLog.Next() = 0;
     end;
 
     local procedure FillTempServDocLog(var ServHeader: Record "Service Header"; var TempServDocLog: Record "Service Document Log" temporary)

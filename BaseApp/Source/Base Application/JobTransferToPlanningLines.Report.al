@@ -22,7 +22,6 @@ report 1091 "Job Transfer To Planning Lines"
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Transfer To';
-                        OptionCaption = 'Budget,Billable,Both Budget and Billable';
                         ToolTip = 'Specifies the type of planning lines that should be created.';
                     }
                 }
@@ -40,13 +39,13 @@ report 1091 "Job Transfer To Planning Lines"
 
     trigger OnPreReport()
     begin
-        JobCalcBatches.TransferToPlanningLine(JobLedgEntry, LineType + 1);
+        JobCalcBatches.TransferToPlanningLine(JobLedgEntry, LineType.AsInteger() + 1);
     end;
 
     var
         JobLedgEntry: Record "Job Ledger Entry";
         JobCalcBatches: Codeunit "Job Calculate Batches";
-        LineType: Option Budget,Billable,"Both Budget and Billable";
+        LineType: Enum "Job Planning Line Line Type";
 
     procedure GetJobLedgEntry(var JobLedgEntry2: Record "Job Ledger Entry")
     begin

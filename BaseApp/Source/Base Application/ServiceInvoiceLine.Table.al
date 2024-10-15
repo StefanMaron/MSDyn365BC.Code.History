@@ -624,7 +624,7 @@ table 5993 "Service Invoice Line"
                   TempVATAmountLine."VAT Base" * (1 - ServInvHeader."Payment Discount %" / 100);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure RowID1(): Text[250]
@@ -697,7 +697,7 @@ table 5993 "Service Invoice Line"
                         TempServShptLine := ServShptLine;
                         if TempServShptLine.Insert() then;
                     end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")

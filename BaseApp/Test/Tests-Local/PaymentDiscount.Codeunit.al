@@ -1101,14 +1101,14 @@ codeunit 144001 "Payment Discount"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure FindSalesPrepmtInvoice(CustNo: Code[20]; OrderNo: Code[20]): Code[20]
@@ -1145,7 +1145,7 @@ codeunit 144001 "Payment Discount"
         with SalesInvLine do begin
             SetRange("Document No.", DocNo);
             SetRange("Sell-to Customer No.", CustNo);
-            FindSet;
+            FindSet();
             repeat
                 TotalPmtDiscAmount += "Pmt. Discount Amount";
             until Next = 0;
@@ -1163,7 +1163,7 @@ codeunit 144001 "Payment Discount"
         with SalesCrMemoLine do begin
             SetRange("Document No.", DocNo);
             SetRange("Sell-to Customer No.", CustNo);
-            FindSet;
+            FindSet();
             repeat
                 TotalPmtDiscAmount += "Pmt. Discount Amount";
             until Next = 0;
@@ -1193,7 +1193,7 @@ codeunit 144001 "Payment Discount"
         with PurchInvLine do begin
             SetRange("Document No.", DocNo);
             SetRange("Pay-to Vendor No.", VendNo);
-            FindSet;
+            FindSet();
             repeat
                 TotalPmtDiscAmount += "Pmt. Discount Amount";
             until Next = 0;
@@ -1211,7 +1211,7 @@ codeunit 144001 "Payment Discount"
         with PurchCrMemoLine do begin
             SetRange("Document No.", DocNo);
             SetRange("Pay-to Vendor No.", VendNo);
-            FindSet;
+            FindSet();
             repeat
                 TotalPmtDiscAmount += "Pmt. Discount Amount";
             until Next = 0;

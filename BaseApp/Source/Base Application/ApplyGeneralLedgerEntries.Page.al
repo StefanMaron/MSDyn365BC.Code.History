@@ -391,6 +391,7 @@
         ShowAmount: Decimal;
         ShowTotalAppliedAmount: Decimal;
 
+
     [Scope('OnPrem')]
     procedure Apply(var GLEntryBuf: Record "G/L Entry Application Buffer")
     var
@@ -418,7 +419,7 @@
             if RemainingAmount + GLEntryBuf."Remaining Amount" <> 0 then
                 Error(Text11304);
         end;
-        GLEntryBuf.FindSet;
+        GLEntryBuf.FindSet();
         repeat
             GLEntryBuf.TestField("G/L Account No.", GLEntryBuf."G/L Account No.");
             GLEntryBuf.TestField(Open, true);
@@ -427,7 +428,7 @@
             RealEntryChanged(GLEntryBuf, GLEntry);
             UpdateTempTable(GLEntryBuf, 0, false, BaseEntryNo, "Posting Date", -AppliedAmount, '');
             UpdateRealTable(GLEntry, 0, false, BaseEntryNo, "Posting Date", -AppliedAmount, '');
-        until GLEntryBuf.Next = 0;
+        until GLEntryBuf.Next() = 0;
 
         // Update entry where cursor is on
         // Update real Table
@@ -478,7 +479,7 @@
                     if Get(UndoGLEntry."Entry No.") then
                         UpdateTempTable(GLEntryBuf, "Closed by Amount", true, 0, 0D, 0, '');
                     UpdateRealTable(UndoGLEntry, UndoGLEntry."Closed by Amount", true, 0, 0D, 0, '');
-                until UndoGLEntry.Next = 0;
+                until UndoGLEntry.Next() = 0;
 
             GLEntry.Get(BaseEntryNo);
             UpdateRealTable(GLEntry, GLEntry.Amount, true, 0, 0D, 0, '');
@@ -513,7 +514,7 @@
                 else
                     ShowTotalAppliedAmount += GLEntryBuf."Remaining Amount";
                 GLEntryBuf.Modify();
-            until GLEntryBuf.Next = 0;
+            until GLEntryBuf.Next() = 0;
         end;
     end;
 
@@ -534,7 +535,7 @@
                 TransferGLEntry(TempGLEntryBuf, GLEntry);
                 LineCount := LineCount + 1;
                 Window.Update(1, Round(LineCount / NoOfRecords * 10000, 1));
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
             Window.Close;
         end;
 
@@ -561,7 +562,7 @@
                 repeat
                     if GLEntry."Entry No." <> OrgGLEntry."Entry No." then
                         TransferGLEntry(TempGLEntryBuf, GLEntry);
-                until GLEntry.Next = 0;
+                until GLEntry.Next() = 0;
         end;
 
         DynamicCaption := Text11303;

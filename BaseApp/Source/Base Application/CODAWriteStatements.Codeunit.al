@@ -383,16 +383,14 @@ codeunit 2000041 "CODA Write Statements"
     local procedure OnApplyOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; CodedBankStmtLine: Record "CODA Statement Line")
     begin
     end;
-    
-    [EventSubscriber(ObjectType::Codeunit, 225, 'OnAfterSelectCustLedgEntry', '', false, false)]
-    [Scope('OnPrem')]
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Apply", 'OnAfterSelectCustLedgEntry', '', false, false)]
     local procedure OnAfterSelectCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var AccNo: Code[20]; var Selected: Boolean)
-    begin 
+    begin
         ApplEntryWasSelected := Selected;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 225, 'OnAfterSelectVendLedgEntry', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Apply", 'OnAfterSelectVendLedgEntry', '', false, false)]
     local procedure OnAfterSelectVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var AccNo: Code[20]; var Selected: Boolean)
     begin
         ApplEntryWasSelected := Selected;

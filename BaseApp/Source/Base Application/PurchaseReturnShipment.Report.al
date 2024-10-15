@@ -222,7 +222,7 @@ report 6636 "Purchase - Return Shipment"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -307,7 +307,7 @@ report 6636 "Purchase - Return Shipment"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -514,7 +514,7 @@ report 6636 "Purchase - Return Shipment"
                     SegManagement.LogDocument(21, "Return Shipment Header"."No.", 0, 0, DATABASE::Vendor,
                       "Return Shipment Header"."Buy-from Vendor No.", "Return Shipment Header"."Purchaser Code", '',
                       "Return Shipment Header"."Posting Description", '');
-                until "Return Shipment Header".Next = 0;
+                until "Return Shipment Header".Next() = 0;
     end;
 
     trigger OnPreReport()

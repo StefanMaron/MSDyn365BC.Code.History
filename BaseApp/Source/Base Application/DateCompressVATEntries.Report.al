@@ -108,10 +108,10 @@ report 95 "Date Compress VAT Entries"
                                 GLEntryVATEntryLink2.Delete();
                                 GLEntryVATEntryLink2."VAT Entry No." := NewVATEntry."Entry No.";
                                 if GLEntryVATEntryLink2.Insert() then;
-                            until GLEntryVATEntryLink.Next = 0;
+                            until GLEntryVATEntryLink.Next() = 0;
                         DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
                         Window.Update(8, DateComprReg."No. Records Deleted");
-                    until Next = 0;
+                    until Next() = 0;
                     NewVATEntry.Insert();
                 end;
 

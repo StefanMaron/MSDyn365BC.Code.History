@@ -191,7 +191,7 @@ codeunit 5323 "Exchange Add-in Setup"
         if OfficeAddin.GetAddins then
             repeat
                 DeployAddin(OfficeAddin);
-            until OfficeAddin.Next = 0;
+            until OfficeAddin.Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -1,4 +1,4 @@
-﻿codeunit 104000 "Upgrade - BaseApp"
+codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
 
@@ -15,6 +15,8 @@
         ExcelTemplateAgedAccountsReceivableTxt: Label 'ExcelTemplateAgedAccountsReceivable', Locked = true;
         ExcelTemplateAgedAccountsPayableTxt: Label 'ExcelTemplateAgedAccountsPayable', Locked = true;
         ExcelTemplateCompanyInformationTxt: Label 'ExcelTemplateViewCompanyInformation', Locked = true;
+        FailedToUpdatePowerBIImageTxt: Label 'Failed to update PowerBI optin image for client type %1.', Locked = true;
+        AttemptingPowerBIUpdateTxt: Label 'Attempting to update PowerBI optin image for client type %1.', Locked = true;
 
     trigger OnUpgradePerDatabase()
     begin
@@ -23,12 +25,14 @@
         CopyRecordLinkURLsIntoOneField();
         UpgradeSharePointConnection();
         CreateDefaultAADApplication();
+        UpgradePowerBIOptin();
     end;
 
     trigger OnUpgradePerCompany()
     begin
         UpdateDefaultDimensionsReferencedIds();
         UpdateGenJournalBatchReferencedIds();
+        UpdateBusinessRelation();
         UpdateItems();
         UpdateJobs();
         UpdateItemTrackingCodes();
@@ -43,8 +47,11 @@
         UpgradeSearchEmail();
         UpgradeEmailLogging();
         UpgradeIntegrationTableMapping();
+        UpgradeIntegrationTableMappingFilterForOpportunities();
+        UpgradeIntegrationFieldMappingForOpportunities();
         UpgradeIntegrationFieldMappingForContacts();
         UpgradeWorkflowStepArgumentEventFilters();
+        SetReviewRequiredOnBankPmtApplRules();
 
         UpgradeAPIs();
         UpgradeTemplates();
@@ -56,7 +63,25 @@
         UpgradeUserTaskDescriptionToUTF8();
 
         UpdateWorkflowTableRelations();
+        UpgradeWordTemplateTables();
         UpgradeCustomerVATLiable();
+    end;
+
+    internal procedure UpgradeWordTemplateTables()
+    var
+        WordTemplate: Codeunit "Word Template";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultWordTemplateAllowedTablesUpgradeTag()) then
+            exit;
+
+        WordTemplate.AddTable(Database::Contact);
+        WordTemplate.AddTable(Database::Customer);
+        WordTemplate.AddTable(Database::Item);
+        WordTemplate.AddTable(Database::Vendor);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultWordTemplateAllowedTablesUpgradeTag());
     end;
 
     local procedure UpdateWorkflowTableRelations()
@@ -124,6 +149,25 @@
             UNTIL GenJournalBatch.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBalAccountNoOnJournalAPIUpgradeTag());
+    end;
+
+    local procedure UpdateBusinessRelation()
+    var
+        Contact: Record Contact;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetContactBusinessRelationUpgradeTag()) THEN
+            EXIT;
+
+        Contact.SetRange("Business Relation", '');
+        if Contact.FindSet(true, false) then
+            repeat
+                Contact.UpdateBusinessRelation();
+                if Contact.MODIFY then;
+            until Contact.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetContactBusinessRelationUpgradeTag());
     end;
 
     local procedure UpdateItems()
@@ -320,6 +364,7 @@
         UpgradeGLAccountAPIType();
         UpgradeInvoicesCreatedFromOrders();
         UpgradePurchRcptLineDocumentId();
+        UpgradePurchaseOrderEntityBuffer();
     end;
 
     local procedure CreateTimeSheetDetailsIds()
@@ -351,7 +396,6 @@
             if SalesShipmentLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
                 exit;
 
-        SalesShipmentHeader.SetLoadFields(SalesShipmentHeader."No.", SalesShipmentHeader.SystemId);
         if SalesShipmentHeader.FindSet() then
             repeat
                 SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
@@ -402,6 +446,7 @@
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
         GraphMgtSalesOrderBuffer: Codeunit "Graph Mgt - Sales Order Buffer";
+        GraphMgtPurchOrderBuffer: Codeunit "Graph Mgt - Purch Order Buffer";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
@@ -413,6 +458,9 @@
 
         if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDeleteSalesOrdersOrphanedRecords()) then
             GraphMgtSalesOrderBuffer.DeleteOrphanedRecords();
+
+        if not UpgradeTag.HasUpgradeTag((UpgradeTagDefinitions.GetDeletePurchaseOrdersOrphanedRecords())) then
+            GraphMgtPurchOrderBuffer.DeleteOrphanedRecords();
     end;
 
     local procedure UpgradePurchInvEntityAggregate()
@@ -1203,10 +1251,16 @@
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then
-            exit;
-        AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then begin
+            if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag()) then
+                exit;
+            AADApplicationSetup.ModifyDescriptionOfDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
+        end else begin
+            AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
+        end;
     end;
 
     local procedure IsEmailLoggingConfigured(): Boolean
@@ -1272,6 +1326,66 @@
         IntegrationTableMapping.ModifyAll("Uncouple Codeunit ID", Codeunit::"CDS Int. Table Uncouple");
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingUpgradeTag());
+    end;
+
+    local procedure UpgradeIntegrationTableMappingFilterForOpportunities()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Opportunity: Record Opportunity;
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        OldTableFilter: Text;
+        NewTableFilter: Text;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingFilterForOpportunitiesUpgradeTag()) then
+            exit;
+
+        IntegrationTableMapping.SetRange(Name, 'OPPORTUNITY');
+        IntegrationTableMapping.SetRange("Table ID", Database::Opportunity);
+        IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Opportunity");
+        if IntegrationTableMapping.FindFirst() then begin
+            OldTableFilter := IntegrationTableMapping.GetTableFilter();
+            if OldTableFilter = '' then begin
+                Opportunity.SetFilter(Status, '%1|%2', Opportunity.Status::"Not Started", Opportunity.Status::"In Progress");
+                NewTableFilter := CRMSetupDefaults.GetTableFilterFromView(Database::Opportunity, Opportunity.TableCaption(), Opportunity.GetView());
+                IntegrationTableMapping.SetTableFilter(NewTableFilter);
+                IntegrationTableMapping.Modify();
+            end;
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingFilterForOpportunitiesUpgradeTag());
+    end;
+
+    local procedure UpgradeIntegrationFieldMappingForOpportunities()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        TempOpportunity: Record Opportunity temporary;
+        TempCRMOpportunity: Record "CRM Opportunity" temporary;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntegrationFieldMappingForOpportunitiesUpgradeTag()) then
+            exit;
+
+        IntegrationTableMapping.SetRange(Name, 'OPPORTUNITY');
+        IntegrationTableMapping.SetRange("Table ID", Database::Opportunity);
+        IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Opportunity");
+        if IntegrationTableMapping.FindFirst() then begin
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+            IntegrationFieldMapping.SetRange("Field No.", TempOpportunity.FieldNo("Contact Company No."));
+            IntegrationFieldMapping.SetRange("Integration Table Field No.", TempCRMOpportunity.FieldNo(ParentAccountId));
+            if IntegrationFieldMapping.IsEmpty() then
+                IntegrationFieldMapping.CreateRecord(
+                    IntegrationTableMapping.Name,
+                    TempOpportunity.FieldNo("Contact Company No."),
+                    TempCRMOpportunity.FieldNo(ParentAccountId),
+                    IntegrationFieldMapping.Direction::ToIntegrationTable,
+                    '', true, false);
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationFieldMappingForOpportunitiesUpgradeTag());
     end;
 
     local procedure UpgradeIntegrationFieldMappingForContacts()
@@ -1611,7 +1725,6 @@
             if PurchRcptLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
                 exit;
 
-        PurchRcptHeader.SetLoadFields(PurchRcptHeader."No.", PurchRcptHeader.SystemId);
         if PurchRcptHeader.FindSet() then
             repeat
                 PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
@@ -1732,7 +1845,7 @@
           IntrastatJnlLine.Modify();
         until IntrastatJnlLine.Next() = 0;
 
-      UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag);
     end;
 
     local procedure UpgradeDimensionSetEntry()
@@ -1773,6 +1886,89 @@
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDimensionSetEntryUpgradeTag());
+    end;
+
+    local procedure UpgradePurchaseOrderEntityBuffer()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GraphMgtPurchOrderBuffer: Codeunit "Graph Mgt - Purch Order Buffer";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewPurchaseOrderEntityBufferUpgradeTag()) THEN
+            EXIT;
+
+        PurchaseHeader.SETRANGE("Document Type", PurchaseHeader."Document Type"::Order);
+        IF PurchaseHeader.FindSet() THEN
+            repeat
+                GraphMgtPurchOrderBuffer.InsertOrModifyFromPurchaseHeader(PurchaseHeader);
+            until PurchaseHeader.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewPurchaseOrderEntityBufferUpgradeTag());
+    end;
+
+    local procedure UpgradePowerBIOptin()
+    var
+        MediaRepository: Record "Media Repository";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        PowerBIReportSpinnerPart: Page "Power BI Report Spinner Part";
+        TargetClientType: ClientType;
+        ImageName: Text[250];
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpgradePowerBIOptinImageUpgradeTag()) THEN
+            exit;
+
+        ImageName := PowerBIReportSpinnerPart.GetOptinImageName();
+
+        TargetClientType := ClientType::Phone;
+        if not MediaRepository.Get(ImageName, TargetClientType) then
+            if not UpdatePowerBIOptinFromExistingImage(TargetClientType) then
+                Session.LogMessage('0000EH1', STRSUBSTNO(FailedToUpdatePowerBIImageTxt, TargetClientType), Verbosity::Warning, DataClassification::SystemMetadata,
+                TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+
+        TargetClientType := ClientType::Tablet;
+        if not MediaRepository.Get(ImageName, TargetClientType) then
+            if not UpdatePowerBIOptinFromExistingImage(TargetClientType) then
+                Session.LogMessage('0000EH2', STRSUBSTNO(FailedToUpdatePowerBIImageTxt, TargetClientType), Verbosity::Warning, DataClassification::SystemMetadata,
+                TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUpgradePowerBIOptinImageUpgradeTag());
+    end;
+
+    local procedure UpdatePowerBIOptinFromExistingImage(targetClientType: ClientType): Boolean
+    var
+        MediaRepository: Record "Media Repository";
+        TargetMediaRepository: Record "Media Repository";
+        PowerBIReportSpinnerPart: Page "Power BI Report Spinner Part";
+        ImageName: Text[250];
+    begin
+        Session.LogMessage('0000EH4', STRSUBSTNO(AttemptingPowerBIUpdateTxt, targetClientType), Verbosity::Normal, DataClassification::SystemMetadata,
+            TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+
+        // Insert the same image we use on web
+        ImageName := PowerBIReportSpinnerPart.GetOptinImageName();
+        if not MediaRepository.Get(ImageName, Format(ClientType::Web)) then
+            exit(false);
+
+        TargetMediaRepository.TransferFields(MediaRepository);
+        TargetMediaRepository."File Name" := ImageName;
+        TargetMediaRepository."Display Target" := Format(targetClientType);
+        exit(TargetMediaRepository.Insert());
+    end;
+
+    local procedure UpgradeNativeAPIWebService()
+    var
+        NativeSetupAPIs: Codeunit "Native - Setup APIs";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpgradeNativeAPIWebServiceUpgradeTag()) THEN
+            exit;
+
+        NativeSetupAPIs.InsertNativeInvoicingWebServices(false);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUpgradeNativeAPIWebServiceUpgradeTag());
     end;
 
     local procedure UpgradeUserTaskDescriptionToUTF8()

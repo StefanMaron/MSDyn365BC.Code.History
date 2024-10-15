@@ -212,7 +212,7 @@ codeunit 144019 "Telebank - Manual Tests"
     begin
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Found[1] := Amount1 = 0;
         Found[2] := Amount2 = 0;
         Found[3] := Amount3 = 0;

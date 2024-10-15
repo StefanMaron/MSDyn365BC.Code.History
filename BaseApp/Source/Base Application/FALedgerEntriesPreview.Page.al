@@ -262,7 +262,7 @@ page 5606 "FA Ledger Entries Preview"
             repeat
                 Rec := TempFALedgerEntry;
                 Insert;
-            until TempFALedgerEntry.Next = 0;
+            until TempFALedgerEntry.Next() = 0;
     end;
 }
 

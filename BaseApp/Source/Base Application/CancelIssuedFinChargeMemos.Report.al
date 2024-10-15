@@ -32,7 +32,7 @@ report 1395 "Cancel Issued Fin.Charge Memos"
             trigger OnPostDataItem()
             begin
                 if NoOfRecords > 1 then begin
-                    if not TempIssuedFinChargeMemoHeader.IsEmpty then
+                    if not TempIssuedFinChargeMemoHeader.IsEmpty() then
                         AskShowNotCancelledIssuedFinChargeMemos;
                 end;
             end;

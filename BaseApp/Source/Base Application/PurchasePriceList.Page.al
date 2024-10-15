@@ -207,6 +207,24 @@ page 7018 "Purchase Price List"
                     PriceListManagement.CopyLines(Rec);
                 end;
             }
+            action(VerifyLines)
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = PriceListIsEditable and (Rec.Status = Rec.Status::Active);
+                Ellipsis = true;
+                Image = CheckDuplicates;
+                Promoted = true;
+                PromotedCategory = Process;
+                Caption = 'Verify Lines';
+                ToolTip = 'Checks data consistency in the new and modified price list lines. Finds the duplicate price lines and suggests the resolution of the line conflicts.';
+
+                trigger OnAction()
+                var
+                    PriceListManagement: Codeunit "Price List Management";
+                begin
+                    PriceListManagement.ActivateDraftLines(Rec);
+                end;
+            }
         }
     }
 
@@ -225,6 +243,8 @@ page 7018 "Purchase Price List"
     end;
 
     trigger OnAfterGetCurrRecord()
+    var
+        PriceListManagement: Codeunit "Price List Management";
     begin
         PriceListIsEditable := Rec.IsEditable();
         UpdateSourceType();
@@ -233,9 +253,10 @@ page 7018 "Purchase Price List"
             ViewGroupIsVisible := true
         else
             ViewGroupIsVisible := not PriceUXManagement.IsAmountTypeFiltered(Rec);
+        if Rec.HasDraftLines() then
+            PriceListManagement.SendVerifyLinesNotification(Rec);
 
-        CurrPage.Lines.Page.SetPriceType(Rec."Price Type");
-        CurrPage.Lines.Page.SetSubFormLinkFilter(ViewAmountType);
+        CurrPage.Lines.Page.SetHeader(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -247,6 +268,17 @@ page 7018 "Purchase Price List"
         if PriceUXManagement.IsAmountTypeFiltered(Rec, DefaultAmountType) then
             Rec."Amount Type" := DefaultAmountType;
         SetSourceNoEnabled();
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean;
+    var
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        if Rec.HasDraftLines() then begin
+            PriceListManagement.SendVerifyLinesNotification(Rec);
+            exit(false);
+        end;
+        exit(true)
     end;
 
     trigger OnClosePage()

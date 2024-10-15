@@ -24,7 +24,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         if IsHandled then
             exit(Result);
 
-        if WarehouseRequest.IsEmpty then
+        if WarehouseRequest.IsEmpty() then
             exit(false);
 
         Clear(GetSourceDocuments);
@@ -186,7 +186,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetWhseSourceDocuments.RunModal;
     end;
 
-    local procedure GetRequireReceiveRqst(var WhseRqst: Record "Warehouse Request")
+    procedure GetRequireReceiveRqst(var WhseRqst: Record "Warehouse Request")
     var
         Location: Record Location;
         LocationCode: Text;
@@ -201,7 +201,7 @@ codeunit 5751 "Get Source Doc. Inbound"
             repeat
                 if Location.RequireReceive(WhseRqst."Location Code") then
                     LocationCode += WhseRqst."Location Code" + '|';
-            until WhseRqst.Next = 0;
+            until WhseRqst.Next() = 0;
             if LocationCode <> '' then begin
                 LocationCode := CopyStr(LocationCode, 1, StrLen(LocationCode) - 1);
                 if LocationCode[1] = '|' then

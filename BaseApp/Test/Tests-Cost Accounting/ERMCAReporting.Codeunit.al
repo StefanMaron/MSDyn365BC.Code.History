@@ -608,7 +608,7 @@ codeunit 134816 "ERM CA Reporting"
     var
         CostBudgetRegister: Record "Cost Budget Register";
     begin
-        CostBudgetRegister.FindSet;
+        CostBudgetRegister.FindSet();
         repeat
             CostBudgetRegister.TestField(Closed, true);
             UpToEntry := UpToEntry - 1;
@@ -620,7 +620,7 @@ codeunit 134816 "ERM CA Reporting"
     var
         CostRegister: Record "Cost Register";
     begin
-        CostRegister.FindSet;
+        CostRegister.FindSet();
         repeat
             CostRegister.TestField(Closed, true);
             UpToEntry := UpToEntry - 1;

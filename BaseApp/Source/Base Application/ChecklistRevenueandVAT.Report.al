@@ -432,7 +432,7 @@ report 11312 "Checklist Revenue and VAT"
                         if GLEntry1.FindSet then
                             repeat
                                 TotalAmount[i] := TotalAmount[i] - GLEntry1.Amount;
-                            until GLEntry1.Next = 0;
+                            until GLEntry1.Next() = 0;
 
                         TotalAmount[NoOfPeriods + 1] := TotalAmount[NoOfPeriods + 1] + TotalAmount[i];
                     end;
@@ -805,14 +805,14 @@ report 11312 "Checklist Revenue and VAT"
                         repeat
                             BaseVAT := BaseVAT + VATEntry.Base;
                             BaseBefPmtDisc := BaseBefPmtDisc + VATEntry."Base Before Pmt. Disc.";
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
 
                     GLEntry2.SetRange("Document No.", "Document No.");
                     GLEntry2.SetRange("Gen. Posting Type", "Gen. Posting Type"::Sale);
                     if GLEntry2.FindSet then
                         repeat
                             Amount1 := Amount1 + GLEntry2.Amount;
-                        until GLEntry2.Next = 0;
+                        until GLEntry2.Next() = 0;
 
                     if LastDocumentNo <> "Document No." then begin
                         LastDocumentNo := "Document No.";

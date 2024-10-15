@@ -177,7 +177,7 @@ report 2000020 "Domiciliation Journal - Test"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimensionSetEntry.Next = 0;
+                            until DimensionSetEntry.Next() = 0;
                         end;
 
                         trigger OnPostDataItem()
