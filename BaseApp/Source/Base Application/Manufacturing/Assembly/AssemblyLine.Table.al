@@ -1359,7 +1359,16 @@ table 901 "Assembly Line"
     end;
 
     procedure CalcBOMQuantity(LineType: Enum "BOM Component Type"; QtyPer: Decimal; HeaderQty: Decimal; HeaderQtyPerUOM: Decimal; LineResourceUsageType: Option): Decimal
+    var
+        IsHandled: Boolean;
+        ReturnBOMQuantity: Decimal;
     begin
+        IsHandled := false;
+        ReturnBOMQuantity := 0;
+        OnBeforeCalcBOMQuantity(Rec, LineType, QtyPer, HeaderQty, HeaderQtyPerUOM, LineResourceUsageType, ReturnBOMQuantity, IsHandled);
+        if IsHandled then
+            exit(ReturnBOMQuantity);
+
         if FixedUsage(LineType, LineResourceUsageType) then
             exit(QtyPer);
 
@@ -2212,6 +2221,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindBin(var AssemblyLine: Record "Assembly Line"; var NewBinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBOMQuantity(var AssemblyLine: Record "Assembly Line"; LineType: Enum "BOM Component Type"; QtyPer: Decimal; HeaderQty: Decimal; HeaderQtyPerUOM: Decimal; LineResourceUsageType: Option; var ReturnBOMQuantity: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

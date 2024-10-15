@@ -1869,6 +1869,8 @@ page 256 "Payment Journal"
         ApplyEntriesActionEnabled :=
           (Rec."Account Type" in [Rec."Account Type"::Customer, Rec."Account Type"::Vendor, Rec."Account Type"::Employee]) or
           (Rec."Bal. Account Type" in [Rec."Bal. Account Type"::Customer, Rec."Bal. Account Type"::Vendor, Rec."Bal. Account Type"::Employee]);
+
+        OnAfterEnableApplyEntriesAction(Rec, ApplyEntriesActionEnabled);
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -2022,6 +2024,11 @@ page 256 "Payment Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateBalance()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEnableApplyEntriesAction(GenJournalLine: Record "Gen. Journal Line"; var ApplyEntriesActionEnabled: Boolean)
     begin
     end;
 }

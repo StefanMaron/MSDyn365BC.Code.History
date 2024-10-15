@@ -843,10 +843,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
             NewWhseActivLine, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required",
             ReservationExists, RemQtyToPickBase, QtyAvailToPickBase);
         if RemQtyToPickBase > QtyAvailToPickBase then begin
-	        IsHandled := false;
+            IsHandled := false;
             OnCreatePickOrMoveLineOnAfterCheckForCompleteShipment(WhseActivHeader, WhseItemTrackingSetup, ReservationExists, RemQtyToPickBase, QtyAvailToPickBase, IsHandled);
             if not IsHandled then
-                    RemQtyToPickBase := QtyAvailToPickBase;
+                RemQtyToPickBase := QtyAvailToPickBase;
             CompleteShipment := false;
         end;
 
@@ -1047,7 +1047,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                                 QtyToPickBase := 1;
                                 OnInsertPickOrMoveBinWhseActLineOnBeforeLoopMakeLine(WhseActivHeader, WhseRequest, NewWhseActivLine, FromBinContent, AutoCreation, QtyToPickBase);
                                 RemQtyToPick := NewWhseActivLine.CalcQty(RemQtyToPickBase);
-				                IsHandled := false;
+                                IsHandled := false;
                                 OnInsertPickOrMoveBinWhseActLineOnBeforeMakeLineWhenSNoReq(NewWhseActivLine, WhseItemTrackingSetup, FromBinContent."Bin Code", QtyToPickBase, RemQtyToPickBase, QtyAvailToPickBase, IsHandled);
                                 if not IsHandled then
                                     repeat
@@ -1074,7 +1074,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     var
         QtyToPickBase: Decimal;
         RemQtyToPick: Decimal;
-	    IsHandled: Boolean;
+        IsHandled: Boolean;
     begin
         CreateATOPickLine(NewWhseActivLine, '', RemQtyToPickBase);
         if RemQtyToPickBase = 0 then
@@ -1099,6 +1099,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             QtyToPickBase := RemQtyToPickBase;
             repeat
                 MakeLine(NewWhseActivLine, '', QtyToPickBase, RemQtyToPickBase);
+                OnInsertShelfWhseActivLineOnAfterMakeWarehouseActivityLine(NewWhseActivLine);
             until RemQtyToPickBase = 0;
         end;
     end;
@@ -1903,7 +1904,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     local procedure MakeLine(var NewWhseActivLine: Record "Warehouse Activity Line"; TakeBinCode: Code[20]; QtyToPickBase: Decimal; var RemQtyToPickBase: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeWarehouseActivityLine(NewWhseActivLine, RemQtyToPickBase, NextLineNo, TakeBinCode, QtyToPickBase, IsInvtMovement, LineCreated, CompleteShipment, IsHandled);
+        if IsHandled then
+            exit;
+
         NewWhseActivLine.Quantity := NewWhseActivLine.CalcQty(QtyToPickBase);
         NewWhseActivLine."Qty. (Base)" := QtyToPickBase;
         NewWhseActivLine."Qty. Outstanding" := NewWhseActivLine.Quantity;
@@ -2420,7 +2428,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateATOPickLineOnAfterCalcQtyToPickBase(var RemQtyToPickBase: Decimal; QtyToPickBase: Decimal; ATOSalesLine: Record "Sales Line")
+    local procedure OnCreateATOPickLineOnAfterCalcQtyToPickBase(var RemQtyToPickBase: Decimal; var QtyToPickBase: Decimal; ATOSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -2638,6 +2646,16 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(true, false)]
     local procedure OnInsertShelfWhseActivLineOnBeforeMakeShelfLineWhenSNoReq(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyToPickBase: Decimal; var RemQtyToPickBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeWarehouseActivityLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; var NextLineNo: Integer; TakeBinCode: Code[20]; var QtyToPickBase: Decimal; IsInvtMovement: Boolean; var LineCreated: Boolean; CompleteShipment: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertShelfWhseActivLineOnAfterMakeWarehouseActivityLine(var NewWhseActivLine: Record "Warehouse Activity Line")
     begin
     end;
 }

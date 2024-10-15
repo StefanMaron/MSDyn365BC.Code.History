@@ -44,20 +44,23 @@ codeunit 5950 "Service-Calc. Discount"
             ServHeader.TestField("Customer Posting Group");
             CustPostingGr.Get(ServHeader."Customer Posting Group");
 
-            if not IsServiceChargeUpdated(ServiceLine) then begin
-                ServiceLine2.Reset();
-                ServiceLine2.SetRange("Document Type", "Document Type");
-                ServiceLine2.SetRange("Document No.", "Document No.");
-                ServiceLine2.SetRange("System-Created Entry", true);
-                ServiceLine2.SetRange(Type, ServiceLine2.Type::"G/L Account");
-                ServiceLine2.SetRange("No.", CustPostingGr.GetServiceChargeAccount());
-                if ServiceLine2.Find('+') then begin
-                    ServiceChargeLineNo := ServiceLine2."Line No.";
-                    ServiceLine2.Validate("Unit Price", 0);
-                    ServiceLine2.Modify();
+            IsHandled := false;
+            OnCalculateInvoiceDiscountOnBeforeIsServiceChargeUpdated(ServiceLine, CustPostingGr, IsHandled);
+            if not IsHandled then
+                if not IsServiceChargeUpdated(ServiceLine) then begin
+                    ServiceLine2.Reset();
+                    ServiceLine2.SetRange("Document Type", "Document Type");
+                    ServiceLine2.SetRange("Document No.", "Document No.");
+                    ServiceLine2.SetRange("System-Created Entry", true);
+                    ServiceLine2.SetRange(Type, ServiceLine2.Type::"G/L Account");
+                    ServiceLine2.SetRange("No.", CustPostingGr.GetServiceChargeAccount());
+                    if ServiceLine2.Find('+') then begin
+                        ServiceChargeLineNo := ServiceLine2."Line No.";
+                        ServiceLine2.Validate("Unit Price", 0);
+                        ServiceLine2.Modify();
+                    end;
+                    ApplyServiceCharge := true;
                 end;
-                ApplyServiceCharge := true;
-            end;
 
             ServiceLine2.Reset();
             ServiceLine2.SetRange("Document Type", "Document Type");
@@ -251,9 +254,13 @@ codeunit 5950 "Service-Calc. Discount"
     begin
     end;
 
-
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeApplyServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var ServiceHeader: Record "Service Header"; CurrencyDate: Date; ChargeBase: Decimal; var ApplyServiceCharge: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeIsServiceChargeUpdated(var ServiceLine: Record "Service Line"; CustomerPostingGroup: Record "Customer Posting Group"; var IsHandled: Boolean)
     begin
     end;
 }

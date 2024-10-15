@@ -201,7 +201,7 @@ page 5855 "Posted Purchase Document Lines"
         FromPurchCrMemoLine: Record "Purch. Cr. Memo Line";
         FromReturnShptLine: Record "Return Shipment Line";
     begin
-        OnBeforeCopyLineToDoc(CopyDocMgt);
+        OnBeforeCopyLineToDoc(CopyDocMgt, CurrentMenuType);
         ToPurchHeader.TestField(Status, ToPurchHeader.Status::Open);
         LinesNotCopied := 0;
         case CurrentMenuType of
@@ -330,7 +330,7 @@ page 5855 "Posted Purchase Document Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyLineToDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
+    local procedure OnBeforeCopyLineToDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; CurrentMenuType: Integer)
     begin
     end;
 
