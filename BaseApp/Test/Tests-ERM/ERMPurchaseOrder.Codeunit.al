@@ -8185,24 +8185,32 @@
     end;
 
     [Test]
-    procedure ReleasingOfPurchaseOrderHavingPurchaseLineWithoutUOMGivesError()
+    [Scope('OnPrem')]
+    procedure VerifyLineDiscountPctafterProjectNoInserted()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        Job: Record Job;
     begin
-        // [SCENARIO 522444] When run Release action from a Purchase Order having a Purchase Line without 
-        // Unit of Measure Code, then it gives error and the document is not released.
+        // [SCENARIO 544960] Purchase Line Disc % should not Cleared after entering the Project No. in the Current  Line
         Initialize();
 
-        // [GIVEN] Create a Purchase Order.
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem());
+        //[GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
 
-        // [WHEN] Validate Unit of Measure Code in Purchase Line.
-        PurchaseLine.Validate("Unit of Measure Code", '');
+        // [GIVEN] Create Purchase order 
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo());
+        PurchaseLine.validate("Location Code", LibraryWarehouse.CreateLocation(Location));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 99, 2));
+        PurchaseLine.validate("Line Discount %", LibraryRandom.RandIntInRange(3, 5));
+
+        // [WHEN] Assign Job No. on Purchase Line
+        PurchaseLine.Validate("Job No.", Job."No.");
         PurchaseLine.Modify(true);
 
-        // [THEN] Error is shown and the Purchase Order is not released.
-        asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        // [THEN] Verify: Verify the Line Discount % value should not be zero
+        PurchaseLine.TestField("Line Discount %");
     end;
 
     local procedure Initialize()

@@ -531,7 +531,8 @@ report 394 "Suggest Employee Payments"
                             TempEmplPaymentBuffer.Modify();
                         end else begin
                             TempEmplPaymentBuffer."Document No." := NextDocNo;
-                            NextDocNo := NoSeriesBatch.SimulateGetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date", NextDocNo);
+                            if DocNoPerLine then
+                                NextDocNo := NoSeriesBatch.SimulateGetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date", NextDocNo);
                             TempEmplPaymentBuffer.Amount := TempPayableEmployeeLedgerEntry.Amount;
                             Window2.Update(1, EmployeeLedgerEntry."Employee No.");
                             TempEmplPaymentBuffer.Insert();

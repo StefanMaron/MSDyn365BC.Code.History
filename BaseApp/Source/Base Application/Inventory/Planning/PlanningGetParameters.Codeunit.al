@@ -56,7 +56,6 @@ codeunit 99000855 "Planning-Get Parameters"
                         GlobalSKU."Include Inventory" := true
                     else
                         GlobalSKU."Include Inventory" := Item."Include Inventory";
-                    GlobalSKU."Minimum Order Quantity" := 0;
                     GlobalSKU."Maximum Order Quantity" := 0;
                     GlobalSKU."Safety Stock Quantity" := 0;
                     GlobalSKU."Order Multiple" := 0;

@@ -68,7 +68,7 @@ codeunit 11729 "Cash Document-Post CZP"
         SourceCodeSetup.TestField("Cash Desk CZP");
         OnRunOnBeforeCheckCashDocument(CashDocumentHeaderCZP, NoCheckCashDocument);
         if not NoCheckCashDocument then
-            CashDocumentReleaseCZP.CheckCashDocument(Rec);
+            CashDocumentReleaseCZP.CheckCashDocumentForPosting(Rec);
         OnRunOnAfterCheckCashDocument(CashDocumentHeaderCZP, NoCheckCashDocument);
 
         WindowDialog.Open(DialogMsg);
