@@ -1,3 +1,27 @@
+namespace System.Security.AccessControl;
+
+using Microsoft;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Inventory.BOM.Tree;
+using Microsoft.Inventory.Costing;
+#if not CLEAN22
+using Microsoft.Inventory.Intrastat;
+#endif
+using Microsoft.Sales.Analysis;
+using Microsoft.Warehouse.Availability;
+using Microsoft.Utilities;
+using System.AI;
+using System.Email;
+using System.Integration;
+using System.Environment.Configuration;
+using System.DataAdministration;
+using System.Telemetry;
+using System.Environment;
+using System.Threading;
+using System.Diagnostics;
+
 permissionset 23 "Internal BaseApp Obj. - Exec"
 {
     Access = Public;

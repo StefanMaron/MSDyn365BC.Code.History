@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using Microsoft.CRM.Contact;
+using Microsoft.Purchases.Vendor;
+
 table 247 "Intrastat Setup"
 {
     Caption = 'Intrastat Setup';
@@ -49,9 +58,9 @@ table 247 "Intrastat Setup"
         field(7; "Intrastat Contact No."; Code[20])
         {
             Caption = 'Intrastat Contact No.';
-            TableRelation = IF ("Intrastat Contact Type" = CONST(Contact)) Contact."No."
-            ELSE
-            IF ("Intrastat Contact Type" = CONST(Vendor)) Vendor."No.";
+            TableRelation = if ("Intrastat Contact Type" = const(Contact)) Contact."No."
+            else
+            if ("Intrastat Contact Type" = const(Vendor)) Vendor."No.";
         }
         field(8; "Use Advanced Checklist"; Boolean)
         {

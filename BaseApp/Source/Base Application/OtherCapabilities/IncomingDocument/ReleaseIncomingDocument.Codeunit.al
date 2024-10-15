@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using System.Automation;
+
 codeunit 132 "Release Incoming Document"
 {
     TableNo = "Incoming Document";
@@ -5,24 +13,24 @@ codeunit 132 "Release Incoming Document"
 
     trigger OnRun()
     begin
-        if Status = Status::Released then
+        if Rec.Status = Rec.Status::Released then
             exit;
-        if Status in [Status::Created, Status::Posted] then
-            Error(CanReleasedIfStatusErr, Status::"Pending Approval", Status::New, Status::Failed);
+        if Rec.Status in [Rec.Status::Created, Rec.Status::Posted] then
+            Error(CanReleasedIfStatusErr, Rec.Status::"Pending Approval", Rec.Status::New, Rec.Status::Failed);
 
-        OnCheckIncomingDocReleaseRestrictions();
+        Rec.OnCheckIncomingDocReleaseRestrictions();
 
-        TestField(Posted, false);
+        Rec.TestField(Posted, false);
 
-        if not IsADocumentAttached() then
-            Error(NothingToReleaseErr, "Entry No.");
+        if not Rec.IsADocumentAttached() then
+            Error(NothingToReleaseErr, Rec."Entry No.");
 
-        Status := Status::Released;
-        Released := true;
-        "Released Date-Time" := CurrentDateTime;
-        "Released By User ID" := UserSecurityId();
+        Rec.Status := Rec.Status::Released;
+        Rec.Released := true;
+        Rec."Released Date-Time" := CurrentDateTime;
+        Rec."Released By User ID" := UserSecurityId();
 
-        Modify(true);
+        Rec.Modify(true);
 
         OnAfterReleaseIncomingDoc(Rec);
     end;

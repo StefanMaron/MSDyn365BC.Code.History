@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Diagnostics;
+
 codeunit 482 "Update Dim. Set Glbl. Dim. No."
 {
     EventSubscriberInstance = Manual;

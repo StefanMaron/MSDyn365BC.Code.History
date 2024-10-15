@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 codeunit 1060 "Paypal Account Proxy"
 {
 

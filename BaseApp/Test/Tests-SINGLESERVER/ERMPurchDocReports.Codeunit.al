@@ -392,7 +392,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('PurchOrderHeaderNo', PurchaseHeader."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No."));
+            Error(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No.");
         with PurchaseLine do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', Quantity);
             LibraryReportDataset.AssertCurrentRowValueEquals('OutstandingQty_PurchLine', "Outstanding Quantity");
@@ -429,7 +429,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('PurchOrderHeaderNo', PurchaseHeader."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No."));
+            Error(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No.");
         with PurchaseLine do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', Quantity);
             LibraryReportDataset.AssertCurrentRowValueEquals('OutstandingQty_PurchLine', "Outstanding Quantity");
@@ -3025,7 +3025,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
             LoadDataSetFile;
             SetRange('No_Vendor', VendorNo);
             if not GetNextRow then
-                Error(StrSubstNo(NoDatasetRowErr, 'No_Vendor', VendorNo));
+                Error(NoDatasetRowErr, 'No_Vendor', VendorNo);
             AssertCurrentRowValueEquals('PurchOrderAmount', PurchaseLine.Amount);
             GetNextRow;
             PurchaseLine.Next();

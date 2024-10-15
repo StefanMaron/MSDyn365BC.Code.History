@@ -12,7 +12,7 @@ report 10821 "Export DEB DTI"
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
 
             trigger OnAfterGetRecord()
             begin
@@ -84,15 +84,6 @@ report 10821 "Export DEB DTI"
         TransactionSpecificationFilter: Text;
         Text001: Label 'The journal lines were successfully exported.';
         ObligationLevel: Option ,"1","2","3","4","5";
-
-#if not CLEAN20
-    [Obsolete('Replaced by new InitializeRequest(OutStream)', '20.0')]
-    [Scope('OnPrem')]
-    procedure InitializeRequest(NewFileName: Text)
-    begin
-        FileName := NewFileName;
-    end;
-#endif
 
     procedure InitializeRequest(var newResultFileOutStream: OutStream)
     begin

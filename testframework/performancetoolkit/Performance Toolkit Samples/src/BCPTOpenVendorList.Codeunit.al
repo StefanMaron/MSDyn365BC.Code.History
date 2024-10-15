@@ -1,3 +1,7 @@
+namespace System.Test.Tooling;
+
+using Microsoft.Purchases.Vendor;
+
 codeunit 149115 "BCPT Open Vendor List"
 {
     // Test codeunits can only run in foreground (UI)

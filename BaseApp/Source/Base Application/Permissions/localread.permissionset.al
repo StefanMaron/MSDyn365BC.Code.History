@@ -1,3 +1,11 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.Payment;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.Analysis;
+using Microsoft.Sales.Document;
+using Microsoft.Finance.ReceivablesPayables;
+
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;

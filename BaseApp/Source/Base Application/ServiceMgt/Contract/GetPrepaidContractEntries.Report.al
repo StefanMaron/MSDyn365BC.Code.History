@@ -1,3 +1,9 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Service.Document;
+using Microsoft.Service.Ledger;
+
 report 6033 "Get Prepaid Contract Entries"
 {
     Caption = 'Get Prepaid Contract Entries';
@@ -7,7 +13,7 @@ report 6033 "Get Prepaid Contract Entries"
     {
         dataitem("Service Ledger Entry"; "Service Ledger Entry")
         {
-            DataItemTableView = SORTING("Service Contract No.", "Entry No.", "Entry Type", Type, "Moved from Prepaid Acc.", "Posting Date", Open, Prepaid) WHERE(Type = CONST("Service Contract"), "Entry Type" = CONST(Sale), "Moved from Prepaid Acc." = CONST(false), Open = CONST(false));
+            DataItemTableView = sorting("Service Contract No.", "Entry No.", "Entry Type", Type, "Moved from Prepaid Acc.", "Posting Date", Open, Prepaid) where(Type = const("Service Contract"), "Entry Type" = const(Sale), "Moved from Prepaid Acc." = const(false), Open = const(false));
             RequestFilterFields = "Service Contract No.", "Posting Date";
 
             trigger OnAfterGetRecord()

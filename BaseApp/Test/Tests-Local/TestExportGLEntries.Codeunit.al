@@ -1213,7 +1213,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
@@ -1269,7 +1269,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
@@ -1631,7 +1631,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
@@ -1687,7 +1687,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
@@ -2004,7 +2004,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
@@ -2062,7 +2062,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);

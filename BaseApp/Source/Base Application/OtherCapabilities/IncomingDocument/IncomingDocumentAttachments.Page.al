@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
 page 194 "Incoming Document Attachments"
 {
     AutoSplitKey = true;
@@ -22,7 +28,7 @@ page 194 "Incoming Document Attachments"
 
                     trigger OnDrillDown()
                     begin
-                        NameDrillDown();
+                        Rec.NameDrillDown();
                     end;
                 }
                 field("File Extension"; Rec."File Extension")
@@ -62,14 +68,14 @@ page 194 "Incoming Document Attachments"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'View File';
-                Enabled = "Line No." <> 0;
+                Enabled = Rec."Line No." <> 0;
                 Image = Document;
                 Scope = Repeater;
                 ToolTip = 'View the file that is attached to the incoming document record.';
 
                 trigger OnAction()
                 begin
-                    NameDrillDown();
+                    Rec.NameDrillDown();
                 end;
             }
         }
@@ -77,7 +83,7 @@ page 194 "Incoming Document Attachments"
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := GetStyleTxt();
+        StyleTxt := Rec.GetStyleTxt();
     end;
 
     var
@@ -85,8 +91,8 @@ page 194 "Incoming Document Attachments"
 
     procedure LoadDataIntoPart(IncomingDocument: Record "Incoming Document")
     begin
-        DeleteAll();
-        InsertSupportingAttachmentsFromIncomingDocument(IncomingDocument, Rec);
+        Rec.DeleteAll();
+        Rec.InsertSupportingAttachmentsFromIncomingDocument(IncomingDocument, Rec);
         CurrPage.Update(false);
     end;
 }

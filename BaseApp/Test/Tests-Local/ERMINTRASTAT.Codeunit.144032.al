@@ -255,31 +255,6 @@ codeunit 144032 "ERM INTRASTAT"
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatFormRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure TotalWeightForShipmentReportIntrastatForm()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        SalesHeader: Record "Sales Header";
-        SalesShipmentLine: Record "Sales Shipment Line";
-    begin
-        // Verify Total Weight for Shipment Type is calculated and shown correctly on Report.
-
-        // Setup: Create and Post Sales Order, Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize();
-        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
-        RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
-        LibraryVariableStorage.Enqueue(IntrastatJnlLine.Type::Shipment);  // Enqueue value for handler - IntrastatFormRequestPageHandler.
-
-        // Exercise.
-        RunIntrastatFormReport(IntrastatJnlLine."Journal Batch Name");
-
-        // Verify: Verify Total Weight on generated XML file for Report - Intrastat - Form.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(TotalWeightTxt, Round(IntrastatJnlLine."Total Weight", 1));
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatFormRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure TotalWeightForReceiptReportIntrastatForm()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";

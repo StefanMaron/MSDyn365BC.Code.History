@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 enum 1380 "Error Handling Options"
 {
     Extensible = true;

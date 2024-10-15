@@ -25,7 +25,7 @@ codeunit 137288 "SCM Inventory Costing III"
         AppliedQuantityUndoError: Label 'Remaining Quantity must be equal to ''1''  in Item Ledger Entry: Entry No.=%1. Current value is ''0''.';
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         DeletionError: Label 'Order must be deleted.';
-        ItemFilter: Label '%1|%2';
+        ItemFilter: Label '%1|%2', Locked = true;
         InvoicedChargeItemError: Label 'You cannot undo line %1 because an item charge has already been invoiced.';
         UndoReceiptError: Label 'This receipt has already been invoiced. Undo %1 can be applied only to posted, but not invoiced receipts.';
         UndoReceiptMessage: Label 'Do you really want to undo the selected Receipt lines?';

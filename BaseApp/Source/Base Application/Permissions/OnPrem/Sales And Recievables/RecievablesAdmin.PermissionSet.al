@@ -1,3 +1,22 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.Reminder;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Inventory.Item;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Sales.Setup;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Document;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Reporting;
+using Microsoft.CRM.Team;
+using Microsoft.Foundation.Shipping;
+
 permissionset 3723 "Recievables - Admin"
 {
     Access = Public;
@@ -23,9 +42,6 @@ permissionset 3723 "Recievables - Admin"
                   tabledata "Gen. Journal Template" = RIMD,
                   tabledata "Item Charge" = RIMD,
                   tabledata "Line Fee Note on Report Hist." = RIMD,
-#if not CLEAN20
-                  tabledata "Native - Payment" = MD,
-#endif
                   tabledata "Payment Method" = RIMD,
                   tabledata "Payment Terms" = RIMD,
                   tabledata "Reason Code" = R,

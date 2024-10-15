@@ -1,3 +1,13 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AuditFileExport;
+
+using Microsoft.Foundation.Company;
+using System.Environment;
+using System.Privacy;
+
 codeunit 5288 "Install SAF-T"
 {
     Access = Internal;
@@ -27,7 +37,7 @@ codeunit 5288 "Install SAF-T"
     begin
         ApplyEvaluationClassificationsForPrivacy();
 
-        AuditFileExportSetup.InitSetup("Audit File Export Format"::SAFT);
+        AuditFileExportSetup.InitSetup(Enum::"Audit File Export Format"::SAFT);
         MappingHelperSAFT.InsertSAFTSourceCodes();
         MappingHelperSAFT.UpdateMasterDataWithNoSeries();
         MappingHelperSAFT.UpdateSAFTSourceCodesBySetup();

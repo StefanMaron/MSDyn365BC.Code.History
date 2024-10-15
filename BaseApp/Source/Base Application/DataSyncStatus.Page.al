@@ -1,3 +1,8 @@
+namespace System.Environment.Configuration;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using System.Integration;
+
 page 6250 "Data Sync Status"
 {
     ApplicationArea = All;
@@ -12,24 +17,24 @@ page 6250 "Data Sync Status"
     {
         area(content)
         {
-            part("Data Migration Status"; "Data Migration Overview")
+            part("Data Migration Status"; "Data Migration Overview Part")
             {
                 ApplicationArea = All;
                 Visible = ShowMigrationErrors;
             }
-            part("Migration Errors"; "Data Migration Error")
+            part("Migration Errors"; "Data Migration Error Part")
             {
                 ApplicationArea = All;
                 Caption = 'Migration Errors';
-                SubPageView = WHERE("Destination Table ID" = FILTER(> 0));
+                SubPageView = where("Destination Table ID" = filter(> 0));
                 Visible = ShowMigrationErrors;
             }
-            part("Posting Errors"; "Data Migration Error")
+            part("Posting Errors"; "Data Migration Error Part")
             {
                 ApplicationArea = All;
                 Caption = 'Posting Errors';
-                SubPageView = WHERE("Destination Table ID" = FILTER(= 0));
-                Visible = NOT ShowMigrationErrors;
+                SubPageView = where("Destination Table ID" = filter(= 0));
+                Visible = not ShowMigrationErrors;
             }
         }
     }
@@ -53,7 +58,7 @@ page 6250 "Data Sync Status"
         OnSkipPostingErrors(SkipPostingErrors, JournalBatchName);
         if SkipPostingErrors then
             exit;
-        
+
         GenJournalLine.Reset();
         GenJournalLine.SetRange("Journal Template Name", JnlTemplateNameTxt);
         GenJournalLine.SetFilter("Journal Batch Name", JournalBatchName);

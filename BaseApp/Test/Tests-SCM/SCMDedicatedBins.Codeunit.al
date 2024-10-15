@@ -1094,7 +1094,7 @@ codeunit 137502 "SCM Dedicated Bins"
         WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.TestField(Quantity, ShipQty);
         WhseWorksheetLine.TestField("Qty. to Handle", ShipQty);
-        Assert.AreEqual(ReceiveQty - QCQty, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), StrSubstNo('%1 must be %2, but it is %3.', 'Available Qty. to Pick', ReceiveQty - QCQty, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins()));
+        Assert.AreEqual(ReceiveQty - QCQty, WhseWorksheetLine.AvailableQtyToPick(), StrSubstNo('%1 must be %2, but it is %3.', 'Available Qty. to Pick', ReceiveQty - QCQty, WhseWorksheetLine.AvailableQtyToPick()));
 
         // [WHEN] "Create Pick" from Pick Worksheet.
         LibraryWarehouse.CreatePickFromPickWorksheet(

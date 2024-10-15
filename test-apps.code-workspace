@@ -40,6 +40,12 @@
       "path": "./system application/source/System Application/Email/src/Test Email"
     },
     {
+      "path": "./EDocument/Test/E-Document Core Tests"
+    },
+    {
+      "path": "./EDocument/Test/E-Document Core Tests/src/TestImplementations"
+    },
+    {
       "path": "./testframework/TestLibraries"
     },
     {
@@ -182,6 +188,9 @@
     },
     {
       "path": "./BaseApp/Test/Tests-Workflow"
+    },
+    {
+      "path": "./BaseApp/Source/Base Application/System/DevTools/CALTest"
     },
     {
       "path": "./onprem permissions/test/OnPrem Permissions Tests"

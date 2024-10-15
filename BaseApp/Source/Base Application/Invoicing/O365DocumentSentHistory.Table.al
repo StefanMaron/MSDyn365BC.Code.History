@@ -39,9 +39,9 @@ table 2158 "O365 Document Sent History"
         field(8; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) Vendor;
+            TableRelation = if ("Source Type" = const(Customer)) Customer
+            else
+            if ("Source Type" = const(Vendor)) Vendor;
         }
         field(11; "Job Queue Entry ID"; Guid)
         {

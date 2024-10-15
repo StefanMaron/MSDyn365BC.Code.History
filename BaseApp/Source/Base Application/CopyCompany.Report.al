@@ -1,3 +1,11 @@
+﻿namespace System.Environment.Configuration;
+
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Reporting;
+using System.Environment;
+using System.Threading;
+using System.Upgrade;
+
 report 357 "Copy Company"
 {
     Caption = 'Copy Company';
@@ -8,11 +16,11 @@ report 357 "Copy Company"
     {
         dataitem(Company; Company)
         {
-            DataItemTableView = SORTING(Name);
+            DataItemTableView = sorting(Name);
             dataitem("Experience Tier Setup"; "Experience Tier Setup")
             {
-                DataItemLink = "Company Name" = FIELD(Name);
-                DataItemTableView = SORTING("Company Name");
+                DataItemLink = "Company Name" = field(Name);
+                DataItemTableView = sorting("Company Name");
 
                 trigger OnAfterGetRecord()
                 var
@@ -27,8 +35,8 @@ report 357 "Copy Company"
             }
             dataitem("Report Layout Selection"; "Report Layout Selection")
             {
-                DataItemLink = "Company Name" = FIELD(Name);
-                DataItemTableView = SORTING("Report ID", "Company Name");
+                DataItemLink = "Company Name" = field(Name);
+                DataItemTableView = sorting("Report ID", "Company Name");
 
                 trigger OnAfterGetRecord()
                 var
@@ -42,8 +50,8 @@ report 357 "Copy Company"
             }
             dataitem("Custom Report Layout"; "Custom Report Layout")
             {
-                DataItemLink = "Company Name" = FIELD(Name);
-                DataItemTableView = SORTING("Report ID", "Company Name", Type);
+                DataItemLink = "Company Name" = field(Name);
+                DataItemTableView = sorting("Report ID", "Company Name", Type);
 
                 trigger OnAfterGetRecord()
                 var
@@ -57,8 +65,8 @@ report 357 "Copy Company"
             }
             dataitem("Feature Data Update Status"; "Feature Data Update Status")
             {
-                DataItemLink = "Company Name" = FIELD(Name);
-                DataItemTableView = SORTING("Feature Key", "Company Name");
+                DataItemLink = "Company Name" = field(Name);
+                DataItemTableView = sorting("Feature Key", "Company Name");
 
                 trigger OnAfterGetRecord()
                 var
@@ -204,7 +212,6 @@ report 357 "Copy Company"
     }
 
     var
-        [InDataSet]
         IsSaaS: Boolean;
         ProgressWindow: Dialog;
         BreakReport: Boolean;

@@ -1261,60 +1261,6 @@ codeunit 137156 "SCM Orders IV"
         Initialize();
         CarryOutActMsgForDropShptLinesOnReqWksh('');
     end;
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure SetLongLocationFilterOnProductionForecastPage()
-    var
-        Item: Record Item;
-        ProductionForecastName: Record "Production Forecast Name";
-        ProductionForecast: TestPage "Demand Forecast";
-        LocationCode1: Code[20];
-        LocationCode2: Code[20];
-        Qty: Integer;
-    begin
-        // Test no error pops up when set Location Filter with length more then max Location Code on Production Forecast Page.
-        // Setup: Create 2 Locations with max length Code.
-        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        LocationCode1 := CreateLocationWithMaxLengthCode;
-        LocationCode2 := CreateLocationWithMaxLengthCode;
-        Qty := LibraryRandom.RandIntInRange(10, 20);
-
-        // Exercise: Open Production Forecast Page and set the Location Filter more then max length Location Code.
-        ProductionForecast.OpenEdit;
-        ProductionForecast.ProductionForecastName.SetValue(ProductionForecastName.Name);
-        ProductionForecast.LocationFilter.SetValue(StrSubstNo('%1|%2', LocationCode1, LocationCode2));
-        LibraryInventory.CreateItem(Item);
-        ProductionForecast.Matrix.GotoRecord(Item);
-        ProductionForecast.Matrix.Field1.SetValue(Qty);
-
-        // Verify no overflow error pops up after creation new production forecust entry.
-        Assert.AreEqual(Format(Qty), ProductionForecast.Matrix.Field1.Value, WrongQtyErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ChangeProductionForecastDateFilter()
-    var
-        ProductionForecastName: Record "Production Forecast Name";
-        ProductionForecast: TestPage "Demand Forecast";
-        DateFilter: Text;
-    begin
-        // Test date filter does not disappear after entering value (RFH 353312)
-
-        // Setup
-        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        ProductionForecast.OpenEdit;
-        ProductionForecast.ProductionForecastName.SetValue(ProductionForecastName.Name);
-        DateFilter := Format(WorkDate());
-
-        // Exercise
-        ProductionForecast.DateFilter.SetValue(DateFilter);
-
-        // Verify: DateFilter value is not changed
-        Assert.AreEqual(DateFilter, ProductionForecast.DateFilter.Value, WrongDateFilterErr);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -3344,6 +3290,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Validate("Require Pick", true);
         Location.Validate("Require Receive", RequireReceive);
         Location.Validate("Require Shipment", RequireShipment);

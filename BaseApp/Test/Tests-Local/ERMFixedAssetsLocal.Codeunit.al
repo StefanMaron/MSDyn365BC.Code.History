@@ -1205,7 +1205,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryReportDataset.AssertCurrentRowValueEquals('DerogAmount', -ExpectedAmount);
     end;
 
-    local procedure VerifyNoOfFALedgerEntries(Expected: Integer; ErrorMsg: Text; FANo: Code[20]; HasGLEntry: Boolean; FAPostingType: Option)
+    local procedure VerifyNoOfFALedgerEntries(Expected: Integer; ErrorMsg: Text; FANo: Code[20]; HasGLEntry: Boolean; FAPostingType: Integer)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin

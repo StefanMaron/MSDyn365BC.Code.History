@@ -421,7 +421,6 @@ page 1310 "O365 Activities"
         [RunOnClient]
         [WithEvents]
         PageNotifier: DotNet PageNotifier;
-        [InDataSet]
         HasCamera: Boolean;
         ShowDocumentsPendingDocExchService: Boolean;
         ShowAwaitingIncomingDoc: Boolean;

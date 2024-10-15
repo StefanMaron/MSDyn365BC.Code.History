@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Reporting;
+
 page 359 "Document Sending Profiles"
 {
     ApplicationArea = Basic, Suite;
@@ -15,7 +17,7 @@ page 359 "Document Sending Profiles"
         {
             repeater(Group)
             {
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify the document sending method in the system.';
@@ -30,7 +32,7 @@ page 359 "Document Sending Profiles"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this document sending method will be used as the default method for all customers.';
                 }
-                field(Printer; Printer)
+                field(Printer; Rec.Printer)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if and how the document is printed when you choose the Post and Send button. If you choose the Yes (Prompt for Settings) option, the document is printed according to settings that you must make on the printer setup dialog.';

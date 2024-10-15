@@ -1,3 +1,9 @@
+namespace System.Email;
+
+using System.Environment;
+using Microsoft.Utilities;
+using Microsoft.Foundation.Attachment;
+
 codeunit 8898 "Map Email Source"
 {
     Access = Internal;

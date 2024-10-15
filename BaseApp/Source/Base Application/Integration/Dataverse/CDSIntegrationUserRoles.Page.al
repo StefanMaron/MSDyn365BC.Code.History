@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.Integration.D365Sales;
+
 page 7205 "CDS Integration User Roles"
 {
     Caption = 'Dataverse Integration User Roles', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
@@ -8,7 +16,7 @@ page 7205 "CDS Integration User Roles"
     PageType = List;
     SourceTable = "CRM Role";
     SourceTableTemporary = true;
-    SourceTableView = SORTING(Name);
+    SourceTableView = sorting(Name);
 
     layout
     {
@@ -18,7 +26,7 @@ page 7205 "CDS Integration User Roles"
             {
                 ShowCaption = false;
 
-                field("Role Name"; Name)
+                field("Role Name"; Rec.Name)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Role Name';
@@ -37,12 +45,12 @@ page 7205 "CDS Integration User Roles"
 
     trigger OnAfterGetRecord()
     begin
-        if not RequiredRoles.ContainsKey(RoleId) then begin
+        if not RequiredRoles.ContainsKey(Rec.RoleId) then begin
             StyleExpression := '';
             exit;
         end;
 
-        IsAssigned := not IsNullGuid(SolutionId);
+        IsAssigned := not IsNullGuid(Rec.SolutionId);
         if IsAssigned then
             StyleExpression := 'Favorable'
         else
@@ -76,10 +84,10 @@ page 7205 "CDS Integration User Roles"
                 repeat
                     CDSRole.SetRange(RoleId, CRMSystemuserroles.RoleId);
                     if CDSRole.FindFirst() then begin
-                        Init();
-                        TransferFields(CDSRole);
-                        Insert();
-                        CollectedRoles.Add(RoleId, true);
+                        Rec.Init();
+                        Rec.TransferFields(CDSRole);
+                        Rec.Insert();
+                        CollectedRoles.Add(Rec.RoleId, true);
                     end;
                 until CRMSystemuserroles.Next() = 0;
         end;
@@ -89,15 +97,15 @@ page 7205 "CDS Integration User Roles"
             if not RequiredRoles.ContainsKey(RequiredRoleId) then
                 RequiredRoles.Add(RequiredRoleId, true);
             if not CollectedRoles.ContainsKey(RequiredRoleId) then begin
-                Init();
+                Rec.Init();
                 CDSRole.SetRange(RoleId, RequiredRoleId);
                 if CDSRole.FindFirst() then
-                    Name := CDSRole.Name
+                    Rec.Name := CDSRole.Name
                 else
-                    Name := Format(RequiredRoleId);
-                RoleId := RequiredRoleId;
-                Insert();
-                CollectedRoles.Add(RoleId, true);
+                    Rec.Name := Format(RequiredRoleId);
+                Rec.RoleId := RequiredRoleId;
+                Rec.Insert();
+                CollectedRoles.Add(Rec.RoleId, true);
             end;
         end;
 

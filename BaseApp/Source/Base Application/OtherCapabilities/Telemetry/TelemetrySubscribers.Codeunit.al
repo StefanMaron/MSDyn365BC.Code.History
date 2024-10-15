@@ -1,3 +1,20 @@
+namespace System.Telemetry;
+
+using System.Security.AccessControl;
+using System.Reflection;
+using System.Threading;
+using System.IO;
+using Microsoft.Sales.History;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Posting;
+using Microsoft.Sales.Posting;
+using Microsoft.Sales.Document;
+using System.Environment;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.BankAccount;
+using System.Environment.Configuration;
+using System.Feedback;
+
 codeunit 1351 "Telemetry Subscribers"
 {
     Permissions = TableData "Permission Set Link" = r;
@@ -103,10 +120,10 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000E29', StrSubstNo(PermissionSetLinkRemovedTelemetryScopeAllTxt, Rec."Permission Set ID", Rec."Linked Permission Set ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Permission Set", 'OnAfterInsertEvent', '', true, true)]
-    local procedure SendTraceOnPermissionSetIsAdded(var Rec: Record "Permission Set"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Metadata Permission Set", 'OnAfterInsertEvent', '', true, true)]
+    local procedure SendTraceOnPermissionSetIsAdded(var Rec: Record "Metadata Permission Set"; RunTrigger: Boolean)
     var
-        PermissionSetRec: Record "Permission Set";
+        MetadataPermissionSet: Record "Metadata Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
         if Rec.IsTemporary() then
@@ -117,14 +134,14 @@ codeunit 1351 "Telemetry Subscribers"
 
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
-        Dimensions.Add('NumberOfSystemPermissionSets', Format(PermissionSetRec.Count));
+        Dimensions.Add('NumberOfSystemPermissionSets', Format(MetadataPermissionSet.Count));
         Session.LogMessage('0000GMG', StrSubstNo(PermissionSetSystemAddedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Permission Set", 'OnBeforeDeleteEvent', '', true, true)]
-    local procedure SendTraceOnPermissionSetIsRemoved(var Rec: Record "Permission Set"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Metadata Permission Set", 'OnBeforeDeleteEvent', '', true, true)]
+    local procedure SendTraceOnPermissionSetIsRemoved(var Rec: Record "Metadata Permission Set"; RunTrigger: Boolean)
     var
-        PermissionSetRec: Record "Permission Set";
+        MetadataPermissionSet: Record "Metadata Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
         if Rec.IsTemporary() then
@@ -135,7 +152,7 @@ codeunit 1351 "Telemetry Subscribers"
 
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
-        Dimensions.Add('NumberOfSystemPermissionSets', Format(PermissionSetRec.Count - 1));
+        Dimensions.Add('NumberOfSystemPermissionSets', Format(MetadataPermissionSet.Count - 1));
         Session.LogMessage('0000GMH', StrSubstNo(PermissionSetSystemRemovedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 

@@ -1,3 +1,5 @@
+namespace System.IO;
+
 codeunit 1283 "Export Generic XML"
 {
     Permissions = TableData "Data Exch. Field" = rimd;

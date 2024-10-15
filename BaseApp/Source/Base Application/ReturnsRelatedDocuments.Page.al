@@ -1,3 +1,5 @@
+namespace Microsoft.Sales.Document;
+
 page 6670 "Returns-Related Documents"
 {
     Caption = 'Returns-Related Documents';

@@ -1,3 +1,18 @@
+﻿namespace System.Privacy;
+
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Team;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Utilities;
+using System.Environment;
+using System.IO;
+using System.Security.AccessControl;
+using System.Security.User;
+using System.Utilities;
+
 page 1180 "Data Privacy Wizard"
 {
     Caption = 'Data Privacy Utility';
@@ -107,11 +122,11 @@ page 1180 "Data Privacy Wizard"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            Reset();
-                            DeleteAll();
+                            Rec.Reset();
+                            Rec.DeleteAll();
                             if PAGE.RunModal(PAGE::"Data Subject", Rec) = ACTION::LookupOK then begin
-                                EntityType := "Table Caption";
-                                EntityTypeTableNo := "Table No.";
+                                EntityType := Rec."Table Caption";
+                                EntityTypeTableNo := Rec."Table No.";
                                 if EntityType <> EntityTypeGlobal then
                                     EntityNo := '';
                                 EntityTypeGlobal := EntityType;

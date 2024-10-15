@@ -431,38 +431,6 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Verify: Verify Column Captions on Work Ctr Group Calendar Matrix Page on Page Handler WorkCtrGrpCalendarMatrixPageHandler.
     end;
-#if not CLEAN20
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ProductionForecastWithPeriodTypeMonth()
-    var
-        ProductionForecast: TestPage "Demand Forecast";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        Name: Code[10];
-    begin
-        // Purpose of the test is to verify caption on Production Forecast Matrix Page.
-
-        // Setup: Create Production Forcast Name and generate Column Captions.
-        Initialize();
-        Name := CreateProductionForeCastName;
-        GeneratePeriodMatrixData;
-        ProductionForecast.OpenEdit;
-        ProductionForecast.ProductionForecastName.SetValue(Name);
-
-        // Exercise: Set Period Type on Production Forecast Page.
-        ProductionForecast.PeriodType.SetValue(PeriodType::Month);
-
-        // Verify: Verify Column Captions on Production Forecast Matrix Page.
-        VerifyCaptionJanToJune(
-          ProductionForecast.Matrix.Field1.Caption, ProductionForecast.Matrix.Field2.Caption, ProductionForecast.Matrix.Field3.Caption,
-          ProductionForecast.Matrix.Field4.Caption, ProductionForecast.Matrix.Field5.Caption, ProductionForecast.Matrix.Field6.Caption);
-        VerifyCaptionJulToDec(
-          ProductionForecast.Matrix.Field7.Caption, ProductionForecast.Matrix.Field8.Caption, ProductionForecast.Matrix.Field9.Caption,
-          ProductionForecast.Matrix.Field10.Caption, ProductionForecast.Matrix.Field11.Caption, ProductionForecast.Matrix.Field12.Caption);
-        ProductionForecast.Close();
-    end;
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]

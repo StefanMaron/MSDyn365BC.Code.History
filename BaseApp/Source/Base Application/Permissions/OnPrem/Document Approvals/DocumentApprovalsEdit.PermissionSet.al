@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using System.Environment.Configuration;
+using System.Automation;
+
 permissionset 7111 "Document Approvals - Edit"
 {
     Access = Public;

@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.SalesTax;
+
 query 5502 "Tax Groups For Tax Areas"
 {
     Caption = 'Tax Groups For Tax Areas';

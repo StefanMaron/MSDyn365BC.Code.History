@@ -1,3 +1,13 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Finance.Dimension;
+using System.Environment;
+using System.Utilities;
+
 page 974 "Time Sheet Lines Subform"
 {
     AutoSplitKey = true;
@@ -40,10 +50,10 @@ page 974 "Time Sheet Lines Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        if "Line No." = 0 then
+                        if Rec."Line No." = 0 then
                             exit;
 
-                        ShowLineDetails(false);
+                        Rec.ShowLineDetails(false);
                         CurrPage.Update(false);
                     end;
 
@@ -88,7 +98,7 @@ page 974 "Time Sheet Lines Subform"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field(Chargeable; Chargeable)
+                field(Chargeable; Rec.Chargeable)
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -393,7 +403,7 @@ page 974 "Time Sheet Lines Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineDetails(false);
+                        Rec.ShowLineDetails(false);
                     end;
                 }
                 action(Dimensions)
@@ -409,7 +419,7 @@ page 974 "Time Sheet Lines Subform"
                     var
                         DimMgt: Codeunit DimensionManagement;
                     begin
-                        "Dimension Set ID" := DimMgt.EditDimensionSet("Dimension Set ID", DimensionCaptionTok);
+                        Rec."Dimension Set ID" := DimMgt.EditDimensionSet(Rec."Dimension Set ID", DimensionCaptionTok);
                     end;
                 }
                 action(LineComments)
@@ -419,8 +429,8 @@ page 974 "Time Sheet Lines Subform"
                     Image = ViewComments;
                     Promoted = true;
                     RunObject = Page "Time Sheet Comment Sheet";
-                    RunPageLink = "No." = FIELD("Time Sheet No."),
-                                  "Time Sheet Line No." = FIELD("Line No.");
+                    RunPageLink = "No." = field("Time Sheet No."),
+                                  "Time Sheet Line No." = field("Line No.");
                     Scope = Repeater;
                     ToolTip = 'View or create comments.';
                 }
@@ -445,7 +455,6 @@ page 974 "Time Sheet Lines Subform"
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
         RefActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject;
         NoOfColumns: Integer;
-        CellData: array[32] of Decimal;
         ColumnCaption: array[32] of Text[1024];
         UnitOfMeasureCode: Code[10];
         InvalidTypeErr: Label 'The type of time sheet line cannot be empty.';
@@ -453,6 +462,7 @@ page 974 "Time Sheet Lines Subform"
 
     protected var
         TimeSheetHeader: Record "Time Sheet Header";
+        CellData: array[32] of Decimal;
         ManagerTimeSheet: Boolean;
         SubmitLineEnabled: Boolean;
         ReopenSubmittedLineEnabled: Boolean;
@@ -503,32 +513,32 @@ page 974 "Time Sheet Lines Subform"
         i := 0;
         while i < NoOfColumns do begin
             i := i + 1;
-            if ("Line No." <> 0) and TimeSheetDetail.Get(
-                 "Time Sheet No.",
-                 "Line No.",
+            if (Rec."Line No." <> 0) and TimeSheetDetail.Get(
+                 Rec."Time Sheet No.",
+                 Rec."Line No.",
                  ColumnRecords[i]."Period Start")
             then
                 CellData[i] := TimeSheetDetail.Quantity
             else
                 CellData[i] := 0;
         end;
-        AllowEdit := Status in [Status::Open, Status::Rejected];
+        AllowEdit := Rec.Status in [Rec.Status::Open, Rec.Status::Rejected];
 
-        SubmitLineEnabled := Status = Status::Open;
-        ReopenSubmittedLineEnabled := Status in [Status::Submitted, Status::Rejected];
-        ApproveLineEnabled := Status = Status::Submitted;
-        RejectLineEnabled := Status = Status::Submitted;
-        ReopenApprovedLineEnabled := Status in [Status::Approved, Status::Rejected];
+        SubmitLineEnabled := Rec.Status = Rec.Status::Open;
+        ReopenSubmittedLineEnabled := Rec.Status in [Rec.Status::Submitted, Rec.Status::Rejected];
+        ApproveLineEnabled := Rec.Status = Rec.Status::Submitted;
+        RejectLineEnabled := Rec.Status = Rec.Status::Submitted;
+        ReopenApprovedLineEnabled := Rec.Status in [Rec.Status::Approved, Rec.Status::Rejected];
     end;
 
-    local procedure ValidateQuantity(ColumnNo: Integer)
+    procedure ValidateQuantity(ColumnNo: Integer)
     begin
-        if (CellData[ColumnNo] <> 0) and (Type = Type::" ") then
+        if (CellData[ColumnNo] <> 0) and (Rec.Type = Rec.Type::" ") then
             Error(InvalidTypeErr);
 
         if TimeSheetDetail.Get(
-             "Time Sheet No.",
-             "Line No.",
+             Rec."Time Sheet No.",
+             Rec."Line No.",
              ColumnRecords[ColumnNo]."Period Start")
         then begin
             if CellData[ColumnNo] <> TimeSheetDetail.Quantity then
@@ -552,13 +562,13 @@ page 974 "Time Sheet Lines Subform"
                 TimeSheetDetail.Insert(true);
             end;
 
-        CalcFields("Total Quantity");
+        Rec.CalcFields("Total Quantity");
         CurrPage.Update(false);
     end;
 
     local procedure GetTimeSheetTotalQuantity(): Decimal
     begin
-        TimeSheetHeader.Get("Time Sheet No.");
+        TimeSheetHeader.Get(Rec."Time Sheet No.");
         TimeSheetHeader.CalcFields(Quantity);
         exit(TimeSheetHeader.Quantity);
     end;
@@ -593,7 +603,7 @@ page 974 "Time Sheet Lines Subform"
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
-        TimeSheetLine.Get("Time Sheet No.", "Line No.");
+        TimeSheetLine.Get(Rec."Time Sheet No.", Rec."Line No.");
         TimeSheetLine.TestStatus();
     end;
 
@@ -702,9 +712,9 @@ page 974 "Time Sheet Lines Subform"
         TimeSheetAllocation: Page "Time Sheet Allocation";
         AllocatedQty: array[7] of Decimal;
     begin
-        TestField(Posted, true);
-        CalcFields("Total Quantity");
-        TimeSheetAllocation.InitParameters("Time Sheet No.", "Line No.", "Total Quantity");
+        Rec.TestField(Posted, true);
+        Rec.CalcFields("Total Quantity");
+        TimeSheetAllocation.InitParameters(Rec."Time Sheet No.", Rec."Line No.", Rec."Total Quantity");
         if TimeSheetAllocation.RunModal() = ACTION::OK then begin
             TimeSheetAllocation.GetAllocation(AllocatedQty);
             TimeSheetMgt.UpdateTimeAllocation(Rec, AllocatedQty);

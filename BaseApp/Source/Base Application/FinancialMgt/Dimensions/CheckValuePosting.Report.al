@@ -1,3 +1,16 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.CRM.Team;
+using Microsoft.Inventory.Location;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using System.Utilities;
+using System.Globalization;
+
 report 30 "Check Value Posting"
 {
     DefaultLayout = RDLC;
@@ -10,7 +23,7 @@ report 30 "Check Value Posting"
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+            DataItemTableView = sorting(Number) where(Number = const(1));
             PrintOnlyIfDetail = true;
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
@@ -44,7 +57,7 @@ report 30 "Check Value Posting"
             }
             dataitem(DefaultDim1; "Default Dimension")
             {
-                DataItemTableView = SORTING("Table ID", "No.", "Dimension Code") WHERE("No." = FILTER(''));
+                DataItemTableView = sorting("Table ID", "No.", "Dimension Code") where("No." = filter(''));
                 PrintOnlyIfDetail = true;
                 RequestFilterFields = "Dimension Code";
                 column(DimensionCode_DefaultDim1; "Dimension Code")
@@ -64,9 +77,9 @@ report 30 "Check Value Posting"
                 }
                 dataitem(DefaultDim2; "Default Dimension")
                 {
-                    DataItemLink = "Table ID" = FIELD("Table ID"), "Dimension Code" = FIELD("Dimension Code");
+                    DataItemLink = "Table ID" = field("Table ID"), "Dimension Code" = field("Dimension Code");
                     DataItemLinkReference = DefaultDim1;
-                    DataItemTableView = SORTING("Table ID", "No.", "Dimension Code") WHERE("No." = FILTER(<> ''));
+                    DataItemTableView = sorting("Table ID", "No.", "Dimension Code") where("No." = filter(<> ''));
                     column(ValuePosting_DefaultDim2; "Value Posting")
                     {
                     }
@@ -87,9 +100,9 @@ report 30 "Check Value Posting"
                     }
                     dataitem(DefaultDim3; "Default Dimension")
                     {
-                        DataItemLink = "Dimension Code" = FIELD("Dimension Code");
+                        DataItemLink = "Dimension Code" = field("Dimension Code");
                         DataItemLinkReference = DefaultDim1;
-                        DataItemTableView = SORTING("Table ID", "No.", "Dimension Code");
+                        DataItemTableView = sorting("Table ID", "No.", "Dimension Code");
                         column(ErrorMessage_DefaultDim3; ErrorMessage)
                         {
                         }
@@ -113,7 +126,7 @@ report 30 "Check Value Posting"
                         begin
                             ErrorMessage := '';
 
-                            CheckAndMakeErrorMessage(DefaultDim1, DefaultDim3, ErrorMessage);
+                            CheckAndMakeErrorMessage(DefaultDim1, DefaultDim3);
 
                             if ErrorMessage = '' then
                                 CurrReport.Skip();
@@ -121,30 +134,30 @@ report 30 "Check Value Posting"
 
                         trigger OnPreDataItem()
                         begin
-                            "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
-                            if DefaultDim1."Table ID" = DATABASE::Customer then
-                                if Cust.Get(DefaultDim2."No.") then begin
-                                    SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
-                                    SetRange("No.", Cust."Salesperson Code");
+                            "Table Caption" := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
+                            if DefaultDim1."Table ID" = Database::Customer then
+                                if Customer.Get(DefaultDim2."No.") then begin
+                                    SetRange("Table ID", Database::"Salesperson/Purchaser");
+                                    SetRange("No.", Customer."Salesperson Code");
                                 end;
 
-                            if DefaultDim1."Table ID" = DATABASE::Vendor then
-                                if Vend.Get(DefaultDim2."No.") then begin
-                                    SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
-                                    SetRange("No.", Vend."Purchaser Code");
+                            if DefaultDim1."Table ID" = Database::Vendor then
+                                if Vendor.Get(DefaultDim2."No.") then begin
+                                    SetRange("Table ID", Database::"Salesperson/Purchaser");
+                                    SetRange("No.", Vendor."Purchaser Code");
                                 end;
 
-                            if (DefaultDim1."Table ID" <> DATABASE::Customer) and
-                               (DefaultDim1."Table ID" <> DATABASE::Vendor)
+                            if (DefaultDim1."Table ID" <> Database::Customer) and
+                               (DefaultDim1."Table ID" <> Database::Vendor)
                             then
                                 CurrReport.Break();
                         end;
                     }
                     dataitem(DefaultDim4; "Default Dimension")
                     {
-                        DataItemLink = "Dimension Code" = FIELD("Dimension Code");
+                        DataItemLink = "Dimension Code" = field("Dimension Code");
                         DataItemLinkReference = DefaultDim1;
-                        DataItemTableView = SORTING("Table ID", "No.", "Dimension Code");
+                        DataItemTableView = sorting("Table ID", "No.", "Dimension Code");
                         column(ErrorMessage_DefaultDim4; ErrorMessage)
                         {
                         }
@@ -168,7 +181,7 @@ report 30 "Check Value Posting"
                         begin
                             ErrorMessage := '';
 
-                            CheckAndMakeErrorMessage(DefaultDim1, DefaultDim4, ErrorMessage);
+                            CheckAndMakeErrorMessage(DefaultDim1, DefaultDim4);
 
                             if ErrorMessage = '' then
                                 CurrReport.Skip();
@@ -176,21 +189,21 @@ report 30 "Check Value Posting"
 
                         trigger OnPreDataItem()
                         begin
-                            "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
-                            if DefaultDim1."Table ID" = DATABASE::Customer then
-                                if Cust.Get(DefaultDim2."No.") then begin
-                                    SetRange("Table ID", DATABASE::"Responsibility Center");
-                                    SetRange("No.", Cust."Responsibility Center");
+                            "Table Caption" := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
+                            if DefaultDim1."Table ID" = Database::Customer then
+                                if Customer.Get(DefaultDim2."No.") then begin
+                                    SetRange("Table ID", Database::"Responsibility Center");
+                                    SetRange("No.", Customer."Responsibility Center");
                                 end;
 
-                            if DefaultDim1."Table ID" = DATABASE::Vendor then
-                                if Vend.Get(DefaultDim2."No.") then begin
-                                    SetRange("Table ID", DATABASE::"Responsibility Center");
-                                    SetRange("No.", Vend."Responsibility Center");
+                            if DefaultDim1."Table ID" = Database::Vendor then
+                                if Vendor.Get(DefaultDim2."No.") then begin
+                                    SetRange("Table ID", Database::"Responsibility Center");
+                                    SetRange("No.", Vendor."Responsibility Center");
                                 end;
 
-                            if (DefaultDim1."Table ID" <> DATABASE::Customer) and
-                               (DefaultDim1."Table ID" <> DATABASE::Vendor)
+                            if (DefaultDim1."Table ID" <> Database::Customer) and
+                               (DefaultDim1."Table ID" <> Database::Vendor)
                             then
                                 CurrReport.Break();
                         end;
@@ -198,10 +211,10 @@ report 30 "Check Value Posting"
 
                     trigger OnAfterGetRecord()
                     begin
-                        "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
+                        "Table Caption" := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
                         ErrorMessage := '';
 
-                        CheckAndMakeErrorMessage(DefaultDim1, DefaultDim2, ErrorMessage);
+                        CheckAndMakeErrorMessage(DefaultDim1, DefaultDim2);
 
                         if ErrorMessage = '' then
                             CurrReport.Skip();
@@ -215,11 +228,11 @@ report 30 "Check Value Posting"
 
                 trigger OnAfterGetRecord()
                 begin
-                    "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
+                    "Table Caption" := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
 
-                    TempDefaultDimmension."Table ID" := "Table ID";
-                    if not TempDefaultDimmension.Find() then
-                        TempDefaultDimmension := DefaultDim1;
+                    TempDefaultDimension."Table ID" := "Table ID";
+                    if not TempDefaultDimension.Find() then
+                        TempDefaultDimension := DefaultDim1;
                 end;
 
                 trigger OnPostDataItem()
@@ -229,7 +242,7 @@ report 30 "Check Value Posting"
             }
             dataitem(DefaultDim5; "Default Dimension")
             {
-                DataItemTableView = SORTING("Table ID", "No.", "Dimension Code") WHERE("Table ID" = FILTER(18 .. 23), "No." = FILTER(<> ''));
+                DataItemTableView = sorting("Table ID", "No.", "Dimension Code") where("Table ID" = filter(18 .. 23), "No." = filter(<> ''));
                 PrintOnlyIfDetail = true;
                 column(No_DefaultDim5; "No.")
                 {
@@ -245,9 +258,9 @@ report 30 "Check Value Posting"
                 }
                 dataitem(DefaultDim6; "Default Dimension")
                 {
-                    DataItemLink = "Dimension Code" = FIELD("Dimension Code");
+                    DataItemLink = "Dimension Code" = field("Dimension Code");
                     DataItemLinkReference = DefaultDim5;
-                    DataItemTableView = SORTING("Table ID", "No.", "Dimension Code");
+                    DataItemTableView = sorting("Table ID", "No.", "Dimension Code");
                     column(ErrorMessage_DefaultDim6; ErrorMessage)
                     {
                     }
@@ -271,7 +284,7 @@ report 30 "Check Value Posting"
                     begin
                         ErrorMessage := '';
 
-                        CheckAndMakeErrorMessage(DefaultDim5, DefaultDim6, ErrorMessage);
+                        CheckAndMakeErrorMessage(DefaultDim5, DefaultDim6);
 
                         if ErrorMessage = '' then
                             CurrReport.Skip();
@@ -279,25 +292,25 @@ report 30 "Check Value Posting"
 
                     trigger OnPreDataItem()
                     begin
-                        "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
-                        if DefaultDim5."Table ID" = DATABASE::Customer then
-                            if Cust.Get(DefaultDim5."No.") then begin
-                                SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
-                                SetRange("No.", Cust."Salesperson Code");
+                        "Table Caption" := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
+                        if DefaultDim5."Table ID" = Database::Customer then
+                            if Customer.Get(DefaultDim5."No.") then begin
+                                SetRange("Table ID", Database::"Salesperson/Purchaser");
+                                SetRange("No.", Customer."Salesperson Code");
                             end;
 
-                        if DefaultDim5."Table ID" = DATABASE::Vendor then
-                            if Vend.Get(DefaultDim5."No.") then begin
-                                SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
-                                SetRange("No.", Vend."Purchaser Code");
+                        if DefaultDim5."Table ID" = Database::Vendor then
+                            if Vendor.Get(DefaultDim5."No.") then begin
+                                SetRange("Table ID", Database::"Salesperson/Purchaser");
+                                SetRange("No.", Vendor."Purchaser Code");
                             end;
                     end;
                 }
                 dataitem(DefaultDim7; "Default Dimension")
                 {
-                    DataItemLink = "Dimension Code" = FIELD("Dimension Code");
+                    DataItemLink = "Dimension Code" = field("Dimension Code");
                     DataItemLinkReference = DefaultDim5;
-                    DataItemTableView = SORTING("Table ID", "No.", "Dimension Code");
+                    DataItemTableView = sorting("Table ID", "No.", "Dimension Code");
                     column(ErrorMessage_DefaultDim7; ErrorMessage)
                     {
                     }
@@ -321,7 +334,7 @@ report 30 "Check Value Posting"
                     begin
                         ErrorMessage := '';
 
-                        CheckAndMakeErrorMessage(DefaultDim5, DefaultDim7, ErrorMessage);
+                        CheckAndMakeErrorMessage(DefaultDim5, DefaultDim7);
 
                         if ErrorMessage = '' then
                             CurrReport.Skip();
@@ -329,27 +342,27 @@ report 30 "Check Value Posting"
 
                     trigger OnPreDataItem()
                     begin
-                        "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
-                        if DefaultDim5."Table ID" = DATABASE::Customer then
-                            if Cust.Get(DefaultDim5."No.") then begin
-                                SetRange("Table ID", DATABASE::"Responsibility Center");
-                                SetRange("No.", Cust."Responsibility Center");
+                        "Table Caption" := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
+                        if DefaultDim5."Table ID" = Database::Customer then
+                            if Customer.Get(DefaultDim5."No.") then begin
+                                SetRange("Table ID", Database::"Responsibility Center");
+                                SetRange("No.", Customer."Responsibility Center");
                             end;
 
-                        if DefaultDim5."Table ID" = DATABASE::Vendor then
-                            if Vend.Get(DefaultDim5."No.") then begin
-                                SetRange("Table ID", DATABASE::"Responsibility Center");
-                                SetRange("No.", Vend."Responsibility Center");
+                        if DefaultDim5."Table ID" = Database::Vendor then
+                            if Vendor.Get(DefaultDim5."No.") then begin
+                                SetRange("Table ID", Database::"Responsibility Center");
+                                SetRange("No.", Vendor."Responsibility Center");
                             end;
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
-                    "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
+                    "Table Caption" := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
 
-                    TempDefaultDimmension."Table ID" := "Table ID";
-                    if TempDefaultDimmension.Find() then
+                    TempDefaultDimension."Table ID" := "Table ID";
+                    if TempDefaultDimension.Find() then
                         CurrReport.Skip();
                 end;
 
@@ -360,7 +373,7 @@ report 30 "Check Value Posting"
             }
             dataitem(DefaultDim8; "Default Dimension")
             {
-                DataItemTableView = SORTING("Table ID", "No.", "Dimension Code") WHERE("Value Posting" = FILTER("No Code"));
+                DataItemTableView = sorting("Table ID", "No.", "Dimension Code") where("Value Posting" = filter("No Code"));
                 column(ErrorMessage_DefaultDim8; ErrorMessage)
                 {
                 }
@@ -388,7 +401,7 @@ report 30 "Check Value Posting"
 
                 trigger OnAfterGetRecord()
                 begin
-                    "Table Caption" := ObjectTransl.TranslateObject(ObjectTransl."Object Type"::Table, "Table ID");
+                    "Table Caption" := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
                     ErrorMessage := '';
 
                     if "Dimension Value Code" <> '' then
@@ -429,10 +442,10 @@ report 30 "Check Value Posting"
     }
 
     var
-        Cust: Record Customer;
-        Vend: Record Vendor;
-        TempDefaultDimmension: Record "Default Dimension" temporary;
-        ObjectTransl: Record "Object Translation";
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        TempDefaultDimension: Record "Default Dimension" temporary;
+        ObjectTranslation: Record "Object Translation";
         ErrorMessage: Text[250];
 
         Text000: Label 'You must not use a "%1" %2 when %3 is "%4".';
@@ -450,71 +463,71 @@ report 30 "Check Value Posting"
         ErrorCaptionDefaultDim7Lbl: Label 'Error';
         ErrorCaptionDefaultDim8Lbl: Label 'Error';
 
-    local procedure CheckAndMakeErrorMessage(DefaultDim1: Record "Default Dimension"; DefaultDim2: Record "Default Dimension"; var ErrorMessage: Text[250])
+    local procedure CheckAndMakeErrorMessage(DefaultDimension1: Record "Default Dimension"; DefaultDimension2: Record "Default Dimension")
     begin
-        case DefaultDim1."Value Posting" of
-            DefaultDim1."Value Posting"::" ":
-                if (((DefaultDim2."Value Posting" = DefaultDim2."Value Posting"::"Same Code") and
-                     (DefaultDim2."Dimension Value Code" = '')) or
-                    (DefaultDim2."Value Posting" = DefaultDim2."Value Posting"::"No Code")) and
-                   (DefaultDim2."Dimension Value Code" <> '')
+        case DefaultDimension1."Value Posting" of
+            DefaultDimension1."Value Posting"::" ":
+                if (((DefaultDimension2."Value Posting" = DefaultDimension2."Value Posting"::"Same Code") and
+                     (DefaultDimension2."Dimension Value Code" = '')) or
+                    (DefaultDimension2."Value Posting" = DefaultDimension2."Value Posting"::"No Code")) and
+                   (DefaultDimension2."Dimension Value Code" <> '')
                 then
                     ErrorMessage :=
                       StrSubstNo(
                         Text001,
-                        DefaultDim2.FieldCaption("Dimension Value Code"), DefaultDim1."Dimension Value Code");
-            DefaultDim1."Value Posting"::"Code Mandatory":
-                if (DefaultDim2."Value Posting" = DefaultDim2."Value Posting"::"No Code") or
-                   ((DefaultDim2."Value Posting" = DefaultDim2."Value Posting"::"Same Code") and
-                    (DefaultDim2."Dimension Value Code" = ''))
+                        DefaultDimension2.FieldCaption("Dimension Value Code"), DefaultDimension1."Dimension Value Code");
+            DefaultDimension1."Value Posting"::"Code Mandatory":
+                if (DefaultDimension2."Value Posting" = DefaultDimension2."Value Posting"::"No Code") or
+                   ((DefaultDimension2."Value Posting" = DefaultDimension2."Value Posting"::"Same Code") and
+                    (DefaultDimension2."Dimension Value Code" = ''))
                 then
                     ErrorMessage :=
                       StrSubstNo(
                         Text002,
-                        DefaultDim1.FieldCaption("Dimension Code"), DefaultDim1."Dimension Code");
-            DefaultDim1."Value Posting"::"Same Code":
-                case DefaultDim2."Value Posting" of
-                    DefaultDim2."Value Posting"::"Code Mandatory":
-                        if DefaultDim1."Dimension Value Code" = '' then
+                        DefaultDimension1.FieldCaption("Dimension Code"), DefaultDimension1."Dimension Code");
+            DefaultDimension1."Value Posting"::"Same Code":
+                case DefaultDimension2."Value Posting" of
+                    DefaultDimension2."Value Posting"::"Code Mandatory":
+                        if DefaultDimension1."Dimension Value Code" = '' then
                             ErrorMessage :=
                               StrSubstNo(
                                 Text003,
-                                DefaultDim1.FieldCaption("Dimension Code"), DefaultDim1."Dimension Code")
+                                DefaultDimension1.FieldCaption("Dimension Code"), DefaultDimension1."Dimension Code")
                         else
-                            if (DefaultDim2."Dimension Value Code" <> '') and
-                               (DefaultDim1."Dimension Value Code" <> DefaultDim2."Dimension Value Code")
+                            if (DefaultDimension2."Dimension Value Code" <> '') and
+                               (DefaultDimension1."Dimension Value Code" <> DefaultDimension2."Dimension Value Code")
                             then
                                 ErrorMessage :=
                                   StrSubstNo(
                                     Text004,
-                                    DefaultDim2.FieldCaption("Dimension Value Code"), DefaultDim2."Dimension Value Code",
-                                    DefaultDim1."Dimension Value Code");
-                    DefaultDim2."Value Posting"::"No Code":
-                        if DefaultDim1."Dimension Value Code" <> '' then
+                                    DefaultDimension2.FieldCaption("Dimension Value Code"), DefaultDimension2."Dimension Value Code",
+                                    DefaultDimension1."Dimension Value Code");
+                    DefaultDimension2."Value Posting"::"No Code":
+                        if DefaultDimension1."Dimension Value Code" <> '' then
                             ErrorMessage :=
                               StrSubstNo(
                                 Text001,
-                                DefaultDim1.FieldCaption("Dimension Value Code"), DefaultDim1."Dimension Value Code");
-                    DefaultDim2."Value Posting"::"Same Code", DefaultDim2."Value Posting"::" ":
-                        if DefaultDim1."Dimension Value Code" <> DefaultDim2."Dimension Value Code" then
-                            if DefaultDim1."Dimension Value Code" = '' then
+                                DefaultDimension1.FieldCaption("Dimension Value Code"), DefaultDimension1."Dimension Value Code");
+                    DefaultDimension2."Value Posting"::"Same Code", DefaultDimension2."Value Posting"::" ":
+                        if DefaultDimension1."Dimension Value Code" <> DefaultDimension2."Dimension Value Code" then
+                            if DefaultDimension1."Dimension Value Code" = '' then
                                 ErrorMessage :=
                                   StrSubstNo(
                                     Text003,
-                                    DefaultDim1.FieldCaption("Dimension Code"), DefaultDim1."Dimension Code")
+                                    DefaultDimension1.FieldCaption("Dimension Code"), DefaultDimension1."Dimension Code")
                             else
                                 ErrorMessage :=
                                   StrSubstNo(
                                     Text004,
-                                    DefaultDim2.FieldCaption("Dimension Value Code"),
-                                    DefaultDim2."Dimension Value Code", DefaultDim1."Dimension Value Code");
+                                    DefaultDimension2.FieldCaption("Dimension Value Code"),
+                                    DefaultDimension2."Dimension Value Code", DefaultDimension1."Dimension Value Code");
                 end;
-            DefaultDim1."Value Posting"::"No Code":
-                if DefaultDim2."Dimension Value Code" <> '' then
+            DefaultDimension1."Value Posting"::"No Code":
+                if DefaultDimension2."Dimension Value Code" <> '' then
                     ErrorMessage :=
                       StrSubstNo(
                         Text003,
-                        DefaultDim1.FieldCaption("Dimension Code"), DefaultDim1."Dimension Code");
+                        DefaultDimension1.FieldCaption("Dimension Code"), DefaultDimension1."Dimension Code");
         end;
     end;
 }

@@ -1,4 +1,4 @@
-﻿#if not CLEAN20
+﻿#if not CLEAN23
 // Replaced by codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
 codeunit 134085 "ERM Apply Adjust For Cust/Vend"
 {

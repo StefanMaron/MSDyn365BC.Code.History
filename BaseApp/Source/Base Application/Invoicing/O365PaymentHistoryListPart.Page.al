@@ -76,7 +76,7 @@ page 2119 "O365 Payment History ListPart"
                 trigger OnAction()
                 begin
                     PAGE.RunModal(PAGE::"O365 Payment History Card", Rec);
-                    FillPaymentHistory(SalesInvoiceDocNo);
+                    Rec.FillPaymentHistory(SalesInvoiceDocNo);
                 end;
             }
         }
@@ -85,27 +85,27 @@ page 2119 "O365 Payment History ListPart"
     trigger OnAfterGetRecord()
     begin
         OldO365PaymentHistoryBuffer := Rec;
-        if Type <> Type::Payment then
-            "Payment Method" := ''; // Affects FIND/NEXT if user sorted on this column
+        if Rec.Type <> Rec.Type::Payment then
+            Rec."Payment Method" := ''; // Affects FIND/NEXT if user sorted on this column
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
         if OldO365PaymentHistoryBuffer."Ledger Entry No." <> 0 then
             Rec := OldO365PaymentHistoryBuffer;
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
         if OldO365PaymentHistoryBuffer."Ledger Entry No." <> 0 then
             Rec := OldO365PaymentHistoryBuffer;
-        exit(Next(Steps));
+        exit(Rec.Next(Steps));
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange(Type, Type::Payment, Type::Invoice);
+        Rec.SetRange(Type, Rec.Type::Payment, Rec.Type::Invoice);
     end;
 
     var
@@ -117,22 +117,22 @@ page 2119 "O365 Payment History ListPart"
     procedure ShowHistoryFactbox(SalesInvoiceDocumentNo: Code[20])
     begin
         SalesInvoiceDocNo := SalesInvoiceDocumentNo;
-        FillPaymentHistory(SalesInvoiceDocumentNo);
+        Rec.FillPaymentHistory(SalesInvoiceDocumentNo);
         ShowTypeColumn := false;
     end;
 
     procedure ShowHistory(SalesInvoiceDocumentNo: Code[20]): Boolean
     begin
         SalesInvoiceDocNo := SalesInvoiceDocumentNo;
-        FillPaymentHistory(SalesInvoiceDocumentNo);
+        Rec.FillPaymentHistory(SalesInvoiceDocumentNo);
         ShowTypeColumn := true;
-        exit(not IsEmpty)
+        exit(not Rec.IsEmpty)
     end;
 
     local procedure MarkPaymentAsUnpaid()
     begin
-        if CancelPayment() then begin
-            FillPaymentHistory(SalesInvoiceDocNo);
+        if Rec.CancelPayment() then begin
+            Rec.FillPaymentHistory(SalesInvoiceDocNo);
             ARecordHasBeenDeleted := true;
         end
     end;

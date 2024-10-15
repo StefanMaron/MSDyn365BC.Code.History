@@ -1,3 +1,7 @@
+namespace System.Media;
+
+using System.Utilities;
+
 codeunit 4112 "Image Helpers"
 {
 

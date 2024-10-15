@@ -16,7 +16,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
         {
             repeater(Group)
             {
-                field(Number; Number)
+                field(Number; Rec.Number)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Row No.';
@@ -146,7 +146,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
     begin
         Clear(CellValue);
 
-        TempExcelBuffer.SetRange("Row No.", Number);
+        TempExcelBuffer.SetRange("Row No.", Rec.Number);
         if TempExcelBuffer.FindSet() then
             repeat
                 i += 1;
@@ -154,7 +154,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
             until (TempExcelBuffer.Next() = 0) or (i = ArrayLen(CellValue));
 
         if UseEmphasizing then
-            Emphasize := Number = StartRowNo;
+            Emphasize := Rec.Number = StartRowNo;
     end;
 
     trigger OnOpenPage()
@@ -168,7 +168,6 @@ page 2181 "O365 Excel Sheet Data SubPage"
         CellValue: array[12] of Text;
         ColumnCaptions: array[12] of Text;
         StartRowNo: Integer;
-        [InDataSet]
         Emphasize: Boolean;
         UseEmphasizing: Boolean;
         ShowColumn1: Boolean;
@@ -211,15 +210,15 @@ page 2181 "O365 Excel Sheet Data SubPage"
     var
         i: Integer;
     begin
-        Reset();
-        DeleteAll();
+        Rec.Reset();
+        Rec.DeleteAll();
         TempExcelBuffer.Reset();
         if TempExcelBuffer.FindLast() then;
         for i := 1 to TempExcelBuffer."Row No." do begin
-            Number := i;
-            Insert();
+            Rec.Number := i;
+            Rec.Insert();
         end;
-        if FindFirst() then;
+        if Rec.FindFirst() then;
     end;
 
     procedure SetStartRowNo(NewStartRowNo: Integer)
@@ -291,7 +290,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
 
     procedure SetRowNoFilter()
     begin
-        SetFilter(Number, '%1..', StartRowNo);
+        Rec.SetFilter(Number, '%1..', StartRowNo);
         CurrPage.Update(false);
     end;
 

@@ -3,7 +3,7 @@
     "name":  "Base Application",
     "publisher":  "Microsoft",
     "description":  "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://go.microsoft.com/fwlink/?LinkId=2205496",
-    "version":  "22.5.59966.60134",
+    "version":  "23.0.12034.12841",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -14,7 +14,7 @@
                              "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "22.5.0.0"
+                             "version":  "23.0.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -79,6 +79,11 @@
                                    "publisher":  "Microsoft"
                                },
                                {
+                                   "id":  "2b634ad5-63df-4a3c-9e35-e347f646e940",
+                                   "name":  "Tests-Integration",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
                                    "id":  "2a5ff629-58b0-48e8-9414-319055c49e8d",
                                    "name":  "Tests-MOCKSERVICETESTS-Internal",
                                    "publisher":  "Microsoft"
@@ -97,10 +102,68 @@
                                    "id":  "6f0b528b-a4de-4ccd-a948-d1350e228e4a",
                                    "name":  "Tests-SCM",
                                    "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "6555cb10-63ea-4ec0-99aa-8e6a4db67c87",
+                                   "name":  "Core Localization Pack for Czech Tests",
+                                   "publisher":  "Microsoft"
                                }
                            ],
-    "platform":  "22.0.0.0",
+    "platform":  "23.0.0.0",
+    "idRanges":  [
+                     {
+                         "from":  1,
+                         "to":  49999
+                     },
+                     {
+                         "from":  104000,
+                         "to":  104999
+                     },
+                     {
+                         "from":  130400,
+                         "to":  130419
+                     },
+                     {
+                         "from":  99000700,
+                         "to":  99009000
+                     },
+                     {
+                         "from":  5055250,
+                         "to":  5055999
+                     },
+                     {
+                         "from":  2000000,
+                         "to":  2000059
+                     },
+                     {
+                         "from":  32000000,
+                         "to":  32000199
+                     },
+                     {
+                         "from":  5000000,
+                         "to":  5005399
+                     },
+                     {
+                         "from":  11000000,
+                         "to":  11000499
+                     },
+                     {
+                         "from":  15000000,
+                         "to":  15000499
+                     },
+                     {
+                         "from":  7000000,
+                         "to":  7000099
+                     },
+                     {
+                         "from":  3005000,
+                         "to":  3011499
+                     }
+                 ],
     "target":  "OnPrem",
+    "features":  [
+                     "NoImplicitWith"
+                 ],
     "resourceExposurePolicy":  {
                                    "allowDebugging":  true,
                                    "allowDownloadingSource":  true,
